@@ -1,0 +1,10 @@
+import type { Prisma } from '../../../generated/prisma/client';
+import * as z from 'zod';
+import { SalesRepresentativeOrderByWithRelationInputObjectSchema as SalesRepresentativeOrderByWithRelationInputObjectSchema } from './objects/SalesRepresentativeOrderByWithRelationInput.schema';
+import { SalesRepresentativeWhereInputObjectSchema as SalesRepresentativeWhereInputObjectSchema } from './objects/SalesRepresentativeWhereInput.schema';
+import { SalesRepresentativeWhereUniqueInputObjectSchema as SalesRepresentativeWhereUniqueInputObjectSchema } from './objects/SalesRepresentativeWhereUniqueInput.schema';
+import { SalesRepresentativeCountAggregateInputObjectSchema as SalesRepresentativeCountAggregateInputObjectSchema } from './objects/SalesRepresentativeCountAggregateInput.schema';
+
+export const SalesRepresentativeCountSchema: z.ZodType<Prisma.SalesRepresentativeCountArgs> = z.object({ orderBy: z.union([SalesRepresentativeOrderByWithRelationInputObjectSchema, SalesRepresentativeOrderByWithRelationInputObjectSchema.array()]).optional(), where: SalesRepresentativeWhereInputObjectSchema.optional(), cursor: SalesRepresentativeWhereUniqueInputObjectSchema.optional(), take: z.number().optional(), skip: z.number().optional(), select: z.union([ z.literal(true), SalesRepresentativeCountAggregateInputObjectSchema ]).optional() }).strict() as unknown as z.ZodType<Prisma.SalesRepresentativeCountArgs>;
+
+export const SalesRepresentativeCountZodSchema = z.object({ orderBy: z.union([SalesRepresentativeOrderByWithRelationInputObjectSchema, SalesRepresentativeOrderByWithRelationInputObjectSchema.array()]).optional(), where: SalesRepresentativeWhereInputObjectSchema.optional(), cursor: SalesRepresentativeWhereUniqueInputObjectSchema.optional(), take: z.number().optional(), skip: z.number().optional(), select: z.union([ z.literal(true), SalesRepresentativeCountAggregateInputObjectSchema ]).optional() }).strict();

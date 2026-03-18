@@ -1,0 +1,13 @@
+import type { Prisma } from '../../../generated/prisma/client';
+import * as z from 'zod';
+import { CaseAssetFileWhereInputObjectSchema as CaseAssetFileWhereInputObjectSchema } from './objects/CaseAssetFileWhereInput.schema';
+import { CaseAssetFileOrderByWithAggregationInputObjectSchema as CaseAssetFileOrderByWithAggregationInputObjectSchema } from './objects/CaseAssetFileOrderByWithAggregationInput.schema';
+import { CaseAssetFileScalarWhereWithAggregatesInputObjectSchema as CaseAssetFileScalarWhereWithAggregatesInputObjectSchema } from './objects/CaseAssetFileScalarWhereWithAggregatesInput.schema';
+import { CaseAssetFileScalarFieldEnumSchema } from './enums/CaseAssetFileScalarFieldEnum.schema';
+import { CaseAssetFileCountAggregateInputObjectSchema as CaseAssetFileCountAggregateInputObjectSchema } from './objects/CaseAssetFileCountAggregateInput.schema';
+import { CaseAssetFileMinAggregateInputObjectSchema as CaseAssetFileMinAggregateInputObjectSchema } from './objects/CaseAssetFileMinAggregateInput.schema';
+import { CaseAssetFileMaxAggregateInputObjectSchema as CaseAssetFileMaxAggregateInputObjectSchema } from './objects/CaseAssetFileMaxAggregateInput.schema';
+
+export const CaseAssetFileGroupBySchema: z.ZodType<Prisma.CaseAssetFileGroupByArgs> = z.object({ where: CaseAssetFileWhereInputObjectSchema.optional(), orderBy: z.union([CaseAssetFileOrderByWithAggregationInputObjectSchema, CaseAssetFileOrderByWithAggregationInputObjectSchema.array()]).optional(), having: CaseAssetFileScalarWhereWithAggregatesInputObjectSchema.optional(), take: z.number().optional(), skip: z.number().optional(), by: z.array(CaseAssetFileScalarFieldEnumSchema), _count: z.union([ z.literal(true), CaseAssetFileCountAggregateInputObjectSchema ]).optional(), _min: CaseAssetFileMinAggregateInputObjectSchema.optional(), _max: CaseAssetFileMaxAggregateInputObjectSchema.optional() }).strict() as unknown as z.ZodType<Prisma.CaseAssetFileGroupByArgs>;
+
+export const CaseAssetFileGroupByZodSchema = z.object({ where: CaseAssetFileWhereInputObjectSchema.optional(), orderBy: z.union([CaseAssetFileOrderByWithAggregationInputObjectSchema, CaseAssetFileOrderByWithAggregationInputObjectSchema.array()]).optional(), having: CaseAssetFileScalarWhereWithAggregatesInputObjectSchema.optional(), take: z.number().optional(), skip: z.number().optional(), by: z.array(CaseAssetFileScalarFieldEnumSchema), _count: z.union([ z.literal(true), CaseAssetFileCountAggregateInputObjectSchema ]).optional(), _min: CaseAssetFileMinAggregateInputObjectSchema.optional(), _max: CaseAssetFileMaxAggregateInputObjectSchema.optional() }).strict();

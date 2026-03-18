@@ -1,0 +1,10 @@
+import type { Prisma } from '../../../generated/prisma/client';
+import * as z from 'zod';
+import { CasePricingPlanOrderByWithRelationInputObjectSchema as CasePricingPlanOrderByWithRelationInputObjectSchema } from './objects/CasePricingPlanOrderByWithRelationInput.schema';
+import { CasePricingPlanWhereInputObjectSchema as CasePricingPlanWhereInputObjectSchema } from './objects/CasePricingPlanWhereInput.schema';
+import { CasePricingPlanWhereUniqueInputObjectSchema as CasePricingPlanWhereUniqueInputObjectSchema } from './objects/CasePricingPlanWhereUniqueInput.schema';
+import { CasePricingPlanCountAggregateInputObjectSchema as CasePricingPlanCountAggregateInputObjectSchema } from './objects/CasePricingPlanCountAggregateInput.schema';
+
+export const CasePricingPlanCountSchema: z.ZodType<Prisma.CasePricingPlanCountArgs> = z.object({ orderBy: z.union([CasePricingPlanOrderByWithRelationInputObjectSchema, CasePricingPlanOrderByWithRelationInputObjectSchema.array()]).optional(), where: CasePricingPlanWhereInputObjectSchema.optional(), cursor: CasePricingPlanWhereUniqueInputObjectSchema.optional(), take: z.number().optional(), skip: z.number().optional(), select: z.union([ z.literal(true), CasePricingPlanCountAggregateInputObjectSchema ]).optional() }).strict() as unknown as z.ZodType<Prisma.CasePricingPlanCountArgs>;
+
+export const CasePricingPlanCountZodSchema = z.object({ orderBy: z.union([CasePricingPlanOrderByWithRelationInputObjectSchema, CasePricingPlanOrderByWithRelationInputObjectSchema.array()]).optional(), where: CasePricingPlanWhereInputObjectSchema.optional(), cursor: CasePricingPlanWhereUniqueInputObjectSchema.optional(), take: z.number().optional(), skip: z.number().optional(), select: z.union([ z.literal(true), CasePricingPlanCountAggregateInputObjectSchema ]).optional() }).strict();

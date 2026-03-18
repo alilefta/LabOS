@@ -1,0 +1,26 @@
+import * as z from 'zod';
+import { CaseStatusSchema } from '../../enums/CaseStatus.schema';
+// prettier-ignore
+export const CaseResultSchema = z.object({
+    id: z.string(),
+    patientId: z.string(),
+    patient: z.unknown(),
+    labId: z.string(),
+    Lab: z.unknown(),
+    salesRepsId: z.string().nullable(),
+    salesReps: z.unknown().nullable(),
+    caseItems: z.array(z.unknown()),
+    caseCategory: z.array(z.unknown()),
+    status: CaseStatusSchema,
+    grandTotal: z.number(),
+    clinicId: z.string().nullable(),
+    clinic: z.unknown().nullable(),
+    technicianId: z.string().nullable(),
+    Technician: z.unknown().nullable(),
+    caseAssetFiles: z.array(z.unknown()),
+    deadline: z.date(),
+    createdAt: z.date(),
+    updatedAt: z.date()
+}).strict();
+
+export type CaseResultType = z.infer<typeof CaseResultSchema>;

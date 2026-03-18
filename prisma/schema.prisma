@@ -1,0 +1,533 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+generator zod {
+  provider = "prisma-zod-generator"
+}
+
+enum UserRole {
+  SUPER_ADMIN
+  SUPER_MOD
+  LAB_MANAGER
+  LAB_ADMIN
+  LAB_STAFF
+}
+
+
+enum CaseStatus {
+  NEW
+  ASSIGNED
+  PROCESSING
+  COMPLETED
+  FAILED
+  DELIEVERD
+}
+
+enum AssetFileType {
+  IMAGE
+  VIDEO
+  SCANNERFILE
+}
+
+enum PricingStrategy {
+  BULK
+  PERTOOTH
+  CUSTOM
+}
+
+enum JawType {
+  UPPER
+  LOWER
+  OTHER // for maxillofacial 
+}
+
+enum ToothPosition {
+  // Upper Right Quadrant (1)
+  UpperRightThirdMolar 
+  UpperRightSecondMolar 
+  UpperRightFirstMolar 
+  UpperRightSecondPremolar 
+  UpperRightFirstPremolar 
+  UpperRightCanine 
+  UpperRightLateralIncisor 
+  UpperRightCentralIncisor 
+  // Upper Left Quadrant (2)
+  UpperLeftCentralIncisor 
+  UpperLeftLateralIncisor 
+  UpperLeftCanine 
+  UpperLeftFirstPremolar 
+  UpperLeftSecondPremolar 
+  UpperLeftFirstMolar 
+  UpperLeftSecondMolar 
+  UpperLeftThirdMolar 
+  // Lower Left Quadrant (3)
+  LowerLeftThirdMolar 
+  LowerLeftSecondMolar 
+  LowerLeftFirstMolar 
+  LowerLeftSecondPremolar 
+  LowerLeftFirstPremolar 
+  LowerLeftCanine 
+  LowerLeftLateralIncisor 
+  LowerLeftCentralIncisor 
+  // Lower Right Quadrant (4)
+  LowerRightCentralIncisor 
+  LowerRightLateralIncisor 
+  LowerRightCanine 
+  LowerRightFirstPremolar 
+  LowerRightSecondPremolar 
+  LowerRightFirstMolar 
+  LowerRightSecondMolar 
+  LowerRightThirdMolar 
+}
+
+
+model Lab {
+  id                    String      @id @default(uuid()) 
+
+
+  labSubscriptionPlan   LabSubscriptionPlan?
+  users                 LabUser[]
+
+  clinics               Clinic[]
+  cases                 Case[]
+  technicians           Technician[]
+  salesReps             SalesRepresentative[]
+  caseCategories        CaseCategory[]
+  workTypes             WorkType[]
+  products              Product[]
+  caseWorkItems         CaseWorkItem[]
+  selectedTeeth         SelectedTooth[]
+  casePricingPlans      CasePricingPlan[]
+  caseAssetFiles        CaseAssetFile[]
+
+  patient               Patient[]
+
+  createdAt             DateTime    @default(now())
+  updatedAt             DateTime    @updatedAt
+  
+}
+
+
+model Clinic {
+  id          String      @id @default(uuid()) 
+
+  labId       String
+  Lab         Lab         @relation(fields: [labId], references: [id], onDelete: Cascade)
+
+  name        String      
+  description String? 
+  city        String
+  zipcode     String
+  address1    String
+  address2    String?
+
+  email       String
+  phoneNumber String
+
+  cases       Case[]
+
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  @@index([labId])
+}
+
+
+
+
+model Case {
+  id              String                @id @default(uuid()) 
+  
+  patientId       String                
+  patient         Patient               @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  labId           String
+  Lab             Lab                   @relation(fields: [labId], references: [id], onDelete: Cascade)
+
+  salesRepsId     String?        
+  salesReps       SalesRepresentative?  @relation(fields: [salesRepsId], references: [id], onDelete:SetNull )
+
+  caseItems       CaseWorkItem[]
+  caseCategory    CaseCategory[]
+
+  status          CaseStatus            @default(NEW)      
+
+  grandTotal      Decimal
+
+  clinicId        String?
+  clinic          Clinic?               @relation(fields: [clinicId], references: [id], onDelete:SetNull )
+
+
+  technicianId    String?
+  Technician      Technician?           @relation(fields: [technicianId], references: [id], onDelete:SetNull )
+
+
+  caseAssetFiles CaseAssetFile[]        
+
+  deadline      DateTime      
+
+
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@index([labId])
+  @@index([technicianId])
+  @@index([salesRepsId])
+  @@index([clinicId])
+
+}
+
+model Patient {
+  id            String                @id @default(uuid()) 
+
+  name          String      
+  description   String? 
+  city          String
+  zipcode       String
+  address1      String
+  address2      String?
+
+  email         String
+  phoneNumber   String
+
+  case          Case[]                
+
+
+  labId         String
+  Lab           Lab                   @relation(fields: [labId], references: [id], onDelete: Cascade)
+
+  createdAt     DateTime              @default(now())
+  updatedAt     DateTime              @updatedAt
+
+  @@index([labId])
+}
+
+
+model CaseWorkItem {
+  id              String         @id @default(uuid()) 
+
+  productId       String?      
+  product         Product?       @relation(fields: [productId], references: [id], onDelete: SetNull)  
+
+
+  labId       String            
+  Lab         Lab               @relation(fields: [labId], references: [id], onDelete: Cascade)
+
+
+  caseId          String        
+  case            Case           @relation(fields: [caseId], references: [id], onDelete: Cascade)
+
+
+  casePricingPlanId   String         
+  casePricingPlan     CasePricingPlan    @relation(fields: [casePricingPlanId], references: [id], onDelete: Cascade)
+  
+
+  totalPrice      Decimal
+  pricingStrategy       PricingStrategy   @default(BULK)
+  firstToothPrice       Decimal?
+  bulkPrice             Decimal?
+  additionalToothPrice  Decimal?
+  bulkPriceThreshold    Decimal?
+
+  jawType         JawType     @default(UPPER)
+
+  selectedTeeth   SelectedTooth[]     
+
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  @@index([labId])
+  @@index([caseId])
+  @@index([productId])
+  @@index([casePricingPlanId])
+
+}
+
+
+model CaseAssetFile  {
+  id            String        @id @default(uuid()) 
+
+  caseId        String        
+  case          Case          @relation(fields: [caseId], references: [id], onDelete: Cascade)
+
+  title         String
+  description   String
+  documentUrl   String
+  assetFileType AssetFileType @default(IMAGE)           
+
+  labId       String
+  Lab         Lab             @relation(fields: [labId], references: [id], onDelete: Cascade)
+
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@index([labId])
+  @@index([caseId])
+}
+
+
+
+
+model CaseCategory  {
+  id            String        @id @default(uuid()) 
+  name          String        
+  description   String    
+  imageUrl      String
+
+  isActive      Boolean       @default(true)
+
+  workTypes     WorkType[]      
+
+  cases         Case[]
+
+  labId       String
+  Lab         Lab             @relation(fields: [labId], references: [id], onDelete: Cascade)
+
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@index([labId])
+
+}
+
+model WorkType  {
+  id                  String        @id @default(uuid()) 
+  name                String        
+  description         String    
+  imageUrl            String
+
+  product             Product[]   
+  
+
+  labId       String
+  Lab         Lab                   @relation(fields: [labId], references: [id], onDelete: Cascade)
+
+  caseCategoryId      String
+  caseCategory        CaseCategory  @relation(fields: [caseCategoryId], references: [id], onDelete: Cascade)
+
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+
+
+  @@index([labId])
+  @@index([caseCategoryId])
+
+}
+
+model Product  {
+  id            String        @id @default(uuid()) 
+  name          String        
+  description   String    
+  imageUrl      String
+
+  caseWorkItems CaseWorkItem[]
+
+  labId       String
+  Lab         Lab         @relation(fields: [labId], references: [id], onDelete: Cascade)
+
+  workTypeId    String
+  workType      WorkType      @relation(fields: [workTypeId], references: [id], onDelete: Cascade)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@index([labId])
+  @@index([workTypeId])
+}
+
+
+model CasePricingPlan {
+  id                    String            @id @default(uuid()) 
+
+  labId                 String
+  Lab                   Lab               @relation(fields: [labId], references: [id], onDelete: Cascade)
+
+  pricingStrategy       PricingStrategy   @default(BULK)
+  firstToothPrice       Decimal?
+  bulkPrice             Decimal?
+  additionalToothPrice  Decimal?
+  bulkPriceThreshold    Decimal?
+
+  // pricingHistoryId      String
+  // pricingHistory        PricingHistory    @relation(fields: [pricingHistoryId], references: [id], onDelete: Cascade)
+
+  caseWorkItem          CaseWorkItem[]
+  
+  createdAt             DateTime          @default(now())
+  updatedAt             DateTime          @updatedAt
+  
+  @@index([labId])
+}
+
+
+// model PricingHistory {
+//   id                    String            @id @default(uuid()) 
+
+
+//   casePricingPlans          casePricingPlan[]
+
+//   labId                 String
+//   Lab                   Lab               @relation(fields: [labId], references: [id], onDelete: Cascade)
+  
+//   createdAt             DateTime          @default(now())
+//   updatedAt             DateTime          @updatedAt
+// }
+
+model Technician  {
+  id            String        @id @default(uuid()) 
+  firstName     String        
+  lastName      String    
+
+  city          String
+  zipcode       String
+  address1      String
+  address2      String?
+
+
+  labId         String
+  Lab           Lab           @relation(fields: [labId], references: [id], onDelete: Cascade)
+
+
+  email         String
+  phoneNumber   String
+
+  avatarUrl     String
+
+  cases         Case[]
+
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@index([labId])
+}
+
+
+model SalesRepresentative{
+  id            String        @id @default(uuid()) 
+  firstName     String        
+  lastName      String    
+
+  city          String
+  zipcode       String
+  address1      String
+  address2      String?
+
+
+  labId         String
+  Lab           Lab             @relation(fields: [labId], references: [id], onDelete: Cascade)
+
+
+  email         String
+  phoneNumber   String
+
+  avatarUrl     String
+
+  cases         Case[]
+
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@index([labId])
+}
+
+
+model SelectedTooth  {
+    id              String        @id @default(uuid()) 
+    toothPosition   ToothPosition 
+
+    caseWorkItemId  String
+    caseWorkItem    CaseWorkItem  @relation(fields: [caseWorkItemId], references: [id], onDelete: Cascade)
+
+
+    labId           String
+    Lab             Lab           @relation(fields: [labId], references: [id], onDelete: Cascade)
+
+    createdAt       DateTime      @default(now())
+    updatedAt       DateTime      @updatedAt
+
+    @@index([labId])
+    @@index([caseWorkItemId])
+
+}
+
+
+model LabSubscriptionPlan {
+  id                        String        @id @default(uuid()) 
+
+  labId                     String        @unique
+  Lab                       Lab           @relation(fields: [labId], references: [id], onDelete: Cascade)
+
+  // Idk what the pricing model should be 
+
+  //discountCode          
+
+
+  subscriptionNextRenewal   DateTime?
+  isCancelled               Boolean       @default(false)
+  cancellationDate          DateTime?      
+
+  createdAt                 DateTime      @default(now())
+  updatedAt                 DateTime      @updatedAt
+
+  //@@index([labId])  // this can be removed because @unqiue on labId automatically creates an index
+
+}
+
+model LabUser {
+  id              String        @id @default(uuid()) 
+  name            String      
+  city            String
+  zipcode         String
+  address1        String
+  address2        String?
+  avatarUrl       String
+
+  email           String
+  phoneNumber     String        
+
+  role            UserRole      @default(LAB_ADMIN)
+
+  labId           String
+  Lab             Lab           @relation(fields: [labId], references: [id], onDelete: Cascade)
+
+  isActive        Boolean       @default(true)
+
+  lastTimeActive  DateTime?      
+
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@index([labId])
+}
+
+model SuperUser {
+  id              String        @id @default(uuid()) 
+  name            String      
+  city            String
+  zipcode         String
+  address1        String
+  address2        String?
+  avatarUrl       String
+
+  email           String
+  phoneNumber     String        
+
+  role            UserRole      @default(SUPER_ADMIN)
+
+  isActive        Boolean       @default(true)
+
+  lastTimeActive  DateTime?      
+
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+}

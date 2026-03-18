@@ -1,0 +1,15 @@
+import type { Prisma } from '../../../generated/prisma/client';
+import * as z from 'zod';
+import { CaseWorkItemWhereInputObjectSchema as CaseWorkItemWhereInputObjectSchema } from './objects/CaseWorkItemWhereInput.schema';
+import { CaseWorkItemOrderByWithAggregationInputObjectSchema as CaseWorkItemOrderByWithAggregationInputObjectSchema } from './objects/CaseWorkItemOrderByWithAggregationInput.schema';
+import { CaseWorkItemScalarWhereWithAggregatesInputObjectSchema as CaseWorkItemScalarWhereWithAggregatesInputObjectSchema } from './objects/CaseWorkItemScalarWhereWithAggregatesInput.schema';
+import { CaseWorkItemScalarFieldEnumSchema } from './enums/CaseWorkItemScalarFieldEnum.schema';
+import { CaseWorkItemCountAggregateInputObjectSchema as CaseWorkItemCountAggregateInputObjectSchema } from './objects/CaseWorkItemCountAggregateInput.schema';
+import { CaseWorkItemMinAggregateInputObjectSchema as CaseWorkItemMinAggregateInputObjectSchema } from './objects/CaseWorkItemMinAggregateInput.schema';
+import { CaseWorkItemMaxAggregateInputObjectSchema as CaseWorkItemMaxAggregateInputObjectSchema } from './objects/CaseWorkItemMaxAggregateInput.schema';
+import { CaseWorkItemAvgAggregateInputObjectSchema as CaseWorkItemAvgAggregateInputObjectSchema } from './objects/CaseWorkItemAvgAggregateInput.schema';
+import { CaseWorkItemSumAggregateInputObjectSchema as CaseWorkItemSumAggregateInputObjectSchema } from './objects/CaseWorkItemSumAggregateInput.schema';
+
+export const CaseWorkItemGroupBySchema: z.ZodType<Prisma.CaseWorkItemGroupByArgs> = z.object({ where: CaseWorkItemWhereInputObjectSchema.optional(), orderBy: z.union([CaseWorkItemOrderByWithAggregationInputObjectSchema, CaseWorkItemOrderByWithAggregationInputObjectSchema.array()]).optional(), having: CaseWorkItemScalarWhereWithAggregatesInputObjectSchema.optional(), take: z.number().optional(), skip: z.number().optional(), by: z.array(CaseWorkItemScalarFieldEnumSchema), _count: z.union([ z.literal(true), CaseWorkItemCountAggregateInputObjectSchema ]).optional(), _min: CaseWorkItemMinAggregateInputObjectSchema.optional(), _max: CaseWorkItemMaxAggregateInputObjectSchema.optional(), _avg: CaseWorkItemAvgAggregateInputObjectSchema.optional(), _sum: CaseWorkItemSumAggregateInputObjectSchema.optional() }).strict() as unknown as z.ZodType<Prisma.CaseWorkItemGroupByArgs>;
+
+export const CaseWorkItemGroupByZodSchema = z.object({ where: CaseWorkItemWhereInputObjectSchema.optional(), orderBy: z.union([CaseWorkItemOrderByWithAggregationInputObjectSchema, CaseWorkItemOrderByWithAggregationInputObjectSchema.array()]).optional(), having: CaseWorkItemScalarWhereWithAggregatesInputObjectSchema.optional(), take: z.number().optional(), skip: z.number().optional(), by: z.array(CaseWorkItemScalarFieldEnumSchema), _count: z.union([ z.literal(true), CaseWorkItemCountAggregateInputObjectSchema ]).optional(), _min: CaseWorkItemMinAggregateInputObjectSchema.optional(), _max: CaseWorkItemMaxAggregateInputObjectSchema.optional(), _avg: CaseWorkItemAvgAggregateInputObjectSchema.optional(), _sum: CaseWorkItemSumAggregateInputObjectSchema.optional() }).strict();

@@ -1,0 +1,47 @@
+import * as z from 'zod';
+import { Prisma } from '../../../../generated/prisma/client';
+import { PricingStrategySchema } from '../enums/PricingStrategy.schema';
+import { LabCreateNestedOneWithoutCasePricingPlansInputObjectSchema as LabCreateNestedOneWithoutCasePricingPlansInputObjectSchema } from './LabCreateNestedOneWithoutCasePricingPlansInput.schema'
+
+import { DecimalJSLikeSchema, isValidDecimalInput } from '../../helpers/decimal-helpers';
+const makeSchema = () => z.object({
+  id: z.string().optional(),
+  pricingStrategy: PricingStrategySchema.optional(),
+  firstToothPrice: z.union([
+  z.number(),
+  z.string(),
+  z.instanceof(Prisma.Decimal),
+  DecimalJSLikeSchema,
+]).refine((v) => isValidDecimalInput(v), {
+  message: "Field 'firstToothPrice' must be a Decimal",
+}).optional().nullable(),
+  bulkPrice: z.union([
+  z.number(),
+  z.string(),
+  z.instanceof(Prisma.Decimal),
+  DecimalJSLikeSchema,
+]).refine((v) => isValidDecimalInput(v), {
+  message: "Field 'bulkPrice' must be a Decimal",
+}).optional().nullable(),
+  additionalToothPrice: z.union([
+  z.number(),
+  z.string(),
+  z.instanceof(Prisma.Decimal),
+  DecimalJSLikeSchema,
+]).refine((v) => isValidDecimalInput(v), {
+  message: "Field 'additionalToothPrice' must be a Decimal",
+}).optional().nullable(),
+  bulkPriceThreshold: z.union([
+  z.number(),
+  z.string(),
+  z.instanceof(Prisma.Decimal),
+  DecimalJSLikeSchema,
+]).refine((v) => isValidDecimalInput(v), {
+  message: "Field 'bulkPriceThreshold' must be a Decimal",
+}).optional().nullable(),
+  createdAt: z.coerce.date().optional(),
+  updatedAt: z.coerce.date().optional(),
+  Lab: z.lazy(() => LabCreateNestedOneWithoutCasePricingPlansInputObjectSchema)
+}).strict();
+export const CasePricingPlanCreateWithoutCaseWorkItemInputObjectSchema: z.ZodType<Prisma.CasePricingPlanCreateWithoutCaseWorkItemInput> = makeSchema() as unknown as z.ZodType<Prisma.CasePricingPlanCreateWithoutCaseWorkItemInput>;
+export const CasePricingPlanCreateWithoutCaseWorkItemInputObjectZodSchema = makeSchema();

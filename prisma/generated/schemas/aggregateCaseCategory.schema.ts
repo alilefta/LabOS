@@ -1,0 +1,12 @@
+import type { Prisma } from '../../../generated/prisma/client';
+import * as z from 'zod';
+import { CaseCategoryOrderByWithRelationInputObjectSchema as CaseCategoryOrderByWithRelationInputObjectSchema } from './objects/CaseCategoryOrderByWithRelationInput.schema';
+import { CaseCategoryWhereInputObjectSchema as CaseCategoryWhereInputObjectSchema } from './objects/CaseCategoryWhereInput.schema';
+import { CaseCategoryWhereUniqueInputObjectSchema as CaseCategoryWhereUniqueInputObjectSchema } from './objects/CaseCategoryWhereUniqueInput.schema';
+import { CaseCategoryCountAggregateInputObjectSchema as CaseCategoryCountAggregateInputObjectSchema } from './objects/CaseCategoryCountAggregateInput.schema';
+import { CaseCategoryMinAggregateInputObjectSchema as CaseCategoryMinAggregateInputObjectSchema } from './objects/CaseCategoryMinAggregateInput.schema';
+import { CaseCategoryMaxAggregateInputObjectSchema as CaseCategoryMaxAggregateInputObjectSchema } from './objects/CaseCategoryMaxAggregateInput.schema';
+
+export const CaseCategoryAggregateSchema: z.ZodType<Prisma.CaseCategoryAggregateArgs> = z.object({ orderBy: z.union([CaseCategoryOrderByWithRelationInputObjectSchema, CaseCategoryOrderByWithRelationInputObjectSchema.array()]).optional(), where: CaseCategoryWhereInputObjectSchema.optional(), cursor: CaseCategoryWhereUniqueInputObjectSchema.optional(), take: z.number().optional(), skip: z.number().optional(), _count: z.union([ z.literal(true), CaseCategoryCountAggregateInputObjectSchema ]).optional(), _min: CaseCategoryMinAggregateInputObjectSchema.optional(), _max: CaseCategoryMaxAggregateInputObjectSchema.optional() }).strict() as unknown as z.ZodType<Prisma.CaseCategoryAggregateArgs>;
+
+export const CaseCategoryAggregateZodSchema = z.object({ orderBy: z.union([CaseCategoryOrderByWithRelationInputObjectSchema, CaseCategoryOrderByWithRelationInputObjectSchema.array()]).optional(), where: CaseCategoryWhereInputObjectSchema.optional(), cursor: CaseCategoryWhereUniqueInputObjectSchema.optional(), take: z.number().optional(), skip: z.number().optional(), _count: z.union([ z.literal(true), CaseCategoryCountAggregateInputObjectSchema ]).optional(), _min: CaseCategoryMinAggregateInputObjectSchema.optional(), _max: CaseCategoryMaxAggregateInputObjectSchema.optional() }).strict();

@@ -1,0 +1,13 @@
+import type { Prisma } from '../../../generated/prisma/client';
+import * as z from 'zod';
+import { SelectedToothWhereInputObjectSchema as SelectedToothWhereInputObjectSchema } from './objects/SelectedToothWhereInput.schema';
+import { SelectedToothOrderByWithAggregationInputObjectSchema as SelectedToothOrderByWithAggregationInputObjectSchema } from './objects/SelectedToothOrderByWithAggregationInput.schema';
+import { SelectedToothScalarWhereWithAggregatesInputObjectSchema as SelectedToothScalarWhereWithAggregatesInputObjectSchema } from './objects/SelectedToothScalarWhereWithAggregatesInput.schema';
+import { SelectedToothScalarFieldEnumSchema } from './enums/SelectedToothScalarFieldEnum.schema';
+import { SelectedToothCountAggregateInputObjectSchema as SelectedToothCountAggregateInputObjectSchema } from './objects/SelectedToothCountAggregateInput.schema';
+import { SelectedToothMinAggregateInputObjectSchema as SelectedToothMinAggregateInputObjectSchema } from './objects/SelectedToothMinAggregateInput.schema';
+import { SelectedToothMaxAggregateInputObjectSchema as SelectedToothMaxAggregateInputObjectSchema } from './objects/SelectedToothMaxAggregateInput.schema';
+
+export const SelectedToothGroupBySchema: z.ZodType<Prisma.SelectedToothGroupByArgs> = z.object({ where: SelectedToothWhereInputObjectSchema.optional(), orderBy: z.union([SelectedToothOrderByWithAggregationInputObjectSchema, SelectedToothOrderByWithAggregationInputObjectSchema.array()]).optional(), having: SelectedToothScalarWhereWithAggregatesInputObjectSchema.optional(), take: z.number().optional(), skip: z.number().optional(), by: z.array(SelectedToothScalarFieldEnumSchema), _count: z.union([ z.literal(true), SelectedToothCountAggregateInputObjectSchema ]).optional(), _min: SelectedToothMinAggregateInputObjectSchema.optional(), _max: SelectedToothMaxAggregateInputObjectSchema.optional() }).strict() as unknown as z.ZodType<Prisma.SelectedToothGroupByArgs>;
+
+export const SelectedToothGroupByZodSchema = z.object({ where: SelectedToothWhereInputObjectSchema.optional(), orderBy: z.union([SelectedToothOrderByWithAggregationInputObjectSchema, SelectedToothOrderByWithAggregationInputObjectSchema.array()]).optional(), having: SelectedToothScalarWhereWithAggregatesInputObjectSchema.optional(), take: z.number().optional(), skip: z.number().optional(), by: z.array(SelectedToothScalarFieldEnumSchema), _count: z.union([ z.literal(true), SelectedToothCountAggregateInputObjectSchema ]).optional(), _min: SelectedToothMinAggregateInputObjectSchema.optional(), _max: SelectedToothMaxAggregateInputObjectSchema.optional() }).strict();

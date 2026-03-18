@@ -1,0 +1,45 @@
+import * as z from 'zod';
+export const SuperUserAggregateResultSchema = z.object({  _count: z.object({
+    id: z.number(),
+    name: z.number(),
+    city: z.number(),
+    zipcode: z.number(),
+    address1: z.number(),
+    address2: z.number(),
+    avatarUrl: z.number(),
+    email: z.number(),
+    phoneNumber: z.number(),
+    role: z.number(),
+    isActive: z.number(),
+    lastTimeActive: z.number(),
+    createdAt: z.number(),
+    updatedAt: z.number()
+  }).optional(),
+  _min: z.object({
+    id: z.string().nullable(),
+    name: z.string().nullable(),
+    city: z.string().nullable(),
+    zipcode: z.string().nullable(),
+    address1: z.string().nullable(),
+    address2: z.string().nullable(),
+    avatarUrl: z.string().nullable(),
+    email: z.string().nullable(),
+    phoneNumber: z.string().nullable(),
+    lastTimeActive: z.date().nullable(),
+    createdAt: z.date().nullable(),
+    updatedAt: z.date().nullable()
+  }).nullable().optional(),
+  _max: z.object({
+    id: z.string().nullable(),
+    name: z.string().nullable(),
+    city: z.string().nullable(),
+    zipcode: z.string().nullable(),
+    address1: z.string().nullable(),
+    address2: z.string().nullable(),
+    avatarUrl: z.string().nullable(),
+    email: z.string().nullable(),
+    phoneNumber: z.string().nullable(),
+    lastTimeActive: z.date().nullable(),
+    createdAt: z.date().nullable(),
+    updatedAt: z.date().nullable()
+  }).nullable().optional()});

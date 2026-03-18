@@ -1,0 +1,12 @@
+import type { Prisma } from '../../../generated/prisma/client';
+import * as z from 'zod';
+import { SalesRepresentativeOrderByWithRelationInputObjectSchema as SalesRepresentativeOrderByWithRelationInputObjectSchema } from './objects/SalesRepresentativeOrderByWithRelationInput.schema';
+import { SalesRepresentativeWhereInputObjectSchema as SalesRepresentativeWhereInputObjectSchema } from './objects/SalesRepresentativeWhereInput.schema';
+import { SalesRepresentativeWhereUniqueInputObjectSchema as SalesRepresentativeWhereUniqueInputObjectSchema } from './objects/SalesRepresentativeWhereUniqueInput.schema';
+import { SalesRepresentativeCountAggregateInputObjectSchema as SalesRepresentativeCountAggregateInputObjectSchema } from './objects/SalesRepresentativeCountAggregateInput.schema';
+import { SalesRepresentativeMinAggregateInputObjectSchema as SalesRepresentativeMinAggregateInputObjectSchema } from './objects/SalesRepresentativeMinAggregateInput.schema';
+import { SalesRepresentativeMaxAggregateInputObjectSchema as SalesRepresentativeMaxAggregateInputObjectSchema } from './objects/SalesRepresentativeMaxAggregateInput.schema';
+
+export const SalesRepresentativeAggregateSchema: z.ZodType<Prisma.SalesRepresentativeAggregateArgs> = z.object({ orderBy: z.union([SalesRepresentativeOrderByWithRelationInputObjectSchema, SalesRepresentativeOrderByWithRelationInputObjectSchema.array()]).optional(), where: SalesRepresentativeWhereInputObjectSchema.optional(), cursor: SalesRepresentativeWhereUniqueInputObjectSchema.optional(), take: z.number().optional(), skip: z.number().optional(), _count: z.union([ z.literal(true), SalesRepresentativeCountAggregateInputObjectSchema ]).optional(), _min: SalesRepresentativeMinAggregateInputObjectSchema.optional(), _max: SalesRepresentativeMaxAggregateInputObjectSchema.optional() }).strict() as unknown as z.ZodType<Prisma.SalesRepresentativeAggregateArgs>;
+
+export const SalesRepresentativeAggregateZodSchema = z.object({ orderBy: z.union([SalesRepresentativeOrderByWithRelationInputObjectSchema, SalesRepresentativeOrderByWithRelationInputObjectSchema.array()]).optional(), where: SalesRepresentativeWhereInputObjectSchema.optional(), cursor: SalesRepresentativeWhereUniqueInputObjectSchema.optional(), take: z.number().optional(), skip: z.number().optional(), _count: z.union([ z.literal(true), SalesRepresentativeCountAggregateInputObjectSchema ]).optional(), _min: SalesRepresentativeMinAggregateInputObjectSchema.optional(), _max: SalesRepresentativeMaxAggregateInputObjectSchema.optional() }).strict();

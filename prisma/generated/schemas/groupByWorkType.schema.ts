@@ -1,0 +1,13 @@
+import type { Prisma } from '../../../generated/prisma/client';
+import * as z from 'zod';
+import { WorkTypeWhereInputObjectSchema as WorkTypeWhereInputObjectSchema } from './objects/WorkTypeWhereInput.schema';
+import { WorkTypeOrderByWithAggregationInputObjectSchema as WorkTypeOrderByWithAggregationInputObjectSchema } from './objects/WorkTypeOrderByWithAggregationInput.schema';
+import { WorkTypeScalarWhereWithAggregatesInputObjectSchema as WorkTypeScalarWhereWithAggregatesInputObjectSchema } from './objects/WorkTypeScalarWhereWithAggregatesInput.schema';
+import { WorkTypeScalarFieldEnumSchema } from './enums/WorkTypeScalarFieldEnum.schema';
+import { WorkTypeCountAggregateInputObjectSchema as WorkTypeCountAggregateInputObjectSchema } from './objects/WorkTypeCountAggregateInput.schema';
+import { WorkTypeMinAggregateInputObjectSchema as WorkTypeMinAggregateInputObjectSchema } from './objects/WorkTypeMinAggregateInput.schema';
+import { WorkTypeMaxAggregateInputObjectSchema as WorkTypeMaxAggregateInputObjectSchema } from './objects/WorkTypeMaxAggregateInput.schema';
+
+export const WorkTypeGroupBySchema: z.ZodType<Prisma.WorkTypeGroupByArgs> = z.object({ where: WorkTypeWhereInputObjectSchema.optional(), orderBy: z.union([WorkTypeOrderByWithAggregationInputObjectSchema, WorkTypeOrderByWithAggregationInputObjectSchema.array()]).optional(), having: WorkTypeScalarWhereWithAggregatesInputObjectSchema.optional(), take: z.number().optional(), skip: z.number().optional(), by: z.array(WorkTypeScalarFieldEnumSchema), _count: z.union([ z.literal(true), WorkTypeCountAggregateInputObjectSchema ]).optional(), _min: WorkTypeMinAggregateInputObjectSchema.optional(), _max: WorkTypeMaxAggregateInputObjectSchema.optional() }).strict() as unknown as z.ZodType<Prisma.WorkTypeGroupByArgs>;
+
+export const WorkTypeGroupByZodSchema = z.object({ where: WorkTypeWhereInputObjectSchema.optional(), orderBy: z.union([WorkTypeOrderByWithAggregationInputObjectSchema, WorkTypeOrderByWithAggregationInputObjectSchema.array()]).optional(), having: WorkTypeScalarWhereWithAggregatesInputObjectSchema.optional(), take: z.number().optional(), skip: z.number().optional(), by: z.array(WorkTypeScalarFieldEnumSchema), _count: z.union([ z.literal(true), WorkTypeCountAggregateInputObjectSchema ]).optional(), _min: WorkTypeMinAggregateInputObjectSchema.optional(), _max: WorkTypeMaxAggregateInputObjectSchema.optional() }).strict();

@@ -1,0 +1,12 @@
+import type { Prisma } from '../../../generated/prisma/client';
+import * as z from 'zod';
+import { CaseAssetFileOrderByWithRelationInputObjectSchema as CaseAssetFileOrderByWithRelationInputObjectSchema } from './objects/CaseAssetFileOrderByWithRelationInput.schema';
+import { CaseAssetFileWhereInputObjectSchema as CaseAssetFileWhereInputObjectSchema } from './objects/CaseAssetFileWhereInput.schema';
+import { CaseAssetFileWhereUniqueInputObjectSchema as CaseAssetFileWhereUniqueInputObjectSchema } from './objects/CaseAssetFileWhereUniqueInput.schema';
+import { CaseAssetFileCountAggregateInputObjectSchema as CaseAssetFileCountAggregateInputObjectSchema } from './objects/CaseAssetFileCountAggregateInput.schema';
+import { CaseAssetFileMinAggregateInputObjectSchema as CaseAssetFileMinAggregateInputObjectSchema } from './objects/CaseAssetFileMinAggregateInput.schema';
+import { CaseAssetFileMaxAggregateInputObjectSchema as CaseAssetFileMaxAggregateInputObjectSchema } from './objects/CaseAssetFileMaxAggregateInput.schema';
+
+export const CaseAssetFileAggregateSchema: z.ZodType<Prisma.CaseAssetFileAggregateArgs> = z.object({ orderBy: z.union([CaseAssetFileOrderByWithRelationInputObjectSchema, CaseAssetFileOrderByWithRelationInputObjectSchema.array()]).optional(), where: CaseAssetFileWhereInputObjectSchema.optional(), cursor: CaseAssetFileWhereUniqueInputObjectSchema.optional(), take: z.number().optional(), skip: z.number().optional(), _count: z.union([ z.literal(true), CaseAssetFileCountAggregateInputObjectSchema ]).optional(), _min: CaseAssetFileMinAggregateInputObjectSchema.optional(), _max: CaseAssetFileMaxAggregateInputObjectSchema.optional() }).strict() as unknown as z.ZodType<Prisma.CaseAssetFileAggregateArgs>;
+
+export const CaseAssetFileAggregateZodSchema = z.object({ orderBy: z.union([CaseAssetFileOrderByWithRelationInputObjectSchema, CaseAssetFileOrderByWithRelationInputObjectSchema.array()]).optional(), where: CaseAssetFileWhereInputObjectSchema.optional(), cursor: CaseAssetFileWhereUniqueInputObjectSchema.optional(), take: z.number().optional(), skip: z.number().optional(), _count: z.union([ z.literal(true), CaseAssetFileCountAggregateInputObjectSchema ]).optional(), _min: CaseAssetFileMinAggregateInputObjectSchema.optional(), _max: CaseAssetFileMaxAggregateInputObjectSchema.optional() }).strict();

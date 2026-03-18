@@ -1,0 +1,13 @@
+import type { Prisma } from '../../../generated/prisma/client';
+import * as z from 'zod';
+import { SuperUserWhereInputObjectSchema as SuperUserWhereInputObjectSchema } from './objects/SuperUserWhereInput.schema';
+import { SuperUserOrderByWithAggregationInputObjectSchema as SuperUserOrderByWithAggregationInputObjectSchema } from './objects/SuperUserOrderByWithAggregationInput.schema';
+import { SuperUserScalarWhereWithAggregatesInputObjectSchema as SuperUserScalarWhereWithAggregatesInputObjectSchema } from './objects/SuperUserScalarWhereWithAggregatesInput.schema';
+import { SuperUserScalarFieldEnumSchema } from './enums/SuperUserScalarFieldEnum.schema';
+import { SuperUserCountAggregateInputObjectSchema as SuperUserCountAggregateInputObjectSchema } from './objects/SuperUserCountAggregateInput.schema';
+import { SuperUserMinAggregateInputObjectSchema as SuperUserMinAggregateInputObjectSchema } from './objects/SuperUserMinAggregateInput.schema';
+import { SuperUserMaxAggregateInputObjectSchema as SuperUserMaxAggregateInputObjectSchema } from './objects/SuperUserMaxAggregateInput.schema';
+
+export const SuperUserGroupBySchema: z.ZodType<Prisma.SuperUserGroupByArgs> = z.object({ where: SuperUserWhereInputObjectSchema.optional(), orderBy: z.union([SuperUserOrderByWithAggregationInputObjectSchema, SuperUserOrderByWithAggregationInputObjectSchema.array()]).optional(), having: SuperUserScalarWhereWithAggregatesInputObjectSchema.optional(), take: z.number().optional(), skip: z.number().optional(), by: z.array(SuperUserScalarFieldEnumSchema), _count: z.union([ z.literal(true), SuperUserCountAggregateInputObjectSchema ]).optional(), _min: SuperUserMinAggregateInputObjectSchema.optional(), _max: SuperUserMaxAggregateInputObjectSchema.optional() }).strict() as unknown as z.ZodType<Prisma.SuperUserGroupByArgs>;
+
+export const SuperUserGroupByZodSchema = z.object({ where: SuperUserWhereInputObjectSchema.optional(), orderBy: z.union([SuperUserOrderByWithAggregationInputObjectSchema, SuperUserOrderByWithAggregationInputObjectSchema.array()]).optional(), having: SuperUserScalarWhereWithAggregatesInputObjectSchema.optional(), take: z.number().optional(), skip: z.number().optional(), by: z.array(SuperUserScalarFieldEnumSchema), _count: z.union([ z.literal(true), SuperUserCountAggregateInputObjectSchema ]).optional(), _min: SuperUserMinAggregateInputObjectSchema.optional(), _max: SuperUserMaxAggregateInputObjectSchema.optional() }).strict();

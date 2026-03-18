@@ -1,0 +1,13 @@
+import type { Prisma } from '../../../generated/prisma/client';
+import * as z from 'zod';
+import { CaseCategoryWhereInputObjectSchema as CaseCategoryWhereInputObjectSchema } from './objects/CaseCategoryWhereInput.schema';
+import { CaseCategoryOrderByWithAggregationInputObjectSchema as CaseCategoryOrderByWithAggregationInputObjectSchema } from './objects/CaseCategoryOrderByWithAggregationInput.schema';
+import { CaseCategoryScalarWhereWithAggregatesInputObjectSchema as CaseCategoryScalarWhereWithAggregatesInputObjectSchema } from './objects/CaseCategoryScalarWhereWithAggregatesInput.schema';
+import { CaseCategoryScalarFieldEnumSchema } from './enums/CaseCategoryScalarFieldEnum.schema';
+import { CaseCategoryCountAggregateInputObjectSchema as CaseCategoryCountAggregateInputObjectSchema } from './objects/CaseCategoryCountAggregateInput.schema';
+import { CaseCategoryMinAggregateInputObjectSchema as CaseCategoryMinAggregateInputObjectSchema } from './objects/CaseCategoryMinAggregateInput.schema';
+import { CaseCategoryMaxAggregateInputObjectSchema as CaseCategoryMaxAggregateInputObjectSchema } from './objects/CaseCategoryMaxAggregateInput.schema';
+
+export const CaseCategoryGroupBySchema: z.ZodType<Prisma.CaseCategoryGroupByArgs> = z.object({ where: CaseCategoryWhereInputObjectSchema.optional(), orderBy: z.union([CaseCategoryOrderByWithAggregationInputObjectSchema, CaseCategoryOrderByWithAggregationInputObjectSchema.array()]).optional(), having: CaseCategoryScalarWhereWithAggregatesInputObjectSchema.optional(), take: z.number().optional(), skip: z.number().optional(), by: z.array(CaseCategoryScalarFieldEnumSchema), _count: z.union([ z.literal(true), CaseCategoryCountAggregateInputObjectSchema ]).optional(), _min: CaseCategoryMinAggregateInputObjectSchema.optional(), _max: CaseCategoryMaxAggregateInputObjectSchema.optional() }).strict() as unknown as z.ZodType<Prisma.CaseCategoryGroupByArgs>;
+
+export const CaseCategoryGroupByZodSchema = z.object({ where: CaseCategoryWhereInputObjectSchema.optional(), orderBy: z.union([CaseCategoryOrderByWithAggregationInputObjectSchema, CaseCategoryOrderByWithAggregationInputObjectSchema.array()]).optional(), having: CaseCategoryScalarWhereWithAggregatesInputObjectSchema.optional(), take: z.number().optional(), skip: z.number().optional(), by: z.array(CaseCategoryScalarFieldEnumSchema), _count: z.union([ z.literal(true), CaseCategoryCountAggregateInputObjectSchema ]).optional(), _min: CaseCategoryMinAggregateInputObjectSchema.optional(), _max: CaseCategoryMaxAggregateInputObjectSchema.optional() }).strict();

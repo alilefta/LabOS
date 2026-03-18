@@ -1,0 +1,36 @@
+import * as z from 'zod';
+import type { Prisma } from '../../../../generated/prisma/client';
+import { PatientArgsObjectSchema as PatientArgsObjectSchema } from './PatientArgs.schema';
+import { LabArgsObjectSchema as LabArgsObjectSchema } from './LabArgs.schema';
+import { SalesRepresentativeArgsObjectSchema as SalesRepresentativeArgsObjectSchema } from './SalesRepresentativeArgs.schema';
+import { CaseWorkItemFindManySchema as CaseWorkItemFindManySchema } from '../findManyCaseWorkItem.schema';
+import { CaseCategoryFindManySchema as CaseCategoryFindManySchema } from '../findManyCaseCategory.schema';
+import { ClinicArgsObjectSchema as ClinicArgsObjectSchema } from './ClinicArgs.schema';
+import { TechnicianArgsObjectSchema as TechnicianArgsObjectSchema } from './TechnicianArgs.schema';
+import { CaseAssetFileFindManySchema as CaseAssetFileFindManySchema } from '../findManyCaseAssetFile.schema';
+import { CaseCountOutputTypeArgsObjectSchema as CaseCountOutputTypeArgsObjectSchema } from './CaseCountOutputTypeArgs.schema'
+
+const makeSchema = () => z.object({
+  id: z.boolean().optional(),
+  patientId: z.boolean().optional(),
+  patient: z.union([z.boolean(), z.lazy(() => PatientArgsObjectSchema)]).optional(),
+  labId: z.boolean().optional(),
+  Lab: z.union([z.boolean(), z.lazy(() => LabArgsObjectSchema)]).optional(),
+  salesRepsId: z.boolean().optional(),
+  salesReps: z.union([z.boolean(), z.lazy(() => SalesRepresentativeArgsObjectSchema)]).optional(),
+  caseItems: z.union([z.boolean(), z.lazy(() => CaseWorkItemFindManySchema)]).optional(),
+  caseCategory: z.union([z.boolean(), z.lazy(() => CaseCategoryFindManySchema)]).optional(),
+  status: z.boolean().optional(),
+  grandTotal: z.boolean().optional(),
+  clinicId: z.boolean().optional(),
+  clinic: z.union([z.boolean(), z.lazy(() => ClinicArgsObjectSchema)]).optional(),
+  technicianId: z.boolean().optional(),
+  Technician: z.union([z.boolean(), z.lazy(() => TechnicianArgsObjectSchema)]).optional(),
+  caseAssetFiles: z.union([z.boolean(), z.lazy(() => CaseAssetFileFindManySchema)]).optional(),
+  deadline: z.boolean().optional(),
+  createdAt: z.boolean().optional(),
+  updatedAt: z.boolean().optional(),
+  _count: z.union([z.boolean(), z.lazy(() => CaseCountOutputTypeArgsObjectSchema)]).optional()
+}).strict();
+export const CaseSelectObjectSchema: z.ZodType<Prisma.CaseSelect> = makeSchema() as unknown as z.ZodType<Prisma.CaseSelect>;
+export const CaseSelectObjectZodSchema = makeSchema();

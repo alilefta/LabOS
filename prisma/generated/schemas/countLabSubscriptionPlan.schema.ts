@@ -1,0 +1,10 @@
+import type { Prisma } from '../../../generated/prisma/client';
+import * as z from 'zod';
+import { LabSubscriptionPlanOrderByWithRelationInputObjectSchema as LabSubscriptionPlanOrderByWithRelationInputObjectSchema } from './objects/LabSubscriptionPlanOrderByWithRelationInput.schema';
+import { LabSubscriptionPlanWhereInputObjectSchema as LabSubscriptionPlanWhereInputObjectSchema } from './objects/LabSubscriptionPlanWhereInput.schema';
+import { LabSubscriptionPlanWhereUniqueInputObjectSchema as LabSubscriptionPlanWhereUniqueInputObjectSchema } from './objects/LabSubscriptionPlanWhereUniqueInput.schema';
+import { LabSubscriptionPlanCountAggregateInputObjectSchema as LabSubscriptionPlanCountAggregateInputObjectSchema } from './objects/LabSubscriptionPlanCountAggregateInput.schema';
+
+export const LabSubscriptionPlanCountSchema: z.ZodType<Prisma.LabSubscriptionPlanCountArgs> = z.object({ orderBy: z.union([LabSubscriptionPlanOrderByWithRelationInputObjectSchema, LabSubscriptionPlanOrderByWithRelationInputObjectSchema.array()]).optional(), where: LabSubscriptionPlanWhereInputObjectSchema.optional(), cursor: LabSubscriptionPlanWhereUniqueInputObjectSchema.optional(), take: z.number().optional(), skip: z.number().optional(), select: z.union([ z.literal(true), LabSubscriptionPlanCountAggregateInputObjectSchema ]).optional() }).strict() as unknown as z.ZodType<Prisma.LabSubscriptionPlanCountArgs>;
+
+export const LabSubscriptionPlanCountZodSchema = z.object({ orderBy: z.union([LabSubscriptionPlanOrderByWithRelationInputObjectSchema, LabSubscriptionPlanOrderByWithRelationInputObjectSchema.array()]).optional(), where: LabSubscriptionPlanWhereInputObjectSchema.optional(), cursor: LabSubscriptionPlanWhereUniqueInputObjectSchema.optional(), take: z.number().optional(), skip: z.number().optional(), select: z.union([ z.literal(true), LabSubscriptionPlanCountAggregateInputObjectSchema ]).optional() }).strict();

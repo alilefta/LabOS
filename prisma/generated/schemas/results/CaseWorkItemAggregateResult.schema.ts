@@ -1,0 +1,64 @@
+import * as z from 'zod';
+export const CaseWorkItemAggregateResultSchema = z.object({  _count: z.object({
+    id: z.number(),
+    productId: z.number(),
+    product: z.number(),
+    labId: z.number(),
+    Lab: z.number(),
+    caseId: z.number(),
+    case: z.number(),
+    casePricingPlanId: z.number(),
+    casePricingPlan: z.number(),
+    totalPrice: z.number(),
+    pricingStrategy: z.number(),
+    firstToothPrice: z.number(),
+    bulkPrice: z.number(),
+    additionalToothPrice: z.number(),
+    bulkPriceThreshold: z.number(),
+    jawType: z.number(),
+    selectedTeeth: z.number(),
+    createdAt: z.number(),
+    updatedAt: z.number()
+  }).optional(),
+  _sum: z.object({
+    totalPrice: z.number().nullable(),
+    firstToothPrice: z.number().nullable(),
+    bulkPrice: z.number().nullable(),
+    additionalToothPrice: z.number().nullable(),
+    bulkPriceThreshold: z.number().nullable()
+  }).nullable().optional(),
+  _avg: z.object({
+    totalPrice: z.number().nullable(),
+    firstToothPrice: z.number().nullable(),
+    bulkPrice: z.number().nullable(),
+    additionalToothPrice: z.number().nullable(),
+    bulkPriceThreshold: z.number().nullable()
+  }).nullable().optional(),
+  _min: z.object({
+    id: z.string().nullable(),
+    productId: z.string().nullable(),
+    labId: z.string().nullable(),
+    caseId: z.string().nullable(),
+    casePricingPlanId: z.string().nullable(),
+    totalPrice: z.number().nullable(),
+    firstToothPrice: z.number().nullable(),
+    bulkPrice: z.number().nullable(),
+    additionalToothPrice: z.number().nullable(),
+    bulkPriceThreshold: z.number().nullable(),
+    createdAt: z.date().nullable(),
+    updatedAt: z.date().nullable()
+  }).nullable().optional(),
+  _max: z.object({
+    id: z.string().nullable(),
+    productId: z.string().nullable(),
+    labId: z.string().nullable(),
+    caseId: z.string().nullable(),
+    casePricingPlanId: z.string().nullable(),
+    totalPrice: z.number().nullable(),
+    firstToothPrice: z.number().nullable(),
+    bulkPrice: z.number().nullable(),
+    additionalToothPrice: z.number().nullable(),
+    bulkPriceThreshold: z.number().nullable(),
+    createdAt: z.date().nullable(),
+    updatedAt: z.date().nullable()
+  }).nullable().optional()});

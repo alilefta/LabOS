@@ -1,0 +1,12 @@
+import type { Prisma } from '../../../generated/prisma/client';
+import * as z from 'zod';
+import { LabSubscriptionPlanOrderByWithRelationInputObjectSchema as LabSubscriptionPlanOrderByWithRelationInputObjectSchema } from './objects/LabSubscriptionPlanOrderByWithRelationInput.schema';
+import { LabSubscriptionPlanWhereInputObjectSchema as LabSubscriptionPlanWhereInputObjectSchema } from './objects/LabSubscriptionPlanWhereInput.schema';
+import { LabSubscriptionPlanWhereUniqueInputObjectSchema as LabSubscriptionPlanWhereUniqueInputObjectSchema } from './objects/LabSubscriptionPlanWhereUniqueInput.schema';
+import { LabSubscriptionPlanCountAggregateInputObjectSchema as LabSubscriptionPlanCountAggregateInputObjectSchema } from './objects/LabSubscriptionPlanCountAggregateInput.schema';
+import { LabSubscriptionPlanMinAggregateInputObjectSchema as LabSubscriptionPlanMinAggregateInputObjectSchema } from './objects/LabSubscriptionPlanMinAggregateInput.schema';
+import { LabSubscriptionPlanMaxAggregateInputObjectSchema as LabSubscriptionPlanMaxAggregateInputObjectSchema } from './objects/LabSubscriptionPlanMaxAggregateInput.schema';
+
+export const LabSubscriptionPlanAggregateSchema: z.ZodType<Prisma.LabSubscriptionPlanAggregateArgs> = z.object({ orderBy: z.union([LabSubscriptionPlanOrderByWithRelationInputObjectSchema, LabSubscriptionPlanOrderByWithRelationInputObjectSchema.array()]).optional(), where: LabSubscriptionPlanWhereInputObjectSchema.optional(), cursor: LabSubscriptionPlanWhereUniqueInputObjectSchema.optional(), take: z.number().optional(), skip: z.number().optional(), _count: z.union([ z.literal(true), LabSubscriptionPlanCountAggregateInputObjectSchema ]).optional(), _min: LabSubscriptionPlanMinAggregateInputObjectSchema.optional(), _max: LabSubscriptionPlanMaxAggregateInputObjectSchema.optional() }).strict() as unknown as z.ZodType<Prisma.LabSubscriptionPlanAggregateArgs>;
+
+export const LabSubscriptionPlanAggregateZodSchema = z.object({ orderBy: z.union([LabSubscriptionPlanOrderByWithRelationInputObjectSchema, LabSubscriptionPlanOrderByWithRelationInputObjectSchema.array()]).optional(), where: LabSubscriptionPlanWhereInputObjectSchema.optional(), cursor: LabSubscriptionPlanWhereUniqueInputObjectSchema.optional(), take: z.number().optional(), skip: z.number().optional(), _count: z.union([ z.literal(true), LabSubscriptionPlanCountAggregateInputObjectSchema ]).optional(), _min: LabSubscriptionPlanMinAggregateInputObjectSchema.optional(), _max: LabSubscriptionPlanMaxAggregateInputObjectSchema.optional() }).strict();
