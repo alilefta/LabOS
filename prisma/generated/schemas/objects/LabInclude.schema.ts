@@ -30,7 +30,7 @@ const makeSchema = () => z.object({
   selectedTeeth: z.union([z.boolean(), z.lazy(() => SelectedToothFindManySchema)]).optional(),
   casePricingPlans: z.union([z.boolean(), z.lazy(() => CasePricingPlanFindManySchema)]).optional(),
   caseAssetFiles: z.union([z.boolean(), z.lazy(() => CaseAssetFileFindManySchema)]).optional(),
-  patient: z.union([z.boolean(), z.lazy(() => PatientFindManySchema)]).optional(),
+  patients: z.union([z.boolean(), z.lazy(() => PatientFindManySchema)]).optional(),
   _count: z.union([z.boolean(), z.lazy(() => LabCountOutputTypeArgsObjectSchema)]).optional()
 }).strict();
 export const LabIncludeObjectSchema: z.ZodType<Prisma.LabInclude> = makeSchema() as unknown as z.ZodType<Prisma.LabInclude>;

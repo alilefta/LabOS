@@ -28,7 +28,7 @@ export const LabFindFirstOrThrowSelectSchema: z.ZodType<Prisma.LabSelect> = z.ob
     selectedTeeth: z.boolean().optional(),
     casePricingPlans: z.boolean().optional(),
     caseAssetFiles: z.boolean().optional(),
-    patient: z.boolean().optional(),
+    patients: z.boolean().optional(),
     createdAt: z.boolean().optional(),
     updatedAt: z.boolean().optional(),
     _count: z.boolean().optional()
@@ -53,7 +53,7 @@ export const LabFindFirstOrThrowSelectZodSchema = z.object({
     selectedTeeth: z.boolean().optional(),
     casePricingPlans: z.boolean().optional(),
     caseAssetFiles: z.boolean().optional(),
-    patient: z.boolean().optional(),
+    patients: z.boolean().optional(),
     createdAt: z.boolean().optional(),
     updatedAt: z.boolean().optional(),
     _count: z.boolean().optional()

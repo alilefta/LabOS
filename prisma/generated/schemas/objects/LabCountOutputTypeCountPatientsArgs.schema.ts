@@ -5,5 +5,5 @@ import { PatientWhereInputObjectSchema as PatientWhereInputObjectSchema } from '
 const makeSchema = () => z.object({
   where: z.lazy(() => PatientWhereInputObjectSchema).optional()
 }).strict();
-export const LabCountOutputTypeCountPatientArgsObjectSchema = makeSchema();
-export const LabCountOutputTypeCountPatientArgsObjectZodSchema = makeSchema();
+export const LabCountOutputTypeCountPatientsArgsObjectSchema = makeSchema();
+export const LabCountOutputTypeCountPatientsArgsObjectZodSchema = makeSchema();

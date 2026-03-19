@@ -1,6 +1,6 @@
 import * as z from 'zod';
 import type { Prisma } from '../../../../generated/prisma/client';
-import { LabCreateNestedOneWithoutPatientInputObjectSchema as LabCreateNestedOneWithoutPatientInputObjectSchema } from './LabCreateNestedOneWithoutPatientInput.schema'
+import { LabCreateNestedOneWithoutPatientsInputObjectSchema as LabCreateNestedOneWithoutPatientsInputObjectSchema } from './LabCreateNestedOneWithoutPatientsInput.schema'
 
 const makeSchema = () => z.object({
   id: z.string().optional(),
@@ -14,7 +14,7 @@ const makeSchema = () => z.object({
   phoneNumber: z.string(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
-  lab: z.lazy(() => LabCreateNestedOneWithoutPatientInputObjectSchema)
+  lab: z.lazy(() => LabCreateNestedOneWithoutPatientsInputObjectSchema)
 }).strict();
 export const PatientCreateWithoutCaseInputObjectSchema: z.ZodType<Prisma.PatientCreateWithoutCaseInput> = makeSchema() as unknown as z.ZodType<Prisma.PatientCreateWithoutCaseInput>;
 export const PatientCreateWithoutCaseInputObjectZodSchema = makeSchema();

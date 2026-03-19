@@ -34,7 +34,7 @@ const makeSchema = () => z.object({
   selectedTeeth: z.lazy(() => SelectedToothCreateNestedManyWithoutLabInputObjectSchema).optional(),
   casePricingPlans: z.lazy(() => CasePricingPlanCreateNestedManyWithoutLabInputObjectSchema).optional(),
   caseAssetFiles: z.lazy(() => CaseAssetFileCreateNestedManyWithoutLabInputObjectSchema).optional(),
-  patient: z.lazy(() => PatientCreateNestedManyWithoutLabInputObjectSchema).optional()
+  patients: z.lazy(() => PatientCreateNestedManyWithoutLabInputObjectSchema).optional()
 }).strict();
 export const LabCreateWithoutTechniciansInputObjectSchema: z.ZodType<Prisma.LabCreateWithoutTechniciansInput> = makeSchema() as unknown as z.ZodType<Prisma.LabCreateWithoutTechniciansInput>;
 export const LabCreateWithoutTechniciansInputObjectZodSchema = makeSchema();

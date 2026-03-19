@@ -38,7 +38,7 @@ const makeSchema = () => z.object({
   selectedTeeth: z.lazy(() => SelectedToothOrderByRelationAggregateInputObjectSchema).optional(),
   casePricingPlans: z.lazy(() => CasePricingPlanOrderByRelationAggregateInputObjectSchema).optional(),
   caseAssetFiles: z.lazy(() => CaseAssetFileOrderByRelationAggregateInputObjectSchema).optional(),
-  patient: z.lazy(() => PatientOrderByRelationAggregateInputObjectSchema).optional()
+  patients: z.lazy(() => PatientOrderByRelationAggregateInputObjectSchema).optional()
 }).strict();
 export const LabOrderByWithRelationInputObjectSchema: z.ZodType<Prisma.LabOrderByWithRelationInput> = makeSchema() as unknown as z.ZodType<Prisma.LabOrderByWithRelationInput>;
 export const LabOrderByWithRelationInputObjectZodSchema = makeSchema();

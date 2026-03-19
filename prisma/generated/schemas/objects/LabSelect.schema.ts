@@ -35,7 +35,7 @@ const makeSchema = () => z.object({
   selectedTeeth: z.union([z.boolean(), z.lazy(() => SelectedToothFindManySchema)]).optional(),
   casePricingPlans: z.union([z.boolean(), z.lazy(() => CasePricingPlanFindManySchema)]).optional(),
   caseAssetFiles: z.union([z.boolean(), z.lazy(() => CaseAssetFileFindManySchema)]).optional(),
-  patient: z.union([z.boolean(), z.lazy(() => PatientFindManySchema)]).optional(),
+  patients: z.union([z.boolean(), z.lazy(() => PatientFindManySchema)]).optional(),
   createdAt: z.boolean().optional(),
   updatedAt: z.boolean().optional(),
   _count: z.union([z.boolean(), z.lazy(() => LabCountOutputTypeArgsObjectSchema)]).optional()

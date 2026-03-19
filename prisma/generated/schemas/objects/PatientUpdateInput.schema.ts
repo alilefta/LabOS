@@ -4,7 +4,7 @@ import { StringFieldUpdateOperationsInputObjectSchema as StringFieldUpdateOperat
 import { NullableStringFieldUpdateOperationsInputObjectSchema as NullableStringFieldUpdateOperationsInputObjectSchema } from './NullableStringFieldUpdateOperationsInput.schema';
 import { DateTimeFieldUpdateOperationsInputObjectSchema as DateTimeFieldUpdateOperationsInputObjectSchema } from './DateTimeFieldUpdateOperationsInput.schema';
 import { CaseUpdateManyWithoutPatientNestedInputObjectSchema as CaseUpdateManyWithoutPatientNestedInputObjectSchema } from './CaseUpdateManyWithoutPatientNestedInput.schema';
-import { LabUpdateOneRequiredWithoutPatientNestedInputObjectSchema as LabUpdateOneRequiredWithoutPatientNestedInputObjectSchema } from './LabUpdateOneRequiredWithoutPatientNestedInput.schema'
+import { LabUpdateOneRequiredWithoutPatientsNestedInputObjectSchema as LabUpdateOneRequiredWithoutPatientsNestedInputObjectSchema } from './LabUpdateOneRequiredWithoutPatientsNestedInput.schema'
 
 const makeSchema = () => z.object({
   id: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputObjectSchema)]).optional(),
@@ -19,7 +19,7 @@ const makeSchema = () => z.object({
   createdAt: z.union([z.coerce.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputObjectSchema)]).optional(),
   updatedAt: z.union([z.coerce.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputObjectSchema)]).optional(),
   case: z.lazy(() => CaseUpdateManyWithoutPatientNestedInputObjectSchema).optional(),
-  lab: z.lazy(() => LabUpdateOneRequiredWithoutPatientNestedInputObjectSchema).optional()
+  lab: z.lazy(() => LabUpdateOneRequiredWithoutPatientsNestedInputObjectSchema).optional()
 }).strict();
 export const PatientUpdateInputObjectSchema: z.ZodType<Prisma.PatientUpdateInput> = makeSchema() as unknown as z.ZodType<Prisma.PatientUpdateInput>;
 export const PatientUpdateInputObjectZodSchema = makeSchema();

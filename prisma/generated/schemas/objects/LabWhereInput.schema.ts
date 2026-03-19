@@ -43,7 +43,7 @@ const labwhereinputSchema = z.object({
   selectedTeeth: z.lazy(() => SelectedToothListRelationFilterObjectSchema).optional(),
   casePricingPlans: z.lazy(() => CasePricingPlanListRelationFilterObjectSchema).optional(),
   caseAssetFiles: z.lazy(() => CaseAssetFileListRelationFilterObjectSchema).optional(),
-  patient: z.lazy(() => PatientListRelationFilterObjectSchema).optional()
+  patients: z.lazy(() => PatientListRelationFilterObjectSchema).optional()
 }).strict();
 export const LabWhereInputObjectSchema: z.ZodType<Prisma.LabWhereInput> = labwhereinputSchema as unknown as z.ZodType<Prisma.LabWhereInput>;
 export const LabWhereInputObjectZodSchema = labwhereinputSchema;

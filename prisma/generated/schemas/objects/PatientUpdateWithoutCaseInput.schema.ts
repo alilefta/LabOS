@@ -3,7 +3,7 @@ import type { Prisma } from '../../../../generated/prisma/client';
 import { StringFieldUpdateOperationsInputObjectSchema as StringFieldUpdateOperationsInputObjectSchema } from './StringFieldUpdateOperationsInput.schema';
 import { NullableStringFieldUpdateOperationsInputObjectSchema as NullableStringFieldUpdateOperationsInputObjectSchema } from './NullableStringFieldUpdateOperationsInput.schema';
 import { DateTimeFieldUpdateOperationsInputObjectSchema as DateTimeFieldUpdateOperationsInputObjectSchema } from './DateTimeFieldUpdateOperationsInput.schema';
-import { LabUpdateOneRequiredWithoutPatientNestedInputObjectSchema as LabUpdateOneRequiredWithoutPatientNestedInputObjectSchema } from './LabUpdateOneRequiredWithoutPatientNestedInput.schema'
+import { LabUpdateOneRequiredWithoutPatientsNestedInputObjectSchema as LabUpdateOneRequiredWithoutPatientsNestedInputObjectSchema } from './LabUpdateOneRequiredWithoutPatientsNestedInput.schema'
 
 const makeSchema = () => z.object({
   id: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputObjectSchema)]).optional(),
@@ -17,7 +17,7 @@ const makeSchema = () => z.object({
   phoneNumber: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputObjectSchema)]).optional(),
   createdAt: z.union([z.coerce.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputObjectSchema)]).optional(),
   updatedAt: z.union([z.coerce.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputObjectSchema)]).optional(),
-  lab: z.lazy(() => LabUpdateOneRequiredWithoutPatientNestedInputObjectSchema).optional()
+  lab: z.lazy(() => LabUpdateOneRequiredWithoutPatientsNestedInputObjectSchema).optional()
 }).strict();
 export const PatientUpdateWithoutCaseInputObjectSchema: z.ZodType<Prisma.PatientUpdateWithoutCaseInput> = makeSchema() as unknown as z.ZodType<Prisma.PatientUpdateWithoutCaseInput>;
 export const PatientUpdateWithoutCaseInputObjectZodSchema = makeSchema();
