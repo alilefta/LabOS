@@ -14,7 +14,7 @@ const makeSchema = () => z.object({
   phoneNumber: z.string(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
-  Lab: z.lazy(() => LabCreateNestedOneWithoutClinicsInputObjectSchema)
+  lab: z.lazy(() => LabCreateNestedOneWithoutClinicsInputObjectSchema)
 }).strict();
 export const ClinicCreateWithoutCasesInputObjectSchema: z.ZodType<Prisma.ClinicCreateWithoutCasesInput> = makeSchema() as unknown as z.ZodType<Prisma.ClinicCreateWithoutCasesInput>;
 export const ClinicCreateWithoutCasesInputObjectZodSchema = makeSchema();

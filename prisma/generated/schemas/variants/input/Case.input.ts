@@ -6,7 +6,7 @@ export const CaseInputSchema = z.object({
     patientId: z.string(),
     patient: z.unknown(),
     labId: z.string(),
-    Lab: z.unknown(),
+    lab: z.unknown(),
     salesRepsId: z.string().optional().nullable(),
     salesReps: z.unknown().optional().nullable(),
     caseItems: z.array(z.unknown()),

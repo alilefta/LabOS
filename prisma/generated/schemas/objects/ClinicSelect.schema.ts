@@ -7,7 +7,7 @@ import { ClinicCountOutputTypeArgsObjectSchema as ClinicCountOutputTypeArgsObjec
 const makeSchema = () => z.object({
   id: z.boolean().optional(),
   labId: z.boolean().optional(),
-  Lab: z.union([z.boolean(), z.lazy(() => LabArgsObjectSchema)]).optional(),
+  lab: z.union([z.boolean(), z.lazy(() => LabArgsObjectSchema)]).optional(),
   name: z.boolean().optional(),
   description: z.boolean().optional(),
   city: z.boolean().optional(),

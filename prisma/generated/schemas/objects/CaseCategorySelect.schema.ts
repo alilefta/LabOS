@@ -14,7 +14,7 @@ const makeSchema = () => z.object({
   workTypes: z.union([z.boolean(), z.lazy(() => WorkTypeFindManySchema)]).optional(),
   cases: z.union([z.boolean(), z.lazy(() => CaseFindManySchema)]).optional(),
   labId: z.boolean().optional(),
-  Lab: z.union([z.boolean(), z.lazy(() => LabArgsObjectSchema)]).optional(),
+  lab: z.union([z.boolean(), z.lazy(() => LabArgsObjectSchema)]).optional(),
   createdAt: z.boolean().optional(),
   updatedAt: z.boolean().optional(),
   _count: z.union([z.boolean(), z.lazy(() => CaseCategoryCountOutputTypeArgsObjectSchema)]).optional()

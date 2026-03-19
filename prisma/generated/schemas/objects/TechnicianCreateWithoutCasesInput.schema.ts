@@ -15,7 +15,7 @@ const makeSchema = () => z.object({
   avatarUrl: z.string(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
-  Lab: z.lazy(() => LabCreateNestedOneWithoutTechniciansInputObjectSchema)
+  lab: z.lazy(() => LabCreateNestedOneWithoutTechniciansInputObjectSchema)
 }).strict();
 export const TechnicianCreateWithoutCasesInputObjectSchema: z.ZodType<Prisma.TechnicianCreateWithoutCasesInput> = makeSchema() as unknown as z.ZodType<Prisma.TechnicianCreateWithoutCasesInput>;
 export const TechnicianCreateWithoutCasesInputObjectZodSchema = makeSchema();

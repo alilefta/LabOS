@@ -11,7 +11,7 @@ const makeSchema = () => z.object({
   imageUrl: z.string(),
   createdAt: z.coerce.date().optional(),
   product: z.lazy(() => ProductCreateNestedManyWithoutWorkTypeInputObjectSchema).optional(),
-  Lab: z.lazy(() => LabCreateNestedOneWithoutWorkTypesInputObjectSchema),
+  lab: z.lazy(() => LabCreateNestedOneWithoutWorkTypesInputObjectSchema),
   caseCategory: z.lazy(() => CaseCategoryCreateNestedOneWithoutWorkTypesInputObjectSchema)
 }).strict();
 export const WorkTypeCreateInputObjectSchema: z.ZodType<Prisma.WorkTypeCreateInput> = makeSchema() as unknown as z.ZodType<Prisma.WorkTypeCreateInput>;

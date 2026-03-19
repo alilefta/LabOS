@@ -15,7 +15,7 @@ const makeSchema = () => z.object({
   patientId: z.boolean().optional(),
   patient: z.union([z.boolean(), z.lazy(() => PatientArgsObjectSchema)]).optional(),
   labId: z.boolean().optional(),
-  Lab: z.union([z.boolean(), z.lazy(() => LabArgsObjectSchema)]).optional(),
+  lab: z.union([z.boolean(), z.lazy(() => LabArgsObjectSchema)]).optional(),
   salesRepsId: z.boolean().optional(),
   salesReps: z.union([z.boolean(), z.lazy(() => SalesRepresentativeArgsObjectSchema)]).optional(),
   caseItems: z.union([z.boolean(), z.lazy(() => CaseWorkItemFindManySchema)]).optional(),

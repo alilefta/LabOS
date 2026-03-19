@@ -17,7 +17,7 @@ const makeSchema = () => z.object({
   isActive: z.boolean().optional(),
   lastTimeActive: z.coerce.date().optional().nullable(),
   createdAt: z.coerce.date().optional(),
-  Lab: z.lazy(() => LabCreateNestedOneWithoutUsersInputObjectSchema)
+  lab: z.lazy(() => LabCreateNestedOneWithoutUsersInputObjectSchema)
 }).strict();
 export const LabUserCreateInputObjectSchema: z.ZodType<Prisma.LabUserCreateInput> = makeSchema() as unknown as z.ZodType<Prisma.LabUserCreateInput>;
 export const LabUserCreateInputObjectZodSchema = makeSchema();

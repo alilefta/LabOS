@@ -8,7 +8,7 @@ export const CaseAssetFileAggregateResultSchema = z.object({  _count: z.object({
     documentUrl: z.number(),
     assetFileType: z.number(),
     labId: z.number(),
-    Lab: z.number(),
+    lab: z.number(),
     createdAt: z.number(),
     updatedAt: z.number()
   }).optional(),

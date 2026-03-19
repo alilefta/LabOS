@@ -12,7 +12,7 @@ const makeSchema = () => z.object({
   documentUrl: z.boolean().optional(),
   assetFileType: z.boolean().optional(),
   labId: z.boolean().optional(),
-  Lab: z.union([z.boolean(), z.lazy(() => LabArgsObjectSchema)]).optional(),
+  lab: z.union([z.boolean(), z.lazy(() => LabArgsObjectSchema)]).optional(),
   createdAt: z.boolean().optional(),
   updatedAt: z.boolean().optional()
 }).strict();

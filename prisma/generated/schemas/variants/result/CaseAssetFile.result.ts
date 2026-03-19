@@ -10,7 +10,7 @@ export const CaseAssetFileResultSchema = z.object({
     documentUrl: z.string(),
     assetFileType: AssetFileTypeSchema,
     labId: z.string(),
-    Lab: z.unknown(),
+    lab: z.unknown(),
     createdAt: z.date(),
     updatedAt: z.date()
 }).strict();

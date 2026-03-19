@@ -13,7 +13,7 @@ const makeSchema = () => z.object({
   cancellationDate: z.union([z.coerce.date(), z.lazy(() => NullableDateTimeFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
   createdAt: z.union([z.coerce.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputObjectSchema)]).optional(),
   updatedAt: z.union([z.coerce.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputObjectSchema)]).optional(),
-  Lab: z.lazy(() => LabUpdateOneRequiredWithoutLabSubscriptionPlanNestedInputObjectSchema).optional()
+  lab: z.lazy(() => LabUpdateOneRequiredWithoutLabSubscriptionPlanNestedInputObjectSchema).optional()
 }).strict();
 export const LabSubscriptionPlanUpdateInputObjectSchema: z.ZodType<Prisma.LabSubscriptionPlanUpdateInput> = makeSchema() as unknown as z.ZodType<Prisma.LabSubscriptionPlanUpdateInput>;
 export const LabSubscriptionPlanUpdateInputObjectZodSchema = makeSchema();

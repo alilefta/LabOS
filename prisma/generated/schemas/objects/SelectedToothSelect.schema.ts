@@ -9,7 +9,7 @@ const makeSchema = () => z.object({
   caseWorkItemId: z.boolean().optional(),
   caseWorkItem: z.union([z.boolean(), z.lazy(() => CaseWorkItemArgsObjectSchema)]).optional(),
   labId: z.boolean().optional(),
-  Lab: z.union([z.boolean(), z.lazy(() => LabArgsObjectSchema)]).optional(),
+  lab: z.union([z.boolean(), z.lazy(() => LabArgsObjectSchema)]).optional(),
   createdAt: z.boolean().optional(),
   updatedAt: z.boolean().optional()
 }).strict();

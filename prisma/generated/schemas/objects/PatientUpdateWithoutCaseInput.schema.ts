@@ -17,7 +17,7 @@ const makeSchema = () => z.object({
   phoneNumber: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputObjectSchema)]).optional(),
   createdAt: z.union([z.coerce.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputObjectSchema)]).optional(),
   updatedAt: z.union([z.coerce.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputObjectSchema)]).optional(),
-  Lab: z.lazy(() => LabUpdateOneRequiredWithoutPatientNestedInputObjectSchema).optional()
+  lab: z.lazy(() => LabUpdateOneRequiredWithoutPatientNestedInputObjectSchema).optional()
 }).strict();
 export const PatientUpdateWithoutCaseInputObjectSchema: z.ZodType<Prisma.PatientUpdateWithoutCaseInput> = makeSchema() as unknown as z.ZodType<Prisma.PatientUpdateWithoutCaseInput>;
 export const PatientUpdateWithoutCaseInputObjectZodSchema = makeSchema();

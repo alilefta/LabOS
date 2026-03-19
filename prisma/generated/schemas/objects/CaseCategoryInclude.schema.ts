@@ -8,7 +8,7 @@ import { CaseCategoryCountOutputTypeArgsObjectSchema as CaseCategoryCountOutputT
 const makeSchema = () => z.object({
   workTypes: z.union([z.boolean(), z.lazy(() => WorkTypeFindManySchema)]).optional(),
   cases: z.union([z.boolean(), z.lazy(() => CaseFindManySchema)]).optional(),
-  Lab: z.union([z.boolean(), z.lazy(() => LabArgsObjectSchema)]).optional(),
+  lab: z.union([z.boolean(), z.lazy(() => LabArgsObjectSchema)]).optional(),
   _count: z.union([z.boolean(), z.lazy(() => CaseCategoryCountOutputTypeArgsObjectSchema)]).optional()
 }).strict();
 export const CaseCategoryIncludeObjectSchema: z.ZodType<Prisma.CaseCategoryInclude> = makeSchema() as unknown as z.ZodType<Prisma.CaseCategoryInclude>;

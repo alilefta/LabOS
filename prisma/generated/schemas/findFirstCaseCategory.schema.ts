@@ -18,7 +18,7 @@ export const CaseCategoryFindFirstSelectSchema: z.ZodType<Prisma.CaseCategorySel
     workTypes: z.boolean().optional(),
     cases: z.boolean().optional(),
     labId: z.boolean().optional(),
-    Lab: z.boolean().optional(),
+    lab: z.boolean().optional(),
     createdAt: z.boolean().optional(),
     updatedAt: z.boolean().optional(),
     _count: z.boolean().optional()
@@ -33,7 +33,7 @@ export const CaseCategoryFindFirstSelectZodSchema = z.object({
     workTypes: z.boolean().optional(),
     cases: z.boolean().optional(),
     labId: z.boolean().optional(),
-    Lab: z.boolean().optional(),
+    lab: z.boolean().optional(),
     createdAt: z.boolean().optional(),
     updatedAt: z.boolean().optional(),
     _count: z.boolean().optional()

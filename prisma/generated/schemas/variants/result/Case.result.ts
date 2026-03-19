@@ -6,7 +6,7 @@ export const CaseResultSchema = z.object({
     patientId: z.string(),
     patient: z.unknown(),
     labId: z.string(),
-    Lab: z.unknown(),
+    lab: z.unknown(),
     salesRepsId: z.string().nullable(),
     salesReps: z.unknown().nullable(),
     caseItems: z.array(z.unknown()),

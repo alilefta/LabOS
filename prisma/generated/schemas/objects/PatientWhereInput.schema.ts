@@ -24,7 +24,7 @@ const patientwhereinputSchema = z.object({
   createdAt: z.union([z.lazy(() => DateTimeFilterObjectSchema), z.coerce.date()]).optional(),
   updatedAt: z.union([z.lazy(() => DateTimeFilterObjectSchema), z.coerce.date()]).optional(),
   case: z.lazy(() => CaseListRelationFilterObjectSchema).optional(),
-  Lab: z.union([z.lazy(() => LabScalarRelationFilterObjectSchema), z.lazy(() => LabWhereInputObjectSchema)]).optional()
+  lab: z.union([z.lazy(() => LabScalarRelationFilterObjectSchema), z.lazy(() => LabWhereInputObjectSchema)]).optional()
 }).strict();
 export const PatientWhereInputObjectSchema: z.ZodType<Prisma.PatientWhereInput> = patientwhereinputSchema as unknown as z.ZodType<Prisma.PatientWhereInput>;
 export const PatientWhereInputObjectZodSchema = patientwhereinputSchema;

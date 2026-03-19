@@ -9,7 +9,7 @@ export const CaseCategoryFindManyResultSchema = z.object({
   workTypes: z.array(z.unknown()),
   cases: z.array(z.unknown()),
   labId: z.string(),
-  Lab: z.unknown(),
+  lab: z.unknown(),
   createdAt: z.date(),
   updatedAt: z.date()
 })),

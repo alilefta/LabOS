@@ -18,7 +18,7 @@ const labsubscriptionplanwhereinputSchema = z.object({
   cancellationDate: z.union([z.lazy(() => DateTimeNullableFilterObjectSchema), z.coerce.date()]).optional().nullable(),
   createdAt: z.union([z.lazy(() => DateTimeFilterObjectSchema), z.coerce.date()]).optional(),
   updatedAt: z.union([z.lazy(() => DateTimeFilterObjectSchema), z.coerce.date()]).optional(),
-  Lab: z.union([z.lazy(() => LabScalarRelationFilterObjectSchema), z.lazy(() => LabWhereInputObjectSchema)]).optional()
+  lab: z.union([z.lazy(() => LabScalarRelationFilterObjectSchema), z.lazy(() => LabWhereInputObjectSchema)]).optional()
 }).strict();
 export const LabSubscriptionPlanWhereInputObjectSchema: z.ZodType<Prisma.LabSubscriptionPlanWhereInput> = labsubscriptionplanwhereinputSchema as unknown as z.ZodType<Prisma.LabSubscriptionPlanWhereInput>;
 export const LabSubscriptionPlanWhereInputObjectZodSchema = labsubscriptionplanwhereinputSchema;

@@ -32,7 +32,7 @@ const tenantPrisma = (labId: string) =>
 					}
 
 					if (operation === "create") {
-						if ("Lab" in args.data) {
+						if ("lab" in args.data) {
 							// If relation is used → don't inject labId
 							return query(args);
 						}

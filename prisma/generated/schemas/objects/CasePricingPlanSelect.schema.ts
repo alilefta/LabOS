@@ -7,7 +7,7 @@ import { CasePricingPlanCountOutputTypeArgsObjectSchema as CasePricingPlanCountO
 const makeSchema = () => z.object({
   id: z.boolean().optional(),
   labId: z.boolean().optional(),
-  Lab: z.union([z.boolean(), z.lazy(() => LabArgsObjectSchema)]).optional(),
+  lab: z.union([z.boolean(), z.lazy(() => LabArgsObjectSchema)]).optional(),
   pricingStrategy: z.boolean().optional(),
   firstToothPrice: z.boolean().optional(),
   bulkPrice: z.boolean().optional(),

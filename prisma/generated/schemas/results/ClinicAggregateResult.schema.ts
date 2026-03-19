@@ -2,7 +2,7 @@ import * as z from 'zod';
 export const ClinicAggregateResultSchema = z.object({  _count: z.object({
     id: z.number(),
     labId: z.number(),
-    Lab: z.number(),
+    lab: z.number(),
     name: z.number(),
     description: z.number(),
     city: z.number(),

@@ -14,7 +14,7 @@ const makeSchema = () => z.object({
   assetFileType: z.union([AssetFileTypeSchema, z.lazy(() => EnumAssetFileTypeFieldUpdateOperationsInputObjectSchema)]).optional(),
   createdAt: z.union([z.coerce.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputObjectSchema)]).optional(),
   updatedAt: z.union([z.coerce.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputObjectSchema)]).optional(),
-  Lab: z.lazy(() => LabUpdateOneRequiredWithoutCaseAssetFilesNestedInputObjectSchema).optional()
+  lab: z.lazy(() => LabUpdateOneRequiredWithoutCaseAssetFilesNestedInputObjectSchema).optional()
 }).strict();
 export const CaseAssetFileUpdateWithoutCaseInputObjectSchema: z.ZodType<Prisma.CaseAssetFileUpdateWithoutCaseInput> = makeSchema() as unknown as z.ZodType<Prisma.CaseAssetFileUpdateWithoutCaseInput>;
 export const CaseAssetFileUpdateWithoutCaseInputObjectZodSchema = makeSchema();

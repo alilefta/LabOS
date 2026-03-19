@@ -15,7 +15,7 @@ const makeSchema = () => z.object({
   bulkPriceThreshold: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
   createdAt: SortOrderSchema.optional(),
   updatedAt: SortOrderSchema.optional(),
-  Lab: z.lazy(() => LabOrderByWithRelationInputObjectSchema).optional(),
+  lab: z.lazy(() => LabOrderByWithRelationInputObjectSchema).optional(),
   caseWorkItem: z.lazy(() => CaseWorkItemOrderByRelationAggregateInputObjectSchema).optional()
 }).strict();
 export const CasePricingPlanOrderByWithRelationInputObjectSchema: z.ZodType<Prisma.CasePricingPlanOrderByWithRelationInput> = makeSchema() as unknown as z.ZodType<Prisma.CasePricingPlanOrderByWithRelationInput>;

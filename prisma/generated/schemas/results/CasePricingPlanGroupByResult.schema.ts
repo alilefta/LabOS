@@ -11,7 +11,7 @@ export const CasePricingPlanGroupByResultSchema = z.array(z.object({
   _count: z.object({
     id: z.number(),
     labId: z.number(),
-    Lab: z.number(),
+    lab: z.number(),
     pricingStrategy: z.number(),
     firstToothPrice: z.number(),
     bulkPrice: z.number(),

@@ -22,7 +22,7 @@ const casecategorywhereinputSchema = z.object({
   updatedAt: z.union([z.lazy(() => DateTimeFilterObjectSchema), z.coerce.date()]).optional(),
   workTypes: z.lazy(() => WorkTypeListRelationFilterObjectSchema).optional(),
   cases: z.lazy(() => CaseListRelationFilterObjectSchema).optional(),
-  Lab: z.union([z.lazy(() => LabScalarRelationFilterObjectSchema), z.lazy(() => LabWhereInputObjectSchema)]).optional()
+  lab: z.union([z.lazy(() => LabScalarRelationFilterObjectSchema), z.lazy(() => LabWhereInputObjectSchema)]).optional()
 }).strict();
 export const CaseCategoryWhereInputObjectSchema: z.ZodType<Prisma.CaseCategoryWhereInput> = casecategorywhereinputSchema as unknown as z.ZodType<Prisma.CaseCategoryWhereInput>;
 export const CaseCategoryWhereInputObjectZodSchema = casecategorywhereinputSchema;

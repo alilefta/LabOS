@@ -18,7 +18,7 @@ const makeSchema = () => z.object({
   avatarUrl: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputObjectSchema)]).optional(),
   createdAt: z.union([z.coerce.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputObjectSchema)]).optional(),
   updatedAt: z.union([z.coerce.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputObjectSchema)]).optional(),
-  Lab: z.lazy(() => LabUpdateOneRequiredWithoutSalesRepsNestedInputObjectSchema).optional()
+  lab: z.lazy(() => LabUpdateOneRequiredWithoutSalesRepsNestedInputObjectSchema).optional()
 }).strict();
 export const SalesRepresentativeUpdateWithoutCasesInputObjectSchema: z.ZodType<Prisma.SalesRepresentativeUpdateWithoutCasesInput> = makeSchema() as unknown as z.ZodType<Prisma.SalesRepresentativeUpdateWithoutCasesInput>;
 export const SalesRepresentativeUpdateWithoutCasesInputObjectZodSchema = makeSchema();

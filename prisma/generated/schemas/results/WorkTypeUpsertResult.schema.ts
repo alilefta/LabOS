@@ -6,7 +6,7 @@ export const WorkTypeUpsertResultSchema = z.object({
   imageUrl: z.string(),
   product: z.array(z.unknown()),
   labId: z.string(),
-  Lab: z.unknown(),
+  lab: z.unknown(),
   caseCategoryId: z.string(),
   caseCategory: z.unknown(),
   createdAt: z.date(),

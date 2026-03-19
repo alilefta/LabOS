@@ -30,7 +30,7 @@ const makeSchema = () => z.object({
   createdAt: z.union([z.coerce.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputObjectSchema)]).optional(),
   updatedAt: z.union([z.coerce.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputObjectSchema)]).optional(),
   patient: z.lazy(() => PatientUpdateOneRequiredWithoutCaseNestedInputObjectSchema).optional(),
-  Lab: z.lazy(() => LabUpdateOneRequiredWithoutCasesNestedInputObjectSchema).optional(),
+  lab: z.lazy(() => LabUpdateOneRequiredWithoutCasesNestedInputObjectSchema).optional(),
   salesReps: z.lazy(() => SalesRepresentativeUpdateOneWithoutCasesNestedInputObjectSchema).optional(),
   caseItems: z.lazy(() => CaseWorkItemUpdateManyWithoutCaseNestedInputObjectSchema).optional(),
   caseCategory: z.lazy(() => CaseCategoryUpdateManyWithoutCasesNestedInputObjectSchema).optional(),

@@ -12,7 +12,7 @@ export const PatientModelSchema = z.object({
     phoneNumber: z.string(),
     case: z.array(z.unknown()),
     labId: z.string(),
-    Lab: z.unknown(),
+    lab: z.unknown(),
     createdAt: z.date(),
     updatedAt: z.date()
 }).strict();

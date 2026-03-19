@@ -15,7 +15,7 @@ export const ProductGroupByResultSchema = z.array(z.object({
     imageUrl: z.number(),
     caseWorkItems: z.number(),
     labId: z.number(),
-    Lab: z.number(),
+    lab: z.number(),
     workTypeId: z.number(),
     workType: z.number(),
     createdAt: z.number(),

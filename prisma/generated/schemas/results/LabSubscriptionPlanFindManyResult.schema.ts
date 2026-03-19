@@ -3,7 +3,7 @@ export const LabSubscriptionPlanFindManyResultSchema = z.object({
   data: z.array(z.object({
   id: z.string(),
   labId: z.string(),
-  Lab: z.unknown(),
+  lab: z.unknown(),
   subscriptionNextRenewal: z.date().optional(),
   isCancelled: z.boolean(),
   cancellationDate: z.date().optional(),

@@ -19,7 +19,7 @@ const makeSchema = () => z.object({
   avatarUrl: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputObjectSchema)]).optional(),
   createdAt: z.union([z.coerce.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputObjectSchema)]).optional(),
   updatedAt: z.union([z.coerce.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputObjectSchema)]).optional(),
-  Lab: z.lazy(() => LabUpdateOneRequiredWithoutTechniciansNestedInputObjectSchema).optional(),
+  lab: z.lazy(() => LabUpdateOneRequiredWithoutTechniciansNestedInputObjectSchema).optional(),
   cases: z.lazy(() => CaseUpdateManyWithoutTechnicianNestedInputObjectSchema).optional()
 }).strict();
 export const TechnicianUpdateInputObjectSchema: z.ZodType<Prisma.TechnicianUpdateInput> = makeSchema() as unknown as z.ZodType<Prisma.TechnicianUpdateInput>;

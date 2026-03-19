@@ -5,7 +5,7 @@ import { LabArgsObjectSchema as LabArgsObjectSchema } from './LabArgs.schema'
 
 const makeSchema = () => z.object({
   caseWorkItem: z.union([z.boolean(), z.lazy(() => CaseWorkItemArgsObjectSchema)]).optional(),
-  Lab: z.union([z.boolean(), z.lazy(() => LabArgsObjectSchema)]).optional()
+  lab: z.union([z.boolean(), z.lazy(() => LabArgsObjectSchema)]).optional()
 }).strict();
 export const SelectedToothIncludeObjectSchema: z.ZodType<Prisma.SelectedToothInclude> = makeSchema() as unknown as z.ZodType<Prisma.SelectedToothInclude>;
 export const SelectedToothIncludeObjectZodSchema = makeSchema();

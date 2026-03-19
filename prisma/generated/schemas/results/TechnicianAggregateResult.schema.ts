@@ -8,7 +8,7 @@ export const TechnicianAggregateResultSchema = z.object({  _count: z.object({
     address1: z.number(),
     address2: z.number(),
     labId: z.number(),
-    Lab: z.number(),
+    lab: z.number(),
     email: z.number(),
     phoneNumber: z.number(),
     avatarUrl: z.number(),

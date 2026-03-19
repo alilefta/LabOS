@@ -3,7 +3,7 @@ import * as z from 'zod';
 export const LabSubscriptionPlanInputSchema = z.object({
     id: z.string(),
     labId: z.string(),
-    Lab: z.unknown(),
+    lab: z.unknown(),
     subscriptionNextRenewal: z.date().optional().nullable(),
     isCancelled: z.boolean(),
     cancellationDate: z.date().optional().nullable(),

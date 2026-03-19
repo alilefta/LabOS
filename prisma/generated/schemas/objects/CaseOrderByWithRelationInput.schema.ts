@@ -24,7 +24,7 @@ const makeSchema = () => z.object({
   createdAt: SortOrderSchema.optional(),
   updatedAt: SortOrderSchema.optional(),
   patient: z.lazy(() => PatientOrderByWithRelationInputObjectSchema).optional(),
-  Lab: z.lazy(() => LabOrderByWithRelationInputObjectSchema).optional(),
+  lab: z.lazy(() => LabOrderByWithRelationInputObjectSchema).optional(),
   salesReps: z.lazy(() => SalesRepresentativeOrderByWithRelationInputObjectSchema).optional(),
   caseItems: z.lazy(() => CaseWorkItemOrderByRelationAggregateInputObjectSchema).optional(),
   caseCategory: z.lazy(() => CaseCategoryOrderByRelationAggregateInputObjectSchema).optional(),

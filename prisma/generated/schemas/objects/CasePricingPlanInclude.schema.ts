@@ -5,7 +5,7 @@ import { CaseWorkItemFindManySchema as CaseWorkItemFindManySchema } from '../fin
 import { CasePricingPlanCountOutputTypeArgsObjectSchema as CasePricingPlanCountOutputTypeArgsObjectSchema } from './CasePricingPlanCountOutputTypeArgs.schema'
 
 const makeSchema = () => z.object({
-  Lab: z.union([z.boolean(), z.lazy(() => LabArgsObjectSchema)]).optional(),
+  lab: z.union([z.boolean(), z.lazy(() => LabArgsObjectSchema)]).optional(),
   caseWorkItem: z.union([z.boolean(), z.lazy(() => CaseWorkItemFindManySchema)]).optional(),
   _count: z.union([z.boolean(), z.lazy(() => CasePricingPlanCountOutputTypeArgsObjectSchema)]).optional()
 }).strict();

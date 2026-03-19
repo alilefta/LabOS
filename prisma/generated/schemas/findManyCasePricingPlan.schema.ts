@@ -12,7 +12,7 @@ import { CasePricingPlanScalarFieldEnumSchema } from './enums/CasePricingPlanSca
 export const CasePricingPlanFindManySelectSchema: z.ZodType<Prisma.CasePricingPlanSelect> = z.object({
     id: z.boolean().optional(),
     labId: z.boolean().optional(),
-    Lab: z.boolean().optional(),
+    lab: z.boolean().optional(),
     pricingStrategy: z.boolean().optional(),
     firstToothPrice: z.boolean().optional(),
     bulkPrice: z.boolean().optional(),
@@ -27,7 +27,7 @@ export const CasePricingPlanFindManySelectSchema: z.ZodType<Prisma.CasePricingPl
 export const CasePricingPlanFindManySelectZodSchema = z.object({
     id: z.boolean().optional(),
     labId: z.boolean().optional(),
-    Lab: z.boolean().optional(),
+    lab: z.boolean().optional(),
     pricingStrategy: z.boolean().optional(),
     firstToothPrice: z.boolean().optional(),
     bulkPrice: z.boolean().optional(),

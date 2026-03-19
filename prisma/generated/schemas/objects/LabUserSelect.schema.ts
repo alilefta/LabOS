@@ -14,7 +14,7 @@ const makeSchema = () => z.object({
   phoneNumber: z.boolean().optional(),
   role: z.boolean().optional(),
   labId: z.boolean().optional(),
-  Lab: z.union([z.boolean(), z.lazy(() => LabArgsObjectSchema)]).optional(),
+  lab: z.union([z.boolean(), z.lazy(() => LabArgsObjectSchema)]).optional(),
   isActive: z.boolean().optional(),
   lastTimeActive: z.boolean().optional(),
   createdAt: z.boolean().optional(),

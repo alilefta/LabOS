@@ -5,7 +5,7 @@ import { LabArgsObjectSchema as LabArgsObjectSchema } from './LabArgs.schema'
 const makeSchema = () => z.object({
   id: z.boolean().optional(),
   labId: z.boolean().optional(),
-  Lab: z.union([z.boolean(), z.lazy(() => LabArgsObjectSchema)]).optional(),
+  lab: z.union([z.boolean(), z.lazy(() => LabArgsObjectSchema)]).optional(),
   subscriptionNextRenewal: z.boolean().optional(),
   isCancelled: z.boolean().optional(),
   cancellationDate: z.boolean().optional(),

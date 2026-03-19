@@ -15,7 +15,7 @@ export const ClinicGroupByResultSchema = z.array(z.object({
   _count: z.object({
     id: z.number(),
     labId: z.number(),
-    Lab: z.number(),
+    lab: z.number(),
     name: z.number(),
     description: z.number(),
     city: z.number(),

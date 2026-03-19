@@ -4,7 +4,7 @@ export const CaseUpsertResultSchema = z.object({
   patientId: z.string(),
   patient: z.unknown(),
   labId: z.string(),
-  Lab: z.unknown(),
+  lab: z.unknown(),
   salesRepsId: z.string().optional(),
   salesReps: z.unknown().optional(),
   caseItems: z.array(z.unknown()),

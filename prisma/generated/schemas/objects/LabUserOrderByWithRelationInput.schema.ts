@@ -20,7 +20,7 @@ const makeSchema = () => z.object({
   lastTimeActive: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
   createdAt: SortOrderSchema.optional(),
   updatedAt: SortOrderSchema.optional(),
-  Lab: z.lazy(() => LabOrderByWithRelationInputObjectSchema).optional()
+  lab: z.lazy(() => LabOrderByWithRelationInputObjectSchema).optional()
 }).strict();
 export const LabUserOrderByWithRelationInputObjectSchema: z.ZodType<Prisma.LabUserOrderByWithRelationInput> = makeSchema() as unknown as z.ZodType<Prisma.LabUserOrderByWithRelationInput>;
 export const LabUserOrderByWithRelationInputObjectZodSchema = makeSchema();

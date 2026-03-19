@@ -25,7 +25,7 @@ const makeSchema = () => z.object({
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
   patient: z.lazy(() => PatientCreateNestedOneWithoutCaseInputObjectSchema),
-  Lab: z.lazy(() => LabCreateNestedOneWithoutCasesInputObjectSchema),
+  lab: z.lazy(() => LabCreateNestedOneWithoutCasesInputObjectSchema),
   caseItems: z.lazy(() => CaseWorkItemCreateNestedManyWithoutCaseInputObjectSchema).optional(),
   caseCategory: z.lazy(() => CaseCategoryCreateNestedManyWithoutCasesInputObjectSchema).optional(),
   clinic: z.lazy(() => ClinicCreateNestedOneWithoutCasesInputObjectSchema).optional(),

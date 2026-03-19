@@ -15,7 +15,7 @@ const makeSchema = () => z.object({
   phoneNumber: z.string(),
   createdAt: z.coerce.date().optional(),
   case: z.lazy(() => CaseCreateNestedManyWithoutPatientInputObjectSchema).optional(),
-  Lab: z.lazy(() => LabCreateNestedOneWithoutPatientInputObjectSchema)
+  lab: z.lazy(() => LabCreateNestedOneWithoutPatientInputObjectSchema)
 }).strict();
 export const PatientCreateInputObjectSchema: z.ZodType<Prisma.PatientCreateInput> = makeSchema() as unknown as z.ZodType<Prisma.PatientCreateInput>;
 export const PatientCreateInputObjectZodSchema = makeSchema();

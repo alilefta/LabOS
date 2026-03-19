@@ -6,7 +6,7 @@ import { PatientCountOutputTypeArgsObjectSchema as PatientCountOutputTypeArgsObj
 
 const makeSchema = () => z.object({
   case: z.union([z.boolean(), z.lazy(() => CaseFindManySchema)]).optional(),
-  Lab: z.union([z.boolean(), z.lazy(() => LabArgsObjectSchema)]).optional(),
+  lab: z.union([z.boolean(), z.lazy(() => LabArgsObjectSchema)]).optional(),
   _count: z.union([z.boolean(), z.lazy(() => PatientCountOutputTypeArgsObjectSchema)]).optional()
 }).strict();
 export const PatientIncludeObjectSchema: z.ZodType<Prisma.PatientInclude> = makeSchema() as unknown as z.ZodType<Prisma.PatientInclude>;

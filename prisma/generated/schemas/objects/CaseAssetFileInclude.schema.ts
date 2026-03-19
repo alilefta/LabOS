@@ -5,7 +5,7 @@ import { LabArgsObjectSchema as LabArgsObjectSchema } from './LabArgs.schema'
 
 const makeSchema = () => z.object({
   case: z.union([z.boolean(), z.lazy(() => CaseArgsObjectSchema)]).optional(),
-  Lab: z.union([z.boolean(), z.lazy(() => LabArgsObjectSchema)]).optional()
+  lab: z.union([z.boolean(), z.lazy(() => LabArgsObjectSchema)]).optional()
 }).strict();
 export const CaseAssetFileIncludeObjectSchema: z.ZodType<Prisma.CaseAssetFileInclude> = makeSchema() as unknown as z.ZodType<Prisma.CaseAssetFileInclude>;
 export const CaseAssetFileIncludeObjectZodSchema = makeSchema();

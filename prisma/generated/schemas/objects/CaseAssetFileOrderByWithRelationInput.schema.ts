@@ -15,7 +15,7 @@ const makeSchema = () => z.object({
   createdAt: SortOrderSchema.optional(),
   updatedAt: SortOrderSchema.optional(),
   case: z.lazy(() => CaseOrderByWithRelationInputObjectSchema).optional(),
-  Lab: z.lazy(() => LabOrderByWithRelationInputObjectSchema).optional()
+  lab: z.lazy(() => LabOrderByWithRelationInputObjectSchema).optional()
 }).strict();
 export const CaseAssetFileOrderByWithRelationInputObjectSchema: z.ZodType<Prisma.CaseAssetFileOrderByWithRelationInput> = makeSchema() as unknown as z.ZodType<Prisma.CaseAssetFileOrderByWithRelationInput>;
 export const CaseAssetFileOrderByWithRelationInputObjectZodSchema = makeSchema();

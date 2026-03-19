@@ -7,7 +7,7 @@ import { WorkTypeCountOutputTypeArgsObjectSchema as WorkTypeCountOutputTypeArgsO
 
 const makeSchema = () => z.object({
   product: z.union([z.boolean(), z.lazy(() => ProductFindManySchema)]).optional(),
-  Lab: z.union([z.boolean(), z.lazy(() => LabArgsObjectSchema)]).optional(),
+  lab: z.union([z.boolean(), z.lazy(() => LabArgsObjectSchema)]).optional(),
   caseCategory: z.union([z.boolean(), z.lazy(() => CaseCategoryArgsObjectSchema)]).optional(),
   _count: z.union([z.boolean(), z.lazy(() => WorkTypeCountOutputTypeArgsObjectSchema)]).optional()
 }).strict();

@@ -15,7 +15,7 @@ export const SelectedToothFindManySelectSchema: z.ZodType<Prisma.SelectedToothSe
     caseWorkItemId: z.boolean().optional(),
     caseWorkItem: z.boolean().optional(),
     labId: z.boolean().optional(),
-    Lab: z.boolean().optional(),
+    lab: z.boolean().optional(),
     createdAt: z.boolean().optional(),
     updatedAt: z.boolean().optional()
   }).strict() as unknown as z.ZodType<Prisma.SelectedToothSelect>;
@@ -26,7 +26,7 @@ export const SelectedToothFindManySelectZodSchema = z.object({
     caseWorkItemId: z.boolean().optional(),
     caseWorkItem: z.boolean().optional(),
     labId: z.boolean().optional(),
-    Lab: z.boolean().optional(),
+    lab: z.boolean().optional(),
     createdAt: z.boolean().optional(),
     updatedAt: z.boolean().optional()
   }).strict();

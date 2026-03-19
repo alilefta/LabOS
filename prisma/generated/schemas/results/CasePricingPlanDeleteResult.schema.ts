@@ -2,7 +2,7 @@ import * as z from 'zod';
 export const CasePricingPlanDeleteResultSchema = z.nullable(z.object({
   id: z.string(),
   labId: z.string(),
-  Lab: z.unknown(),
+  lab: z.unknown(),
   pricingStrategy: z.unknown(),
   firstToothPrice: z.number().optional(),
   bulkPrice: z.number().optional(),

@@ -17,7 +17,7 @@ export const CaseCategoryGroupByResultSchema = z.array(z.object({
     workTypes: z.number(),
     cases: z.number(),
     labId: z.number(),
-    Lab: z.number(),
+    lab: z.number(),
     createdAt: z.number(),
     updatedAt: z.number()
   }).optional(),

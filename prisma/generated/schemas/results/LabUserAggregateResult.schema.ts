@@ -11,7 +11,7 @@ export const LabUserAggregateResultSchema = z.object({  _count: z.object({
     phoneNumber: z.number(),
     role: z.number(),
     labId: z.number(),
-    Lab: z.number(),
+    lab: z.number(),
     isActive: z.number(),
     lastTimeActive: z.number(),
     createdAt: z.number(),

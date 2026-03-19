@@ -13,7 +13,7 @@ export const LabUserResultSchema = z.object({
     phoneNumber: z.string(),
     role: UserRoleSchema,
     labId: z.string(),
-    Lab: z.unknown(),
+    lab: z.unknown(),
     isActive: z.boolean(),
     lastTimeActive: z.date().nullable(),
     createdAt: z.date(),

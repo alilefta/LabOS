@@ -5,7 +5,7 @@ import { CaseFindManySchema as CaseFindManySchema } from '../findManyCase.schema
 import { SalesRepresentativeCountOutputTypeArgsObjectSchema as SalesRepresentativeCountOutputTypeArgsObjectSchema } from './SalesRepresentativeCountOutputTypeArgs.schema'
 
 const makeSchema = () => z.object({
-  Lab: z.union([z.boolean(), z.lazy(() => LabArgsObjectSchema)]).optional(),
+  lab: z.union([z.boolean(), z.lazy(() => LabArgsObjectSchema)]).optional(),
   cases: z.union([z.boolean(), z.lazy(() => CaseFindManySchema)]).optional(),
   _count: z.union([z.boolean(), z.lazy(() => SalesRepresentativeCountOutputTypeArgsObjectSchema)]).optional()
 }).strict();

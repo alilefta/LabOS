@@ -4,7 +4,7 @@ import { PricingStrategySchema } from '../../enums/PricingStrategy.schema';
 export const CasePricingPlanInputSchema = z.object({
     id: z.string(),
     labId: z.string(),
-    Lab: z.unknown(),
+    lab: z.unknown(),
     pricingStrategy: PricingStrategySchema,
     firstToothPrice: z.number().optional().nullable(),
     bulkPrice: z.number().optional().nullable(),

@@ -8,7 +8,7 @@ const makeSchema = () => z.object({
   isCancelled: z.boolean().optional(),
   cancellationDate: z.coerce.date().optional().nullable(),
   createdAt: z.coerce.date().optional(),
-  Lab: z.lazy(() => LabCreateNestedOneWithoutLabSubscriptionPlanInputObjectSchema)
+  lab: z.lazy(() => LabCreateNestedOneWithoutLabSubscriptionPlanInputObjectSchema)
 }).strict();
 export const LabSubscriptionPlanCreateInputObjectSchema: z.ZodType<Prisma.LabSubscriptionPlanCreateInput> = makeSchema() as unknown as z.ZodType<Prisma.LabSubscriptionPlanCreateInput>;
 export const LabSubscriptionPlanCreateInputObjectZodSchema = makeSchema();

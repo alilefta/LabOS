@@ -12,7 +12,7 @@ const makeSchema = () => z.object({
   imageUrl: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputObjectSchema)]).optional(),
   createdAt: z.union([z.coerce.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputObjectSchema)]).optional(),
   updatedAt: z.union([z.coerce.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputObjectSchema)]).optional(),
-  Lab: z.lazy(() => LabUpdateOneRequiredWithoutProductsNestedInputObjectSchema).optional(),
+  lab: z.lazy(() => LabUpdateOneRequiredWithoutProductsNestedInputObjectSchema).optional(),
   workType: z.lazy(() => WorkTypeUpdateOneRequiredWithoutProductNestedInputObjectSchema).optional()
 }).strict();
 export const ProductUpdateWithoutCaseWorkItemsInputObjectSchema: z.ZodType<Prisma.ProductUpdateWithoutCaseWorkItemsInput> = makeSchema() as unknown as z.ZodType<Prisma.ProductUpdateWithoutCaseWorkItemsInput>;

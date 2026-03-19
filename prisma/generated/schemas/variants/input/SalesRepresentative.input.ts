@@ -9,7 +9,7 @@ export const SalesRepresentativeInputSchema = z.object({
     address1: z.string(),
     address2: z.string().optional().nullable(),
     labId: z.string(),
-    Lab: z.unknown(),
+    lab: z.unknown(),
     email: z.string(),
     phoneNumber: z.string(),
     avatarUrl: z.string(),

@@ -41,7 +41,7 @@ const makeSchema = () => z.object({
   message: "Field 'bulkPriceThreshold' must be a Decimal",
 }).optional().nullable(),
   createdAt: z.coerce.date().optional(),
-  Lab: z.lazy(() => LabCreateNestedOneWithoutCasePricingPlansInputObjectSchema),
+  lab: z.lazy(() => LabCreateNestedOneWithoutCasePricingPlansInputObjectSchema),
   caseWorkItem: z.lazy(() => CaseWorkItemCreateNestedManyWithoutCasePricingPlanInputObjectSchema).optional()
 }).strict();
 export const CasePricingPlanCreateInputObjectSchema: z.ZodType<Prisma.CasePricingPlanCreateInput> = makeSchema() as unknown as z.ZodType<Prisma.CasePricingPlanCreateInput>;

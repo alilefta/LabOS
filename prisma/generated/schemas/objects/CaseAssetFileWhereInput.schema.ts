@@ -23,7 +23,7 @@ const caseassetfilewhereinputSchema = z.object({
   createdAt: z.union([z.lazy(() => DateTimeFilterObjectSchema), z.coerce.date()]).optional(),
   updatedAt: z.union([z.lazy(() => DateTimeFilterObjectSchema), z.coerce.date()]).optional(),
   case: z.union([z.lazy(() => CaseScalarRelationFilterObjectSchema), z.lazy(() => CaseWhereInputObjectSchema)]).optional(),
-  Lab: z.union([z.lazy(() => LabScalarRelationFilterObjectSchema), z.lazy(() => LabWhereInputObjectSchema)]).optional()
+  lab: z.union([z.lazy(() => LabScalarRelationFilterObjectSchema), z.lazy(() => LabWhereInputObjectSchema)]).optional()
 }).strict();
 export const CaseAssetFileWhereInputObjectSchema: z.ZodType<Prisma.CaseAssetFileWhereInput> = caseassetfilewhereinputSchema as unknown as z.ZodType<Prisma.CaseAssetFileWhereInput>;
 export const CaseAssetFileWhereInputObjectZodSchema = caseassetfilewhereinputSchema;

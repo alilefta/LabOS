@@ -24,7 +24,7 @@ const technicianwhereinputSchema = z.object({
   avatarUrl: z.union([z.lazy(() => StringFilterObjectSchema), z.string()]).optional(),
   createdAt: z.union([z.lazy(() => DateTimeFilterObjectSchema), z.coerce.date()]).optional(),
   updatedAt: z.union([z.lazy(() => DateTimeFilterObjectSchema), z.coerce.date()]).optional(),
-  Lab: z.union([z.lazy(() => LabScalarRelationFilterObjectSchema), z.lazy(() => LabWhereInputObjectSchema)]).optional(),
+  lab: z.union([z.lazy(() => LabScalarRelationFilterObjectSchema), z.lazy(() => LabWhereInputObjectSchema)]).optional(),
   cases: z.lazy(() => CaseListRelationFilterObjectSchema).optional()
 }).strict();
 export const TechnicianWhereInputObjectSchema: z.ZodType<Prisma.TechnicianWhereInput> = technicianwhereinputSchema as unknown as z.ZodType<Prisma.TechnicianWhereInput>;

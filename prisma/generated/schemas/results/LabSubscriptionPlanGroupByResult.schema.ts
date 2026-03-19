@@ -10,7 +10,7 @@ export const LabSubscriptionPlanGroupByResultSchema = z.array(z.object({
   _count: z.object({
     id: z.number(),
     labId: z.number(),
-    Lab: z.number(),
+    lab: z.number(),
     subscriptionNextRenewal: z.number(),
     isCancelled: z.number(),
     cancellationDate: z.number(),

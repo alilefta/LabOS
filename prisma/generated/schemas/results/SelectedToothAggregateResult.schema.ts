@@ -5,7 +5,7 @@ export const SelectedToothAggregateResultSchema = z.object({  _count: z.object({
     caseWorkItemId: z.number(),
     caseWorkItem: z.number(),
     labId: z.number(),
-    Lab: z.number(),
+    lab: z.number(),
     createdAt: z.number(),
     updatedAt: z.number()
   }).optional(),

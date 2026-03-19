@@ -12,7 +12,7 @@ import { LabSubscriptionPlanScalarFieldEnumSchema } from './enums/LabSubscriptio
 export const LabSubscriptionPlanFindFirstOrThrowSelectSchema: z.ZodType<Prisma.LabSubscriptionPlanSelect> = z.object({
     id: z.boolean().optional(),
     labId: z.boolean().optional(),
-    Lab: z.boolean().optional(),
+    lab: z.boolean().optional(),
     subscriptionNextRenewal: z.boolean().optional(),
     isCancelled: z.boolean().optional(),
     cancellationDate: z.boolean().optional(),
@@ -23,7 +23,7 @@ export const LabSubscriptionPlanFindFirstOrThrowSelectSchema: z.ZodType<Prisma.L
 export const LabSubscriptionPlanFindFirstOrThrowSelectZodSchema = z.object({
     id: z.boolean().optional(),
     labId: z.boolean().optional(),
-    Lab: z.boolean().optional(),
+    lab: z.boolean().optional(),
     subscriptionNextRenewal: z.boolean().optional(),
     isCancelled: z.boolean().optional(),
     cancellationDate: z.boolean().optional(),

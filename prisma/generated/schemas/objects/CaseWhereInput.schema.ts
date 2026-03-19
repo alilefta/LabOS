@@ -44,7 +44,7 @@ const casewhereinputSchema = z.object({
   createdAt: z.union([z.lazy(() => DateTimeFilterObjectSchema), z.coerce.date()]).optional(),
   updatedAt: z.union([z.lazy(() => DateTimeFilterObjectSchema), z.coerce.date()]).optional(),
   patient: z.union([z.lazy(() => PatientScalarRelationFilterObjectSchema), z.lazy(() => PatientWhereInputObjectSchema)]).optional(),
-  Lab: z.union([z.lazy(() => LabScalarRelationFilterObjectSchema), z.lazy(() => LabWhereInputObjectSchema)]).optional(),
+  lab: z.union([z.lazy(() => LabScalarRelationFilterObjectSchema), z.lazy(() => LabWhereInputObjectSchema)]).optional(),
   salesReps: z.union([z.lazy(() => SalesRepresentativeNullableScalarRelationFilterObjectSchema), z.lazy(() => SalesRepresentativeWhereInputObjectSchema)]).optional(),
   caseItems: z.lazy(() => CaseWorkItemListRelationFilterObjectSchema).optional(),
   caseCategory: z.lazy(() => CaseCategoryListRelationFilterObjectSchema).optional(),

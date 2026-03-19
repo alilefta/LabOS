@@ -6,7 +6,7 @@ export const ProductDeleteResultSchema = z.nullable(z.object({
   imageUrl: z.string(),
   caseWorkItems: z.array(z.unknown()),
   labId: z.string(),
-  Lab: z.unknown(),
+  lab: z.unknown(),
   workTypeId: z.string(),
   workType: z.unknown(),
   createdAt: z.date(),

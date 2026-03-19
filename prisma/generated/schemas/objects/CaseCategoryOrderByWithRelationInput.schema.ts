@@ -16,7 +16,7 @@ const makeSchema = () => z.object({
   updatedAt: SortOrderSchema.optional(),
   workTypes: z.lazy(() => WorkTypeOrderByRelationAggregateInputObjectSchema).optional(),
   cases: z.lazy(() => CaseOrderByRelationAggregateInputObjectSchema).optional(),
-  Lab: z.lazy(() => LabOrderByWithRelationInputObjectSchema).optional()
+  lab: z.lazy(() => LabOrderByWithRelationInputObjectSchema).optional()
 }).strict();
 export const CaseCategoryOrderByWithRelationInputObjectSchema: z.ZodType<Prisma.CaseCategoryOrderByWithRelationInput> = makeSchema() as unknown as z.ZodType<Prisma.CaseCategoryOrderByWithRelationInput>;
 export const CaseCategoryOrderByWithRelationInputObjectZodSchema = makeSchema();

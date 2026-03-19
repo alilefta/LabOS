@@ -11,7 +11,7 @@ const makeSchema = () => z.object({
   toothPosition: z.union([ToothPositionSchema, z.lazy(() => EnumToothPositionFieldUpdateOperationsInputObjectSchema)]).optional(),
   createdAt: z.union([z.coerce.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputObjectSchema)]).optional(),
   updatedAt: z.union([z.coerce.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputObjectSchema)]).optional(),
-  Lab: z.lazy(() => LabUpdateOneRequiredWithoutSelectedTeethNestedInputObjectSchema).optional()
+  lab: z.lazy(() => LabUpdateOneRequiredWithoutSelectedTeethNestedInputObjectSchema).optional()
 }).strict();
 export const SelectedToothUpdateWithoutCaseWorkItemInputObjectSchema: z.ZodType<Prisma.SelectedToothUpdateWithoutCaseWorkItemInput> = makeSchema() as unknown as z.ZodType<Prisma.SelectedToothUpdateWithoutCaseWorkItemInput>;
 export const SelectedToothUpdateWithoutCaseWorkItemInputObjectZodSchema = makeSchema();

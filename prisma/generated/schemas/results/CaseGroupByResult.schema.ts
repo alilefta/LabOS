@@ -15,7 +15,7 @@ export const CaseGroupByResultSchema = z.array(z.object({
     patientId: z.number(),
     patient: z.number(),
     labId: z.number(),
-    Lab: z.number(),
+    lab: z.number(),
     salesRepsId: z.number(),
     salesReps: z.number(),
     caseItems: z.number(),

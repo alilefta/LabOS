@@ -123,7 +123,7 @@ model Clinic {
   id          String      @id @default(uuid()) 
 
   labId       String
-  Lab         Lab         @relation(fields: [labId], references: [id], onDelete: Cascade)
+  lab         Lab         @relation(fields: [labId], references: [id], onDelete: Cascade)
 
   name        String      
   description String? 
@@ -143,9 +143,6 @@ model Clinic {
   @@index([labId])
 }
 
-
-
-
 model Case {
   id              String                @id @default(uuid()) 
   
@@ -153,7 +150,7 @@ model Case {
   patient         Patient               @relation(fields: [patientId], references: [id], onDelete: Cascade)
 
   labId           String
-  Lab             Lab                   @relation(fields: [labId], references: [id], onDelete: Cascade)
+  lab             Lab                   @relation(fields: [labId], references: [id], onDelete: Cascade)
 
   salesRepsId     String?        
   salesReps       SalesRepresentative?  @relation(fields: [salesRepsId], references: [id], onDelete:SetNull )
@@ -205,7 +202,7 @@ model Patient {
 
 
   labId         String
-  Lab           Lab                   @relation(fields: [labId], references: [id], onDelete: Cascade)
+  lab           Lab                   @relation(fields: [labId], references: [id], onDelete: Cascade)
 
   createdAt     DateTime              @default(now())
   updatedAt     DateTime              @updatedAt
@@ -267,7 +264,7 @@ model CaseAssetFile  {
   assetFileType AssetFileType @default(IMAGE)           
 
   labId       String
-  Lab         Lab             @relation(fields: [labId], references: [id], onDelete: Cascade)
+  lab         Lab             @relation(fields: [labId], references: [id], onDelete: Cascade)
 
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
@@ -275,9 +272,6 @@ model CaseAssetFile  {
   @@index([labId])
   @@index([caseId])
 }
-
-
-
 
 model CaseCategory  {
   id            String        @id @default(uuid()) 
@@ -292,7 +286,7 @@ model CaseCategory  {
   cases         Case[]
 
   labId       String
-  Lab         Lab             @relation(fields: [labId], references: [id], onDelete: Cascade)
+  lab         Lab             @relation(fields: [labId], references: [id], onDelete: Cascade)
 
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
@@ -311,7 +305,7 @@ model WorkType  {
   
 
   labId       String
-  Lab         Lab                   @relation(fields: [labId], references: [id], onDelete: Cascade)
+  lab         Lab                   @relation(fields: [labId], references: [id], onDelete: Cascade)
 
   caseCategoryId      String
   caseCategory        CaseCategory  @relation(fields: [caseCategoryId], references: [id], onDelete: Cascade)
@@ -334,7 +328,7 @@ model Product  {
   caseWorkItems CaseWorkItem[]
 
   labId       String
-  Lab         Lab         @relation(fields: [labId], references: [id], onDelete: Cascade)
+  lab         Lab         @relation(fields: [labId], references: [id], onDelete: Cascade)
 
   workTypeId    String
   workType      WorkType      @relation(fields: [workTypeId], references: [id], onDelete: Cascade)
@@ -350,7 +344,7 @@ model CasePricingPlan {
   id                    String            @id @default(uuid()) 
 
   labId                 String
-  Lab                   Lab               @relation(fields: [labId], references: [id], onDelete: Cascade)
+  lab                   Lab               @relation(fields: [labId], references: [id], onDelete: Cascade)
 
   pricingStrategy       PricingStrategy   @default(BULK)
   firstToothPrice       Decimal?
@@ -370,19 +364,6 @@ model CasePricingPlan {
 }
 
 
-// model PricingHistory {
-//   id                    String            @id @default(uuid()) 
-
-
-//   casePricingPlans          casePricingPlan[]
-
-//   labId                 String
-//   Lab                   Lab               @relation(fields: [labId], references: [id], onDelete: Cascade)
-  
-//   createdAt             DateTime          @default(now())
-//   updatedAt             DateTime          @updatedAt
-// }
-
 model Technician  {
   id            String        @id @default(uuid()) 
   firstName     String        
@@ -395,7 +376,7 @@ model Technician  {
 
 
   labId         String
-  Lab           Lab           @relation(fields: [labId], references: [id], onDelete: Cascade)
+  lab           Lab           @relation(fields: [labId], references: [id], onDelete: Cascade)
 
 
   email         String
@@ -424,7 +405,7 @@ model SalesRepresentative{
 
 
   labId         String
-  Lab           Lab             @relation(fields: [labId], references: [id], onDelete: Cascade)
+  lab           Lab             @relation(fields: [labId], references: [id], onDelete: Cascade)
 
 
   email         String
@@ -450,7 +431,7 @@ model SelectedTooth  {
 
 
     labId           String
-    Lab             Lab           @relation(fields: [labId], references: [id], onDelete: Cascade)
+    lab             Lab           @relation(fields: [labId], references: [id], onDelete: Cascade)
 
     createdAt       DateTime      @default(now())
     updatedAt       DateTime      @updatedAt
@@ -465,7 +446,7 @@ model LabSubscriptionPlan {
   id                        String        @id @default(uuid()) 
 
   labId                     String        @unique
-  Lab                       Lab           @relation(fields: [labId], references: [id], onDelete: Cascade)
+  lab                       Lab           @relation(fields: [labId], references: [id], onDelete: Cascade)
 
   // Idk what the pricing model should be 
 
@@ -498,7 +479,7 @@ model LabUser {
   role            UserRole      @default(LAB_ADMIN)
 
   labId           String
-  Lab             Lab           @relation(fields: [labId], references: [id], onDelete: Cascade)
+  lab             Lab           @relation(fields: [labId], references: [id], onDelete: Cascade)
 
   isActive        Boolean       @default(true)
 

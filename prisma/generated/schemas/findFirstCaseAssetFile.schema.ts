@@ -18,7 +18,7 @@ export const CaseAssetFileFindFirstSelectSchema: z.ZodType<Prisma.CaseAssetFileS
     documentUrl: z.boolean().optional(),
     assetFileType: z.boolean().optional(),
     labId: z.boolean().optional(),
-    Lab: z.boolean().optional(),
+    lab: z.boolean().optional(),
     createdAt: z.boolean().optional(),
     updatedAt: z.boolean().optional()
   }).strict() as unknown as z.ZodType<Prisma.CaseAssetFileSelect>;
@@ -32,7 +32,7 @@ export const CaseAssetFileFindFirstSelectZodSchema = z.object({
     documentUrl: z.boolean().optional(),
     assetFileType: z.boolean().optional(),
     labId: z.boolean().optional(),
-    Lab: z.boolean().optional(),
+    lab: z.boolean().optional(),
     createdAt: z.boolean().optional(),
     updatedAt: z.boolean().optional()
   }).strict();

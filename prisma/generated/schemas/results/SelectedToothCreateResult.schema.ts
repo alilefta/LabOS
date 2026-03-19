@@ -5,7 +5,7 @@ export const SelectedToothCreateResultSchema = z.object({
   caseWorkItemId: z.string(),
   caseWorkItem: z.unknown(),
   labId: z.string(),
-  Lab: z.unknown(),
+  lab: z.unknown(),
   createdAt: z.date(),
   updatedAt: z.date()
 });

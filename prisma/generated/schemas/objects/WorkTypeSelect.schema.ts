@@ -12,7 +12,7 @@ const makeSchema = () => z.object({
   imageUrl: z.boolean().optional(),
   product: z.union([z.boolean(), z.lazy(() => ProductFindManySchema)]).optional(),
   labId: z.boolean().optional(),
-  Lab: z.union([z.boolean(), z.lazy(() => LabArgsObjectSchema)]).optional(),
+  lab: z.union([z.boolean(), z.lazy(() => LabArgsObjectSchema)]).optional(),
   caseCategoryId: z.boolean().optional(),
   caseCategory: z.union([z.boolean(), z.lazy(() => CaseCategoryArgsObjectSchema)]).optional(),
   createdAt: z.boolean().optional(),

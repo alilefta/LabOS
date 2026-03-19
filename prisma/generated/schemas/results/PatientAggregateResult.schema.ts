@@ -11,7 +11,7 @@ export const PatientAggregateResultSchema = z.object({  _count: z.object({
     phoneNumber: z.number(),
     case: z.number(),
     labId: z.number(),
-    Lab: z.number(),
+    lab: z.number(),
     createdAt: z.number(),
     updatedAt: z.number()
   }).optional(),

@@ -12,7 +12,7 @@ const makeSchema = () => z.object({
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
   cases: z.lazy(() => CaseCreateNestedManyWithoutCaseCategoryInputObjectSchema).optional(),
-  Lab: z.lazy(() => LabCreateNestedOneWithoutCaseCategoriesInputObjectSchema)
+  lab: z.lazy(() => LabCreateNestedOneWithoutCaseCategoriesInputObjectSchema)
 }).strict();
 export const CaseCategoryCreateWithoutWorkTypesInputObjectSchema: z.ZodType<Prisma.CaseCategoryCreateWithoutWorkTypesInput> = makeSchema() as unknown as z.ZodType<Prisma.CaseCategoryCreateWithoutWorkTypesInput>;
 export const CaseCategoryCreateWithoutWorkTypesInputObjectZodSchema = makeSchema();

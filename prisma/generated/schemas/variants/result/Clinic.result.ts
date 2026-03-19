@@ -3,7 +3,7 @@ import * as z from 'zod';
 export const ClinicResultSchema = z.object({
     id: z.string(),
     labId: z.string(),
-    Lab: z.unknown(),
+    lab: z.unknown(),
     name: z.string(),
     description: z.string().nullable(),
     city: z.string(),

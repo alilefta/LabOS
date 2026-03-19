@@ -12,7 +12,7 @@ import { ClinicScalarFieldEnumSchema } from './enums/ClinicScalarFieldEnum.schem
 export const ClinicFindFirstOrThrowSelectSchema: z.ZodType<Prisma.ClinicSelect> = z.object({
     id: z.boolean().optional(),
     labId: z.boolean().optional(),
-    Lab: z.boolean().optional(),
+    lab: z.boolean().optional(),
     name: z.boolean().optional(),
     description: z.boolean().optional(),
     city: z.boolean().optional(),
@@ -30,7 +30,7 @@ export const ClinicFindFirstOrThrowSelectSchema: z.ZodType<Prisma.ClinicSelect> 
 export const ClinicFindFirstOrThrowSelectZodSchema = z.object({
     id: z.boolean().optional(),
     labId: z.boolean().optional(),
-    Lab: z.boolean().optional(),
+    lab: z.boolean().optional(),
     name: z.boolean().optional(),
     description: z.boolean().optional(),
     city: z.boolean().optional(),

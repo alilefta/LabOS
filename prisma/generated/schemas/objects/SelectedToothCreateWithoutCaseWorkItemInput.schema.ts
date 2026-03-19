@@ -8,7 +8,7 @@ const makeSchema = () => z.object({
   toothPosition: ToothPositionSchema,
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
-  Lab: z.lazy(() => LabCreateNestedOneWithoutSelectedTeethInputObjectSchema)
+  lab: z.lazy(() => LabCreateNestedOneWithoutSelectedTeethInputObjectSchema)
 }).strict();
 export const SelectedToothCreateWithoutCaseWorkItemInputObjectSchema: z.ZodType<Prisma.SelectedToothCreateWithoutCaseWorkItemInput> = makeSchema() as unknown as z.ZodType<Prisma.SelectedToothCreateWithoutCaseWorkItemInput>;
 export const SelectedToothCreateWithoutCaseWorkItemInputObjectZodSchema = makeSchema();

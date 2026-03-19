@@ -13,7 +13,7 @@ const makeSchema = () => z.object({
   address1: z.boolean().optional(),
   address2: z.boolean().optional(),
   labId: z.boolean().optional(),
-  Lab: z.union([z.boolean(), z.lazy(() => LabArgsObjectSchema)]).optional(),
+  lab: z.union([z.boolean(), z.lazy(() => LabArgsObjectSchema)]).optional(),
   email: z.boolean().optional(),
   phoneNumber: z.boolean().optional(),
   avatarUrl: z.boolean().optional(),
