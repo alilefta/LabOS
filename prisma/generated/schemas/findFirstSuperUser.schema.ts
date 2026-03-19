@@ -1,5 +1,6 @@
 import type { Prisma } from '../../../generated/prisma/client';
 import * as z from 'zod';
+import { SuperUserIncludeObjectSchema as SuperUserIncludeObjectSchema } from './objects/SuperUserInclude.schema';
 import { SuperUserOrderByWithRelationInputObjectSchema as SuperUserOrderByWithRelationInputObjectSchema } from './objects/SuperUserOrderByWithRelationInput.schema';
 import { SuperUserWhereInputObjectSchema as SuperUserWhereInputObjectSchema } from './objects/SuperUserWhereInput.schema';
 import { SuperUserWhereUniqueInputObjectSchema as SuperUserWhereUniqueInputObjectSchema } from './objects/SuperUserWhereUniqueInput.schema';
@@ -19,6 +20,8 @@ export const SuperUserFindFirstSelectSchema: z.ZodType<Prisma.SuperUserSelect> =
     email: z.boolean().optional(),
     phoneNumber: z.boolean().optional(),
     role: z.boolean().optional(),
+    authUserId: z.boolean().optional(),
+    authUser: z.boolean().optional(),
     isActive: z.boolean().optional(),
     lastTimeActive: z.boolean().optional(),
     createdAt: z.boolean().optional(),
@@ -36,12 +39,14 @@ export const SuperUserFindFirstSelectZodSchema = z.object({
     email: z.boolean().optional(),
     phoneNumber: z.boolean().optional(),
     role: z.boolean().optional(),
+    authUserId: z.boolean().optional(),
+    authUser: z.boolean().optional(),
     isActive: z.boolean().optional(),
     lastTimeActive: z.boolean().optional(),
     createdAt: z.boolean().optional(),
     updatedAt: z.boolean().optional()
   }).strict();
 
-export const SuperUserFindFirstSchema: z.ZodType<Prisma.SuperUserFindFirstArgs> = z.object({ select: SuperUserFindFirstSelectSchema.optional(),  orderBy: z.union([SuperUserOrderByWithRelationInputObjectSchema, SuperUserOrderByWithRelationInputObjectSchema.array()]).optional(), where: SuperUserWhereInputObjectSchema.optional(), cursor: SuperUserWhereUniqueInputObjectSchema.optional(), take: z.number().optional(), skip: z.number().optional(), distinct: z.union([SuperUserScalarFieldEnumSchema, SuperUserScalarFieldEnumSchema.array()]).optional() }).strict() as unknown as z.ZodType<Prisma.SuperUserFindFirstArgs>;
+export const SuperUserFindFirstSchema: z.ZodType<Prisma.SuperUserFindFirstArgs> = z.object({ select: SuperUserFindFirstSelectSchema.optional(), include: z.lazy(() => SuperUserIncludeObjectSchema.optional()), orderBy: z.union([SuperUserOrderByWithRelationInputObjectSchema, SuperUserOrderByWithRelationInputObjectSchema.array()]).optional(), where: SuperUserWhereInputObjectSchema.optional(), cursor: SuperUserWhereUniqueInputObjectSchema.optional(), take: z.number().optional(), skip: z.number().optional(), distinct: z.union([SuperUserScalarFieldEnumSchema, SuperUserScalarFieldEnumSchema.array()]).optional() }).strict() as unknown as z.ZodType<Prisma.SuperUserFindFirstArgs>;
 
-export const SuperUserFindFirstZodSchema = z.object({ select: SuperUserFindFirstSelectSchema.optional(),  orderBy: z.union([SuperUserOrderByWithRelationInputObjectSchema, SuperUserOrderByWithRelationInputObjectSchema.array()]).optional(), where: SuperUserWhereInputObjectSchema.optional(), cursor: SuperUserWhereUniqueInputObjectSchema.optional(), take: z.number().optional(), skip: z.number().optional(), distinct: z.union([SuperUserScalarFieldEnumSchema, SuperUserScalarFieldEnumSchema.array()]).optional() }).strict();
+export const SuperUserFindFirstZodSchema = z.object({ select: SuperUserFindFirstSelectSchema.optional(), include: z.lazy(() => SuperUserIncludeObjectSchema.optional()), orderBy: z.union([SuperUserOrderByWithRelationInputObjectSchema, SuperUserOrderByWithRelationInputObjectSchema.array()]).optional(), where: SuperUserWhereInputObjectSchema.optional(), cursor: SuperUserWhereUniqueInputObjectSchema.optional(), take: z.number().optional(), skip: z.number().optional(), distinct: z.union([SuperUserScalarFieldEnumSchema, SuperUserScalarFieldEnumSchema.array()]).optional() }).strict();

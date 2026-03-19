@@ -12,6 +12,8 @@ export const SuperUserInputSchema = z.object({
     email: z.string(),
     phoneNumber: z.string(),
     role: UserRoleSchema,
+    authUserId: z.string(),
+    authUser: z.unknown(),
     isActive: z.boolean(),
     lastTimeActive: z.date().optional().nullable(),
     createdAt: z.date(),

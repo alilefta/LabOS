@@ -19,3 +19,7 @@ export { SelectedToothResultSchema } from './SelectedTooth.result';
 export { LabSubscriptionPlanResultSchema } from './LabSubscriptionPlan.result';
 export { LabUserResultSchema } from './LabUser.result';
 export { SuperUserResultSchema } from './SuperUser.result';
+export { AuthUserResultSchema } from './AuthUser.result';
+export { SessionResultSchema } from './Session.result';
+export { AccountResultSchema } from './Account.result';
+export { VerificationResultSchema } from './Verification.result';

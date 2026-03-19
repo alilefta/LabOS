@@ -1,6 +1,6 @@
 import * as z from 'zod';
 import type { Prisma } from '../../../../generated/prisma/client';
-
+import { AuthUserArgsObjectSchema as AuthUserArgsObjectSchema } from './AuthUserArgs.schema'
 
 const makeSchema = () => z.object({
   id: z.boolean().optional(),
@@ -13,6 +13,8 @@ const makeSchema = () => z.object({
   email: z.boolean().optional(),
   phoneNumber: z.boolean().optional(),
   role: z.boolean().optional(),
+  authUserId: z.boolean().optional(),
+  authUser: z.union([z.boolean(), z.lazy(() => AuthUserArgsObjectSchema)]).optional(),
   isActive: z.boolean().optional(),
   lastTimeActive: z.boolean().optional(),
   createdAt: z.boolean().optional(),

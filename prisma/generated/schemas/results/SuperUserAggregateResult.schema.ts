@@ -10,6 +10,8 @@ export const SuperUserAggregateResultSchema = z.object({  _count: z.object({
     email: z.number(),
     phoneNumber: z.number(),
     role: z.number(),
+    authUserId: z.number(),
+    authUser: z.number(),
     isActive: z.number(),
     lastTimeActive: z.number(),
     createdAt: z.number(),
@@ -25,6 +27,7 @@ export const SuperUserAggregateResultSchema = z.object({  _count: z.object({
     avatarUrl: z.string().nullable(),
     email: z.string().nullable(),
     phoneNumber: z.string().nullable(),
+    authUserId: z.string().nullable(),
     lastTimeActive: z.date().nullable(),
     createdAt: z.date().nullable(),
     updatedAt: z.date().nullable()
@@ -39,6 +42,7 @@ export const SuperUserAggregateResultSchema = z.object({  _count: z.object({
     avatarUrl: z.string().nullable(),
     email: z.string().nullable(),
     phoneNumber: z.string().nullable(),
+    authUserId: z.string().nullable(),
     lastTimeActive: z.date().nullable(),
     createdAt: z.date().nullable(),
     updatedAt: z.date().nullable()

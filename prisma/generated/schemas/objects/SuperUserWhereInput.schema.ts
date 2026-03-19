@@ -6,7 +6,9 @@ import { EnumUserRoleFilterObjectSchema as EnumUserRoleFilterObjectSchema } from
 import { UserRoleSchema } from '../enums/UserRole.schema';
 import { BoolFilterObjectSchema as BoolFilterObjectSchema } from './BoolFilter.schema';
 import { DateTimeNullableFilterObjectSchema as DateTimeNullableFilterObjectSchema } from './DateTimeNullableFilter.schema';
-import { DateTimeFilterObjectSchema as DateTimeFilterObjectSchema } from './DateTimeFilter.schema'
+import { DateTimeFilterObjectSchema as DateTimeFilterObjectSchema } from './DateTimeFilter.schema';
+import { AuthUserScalarRelationFilterObjectSchema as AuthUserScalarRelationFilterObjectSchema } from './AuthUserScalarRelationFilter.schema';
+import { AuthUserWhereInputObjectSchema as AuthUserWhereInputObjectSchema } from './AuthUserWhereInput.schema'
 
 const superuserwhereinputSchema = z.object({
   AND: z.union([z.lazy(() => SuperUserWhereInputObjectSchema), z.lazy(() => SuperUserWhereInputObjectSchema).array()]).optional(),
@@ -22,10 +24,12 @@ const superuserwhereinputSchema = z.object({
   email: z.union([z.lazy(() => StringFilterObjectSchema), z.string()]).optional(),
   phoneNumber: z.union([z.lazy(() => StringFilterObjectSchema), z.string()]).optional(),
   role: z.union([z.lazy(() => EnumUserRoleFilterObjectSchema), UserRoleSchema]).optional(),
+  authUserId: z.union([z.lazy(() => StringFilterObjectSchema), z.string()]).optional(),
   isActive: z.union([z.lazy(() => BoolFilterObjectSchema), z.boolean()]).optional(),
   lastTimeActive: z.union([z.lazy(() => DateTimeNullableFilterObjectSchema), z.coerce.date()]).optional().nullable(),
   createdAt: z.union([z.lazy(() => DateTimeFilterObjectSchema), z.coerce.date()]).optional(),
-  updatedAt: z.union([z.lazy(() => DateTimeFilterObjectSchema), z.coerce.date()]).optional()
+  updatedAt: z.union([z.lazy(() => DateTimeFilterObjectSchema), z.coerce.date()]).optional(),
+  authUser: z.union([z.lazy(() => AuthUserScalarRelationFilterObjectSchema), z.lazy(() => AuthUserWhereInputObjectSchema)]).optional()
 }).strict();
 export const SuperUserWhereInputObjectSchema: z.ZodType<Prisma.SuperUserWhereInput> = superuserwhereinputSchema as unknown as z.ZodType<Prisma.SuperUserWhereInput>;
 export const SuperUserWhereInputObjectZodSchema = superuserwhereinputSchema;

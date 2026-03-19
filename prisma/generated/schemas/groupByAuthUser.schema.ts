@@ -1,0 +1,13 @@
+import type { Prisma } from '../../../generated/prisma/client';
+import * as z from 'zod';
+import { AuthUserWhereInputObjectSchema as AuthUserWhereInputObjectSchema } from './objects/AuthUserWhereInput.schema';
+import { AuthUserOrderByWithAggregationInputObjectSchema as AuthUserOrderByWithAggregationInputObjectSchema } from './objects/AuthUserOrderByWithAggregationInput.schema';
+import { AuthUserScalarWhereWithAggregatesInputObjectSchema as AuthUserScalarWhereWithAggregatesInputObjectSchema } from './objects/AuthUserScalarWhereWithAggregatesInput.schema';
+import { AuthUserScalarFieldEnumSchema } from './enums/AuthUserScalarFieldEnum.schema';
+import { AuthUserCountAggregateInputObjectSchema as AuthUserCountAggregateInputObjectSchema } from './objects/AuthUserCountAggregateInput.schema';
+import { AuthUserMinAggregateInputObjectSchema as AuthUserMinAggregateInputObjectSchema } from './objects/AuthUserMinAggregateInput.schema';
+import { AuthUserMaxAggregateInputObjectSchema as AuthUserMaxAggregateInputObjectSchema } from './objects/AuthUserMaxAggregateInput.schema';
+
+export const AuthUserGroupBySchema: z.ZodType<Prisma.AuthUserGroupByArgs> = z.object({ where: AuthUserWhereInputObjectSchema.optional(), orderBy: z.union([AuthUserOrderByWithAggregationInputObjectSchema, AuthUserOrderByWithAggregationInputObjectSchema.array()]).optional(), having: AuthUserScalarWhereWithAggregatesInputObjectSchema.optional(), take: z.number().optional(), skip: z.number().optional(), by: z.array(AuthUserScalarFieldEnumSchema), _count: z.union([ z.literal(true), AuthUserCountAggregateInputObjectSchema ]).optional(), _min: AuthUserMinAggregateInputObjectSchema.optional(), _max: AuthUserMaxAggregateInputObjectSchema.optional() }).strict() as unknown as z.ZodType<Prisma.AuthUserGroupByArgs>;
+
+export const AuthUserGroupByZodSchema = z.object({ where: AuthUserWhereInputObjectSchema.optional(), orderBy: z.union([AuthUserOrderByWithAggregationInputObjectSchema, AuthUserOrderByWithAggregationInputObjectSchema.array()]).optional(), having: AuthUserScalarWhereWithAggregatesInputObjectSchema.optional(), take: z.number().optional(), skip: z.number().optional(), by: z.array(AuthUserScalarFieldEnumSchema), _count: z.union([ z.literal(true), AuthUserCountAggregateInputObjectSchema ]).optional(), _min: AuthUserMinAggregateInputObjectSchema.optional(), _max: AuthUserMaxAggregateInputObjectSchema.optional() }).strict();

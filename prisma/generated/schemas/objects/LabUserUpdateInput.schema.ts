@@ -7,6 +7,7 @@ import { EnumUserRoleFieldUpdateOperationsInputObjectSchema as EnumUserRoleField
 import { BoolFieldUpdateOperationsInputObjectSchema as BoolFieldUpdateOperationsInputObjectSchema } from './BoolFieldUpdateOperationsInput.schema';
 import { NullableDateTimeFieldUpdateOperationsInputObjectSchema as NullableDateTimeFieldUpdateOperationsInputObjectSchema } from './NullableDateTimeFieldUpdateOperationsInput.schema';
 import { DateTimeFieldUpdateOperationsInputObjectSchema as DateTimeFieldUpdateOperationsInputObjectSchema } from './DateTimeFieldUpdateOperationsInput.schema';
+import { AuthUserUpdateOneRequiredWithoutLabUserNestedInputObjectSchema as AuthUserUpdateOneRequiredWithoutLabUserNestedInputObjectSchema } from './AuthUserUpdateOneRequiredWithoutLabUserNestedInput.schema';
 import { LabUpdateOneRequiredWithoutUsersNestedInputObjectSchema as LabUpdateOneRequiredWithoutUsersNestedInputObjectSchema } from './LabUpdateOneRequiredWithoutUsersNestedInput.schema'
 
 const makeSchema = () => z.object({
@@ -24,6 +25,7 @@ const makeSchema = () => z.object({
   lastTimeActive: z.union([z.coerce.date(), z.lazy(() => NullableDateTimeFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
   createdAt: z.union([z.coerce.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputObjectSchema)]).optional(),
   updatedAt: z.union([z.coerce.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputObjectSchema)]).optional(),
+  authUser: z.lazy(() => AuthUserUpdateOneRequiredWithoutLabUserNestedInputObjectSchema).optional(),
   lab: z.lazy(() => LabUpdateOneRequiredWithoutUsersNestedInputObjectSchema).optional()
 }).strict();
 export const LabUserUpdateInputObjectSchema: z.ZodType<Prisma.LabUserUpdateInput> = makeSchema() as unknown as z.ZodType<Prisma.LabUserUpdateInput>;

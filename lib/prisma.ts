@@ -15,7 +15,7 @@ declare global {
 
 const prisma = globalThis.prismaGlobal ?? prismaClientSingleton();
 
-const tenantPrisma = (labId: string) =>
+const tenantPrisma = async (labId: string) =>
 	prisma.$extends({
 		query: {
 			$allModels: {
@@ -56,7 +56,7 @@ const tenantPrisma = (labId: string) =>
 		},
 	});
 
-export default tenantPrisma;
+export { tenantPrisma, prisma as generalPrisma };
 
 // cache in development
 if (process.env.NODE_ENV !== "production") {

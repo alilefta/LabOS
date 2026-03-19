@@ -11,6 +11,10 @@ import { LabScalarFieldEnumSchema } from './enums/LabScalarFieldEnum.schema';
 
 export const LabFindFirstSelectSchema: z.ZodType<Prisma.LabSelect> = z.object({
     id: z.boolean().optional(),
+    title: z.boolean().optional(),
+    slug: z.boolean().optional(),
+    brandAvatarUrl: z.boolean().optional(),
+    subtitle: z.boolean().optional(),
     labSubscriptionPlan: z.boolean().optional(),
     users: z.boolean().optional(),
     clinics: z.boolean().optional(),
@@ -32,6 +36,10 @@ export const LabFindFirstSelectSchema: z.ZodType<Prisma.LabSelect> = z.object({
 
 export const LabFindFirstSelectZodSchema = z.object({
     id: z.boolean().optional(),
+    title: z.boolean().optional(),
+    slug: z.boolean().optional(),
+    brandAvatarUrl: z.boolean().optional(),
+    subtitle: z.boolean().optional(),
     labSubscriptionPlan: z.boolean().optional(),
     users: z.boolean().optional(),
     clinics: z.boolean().optional(),

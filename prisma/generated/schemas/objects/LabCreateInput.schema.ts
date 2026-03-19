@@ -17,6 +17,10 @@ import { PatientCreateNestedManyWithoutLabInputObjectSchema as PatientCreateNest
 
 const makeSchema = () => z.object({
   id: z.string().optional(),
+  title: z.string(),
+  slug: z.string().optional().nullable(),
+  brandAvatarUrl: z.string().optional().nullable(),
+  subtitle: z.string().optional().nullable(),
   createdAt: z.coerce.date().optional(),
   labSubscriptionPlan: z.lazy(() => LabSubscriptionPlanCreateNestedOneWithoutLabInputObjectSchema).optional(),
   users: z.lazy(() => LabUserCreateNestedManyWithoutLabInputObjectSchema).optional(),

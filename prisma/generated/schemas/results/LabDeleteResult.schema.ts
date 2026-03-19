@@ -1,6 +1,10 @@
 import * as z from 'zod';
 export const LabDeleteResultSchema = z.nullable(z.object({
   id: z.string(),
+  title: z.string(),
+  slug: z.string().optional(),
+  brandAvatarUrl: z.string().optional(),
+  subtitle: z.string().optional(),
   labSubscriptionPlan: z.unknown().optional(),
   users: z.array(z.unknown()),
   clinics: z.array(z.unknown()),

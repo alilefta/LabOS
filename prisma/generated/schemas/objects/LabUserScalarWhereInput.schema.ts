@@ -22,6 +22,7 @@ const labuserscalarwhereinputSchema = z.object({
   email: z.union([z.lazy(() => StringFilterObjectSchema), z.string()]).optional(),
   phoneNumber: z.union([z.lazy(() => StringFilterObjectSchema), z.string()]).optional(),
   role: z.union([z.lazy(() => EnumUserRoleFilterObjectSchema), UserRoleSchema]).optional(),
+  authUserId: z.union([z.lazy(() => StringFilterObjectSchema), z.string()]).optional(),
   labId: z.union([z.lazy(() => StringFilterObjectSchema), z.string()]).optional(),
   isActive: z.union([z.lazy(() => BoolFilterObjectSchema), z.boolean()]).optional(),
   lastTimeActive: z.union([z.lazy(() => DateTimeNullableFilterObjectSchema), z.coerce.date()]).optional().nullable(),

@@ -11,6 +11,8 @@ export const LabUserFindManyResultSchema = z.object({
   email: z.string(),
   phoneNumber: z.string(),
   role: z.unknown(),
+  authUserId: z.string(),
+  authUser: z.unknown(),
   labId: z.string(),
   lab: z.unknown(),
   isActive: z.boolean(),

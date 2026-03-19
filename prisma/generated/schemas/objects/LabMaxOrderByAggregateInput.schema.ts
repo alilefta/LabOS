@@ -4,6 +4,10 @@ import { SortOrderSchema } from '../enums/SortOrder.schema'
 
 const makeSchema = () => z.object({
   id: SortOrderSchema.optional(),
+  title: SortOrderSchema.optional(),
+  slug: SortOrderSchema.optional(),
+  brandAvatarUrl: SortOrderSchema.optional(),
+  subtitle: SortOrderSchema.optional(),
   createdAt: SortOrderSchema.optional(),
   updatedAt: SortOrderSchema.optional()
 }).strict();

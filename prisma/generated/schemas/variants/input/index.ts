@@ -19,3 +19,7 @@ export { SelectedToothInputSchema } from './SelectedTooth.input';
 export { LabSubscriptionPlanInputSchema } from './LabSubscriptionPlan.input';
 export { LabUserInputSchema } from './LabUser.input';
 export { SuperUserInputSchema } from './SuperUser.input';
+export { AuthUserInputSchema } from './AuthUser.input';
+export { SessionInputSchema } from './Session.input';
+export { AccountInputSchema } from './Account.input';
+export { VerificationInputSchema } from './Verification.input';

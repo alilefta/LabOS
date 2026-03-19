@@ -18,6 +18,10 @@ import { LabCountOutputTypeArgsObjectSchema as LabCountOutputTypeArgsObjectSchem
 
 const makeSchema = () => z.object({
   id: z.boolean().optional(),
+  title: z.boolean().optional(),
+  slug: z.boolean().optional(),
+  brandAvatarUrl: z.boolean().optional(),
+  subtitle: z.boolean().optional(),
   labSubscriptionPlan: z.union([z.boolean(), z.lazy(() => LabSubscriptionPlanArgsObjectSchema)]).optional(),
   users: z.union([z.boolean(), z.lazy(() => LabUserFindManySchema)]).optional(),
   clinics: z.union([z.boolean(), z.lazy(() => ClinicFindManySchema)]).optional(),

@@ -10,6 +10,8 @@ export const SuperUserUpsertResultSchema = z.object({
   email: z.string(),
   phoneNumber: z.string(),
   role: z.unknown(),
+  authUserId: z.string(),
+  authUser: z.unknown(),
   isActive: z.boolean(),
   lastTimeActive: z.date().optional(),
   createdAt: z.date(),

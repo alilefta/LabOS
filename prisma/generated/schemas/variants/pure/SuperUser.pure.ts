@@ -12,6 +12,8 @@ export const SuperUserModelSchema = z.object({
     email: z.string(),
     phoneNumber: z.string(),
     role: UserRoleSchema,
+    authUserId: z.string(),
+    authUser: z.unknown(),
     isActive: z.boolean(),
     lastTimeActive: z.date().nullable(),
     createdAt: z.date(),

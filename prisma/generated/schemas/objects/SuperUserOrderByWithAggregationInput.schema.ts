@@ -17,6 +17,7 @@ const makeSchema = () => z.object({
   email: SortOrderSchema.optional(),
   phoneNumber: SortOrderSchema.optional(),
   role: SortOrderSchema.optional(),
+  authUserId: SortOrderSchema.optional(),
   isActive: SortOrderSchema.optional(),
   lastTimeActive: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
   createdAt: SortOrderSchema.optional(),

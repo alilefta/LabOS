@@ -19,3 +19,7 @@ export { SelectedToothModelSchema } from './SelectedTooth.pure';
 export { LabSubscriptionPlanModelSchema } from './LabSubscriptionPlan.pure';
 export { LabUserModelSchema } from './LabUser.pure';
 export { SuperUserModelSchema } from './SuperUser.pure';
+export { AuthUserModelSchema } from './AuthUser.pure';
+export { SessionModelSchema } from './Session.pure';
+export { AccountModelSchema } from './Account.pure';
+export { VerificationModelSchema } from './Verification.pure';

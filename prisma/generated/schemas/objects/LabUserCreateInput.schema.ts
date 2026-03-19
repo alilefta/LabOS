@@ -1,6 +1,7 @@
 import * as z from 'zod';
 import type { Prisma } from '../../../../generated/prisma/client';
 import { UserRoleSchema } from '../enums/UserRole.schema';
+import { AuthUserCreateNestedOneWithoutLabUserInputObjectSchema as AuthUserCreateNestedOneWithoutLabUserInputObjectSchema } from './AuthUserCreateNestedOneWithoutLabUserInput.schema';
 import { LabCreateNestedOneWithoutUsersInputObjectSchema as LabCreateNestedOneWithoutUsersInputObjectSchema } from './LabCreateNestedOneWithoutUsersInput.schema'
 
 const makeSchema = () => z.object({
@@ -17,6 +18,7 @@ const makeSchema = () => z.object({
   isActive: z.boolean().optional(),
   lastTimeActive: z.coerce.date().optional().nullable(),
   createdAt: z.coerce.date().optional(),
+  authUser: z.lazy(() => AuthUserCreateNestedOneWithoutLabUserInputObjectSchema),
   lab: z.lazy(() => LabCreateNestedOneWithoutUsersInputObjectSchema)
 }).strict();
 export const LabUserCreateInputObjectSchema: z.ZodType<Prisma.LabUserCreateInput> = makeSchema() as unknown as z.ZodType<Prisma.LabUserCreateInput>;
