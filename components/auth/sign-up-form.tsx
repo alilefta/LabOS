@@ -39,7 +39,7 @@ export function SignupForm() {
 		onSuccess: ({ data, input }) => {
 			if (data) {
 				toast.success("You have successfully signed up!");
-				router.push("/onboarding");
+				router.push(SIGN_UP_CALLBACK_URL);
 			}
 		},
 		onError: ({ error, input }) => {

@@ -25,8 +25,8 @@ export const signInAction = actionClient
 
 			return { result };
 		} catch (e) {
-			if (e instanceof APIError) {
-				console.error("[Sign-In-Action] Error", e.message);
+			if (e instanceof APIError || e instanceof Error) {
+				console.error("[Sign-Up-Action] Error", e.message);
 			}
 			throw e;
 		}
@@ -53,7 +53,7 @@ export const signUpAction = actionClient
 
 			return { result };
 		} catch (e) {
-			if (e instanceof APIError) {
+			if (e instanceof APIError || e instanceof Error) {
 				console.error("[Sign-Up-Action] Error", e.message);
 			}
 			throw e;
