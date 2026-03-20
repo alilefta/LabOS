@@ -29,5 +29,5 @@ export const auth = betterAuth({
 });
 
 export type AuthUser = typeof auth.$Infer.Session.user & { labUser: LabUserBase | undefined; superUser: SuperUserBase | undefined };
-type SessionX = typeof auth.$Infer.Session.session;
-export type Session = { session: SessionX } & { user: AuthUser };
+// type SessionX = typeof auth.$Infer.Session.session;
+export type Session = typeof auth.$Infer.Session;

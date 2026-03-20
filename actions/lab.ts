@@ -11,11 +11,12 @@ export const createLabAndLabUser = actionClient
 	})
 	.inputSchema(CreateLabAndLabUserInputSchema)
 	.action(async ({ parsedInput, ctx }) => {
+		// need to fix the session and user types incompatibility
 		const session: Session | null = await getServerSession();
 		if (!session) {
 			console.error("No Session");
 			// do something
 		}
 		const user = session?.user;
-		const { labId } = session?.session;
+		const labId = session?.session.labId;
 	});

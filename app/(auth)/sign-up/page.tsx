@@ -1,8 +1,15 @@
+import { SignupForm } from "@/components/auth/sign-up-form";
+import { getServerSession } from "@/lib/get-session";
+import { unauthorized } from "next/navigation";
+
 export default async function SignUpPage() {
+	const session = await getServerSession();
+	if (!session?.session) {
+		unauthorized();
+	}
 	return (
-		<div>
-			<h1>Welcome to SignUpPage</h1>
-			<p>here will goes the form</p>
-		</div>
+		<main className="w-full flex items-center justify-center h-screen">
+			<SignupForm />
+		</main>
 	);
 }

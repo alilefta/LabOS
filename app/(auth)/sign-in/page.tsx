@@ -1,8 +1,9 @@
+import { SignInForm } from "@/components/auth/sign-in-form";
+
 export default async function SignInPage() {
 	return (
-		<div>
-			<h1>Welcome to SignInPage</h1>
-			<p>here will goes the form</p>
-		</div>
+		<main className="w-full flex items-center justify-center h-screen">
+			<SignInForm />
+		</main>
 	);
 }
