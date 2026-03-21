@@ -1,6 +1,6 @@
 import z from "zod";
 import { CreateLabInputSchema } from "@/schema/base/lab.base";
-import { CreateLabUserInputSchema } from "@/schema/base/lab-user.base";
+import { CreateLabUserInputSchema } from "./lab-user.details";
 
 export const CreateLabAndLabUserInputSchema = z.object({
 	lab: CreateLabInputSchema,
