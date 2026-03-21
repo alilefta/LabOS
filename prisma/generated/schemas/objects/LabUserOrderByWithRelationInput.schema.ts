@@ -13,7 +13,7 @@ const makeSchema = () => z.object({
   address1: SortOrderSchema.optional(),
   address2: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
   avatarUrl: SortOrderSchema.optional(),
-  email: SortOrderSchema.optional(),
+  secondaryEmail: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
   phoneNumber: SortOrderSchema.optional(),
   role: SortOrderSchema.optional(),
   authUserId: SortOrderSchema.optional(),

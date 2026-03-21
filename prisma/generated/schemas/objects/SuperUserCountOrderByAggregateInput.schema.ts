@@ -10,7 +10,7 @@ const makeSchema = () => z.object({
   address1: SortOrderSchema.optional(),
   address2: SortOrderSchema.optional(),
   avatarUrl: SortOrderSchema.optional(),
-  email: SortOrderSchema.optional(),
+  secondaryEmail: SortOrderSchema.optional(),
   phoneNumber: SortOrderSchema.optional(),
   role: SortOrderSchema.optional(),
   authUserId: SortOrderSchema.optional(),

@@ -9,7 +9,7 @@ export const LabUserInputSchema = z.object({
     address1: z.string(),
     address2: z.string().optional().nullable(),
     avatarUrl: z.string(),
-    email: z.string(),
+    secondaryEmail: z.string().optional().nullable(),
     phoneNumber: z.string(),
     role: UserRoleSchema,
     authUserId: z.string(),

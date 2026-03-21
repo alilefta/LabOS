@@ -11,7 +11,7 @@ const makeSchema = () => z.object({
   address1: z.boolean().optional(),
   address2: z.boolean().optional(),
   avatarUrl: z.boolean().optional(),
-  email: z.boolean().optional(),
+  secondaryEmail: z.boolean().optional(),
   phoneNumber: z.boolean().optional(),
   role: z.boolean().optional(),
   authUserId: z.boolean().optional(),

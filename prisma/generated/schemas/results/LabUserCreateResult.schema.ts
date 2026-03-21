@@ -7,7 +7,7 @@ export const LabUserCreateResultSchema = z.object({
   address1: z.string(),
   address2: z.string().optional(),
   avatarUrl: z.string(),
-  email: z.string(),
+  secondaryEmail: z.string().optional(),
   phoneNumber: z.string(),
   role: z.unknown(),
   authUserId: z.string(),

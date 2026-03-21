@@ -10,7 +10,7 @@ const makeSchema = () => z.object({
   address1: z.literal(true).optional(),
   address2: z.literal(true).optional(),
   avatarUrl: z.literal(true).optional(),
-  email: z.literal(true).optional(),
+  secondaryEmail: z.literal(true).optional(),
   phoneNumber: z.literal(true).optional(),
   role: z.literal(true).optional(),
   authUserId: z.literal(true).optional(),
