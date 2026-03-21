@@ -25,33 +25,37 @@ export const createLabAndLabUser = actionClient
 		}
 
 		try {
-			const createdLab = await generalPrisma.lab.create({
-				data: {
-					title: lab.title,
-					subtitle: lab.subtitle,
-					slug: lab.slug,
-					brandAvatarUrl: lab.brandAvatarUrl,
-				},
-			});
+			const results = await generalPrisma.$transaction(async (tx) => {
+				const createdLab = await tx.lab.create({
+					data: {
+						title: lab.title,
+						subtitle: lab.subtitle,
+						slug: lab.slug,
+						brandAvatarUrl: lab.brandAvatarUrl,
+					},
+				});
 
-			const createdLabUser = await generalPrisma.labUser.create({
-				data: {
-					name: labUser.name,
-					address1: labUser.address1,
-					email: labUser.email, // here we should remove the email from the user and use the AuthUser info
-					avatarUrl: labUser.avatarUrl,
-					city: labUser.city,
-					phoneNumber: labUser.phoneNumber,
-					zipcode: labUser.zipcode,
-					authUserId: user.id,
-					labId: createdLab.id,
-					address2: labUser.address2,
-				},
+				const createdLabUser = await tx.labUser.create({
+					data: {
+						name: labUser.name,
+						address1: labUser.address1,
+						secondaryEmail: labUser.secondaryEmail,
+						avatarUrl: labUser.avatarUrl ?? "",
+						city: labUser.city,
+						phoneNumber: labUser.phoneNumber,
+						zipcode: labUser.zipcode,
+						authUserId: user.id,
+						labId: createdLab.id,
+						address2: labUser.address2,
+					},
+				});
+
+				return { createdLab, createdLabUser };
 			});
 
 			await auth.api.updateSession({
 				body: {
-					labId: createdLab.id,
+					labId: results.createdLab.id,
 				},
 				headers: await headers(),
 			});
@@ -59,8 +63,8 @@ export const createLabAndLabUser = actionClient
 			// should we create the cookies for next.cookies or not, still not sure.
 
 			return {
-				lab: createdLab,
-				labUser: createdLabUser,
+				lab: results.createdLab,
+				labUser: results.createdLabUser,
 			};
 		} catch (e) {
 			if (e instanceof APIError || e instanceof Error) {
