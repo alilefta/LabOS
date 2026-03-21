@@ -37,6 +37,7 @@ export function PasswordInputWithLabel<S extends FieldValues>({ fieldTitle, name
 					type={showPassword ? "text" : "password"}
 					id={nameInSchema}
 					aria-invalid={fieldState.invalid}
+					autoComplete="current-password"
 					className={cn(
 						"pr-10", // Glass Style
 						"h-11 rounded-xl bg-background/40 border-background/60 text-md text-foreground",

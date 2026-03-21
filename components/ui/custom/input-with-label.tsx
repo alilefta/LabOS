@@ -7,7 +7,6 @@ import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { cx } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
-// Generic S for Schema
 type Props<S extends FieldValues> = {
 	fieldTitle: string;
 	nameInSchema: FieldPath<S>;
@@ -16,16 +15,17 @@ type Props<S extends FieldValues> = {
 	fieldState: ControllerFieldState;
 	field: ControllerRenderProps<S>;
 	placeholder?: string;
+	isOptional?: boolean;
 } & InputHTMLAttributes<HTMLInputElement>;
 
-export function InputWithLabel<S extends FieldValues>({ fieldTitle, nameInSchema, inputClassName, containerClassName, fieldState, field, placeholder, ...props }: Props<S>) {
+export function InputWithLabel<S extends FieldValues>({ fieldTitle, nameInSchema, inputClassName, containerClassName, fieldState, field, placeholder, isOptional = false, ...props }: Props<S>) {
 	const { type } = props;
 
-	console.log("field state error", fieldState.error);
 	return (
-		<Field data-invalid={fieldState.invalid} className={cx("relative", containerClassName)}>
-			<FieldLabel htmlFor={nameInSchema} className="text-sm font-medium dark:text-zinc-400 text-zinc-500">
+		<Field data-invalid={fieldState.invalid} aria-invalid={fieldState.invalid} className={cx("relative space-y-1.5 w-full", containerClassName)}>
+			<FieldLabel htmlFor={nameInSchema} className="text-[13px] font-semibold text-slate-700 dark:text-zinc-300">
 				{fieldTitle}
+				{isOptional && <span className="text-slate-500 dark:text-zinc-500">(Optional)</span>}
 			</FieldLabel>
 
 			<Input
@@ -38,23 +38,23 @@ export function InputWithLabel<S extends FieldValues>({ fieldTitle, nameInSchema
 				placeholder={placeholder}
 				inputMode={type === "number" ? "numeric" : undefined}
 				className={cn(
-					// Flux Glass Style
-					"h-11 rounded-xl bg-background/40 border-background/60 text-md text-foreground",
-					"dark:placeholder:text-zinc-600 placeholder:text-zinc-400 font-sans shadow-sm transition-all duration-200",
+					// LabOS Premium Input Styling
+					"h-11 rounded-xl bg-white dark:bg-white/5 border-slate-200 dark:border-white/10 text-sm text-foreground",
+					"placeholder:text-slate-400 dark:placeholder:text-zinc-500 font-sans shadow-sm transition-all duration-200",
+					"hover:border-slate-300 dark:hover:border-white/20",
 
-					// Focus State (Indigo Glow)
-					"focus-visible:border-primary/50 focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-0",
-					"dark:focus-visible:bg-background/40 focus-visible:bg-background",
+					// Focus State (LabOS Precision Ring)
+					"focus-visible:border-primary focus-visible:ring-[3px] focus-visible:ring-primary/20 focus-visible:outline-none focus-visible:bg-white dark:focus-visible:bg-[#121214]",
 
 					// Error State
-					fieldState.invalid && "border-red-500/50 focus-visible:ring-red-500/20",
+					fieldState.invalid && "border-destructive focus-visible:border-destructive focus-visible:ring-destructive/20",
 
 					type === "number" && "no-spinner",
 					inputClassName,
 				)}
 			/>
 
-			{fieldState.invalid && <FieldError errors={[fieldState.error]} className="text-xs text-red-400 ml-1 mt-1" />}
+			{fieldState.invalid && <FieldError errors={[fieldState.error]} className="text-[11px] font-medium text-destructive mt-1.5 block" />}
 		</Field>
 	);
 }
