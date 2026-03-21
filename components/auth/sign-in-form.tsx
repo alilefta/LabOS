@@ -12,7 +12,6 @@ import { useRouter } from "next/navigation";
 
 // import GithubIcon from "@/public/icons/github-mark.svg";
 // import GoogleIcon from "@/public/icons/google-icon.svg";
-import Image from "next/image";
 import { SignInUserInput, SignInUserInputSchema } from "@/schema/base/auth.base";
 import { useAction } from "next-safe-action/hooks";
 import { signInAction } from "@/actions/auth";
@@ -38,13 +37,13 @@ export function SignInForm() {
 	});
 
 	const { executeAsync: signIn, isExecuting: isLoggingIn } = useAction(signInAction, {
-		onSuccess: ({ data, input }) => {
+		onSuccess: ({ data }) => {
 			if (data) {
 				const { result } = data;
 				if (result.redirect) router.push(result.url ?? SIGN_IN_CALLBACK_URL);
 			}
 		},
-		onError: ({ error, input }) => {
+		onError: ({ error }) => {
 			if (error.validationErrors) {
 				const { email: emailError, password: passwordError } = error.validationErrors;
 				if (emailError) {
