@@ -1,7 +1,7 @@
 // import { getCurrentProfile } from "@/data/profile";
 import { Prisma } from "@/generated/prisma/client";
 import { createMiddleware, createSafeActionClient, DEFAULT_SERVER_ERROR_MESSAGE } from "next-safe-action";
-import z from "zod";
+import z from "zod/v4";
 import { DATABASE_ERROR_MESSAGE } from "./safe-action-helpers";
 import { ActionError, ERRORS } from "@/lib/errors";
 

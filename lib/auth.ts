@@ -3,6 +3,7 @@ import { prismaAdapter } from "better-auth/adapters/prisma";
 import { generalPrisma } from "./prisma";
 import { LabUserBase } from "@/schema/base/lab-user.base";
 import { SuperUserBase } from "@/schema/base/super-user.base";
+import { nextCookies } from "better-auth/next-js";
 
 export const auth = betterAuth({
 	database: prismaAdapter(generalPrisma, {
@@ -16,6 +17,13 @@ export const auth = betterAuth({
 	},
 	user: {
 		modelName: "AuthUser",
+		// proposed move to user instead of session
+		// additionalFields: {
+		// 	labId: {
+		// 		type: "string",
+		// 		required: false,
+		// 	},
+		// },
 	},
 
 	session: {
@@ -26,6 +34,7 @@ export const auth = betterAuth({
 			},
 		},
 	},
+	plugins: [nextCookies()],
 });
 
 export type AuthUser = typeof auth.$Infer.Session.user & { labUser: LabUserBase | undefined; superUser: SuperUserBase | undefined };
