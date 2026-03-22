@@ -2,14 +2,13 @@
 
 import { auth } from "@/lib/auth";
 import { ERRORS } from "@/lib/errors";
-import { getServerSession } from "@/lib/get-session";
 import { generalPrisma } from "@/lib/prisma";
-import { actionClient } from "@/lib/safe-action";
+import { actionClientWithSession } from "@/lib/safe-action";
 import { CreateLabAndLabUserInputSchema } from "@/schema/composed/lab.details";
 import { APIError } from "better-auth";
 import { headers } from "next/headers";
 
-export const createLabAndLabUser = actionClient
+export const createLabAndLabUser = actionClientWithSession
 	.metadata({
 		actionName: "Create-Lab-And-Lab-User",
 	})
@@ -17,11 +16,49 @@ export const createLabAndLabUser = actionClient
 	.action(async ({ parsedInput, ctx }) => {
 		const { lab, labUser } = parsedInput;
 
-		const session = await getServerSession();
-		const user = session?.user ?? null;
+		const { user } = ctx;
 
 		if (!user) {
 			throw ERRORS.UNAUTHORIZED;
+		}
+
+		// Additional Check if user some how have lab ID
+		if (user.labId) {
+			const authLab = await generalPrisma.lab.findUnique({
+				where: {
+					id: user.labId,
+				},
+			});
+
+			if (authLab) {
+				throw ERRORS.LAB_ALREADY_EXISTS;
+			}
+		}
+
+		// maybe there is a lab user but the lab ID is not set to that user
+		const labUserEntity = await generalPrisma.labUser.findFirst({
+			where: {
+				authUserId: user.id,
+			},
+			include: {
+				lab: true,
+			},
+		});
+
+		// if exists then we just set
+		if (labUserEntity?.labId) {
+			await auth.api.updateUser({
+				body: {
+					labId: labUserEntity.labId,
+				},
+				headers: await headers(),
+			});
+
+			return {
+				alreadyExists: true,
+				lab: labUserEntity.lab,
+				labUser: labUserEntity,
+			};
 		}
 
 		try {
@@ -60,11 +97,10 @@ export const createLabAndLabUser = actionClient
 				headers: await headers(),
 			});
 
-			// should we create the cookies for next.cookies or not, still not sure.
-
 			return {
 				lab: results.createdLab,
 				labUser: results.createdLabUser,
+				alreadyExists: false,
 			};
 		} catch (e) {
 			if (e instanceof APIError || e instanceof Error) {
