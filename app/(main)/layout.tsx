@@ -1,3 +1,5 @@
+import { DashboardSidebar } from "@/components/dashboard/dashboard-sidebar";
+import { DashboardTopHeader } from "@/components/dashboard/dashboard-top-header";
 import { Icon, LucideIcon, PersonStanding, TrendingUp } from "lucide-react";
 import { ReactNode } from "react";
 
@@ -25,21 +27,23 @@ const sideBarItems = [
 ];
 export default async function MainLayout({ children }: MainLayoutProps) {
 	return (
-		<div className="bg-background font-sans w-full h-screen flex">
-			<aside className="w-72 bg-sidebar px-8 py-8">
-				<div className="text-4xl font-sans tracking-tighter">LabOS</div>
-				<div className="mt-6 flex flex-col gap-4">
-					{sideBarItems.map((item, i) => (
-						<SidebarItem key={`${item.title}_${i}`} title={item.title} icon={item.icon} />
-					))}
-				</div>
-			</aside>
+		<div className="flex h-screen w-full overflow-hidden bg-background selection:bg-primary/30">
+			{/* Desktop Sidebar (Hidden on Mobile) */}
+			<div className="hidden lg:block w-64 shrink-0 border-r border-border bg-card dark:bg-[#09090B] z-20">
+				<DashboardSidebar />
+			</div>
 
-			<div className="flex-1 ">
-				<div className="h-16 flex items-center px-4 py-2 bg-zinc-400">
-					<h2>Dashboard heading</h2>
-				</div>
-				{children}
+			{/* Main Content Area */}
+			<div className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
+				{/* Sticky Top Header */}
+				<DashboardTopHeader />
+
+				{/* Scrollable Dashboard Canvas */}
+				<main className="flex-1 overflow-y-auto p-4 sm:p-8 relative">
+					<div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-primary/5 rounded-full blur-[120px] pointer-events-none -z-10 dark:block hidden"></div>
+
+					<div className="w-full max-w-[1800px] mx-auto h-full">{children}</div>
+				</main>
 			</div>
 		</div>
 	);
