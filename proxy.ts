@@ -43,7 +43,7 @@ export default async function proxy(request: NextRequest) {
 	});
 
 	const hasSession = !!session;
-	const hasOnboarded = !!session?.session.labId;
+	const hasOnboarded = !!session?.user.labId;
 
 	// -------------------------
 	// NOT AUTHENTICATED
