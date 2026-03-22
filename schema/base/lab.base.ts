@@ -18,7 +18,7 @@ export const CreateLabInputSchema = z.object({
 	slug: z
 		.string({ error: "A workspace URL slug is required." })
 		.min(2, { message: "Slug must contain at least 2 characters." })
-		.regex(/^[a-z0-9-]+$/, {
+		.regex(/^[a-z0-9-_]+$/, {
 			message: "Slug can only contain lowercase letters, numbers, and hyphens.",
 		}),
 	brandAvatarUrl: z.url({ message: "Please upload a valid lab logo." }),
