@@ -1,11 +1,14 @@
 // import { getCurrentProfile } from "@/data/profile";
 import { Prisma } from "@/generated/prisma/client";
-import { createMiddleware, createSafeActionClient, DEFAULT_SERVER_ERROR_MESSAGE } from "next-safe-action";
+import { createMiddleware, createSafeActionClient } from "next-safe-action";
 import z from "zod/v4";
-import { DATABASE_ERROR_MESSAGE } from "./safe-action-helpers";
 import { ActionError, ERRORS } from "@/lib/errors";
+import { getServerSession } from "./get-session";
+import { fallbackPayload, sanitizeInput, toPayload } from "./safe-action-helpers";
 
-// base action
+// ----------------------------------------
+// Base Client
+// ----------------------------------------
 export const actionClient = createSafeActionClient({
 	defineMetadataSchema() {
 		return z.object({
@@ -15,64 +18,66 @@ export const actionClient = createSafeActionClient({
 	handleServerError(e) {
 		console.error("Action error:", e);
 
-		// Prisma errors
+		// Known Prisma errors
 		if (e instanceof Prisma.PrismaClientKnownRequestError) {
 			switch (e.code) {
 				case "P2002":
-					return "A record with this value already exists";
+					// Unique constraint — let domain actions throw specific ERRORS
+					// (e.g. LAB_ALREADY_EXISTS) before it reaches here
+					return toPayload(ERRORS.DUPLICATE_ENTRY);
 				case "P2025":
-					return "Record not found";
+					return toPayload(ERRORS.NOT_FOUND);
 				case "P2003":
-					return "Related record not found";
+					// Foreign key constraint
+					return toPayload(ERRORS.NOT_FOUND);
+				case "P2014":
+					// Relation violation
+					return toPayload(ERRORS.RECORD_IN_USE);
 				default:
-					return DATABASE_ERROR_MESSAGE;
+					return toPayload(ERRORS.DATABASE_ERROR);
 			}
 		}
 
-		if (
-			e instanceof Prisma.PrismaClientInitializationError ||
-			e instanceof Prisma.PrismaClientUnknownRequestError ||
-			e instanceof Prisma.PrismaClientValidationError ||
-			e instanceof Prisma.PrismaClientKnownRequestError
-		) {
-			return DATABASE_ERROR_MESSAGE;
+		// Other Prisma errors
+		if (e instanceof Prisma.PrismaClientInitializationError || e instanceof Prisma.PrismaClientUnknownRequestError || e instanceof Prisma.PrismaClientValidationError) {
+			return toPayload(ERRORS.DATABASE_ERROR);
 		}
 
-		// Custom action errors
+		// Your custom ActionError — thrown intentionally in actions
 		if (e instanceof ActionError) {
-			return e.message;
+			return toPayload(e);
 		}
 
-		// Generic errors
+		// Generic Error — don't leak internals in production
 		if (e instanceof Error) {
-			// Don't expose internal errors in production
 			if (process.env.NODE_ENV === "production") {
-				return DEFAULT_SERVER_ERROR_MESSAGE;
+				return fallbackPayload();
 			}
-			return e.message;
+			return fallbackPayload(e.message);
 		}
 
-		return DEFAULT_SERVER_ERROR_MESSAGE;
+		return fallbackPayload();
 	},
 });
 
+// ----------------------------------------
+// Logging Middleware
+// ----------------------------------------
+
 export const loggingMiddleware = createMiddleware<{
-	metadata: {
-		actionName: string;
-	};
+	metadata: { actionName: string };
 }>().define(async ({ next, metadata, clientInput }) => {
 	const start = performance.now();
 
 	if (process.env.NODE_ENV === "development") {
 		console.info("▶️ Action started", {
 			action: metadata.actionName,
-			input: clientInput,
+			input: sanitizeInput(clientInput),
 		});
 	}
 
 	try {
 		const result = await next();
-
 		const duration = Math.round(performance.now() - start);
 
 		if (process.env.NODE_ENV === "development") {
@@ -92,26 +97,28 @@ export const loggingMiddleware = createMiddleware<{
 			error,
 		});
 
-		throw error;
+		throw error; // re-throw so handleServerError catches it
 	}
 });
 
-// export const requireProfileMiddleWare = createMiddleware<{ metadata: { actionName: string } }>().define(async ({ next }) => {
-// 	const profile = await getCurrentProfile();
+export const requireUserMiddleware = createMiddleware<{ metadata: { actionName: string } }>().define(async ({ next }) => {
+	const session = await getServerSession();
 
-// 	// ✅ Throw error if no profile
-// 	if (!profile) {
-// 		throw ERRORS.UNAUTHORIZED;
-// 	}
+	const user = session?.user;
 
-// 	// ✅ TypeScript now knows profile is NOT null here
-// 	return next({
-// 		ctx: { profile }, // profile is guaranteed to be non-null
-// 	});
-// });
+	// ✅ Throw error if no user
+	if (!user) {
+		throw ERRORS.UNAUTHORIZED;
+	}
 
-// Optional: Add server-specific auth
-// export const requireServerMemberMiddleware = createMiddleware<{
+	// ✅ TypeScript now knows user is NOT null here
+	return next({
+		ctx: { user }, // user is guaranteed to be non-null
+	});
+});
+
+// Optional: Add lab-specific auth
+// export const requireLabMemberMiddleware = createMiddleware<{
 // 	metadata: { actionName: string };
 // }>().define(async ({ next, clientInput }) => {
 // 	// const profile = await getCurrentProfile();
@@ -120,16 +127,16 @@ export const loggingMiddleware = createMiddleware<{
 // 		throw ERRORS.UNAUTHORIZED;
 // 	}
 
-// 	const serverId = (clientInput as any).serverId;
+// 	const labId = (clientInput as any).labId;
 
-// 	if (!serverId) {
+// 	if (!labId) {
 // 		throw new ActionError("Server ID required");
 // 	}
 
 // 	const member = await prisma.member.findFirst({
 // 		where: {
 // 			profileId: profile.id,
-// 			serverId,
+// 			labId,
 // 		},
 // 	});
 
@@ -141,10 +148,10 @@ export const loggingMiddleware = createMiddleware<{
 // 		ctx: {
 // 			profile, // Non-null
 // 			member, // Non-null
-// 			serverId,
+// 			labId,
 // 		},
 // 	});
 // });
 
 // auth action client
-export const actionClientWithProfile = actionClient.use(loggingMiddleware);
+export const actionClientWithSession = actionClient.use(loggingMiddleware).use(requireUserMiddleware);
