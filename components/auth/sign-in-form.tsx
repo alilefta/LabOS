@@ -59,14 +59,15 @@ export function SignInForm() {
 				// console.error("thrown Error:", error.thrownError.message);
 			}
 			if (error.serverError) {
-				toast.error(error.serverError);
-				// console.error("server Error:", error.serverError);
+				const { message } = error.serverError;
+				toast.error(message);
+				// console.error("server Error:", message);
 				form.setError("root", {
-					message: error.serverError,
+					message: message,
 				});
 			}
 
-			handleSafeActionError<typeof signInAction>(error);
+			handleSafeActionError(error);
 		},
 	});
 

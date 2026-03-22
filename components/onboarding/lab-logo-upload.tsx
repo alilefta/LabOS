@@ -107,7 +107,7 @@ export function LabLogoUpload() {
 
 				{/* Loading Overlay (Glassmorphism) */}
 				{isUploading && (
-					<div className="absolute inset-0 bg-background/80 backdrop-blur-md flex flex-col items-center justify-center gap-2 z-10">
+					<div className="absolute inset-0 bg-background/80 rounded-2xl backdrop-blur-md flex flex-col items-center justify-center gap-2 z-10">
 						<Loader2 className="w-6 h-6 text-primary animate-spin" />
 					</div>
 				)}

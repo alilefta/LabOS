@@ -8,13 +8,16 @@ import { Controller, FormProvider, useForm } from "react-hook-form";
 import { InputWithLabel } from "../ui/custom/input-with-label";
 import { Button } from "../ui/button";
 import { ArrowLeft, ArrowRight, Building, Loader2, UserCircle } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { LabLogoUpload } from "./lab-logo-upload";
 import { handleSafeActionError } from "@/lib/safe-action-helpers";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 export function OnboardingForm() {
 	const [step, setStep] = useState<1 | 2>(1);
+
+	const router = useRouter();
 
 	const form = useForm<CreateLabAndLabUserInput>({
 		resolver: zodResolver(CreateLabAndLabUserInputSchema),
@@ -31,18 +34,36 @@ export function OnboardingForm() {
 				address1: "",
 				address2: "",
 				city: "",
-				role: "LAB_ADMIN",
+				role: "ADMIN",
 				phoneNumber: "",
 				secondaryEmail: "",
 				zipcode: "",
 			},
 		},
+
 		mode: "onBlur",
 	});
 
+	useEffect(() => {
+		if (form.formState.errors.lab) {
+			toast.error(form.formState.errors.lab.message);
+			// console.error(form.formState.errors.lab);
+		}
+		if (form.formState.errors.labUser) {
+			toast.error(form.formState.errors.labUser.message);
+			// console.error(form.formState.errors.labUser);
+		}
+
+		// if (form.formState.errors.root) {
+		// 	toast.error(form.formState.errors.root.message);
+		// 	console.error(form.formState.errors.root);
+		// }
+	}, [form.formState.errors]);
+
 	const { executeAsync: createLab, isExecuting: isCreatingLab } = useAction(createLabAndLabUser, {
 		onSuccess: ({ data }) => {
-			console.log(data);
+			toast.message(data.alreadyExists ? "Lab already exists, redirecting to your lab." : "Lab created successfully, redirecting...");
+			router.push("/dashboard");
 		},
 		onError: ({ error }) => {
 			console.error("onboarding-form-error:", error);
@@ -82,15 +103,31 @@ export function OnboardingForm() {
 
 			if (error.thrownError) {
 				toast.error(error.thrownError.message);
+				router.refresh();
+
+				// Todo  _logger.logError(some error message to be sent to my audit)
 			}
+			// ── 2. Server errors: handle specific codes first ─────────────
 			if (error.serverError) {
-				toast.error(error.serverError);
-				form.setError("root", {
-					message: error.serverError,
-				});
+				const { code, statusCode } = error.serverError;
+
+				if (code === "LAB_ALREADY_EXISTS") {
+					toast.message("You already have a lab, redirecting...");
+					router.push("/dashboard");
+					return;
+				}
+
+				if (statusCode === 401) {
+					router.push("/sign-in");
+					return;
+				}
+
+				// Set root form error for anything else
+				form.setError("root", { message: error.serverError.message });
 			}
 
-			handleSafeActionError<typeof createLabAndLabUser>(error);
+			// ── 3. Fall through to generic handler for everything else ────
+			handleSafeActionError(error);
 		},
 	});
 
