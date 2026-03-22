@@ -22,6 +22,9 @@ export default async function proxy(request: NextRequest) {
 	const onboardingRoute = "/onboarding";
 	const dashboardRoute = "/dashboard";
 
+	// new routes
+	const settingsRoute = "/settings";
+
 	// allow public routes immediately
 	if (publicRoutes.includes(pathname)) {
 		return NextResponse.next();
@@ -74,6 +77,10 @@ export default async function proxy(request: NextRequest) {
 	// -------------------------
 
 	if (pathname.startsWith(dashboardRoute)) {
+		return NextResponse.next();
+	}
+
+	if (pathname.startsWith(settingsRoute)) {
 		return NextResponse.next();
 	}
 
