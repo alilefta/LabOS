@@ -2,8 +2,8 @@ import * as z from 'zod';
 import type { Prisma } from '../../../../generated/prisma/client';
 import { StringFilterObjectSchema as StringFilterObjectSchema } from './StringFilter.schema';
 import { StringNullableFilterObjectSchema as StringNullableFilterObjectSchema } from './StringNullableFilter.schema';
-import { EnumUserRoleFilterObjectSchema as EnumUserRoleFilterObjectSchema } from './EnumUserRoleFilter.schema';
-import { UserRoleSchema } from '../enums/UserRole.schema';
+import { EnumSuperUserRoleFilterObjectSchema as EnumSuperUserRoleFilterObjectSchema } from './EnumSuperUserRoleFilter.schema';
+import { SuperUserRoleSchema } from '../enums/SuperUserRole.schema';
 import { BoolFilterObjectSchema as BoolFilterObjectSchema } from './BoolFilter.schema';
 import { DateTimeNullableFilterObjectSchema as DateTimeNullableFilterObjectSchema } from './DateTimeNullableFilter.schema';
 import { DateTimeFilterObjectSchema as DateTimeFilterObjectSchema } from './DateTimeFilter.schema';
@@ -23,7 +23,7 @@ const superuserwhereinputSchema = z.object({
   avatarUrl: z.union([z.lazy(() => StringFilterObjectSchema), z.string()]).optional(),
   secondaryEmail: z.union([z.lazy(() => StringNullableFilterObjectSchema), z.string()]).optional().nullable(),
   phoneNumber: z.union([z.lazy(() => StringFilterObjectSchema), z.string()]).optional(),
-  role: z.union([z.lazy(() => EnumUserRoleFilterObjectSchema), UserRoleSchema]).optional(),
+  role: z.union([z.lazy(() => EnumSuperUserRoleFilterObjectSchema), SuperUserRoleSchema]).optional(),
   authUserId: z.union([z.lazy(() => StringFilterObjectSchema), z.string()]).optional(),
   isActive: z.union([z.lazy(() => BoolFilterObjectSchema), z.boolean()]).optional(),
   lastTimeActive: z.union([z.lazy(() => DateTimeNullableFilterObjectSchema), z.coerce.date()]).optional().nullable(),

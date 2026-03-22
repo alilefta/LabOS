@@ -15,6 +15,7 @@ const makeSchema = () => z.object({
   createdAt: SortOrderSchema.optional(),
   updatedAt: SortOrderSchema.optional(),
   role: SortOrderSchema.optional(),
+  labId: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
   _count: z.lazy(() => AuthUserCountOrderByAggregateInputObjectSchema).optional(),
   _max: z.lazy(() => AuthUserMaxOrderByAggregateInputObjectSchema).optional(),
   _min: z.lazy(() => AuthUserMinOrderByAggregateInputObjectSchema).optional()

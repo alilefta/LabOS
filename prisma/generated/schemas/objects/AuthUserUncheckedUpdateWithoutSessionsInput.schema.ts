@@ -4,6 +4,8 @@ import { StringFieldUpdateOperationsInputObjectSchema as StringFieldUpdateOperat
 import { BoolFieldUpdateOperationsInputObjectSchema as BoolFieldUpdateOperationsInputObjectSchema } from './BoolFieldUpdateOperationsInput.schema';
 import { NullableStringFieldUpdateOperationsInputObjectSchema as NullableStringFieldUpdateOperationsInputObjectSchema } from './NullableStringFieldUpdateOperationsInput.schema';
 import { DateTimeFieldUpdateOperationsInputObjectSchema as DateTimeFieldUpdateOperationsInputObjectSchema } from './DateTimeFieldUpdateOperationsInput.schema';
+import { AuthUserRoleSchema } from '../enums/AuthUserRole.schema';
+import { EnumAuthUserRoleFieldUpdateOperationsInputObjectSchema as EnumAuthUserRoleFieldUpdateOperationsInputObjectSchema } from './EnumAuthUserRoleFieldUpdateOperationsInput.schema';
 import { AccountUncheckedUpdateManyWithoutAuthuserNestedInputObjectSchema as AccountUncheckedUpdateManyWithoutAuthuserNestedInputObjectSchema } from './AccountUncheckedUpdateManyWithoutAuthuserNestedInput.schema';
 import { LabUserUncheckedUpdateOneWithoutAuthUserNestedInputObjectSchema as LabUserUncheckedUpdateOneWithoutAuthUserNestedInputObjectSchema } from './LabUserUncheckedUpdateOneWithoutAuthUserNestedInput.schema';
 import { SuperUserUncheckedUpdateOneWithoutAuthUserNestedInputObjectSchema as SuperUserUncheckedUpdateOneWithoutAuthUserNestedInputObjectSchema } from './SuperUserUncheckedUpdateOneWithoutAuthUserNestedInput.schema'
@@ -16,7 +18,8 @@ const makeSchema = () => z.object({
   image: z.union([z.string(), z.lazy(() => NullableStringFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
   createdAt: z.union([z.coerce.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputObjectSchema)]).optional(),
   updatedAt: z.union([z.coerce.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputObjectSchema)]).optional(),
-  role: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputObjectSchema)]).optional(),
+  role: z.union([AuthUserRoleSchema, z.lazy(() => EnumAuthUserRoleFieldUpdateOperationsInputObjectSchema)]).optional(),
+  labId: z.union([z.string(), z.lazy(() => NullableStringFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
   accounts: z.lazy(() => AccountUncheckedUpdateManyWithoutAuthuserNestedInputObjectSchema).optional(),
   labUser: z.lazy(() => LabUserUncheckedUpdateOneWithoutAuthUserNestedInputObjectSchema).optional(),
   superUser: z.lazy(() => SuperUserUncheckedUpdateOneWithoutAuthUserNestedInputObjectSchema).optional()

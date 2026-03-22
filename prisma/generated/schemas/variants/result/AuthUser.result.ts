@@ -1,4 +1,5 @@
 import * as z from 'zod';
+import { AuthUserRoleSchema } from '../../enums/AuthUserRole.schema';
 // prettier-ignore
 export const AuthUserResultSchema = z.object({
     id: z.string(),
@@ -8,11 +9,12 @@ export const AuthUserResultSchema = z.object({
     image: z.string().nullable(),
     createdAt: z.date(),
     updatedAt: z.date(),
-    role: z.string(),
+    role: AuthUserRoleSchema,
     sessions: z.array(z.unknown()),
     accounts: z.array(z.unknown()),
     labUser: z.unknown().nullable(),
-    superUser: z.unknown().nullable()
+    superUser: z.unknown().nullable(),
+    labId: z.string().nullable()
 }).strict();
 
 export type AuthUserResultType = z.infer<typeof AuthUserResultSchema>;

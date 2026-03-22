@@ -16,13 +16,24 @@ generator zod {
   provider = "prisma-zod-generator"
 }
 
-enum UserRole {
-  SUPER_ADMIN
-  SUPER_MOD
-  LAB_MANAGER
-  LAB_ADMIN
-  LAB_STAFF
+enum AuthUserRole {
+  SYSTEM_USER
+  LAB_USER
 }
+
+enum LabRole {
+  MANAGER
+  ADMIN
+  STAFF
+}
+
+enum SuperUserRole {
+  ADMIN
+  MANAGER
+  STAFF
+}
+
+
 
 enum CaseStatus {
   NEW
@@ -88,33 +99,32 @@ enum ToothPosition {
 }
 
 model Lab {
-  id                  String              @id @default(uuid())
+  id String @id @default(uuid())
 
-  title               String              
-  slug                String?
-  brandAvatarUrl      String?
-  subtitle            String?
-
+  title          String
+  slug           String?
+  brandAvatarUrl String?
+  subtitle       String?
 
   labSubscriptionPlan LabSubscriptionPlan?
   users               LabUser[]
 
-  clinics             Clinic[]
-  cases               Case[]
-  technicians         Technician[]
-  salesReps           SalesRepresentative[]
-  caseCategories      CaseCategory[]
-  workTypes           WorkType[]
-  products            Product[]
-  caseWorkItems       CaseWorkItem[]
-  selectedTeeth       SelectedTooth[]
-  casePricingPlans    CasePricingPlan[]
-  caseAssetFiles      CaseAssetFile[]
+  clinics          Clinic[]
+  cases            Case[]
+  technicians      Technician[]
+  salesReps        SalesRepresentative[]
+  caseCategories   CaseCategory[]
+  workTypes        WorkType[]
+  products         Product[]
+  caseWorkItems    CaseWorkItem[]
+  selectedTeeth    SelectedTooth[]
+  casePricingPlans CasePricingPlan[]
+  caseAssetFiles   CaseAssetFile[]
 
-  patients            Patient[]
+  patients Patient[]
 
-  createdAt           DateTime            @default(now())
-  updatedAt           DateTime            @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Clinic {
@@ -413,54 +423,54 @@ model LabSubscriptionPlan {
 }
 
 model LabUser {
-  id                    String    @id @default(uuid())
-  name                  String
-  city                  String
-  zipcode               String
-  address1              String
-  address2              String?
-  avatarUrl             String
+  id        String  @id @default(uuid())
+  name      String
+  city      String
+  zipcode   String
+  address1  String
+  address2  String?
+  avatarUrl String
 
-  secondaryEmail        String?
-  phoneNumber           String
-  role                  UserRole  @default(LAB_ADMIN)
+  secondaryEmail String?
+  phoneNumber    String
+  role           LabRole @default(ADMIN)
 
-  authUserId            String    @unique
-  authUser              AuthUser  @relation(fields: [authUserId], references: [id], onDelete: Cascade)
+  authUserId String   @unique
+  authUser   AuthUser @relation(fields: [authUserId], references: [id], onDelete: Cascade)
 
-  labId                 String
-  lab                   Lab       @relation(fields: [labId], references: [id], onDelete: Cascade)
+  labId String
+  lab   Lab    @relation(fields: [labId], references: [id], onDelete: Cascade)
 
-  isActive              Boolean   @default(true)
+  isActive Boolean @default(true)
 
-  lastTimeActive        DateTime?
-  createdAt             DateTime  @default(now())
-  updatedAt             DateTime  @updatedAt
+  lastTimeActive DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 
   @@index([labId])
 }
 
 model SuperUser {
-  id                    String    @id @default(uuid())
-  name                  String
-  city                  String
-  zipcode               String
-  address1              String
-  address2              String?
-  avatarUrl             String
+  id        String  @id @default(uuid())
+  name      String
+  city      String
+  zipcode   String
+  address1  String
+  address2  String?
+  avatarUrl String
 
-  secondaryEmail        String?
-  phoneNumber           String
-  role                  UserRole  @default(SUPER_ADMIN)
+  secondaryEmail String?
+  phoneNumber    String
+  role           SuperUserRole @default(ADMIN)
 
-  authUserId            String    @unique
-  authUser              AuthUser  @relation(fields: [authUserId], references: [id], onDelete: Cascade)
+  authUserId String   @unique
+  authUser   AuthUser @relation(fields: [authUserId], references: [id], onDelete: Cascade)
 
-  isActive              Boolean   @default(true)
+  isActive Boolean @default(true)
 
-  lastTimeActive        DateTime?
-  createdAt             DateTime  @default(now())
-  updatedAt             DateTime  @updatedAt
+  lastTimeActive DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 }
 
 model AuthUser {
@@ -471,13 +481,15 @@ model AuthUser {
   image         String?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
-  role          String    @default("LAB_USER")
+  role          AuthUserRole    @default(LAB_USER)
   // labId         String?
   sessions      Session[]
   accounts      Account[]
 
   labUser   LabUser?
   superUser SuperUser?
+
+  labId String?
 
   @@unique([email])
   @@map("AuthUser")
@@ -494,7 +506,7 @@ model Session {
   userId    String
   authuser  AuthUser @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  labId String?
+  // labId String?
 
   @@unique([token])
   @@index([userId])

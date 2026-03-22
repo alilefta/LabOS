@@ -8,6 +8,5 @@ export const SessionFindFirstResultSchema = z.nullable(z.object({
   ipAddress: z.string().optional(),
   userAgent: z.string().optional(),
   userId: z.string(),
-  authuser: z.unknown(),
-  labId: z.string().optional()
+  authuser: z.unknown()
 }));

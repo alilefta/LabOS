@@ -22,6 +22,7 @@ export const AuthUserFindFirstSelectSchema: z.ZodType<Prisma.AuthUserSelect> = z
     accounts: z.boolean().optional(),
     labUser: z.boolean().optional(),
     superUser: z.boolean().optional(),
+    labId: z.boolean().optional(),
     _count: z.boolean().optional()
   }).strict() as unknown as z.ZodType<Prisma.AuthUserSelect>;
 
@@ -38,6 +39,7 @@ export const AuthUserFindFirstSelectZodSchema = z.object({
     accounts: z.boolean().optional(),
     labUser: z.boolean().optional(),
     superUser: z.boolean().optional(),
+    labId: z.boolean().optional(),
     _count: z.boolean().optional()
   }).strict();
 

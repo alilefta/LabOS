@@ -9,7 +9,6 @@ const makeSchema = () => z.object({
   createdAt: z.coerce.date().optional(),
   ipAddress: z.string().optional().nullable(),
   userAgent: z.string().optional().nullable(),
-  labId: z.string().optional().nullable(),
   authuser: z.lazy(() => AuthUserCreateNestedOneWithoutSessionsInputObjectSchema)
 }).strict();
 export const SessionCreateInputObjectSchema: z.ZodType<Prisma.SessionCreateInput> = makeSchema() as unknown as z.ZodType<Prisma.SessionCreateInput>;

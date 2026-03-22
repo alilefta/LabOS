@@ -1,5 +1,5 @@
 import * as z from 'zod';
-import { UserRoleSchema } from '../../enums/UserRole.schema';
+import { LabRoleSchema } from '../../enums/LabRole.schema';
 // prettier-ignore
 export const LabUserInputSchema = z.object({
     id: z.string(),
@@ -11,7 +11,7 @@ export const LabUserInputSchema = z.object({
     avatarUrl: z.string(),
     secondaryEmail: z.string().optional().nullable(),
     phoneNumber: z.string(),
-    role: UserRoleSchema,
+    role: LabRoleSchema,
     authUserId: z.string(),
     authUser: z.unknown(),
     labId: z.string(),

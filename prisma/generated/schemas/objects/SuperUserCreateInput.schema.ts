@@ -1,6 +1,6 @@
 import * as z from 'zod';
 import type { Prisma } from '../../../../generated/prisma/client';
-import { UserRoleSchema } from '../enums/UserRole.schema';
+import { SuperUserRoleSchema } from '../enums/SuperUserRole.schema';
 import { AuthUserCreateNestedOneWithoutSuperUserInputObjectSchema as AuthUserCreateNestedOneWithoutSuperUserInputObjectSchema } from './AuthUserCreateNestedOneWithoutSuperUserInput.schema'
 
 const makeSchema = () => z.object({
@@ -13,7 +13,7 @@ const makeSchema = () => z.object({
   avatarUrl: z.string(),
   secondaryEmail: z.string().optional().nullable(),
   phoneNumber: z.string(),
-  role: UserRoleSchema.optional(),
+  role: SuperUserRoleSchema.optional(),
   isActive: z.boolean().optional(),
   lastTimeActive: z.coerce.date().optional().nullable(),
   createdAt: z.coerce.date().optional(),

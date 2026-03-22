@@ -7,7 +7,7 @@ export const AuthUserGroupByResultSchema = z.array(z.object({
   image: z.string(),
   createdAt: z.date(),
   updatedAt: z.date(),
-  role: z.string(),
+  labId: z.string(),
   _count: z.object({
     id: z.number(),
     name: z.number(),
@@ -20,7 +20,8 @@ export const AuthUserGroupByResultSchema = z.array(z.object({
     sessions: z.number(),
     accounts: z.number(),
     labUser: z.number(),
-    superUser: z.number()
+    superUser: z.number(),
+    labId: z.number()
   }).optional(),
   _min: z.object({
     id: z.string().nullable(),
@@ -29,7 +30,7 @@ export const AuthUserGroupByResultSchema = z.array(z.object({
     image: z.string().nullable(),
     createdAt: z.date().nullable(),
     updatedAt: z.date().nullable(),
-    role: z.string().nullable()
+    labId: z.string().nullable()
   }).nullable().optional(),
   _max: z.object({
     id: z.string().nullable(),
@@ -38,6 +39,6 @@ export const AuthUserGroupByResultSchema = z.array(z.object({
     image: z.string().nullable(),
     createdAt: z.date().nullable(),
     updatedAt: z.date().nullable(),
-    role: z.string().nullable()
+    labId: z.string().nullable()
   }).nullable().optional()
 }));

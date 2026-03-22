@@ -53,7 +53,7 @@ export const createLabAndLabUser = actionClient
 				return { createdLab, createdLabUser };
 			});
 
-			await auth.api.updateSession({
+			await auth.api.updateUser({
 				body: {
 					labId: results.createdLab.id,
 				},

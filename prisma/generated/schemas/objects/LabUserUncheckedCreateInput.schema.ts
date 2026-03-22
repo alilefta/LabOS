@@ -1,6 +1,6 @@
 import * as z from 'zod';
 import type { Prisma } from '../../../../generated/prisma/client';
-import { UserRoleSchema } from '../enums/UserRole.schema'
+import { LabRoleSchema } from '../enums/LabRole.schema'
 
 const makeSchema = () => z.object({
   id: z.string().optional(),
@@ -12,7 +12,7 @@ const makeSchema = () => z.object({
   avatarUrl: z.string(),
   secondaryEmail: z.string().optional().nullable(),
   phoneNumber: z.string(),
-  role: UserRoleSchema.optional(),
+  role: LabRoleSchema.optional(),
   authUserId: z.string(),
   labId: z.string(),
   isActive: z.boolean().optional(),

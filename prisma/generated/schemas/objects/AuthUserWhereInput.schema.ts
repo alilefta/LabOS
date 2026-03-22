@@ -4,6 +4,8 @@ import { StringFilterObjectSchema as StringFilterObjectSchema } from './StringFi
 import { BoolFilterObjectSchema as BoolFilterObjectSchema } from './BoolFilter.schema';
 import { StringNullableFilterObjectSchema as StringNullableFilterObjectSchema } from './StringNullableFilter.schema';
 import { DateTimeFilterObjectSchema as DateTimeFilterObjectSchema } from './DateTimeFilter.schema';
+import { EnumAuthUserRoleFilterObjectSchema as EnumAuthUserRoleFilterObjectSchema } from './EnumAuthUserRoleFilter.schema';
+import { AuthUserRoleSchema } from '../enums/AuthUserRole.schema';
 import { SessionListRelationFilterObjectSchema as SessionListRelationFilterObjectSchema } from './SessionListRelationFilter.schema';
 import { AccountListRelationFilterObjectSchema as AccountListRelationFilterObjectSchema } from './AccountListRelationFilter.schema';
 import { LabUserNullableScalarRelationFilterObjectSchema as LabUserNullableScalarRelationFilterObjectSchema } from './LabUserNullableScalarRelationFilter.schema';
@@ -22,7 +24,8 @@ const authuserwhereinputSchema = z.object({
   image: z.union([z.lazy(() => StringNullableFilterObjectSchema), z.string()]).optional().nullable(),
   createdAt: z.union([z.lazy(() => DateTimeFilterObjectSchema), z.coerce.date()]).optional(),
   updatedAt: z.union([z.lazy(() => DateTimeFilterObjectSchema), z.coerce.date()]).optional(),
-  role: z.union([z.lazy(() => StringFilterObjectSchema), z.string()]).optional(),
+  role: z.union([z.lazy(() => EnumAuthUserRoleFilterObjectSchema), AuthUserRoleSchema]).optional(),
+  labId: z.union([z.lazy(() => StringNullableFilterObjectSchema), z.string()]).optional().nullable(),
   sessions: z.lazy(() => SessionListRelationFilterObjectSchema).optional(),
   accounts: z.lazy(() => AccountListRelationFilterObjectSchema).optional(),
   labUser: z.union([z.lazy(() => LabUserNullableScalarRelationFilterObjectSchema), z.lazy(() => LabUserWhereInputObjectSchema)]).optional(),

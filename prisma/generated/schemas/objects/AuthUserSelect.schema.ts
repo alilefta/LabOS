@@ -19,6 +19,7 @@ const makeSchema = () => z.object({
   accounts: z.union([z.boolean(), z.lazy(() => AccountFindManySchema)]).optional(),
   labUser: z.union([z.boolean(), z.lazy(() => LabUserArgsObjectSchema)]).optional(),
   superUser: z.union([z.boolean(), z.lazy(() => SuperUserArgsObjectSchema)]).optional(),
+  labId: z.boolean().optional(),
   _count: z.union([z.boolean(), z.lazy(() => AuthUserCountOutputTypeArgsObjectSchema)]).optional()
 }).strict();
 export const AuthUserSelectObjectSchema: z.ZodType<Prisma.AuthUserSelect> = makeSchema() as unknown as z.ZodType<Prisma.AuthUserSelect>;

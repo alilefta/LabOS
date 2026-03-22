@@ -1,6 +1,6 @@
 import * as z from 'zod';
 import type { Prisma } from '../../../../generated/prisma/client';
-import { UserRoleSchema } from '../enums/UserRole.schema';
+import { LabRoleSchema } from '../enums/LabRole.schema';
 import { AuthUserCreateNestedOneWithoutLabUserInputObjectSchema as AuthUserCreateNestedOneWithoutLabUserInputObjectSchema } from './AuthUserCreateNestedOneWithoutLabUserInput.schema';
 import { LabCreateNestedOneWithoutUsersInputObjectSchema as LabCreateNestedOneWithoutUsersInputObjectSchema } from './LabCreateNestedOneWithoutUsersInput.schema'
 
@@ -14,7 +14,7 @@ const makeSchema = () => z.object({
   avatarUrl: z.string(),
   secondaryEmail: z.string().optional().nullable(),
   phoneNumber: z.string(),
-  role: UserRoleSchema.optional(),
+  role: LabRoleSchema.optional(),
   isActive: z.boolean().optional(),
   lastTimeActive: z.coerce.date().optional().nullable(),
   createdAt: z.coerce.date().optional(),

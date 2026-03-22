@@ -7,9 +7,10 @@ export const AuthUserUpsertResultSchema = z.object({
   image: z.string().optional(),
   createdAt: z.date(),
   updatedAt: z.date(),
-  role: z.string(),
+  role: z.unknown(),
   sessions: z.array(z.unknown()),
   accounts: z.array(z.unknown()),
   labUser: z.unknown().optional(),
-  superUser: z.unknown().optional()
+  superUser: z.unknown().optional(),
+  labId: z.string().optional()
 });

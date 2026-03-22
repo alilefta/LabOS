@@ -8,14 +8,14 @@ export async function getLabInfo() {
 	const session = await getServerSession();
 	if (!session) throw ERRORS.UNAUTHORIZED;
 
-	if (!session.session.labId) {
+	if (!session.user.labId) {
 		throw ERRORS.UNAUTHORIZED;
 	}
 	const lab = await (
-		await tenantPrisma(session.session.labId)
+		await tenantPrisma(session.user.labId)
 	).lab.findUnique({
 		where: {
-			id: session.session.labId,
+			id: session.user.labId,
 		},
 	});
 

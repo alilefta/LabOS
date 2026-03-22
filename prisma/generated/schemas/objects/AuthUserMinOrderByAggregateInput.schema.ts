@@ -10,7 +10,8 @@ const makeSchema = () => z.object({
   image: SortOrderSchema.optional(),
   createdAt: SortOrderSchema.optional(),
   updatedAt: SortOrderSchema.optional(),
-  role: SortOrderSchema.optional()
+  role: SortOrderSchema.optional(),
+  labId: SortOrderSchema.optional()
 }).strict();
 export const AuthUserMinOrderByAggregateInputObjectSchema: z.ZodType<Prisma.AuthUserMinOrderByAggregateInput> = makeSchema() as unknown as z.ZodType<Prisma.AuthUserMinOrderByAggregateInput>;
 export const AuthUserMinOrderByAggregateInputObjectZodSchema = makeSchema();

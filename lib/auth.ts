@@ -17,23 +17,20 @@ export const auth = betterAuth({
 	},
 	user: {
 		modelName: "AuthUser",
-		// proposed move to user instead of session
-		// additionalFields: {
-		// 	labId: {
-		// 		type: "string",
-		// 		required: false,
-		// 	},
-		// },
-	},
-
-	session: {
+		// proposed move to user instead of session to be able to access it when user have multiple sessions (logged in from different browsers)
 		additionalFields: {
 			labId: {
 				type: "string",
 				required: false,
 			},
+			role: {
+				type: ["LAB_USER", "SYSTEM_USER"],
+				defaultValue: "LAB_USER",
+				required: true,
+			},
 		},
 	},
+
 	plugins: [nextCookies()],
 });
 

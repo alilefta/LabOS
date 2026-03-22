@@ -10,7 +10,7 @@ export const getLabIdSession = cache(async () => {
 	const session = await auth.api.getSession({ headers: await headers() });
 	if (!session) return null;
 
-	if (!session.session.labId) return null;
+	if (!session.user.labId) return null;
 
-	return session.session.labId;
+	return session.user.labId;
 });
