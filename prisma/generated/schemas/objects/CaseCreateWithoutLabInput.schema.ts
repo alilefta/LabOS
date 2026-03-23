@@ -4,7 +4,7 @@ import { CaseStatusSchema } from '../enums/CaseStatus.schema';
 import { PatientCreateNestedOneWithoutCaseInputObjectSchema as PatientCreateNestedOneWithoutCaseInputObjectSchema } from './PatientCreateNestedOneWithoutCaseInput.schema';
 import { SalesRepresentativeCreateNestedOneWithoutCasesInputObjectSchema as SalesRepresentativeCreateNestedOneWithoutCasesInputObjectSchema } from './SalesRepresentativeCreateNestedOneWithoutCasesInput.schema';
 import { CaseWorkItemCreateNestedManyWithoutCaseInputObjectSchema as CaseWorkItemCreateNestedManyWithoutCaseInputObjectSchema } from './CaseWorkItemCreateNestedManyWithoutCaseInput.schema';
-import { CaseCategoryCreateNestedManyWithoutCasesInputObjectSchema as CaseCategoryCreateNestedManyWithoutCasesInputObjectSchema } from './CaseCategoryCreateNestedManyWithoutCasesInput.schema';
+import { CaseCategoryCreateNestedOneWithoutCasesInputObjectSchema as CaseCategoryCreateNestedOneWithoutCasesInputObjectSchema } from './CaseCategoryCreateNestedOneWithoutCasesInput.schema';
 import { ClinicCreateNestedOneWithoutCasesInputObjectSchema as ClinicCreateNestedOneWithoutCasesInputObjectSchema } from './ClinicCreateNestedOneWithoutCasesInput.schema';
 import { TechnicianCreateNestedOneWithoutCasesInputObjectSchema as TechnicianCreateNestedOneWithoutCasesInputObjectSchema } from './TechnicianCreateNestedOneWithoutCasesInput.schema';
 import { CaseAssetFileCreateNestedManyWithoutCaseInputObjectSchema as CaseAssetFileCreateNestedManyWithoutCaseInputObjectSchema } from './CaseAssetFileCreateNestedManyWithoutCaseInput.schema'
@@ -27,7 +27,7 @@ const makeSchema = () => z.object({
   patient: z.lazy(() => PatientCreateNestedOneWithoutCaseInputObjectSchema),
   salesReps: z.lazy(() => SalesRepresentativeCreateNestedOneWithoutCasesInputObjectSchema).optional(),
   caseItems: z.lazy(() => CaseWorkItemCreateNestedManyWithoutCaseInputObjectSchema).optional(),
-  caseCategory: z.lazy(() => CaseCategoryCreateNestedManyWithoutCasesInputObjectSchema).optional(),
+  caseCategory: z.lazy(() => CaseCategoryCreateNestedOneWithoutCasesInputObjectSchema).optional(),
   clinic: z.lazy(() => ClinicCreateNestedOneWithoutCasesInputObjectSchema).optional(),
   Technician: z.lazy(() => TechnicianCreateNestedOneWithoutCasesInputObjectSchema).optional(),
   caseAssetFiles: z.lazy(() => CaseAssetFileCreateNestedManyWithoutCaseInputObjectSchema).optional()

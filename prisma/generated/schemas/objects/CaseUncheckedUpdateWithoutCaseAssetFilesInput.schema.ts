@@ -6,8 +6,7 @@ import { CaseStatusSchema } from '../enums/CaseStatus.schema';
 import { EnumCaseStatusFieldUpdateOperationsInputObjectSchema as EnumCaseStatusFieldUpdateOperationsInputObjectSchema } from './EnumCaseStatusFieldUpdateOperationsInput.schema';
 import { DecimalFieldUpdateOperationsInputObjectSchema as DecimalFieldUpdateOperationsInputObjectSchema } from './DecimalFieldUpdateOperationsInput.schema';
 import { DateTimeFieldUpdateOperationsInputObjectSchema as DateTimeFieldUpdateOperationsInputObjectSchema } from './DateTimeFieldUpdateOperationsInput.schema';
-import { CaseWorkItemUncheckedUpdateManyWithoutCaseNestedInputObjectSchema as CaseWorkItemUncheckedUpdateManyWithoutCaseNestedInputObjectSchema } from './CaseWorkItemUncheckedUpdateManyWithoutCaseNestedInput.schema';
-import { CaseCategoryUncheckedUpdateManyWithoutCasesNestedInputObjectSchema as CaseCategoryUncheckedUpdateManyWithoutCasesNestedInputObjectSchema } from './CaseCategoryUncheckedUpdateManyWithoutCasesNestedInput.schema'
+import { CaseWorkItemUncheckedUpdateManyWithoutCaseNestedInputObjectSchema as CaseWorkItemUncheckedUpdateManyWithoutCaseNestedInputObjectSchema } from './CaseWorkItemUncheckedUpdateManyWithoutCaseNestedInput.schema'
 
 import { DecimalJSLikeSchema, isValidDecimalInput } from '../../helpers/decimal-helpers';
 const makeSchema = () => z.object({
@@ -15,6 +14,7 @@ const makeSchema = () => z.object({
   patientId: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputObjectSchema)]).optional(),
   labId: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputObjectSchema)]).optional(),
   salesRepsId: z.union([z.string(), z.lazy(() => NullableStringFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
+  caseCategoryId: z.union([z.string(), z.lazy(() => NullableStringFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
   status: z.union([CaseStatusSchema, z.lazy(() => EnumCaseStatusFieldUpdateOperationsInputObjectSchema)]).optional(),
   grandTotal: z.union([z.union([
   z.number(),
@@ -29,8 +29,7 @@ const makeSchema = () => z.object({
   deadline: z.union([z.coerce.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputObjectSchema)]).optional(),
   createdAt: z.union([z.coerce.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputObjectSchema)]).optional(),
   updatedAt: z.union([z.coerce.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputObjectSchema)]).optional(),
-  caseItems: z.lazy(() => CaseWorkItemUncheckedUpdateManyWithoutCaseNestedInputObjectSchema).optional(),
-  caseCategory: z.lazy(() => CaseCategoryUncheckedUpdateManyWithoutCasesNestedInputObjectSchema).optional()
+  caseItems: z.lazy(() => CaseWorkItemUncheckedUpdateManyWithoutCaseNestedInputObjectSchema).optional()
 }).strict();
 export const CaseUncheckedUpdateWithoutCaseAssetFilesInputObjectSchema: z.ZodType<Prisma.CaseUncheckedUpdateWithoutCaseAssetFilesInput> = makeSchema() as unknown as z.ZodType<Prisma.CaseUncheckedUpdateWithoutCaseAssetFilesInput>;
 export const CaseUncheckedUpdateWithoutCaseAssetFilesInputObjectZodSchema = makeSchema();

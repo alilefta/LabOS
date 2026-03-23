@@ -13,6 +13,7 @@ const makeSchema = () => z.object({
   patientId: SortOrderSchema.optional(),
   labId: SortOrderSchema.optional(),
   salesRepsId: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
+  caseCategoryId: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
   status: SortOrderSchema.optional(),
   grandTotal: SortOrderSchema.optional(),
   clinicId: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),

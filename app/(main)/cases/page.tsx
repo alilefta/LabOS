@@ -31,7 +31,7 @@ export default function CasesPage() {
 				{/* LEFT PANE: 70% Width (The Data Grid) */}
 				<div className="flex-1 lab-card flex flex-col overflow-hidden">
 					{/* Table Toolbar */}
-					<div className="p-4 border-b border-border bg-slate-50/50 dark:bg-white/[0.02] flex items-center justify-between gap-4">
+					<div className="p-4 border-b border-border bg-slate-50/50 dark:bg-white/2 flex items-center justify-between gap-4">
 						<div className="relative w-full max-w-sm">
 							<Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
 							<input
@@ -54,7 +54,7 @@ export default function CasesPage() {
 					  Placeholder for the actual Table Component. 
 					  Using flex-1 and overflow-auto so ONLY the table scrolls, not the whole page! 
 					*/}
-					<div className="flex-1 overflow-auto p-8 flex items-center justify-center border-2 border-dashed border-border m-4 rounded-xl bg-slate-50/50 dark:bg-white/[0.02]">
+					<div className="flex-1 overflow-auto p-8 flex items-center justify-center border-2 border-dashed border-border m-4 rounded-xl bg-slate-50/50 dark:bg-white/2">
 						<p className="text-muted-foreground font-medium flex items-center gap-2">
 							<Loader2 className="w-4 h-4 animate-spin" />
 							Data Table Component Will Go Here
@@ -63,10 +63,10 @@ export default function CasesPage() {
 				</div>
 
 				{/* RIGHT PANE: 30% Width (AI Query Sidebar) */}
-				<div className="w-full xl:w-[400px] flex-shrink-0 flex flex-col gap-6">
+				<div className="w-full xl:w-100 shrink-0 flex flex-col gap-6">
 					<div className="lab-card flex-1 flex flex-col overflow-hidden relative group">
 						{/* Glowing Header */}
-						<div className="p-5 border-b border-border bg-gradient-to-r from-ai/10 to-transparent flex items-center gap-3">
+						<div className="p-5 border-b border-border bg-linear-to-r from-ai/10 to-transparent flex items-center gap-3">
 							<div className="w-8 h-8 rounded-lg bg-ai text-white flex items-center justify-center shadow-[0_0_15px_rgba(139,92,246,0.5)]">
 								<Sparkles className="w-4 h-4" />
 							</div>
@@ -82,17 +82,17 @@ export default function CasesPage() {
 								<p className="mb-3">How can I help you query the database today?</p>
 								<div className="flex flex-col gap-2">
 									<button className="text-left text-xs text-muted-foreground hover:text-primary hover:bg-primary/5 p-2 rounded-lg transition-colors border border-transparent hover:border-primary/20">
-										"Show me all late Zirconia cases."
+										&quot;Show me all late Zirconia cases.&quot;
 									</button>
 									<button className="text-left text-xs text-muted-foreground hover:text-primary hover:bg-primary/5 p-2 rounded-lg transition-colors border border-transparent hover:border-primary/20">
-										"Which clinic has the highest remake rate?"
+										&quot;Which clinic has the highest remake rate?&quot;
 									</button>
 								</div>
 							</div>
 						</div>
 
 						{/* Input Area */}
-						<div className="p-4 border-t border-border bg-slate-50/50 dark:bg-white/[0.02]">
+						<div className="p-4 border-t border-border bg-slate-50/50 dark:bg-white/2">
 							<div className="relative">
 								<input
 									type="text"

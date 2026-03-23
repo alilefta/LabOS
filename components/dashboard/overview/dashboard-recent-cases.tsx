@@ -15,7 +15,7 @@ const recentCases = [
 export function DashboardRecentCases() {
 	return (
 		<div className="lab-card overflow-hidden flex flex-col">
-			<div className="p-6 border-b border-border flex justify-between items-center bg-slate-50/50 dark:bg-white/[0.02]">
+			<div className="p-6 border-b border-border flex justify-between items-center bg-slate-50/50 dark:bg-white/2">
 				<div>
 					<h2 className="text-lg font-bold text-foreground tracking-tight">Active Floor Overview</h2>
 					<p className="text-sm text-muted-foreground mt-0.5">Recently updated cases across all technicians.</p>

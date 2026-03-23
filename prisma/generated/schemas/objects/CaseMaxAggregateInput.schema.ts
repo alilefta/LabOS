@@ -7,6 +7,7 @@ const makeSchema = () => z.object({
   patientId: z.literal(true).optional(),
   labId: z.literal(true).optional(),
   salesRepsId: z.literal(true).optional(),
+  caseCategoryId: z.literal(true).optional(),
   status: z.literal(true).optional(),
   grandTotal: z.literal(true).optional(),
   clinicId: z.literal(true).optional(),

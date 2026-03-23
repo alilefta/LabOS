@@ -8,7 +8,7 @@ import { DateTimeFieldUpdateOperationsInputObjectSchema as DateTimeFieldUpdateOp
 import { PatientUpdateOneRequiredWithoutCaseNestedInputObjectSchema as PatientUpdateOneRequiredWithoutCaseNestedInputObjectSchema } from './PatientUpdateOneRequiredWithoutCaseNestedInput.schema';
 import { SalesRepresentativeUpdateOneWithoutCasesNestedInputObjectSchema as SalesRepresentativeUpdateOneWithoutCasesNestedInputObjectSchema } from './SalesRepresentativeUpdateOneWithoutCasesNestedInput.schema';
 import { CaseWorkItemUpdateManyWithoutCaseNestedInputObjectSchema as CaseWorkItemUpdateManyWithoutCaseNestedInputObjectSchema } from './CaseWorkItemUpdateManyWithoutCaseNestedInput.schema';
-import { CaseCategoryUpdateManyWithoutCasesNestedInputObjectSchema as CaseCategoryUpdateManyWithoutCasesNestedInputObjectSchema } from './CaseCategoryUpdateManyWithoutCasesNestedInput.schema';
+import { CaseCategoryUpdateOneWithoutCasesNestedInputObjectSchema as CaseCategoryUpdateOneWithoutCasesNestedInputObjectSchema } from './CaseCategoryUpdateOneWithoutCasesNestedInput.schema';
 import { ClinicUpdateOneWithoutCasesNestedInputObjectSchema as ClinicUpdateOneWithoutCasesNestedInputObjectSchema } from './ClinicUpdateOneWithoutCasesNestedInput.schema';
 import { TechnicianUpdateOneWithoutCasesNestedInputObjectSchema as TechnicianUpdateOneWithoutCasesNestedInputObjectSchema } from './TechnicianUpdateOneWithoutCasesNestedInput.schema';
 import { CaseAssetFileUpdateManyWithoutCaseNestedInputObjectSchema as CaseAssetFileUpdateManyWithoutCaseNestedInputObjectSchema } from './CaseAssetFileUpdateManyWithoutCaseNestedInput.schema'
@@ -31,7 +31,7 @@ const makeSchema = () => z.object({
   patient: z.lazy(() => PatientUpdateOneRequiredWithoutCaseNestedInputObjectSchema).optional(),
   salesReps: z.lazy(() => SalesRepresentativeUpdateOneWithoutCasesNestedInputObjectSchema).optional(),
   caseItems: z.lazy(() => CaseWorkItemUpdateManyWithoutCaseNestedInputObjectSchema).optional(),
-  caseCategory: z.lazy(() => CaseCategoryUpdateManyWithoutCasesNestedInputObjectSchema).optional(),
+  caseCategory: z.lazy(() => CaseCategoryUpdateOneWithoutCasesNestedInputObjectSchema).optional(),
   clinic: z.lazy(() => ClinicUpdateOneWithoutCasesNestedInputObjectSchema).optional(),
   Technician: z.lazy(() => TechnicianUpdateOneWithoutCasesNestedInputObjectSchema).optional(),
   caseAssetFiles: z.lazy(() => CaseAssetFileUpdateManyWithoutCaseNestedInputObjectSchema).optional()

@@ -6,7 +6,7 @@ import { PatientOrderByWithRelationInputObjectSchema as PatientOrderByWithRelati
 import { LabOrderByWithRelationInputObjectSchema as LabOrderByWithRelationInputObjectSchema } from './LabOrderByWithRelationInput.schema';
 import { SalesRepresentativeOrderByWithRelationInputObjectSchema as SalesRepresentativeOrderByWithRelationInputObjectSchema } from './SalesRepresentativeOrderByWithRelationInput.schema';
 import { CaseWorkItemOrderByRelationAggregateInputObjectSchema as CaseWorkItemOrderByRelationAggregateInputObjectSchema } from './CaseWorkItemOrderByRelationAggregateInput.schema';
-import { CaseCategoryOrderByRelationAggregateInputObjectSchema as CaseCategoryOrderByRelationAggregateInputObjectSchema } from './CaseCategoryOrderByRelationAggregateInput.schema';
+import { CaseCategoryOrderByWithRelationInputObjectSchema as CaseCategoryOrderByWithRelationInputObjectSchema } from './CaseCategoryOrderByWithRelationInput.schema';
 import { ClinicOrderByWithRelationInputObjectSchema as ClinicOrderByWithRelationInputObjectSchema } from './ClinicOrderByWithRelationInput.schema';
 import { TechnicianOrderByWithRelationInputObjectSchema as TechnicianOrderByWithRelationInputObjectSchema } from './TechnicianOrderByWithRelationInput.schema';
 import { CaseAssetFileOrderByRelationAggregateInputObjectSchema as CaseAssetFileOrderByRelationAggregateInputObjectSchema } from './CaseAssetFileOrderByRelationAggregateInput.schema'
@@ -16,6 +16,7 @@ const makeSchema = () => z.object({
   patientId: SortOrderSchema.optional(),
   labId: SortOrderSchema.optional(),
   salesRepsId: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
+  caseCategoryId: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
   status: SortOrderSchema.optional(),
   grandTotal: SortOrderSchema.optional(),
   clinicId: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
@@ -27,7 +28,7 @@ const makeSchema = () => z.object({
   lab: z.lazy(() => LabOrderByWithRelationInputObjectSchema).optional(),
   salesReps: z.lazy(() => SalesRepresentativeOrderByWithRelationInputObjectSchema).optional(),
   caseItems: z.lazy(() => CaseWorkItemOrderByRelationAggregateInputObjectSchema).optional(),
-  caseCategory: z.lazy(() => CaseCategoryOrderByRelationAggregateInputObjectSchema).optional(),
+  caseCategory: z.lazy(() => CaseCategoryOrderByWithRelationInputObjectSchema).optional(),
   clinic: z.lazy(() => ClinicOrderByWithRelationInputObjectSchema).optional(),
   Technician: z.lazy(() => TechnicianOrderByWithRelationInputObjectSchema).optional(),
   caseAssetFiles: z.lazy(() => CaseAssetFileOrderByRelationAggregateInputObjectSchema).optional()

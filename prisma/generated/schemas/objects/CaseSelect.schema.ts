@@ -4,7 +4,7 @@ import { PatientArgsObjectSchema as PatientArgsObjectSchema } from './PatientArg
 import { LabArgsObjectSchema as LabArgsObjectSchema } from './LabArgs.schema';
 import { SalesRepresentativeArgsObjectSchema as SalesRepresentativeArgsObjectSchema } from './SalesRepresentativeArgs.schema';
 import { CaseWorkItemFindManySchema as CaseWorkItemFindManySchema } from '../findManyCaseWorkItem.schema';
-import { CaseCategoryFindManySchema as CaseCategoryFindManySchema } from '../findManyCaseCategory.schema';
+import { CaseCategoryArgsObjectSchema as CaseCategoryArgsObjectSchema } from './CaseCategoryArgs.schema';
 import { ClinicArgsObjectSchema as ClinicArgsObjectSchema } from './ClinicArgs.schema';
 import { TechnicianArgsObjectSchema as TechnicianArgsObjectSchema } from './TechnicianArgs.schema';
 import { CaseAssetFileFindManySchema as CaseAssetFileFindManySchema } from '../findManyCaseAssetFile.schema';
@@ -19,7 +19,8 @@ const makeSchema = () => z.object({
   salesRepsId: z.boolean().optional(),
   salesReps: z.union([z.boolean(), z.lazy(() => SalesRepresentativeArgsObjectSchema)]).optional(),
   caseItems: z.union([z.boolean(), z.lazy(() => CaseWorkItemFindManySchema)]).optional(),
-  caseCategory: z.union([z.boolean(), z.lazy(() => CaseCategoryFindManySchema)]).optional(),
+  caseCategoryId: z.boolean().optional(),
+  caseCategory: z.union([z.boolean(), z.lazy(() => CaseCategoryArgsObjectSchema)]).optional(),
   status: z.boolean().optional(),
   grandTotal: z.boolean().optional(),
   clinicId: z.boolean().optional(),

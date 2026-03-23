@@ -162,7 +162,9 @@ model Case {
   salesReps   SalesRepresentative? @relation(fields: [salesRepsId], references: [id], onDelete: SetNull)
 
   caseItems    CaseWorkItem[]
-  caseCategory CaseCategory[]
+
+  caseCategoryId  String?  
+  caseCategory    CaseCategory? @relation(fields: [caseCategoryId], references: [id], onDelete: SetNull)
 
   status     CaseStatus @default(NEW)
   grandTotal Decimal
@@ -337,6 +339,25 @@ model CasePricingPlan {
   @@index([labId])
 }
 
+
+
+model SelectedTooth {
+  id             String        @id @default(uuid())
+  toothPosition  ToothPosition
+  caseWorkItemId String
+  caseWorkItem   CaseWorkItem  @relation(fields: [caseWorkItemId], references: [id], onDelete: Cascade)
+
+  labId String
+  lab   Lab    @relation(fields: [labId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([labId])
+  @@index([caseWorkItemId])
+}
+
+
 model Technician {
   id        String  @id @default(uuid())
   firstName String
@@ -386,23 +407,6 @@ model SalesRepresentative {
 
   @@index([labId])
 }
-
-model SelectedTooth {
-  id             String        @id @default(uuid())
-  toothPosition  ToothPosition
-  caseWorkItemId String
-  caseWorkItem   CaseWorkItem  @relation(fields: [caseWorkItemId], references: [id], onDelete: Cascade)
-
-  labId String
-  lab   Lab    @relation(fields: [labId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([labId])
-  @@index([caseWorkItemId])
-}
-
 model LabSubscriptionPlan {
   id    String @id @default(uuid())
   labId String @unique

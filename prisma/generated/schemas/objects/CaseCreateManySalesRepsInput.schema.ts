@@ -7,6 +7,7 @@ const makeSchema = () => z.object({
   id: z.string().optional(),
   patientId: z.string(),
   labId: z.string(),
+  caseCategoryId: z.string().optional().nullable(),
   status: CaseStatusSchema.optional(),
   grandTotal: z.union([
   z.number(),

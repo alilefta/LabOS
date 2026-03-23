@@ -2,7 +2,6 @@ import * as z from 'zod';
 import { Prisma } from '../../../../generated/prisma/client';
 import { CaseStatusSchema } from '../enums/CaseStatus.schema';
 import { CaseWorkItemUncheckedCreateNestedManyWithoutCaseInputObjectSchema as CaseWorkItemUncheckedCreateNestedManyWithoutCaseInputObjectSchema } from './CaseWorkItemUncheckedCreateNestedManyWithoutCaseInput.schema';
-import { CaseCategoryUncheckedCreateNestedManyWithoutCasesInputObjectSchema as CaseCategoryUncheckedCreateNestedManyWithoutCasesInputObjectSchema } from './CaseCategoryUncheckedCreateNestedManyWithoutCasesInput.schema';
 import { CaseAssetFileUncheckedCreateNestedManyWithoutCaseInputObjectSchema as CaseAssetFileUncheckedCreateNestedManyWithoutCaseInputObjectSchema } from './CaseAssetFileUncheckedCreateNestedManyWithoutCaseInput.schema'
 
 import { DecimalJSLikeSchema, isValidDecimalInput } from '../../helpers/decimal-helpers';
@@ -10,6 +9,7 @@ const makeSchema = () => z.object({
   id: z.string().optional(),
   labId: z.string(),
   salesRepsId: z.string().optional().nullable(),
+  caseCategoryId: z.string().optional().nullable(),
   status: CaseStatusSchema.optional(),
   grandTotal: z.union([
   z.number(),
@@ -25,7 +25,6 @@ const makeSchema = () => z.object({
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
   caseItems: z.lazy(() => CaseWorkItemUncheckedCreateNestedManyWithoutCaseInputObjectSchema).optional(),
-  caseCategory: z.lazy(() => CaseCategoryUncheckedCreateNestedManyWithoutCasesInputObjectSchema).optional(),
   caseAssetFiles: z.lazy(() => CaseAssetFileUncheckedCreateNestedManyWithoutCaseInputObjectSchema).optional()
 }).strict();
 export const CaseUncheckedCreateWithoutPatientInputObjectSchema: z.ZodType<Prisma.CaseUncheckedCreateWithoutPatientInput> = makeSchema() as unknown as z.ZodType<Prisma.CaseUncheckedCreateWithoutPatientInput>;

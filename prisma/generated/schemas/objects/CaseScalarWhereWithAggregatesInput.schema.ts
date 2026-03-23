@@ -16,6 +16,7 @@ const casescalarwherewithaggregatesinputSchema = z.object({
   patientId: z.union([z.lazy(() => StringWithAggregatesFilterObjectSchema), z.string()]).optional(),
   labId: z.union([z.lazy(() => StringWithAggregatesFilterObjectSchema), z.string()]).optional(),
   salesRepsId: z.union([z.lazy(() => StringNullableWithAggregatesFilterObjectSchema), z.string()]).optional().nullable(),
+  caseCategoryId: z.union([z.lazy(() => StringNullableWithAggregatesFilterObjectSchema), z.string()]).optional().nullable(),
   status: z.union([z.lazy(() => EnumCaseStatusWithAggregatesFilterObjectSchema), CaseStatusSchema]).optional(),
   grandTotal: z.union([z.lazy(() => DecimalWithAggregatesFilterObjectSchema), z.union([
   z.number(),

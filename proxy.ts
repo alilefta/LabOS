@@ -22,8 +22,7 @@ export default async function proxy(request: NextRequest) {
 	const onboardingRoute = "/onboarding";
 	const dashboardRoute = "/dashboard";
 
-	// new routes
-	const settingsRoute = "/settings";
+	const protectedRoutes = ["/clinics", "/settings", "/cases", "/technicians"];
 
 	// allow public routes immediately
 	if (publicRoutes.includes(pathname)) {
@@ -80,9 +79,19 @@ export default async function proxy(request: NextRequest) {
 		return NextResponse.next();
 	}
 
-	if (pathname.startsWith(settingsRoute)) {
+	// if (pathname.startsWith(settingsRoute)) {
+	// 	return NextResponse.next();
+	// }
+
+	// if (pathname.startsWith(clinicsRoute)) {
+	// 	return NextResponse.next();
+	// }
+
+	if (protectedRoutes.some((route) => pathname.startsWith(route))) {
 		return NextResponse.next();
 	}
+
+	// many protected routes will go here! we need a better way to handle protected route like an array of protected routes
 
 	if (publicRoutes.includes(pathname)) {
 		return NextResponse.next();

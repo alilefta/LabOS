@@ -13,7 +13,8 @@ import { LabWhereInputObjectSchema as LabWhereInputObjectSchema } from './LabWhe
 import { SalesRepresentativeNullableScalarRelationFilterObjectSchema as SalesRepresentativeNullableScalarRelationFilterObjectSchema } from './SalesRepresentativeNullableScalarRelationFilter.schema';
 import { SalesRepresentativeWhereInputObjectSchema as SalesRepresentativeWhereInputObjectSchema } from './SalesRepresentativeWhereInput.schema';
 import { CaseWorkItemListRelationFilterObjectSchema as CaseWorkItemListRelationFilterObjectSchema } from './CaseWorkItemListRelationFilter.schema';
-import { CaseCategoryListRelationFilterObjectSchema as CaseCategoryListRelationFilterObjectSchema } from './CaseCategoryListRelationFilter.schema';
+import { CaseCategoryNullableScalarRelationFilterObjectSchema as CaseCategoryNullableScalarRelationFilterObjectSchema } from './CaseCategoryNullableScalarRelationFilter.schema';
+import { CaseCategoryWhereInputObjectSchema as CaseCategoryWhereInputObjectSchema } from './CaseCategoryWhereInput.schema';
 import { ClinicNullableScalarRelationFilterObjectSchema as ClinicNullableScalarRelationFilterObjectSchema } from './ClinicNullableScalarRelationFilter.schema';
 import { ClinicWhereInputObjectSchema as ClinicWhereInputObjectSchema } from './ClinicWhereInput.schema';
 import { TechnicianNullableScalarRelationFilterObjectSchema as TechnicianNullableScalarRelationFilterObjectSchema } from './TechnicianNullableScalarRelationFilter.schema';
@@ -29,6 +30,7 @@ const casewhereinputSchema = z.object({
   patientId: z.union([z.lazy(() => StringFilterObjectSchema), z.string()]).optional(),
   labId: z.union([z.lazy(() => StringFilterObjectSchema), z.string()]).optional(),
   salesRepsId: z.union([z.lazy(() => StringNullableFilterObjectSchema), z.string()]).optional().nullable(),
+  caseCategoryId: z.union([z.lazy(() => StringNullableFilterObjectSchema), z.string()]).optional().nullable(),
   status: z.union([z.lazy(() => EnumCaseStatusFilterObjectSchema), CaseStatusSchema]).optional(),
   grandTotal: z.union([z.lazy(() => DecimalFilterObjectSchema), z.union([
   z.number(),
@@ -47,7 +49,7 @@ const casewhereinputSchema = z.object({
   lab: z.union([z.lazy(() => LabScalarRelationFilterObjectSchema), z.lazy(() => LabWhereInputObjectSchema)]).optional(),
   salesReps: z.union([z.lazy(() => SalesRepresentativeNullableScalarRelationFilterObjectSchema), z.lazy(() => SalesRepresentativeWhereInputObjectSchema)]).optional(),
   caseItems: z.lazy(() => CaseWorkItemListRelationFilterObjectSchema).optional(),
-  caseCategory: z.lazy(() => CaseCategoryListRelationFilterObjectSchema).optional(),
+  caseCategory: z.union([z.lazy(() => CaseCategoryNullableScalarRelationFilterObjectSchema), z.lazy(() => CaseCategoryWhereInputObjectSchema)]).optional(),
   clinic: z.union([z.lazy(() => ClinicNullableScalarRelationFilterObjectSchema), z.lazy(() => ClinicWhereInputObjectSchema)]).optional(),
   Technician: z.union([z.lazy(() => TechnicianNullableScalarRelationFilterObjectSchema), z.lazy(() => TechnicianWhereInputObjectSchema)]).optional(),
   caseAssetFiles: z.lazy(() => CaseAssetFileListRelationFilterObjectSchema).optional()

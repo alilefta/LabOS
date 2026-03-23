@@ -1,8 +1,7 @@
 import * as z from 'zod';
 import { Prisma } from '../../../../generated/prisma/client';
 import { CaseStatusSchema } from '../enums/CaseStatus.schema';
-import { CaseWorkItemUncheckedCreateNestedManyWithoutCaseInputObjectSchema as CaseWorkItemUncheckedCreateNestedManyWithoutCaseInputObjectSchema } from './CaseWorkItemUncheckedCreateNestedManyWithoutCaseInput.schema';
-import { CaseCategoryUncheckedCreateNestedManyWithoutCasesInputObjectSchema as CaseCategoryUncheckedCreateNestedManyWithoutCasesInputObjectSchema } from './CaseCategoryUncheckedCreateNestedManyWithoutCasesInput.schema'
+import { CaseWorkItemUncheckedCreateNestedManyWithoutCaseInputObjectSchema as CaseWorkItemUncheckedCreateNestedManyWithoutCaseInputObjectSchema } from './CaseWorkItemUncheckedCreateNestedManyWithoutCaseInput.schema'
 
 import { DecimalJSLikeSchema, isValidDecimalInput } from '../../helpers/decimal-helpers';
 const makeSchema = () => z.object({
@@ -10,6 +9,7 @@ const makeSchema = () => z.object({
   patientId: z.string(),
   labId: z.string(),
   salesRepsId: z.string().optional().nullable(),
+  caseCategoryId: z.string().optional().nullable(),
   status: CaseStatusSchema.optional(),
   grandTotal: z.union([
   z.number(),
@@ -24,8 +24,7 @@ const makeSchema = () => z.object({
   deadline: z.coerce.date(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
-  caseItems: z.lazy(() => CaseWorkItemUncheckedCreateNestedManyWithoutCaseInputObjectSchema).optional(),
-  caseCategory: z.lazy(() => CaseCategoryUncheckedCreateNestedManyWithoutCasesInputObjectSchema).optional()
+  caseItems: z.lazy(() => CaseWorkItemUncheckedCreateNestedManyWithoutCaseInputObjectSchema).optional()
 }).strict();
 export const CaseUncheckedCreateWithoutCaseAssetFilesInputObjectSchema: z.ZodType<Prisma.CaseUncheckedCreateWithoutCaseAssetFilesInput> = makeSchema() as unknown as z.ZodType<Prisma.CaseUncheckedCreateWithoutCaseAssetFilesInput>;
 export const CaseUncheckedCreateWithoutCaseAssetFilesInputObjectZodSchema = makeSchema();
