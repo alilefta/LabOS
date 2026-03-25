@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { LayoutDashboard, FolderOpen, Users, Package, CreditCard, AlertCircle, Sparkles, Settings, ChevronsUpDown, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -23,6 +23,7 @@ const smartViews = [
 
 export function DashboardSidebar() {
 	const pathname = usePathname();
+	const router = useRouter();
 
 	return (
 		<div className="flex flex-col h-full w-full">
@@ -137,7 +138,7 @@ export function DashboardSidebar() {
 						</div>
 					</DropdownMenuTrigger>
 					<DropdownMenuContent align="end" className="w-56 rounded-xl border-border shadow-premium dark:bg-[#121214]">
-						<DropdownMenuItem className="rounded-lg cursor-pointer">
+						<DropdownMenuItem className="rounded-lg cursor-pointer" onClick={() => router.push("/settings")}>
 							<Settings className="w-4 h-4 mr-2" /> Settings
 						</DropdownMenuItem>
 						<DropdownMenuSeparator className="bg-border" />

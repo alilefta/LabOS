@@ -3,6 +3,7 @@
 import { Bell, Menu, Plus, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DashboardMobileNav } from "./dashboard-mobile-nav";
+import Link from "next/link";
 
 export function DashboardTopHeader() {
 	return (
@@ -48,10 +49,10 @@ export function DashboardTopHeader() {
 				</Button>
 
 				{/* Primary Action Button */}
-				<Button className="h-9 px-4 rounded-xl shadow-premium bg-primary hover:bg-primary/90 text-primary-foreground text-sm font-semibold">
+				<Link className="h-9 flex items-center px-4 rounded-xl shadow-premium bg-primary hover:bg-primary/90 text-primary-foreground text-sm font-semibold" href={"/cases/new-case"}>
 					<Plus className="w-4 h-4 mr-1.5" />
 					<span className="hidden sm:inline">New Case</span>
-				</Button>
+				</Link>
 			</div>
 		</header>
 	);

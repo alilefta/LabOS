@@ -1,0 +1,38 @@
+import * as z from "zod";
+
+export const ToothPositionSchema = z.enum([
+	"UpperRightThirdMolar",
+	"UpperRightSecondMolar",
+	"UpperRightFirstMolar",
+	"UpperRightSecondPremolar",
+	"UpperRightFirstPremolar",
+	"UpperRightCanine",
+	"UpperRightLateralIncisor",
+	"UpperRightCentralIncisor",
+	"UpperLeftCentralIncisor",
+	"UpperLeftLateralIncisor",
+	"UpperLeftCanine",
+	"UpperLeftFirstPremolar",
+	"UpperLeftSecondPremolar",
+	"UpperLeftFirstMolar",
+	"UpperLeftSecondMolar",
+	"UpperLeftThirdMolar",
+	"LowerLeftThirdMolar",
+	"LowerLeftSecondMolar",
+	"LowerLeftFirstMolar",
+	"LowerLeftSecondPremolar",
+	"LowerLeftFirstPremolar",
+	"LowerLeftCanine",
+	"LowerLeftLateralIncisor",
+	"LowerLeftCentralIncisor",
+	"LowerRightCentralIncisor",
+	"LowerRightLateralIncisor",
+	"LowerRightCanine",
+	"LowerRightFirstPremolar",
+	"LowerRightSecondPremolar",
+	"LowerRightFirstMolar",
+	"LowerRightSecondMolar",
+	"LowerRightThirdMolar",
+]);
+
+export type ToothPosition = z.infer<typeof ToothPositionSchema>;
