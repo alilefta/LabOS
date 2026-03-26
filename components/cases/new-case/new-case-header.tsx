@@ -24,7 +24,7 @@ export function NewCaseHeader({ isSubmitForReviewEnabled, onSaveDraft }: { isSub
 					<Save className="w-4 h-4 mr-2" /> Save Draft
 				</Button>
 				<Button
-					// disabled={!isSubmitForReviewEnabled} // to be activated later
+					// disabled={isSubmitForReviewEnabled} // to be activated later
 					className="rounded-xl bg-primary text-primary-foreground px-6 font-bold shadow-premium hover:bg-primary/90"
 					type="submit"
 					form="new-case-submission-form"

@@ -1,6 +1,6 @@
 "use client";
 
-import { Building2, MapPin, ChevronsUpDown, Check } from "lucide-react";
+import { Building2, MapPin, ChevronsUpDown } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Button } from "@/components/ui/button";
@@ -13,7 +13,7 @@ export function ClinicSelector({ clinics, onSelect }: any) {
 
 	return (
 		<div className="space-y-2">
-			<label className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground ml-1">Clinic Partner</label>
+			<h5 className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground ml-1">Clinic Partner</h5>
 			<Popover open={open} onOpenChange={setOpen}>
 				<PopoverTrigger asChild>
 					<Button variant="outline" role="combobox" className="w-full h-12 justify-between rounded-xl border-border bg-card px-4">

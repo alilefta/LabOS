@@ -1,28 +1,15 @@
 "use client";
 
-import { useState } from "react";
 import { Controller, useFormContext } from "react-hook-form";
 import { ClinicSelector } from "../../case/case-inputs/clinic-selector";
 import { PatientSelector } from "../../case/case-inputs/patient-selector";
 import { ClinicBase } from "@/schema/base/clinic.base";
-import { PatientBase } from "@/schema/base/patient.base";
 import { CreateCaseInput } from "@/schema/composed/case.details";
-import { RegisterPatientSheet } from "@/components/modals/cases/patient/create-patient-sheet";
+import { PatientDetails } from "@/schema/composed/patient.details";
 
-export function PatientAndClinicSection() {
+export function PatientAndClinicSection({ newCreatedPatient, handleOpenPatientCreationSheet }: { newCreatedPatient: PatientDetails | null; handleOpenPatientCreationSheet: () => void }) {
 	const form = useFormContext<CreateCaseInput>();
-	const initialPatients: PatientBase[] = [];
 	const clinics: ClinicBase[] = [];
-	const [patients, setPatients] = useState(initialPatients);
-	const [isSheetOpen, setIsSheetOpen] = useState(false);
-
-	const handlePatientCreated = (newPatient: any) => {
-		// 1. Add new patient to the local list so the selector sees them
-		setPatients((prev) => [newPatient, ...prev]);
-
-		// 2. Automatically select the new patient in the main form
-		// setValue("patientId", newPatient.id, { shouldValidate: true });
-	};
 
 	return (
 		<section className="space-y-6">
@@ -35,11 +22,9 @@ export function PatientAndClinicSection() {
 				<Controller
 					control={form.control}
 					name="patientId"
-					render={({ field }) => <PatientSelector patients={patients} onSelect={(id: string) => field.onChange(id)} onCreateNew={() => setIsSheetOpen(true)} />}
+					render={({ field }) => <PatientSelector onSelect={(id: string) => field.onChange(id)} onCreateNew={handleOpenPatientCreationSheet} createdPatient={newCreatedPatient} />}
 				/>
 			</div>
-
-			<RegisterPatientSheet isOpen={isSheetOpen} onClose={() => setIsSheetOpen(false)} onSuccess={handlePatientCreated} />
 		</section>
 	);
 }
