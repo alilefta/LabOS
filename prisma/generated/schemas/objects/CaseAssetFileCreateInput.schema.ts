@@ -11,7 +11,7 @@ const makeSchema = () => z.object({
   documentUrl: z.string(),
   assetFileType: AssetFileTypeSchema.optional(),
   createdAt: z.coerce.date().optional(),
-  case: z.lazy(() => CaseCreateNestedOneWithoutCaseAssetFilesInputObjectSchema),
+  dentalCase: z.lazy(() => CaseCreateNestedOneWithoutCaseAssetFilesInputObjectSchema),
   lab: z.lazy(() => LabCreateNestedOneWithoutCaseAssetFilesInputObjectSchema)
 }).strict();
 export const CaseAssetFileCreateInputObjectSchema: z.ZodType<Prisma.CaseAssetFileCreateInput> = makeSchema() as unknown as z.ZodType<Prisma.CaseAssetFileCreateInput>;

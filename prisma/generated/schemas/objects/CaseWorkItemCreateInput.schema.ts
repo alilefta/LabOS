@@ -56,7 +56,7 @@ const makeSchema = () => z.object({
   createdAt: z.coerce.date().optional(),
   product: z.lazy(() => ProductCreateNestedOneWithoutCaseWorkItemsInputObjectSchema).optional(),
   Lab: z.lazy(() => LabCreateNestedOneWithoutCaseWorkItemsInputObjectSchema),
-  case: z.lazy(() => CaseCreateNestedOneWithoutCaseItemsInputObjectSchema),
+  dentalCase: z.lazy(() => CaseCreateNestedOneWithoutCaseItemsInputObjectSchema),
   casePricingPlan: z.lazy(() => CasePricingPlanCreateNestedOneWithoutCaseWorkItemInputObjectSchema),
   selectedTeeth: z.lazy(() => SelectedToothCreateNestedManyWithoutCaseWorkItemInputObjectSchema).optional()
 }).strict();

@@ -22,7 +22,7 @@ export const PatientGroupByResultSchema = z.array(z.object({
     address2: z.number(),
     email: z.number(),
     phoneNumber: z.number(),
-    case: z.number(),
+    cases: z.number(),
     labId: z.number(),
     lab: z.number(),
     createdAt: z.number(),

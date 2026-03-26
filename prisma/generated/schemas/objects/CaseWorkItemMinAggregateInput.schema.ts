@@ -6,7 +6,7 @@ const makeSchema = () => z.object({
   id: z.literal(true).optional(),
   productId: z.literal(true).optional(),
   labId: z.literal(true).optional(),
-  caseId: z.literal(true).optional(),
+  dentalCaseId: z.literal(true).optional(),
   casePricingPlanId: z.literal(true).optional(),
   totalPrice: z.literal(true).optional(),
   pricingStrategy: z.literal(true).optional(),

@@ -5,8 +5,8 @@ import { LabArgsObjectSchema as LabArgsObjectSchema } from './LabArgs.schema'
 
 const makeSchema = () => z.object({
   id: z.boolean().optional(),
-  caseId: z.boolean().optional(),
-  case: z.union([z.boolean(), z.lazy(() => CaseArgsObjectSchema)]).optional(),
+  dentalCaseId: z.boolean().optional(),
+  dentalCase: z.union([z.boolean(), z.lazy(() => CaseArgsObjectSchema)]).optional(),
   title: z.boolean().optional(),
   description: z.boolean().optional(),
   documentUrl: z.boolean().optional(),

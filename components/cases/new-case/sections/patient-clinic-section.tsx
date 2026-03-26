@@ -7,7 +7,7 @@ import { ClinicBase } from "@/schema/base/clinic.base";
 import { CreateCaseInput } from "@/schema/composed/case.details";
 import { PatientDetails } from "@/schema/composed/patient.details";
 
-export function PatientAndClinicSection({ newCreatedPatient, handleOpenPatientCreationSheet }: { newCreatedPatient: PatientDetails | null; handleOpenPatientCreationSheet: () => void }) {
+export function PatientAndClinicSection({ handleOpenPatientCreationSheet }: { handleOpenPatientCreationSheet: () => void }) {
 	const form = useFormContext<CreateCaseInput>();
 	const clinics: ClinicBase[] = [];
 
@@ -22,7 +22,7 @@ export function PatientAndClinicSection({ newCreatedPatient, handleOpenPatientCr
 				<Controller
 					control={form.control}
 					name="patientId"
-					render={({ field }) => <PatientSelector onSelect={(id: string) => field.onChange(id)} onCreateNew={handleOpenPatientCreationSheet} createdPatient={newCreatedPatient} />}
+					render={({ field }) => <PatientSelector onSelect={(id: string) => field.onChange(id)} onCreateNew={handleOpenPatientCreationSheet} />}
 				/>
 			</div>
 		</section>

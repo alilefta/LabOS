@@ -27,7 +27,7 @@ const caseworkitemwhereinputSchema = z.object({
   id: z.union([z.lazy(() => StringFilterObjectSchema), z.string()]).optional(),
   productId: z.union([z.lazy(() => StringNullableFilterObjectSchema), z.string()]).optional().nullable(),
   labId: z.union([z.lazy(() => StringFilterObjectSchema), z.string()]).optional(),
-  caseId: z.union([z.lazy(() => StringFilterObjectSchema), z.string()]).optional(),
+  dentalCaseId: z.union([z.lazy(() => StringFilterObjectSchema), z.string()]).optional(),
   casePricingPlanId: z.union([z.lazy(() => StringFilterObjectSchema), z.string()]).optional(),
   totalPrice: z.union([z.lazy(() => DecimalFilterObjectSchema), z.union([
   z.number(),
@@ -75,7 +75,7 @@ const caseworkitemwhereinputSchema = z.object({
   updatedAt: z.union([z.lazy(() => DateTimeFilterObjectSchema), z.coerce.date()]).optional(),
   product: z.union([z.lazy(() => ProductNullableScalarRelationFilterObjectSchema), z.lazy(() => ProductWhereInputObjectSchema)]).optional(),
   Lab: z.union([z.lazy(() => LabScalarRelationFilterObjectSchema), z.lazy(() => LabWhereInputObjectSchema)]).optional(),
-  case: z.union([z.lazy(() => CaseScalarRelationFilterObjectSchema), z.lazy(() => CaseWhereInputObjectSchema)]).optional(),
+  dentalCase: z.union([z.lazy(() => CaseScalarRelationFilterObjectSchema), z.lazy(() => CaseWhereInputObjectSchema)]).optional(),
   casePricingPlan: z.union([z.lazy(() => CasePricingPlanScalarRelationFilterObjectSchema), z.lazy(() => CasePricingPlanWhereInputObjectSchema)]).optional(),
   selectedTeeth: z.lazy(() => SelectedToothListRelationFilterObjectSchema).optional()
 }).strict();

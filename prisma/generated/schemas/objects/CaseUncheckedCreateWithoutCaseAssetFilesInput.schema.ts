@@ -1,7 +1,7 @@
 import * as z from 'zod';
 import { Prisma } from '../../../../generated/prisma/client';
 import { CaseStatusSchema } from '../enums/CaseStatus.schema';
-import { CaseWorkItemUncheckedCreateNestedManyWithoutCaseInputObjectSchema as CaseWorkItemUncheckedCreateNestedManyWithoutCaseInputObjectSchema } from './CaseWorkItemUncheckedCreateNestedManyWithoutCaseInput.schema'
+import { CaseWorkItemUncheckedCreateNestedManyWithoutDentalCaseInputObjectSchema as CaseWorkItemUncheckedCreateNestedManyWithoutDentalCaseInputObjectSchema } from './CaseWorkItemUncheckedCreateNestedManyWithoutDentalCaseInput.schema'
 
 import { DecimalJSLikeSchema, isValidDecimalInput } from '../../helpers/decimal-helpers';
 const makeSchema = () => z.object({
@@ -18,13 +18,13 @@ const makeSchema = () => z.object({
   DecimalJSLikeSchema,
 ]).refine((v) => isValidDecimalInput(v), {
   message: "Field 'grandTotal' must be a Decimal",
-}),
+}).optional().nullable(),
   clinicId: z.string().optional().nullable(),
   technicianId: z.string().optional().nullable(),
   deadline: z.coerce.date(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
-  caseItems: z.lazy(() => CaseWorkItemUncheckedCreateNestedManyWithoutCaseInputObjectSchema).optional()
+  caseItems: z.lazy(() => CaseWorkItemUncheckedCreateNestedManyWithoutDentalCaseInputObjectSchema).optional()
 }).strict();
 export const CaseUncheckedCreateWithoutCaseAssetFilesInputObjectSchema: z.ZodType<Prisma.CaseUncheckedCreateWithoutCaseAssetFilesInput> = makeSchema() as unknown as z.ZodType<Prisma.CaseUncheckedCreateWithoutCaseAssetFilesInput>;
 export const CaseUncheckedCreateWithoutCaseAssetFilesInputObjectZodSchema = makeSchema();

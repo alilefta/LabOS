@@ -12,7 +12,7 @@ const makeSchema = () => z.object({
   id: SortOrderSchema.optional(),
   productId: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
   labId: SortOrderSchema.optional(),
-  caseId: SortOrderSchema.optional(),
+  dentalCaseId: SortOrderSchema.optional(),
   casePricingPlanId: SortOrderSchema.optional(),
   totalPrice: SortOrderSchema.optional(),
   pricingStrategy: SortOrderSchema.optional(),
@@ -25,7 +25,7 @@ const makeSchema = () => z.object({
   updatedAt: SortOrderSchema.optional(),
   product: z.lazy(() => ProductOrderByWithRelationInputObjectSchema).optional(),
   Lab: z.lazy(() => LabOrderByWithRelationInputObjectSchema).optional(),
-  case: z.lazy(() => CaseOrderByWithRelationInputObjectSchema).optional(),
+  dentalCase: z.lazy(() => CaseOrderByWithRelationInputObjectSchema).optional(),
   casePricingPlan: z.lazy(() => CasePricingPlanOrderByWithRelationInputObjectSchema).optional(),
   selectedTeeth: z.lazy(() => SelectedToothOrderByRelationAggregateInputObjectSchema).optional()
 }).strict();

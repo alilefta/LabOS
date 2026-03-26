@@ -9,7 +9,7 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useAction } from "next-safe-action/hooks";
 import { NewCaseHeader } from "@/components/cases/new-case/new-case-header";
-import { FormProvider, useForm } from "react-hook-form";
+import { Controller, FormProvider, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import z from "zod";
 import { HierarchicalClinicalPicker } from "@/components/cases/case/hierarchical-clinical-picker";
@@ -18,11 +18,15 @@ import { CaseFileUploadZone } from "@/components/cases/case/case-file-upload-zon
 import { ClinicalAssetPreview } from "@/components/cases/case/clinical-assets-preview";
 import { CreateCaseInput, CreateCaseInputSchema } from "@/schema/composed/case.details";
 import { PatientAndClinicSection } from "@/components/cases/new-case/sections/patient-clinic-section";
+import { RegisterPatientSheet } from "@/components/modals/cases/patient/create-patient-sheet";
+
+import { PatientDetails } from "@/schema/composed/patient.details";
 
 export default function NewCasePage() {
 	// 1. The Boss holds the temporary data
 	const [draftData, setDraftData] = useState<CreateCaseInput | null>(null);
 	const [isSummaryOpen, setIsSummaryOpen] = useState(false);
+	const [openCreateNewPatientSheet, setOpenCreateNewPatientSheet] = useState(false);
 
 	const form = useForm<CreateCaseInput>({
 		resolver: zodResolver(CreateCaseInputSchema),
@@ -85,7 +89,7 @@ export default function NewCasePage() {
 
 	return (
 		<div className="flex flex-col h-full animate-in fade-in duration-700">
-			<NewCaseHeader isSubmitForReviewEnabled={form.formState.disabled} onSaveDraft={handleSaveDraft} />
+			<NewCaseHeader isSubmitForReviewEnabled={!form.formState.disabled} onSaveDraft={handleSaveDraft} />
 			<div className="flex-1 min-h-0">
 				<div className="flex flex-col xl:flex-row gap-8 h-full">
 					{/* FORM SECTION (Left) */}
@@ -93,7 +97,7 @@ export default function NewCasePage() {
 						<form className="flex-1 overflow-y-auto no-scrollbar pb-20 space-y-12" id="new-case-submission-form" onSubmit={form.handleSubmit(handleFormValid)}>
 							<div className="flex-1 overflow-y-auto no-scrollbar pb-20 space-y-12">
 								{/* SECTION 1: ORIGIN */}
-								<PatientAndClinicSection />
+								<PatientAndClinicSection handleOpenPatientCreationSheet={() => setOpenCreateNewPatientSheet(true)} />
 								{/* SECTION 2: THE PRODUCT */}
 								<section className="space-y-6">
 									<div className="flex items-center gap-3">
@@ -129,6 +133,9 @@ export default function NewCasePage() {
 					<div className="w-full xl:w-96 shrink-0 flex flex-col gap-6 h-fit sticky top-24">
 						<CaseAiAuditor />
 					</div>
+
+					{/* Modals */}
+					<RegisterPatientSheet isOpen={openCreateNewPatientSheet} onClose={() => setOpenCreateNewPatientSheet(false)} />
 
 					<CaseSummaryModal isOpen={isSummaryOpen} onClose={() => setIsSummaryOpen(false)} onConfirm={handleFinalConfirm} data={draftData} isSubmitting={isExecuting} />
 				</div>

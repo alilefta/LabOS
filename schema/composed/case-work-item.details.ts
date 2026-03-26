@@ -12,7 +12,7 @@ export const CaseWorkItemDetailsSchema = CaseWorkItemBaseSchema.extend({
 	product: ProductBaseSchema.nullable(),
 	Lab: LabBaseSchema,
 	casePricingPlan: CasePricingPlanBaseSchema,
-	case: CaseBaseSchema,
+	dentalCase: CaseBaseSchema,
 	selectedTeeth: z.array(SelectedToothBaseSchema),
 });
 

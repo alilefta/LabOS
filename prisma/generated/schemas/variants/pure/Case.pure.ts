@@ -13,7 +13,7 @@ export const CaseModelSchema = z.object({
     caseCategoryId: z.string().nullable(),
     caseCategory: z.unknown().nullable(),
     status: CaseStatusSchema,
-    grandTotal: z.number(),
+    grandTotal: z.number().nullable(),
     clinicId: z.string().nullable(),
     clinic: z.unknown().nullable(),
     technicianId: z.string().nullable(),

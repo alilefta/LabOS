@@ -15,15 +15,15 @@ const patientwhereinputSchema = z.object({
   name: z.union([z.lazy(() => StringFilterObjectSchema), z.string()]).optional(),
   description: z.union([z.lazy(() => StringNullableFilterObjectSchema), z.string()]).optional().nullable(),
   city: z.union([z.lazy(() => StringFilterObjectSchema), z.string()]).optional(),
-  zipcode: z.union([z.lazy(() => StringFilterObjectSchema), z.string()]).optional(),
+  zipcode: z.union([z.lazy(() => StringNullableFilterObjectSchema), z.string()]).optional().nullable(),
   address1: z.union([z.lazy(() => StringFilterObjectSchema), z.string()]).optional(),
   address2: z.union([z.lazy(() => StringNullableFilterObjectSchema), z.string()]).optional().nullable(),
-  email: z.union([z.lazy(() => StringFilterObjectSchema), z.string()]).optional(),
-  phoneNumber: z.union([z.lazy(() => StringFilterObjectSchema), z.string()]).optional(),
+  email: z.union([z.lazy(() => StringNullableFilterObjectSchema), z.string()]).optional().nullable(),
+  phoneNumber: z.union([z.lazy(() => StringNullableFilterObjectSchema), z.string()]).optional().nullable(),
   labId: z.union([z.lazy(() => StringFilterObjectSchema), z.string()]).optional(),
   createdAt: z.union([z.lazy(() => DateTimeFilterObjectSchema), z.coerce.date()]).optional(),
   updatedAt: z.union([z.lazy(() => DateTimeFilterObjectSchema), z.coerce.date()]).optional(),
-  case: z.lazy(() => CaseListRelationFilterObjectSchema).optional(),
+  cases: z.lazy(() => CaseListRelationFilterObjectSchema).optional(),
   lab: z.union([z.lazy(() => LabScalarRelationFilterObjectSchema), z.lazy(() => LabWhereInputObjectSchema)]).optional()
 }).strict();
 export const PatientWhereInputObjectSchema: z.ZodType<Prisma.PatientWhereInput> = patientwhereinputSchema as unknown as z.ZodType<Prisma.PatientWhereInput>;

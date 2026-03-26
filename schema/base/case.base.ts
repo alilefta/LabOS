@@ -8,7 +8,7 @@ export const CaseBaseSchema = z.object({
 	salesRepsId: z.string().nullable(),
 	caseCategoryId: z.string().nullable(),
 	status: CaseStatusSchema,
-	grandTotal: z.number(),
+	grandTotal: z.number().nullable(),
 	clinicId: z.string().nullable(),
 	technicianId: z.string().nullable(),
 	deadline: z.date(),

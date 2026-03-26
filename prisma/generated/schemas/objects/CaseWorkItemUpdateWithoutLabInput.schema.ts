@@ -61,7 +61,7 @@ const makeSchema = () => z.object({
   createdAt: z.union([z.coerce.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputObjectSchema)]).optional(),
   updatedAt: z.union([z.coerce.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputObjectSchema)]).optional(),
   product: z.lazy(() => ProductUpdateOneWithoutCaseWorkItemsNestedInputObjectSchema).optional(),
-  case: z.lazy(() => CaseUpdateOneRequiredWithoutCaseItemsNestedInputObjectSchema).optional(),
+  dentalCase: z.lazy(() => CaseUpdateOneRequiredWithoutCaseItemsNestedInputObjectSchema).optional(),
   casePricingPlan: z.lazy(() => CasePricingPlanUpdateOneRequiredWithoutCaseWorkItemNestedInputObjectSchema).optional(),
   selectedTeeth: z.lazy(() => SelectedToothUpdateManyWithoutCaseWorkItemNestedInputObjectSchema).optional()
 }).strict();

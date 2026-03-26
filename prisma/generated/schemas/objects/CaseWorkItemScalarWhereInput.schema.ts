@@ -18,7 +18,7 @@ const caseworkitemscalarwhereinputSchema = z.object({
   id: z.union([z.lazy(() => StringFilterObjectSchema), z.string()]).optional(),
   productId: z.union([z.lazy(() => StringNullableFilterObjectSchema), z.string()]).optional().nullable(),
   labId: z.union([z.lazy(() => StringFilterObjectSchema), z.string()]).optional(),
-  caseId: z.union([z.lazy(() => StringFilterObjectSchema), z.string()]).optional(),
+  dentalCaseId: z.union([z.lazy(() => StringFilterObjectSchema), z.string()]).optional(),
   casePricingPlanId: z.union([z.lazy(() => StringFilterObjectSchema), z.string()]).optional(),
   totalPrice: z.union([z.lazy(() => DecimalFilterObjectSchema), z.union([
   z.number(),

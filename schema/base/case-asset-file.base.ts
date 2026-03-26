@@ -2,7 +2,7 @@ import * as z from "zod";
 import { AssetFileTypeSchema } from "./asset-file-type.base";
 export const CaseAssetFileBaseSchema = z.object({
 	id: z.string(),
-	caseId: z.string(),
+	dentalCaseId: z.string(),
 	title: z.string(),
 	description: z.string(),
 	documentUrl: z.string(),

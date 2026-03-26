@@ -14,7 +14,7 @@ const makeSchema = () => z.object({
   address2: z.boolean().optional(),
   email: z.boolean().optional(),
   phoneNumber: z.boolean().optional(),
-  case: z.union([z.boolean(), z.lazy(() => CaseFindManySchema)]).optional(),
+  cases: z.union([z.boolean(), z.lazy(() => CaseFindManySchema)]).optional(),
   labId: z.boolean().optional(),
   lab: z.union([z.boolean(), z.lazy(() => LabArgsObjectSchema)]).optional(),
   createdAt: z.boolean().optional(),

@@ -10,15 +10,15 @@ const makeSchema = () => z.object({
   name: SortOrderSchema.optional(),
   description: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
   city: SortOrderSchema.optional(),
-  zipcode: SortOrderSchema.optional(),
+  zipcode: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
   address1: SortOrderSchema.optional(),
   address2: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
-  email: SortOrderSchema.optional(),
-  phoneNumber: SortOrderSchema.optional(),
+  email: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
+  phoneNumber: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
   labId: SortOrderSchema.optional(),
   createdAt: SortOrderSchema.optional(),
   updatedAt: SortOrderSchema.optional(),
-  case: z.lazy(() => CaseOrderByRelationAggregateInputObjectSchema).optional(),
+  cases: z.lazy(() => CaseOrderByRelationAggregateInputObjectSchema).optional(),
   lab: z.lazy(() => LabOrderByWithRelationInputObjectSchema).optional()
 }).strict();
 export const PatientOrderByWithRelationInputObjectSchema: z.ZodType<Prisma.PatientOrderByWithRelationInput> = makeSchema() as unknown as z.ZodType<Prisma.PatientOrderByWithRelationInput>;

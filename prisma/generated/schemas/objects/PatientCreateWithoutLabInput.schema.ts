@@ -7,14 +7,14 @@ const makeSchema = () => z.object({
   name: z.string(),
   description: z.string().optional().nullable(),
   city: z.string(),
-  zipcode: z.string(),
+  zipcode: z.string().optional().nullable(),
   address1: z.string(),
   address2: z.string().optional().nullable(),
-  email: z.string(),
-  phoneNumber: z.string(),
+  email: z.string().optional().nullable(),
+  phoneNumber: z.string().optional().nullable(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
-  case: z.lazy(() => CaseCreateNestedManyWithoutPatientInputObjectSchema).optional()
+  cases: z.lazy(() => CaseCreateNestedManyWithoutPatientInputObjectSchema).optional()
 }).strict();
 export const PatientCreateWithoutLabInputObjectSchema: z.ZodType<Prisma.PatientCreateWithoutLabInput> = makeSchema() as unknown as z.ZodType<Prisma.PatientCreateWithoutLabInput>;
 export const PatientCreateWithoutLabInputObjectZodSchema = makeSchema();

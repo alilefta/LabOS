@@ -14,7 +14,7 @@ const caseassetfilewhereinputSchema = z.object({
   OR: z.lazy(() => CaseAssetFileWhereInputObjectSchema).array().optional(),
   NOT: z.union([z.lazy(() => CaseAssetFileWhereInputObjectSchema), z.lazy(() => CaseAssetFileWhereInputObjectSchema).array()]).optional(),
   id: z.union([z.lazy(() => StringFilterObjectSchema), z.string()]).optional(),
-  caseId: z.union([z.lazy(() => StringFilterObjectSchema), z.string()]).optional(),
+  dentalCaseId: z.union([z.lazy(() => StringFilterObjectSchema), z.string()]).optional(),
   title: z.union([z.lazy(() => StringFilterObjectSchema), z.string()]).optional(),
   description: z.union([z.lazy(() => StringFilterObjectSchema), z.string()]).optional(),
   documentUrl: z.union([z.lazy(() => StringFilterObjectSchema), z.string()]).optional(),
@@ -22,7 +22,7 @@ const caseassetfilewhereinputSchema = z.object({
   labId: z.union([z.lazy(() => StringFilterObjectSchema), z.string()]).optional(),
   createdAt: z.union([z.lazy(() => DateTimeFilterObjectSchema), z.coerce.date()]).optional(),
   updatedAt: z.union([z.lazy(() => DateTimeFilterObjectSchema), z.coerce.date()]).optional(),
-  case: z.union([z.lazy(() => CaseScalarRelationFilterObjectSchema), z.lazy(() => CaseWhereInputObjectSchema)]).optional(),
+  dentalCase: z.union([z.lazy(() => CaseScalarRelationFilterObjectSchema), z.lazy(() => CaseWhereInputObjectSchema)]).optional(),
   lab: z.union([z.lazy(() => LabScalarRelationFilterObjectSchema), z.lazy(() => LabWhereInputObjectSchema)]).optional()
 }).strict();
 export const CaseAssetFileWhereInputObjectSchema: z.ZodType<Prisma.CaseAssetFileWhereInput> = caseassetfilewhereinputSchema as unknown as z.ZodType<Prisma.CaseAssetFileWhereInput>;

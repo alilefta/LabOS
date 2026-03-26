@@ -5,7 +5,7 @@ import { LabArgsObjectSchema as LabArgsObjectSchema } from './LabArgs.schema';
 import { PatientCountOutputTypeArgsObjectSchema as PatientCountOutputTypeArgsObjectSchema } from './PatientCountOutputTypeArgs.schema'
 
 const makeSchema = () => z.object({
-  case: z.union([z.boolean(), z.lazy(() => CaseFindManySchema)]).optional(),
+  cases: z.union([z.boolean(), z.lazy(() => CaseFindManySchema)]).optional(),
   lab: z.union([z.boolean(), z.lazy(() => LabArgsObjectSchema)]).optional(),
   _count: z.union([z.boolean(), z.lazy(() => PatientCountOutputTypeArgsObjectSchema)]).optional()
 }).strict();

@@ -10,7 +10,7 @@ const caseassetfilescalarwhereinputSchema = z.object({
   OR: z.lazy(() => CaseAssetFileScalarWhereInputObjectSchema).array().optional(),
   NOT: z.union([z.lazy(() => CaseAssetFileScalarWhereInputObjectSchema), z.lazy(() => CaseAssetFileScalarWhereInputObjectSchema).array()]).optional(),
   id: z.union([z.lazy(() => StringFilterObjectSchema), z.string()]).optional(),
-  caseId: z.union([z.lazy(() => StringFilterObjectSchema), z.string()]).optional(),
+  dentalCaseId: z.union([z.lazy(() => StringFilterObjectSchema), z.string()]).optional(),
   title: z.union([z.lazy(() => StringFilterObjectSchema), z.string()]).optional(),
   description: z.union([z.lazy(() => StringFilterObjectSchema), z.string()]).optional(),
   documentUrl: z.union([z.lazy(() => StringFilterObjectSchema), z.string()]).optional(),

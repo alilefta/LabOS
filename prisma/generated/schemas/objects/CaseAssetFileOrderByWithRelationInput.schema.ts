@@ -6,7 +6,7 @@ import { LabOrderByWithRelationInputObjectSchema as LabOrderByWithRelationInputO
 
 const makeSchema = () => z.object({
   id: SortOrderSchema.optional(),
-  caseId: SortOrderSchema.optional(),
+  dentalCaseId: SortOrderSchema.optional(),
   title: SortOrderSchema.optional(),
   description: SortOrderSchema.optional(),
   documentUrl: SortOrderSchema.optional(),
@@ -14,7 +14,7 @@ const makeSchema = () => z.object({
   labId: SortOrderSchema.optional(),
   createdAt: SortOrderSchema.optional(),
   updatedAt: SortOrderSchema.optional(),
-  case: z.lazy(() => CaseOrderByWithRelationInputObjectSchema).optional(),
+  dentalCase: z.lazy(() => CaseOrderByWithRelationInputObjectSchema).optional(),
   lab: z.lazy(() => LabOrderByWithRelationInputObjectSchema).optional()
 }).strict();
 export const CaseAssetFileOrderByWithRelationInputObjectSchema: z.ZodType<Prisma.CaseAssetFileOrderByWithRelationInput> = makeSchema() as unknown as z.ZodType<Prisma.CaseAssetFileOrderByWithRelationInput>;

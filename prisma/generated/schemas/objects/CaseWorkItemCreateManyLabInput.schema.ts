@@ -7,7 +7,7 @@ import { DecimalJSLikeSchema, isValidDecimalInput } from '../../helpers/decimal-
 const makeSchema = () => z.object({
   id: z.string().optional(),
   productId: z.string().optional().nullable(),
-  caseId: z.string(),
+  dentalCaseId: z.string(),
   casePricingPlanId: z.string(),
   totalPrice: z.union([
   z.number(),

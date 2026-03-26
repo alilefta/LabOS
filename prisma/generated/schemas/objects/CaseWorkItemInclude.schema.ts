@@ -10,7 +10,7 @@ import { CaseWorkItemCountOutputTypeArgsObjectSchema as CaseWorkItemCountOutputT
 const makeSchema = () => z.object({
   product: z.union([z.boolean(), z.lazy(() => ProductArgsObjectSchema)]).optional(),
   Lab: z.union([z.boolean(), z.lazy(() => LabArgsObjectSchema)]).optional(),
-  case: z.union([z.boolean(), z.lazy(() => CaseArgsObjectSchema)]).optional(),
+  dentalCase: z.union([z.boolean(), z.lazy(() => CaseArgsObjectSchema)]).optional(),
   casePricingPlan: z.union([z.boolean(), z.lazy(() => CasePricingPlanArgsObjectSchema)]).optional(),
   selectedTeeth: z.union([z.boolean(), z.lazy(() => SelectedToothFindManySchema)]).optional(),
   _count: z.union([z.boolean(), z.lazy(() => CaseWorkItemCountOutputTypeArgsObjectSchema)]).optional()

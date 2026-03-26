@@ -11,8 +11,8 @@ import { CaseAssetFileScalarFieldEnumSchema } from './enums/CaseAssetFileScalarF
 
 export const CaseAssetFileFindManySelectSchema: z.ZodType<Prisma.CaseAssetFileSelect> = z.object({
     id: z.boolean().optional(),
-    caseId: z.boolean().optional(),
-    case: z.boolean().optional(),
+    dentalCaseId: z.boolean().optional(),
+    dentalCase: z.boolean().optional(),
     title: z.boolean().optional(),
     description: z.boolean().optional(),
     documentUrl: z.boolean().optional(),
@@ -25,8 +25,8 @@ export const CaseAssetFileFindManySelectSchema: z.ZodType<Prisma.CaseAssetFileSe
 
 export const CaseAssetFileFindManySelectZodSchema = z.object({
     id: z.boolean().optional(),
-    caseId: z.boolean().optional(),
-    case: z.boolean().optional(),
+    dentalCaseId: z.boolean().optional(),
+    dentalCase: z.boolean().optional(),
     title: z.boolean().optional(),
     description: z.boolean().optional(),
     documentUrl: z.boolean().optional(),

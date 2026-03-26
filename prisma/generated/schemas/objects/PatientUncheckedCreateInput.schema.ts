@@ -7,14 +7,14 @@ const makeSchema = () => z.object({
   name: z.string(),
   description: z.string().optional().nullable(),
   city: z.string(),
-  zipcode: z.string(),
+  zipcode: z.string().optional().nullable(),
   address1: z.string(),
   address2: z.string().optional().nullable(),
-  email: z.string(),
-  phoneNumber: z.string(),
+  email: z.string().optional().nullable(),
+  phoneNumber: z.string().optional().nullable(),
   labId: z.string(),
   createdAt: z.coerce.date().optional(),
-  case: z.lazy(() => CaseUncheckedCreateNestedManyWithoutPatientInputObjectSchema).optional()
+  cases: z.lazy(() => CaseUncheckedCreateNestedManyWithoutPatientInputObjectSchema).optional()
 }).strict();
 export const PatientUncheckedCreateInputObjectSchema: z.ZodType<Prisma.PatientUncheckedCreateInput> = makeSchema() as unknown as z.ZodType<Prisma.PatientUncheckedCreateInput>;
 export const PatientUncheckedCreateInputObjectZodSchema = makeSchema();

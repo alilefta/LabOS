@@ -11,26 +11,47 @@ import { CreatePatientInput, CreatePatientInputSchema, PatientDetails } from "@/
 import { useAction } from "next-safe-action/hooks";
 import { createPatientAction } from "@/actions/patient";
 import { handleSafeActionError } from "@/lib/safe-action-helpers";
-import { useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface Props {
 	isOpen: boolean;
 	onClose: () => void;
-	onPatientCreated: (newPatient: PatientDetails) => void;
+	// onPatientCreated: (newPatient: PatientDetails) => void;
 }
 
-export function RegisterPatientSheet({ isOpen, onClose, onPatientCreated }: Props) {
+type DataShape = PatientDetails[];
+
+export function RegisterPatientSheet({ isOpen, onClose }: Props) {
+	const [newPatient, setNewPatient] = useState<PatientDetails | null>(null);
 	const form = useForm<CreatePatientInput>({
 		resolver: zodResolver(CreatePatientInputSchema),
 		defaultValues: { name: "", email: "", phoneNumber: "", city: "", address1: "", zipcode: "", address2: "", description: "" },
 		mode: "onBlur",
 	});
 
+	const queryClient = useQueryClient();
+	const queryKey = useMemo(() => ["case", "patients", ""], []);
+
+	useEffect(() => {
+		if (!newPatient) return;
+		queryClient.setQueryData<DataShape>(queryKey, (data): DataShape => {
+			console.log("Data from Query Setter", data);
+			if (!data) return [];
+
+			const isPatientExists = data.find((patient) => patient.id === newPatient.id);
+			if (!isPatientExists) {
+				return [...data, newPatient];
+			}
+			return data;
+		});
+	}, [newPatient, queryClient, queryKey]);
+
 	const { executeAsync: registerPatient, isExecuting } = useAction(createPatientAction, {
 		onSuccess: ({ data }) => {
 			toast.success("Patient registered successfully");
 
-			onPatientCreated(data.patient);
+			setNewPatient(data.patient);
 			onClose();
 		},
 		onError: ({ error }) => {

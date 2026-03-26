@@ -15,3 +15,17 @@ export const ClinicBaseSchema = z.object({
 });
 
 export type ClinicBase = z.infer<typeof ClinicBaseSchema>;
+
+export const CreateClinicInputSchema = z.object({
+	// labId: z.string(),
+	name: z.string(),
+	description: z.string().nullable(),
+	city: z.string(),
+	zipcode: z.string(),
+	address1: z.string(),
+	address2: z.string().nullable(),
+	email: z.string(),
+	phoneNumber: z.string(),
+});
+
+export type CreateClinicInput = z.infer<typeof CreateClinicInputSchema>;

@@ -1,5 +1,14 @@
 import { LabRole } from "@/generated/prisma/enums";
 import z from "zod";
+import { LabUserBaseSchema } from "../base/lab-user.base";
+import { LabBaseSchema } from "../base/lab.base";
+import { AuthUserBaseSchema } from "../base/auth.base";
+
+export const LabUserDetailsSchema = LabUserBaseSchema.extend({
+	lab: LabBaseSchema,
+	authUser: AuthUserBaseSchema,
+});
+
 const emptyToUndefined = (v: string) => (v === "" ? undefined : v); // used inside transform(emptyToUndefined)
 
 const optionalEmail = z

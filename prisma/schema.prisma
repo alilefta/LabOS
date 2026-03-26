@@ -168,7 +168,7 @@ model Case {
   caseCategory    CaseCategory? @relation(fields: [caseCategoryId], references: [id], onDelete: SetNull)
 
   status     CaseStatus @default(DRAFT)
-  grandTotal Decimal
+  grandTotal Decimal?
 
   clinicId String?
   clinic   Clinic? @relation(fields: [clinicId], references: [id], onDelete: SetNull)
@@ -192,14 +192,14 @@ model Patient {
   name        String
   description String?
   city        String
-  zipcode     String
+  zipcode     String?
   address1    String
   address2    String?
 
-  email       String
-  phoneNumber String
+  email       String?
+  phoneNumber String?
 
-  case  Case[]
+  cases  Case[]
   labId String
   lab   Lab    @relation(fields: [labId], references: [id], onDelete: Cascade)
 
@@ -216,8 +216,8 @@ model CaseWorkItem {
   labId     String
   Lab       Lab      @relation(fields: [labId], references: [id], onDelete: Cascade)
 
-  caseId String
-  case   Case   @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  dentalCaseId    String
+  dentalCase   Case   @relation(fields: [dentalCaseId], references: [id], onDelete: Cascade)
 
   casePricingPlanId    String
   casePricingPlan      CasePricingPlan @relation(fields: [casePricingPlanId], references: [id], onDelete: Cascade)
@@ -235,15 +235,15 @@ model CaseWorkItem {
   updatedAt     DateTime        @updatedAt
 
   @@index([labId])
-  @@index([caseId])
+  @@index(dentalCaseId)
   @@index([productId])
   @@index([casePricingPlanId])
 }
 
 model CaseAssetFile {
   id     String @id @default(uuid())
-  caseId String
-  case   Case   @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  dentalCaseId String
+  dentalCase   Case   @relation(fields: [dentalCaseId], references: [id], onDelete: Cascade)
 
   title         String
   description   String
@@ -256,7 +256,7 @@ model CaseAssetFile {
   updatedAt DateTime @updatedAt
 
   @@index([labId])
-  @@index([caseId])
+  @@index([dentalCaseId])
 }
 
 model CaseCategory {

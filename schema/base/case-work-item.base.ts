@@ -7,7 +7,7 @@ export const CaseWorkItemBaseSchema = z.object({
 	id: z.string(),
 	productId: z.string().nullable(),
 	labId: z.string(),
-	caseId: z.string(),
+	dentalCaseId: z.string(),
 	casePricingPlanId: z.string(),
 	totalPrice: z.number(),
 	pricingStrategy: PricingStrategySchema,

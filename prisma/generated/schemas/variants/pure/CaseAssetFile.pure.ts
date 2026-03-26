@@ -3,8 +3,8 @@ import { AssetFileTypeSchema } from '../../enums/AssetFileType.schema';
 // prettier-ignore
 export const CaseAssetFileModelSchema = z.object({
     id: z.string(),
-    caseId: z.string(),
-    case: z.unknown(),
+    dentalCaseId: z.string(),
+    dentalCase: z.unknown(),
     title: z.string(),
     description: z.string(),
     documentUrl: z.string(),

@@ -1,5 +1,6 @@
 import { DashboardSidebar } from "@/components/dashboard/dashboard-sidebar";
 import { DashboardTopHeader } from "@/components/dashboard/dashboard-top-header";
+import { QueryProvider } from "@/providers/query-provider";
 import { ReactNode } from "react";
 
 interface MainLayoutProps {
@@ -23,7 +24,9 @@ export default async function MainLayout({ children }: MainLayoutProps) {
 				<main className="flex-1 overflow-y-auto p-4 sm:p-8 relative">
 					<div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-primary/5 rounded-full blur-[120px] pointer-events-none -z-10 dark:block hidden"></div>
 
-					<div className="w-full max-w-[1800px] mx-auto h-full">{children}</div>
+					<QueryProvider>
+						<div className="w-full max-w-[1800px] mx-auto h-full">{children}</div>
+					</QueryProvider>
 				</main>
 			</div>
 		</div>

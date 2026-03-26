@@ -4,7 +4,7 @@ import { StringWithAggregatesFilterObjectSchema as StringWithAggregatesFilterObj
 import { StringNullableWithAggregatesFilterObjectSchema as StringNullableWithAggregatesFilterObjectSchema } from './StringNullableWithAggregatesFilter.schema';
 import { EnumCaseStatusWithAggregatesFilterObjectSchema as EnumCaseStatusWithAggregatesFilterObjectSchema } from './EnumCaseStatusWithAggregatesFilter.schema';
 import { CaseStatusSchema } from '../enums/CaseStatus.schema';
-import { DecimalWithAggregatesFilterObjectSchema as DecimalWithAggregatesFilterObjectSchema } from './DecimalWithAggregatesFilter.schema';
+import { DecimalNullableWithAggregatesFilterObjectSchema as DecimalNullableWithAggregatesFilterObjectSchema } from './DecimalNullableWithAggregatesFilter.schema';
 import { DateTimeWithAggregatesFilterObjectSchema as DateTimeWithAggregatesFilterObjectSchema } from './DateTimeWithAggregatesFilter.schema'
 
 import { DecimalJSLikeSchema, isValidDecimalInput } from '../../helpers/decimal-helpers';
@@ -18,14 +18,14 @@ const casescalarwherewithaggregatesinputSchema = z.object({
   salesRepsId: z.union([z.lazy(() => StringNullableWithAggregatesFilterObjectSchema), z.string()]).optional().nullable(),
   caseCategoryId: z.union([z.lazy(() => StringNullableWithAggregatesFilterObjectSchema), z.string()]).optional().nullable(),
   status: z.union([z.lazy(() => EnumCaseStatusWithAggregatesFilterObjectSchema), CaseStatusSchema]).optional(),
-  grandTotal: z.union([z.lazy(() => DecimalWithAggregatesFilterObjectSchema), z.union([
+  grandTotal: z.union([z.lazy(() => DecimalNullableWithAggregatesFilterObjectSchema), z.union([
   z.number(),
   z.string(),
   z.instanceof(Prisma.Decimal),
   DecimalJSLikeSchema,
 ]).refine((v) => isValidDecimalInput(v), {
   message: "Field 'grandTotal' must be a Decimal",
-})]).optional(),
+})]).optional().nullable(),
   clinicId: z.union([z.lazy(() => StringNullableWithAggregatesFilterObjectSchema), z.string()]).optional().nullable(),
   technicianId: z.union([z.lazy(() => StringNullableWithAggregatesFilterObjectSchema), z.string()]).optional().nullable(),
   deadline: z.union([z.lazy(() => DateTimeWithAggregatesFilterObjectSchema), z.coerce.date()]).optional(),

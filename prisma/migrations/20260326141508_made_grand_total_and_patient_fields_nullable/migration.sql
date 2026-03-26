@@ -1,0 +1,8 @@
+-- AlterTable
+ALTER TABLE "Case" ALTER COLUMN "status" SET DEFAULT 'DRAFT',
+ALTER COLUMN "grandTotal" DROP NOT NULL;
+
+-- AlterTable
+ALTER TABLE "Patient" ALTER COLUMN "zipcode" DROP NOT NULL,
+ALTER COLUMN "email" DROP NOT NULL,
+ALTER COLUMN "phoneNumber" DROP NOT NULL;

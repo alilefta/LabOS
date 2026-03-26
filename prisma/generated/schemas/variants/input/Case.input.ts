@@ -13,7 +13,7 @@ export const CaseInputSchema = z.object({
     caseCategoryId: z.string().optional().nullable(),
     caseCategory: z.unknown().optional().nullable(),
     status: CaseStatusSchema,
-    grandTotal: z.number(),
+    grandTotal: z.number().optional().nullable(),
     clinicId: z.string().optional().nullable(),
     clinic: z.unknown().optional().nullable(),
     technicianId: z.string().optional().nullable(),

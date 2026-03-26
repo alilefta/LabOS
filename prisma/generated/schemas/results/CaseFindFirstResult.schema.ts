@@ -11,7 +11,7 @@ export const CaseFindFirstResultSchema = z.nullable(z.object({
   caseCategoryId: z.string().optional(),
   caseCategory: z.unknown().optional(),
   status: z.unknown(),
-  grandTotal: z.number(),
+  grandTotal: z.number().optional(),
   clinicId: z.string().optional(),
   clinic: z.unknown().optional(),
   technicianId: z.string().optional(),
