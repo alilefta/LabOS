@@ -15,7 +15,8 @@ import { ProductUncheckedUpdateManyWithoutLabNestedInputObjectSchema as ProductU
 import { CaseWorkItemUncheckedUpdateManyWithoutLabNestedInputObjectSchema as CaseWorkItemUncheckedUpdateManyWithoutLabNestedInputObjectSchema } from './CaseWorkItemUncheckedUpdateManyWithoutLabNestedInput.schema';
 import { CasePricingPlanUncheckedUpdateManyWithoutLabNestedInputObjectSchema as CasePricingPlanUncheckedUpdateManyWithoutLabNestedInputObjectSchema } from './CasePricingPlanUncheckedUpdateManyWithoutLabNestedInput.schema';
 import { CaseAssetFileUncheckedUpdateManyWithoutLabNestedInputObjectSchema as CaseAssetFileUncheckedUpdateManyWithoutLabNestedInputObjectSchema } from './CaseAssetFileUncheckedUpdateManyWithoutLabNestedInput.schema';
-import { PatientUncheckedUpdateManyWithoutLabNestedInputObjectSchema as PatientUncheckedUpdateManyWithoutLabNestedInputObjectSchema } from './PatientUncheckedUpdateManyWithoutLabNestedInput.schema'
+import { PatientUncheckedUpdateManyWithoutLabNestedInputObjectSchema as PatientUncheckedUpdateManyWithoutLabNestedInputObjectSchema } from './PatientUncheckedUpdateManyWithoutLabNestedInput.schema';
+import { DentistUncheckedUpdateManyWithoutLabNestedInputObjectSchema as DentistUncheckedUpdateManyWithoutLabNestedInputObjectSchema } from './DentistUncheckedUpdateManyWithoutLabNestedInput.schema'
 
 const makeSchema = () => z.object({
   id: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputObjectSchema)]).optional(),
@@ -37,7 +38,8 @@ const makeSchema = () => z.object({
   caseWorkItems: z.lazy(() => CaseWorkItemUncheckedUpdateManyWithoutLabNestedInputObjectSchema).optional(),
   casePricingPlans: z.lazy(() => CasePricingPlanUncheckedUpdateManyWithoutLabNestedInputObjectSchema).optional(),
   caseAssetFiles: z.lazy(() => CaseAssetFileUncheckedUpdateManyWithoutLabNestedInputObjectSchema).optional(),
-  patients: z.lazy(() => PatientUncheckedUpdateManyWithoutLabNestedInputObjectSchema).optional()
+  patients: z.lazy(() => PatientUncheckedUpdateManyWithoutLabNestedInputObjectSchema).optional(),
+  dentists: z.lazy(() => DentistUncheckedUpdateManyWithoutLabNestedInputObjectSchema).optional()
 }).strict();
 export const LabUncheckedUpdateWithoutSelectedTeethInputObjectSchema: z.ZodType<Prisma.LabUncheckedUpdateWithoutSelectedTeethInput> = makeSchema() as unknown as z.ZodType<Prisma.LabUncheckedUpdateWithoutSelectedTeethInput>;
 export const LabUncheckedUpdateWithoutSelectedTeethInputObjectZodSchema = makeSchema();

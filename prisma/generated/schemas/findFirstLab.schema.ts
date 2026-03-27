@@ -29,6 +29,7 @@ export const LabFindFirstSelectSchema: z.ZodType<Prisma.LabSelect> = z.object({
     casePricingPlans: z.boolean().optional(),
     caseAssetFiles: z.boolean().optional(),
     patients: z.boolean().optional(),
+    dentists: z.boolean().optional(),
     createdAt: z.boolean().optional(),
     updatedAt: z.boolean().optional(),
     _count: z.boolean().optional()
@@ -54,6 +55,7 @@ export const LabFindFirstSelectZodSchema = z.object({
     casePricingPlans: z.boolean().optional(),
     caseAssetFiles: z.boolean().optional(),
     patients: z.boolean().optional(),
+    dentists: z.boolean().optional(),
     createdAt: z.boolean().optional(),
     updatedAt: z.boolean().optional(),
     _count: z.boolean().optional()

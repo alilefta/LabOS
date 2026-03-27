@@ -7,8 +7,8 @@ import { CaseCategoryCreateNestedOneWithoutWorkTypesInputObjectSchema as CaseCat
 const makeSchema = () => z.object({
   id: z.string().optional(),
   name: z.string(),
-  description: z.string(),
-  imageUrl: z.string(),
+  description: z.string().optional().nullable(),
+  imageUrl: z.string().optional().nullable(),
   createdAt: z.coerce.date().optional(),
   product: z.lazy(() => ProductCreateNestedManyWithoutWorkTypeInputObjectSchema).optional(),
   lab: z.lazy(() => LabCreateNestedOneWithoutWorkTypesInputObjectSchema),

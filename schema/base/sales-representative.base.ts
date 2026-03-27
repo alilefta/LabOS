@@ -4,7 +4,7 @@ export const SalesRepresentativeBaseSchema = z.object({
 	firstName: z.string(),
 	lastName: z.string(),
 	city: z.string(),
-	zipcode: z.string(),
+	zipcode: z.string().nullable(),
 	address1: z.string(),
 	address2: z.string().nullable(),
 	labId: z.string(),

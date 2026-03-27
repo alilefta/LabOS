@@ -1,7 +1,6 @@
 import { z } from "zod";
 
-import { JawTypeSchema } from "./jaw-type.base";
-import { PricingStrategySchema } from "./pricing-strategy.base";
+import { JawTypeSchema, PricingStrategySchema } from "./enums.base";
 
 export const CaseWorkItemBaseSchema = z.object({
 	id: z.string(),

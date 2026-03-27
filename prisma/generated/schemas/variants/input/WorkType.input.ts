@@ -3,8 +3,8 @@ import * as z from 'zod';
 export const WorkTypeInputSchema = z.object({
     id: z.string(),
     name: z.string(),
-    description: z.string(),
-    imageUrl: z.string(),
+    description: z.string().optional().nullable(),
+    imageUrl: z.string().optional().nullable(),
     product: z.array(z.unknown()),
     labId: z.string(),
     lab: z.unknown(),

@@ -15,6 +15,7 @@ import { WorkTypeBaseSchema } from "../base/worktype.base";
 import { ProductBaseSchema } from "../base/product.base";
 import { CaseWorkItemBaseSchema } from "../base/case-work-item.base";
 import { SelectedToothBaseSchema } from "../base/selected-tooth.base";
+import { DentistBaseSchema } from "../base/dentist.base";
 
 export const LabDetailsSchema = LabBaseSchema.extend({
 	labSubscriptionPlan: LabSubscriptionPlanBaseSchema,
@@ -33,6 +34,7 @@ export const LabDetailsSchema = LabBaseSchema.extend({
 	caseAssetFiles: z.array(CaseAssetFileBaseSchema),
 
 	patients: z.array(PatientBaseSchema),
+	dentists: z.array(DentistBaseSchema),
 });
 
 export const CreateLabAndLabUserInputSchema = z.object({

@@ -1,29 +1,33 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Check, ChevronsUpDown, UserPlus, History, MapPin, Phone, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { PatientDetails } from "@/schema/composed/patient.details";
 import { getPatientsAction } from "@/actions/patient";
 import { handleSafeActionError } from "@/lib/safe-action-helpers";
 import { Skeleton } from "@/components/ui/skeleton";
 import useDebounce from "@/hooks/useDebounce";
+import { CommandLoading } from "cmdk";
 
 type DataShape = PatientDetails[];
 
-export function PatientSelector({ onSelect, onCreateNew }: { onSelect: (id: string) => void; onCreateNew: () => void }) {
+export function PatientSelector({ onSelect, onCreateNew, newCreatedPatient }: { onSelect: (id: string) => void; onCreateNew: () => void; newCreatedPatient: PatientDetails | null }) {
 	const [open, setOpen] = useState(false);
 	const [selectedId, setSelectedId] = useState("");
 	const [search, setSearch] = useState("");
 	const debouncedSearch = useDebounce({ value: search, delay: 300 }); // Wait 300ms after typing
 
+	const queryClient = useQueryClient();
+	const queryKey = useMemo(() => ["patients", "search", debouncedSearch], [debouncedSearch]);
+
 	const { data: fetchedPatients, isFetching } = useQuery({
-		queryKey: ["patients", "search", debouncedSearch],
+		queryKey,
 		queryFn: async () => {
 			const res = await getPatientsAction({ searchQuery: debouncedSearch });
 
@@ -37,9 +41,23 @@ export function PatientSelector({ onSelect, onCreateNew }: { onSelect: (id: stri
 		staleTime: 1000 * 60 * 5, // Cache results for 5 mins
 	});
 
-	if (isFetching) {
-		return <Skeleton className="h-11 w-full rounded-xl" />;
-	}
+	useEffect(() => {
+		if (!newCreatedPatient) return;
+		queryClient.setQueryData<DataShape>(queryKey, (data): DataShape => {
+			console.log("Data from Query Setter", data);
+			if (!data) return [];
+
+			const isPatientExists = data.find((patient) => patient.id === newCreatedPatient.id);
+			if (!isPatientExists) {
+				return [...data, newCreatedPatient];
+			}
+			return data;
+		});
+	}, [newCreatedPatient, queryClient, queryKey]);
+
+	// if (isFetching) {
+	// 	return <Skeleton className="h-11 w-full rounded-xl" />;
+	// }
 
 	const patients = fetchedPatients || [];
 
@@ -57,15 +75,17 @@ export function PatientSelector({ onSelect, onCreateNew }: { onSelect: (id: stri
 					</Button>
 				</PopoverTrigger>
 
-				<PopoverContent className=" p-0 rounded-2xl border-border shadow-premium overflow-hidden">
+				<PopoverContent className="PopoverContent p-0 rounded-2xl border-border shadow-premium overflow-hidden">
 					<Command className="dark:bg-[#121214]" shouldFilter={false}>
 						<CommandInput placeholder="Search 5,000+ patients..." value={search} onValueChange={setSearch} className="py-3" />{" "}
 						<CommandList className="max-h-80 custom-scrollbar">
 							{isFetching && (
-								<div className="p-4 space-y-2">
-									<Skeleton className="h-10 w-full" />
-									<Skeleton className="h-10 w-full" />
-								</div>
+								<CommandLoading className="p-6 text-center flex! items-center justify-center">
+									<p className="text-xs text-muted-foreground mb-4">Loading Patients</p>
+									<span className="text-center flex items-center justify-center">
+										<Loader2 className="w-3.5 h-3.5 animate-spin" />
+									</span>
+								</CommandLoading>
 							)}
 
 							{!isFetching && patients.length === 0 && (

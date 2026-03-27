@@ -1,6 +1,7 @@
 import * as z from 'zod';
 import type { Prisma } from '../../../../generated/prisma/client';
 import { StringWithAggregatesFilterObjectSchema as StringWithAggregatesFilterObjectSchema } from './StringWithAggregatesFilter.schema';
+import { StringNullableWithAggregatesFilterObjectSchema as StringNullableWithAggregatesFilterObjectSchema } from './StringNullableWithAggregatesFilter.schema';
 import { EnumAssetFileTypeWithAggregatesFilterObjectSchema as EnumAssetFileTypeWithAggregatesFilterObjectSchema } from './EnumAssetFileTypeWithAggregatesFilter.schema';
 import { AssetFileTypeSchema } from '../enums/AssetFileType.schema';
 import { DateTimeWithAggregatesFilterObjectSchema as DateTimeWithAggregatesFilterObjectSchema } from './DateTimeWithAggregatesFilter.schema'
@@ -11,8 +12,8 @@ const caseassetfilescalarwherewithaggregatesinputSchema = z.object({
   NOT: z.union([z.lazy(() => CaseAssetFileScalarWhereWithAggregatesInputObjectSchema), z.lazy(() => CaseAssetFileScalarWhereWithAggregatesInputObjectSchema).array()]).optional(),
   id: z.union([z.lazy(() => StringWithAggregatesFilterObjectSchema), z.string()]).optional(),
   dentalCaseId: z.union([z.lazy(() => StringWithAggregatesFilterObjectSchema), z.string()]).optional(),
-  title: z.union([z.lazy(() => StringWithAggregatesFilterObjectSchema), z.string()]).optional(),
-  description: z.union([z.lazy(() => StringWithAggregatesFilterObjectSchema), z.string()]).optional(),
+  title: z.union([z.lazy(() => StringNullableWithAggregatesFilterObjectSchema), z.string()]).optional().nullable(),
+  description: z.union([z.lazy(() => StringNullableWithAggregatesFilterObjectSchema), z.string()]).optional().nullable(),
   documentUrl: z.union([z.lazy(() => StringWithAggregatesFilterObjectSchema), z.string()]).optional(),
   assetFileType: z.union([z.lazy(() => EnumAssetFileTypeWithAggregatesFilterObjectSchema), AssetFileTypeSchema]).optional(),
   labId: z.union([z.lazy(() => StringWithAggregatesFilterObjectSchema), z.string()]).optional(),

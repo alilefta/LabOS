@@ -6,12 +6,14 @@ import { LabCreateNestedOneWithoutCasesInputObjectSchema as LabCreateNestedOneWi
 import { SalesRepresentativeCreateNestedOneWithoutCasesInputObjectSchema as SalesRepresentativeCreateNestedOneWithoutCasesInputObjectSchema } from './SalesRepresentativeCreateNestedOneWithoutCasesInput.schema';
 import { CaseCategoryCreateNestedOneWithoutCasesInputObjectSchema as CaseCategoryCreateNestedOneWithoutCasesInputObjectSchema } from './CaseCategoryCreateNestedOneWithoutCasesInput.schema';
 import { ClinicCreateNestedOneWithoutCasesInputObjectSchema as ClinicCreateNestedOneWithoutCasesInputObjectSchema } from './ClinicCreateNestedOneWithoutCasesInput.schema';
+import { DentistCreateNestedOneWithoutCasesInputObjectSchema as DentistCreateNestedOneWithoutCasesInputObjectSchema } from './DentistCreateNestedOneWithoutCasesInput.schema';
 import { TechnicianCreateNestedOneWithoutCasesInputObjectSchema as TechnicianCreateNestedOneWithoutCasesInputObjectSchema } from './TechnicianCreateNestedOneWithoutCasesInput.schema';
 import { CaseAssetFileCreateNestedManyWithoutDentalCaseInputObjectSchema as CaseAssetFileCreateNestedManyWithoutDentalCaseInputObjectSchema } from './CaseAssetFileCreateNestedManyWithoutDentalCaseInput.schema'
 
 import { DecimalJSLikeSchema, isValidDecimalInput } from '../../helpers/decimal-helpers';
 const makeSchema = () => z.object({
   id: z.string().optional(),
+  caseNumber: z.string(),
   status: CaseStatusSchema.optional(),
   grandTotal: z.union([
   z.number(),
@@ -20,7 +22,7 @@ const makeSchema = () => z.object({
   DecimalJSLikeSchema,
 ]).refine((v) => isValidDecimalInput(v), {
   message: "Field 'grandTotal' must be a Decimal",
-}).optional().nullable(),
+}).optional(),
   deadline: z.coerce.date(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
@@ -29,6 +31,7 @@ const makeSchema = () => z.object({
   salesReps: z.lazy(() => SalesRepresentativeCreateNestedOneWithoutCasesInputObjectSchema).optional(),
   caseCategory: z.lazy(() => CaseCategoryCreateNestedOneWithoutCasesInputObjectSchema).optional(),
   clinic: z.lazy(() => ClinicCreateNestedOneWithoutCasesInputObjectSchema).optional(),
+  dentist: z.lazy(() => DentistCreateNestedOneWithoutCasesInputObjectSchema).optional(),
   Technician: z.lazy(() => TechnicianCreateNestedOneWithoutCasesInputObjectSchema).optional(),
   caseAssetFiles: z.lazy(() => CaseAssetFileCreateNestedManyWithoutDentalCaseInputObjectSchema).optional()
 }).strict();

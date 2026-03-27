@@ -1,8 +1,5 @@
 import { z } from "zod";
-
-export const AuthUserRoleSchema = z.enum(["SYSTEM_USER", "LAB_USER"]);
-
-export type AuthUserRole = z.infer<typeof AuthUserRoleSchema>;
+import { AuthUserRoleSchema } from "./enums.base";
 
 export const AuthUserBaseSchema = z.object({
 	id: z.string(),

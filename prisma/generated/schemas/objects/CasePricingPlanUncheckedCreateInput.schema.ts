@@ -7,6 +7,8 @@ import { DecimalJSLikeSchema, isValidDecimalInput } from '../../helpers/decimal-
 const makeSchema = () => z.object({
   id: z.string().optional(),
   labId: z.string(),
+  name: z.string(),
+  isDefault: z.boolean().optional(),
   pricingStrategy: PricingStrategySchema.optional(),
   firstToothPrice: z.union([
   z.number(),
@@ -40,6 +42,8 @@ const makeSchema = () => z.object({
 ]).refine((v) => isValidDecimalInput(v), {
   message: "Field 'bulkPriceThreshold' must be a Decimal",
 }).optional().nullable(),
+  productId: z.string().optional().nullable(),
+  clinicId: z.string().optional().nullable(),
   createdAt: z.coerce.date().optional(),
   caseWorkItem: z.lazy(() => CaseWorkItemUncheckedCreateNestedManyWithoutCasePricingPlanInputObjectSchema).optional()
 }).strict();

@@ -3,8 +3,8 @@ export const CaseCategoryFindManyResultSchema = z.object({
   data: z.array(z.object({
   id: z.string(),
   name: z.string(),
-  description: z.string(),
-  imageUrl: z.string(),
+  description: z.string().optional(),
+  imageUrl: z.string().optional(),
   isActive: z.boolean(),
   workTypes: z.array(z.unknown()),
   cases: z.array(z.unknown()),

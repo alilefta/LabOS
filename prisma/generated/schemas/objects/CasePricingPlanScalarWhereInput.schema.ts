@@ -1,9 +1,11 @@
 import * as z from 'zod';
 import { Prisma } from '../../../../generated/prisma/client';
 import { StringFilterObjectSchema as StringFilterObjectSchema } from './StringFilter.schema';
+import { BoolFilterObjectSchema as BoolFilterObjectSchema } from './BoolFilter.schema';
 import { EnumPricingStrategyFilterObjectSchema as EnumPricingStrategyFilterObjectSchema } from './EnumPricingStrategyFilter.schema';
 import { PricingStrategySchema } from '../enums/PricingStrategy.schema';
 import { DecimalNullableFilterObjectSchema as DecimalNullableFilterObjectSchema } from './DecimalNullableFilter.schema';
+import { StringNullableFilterObjectSchema as StringNullableFilterObjectSchema } from './StringNullableFilter.schema';
 import { DateTimeFilterObjectSchema as DateTimeFilterObjectSchema } from './DateTimeFilter.schema'
 
 import { DecimalJSLikeSchema, isValidDecimalInput } from '../../helpers/decimal-helpers';
@@ -13,6 +15,8 @@ const casepricingplanscalarwhereinputSchema = z.object({
   NOT: z.union([z.lazy(() => CasePricingPlanScalarWhereInputObjectSchema), z.lazy(() => CasePricingPlanScalarWhereInputObjectSchema).array()]).optional(),
   id: z.union([z.lazy(() => StringFilterObjectSchema), z.string()]).optional(),
   labId: z.union([z.lazy(() => StringFilterObjectSchema), z.string()]).optional(),
+  name: z.union([z.lazy(() => StringFilterObjectSchema), z.string()]).optional(),
+  isDefault: z.union([z.lazy(() => BoolFilterObjectSchema), z.boolean()]).optional(),
   pricingStrategy: z.union([z.lazy(() => EnumPricingStrategyFilterObjectSchema), PricingStrategySchema]).optional(),
   firstToothPrice: z.union([z.lazy(() => DecimalNullableFilterObjectSchema), z.union([
   z.number(),
@@ -46,6 +50,8 @@ const casepricingplanscalarwhereinputSchema = z.object({
 ]).refine((v) => isValidDecimalInput(v), {
   message: "Field 'bulkPriceThreshold' must be a Decimal",
 })]).optional().nullable(),
+  productId: z.union([z.lazy(() => StringNullableFilterObjectSchema), z.string()]).optional().nullable(),
+  clinicId: z.union([z.lazy(() => StringNullableFilterObjectSchema), z.string()]).optional().nullable(),
   createdAt: z.union([z.lazy(() => DateTimeFilterObjectSchema), z.coerce.date()]).optional(),
   updatedAt: z.union([z.lazy(() => DateTimeFilterObjectSchema), z.coerce.date()]).optional()
 }).strict();

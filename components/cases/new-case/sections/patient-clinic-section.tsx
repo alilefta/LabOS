@@ -3,13 +3,22 @@
 import { Controller, useFormContext } from "react-hook-form";
 import { ClinicSelector } from "../../case/case-inputs/clinic-selector";
 import { PatientSelector } from "../../case/case-inputs/patient-selector";
-import { ClinicBase } from "@/schema/base/clinic.base";
 import { CreateCaseInput } from "@/schema/composed/case.details";
+import { ClinicDetails } from "@/schema/composed/clinic.details";
 import { PatientDetails } from "@/schema/composed/patient.details";
 
-export function PatientAndClinicSection({ handleOpenPatientCreationSheet }: { handleOpenPatientCreationSheet: () => void }) {
+export function PatientAndClinicSection({
+	handleOpenPatientCreationSheet,
+	handleOpenClinicCreationSheet,
+	newCreatedClinic,
+	newCreatedPatient,
+}: {
+	handleOpenPatientCreationSheet: () => void;
+	handleOpenClinicCreationSheet: () => void;
+	newCreatedPatient: PatientDetails | null;
+	newCreatedClinic: ClinicDetails | null;
+}) {
 	const form = useFormContext<CreateCaseInput>();
-	const clinics: ClinicBase[] = [];
 
 	return (
 		<section className="space-y-6">
@@ -18,11 +27,15 @@ export function PatientAndClinicSection({ handleOpenPatientCreationSheet }: { ha
 				<h2 className="text-xl font-bold tracking-tight">Patient & Clinic</h2>
 			</div>
 			<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-				<Controller control={form.control} name="clinicId" render={({ field }) => <ClinicSelector clinics={clinics} onSelect={(id: string) => field.onChange(id)} />} />
+				<Controller
+					control={form.control}
+					name="clinicId"
+					render={({ field }) => <ClinicSelector onCreateNew={handleOpenClinicCreationSheet} onSelect={(id: string) => field.onChange(id)} newCreatedClinic={newCreatedClinic} />}
+				/>
 				<Controller
 					control={form.control}
 					name="patientId"
-					render={({ field }) => <PatientSelector onSelect={(id: string) => field.onChange(id)} onCreateNew={handleOpenPatientCreationSheet} />}
+					render={({ field }) => <PatientSelector onSelect={(id: string) => field.onChange(id)} onCreateNew={handleOpenPatientCreationSheet} newCreatedPatient={newCreatedPatient} />}
 				/>
 			</div>
 		</section>

@@ -1,6 +1,10 @@
 import * as z from 'zod';
 import type { Prisma } from '../../../../generated/prisma/client';
 import { StringFilterObjectSchema as StringFilterObjectSchema } from './StringFilter.schema';
+import { EnumSubscriptionTierFilterObjectSchema as EnumSubscriptionTierFilterObjectSchema } from './EnumSubscriptionTierFilter.schema';
+import { SubscriptionTierSchema } from '../enums/SubscriptionTier.schema';
+import { IntFilterObjectSchema as IntFilterObjectSchema } from './IntFilter.schema';
+import { StringNullableFilterObjectSchema as StringNullableFilterObjectSchema } from './StringNullableFilter.schema';
 import { DateTimeNullableFilterObjectSchema as DateTimeNullableFilterObjectSchema } from './DateTimeNullableFilter.schema';
 import { BoolFilterObjectSchema as BoolFilterObjectSchema } from './BoolFilter.schema';
 import { DateTimeFilterObjectSchema as DateTimeFilterObjectSchema } from './DateTimeFilter.schema';
@@ -13,6 +17,12 @@ const labsubscriptionplanwhereinputSchema = z.object({
   NOT: z.union([z.lazy(() => LabSubscriptionPlanWhereInputObjectSchema), z.lazy(() => LabSubscriptionPlanWhereInputObjectSchema).array()]).optional(),
   id: z.union([z.lazy(() => StringFilterObjectSchema), z.string()]).optional(),
   labId: z.union([z.lazy(() => StringFilterObjectSchema), z.string()]).optional(),
+  tier: z.union([z.lazy(() => EnumSubscriptionTierFilterObjectSchema), SubscriptionTierSchema]).optional(),
+  maxMembers: z.union([z.lazy(() => IntFilterObjectSchema), z.number().int()]).optional(),
+  maxCasesMonth: z.union([z.lazy(() => IntFilterObjectSchema), z.number().int()]).optional(),
+  stripeCustomerId: z.union([z.lazy(() => StringNullableFilterObjectSchema), z.string()]).optional().nullable(),
+  stripeSubscriptionId: z.union([z.lazy(() => StringNullableFilterObjectSchema), z.string()]).optional().nullable(),
+  stripePriceId: z.union([z.lazy(() => StringNullableFilterObjectSchema), z.string()]).optional().nullable(),
   subscriptionNextRenewal: z.union([z.lazy(() => DateTimeNullableFilterObjectSchema), z.coerce.date()]).optional().nullable(),
   isCancelled: z.union([z.lazy(() => BoolFilterObjectSchema), z.boolean()]).optional(),
   cancellationDate: z.union([z.lazy(() => DateTimeNullableFilterObjectSchema), z.coerce.date()]).optional().nullable(),

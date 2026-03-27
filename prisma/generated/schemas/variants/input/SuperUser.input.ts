@@ -5,7 +5,7 @@ export const SuperUserInputSchema = z.object({
     id: z.string(),
     name: z.string(),
     city: z.string(),
-    zipcode: z.string(),
+    zipcode: z.string().optional().nullable(),
     address1: z.string(),
     address2: z.string().optional().nullable(),
     avatarUrl: z.string(),

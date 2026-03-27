@@ -22,6 +22,7 @@ enum AuthUserRole {
 }
 
 enum LabRole {
+  OWNER
   MANAGER
   ADMIN
   STAFF
@@ -33,15 +34,13 @@ enum SuperUserRole {
   STAFF
 }
 
-
-
 enum CaseStatus {
   NEW
   ASSIGNED
   PROCESSING
   COMPLETED
   FAILED
-  DELIEVERD
+  DELIVERED
   DRAFT
 }
 
@@ -62,6 +61,47 @@ enum JawType {
   LOWER
   OTHER // for maxillofacial 
 }
+
+
+// New 1
+enum ClinicStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED  // e.g. overdue payments
+}
+
+// New 2
+enum ClinicType {
+  SOLO       // one dentist = the owner, Dentist record mirrors Clinic contact
+  CLINIC     // multiple dentists
+  HOSPITAL   // hospital dental department
+  UNIVERSITY // teaching hospital
+}
+// New 3
+enum PatientGender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+// New 4
+enum SubscriptionTier {
+  FREE
+  STARTER
+  PROFESSIONAL
+  ENTERPRISE
+}
+
+// 4. case
+// 5. dentist
+// 6. patient
+// 7. case status - delivered typo
+// 8. CasePricingPlan - effect clinic and product
+// 9. SubscriptionTier
+// 10. category, worktype, product
+// 11. 
+
+
 
 enum ToothPosition {
   // Upper Right Quadrant (1)
@@ -100,104 +140,168 @@ enum ToothPosition {
 }
 
 model Lab {
-  id String @id @default(uuid())
+  id                  String                  @id @default(uuid())
 
-  title          String
-  slug           String?
-  brandAvatarUrl String?
-  subtitle       String?
+  title               String
+  slug                String?
+  brandAvatarUrl      String?
+  subtitle            String?
 
   labSubscriptionPlan LabSubscriptionPlan?
   users               LabUser[]
 
-  clinics          Clinic[]
-  cases            Case[]
-  technicians      Technician[]
-  salesReps        SalesRepresentative[]
-  caseCategories   CaseCategory[]
-  workTypes        WorkType[]
-  products         Product[]
-  caseWorkItems    CaseWorkItem[]
-  selectedTeeth    SelectedTooth[]
-  casePricingPlans CasePricingPlan[]
-  caseAssetFiles   CaseAssetFile[]
+  clinics             Clinic[]
+  cases               Case[]
+  technicians         Technician[]
+  salesReps           SalesRepresentative[]
+  caseCategories      CaseCategory[]
+  workTypes           WorkType[]
+  products            Product[]
+  caseWorkItems       CaseWorkItem[]
+  selectedTeeth       SelectedTooth[]
+  casePricingPlans    CasePricingPlan[]
+  caseAssetFiles      CaseAssetFile[]
 
-  patients Patient[]
+  patients            Patient[]
+  dentists            Dentist[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt           DateTime                @default(now())
+  updatedAt           DateTime                @updatedAt
 }
 
+
+
+
 model Clinic {
-  id    String @id @default(uuid())
-  labId String
-  lab   Lab    @relation(fields: [labId], references: [id], onDelete: Cascade)
+  id                  String                  @id @default(uuid())
+  labId               String
+  lab                 Lab                     @relation(fields: [labId], references: [id], onDelete: Cascade)
 
-  name        String
-  description String?
-  city        String
-  zipcode     String
-  address1    String
-  address2    String?
 
-  email       String
-  phoneNumber String
+  // Basic Info
+  name                String
+  description         String?
+  website             String?
+  notes               String?   // internal lab notes about this clinic
+  status              ClinicStatus            @default(ACTIVE)
+      
+  type                ClinicType              @default(CLINIC) // signals solo vs multi-dentis
+      
+  // Location       
+  city                String
+  zipcode             String?
+  address1            String
+  address2            String?
+  
 
-  cases Case[]
+ // Primary Contact
+  email               String
+  phoneNumber         String
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  // Billing Contact (optional, defaults to primary if null)
+  billingEmail        String?
+  billingPhoneNumber  String?
+  taxNumber           String?  // for invoicing
+
+   // Business Relationship
+  discount            Decimal?                @db.Decimal(5, 2)  // % discount applied to all cases
+  creditLimit         Decimal?                @db.Decimal(10, 2) // max outstanding balance allowed
+  currentBalance      Decimal                 @default(0) @db.Decimal(10, 2) // outstanding amount owed
+
+  cases               Case[]
+  dentists            Dentist[]
+
+  casePricingPlans    CasePricingPlan[]
+
+  createdAt           DateTime                @default(now())
+  updatedAt           DateTime                @updatedAt
 
   @@index([labId])
 }
 
-model Case {
-  id        String  @id @default(uuid())
-  patientId String
-  patient   Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+model Dentist {
+  id                  String                  @id @default(uuid())
+  clinicId            String
+  clinic              Clinic                  @relation(fields: [clinicId], references: [id], onDelete: Cascade)
 
   labId String
   lab   Lab    @relation(fields: [labId], references: [id], onDelete: Cascade)
 
-  salesRepsId String?
-  salesReps   SalesRepresentative? @relation(fields: [salesRepsId], references: [id], onDelete: SetNull)
+  name                String
+  email               String?
+  phoneNumber         String?
+  isOwner             Boolean                 @default(false) // for SOLO type, this dentist IS the clinic owner
+  isDefault           Boolean                 @default(false)
+  notes               String?
 
-  caseItems    CaseWorkItem[]
+  cases               Case[]
 
-  caseCategoryId  String?  
-  caseCategory    CaseCategory? @relation(fields: [caseCategoryId], references: [id], onDelete: SetNull)
+  createdAt           DateTime                @default(now())
+  updatedAt           DateTime                @updatedAt
 
-  status     CaseStatus @default(DRAFT)
-  grandTotal Decimal?
+  @@index([clinicId])
+  @@index([labId])
+}
 
-  clinicId String?
-  clinic   Clinic? @relation(fields: [clinicId], references: [id], onDelete: SetNull)
+model Case {
+  id                  String  @id @default(uuid())
+  patientId           String
+  patient             Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
 
-  technicianId String?
-  Technician   Technician? @relation(fields: [technicianId], references: [id], onDelete: SetNull)
+  caseNumber          String // Per lab and should be auto-genertaed - // "LAB-001", "LAB-002" — generated in application logic
 
-  caseAssetFiles CaseAssetFile[]
-  deadline       DateTime
-  createdAt      DateTime        @default(now())
-  updatedAt      DateTime        @updatedAt
+  labId               String
+  lab                 Lab    @relation(fields: [labId], references: [id], onDelete: Cascade)
+
+  salesRepsId         String?
+  salesReps           SalesRepresentative? @relation(fields: [salesRepsId], references: [id], onDelete: SetNull)
+
+  caseItems           CaseWorkItem[]
+
+  caseCategoryId      String?  
+  caseCategory        CaseCategory? @relation(fields: [caseCategoryId], references: [id], onDelete: SetNull)
+
+  status              CaseStatus    @default(DRAFT)
+  grandTotal          Decimal       @default(0)
+
+  clinicId            String?
+  clinic              Clinic?       @relation(fields: [clinicId], references: [id], onDelete: SetNull)
+
+  dentistId           String?       // which dentist within the clinic ordered this
+  dentist             Dentist?      @relation(fields: [dentistId], references: [id], onDelete: SetNull)
+
+  technicianId        String?
+  Technician          Technician?   @relation(fields: [technicianId], references: [id], onDelete: SetNull)
+
+  caseAssetFiles      CaseAssetFile[]
+  deadline            DateTime
+  createdAt           DateTime        @default(now())
+  updatedAt           DateTime        @updatedAt
 
   @@index([labId])
   @@index([technicianId])
   @@index([salesRepsId])
   @@index([clinicId])
+
+  @@unique([labId, caseNumber])
 }
 
 model Patient {
   id          String  @id @default(uuid())
   name        String
-  description String?
-  city        String
-  zipcode     String?
-  address1    String
-  address2    String?
+  description String? // e.g. "allergic to metal"
+  notes       String?
+  age         Int?
+  gender      PatientGender?
 
-  email       String?
-  phoneNumber String?
+  // removed, if lab need direct patient creation, they need to create a clinic for themselves
+  // city        String
+  // zipcode     String?
+  // address1    String
+  // address2    String?
+
+  // email       String?
+  // phoneNumber String?
 
   cases  Case[]
   labId String
@@ -245,8 +349,8 @@ model CaseAssetFile {
   dentalCaseId String
   dentalCase   Case   @relation(fields: [dentalCaseId], references: [id], onDelete: Cascade)
 
-  title         String
-  description   String
+  title         String?
+  description   String?
   documentUrl   String
   assetFileType AssetFileType @default(IMAGE)
   labId         String
@@ -262,8 +366,8 @@ model CaseAssetFile {
 model CaseCategory {
   id          String @id @default(uuid())
   name        String
-  description String
-  imageUrl    String
+  description String?
+  imageUrl    String?
 
   isActive Boolean @default(true)
 
@@ -282,8 +386,8 @@ model CaseCategory {
 model WorkType {
   id          String @id @default(uuid())
   name        String
-  description String
-  imageUrl    String
+  description String?
+  imageUrl    String?
 
   product Product[]
   labId   String
@@ -300,20 +404,22 @@ model WorkType {
 }
 
 model Product {
-  id          String @id @default(uuid())
-  name        String
-  description String
-  imageUrl    String
+  id                          String @id @default(uuid())
+  name                        String
+  description                 String?
+  imageUrl                    String?
+            
+  caseWorkItems               CaseWorkItem[]
 
-  caseWorkItems CaseWorkItem[]
+  labId                       String
+  lab                         Lab    @relation(fields: [labId], references: [id], onDelete: Cascade)
 
-  labId String
-  lab   Lab    @relation(fields: [labId], references: [id], onDelete: Cascade)
+  workTypeId                  String
+  workType                    WorkType @relation(fields: [workTypeId], references: [id], onDelete: Cascade)
+  createdAt                   DateTime @default(now())
+  updatedAt                   DateTime @updatedAt
 
-  workTypeId String
-  workType   WorkType @relation(fields: [workTypeId], references: [id], onDelete: Cascade)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  casePricingPlans            CasePricingPlan[]
 
   @@index([labId])
   @@index([workTypeId])
@@ -324,11 +430,21 @@ model CasePricingPlan {
   labId String
   lab   Lab    @relation(fields: [labId], references: [id], onDelete: Cascade)
 
+  name      String
+  isDefault Boolean @default(false)
+
   pricingStrategy      PricingStrategy @default(BULK)
   firstToothPrice      Decimal?
   bulkPrice            Decimal?
   additionalToothPrice Decimal?
   bulkPriceThreshold   Decimal?
+
+  productId String?   // if pricing is per-product
+  product   Product?  @relation(fields: [productId], references: [id], onDelete: SetNull)
+
+  clinicId  String?   // if pricing is per-clinic (custom deals)
+  clinic    Clinic?   @relation(fields: [clinicId], references: [id], onDelete: SetNull)
+
 
   // pricingHistoryId      String
   // pricingHistory        PricingHistory    @relation(fields: [pricingHistoryId], references: [id], onDelete: Cascade)
@@ -364,7 +480,7 @@ model Technician {
   firstName String
   lastName  String
   city      String
-  zipcode   String
+  zipcode   String?
   address1  String
   address2  String?
 
@@ -389,7 +505,7 @@ model SalesRepresentative {
   firstName String
   lastName  String
   city      String
-  zipcode   String
+  zipcode   String?
   address1  String
   address2  String?
 
@@ -409,19 +525,25 @@ model SalesRepresentative {
   @@index([labId])
 }
 model LabSubscriptionPlan {
-  id    String @id @default(uuid())
-  labId String @unique
-  lab   Lab    @relation(fields: [labId], references: [id], onDelete: Cascade)
+  id                            String @id @default(uuid())
+  labId                         String @unique
+  lab                           Lab    @relation(fields: [labId], references: [id], onDelete: Cascade)
 
   // Idk what the pricing model should be 
+  tier                          SubscriptionTier @default(FREE)
+  maxMembers                    Int              @default(3)
+  maxCasesMonth                 Int              @default(50)
+  stripeCustomerId              String?
+  stripeSubscriptionId          String?
+  stripePriceId                 String?
 
   //discountCode          
 
-  subscriptionNextRenewal DateTime?
-  isCancelled             Boolean   @default(false)
-  cancellationDate        DateTime?
-  createdAt               DateTime  @default(now())
-  updatedAt               DateTime  @updatedAt
+  subscriptionNextRenewal       DateTime?
+  isCancelled                   Boolean   @default(false)
+  cancellationDate              DateTime?
+  createdAt                     DateTime  @default(now())
+  updatedAt                     DateTime  @updatedAt
 
   //@@index([labId])  // this can be removed because @unqiue on labId automatically creates an index
 
@@ -431,14 +553,14 @@ model LabUser {
   id        String  @id @default(uuid())
   name      String
   city      String
-  zipcode   String
+  zipcode   String?
   address1  String
   address2  String?
   avatarUrl String
 
   secondaryEmail String?
   phoneNumber    String
-  role           LabRole @default(ADMIN)
+  role           LabRole @default(OWNER)
 
   authUserId String   @unique
   authUser   AuthUser @relation(fields: [authUserId], references: [id], onDelete: Cascade)
@@ -459,7 +581,7 @@ model SuperUser {
   id        String  @id @default(uuid())
   name      String
   city      String
-  zipcode   String
+  zipcode   String?
   address1  String
   address2  String?
   avatarUrl String

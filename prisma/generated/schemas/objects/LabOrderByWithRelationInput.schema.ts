@@ -15,7 +15,8 @@ import { CaseWorkItemOrderByRelationAggregateInputObjectSchema as CaseWorkItemOr
 import { SelectedToothOrderByRelationAggregateInputObjectSchema as SelectedToothOrderByRelationAggregateInputObjectSchema } from './SelectedToothOrderByRelationAggregateInput.schema';
 import { CasePricingPlanOrderByRelationAggregateInputObjectSchema as CasePricingPlanOrderByRelationAggregateInputObjectSchema } from './CasePricingPlanOrderByRelationAggregateInput.schema';
 import { CaseAssetFileOrderByRelationAggregateInputObjectSchema as CaseAssetFileOrderByRelationAggregateInputObjectSchema } from './CaseAssetFileOrderByRelationAggregateInput.schema';
-import { PatientOrderByRelationAggregateInputObjectSchema as PatientOrderByRelationAggregateInputObjectSchema } from './PatientOrderByRelationAggregateInput.schema'
+import { PatientOrderByRelationAggregateInputObjectSchema as PatientOrderByRelationAggregateInputObjectSchema } from './PatientOrderByRelationAggregateInput.schema';
+import { DentistOrderByRelationAggregateInputObjectSchema as DentistOrderByRelationAggregateInputObjectSchema } from './DentistOrderByRelationAggregateInput.schema'
 
 const makeSchema = () => z.object({
   id: SortOrderSchema.optional(),
@@ -38,7 +39,8 @@ const makeSchema = () => z.object({
   selectedTeeth: z.lazy(() => SelectedToothOrderByRelationAggregateInputObjectSchema).optional(),
   casePricingPlans: z.lazy(() => CasePricingPlanOrderByRelationAggregateInputObjectSchema).optional(),
   caseAssetFiles: z.lazy(() => CaseAssetFileOrderByRelationAggregateInputObjectSchema).optional(),
-  patients: z.lazy(() => PatientOrderByRelationAggregateInputObjectSchema).optional()
+  patients: z.lazy(() => PatientOrderByRelationAggregateInputObjectSchema).optional(),
+  dentists: z.lazy(() => DentistOrderByRelationAggregateInputObjectSchema).optional()
 }).strict();
 export const LabOrderByWithRelationInputObjectSchema: z.ZodType<Prisma.LabOrderByWithRelationInput> = makeSchema() as unknown as z.ZodType<Prisma.LabOrderByWithRelationInput>;
 export const LabOrderByWithRelationInputObjectZodSchema = makeSchema();

@@ -5,8 +5,8 @@ import { LabCreateNestedOneWithoutCaseAssetFilesInputObjectSchema as LabCreateNe
 
 const makeSchema = () => z.object({
   id: z.string().optional(),
-  title: z.string(),
-  description: z.string(),
+  title: z.string().optional().nullable(),
+  description: z.string().optional().nullable(),
   documentUrl: z.string(),
   assetFileType: AssetFileTypeSchema.optional(),
   createdAt: z.coerce.date().optional(),

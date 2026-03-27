@@ -5,7 +5,7 @@ export const SuperUserModelSchema = z.object({
     id: z.string(),
     name: z.string(),
     city: z.string(),
-    zipcode: z.string(),
+    zipcode: z.string().nullable(),
     address1: z.string(),
     address2: z.string().nullable(),
     avatarUrl: z.string(),

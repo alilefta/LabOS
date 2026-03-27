@@ -20,6 +20,7 @@ export const LabInputSchema = z.object({
     casePricingPlans: z.array(z.unknown()),
     caseAssetFiles: z.array(z.unknown()),
     patients: z.array(z.unknown()),
+    dentists: z.array(z.unknown()),
     createdAt: z.date(),
     updatedAt: z.date()
 }).strict();

@@ -3,7 +3,7 @@ import { Prisma } from '../../../../generated/prisma/client';
 import { StringFieldUpdateOperationsInputObjectSchema as StringFieldUpdateOperationsInputObjectSchema } from './StringFieldUpdateOperationsInput.schema';
 import { CaseStatusSchema } from '../enums/CaseStatus.schema';
 import { EnumCaseStatusFieldUpdateOperationsInputObjectSchema as EnumCaseStatusFieldUpdateOperationsInputObjectSchema } from './EnumCaseStatusFieldUpdateOperationsInput.schema';
-import { NullableDecimalFieldUpdateOperationsInputObjectSchema as NullableDecimalFieldUpdateOperationsInputObjectSchema } from './NullableDecimalFieldUpdateOperationsInput.schema';
+import { DecimalFieldUpdateOperationsInputObjectSchema as DecimalFieldUpdateOperationsInputObjectSchema } from './DecimalFieldUpdateOperationsInput.schema';
 import { DateTimeFieldUpdateOperationsInputObjectSchema as DateTimeFieldUpdateOperationsInputObjectSchema } from './DateTimeFieldUpdateOperationsInput.schema';
 import { PatientUpdateOneRequiredWithoutCasesNestedInputObjectSchema as PatientUpdateOneRequiredWithoutCasesNestedInputObjectSchema } from './PatientUpdateOneRequiredWithoutCasesNestedInput.schema';
 import { LabUpdateOneRequiredWithoutCasesNestedInputObjectSchema as LabUpdateOneRequiredWithoutCasesNestedInputObjectSchema } from './LabUpdateOneRequiredWithoutCasesNestedInput.schema';
@@ -11,11 +11,13 @@ import { SalesRepresentativeUpdateOneWithoutCasesNestedInputObjectSchema as Sale
 import { CaseWorkItemUpdateManyWithoutDentalCaseNestedInputObjectSchema as CaseWorkItemUpdateManyWithoutDentalCaseNestedInputObjectSchema } from './CaseWorkItemUpdateManyWithoutDentalCaseNestedInput.schema';
 import { CaseCategoryUpdateOneWithoutCasesNestedInputObjectSchema as CaseCategoryUpdateOneWithoutCasesNestedInputObjectSchema } from './CaseCategoryUpdateOneWithoutCasesNestedInput.schema';
 import { ClinicUpdateOneWithoutCasesNestedInputObjectSchema as ClinicUpdateOneWithoutCasesNestedInputObjectSchema } from './ClinicUpdateOneWithoutCasesNestedInput.schema';
+import { DentistUpdateOneWithoutCasesNestedInputObjectSchema as DentistUpdateOneWithoutCasesNestedInputObjectSchema } from './DentistUpdateOneWithoutCasesNestedInput.schema';
 import { TechnicianUpdateOneWithoutCasesNestedInputObjectSchema as TechnicianUpdateOneWithoutCasesNestedInputObjectSchema } from './TechnicianUpdateOneWithoutCasesNestedInput.schema'
 
 import { DecimalJSLikeSchema, isValidDecimalInput } from '../../helpers/decimal-helpers';
 const makeSchema = () => z.object({
   id: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputObjectSchema)]).optional(),
+  caseNumber: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputObjectSchema)]).optional(),
   status: z.union([CaseStatusSchema, z.lazy(() => EnumCaseStatusFieldUpdateOperationsInputObjectSchema)]).optional(),
   grandTotal: z.union([z.union([
   z.number(),
@@ -24,7 +26,7 @@ const makeSchema = () => z.object({
   DecimalJSLikeSchema,
 ]).refine((v) => isValidDecimalInput(v), {
   message: "Field 'grandTotal' must be a Decimal",
-}), z.lazy(() => NullableDecimalFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
+}), z.lazy(() => DecimalFieldUpdateOperationsInputObjectSchema)]).optional(),
   deadline: z.union([z.coerce.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputObjectSchema)]).optional(),
   createdAt: z.union([z.coerce.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputObjectSchema)]).optional(),
   updatedAt: z.union([z.coerce.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputObjectSchema)]).optional(),
@@ -34,6 +36,7 @@ const makeSchema = () => z.object({
   caseItems: z.lazy(() => CaseWorkItemUpdateManyWithoutDentalCaseNestedInputObjectSchema).optional(),
   caseCategory: z.lazy(() => CaseCategoryUpdateOneWithoutCasesNestedInputObjectSchema).optional(),
   clinic: z.lazy(() => ClinicUpdateOneWithoutCasesNestedInputObjectSchema).optional(),
+  dentist: z.lazy(() => DentistUpdateOneWithoutCasesNestedInputObjectSchema).optional(),
   Technician: z.lazy(() => TechnicianUpdateOneWithoutCasesNestedInputObjectSchema).optional()
 }).strict();
 export const CaseUpdateWithoutCaseAssetFilesInputObjectSchema: z.ZodType<Prisma.CaseUpdateWithoutCaseAssetFilesInput> = makeSchema() as unknown as z.ZodType<Prisma.CaseUpdateWithoutCaseAssetFilesInput>;

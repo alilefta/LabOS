@@ -1,10 +1,11 @@
 import * as z from "zod";
-import { AssetFileTypeSchema } from "./asset-file-type.base";
+import { AssetFileTypeSchema } from "./enums.base";
+
 export const CaseAssetFileBaseSchema = z.object({
 	id: z.string(),
 	dentalCaseId: z.string(),
-	title: z.string(),
-	description: z.string(),
+	title: z.string().nullable(),
+	description: z.string().nullable(),
 	documentUrl: z.string(),
 	assetFileType: AssetFileTypeSchema,
 	labId: z.string(),

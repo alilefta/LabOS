@@ -1,23 +1,65 @@
 import * as z from 'zod';
-import type { Prisma } from '../../../../generated/prisma/client';
+import { Prisma } from '../../../../generated/prisma/client';
 import { StringFieldUpdateOperationsInputObjectSchema as StringFieldUpdateOperationsInputObjectSchema } from './StringFieldUpdateOperationsInput.schema';
 import { NullableStringFieldUpdateOperationsInputObjectSchema as NullableStringFieldUpdateOperationsInputObjectSchema } from './NullableStringFieldUpdateOperationsInput.schema';
+import { ClinicStatusSchema } from '../enums/ClinicStatus.schema';
+import { EnumClinicStatusFieldUpdateOperationsInputObjectSchema as EnumClinicStatusFieldUpdateOperationsInputObjectSchema } from './EnumClinicStatusFieldUpdateOperationsInput.schema';
+import { ClinicTypeSchema } from '../enums/ClinicType.schema';
+import { EnumClinicTypeFieldUpdateOperationsInputObjectSchema as EnumClinicTypeFieldUpdateOperationsInputObjectSchema } from './EnumClinicTypeFieldUpdateOperationsInput.schema';
+import { NullableDecimalFieldUpdateOperationsInputObjectSchema as NullableDecimalFieldUpdateOperationsInputObjectSchema } from './NullableDecimalFieldUpdateOperationsInput.schema';
+import { DecimalFieldUpdateOperationsInputObjectSchema as DecimalFieldUpdateOperationsInputObjectSchema } from './DecimalFieldUpdateOperationsInput.schema';
 import { DateTimeFieldUpdateOperationsInputObjectSchema as DateTimeFieldUpdateOperationsInputObjectSchema } from './DateTimeFieldUpdateOperationsInput.schema';
-import { LabUpdateOneRequiredWithoutClinicsNestedInputObjectSchema as LabUpdateOneRequiredWithoutClinicsNestedInputObjectSchema } from './LabUpdateOneRequiredWithoutClinicsNestedInput.schema'
+import { LabUpdateOneRequiredWithoutClinicsNestedInputObjectSchema as LabUpdateOneRequiredWithoutClinicsNestedInputObjectSchema } from './LabUpdateOneRequiredWithoutClinicsNestedInput.schema';
+import { DentistUpdateManyWithoutClinicNestedInputObjectSchema as DentistUpdateManyWithoutClinicNestedInputObjectSchema } from './DentistUpdateManyWithoutClinicNestedInput.schema';
+import { CasePricingPlanUpdateManyWithoutClinicNestedInputObjectSchema as CasePricingPlanUpdateManyWithoutClinicNestedInputObjectSchema } from './CasePricingPlanUpdateManyWithoutClinicNestedInput.schema'
 
+import { DecimalJSLikeSchema, isValidDecimalInput } from '../../helpers/decimal-helpers';
 const makeSchema = () => z.object({
   id: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputObjectSchema)]).optional(),
   name: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputObjectSchema)]).optional(),
   description: z.union([z.string(), z.lazy(() => NullableStringFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
+  website: z.union([z.string(), z.lazy(() => NullableStringFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
+  notes: z.union([z.string(), z.lazy(() => NullableStringFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
+  status: z.union([ClinicStatusSchema, z.lazy(() => EnumClinicStatusFieldUpdateOperationsInputObjectSchema)]).optional(),
+  type: z.union([ClinicTypeSchema, z.lazy(() => EnumClinicTypeFieldUpdateOperationsInputObjectSchema)]).optional(),
   city: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputObjectSchema)]).optional(),
-  zipcode: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputObjectSchema)]).optional(),
+  zipcode: z.union([z.string(), z.lazy(() => NullableStringFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
   address1: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputObjectSchema)]).optional(),
   address2: z.union([z.string(), z.lazy(() => NullableStringFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
   email: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputObjectSchema)]).optional(),
   phoneNumber: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputObjectSchema)]).optional(),
+  billingEmail: z.union([z.string(), z.lazy(() => NullableStringFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
+  billingPhoneNumber: z.union([z.string(), z.lazy(() => NullableStringFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
+  taxNumber: z.union([z.string(), z.lazy(() => NullableStringFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
+  discount: z.union([z.union([
+  z.number(),
+  z.string(),
+  z.instanceof(Prisma.Decimal),
+  DecimalJSLikeSchema,
+]).refine((v) => isValidDecimalInput(v), {
+  message: "Field 'discount' must be a Decimal",
+}), z.lazy(() => NullableDecimalFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
+  creditLimit: z.union([z.union([
+  z.number(),
+  z.string(),
+  z.instanceof(Prisma.Decimal),
+  DecimalJSLikeSchema,
+]).refine((v) => isValidDecimalInput(v), {
+  message: "Field 'creditLimit' must be a Decimal",
+}), z.lazy(() => NullableDecimalFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
+  currentBalance: z.union([z.union([
+  z.number(),
+  z.string(),
+  z.instanceof(Prisma.Decimal),
+  DecimalJSLikeSchema,
+]).refine((v) => isValidDecimalInput(v), {
+  message: "Field 'currentBalance' must be a Decimal",
+}), z.lazy(() => DecimalFieldUpdateOperationsInputObjectSchema)]).optional(),
   createdAt: z.union([z.coerce.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputObjectSchema)]).optional(),
   updatedAt: z.union([z.coerce.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputObjectSchema)]).optional(),
-  lab: z.lazy(() => LabUpdateOneRequiredWithoutClinicsNestedInputObjectSchema).optional()
+  lab: z.lazy(() => LabUpdateOneRequiredWithoutClinicsNestedInputObjectSchema).optional(),
+  dentists: z.lazy(() => DentistUpdateManyWithoutClinicNestedInputObjectSchema).optional(),
+  casePricingPlans: z.lazy(() => CasePricingPlanUpdateManyWithoutClinicNestedInputObjectSchema).optional()
 }).strict();
 export const ClinicUpdateWithoutCasesInputObjectSchema: z.ZodType<Prisma.ClinicUpdateWithoutCasesInput> = makeSchema() as unknown as z.ZodType<Prisma.ClinicUpdateWithoutCasesInput>;
 export const ClinicUpdateWithoutCasesInputObjectZodSchema = makeSchema();

@@ -17,7 +17,8 @@ import { CaseWorkItemListRelationFilterObjectSchema as CaseWorkItemListRelationF
 import { SelectedToothListRelationFilterObjectSchema as SelectedToothListRelationFilterObjectSchema } from './SelectedToothListRelationFilter.schema';
 import { CasePricingPlanListRelationFilterObjectSchema as CasePricingPlanListRelationFilterObjectSchema } from './CasePricingPlanListRelationFilter.schema';
 import { CaseAssetFileListRelationFilterObjectSchema as CaseAssetFileListRelationFilterObjectSchema } from './CaseAssetFileListRelationFilter.schema';
-import { PatientListRelationFilterObjectSchema as PatientListRelationFilterObjectSchema } from './PatientListRelationFilter.schema'
+import { PatientListRelationFilterObjectSchema as PatientListRelationFilterObjectSchema } from './PatientListRelationFilter.schema';
+import { DentistListRelationFilterObjectSchema as DentistListRelationFilterObjectSchema } from './DentistListRelationFilter.schema'
 
 const labwhereinputSchema = z.object({
   AND: z.union([z.lazy(() => LabWhereInputObjectSchema), z.lazy(() => LabWhereInputObjectSchema).array()]).optional(),
@@ -43,7 +44,8 @@ const labwhereinputSchema = z.object({
   selectedTeeth: z.lazy(() => SelectedToothListRelationFilterObjectSchema).optional(),
   casePricingPlans: z.lazy(() => CasePricingPlanListRelationFilterObjectSchema).optional(),
   caseAssetFiles: z.lazy(() => CaseAssetFileListRelationFilterObjectSchema).optional(),
-  patients: z.lazy(() => PatientListRelationFilterObjectSchema).optional()
+  patients: z.lazy(() => PatientListRelationFilterObjectSchema).optional(),
+  dentists: z.lazy(() => DentistListRelationFilterObjectSchema).optional()
 }).strict();
 export const LabWhereInputObjectSchema: z.ZodType<Prisma.LabWhereInput> = labwhereinputSchema as unknown as z.ZodType<Prisma.LabWhereInput>;
 export const LabWhereInputObjectZodSchema = labwhereinputSchema;

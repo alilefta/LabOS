@@ -6,8 +6,8 @@ import { LabCreateNestedOneWithoutCaseCategoriesInputObjectSchema as LabCreateNe
 const makeSchema = () => z.object({
   id: z.string().optional(),
   name: z.string(),
-  description: z.string(),
-  imageUrl: z.string(),
+  description: z.string().optional().nullable(),
+  imageUrl: z.string().optional().nullable(),
   isActive: z.boolean().optional(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),

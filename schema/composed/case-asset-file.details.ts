@@ -8,3 +8,10 @@ export const CaseAssetFileDetailsSchema = CaseAssetFileBaseSchema.extend({
 });
 
 export type CaseAssetFileDetails = z.infer<typeof CaseAssetFileDetailsSchema>;
+
+export const CaseAssetFileDetailsUISchema = CaseAssetFileBaseSchema.extend({
+	dentalCase: CaseBaseSchema.nullable(),
+	lab: LabBaseSchema.nullable(),
+});
+
+export type CaseAssetFileDetailsUI = z.infer<typeof CaseAssetFileDetailsUISchema>;

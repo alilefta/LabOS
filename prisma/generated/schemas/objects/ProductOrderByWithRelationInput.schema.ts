@@ -1,22 +1,25 @@
 import * as z from 'zod';
 import type { Prisma } from '../../../../generated/prisma/client';
 import { SortOrderSchema } from '../enums/SortOrder.schema';
+import { SortOrderInputObjectSchema as SortOrderInputObjectSchema } from './SortOrderInput.schema';
 import { CaseWorkItemOrderByRelationAggregateInputObjectSchema as CaseWorkItemOrderByRelationAggregateInputObjectSchema } from './CaseWorkItemOrderByRelationAggregateInput.schema';
 import { LabOrderByWithRelationInputObjectSchema as LabOrderByWithRelationInputObjectSchema } from './LabOrderByWithRelationInput.schema';
-import { WorkTypeOrderByWithRelationInputObjectSchema as WorkTypeOrderByWithRelationInputObjectSchema } from './WorkTypeOrderByWithRelationInput.schema'
+import { WorkTypeOrderByWithRelationInputObjectSchema as WorkTypeOrderByWithRelationInputObjectSchema } from './WorkTypeOrderByWithRelationInput.schema';
+import { CasePricingPlanOrderByRelationAggregateInputObjectSchema as CasePricingPlanOrderByRelationAggregateInputObjectSchema } from './CasePricingPlanOrderByRelationAggregateInput.schema'
 
 const makeSchema = () => z.object({
   id: SortOrderSchema.optional(),
   name: SortOrderSchema.optional(),
-  description: SortOrderSchema.optional(),
-  imageUrl: SortOrderSchema.optional(),
+  description: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
+  imageUrl: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
   labId: SortOrderSchema.optional(),
   workTypeId: SortOrderSchema.optional(),
   createdAt: SortOrderSchema.optional(),
   updatedAt: SortOrderSchema.optional(),
   caseWorkItems: z.lazy(() => CaseWorkItemOrderByRelationAggregateInputObjectSchema).optional(),
   lab: z.lazy(() => LabOrderByWithRelationInputObjectSchema).optional(),
-  workType: z.lazy(() => WorkTypeOrderByWithRelationInputObjectSchema).optional()
+  workType: z.lazy(() => WorkTypeOrderByWithRelationInputObjectSchema).optional(),
+  casePricingPlans: z.lazy(() => CasePricingPlanOrderByRelationAggregateInputObjectSchema).optional()
 }).strict();
 export const ProductOrderByWithRelationInputObjectSchema: z.ZodType<Prisma.ProductOrderByWithRelationInput> = makeSchema() as unknown as z.ZodType<Prisma.ProductOrderByWithRelationInput>;
 export const ProductOrderByWithRelationInputObjectZodSchema = makeSchema();

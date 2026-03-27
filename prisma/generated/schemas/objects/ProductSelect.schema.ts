@@ -3,6 +3,7 @@ import type { Prisma } from '../../../../generated/prisma/client';
 import { CaseWorkItemFindManySchema as CaseWorkItemFindManySchema } from '../findManyCaseWorkItem.schema';
 import { LabArgsObjectSchema as LabArgsObjectSchema } from './LabArgs.schema';
 import { WorkTypeArgsObjectSchema as WorkTypeArgsObjectSchema } from './WorkTypeArgs.schema';
+import { CasePricingPlanFindManySchema as CasePricingPlanFindManySchema } from '../findManyCasePricingPlan.schema';
 import { ProductCountOutputTypeArgsObjectSchema as ProductCountOutputTypeArgsObjectSchema } from './ProductCountOutputTypeArgs.schema'
 
 const makeSchema = () => z.object({
@@ -17,6 +18,7 @@ const makeSchema = () => z.object({
   workType: z.union([z.boolean(), z.lazy(() => WorkTypeArgsObjectSchema)]).optional(),
   createdAt: z.boolean().optional(),
   updatedAt: z.boolean().optional(),
+  casePricingPlans: z.union([z.boolean(), z.lazy(() => CasePricingPlanFindManySchema)]).optional(),
   _count: z.union([z.boolean(), z.lazy(() => ProductCountOutputTypeArgsObjectSchema)]).optional()
 }).strict();
 export const ProductSelectObjectSchema: z.ZodType<Prisma.ProductSelect> = makeSchema() as unknown as z.ZodType<Prisma.ProductSelect>;

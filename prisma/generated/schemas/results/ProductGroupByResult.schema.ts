@@ -19,7 +19,8 @@ export const ProductGroupByResultSchema = z.array(z.object({
     workTypeId: z.number(),
     workType: z.number(),
     createdAt: z.number(),
-    updatedAt: z.number()
+    updatedAt: z.number(),
+    casePricingPlans: z.number()
   }).optional(),
   _min: z.object({
     id: z.string().nullable(),

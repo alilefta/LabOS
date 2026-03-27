@@ -1,6 +1,7 @@
 import * as z from 'zod';
 import type { Prisma } from '../../../../generated/prisma/client';
 import { SortOrderSchema } from '../enums/SortOrder.schema';
+import { SortOrderInputObjectSchema as SortOrderInputObjectSchema } from './SortOrderInput.schema';
 import { CaseAssetFileCountOrderByAggregateInputObjectSchema as CaseAssetFileCountOrderByAggregateInputObjectSchema } from './CaseAssetFileCountOrderByAggregateInput.schema';
 import { CaseAssetFileMaxOrderByAggregateInputObjectSchema as CaseAssetFileMaxOrderByAggregateInputObjectSchema } from './CaseAssetFileMaxOrderByAggregateInput.schema';
 import { CaseAssetFileMinOrderByAggregateInputObjectSchema as CaseAssetFileMinOrderByAggregateInputObjectSchema } from './CaseAssetFileMinOrderByAggregateInput.schema'
@@ -8,8 +9,8 @@ import { CaseAssetFileMinOrderByAggregateInputObjectSchema as CaseAssetFileMinOr
 const makeSchema = () => z.object({
   id: SortOrderSchema.optional(),
   dentalCaseId: SortOrderSchema.optional(),
-  title: SortOrderSchema.optional(),
-  description: SortOrderSchema.optional(),
+  title: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
+  description: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
   documentUrl: SortOrderSchema.optional(),
   assetFileType: SortOrderSchema.optional(),
   labId: SortOrderSchema.optional(),

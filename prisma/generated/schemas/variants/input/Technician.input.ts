@@ -5,7 +5,7 @@ export const TechnicianInputSchema = z.object({
     firstName: z.string(),
     lastName: z.string(),
     city: z.string(),
-    zipcode: z.string(),
+    zipcode: z.string().optional().nullable(),
     address1: z.string(),
     address2: z.string().optional().nullable(),
     labId: z.string(),

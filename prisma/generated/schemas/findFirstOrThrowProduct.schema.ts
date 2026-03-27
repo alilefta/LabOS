@@ -21,6 +21,7 @@ export const ProductFindFirstOrThrowSelectSchema: z.ZodType<Prisma.ProductSelect
     workType: z.boolean().optional(),
     createdAt: z.boolean().optional(),
     updatedAt: z.boolean().optional(),
+    casePricingPlans: z.boolean().optional(),
     _count: z.boolean().optional()
   }).strict() as unknown as z.ZodType<Prisma.ProductSelect>;
 
@@ -36,6 +37,7 @@ export const ProductFindFirstOrThrowSelectZodSchema = z.object({
     workType: z.boolean().optional(),
     createdAt: z.boolean().optional(),
     updatedAt: z.boolean().optional(),
+    casePricingPlans: z.boolean().optional(),
     _count: z.boolean().optional()
   }).strict();
 

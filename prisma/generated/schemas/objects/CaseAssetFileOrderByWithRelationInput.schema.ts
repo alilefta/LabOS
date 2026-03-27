@@ -1,14 +1,15 @@
 import * as z from 'zod';
 import type { Prisma } from '../../../../generated/prisma/client';
 import { SortOrderSchema } from '../enums/SortOrder.schema';
+import { SortOrderInputObjectSchema as SortOrderInputObjectSchema } from './SortOrderInput.schema';
 import { CaseOrderByWithRelationInputObjectSchema as CaseOrderByWithRelationInputObjectSchema } from './CaseOrderByWithRelationInput.schema';
 import { LabOrderByWithRelationInputObjectSchema as LabOrderByWithRelationInputObjectSchema } from './LabOrderByWithRelationInput.schema'
 
 const makeSchema = () => z.object({
   id: SortOrderSchema.optional(),
   dentalCaseId: SortOrderSchema.optional(),
-  title: SortOrderSchema.optional(),
-  description: SortOrderSchema.optional(),
+  title: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
+  description: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
   documentUrl: SortOrderSchema.optional(),
   assetFileType: SortOrderSchema.optional(),
   labId: SortOrderSchema.optional(),

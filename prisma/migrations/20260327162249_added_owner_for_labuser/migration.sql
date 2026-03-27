@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "LabUser" ALTER COLUMN "role" SET DEFAULT 'OWNER';

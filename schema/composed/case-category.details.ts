@@ -11,3 +11,11 @@ export const CaseCategoryDetailsSchema = CaseCategoryBaseSchema.extend({
 });
 
 export type CaseCategoryDetails = z.infer<typeof CaseCategoryDetailsSchema>;
+
+export const CaseCategoryDetailsUISchema = CaseCategoryBaseSchema.extend({
+	lab: LabBaseSchema,
+	workTypes: z.array(WorkTypeBaseSchema),
+	cases: z.array(CaseBaseSchema),
+});
+
+export type CaseCategoryDetailsUI = z.infer<typeof CaseCategoryDetailsUISchema>;

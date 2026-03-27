@@ -15,7 +15,8 @@ import { ProductUpdateManyWithoutLabNestedInputObjectSchema as ProductUpdateMany
 import { CaseWorkItemUpdateManyWithoutLabNestedInputObjectSchema as CaseWorkItemUpdateManyWithoutLabNestedInputObjectSchema } from './CaseWorkItemUpdateManyWithoutLabNestedInput.schema';
 import { SelectedToothUpdateManyWithoutLabNestedInputObjectSchema as SelectedToothUpdateManyWithoutLabNestedInputObjectSchema } from './SelectedToothUpdateManyWithoutLabNestedInput.schema';
 import { CasePricingPlanUpdateManyWithoutLabNestedInputObjectSchema as CasePricingPlanUpdateManyWithoutLabNestedInputObjectSchema } from './CasePricingPlanUpdateManyWithoutLabNestedInput.schema';
-import { PatientUpdateManyWithoutLabNestedInputObjectSchema as PatientUpdateManyWithoutLabNestedInputObjectSchema } from './PatientUpdateManyWithoutLabNestedInput.schema'
+import { PatientUpdateManyWithoutLabNestedInputObjectSchema as PatientUpdateManyWithoutLabNestedInputObjectSchema } from './PatientUpdateManyWithoutLabNestedInput.schema';
+import { DentistUpdateManyWithoutLabNestedInputObjectSchema as DentistUpdateManyWithoutLabNestedInputObjectSchema } from './DentistUpdateManyWithoutLabNestedInput.schema'
 
 const makeSchema = () => z.object({
   id: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputObjectSchema)]).optional(),
@@ -37,7 +38,8 @@ const makeSchema = () => z.object({
   caseWorkItems: z.lazy(() => CaseWorkItemUpdateManyWithoutLabNestedInputObjectSchema).optional(),
   selectedTeeth: z.lazy(() => SelectedToothUpdateManyWithoutLabNestedInputObjectSchema).optional(),
   casePricingPlans: z.lazy(() => CasePricingPlanUpdateManyWithoutLabNestedInputObjectSchema).optional(),
-  patients: z.lazy(() => PatientUpdateManyWithoutLabNestedInputObjectSchema).optional()
+  patients: z.lazy(() => PatientUpdateManyWithoutLabNestedInputObjectSchema).optional(),
+  dentists: z.lazy(() => DentistUpdateManyWithoutLabNestedInputObjectSchema).optional()
 }).strict();
 export const LabUpdateWithoutCaseAssetFilesInputObjectSchema: z.ZodType<Prisma.LabUpdateWithoutCaseAssetFilesInput> = makeSchema() as unknown as z.ZodType<Prisma.LabUpdateWithoutCaseAssetFilesInput>;
 export const LabUpdateWithoutCaseAssetFilesInputObjectZodSchema = makeSchema();

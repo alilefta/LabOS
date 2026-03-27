@@ -3,7 +3,7 @@ export const LabUserDeleteResultSchema = z.nullable(z.object({
   id: z.string(),
   name: z.string(),
   city: z.string(),
-  zipcode: z.string(),
+  zipcode: z.string().optional(),
   address1: z.string(),
   address2: z.string().optional(),
   avatarUrl: z.string(),

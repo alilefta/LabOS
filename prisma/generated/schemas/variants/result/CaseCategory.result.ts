@@ -3,8 +3,8 @@ import * as z from 'zod';
 export const CaseCategoryResultSchema = z.object({
     id: z.string(),
     name: z.string(),
-    description: z.string(),
-    imageUrl: z.string(),
+    description: z.string().nullable(),
+    imageUrl: z.string().nullable(),
     isActive: z.boolean(),
     workTypes: z.array(z.unknown()),
     cases: z.array(z.unknown()),

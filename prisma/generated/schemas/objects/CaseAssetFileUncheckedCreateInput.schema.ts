@@ -5,8 +5,8 @@ import { AssetFileTypeSchema } from '../enums/AssetFileType.schema'
 const makeSchema = () => z.object({
   id: z.string().optional(),
   dentalCaseId: z.string(),
-  title: z.string(),
-  description: z.string(),
+  title: z.string().optional().nullable(),
+  description: z.string().optional().nullable(),
   documentUrl: z.string(),
   assetFileType: AssetFileTypeSchema.optional(),
   labId: z.string(),

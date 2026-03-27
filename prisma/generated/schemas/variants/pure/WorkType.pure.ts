@@ -3,8 +3,8 @@ import * as z from 'zod';
 export const WorkTypeModelSchema = z.object({
     id: z.string(),
     name: z.string(),
-    description: z.string(),
-    imageUrl: z.string(),
+    description: z.string().nullable(),
+    imageUrl: z.string().nullable(),
     product: z.array(z.unknown()),
     labId: z.string(),
     lab: z.unknown(),

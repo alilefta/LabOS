@@ -8,11 +8,12 @@ import { CaseCategoryBaseSchema } from "../base/case-category.base";
 import { ClinicBaseSchema } from "../base/clinic.base";
 import { SalesRepresentativeBaseSchema } from "../base/sales-representative.base";
 import { CaseAssetFileBaseSchema } from "../base/case-asset-file.base";
-import { CaseStatusSchema } from "../base/case-status.base";
 import { CreateCaseWorkItemInputSchema } from "./case-work-item.details";
+import { CaseStatusSchema } from "../base/enums.base";
+import { DentistBaseSchema } from "../base/dentist.base";
 
 export const CaseDetailsSchema = CaseBaseSchema.extend({
-	caseCategory: CaseCategoryBaseSchema,
+	caseCategory: CaseCategoryBaseSchema.nullable(),
 	caseItems: z.array(CaseWorkItemBaseSchema),
 	salesReps: SalesRepresentativeBaseSchema.nullable(),
 	clinic: ClinicBaseSchema.nullable(),
@@ -20,6 +21,7 @@ export const CaseDetailsSchema = CaseBaseSchema.extend({
 	caseAssetFiles: z.array(CaseAssetFileBaseSchema),
 	lab: LabBaseSchema,
 	patient: PatientBaseSchema,
+	dentist: DentistBaseSchema.nullable(),
 });
 export type CaseDetails = z.infer<typeof CaseDetailsSchema>;
 

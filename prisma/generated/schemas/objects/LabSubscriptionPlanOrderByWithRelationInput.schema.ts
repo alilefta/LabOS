@@ -7,6 +7,12 @@ import { LabOrderByWithRelationInputObjectSchema as LabOrderByWithRelationInputO
 const makeSchema = () => z.object({
   id: SortOrderSchema.optional(),
   labId: SortOrderSchema.optional(),
+  tier: SortOrderSchema.optional(),
+  maxMembers: SortOrderSchema.optional(),
+  maxCasesMonth: SortOrderSchema.optional(),
+  stripeCustomerId: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
+  stripeSubscriptionId: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
+  stripePriceId: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
   subscriptionNextRenewal: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
   isCancelled: SortOrderSchema.optional(),
   cancellationDate: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),

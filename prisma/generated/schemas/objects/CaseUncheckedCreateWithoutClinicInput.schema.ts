@@ -8,6 +8,7 @@ import { DecimalJSLikeSchema, isValidDecimalInput } from '../../helpers/decimal-
 const makeSchema = () => z.object({
   id: z.string().optional(),
   patientId: z.string(),
+  caseNumber: z.string(),
   labId: z.string(),
   salesRepsId: z.string().optional().nullable(),
   caseCategoryId: z.string().optional().nullable(),
@@ -19,7 +20,8 @@ const makeSchema = () => z.object({
   DecimalJSLikeSchema,
 ]).refine((v) => isValidDecimalInput(v), {
   message: "Field 'grandTotal' must be a Decimal",
-}).optional().nullable(),
+}).optional(),
+  dentistId: z.string().optional().nullable(),
   technicianId: z.string().optional().nullable(),
   deadline: z.coerce.date(),
   createdAt: z.coerce.date().optional(),

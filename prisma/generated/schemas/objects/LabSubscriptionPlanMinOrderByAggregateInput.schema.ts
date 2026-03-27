@@ -5,6 +5,12 @@ import { SortOrderSchema } from '../enums/SortOrder.schema'
 const makeSchema = () => z.object({
   id: SortOrderSchema.optional(),
   labId: SortOrderSchema.optional(),
+  tier: SortOrderSchema.optional(),
+  maxMembers: SortOrderSchema.optional(),
+  maxCasesMonth: SortOrderSchema.optional(),
+  stripeCustomerId: SortOrderSchema.optional(),
+  stripeSubscriptionId: SortOrderSchema.optional(),
+  stripePriceId: SortOrderSchema.optional(),
   subscriptionNextRenewal: SortOrderSchema.optional(),
   isCancelled: SortOrderSchema.optional(),
   cancellationDate: SortOrderSchema.optional(),

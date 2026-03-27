@@ -4,9 +4,9 @@ import { LabBaseSchema } from "../base/lab.base";
 import { CaseBaseSchema } from "../base/case.base";
 import { ProductBaseSchema } from "../base/product.base";
 import { CasePricingPlanBaseSchema } from "../base/case-pricing-plan.base";
-import { PricingStrategySchema } from "../base/pricing-strategy.base";
-import { JawTypeSchema } from "../base/jaw-type.base";
+
 import { SelectedToothBaseSchema } from "../base/selected-tooth.base";
+import { JawTypeSchema, PricingStrategySchema } from "../base/enums.base";
 
 export const CaseWorkItemDetailsSchema = CaseWorkItemBaseSchema.extend({
 	product: ProductBaseSchema.nullable(),

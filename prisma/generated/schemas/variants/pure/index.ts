@@ -5,6 +5,7 @@
 
 export { LabModelSchema } from './Lab.pure';
 export { ClinicModelSchema } from './Clinic.pure';
+export { DentistModelSchema } from './Dentist.pure';
 export { CaseModelSchema } from './Case.pure';
 export { PatientModelSchema } from './Patient.pure';
 export { CaseWorkItemModelSchema } from './CaseWorkItem.pure';

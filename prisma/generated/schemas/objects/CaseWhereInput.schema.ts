@@ -4,7 +4,7 @@ import { StringFilterObjectSchema as StringFilterObjectSchema } from './StringFi
 import { StringNullableFilterObjectSchema as StringNullableFilterObjectSchema } from './StringNullableFilter.schema';
 import { EnumCaseStatusFilterObjectSchema as EnumCaseStatusFilterObjectSchema } from './EnumCaseStatusFilter.schema';
 import { CaseStatusSchema } from '../enums/CaseStatus.schema';
-import { DecimalNullableFilterObjectSchema as DecimalNullableFilterObjectSchema } from './DecimalNullableFilter.schema';
+import { DecimalFilterObjectSchema as DecimalFilterObjectSchema } from './DecimalFilter.schema';
 import { DateTimeFilterObjectSchema as DateTimeFilterObjectSchema } from './DateTimeFilter.schema';
 import { PatientScalarRelationFilterObjectSchema as PatientScalarRelationFilterObjectSchema } from './PatientScalarRelationFilter.schema';
 import { PatientWhereInputObjectSchema as PatientWhereInputObjectSchema } from './PatientWhereInput.schema';
@@ -17,6 +17,8 @@ import { CaseCategoryNullableScalarRelationFilterObjectSchema as CaseCategoryNul
 import { CaseCategoryWhereInputObjectSchema as CaseCategoryWhereInputObjectSchema } from './CaseCategoryWhereInput.schema';
 import { ClinicNullableScalarRelationFilterObjectSchema as ClinicNullableScalarRelationFilterObjectSchema } from './ClinicNullableScalarRelationFilter.schema';
 import { ClinicWhereInputObjectSchema as ClinicWhereInputObjectSchema } from './ClinicWhereInput.schema';
+import { DentistNullableScalarRelationFilterObjectSchema as DentistNullableScalarRelationFilterObjectSchema } from './DentistNullableScalarRelationFilter.schema';
+import { DentistWhereInputObjectSchema as DentistWhereInputObjectSchema } from './DentistWhereInput.schema';
 import { TechnicianNullableScalarRelationFilterObjectSchema as TechnicianNullableScalarRelationFilterObjectSchema } from './TechnicianNullableScalarRelationFilter.schema';
 import { TechnicianWhereInputObjectSchema as TechnicianWhereInputObjectSchema } from './TechnicianWhereInput.schema';
 import { CaseAssetFileListRelationFilterObjectSchema as CaseAssetFileListRelationFilterObjectSchema } from './CaseAssetFileListRelationFilter.schema'
@@ -28,19 +30,21 @@ const casewhereinputSchema = z.object({
   NOT: z.union([z.lazy(() => CaseWhereInputObjectSchema), z.lazy(() => CaseWhereInputObjectSchema).array()]).optional(),
   id: z.union([z.lazy(() => StringFilterObjectSchema), z.string()]).optional(),
   patientId: z.union([z.lazy(() => StringFilterObjectSchema), z.string()]).optional(),
+  caseNumber: z.union([z.lazy(() => StringFilterObjectSchema), z.string()]).optional(),
   labId: z.union([z.lazy(() => StringFilterObjectSchema), z.string()]).optional(),
   salesRepsId: z.union([z.lazy(() => StringNullableFilterObjectSchema), z.string()]).optional().nullable(),
   caseCategoryId: z.union([z.lazy(() => StringNullableFilterObjectSchema), z.string()]).optional().nullable(),
   status: z.union([z.lazy(() => EnumCaseStatusFilterObjectSchema), CaseStatusSchema]).optional(),
-  grandTotal: z.union([z.lazy(() => DecimalNullableFilterObjectSchema), z.union([
+  grandTotal: z.union([z.lazy(() => DecimalFilterObjectSchema), z.union([
   z.number(),
   z.string(),
   z.instanceof(Prisma.Decimal),
   DecimalJSLikeSchema,
 ]).refine((v) => isValidDecimalInput(v), {
   message: "Field 'grandTotal' must be a Decimal",
-})]).optional().nullable(),
+})]).optional(),
   clinicId: z.union([z.lazy(() => StringNullableFilterObjectSchema), z.string()]).optional().nullable(),
+  dentistId: z.union([z.lazy(() => StringNullableFilterObjectSchema), z.string()]).optional().nullable(),
   technicianId: z.union([z.lazy(() => StringNullableFilterObjectSchema), z.string()]).optional().nullable(),
   deadline: z.union([z.lazy(() => DateTimeFilterObjectSchema), z.coerce.date()]).optional(),
   createdAt: z.union([z.lazy(() => DateTimeFilterObjectSchema), z.coerce.date()]).optional(),
@@ -51,6 +55,7 @@ const casewhereinputSchema = z.object({
   caseItems: z.lazy(() => CaseWorkItemListRelationFilterObjectSchema).optional(),
   caseCategory: z.union([z.lazy(() => CaseCategoryNullableScalarRelationFilterObjectSchema), z.lazy(() => CaseCategoryWhereInputObjectSchema)]).optional(),
   clinic: z.union([z.lazy(() => ClinicNullableScalarRelationFilterObjectSchema), z.lazy(() => ClinicWhereInputObjectSchema)]).optional(),
+  dentist: z.union([z.lazy(() => DentistNullableScalarRelationFilterObjectSchema), z.lazy(() => DentistWhereInputObjectSchema)]).optional(),
   Technician: z.union([z.lazy(() => TechnicianNullableScalarRelationFilterObjectSchema), z.lazy(() => TechnicianWhereInputObjectSchema)]).optional(),
   caseAssetFiles: z.lazy(() => CaseAssetFileListRelationFilterObjectSchema).optional()
 }).strict();

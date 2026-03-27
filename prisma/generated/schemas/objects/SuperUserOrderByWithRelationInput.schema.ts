@@ -8,7 +8,7 @@ const makeSchema = () => z.object({
   id: SortOrderSchema.optional(),
   name: SortOrderSchema.optional(),
   city: SortOrderSchema.optional(),
-  zipcode: SortOrderSchema.optional(),
+  zipcode: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
   address1: SortOrderSchema.optional(),
   address2: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
   avatarUrl: SortOrderSchema.optional(),

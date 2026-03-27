@@ -3,15 +3,10 @@
 import { CaseAiAuditor } from "@/components/cases/new-case/case-ai-auditor";
 
 import { CaseSummaryModal } from "@/components/cases/case/case-summary-modal";
-import { NewCaseForm } from "@/components/cases/new-case/new-case-form";
-import { useState } from "react";
-import { toast } from "sonner";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useAction } from "next-safe-action/hooks";
 import { NewCaseHeader } from "@/components/cases/new-case/new-case-header";
-import { Controller, FormProvider, useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import z from "zod";
+import { FormProvider, useForm } from "react-hook-form";
 import { HierarchicalClinicalPicker } from "@/components/cases/case/hierarchical-clinical-picker";
 import { CaseWorkItemManager } from "@/components/cases/case/case-work-item-manager";
 import { CaseFileUploadZone } from "@/components/cases/case/case-file-upload-zone";
@@ -21,12 +16,20 @@ import { PatientAndClinicSection } from "@/components/cases/new-case/sections/pa
 import { RegisterPatientSheet } from "@/components/modals/cases/patient/create-patient-sheet";
 
 import { PatientDetails } from "@/schema/composed/patient.details";
+import { RegisterClinicSheet } from "@/components/modals/cases/clinic/register-clinic-sheet";
+
+import { ClinicDetails } from "@/schema/composed/clinic.details";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 export default function NewCasePage() {
 	// 1. The Boss holds the temporary data
 	const [draftData, setDraftData] = useState<CreateCaseInput | null>(null);
 	const [isSummaryOpen, setIsSummaryOpen] = useState(false);
 	const [openCreateNewPatientSheet, setOpenCreateNewPatientSheet] = useState(false);
+	const [openCreateNewClinicSheet, setOpenCreateNewClinicSheet] = useState(false);
+
+	const [newPatient, setNewPatient] = useState<PatientDetails | null>(null);
+	const [newClinic, setNewClinic] = useState<ClinicDetails | null>(null);
 
 	const form = useForm<CreateCaseInput>({
 		resolver: zodResolver(CreateCaseInputSchema),
@@ -56,16 +59,6 @@ export default function NewCasePage() {
 			salesRepsId: "",
 		},
 	});
-
-	const router = useRouter();
-
-	// 2. The Boss owns the Database Action
-	// const { executeAsync: createCase, isExecuting } = useAction(createCaseAction, {
-	// 	onSuccess: () => {
-	// 		toast.success("Case sent to production!");
-	// 		router.push("/dashboard/cases"); // Redirect!
-	// 	},
-	// });
 
 	const isExecuting = false;
 
@@ -97,7 +90,12 @@ export default function NewCasePage() {
 						<form className="flex-1 overflow-y-auto no-scrollbar pb-20 space-y-12" id="new-case-submission-form" onSubmit={form.handleSubmit(handleFormValid)}>
 							<div className="flex-1 overflow-y-auto no-scrollbar pb-20 space-y-12">
 								{/* SECTION 1: ORIGIN */}
-								<PatientAndClinicSection handleOpenPatientCreationSheet={() => setOpenCreateNewPatientSheet(true)} />
+								<PatientAndClinicSection
+									handleOpenClinicCreationSheet={() => setOpenCreateNewClinicSheet(true)}
+									handleOpenPatientCreationSheet={() => setOpenCreateNewPatientSheet(true)}
+									newCreatedPatient={newPatient}
+									newCreatedClinic={newClinic}
+								/>
 								{/* SECTION 2: THE PRODUCT */}
 								<section className="space-y-6">
 									<div className="flex items-center gap-3">
@@ -135,7 +133,8 @@ export default function NewCasePage() {
 					</div>
 
 					{/* Modals */}
-					<RegisterPatientSheet isOpen={openCreateNewPatientSheet} onClose={() => setOpenCreateNewPatientSheet(false)} />
+					<RegisterPatientSheet isOpen={openCreateNewPatientSheet} onClose={() => setOpenCreateNewPatientSheet(false)} onPatientCreated={(p) => setNewPatient(p)} />
+					<RegisterClinicSheet isOpen={openCreateNewClinicSheet} onClose={() => setOpenCreateNewClinicSheet(false)} onClinicCreated={(c) => setNewClinic(c)} />
 
 					<CaseSummaryModal isOpen={isSummaryOpen} onClose={() => setIsSummaryOpen(false)} onConfirm={handleFinalConfirm} data={draftData} isSubmitting={isExecuting} />
 				</div>

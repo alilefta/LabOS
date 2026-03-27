@@ -1,5 +1,5 @@
 import * as z from "zod";
-import { LabRoleSchema } from "./lab-user-role.base";
+import { LabRoleSchema } from "./enums.base";
 
 export const LabUserBaseSchema = z.object({
 	id: z.string(),
