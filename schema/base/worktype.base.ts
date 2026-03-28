@@ -1,10 +1,12 @@
 import * as z from "zod";
+
 export const WorkTypeBaseSchema = z.object({
 	id: z.string(),
 	name: z.string(),
 	description: z.string().nullable(),
 	imageUrl: z.string().nullable(),
 	labId: z.string(),
+	requireTeethSelection: z.boolean(),
 	caseCategoryId: z.string(),
 	createdAt: z.date(),
 	updatedAt: z.date(),

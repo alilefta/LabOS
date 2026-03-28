@@ -1,78 +1,63 @@
 "use server";
 
-import { ERRORS } from "@/lib/errors";
-import { CheckLabIsolation } from "@/lib/get-session";
 import { tenantPrisma } from "@/lib/prisma";
-import { actionClientWithSession } from "@/lib/safe-action";
-import { CaseBase } from "@/schema/base/case.base";
-import { ClinicDetailsUI, CreateClinicInputSchema } from "@/schema/composed/clinic.details";
+import { actionClientWithLab } from "@/lib/safe-action";
+import { CreateClinicInputSchema } from "@/schema/composed/clinic.details";
 import { SearchInputSchema } from "@/schema/composed/shared-schema";
 import { APIError } from "better-auth";
 
-export const createClinicAction = actionClientWithSession
+export const createClinicAction = actionClientWithLab
 	.metadata({
 		actionName: "Create-New-Clinic-Action",
+		requiredLabRole: "ADMIN",
 	})
 	.inputSchema(CreateClinicInputSchema)
 	.action(async ({ parsedInput, ctx }) => {
 		const { name, address1, address2, city, description, email, phoneNumber, zipcode, currentBalance, primaryDentist, status, type } = parsedInput;
-
-		const { user } = ctx;
-
-		if (!user) {
-			throw ERRORS.UNAUTHORIZED;
-		}
-
-		if (!user.labId) {
-			throw ERRORS.UNAUTHORIZED;
-		}
-
-		// const isolationStatus = await CheckLabIsolation();
-
-		// if (isolationStatus !== "OK") {
-		// 	throw ERRORS.UNAUTHORIZED;
-		// }
+		const { labId } = ctx;
 
 		try {
-			// maybe there is a lab user but the lab ID is not set to that user
-			const results = await (
-				await tenantPrisma(user.labId)
-			).$transaction(async (tx) => {
-				const createdClinic = await tx.clinic.create({
-					data: {
-						name,
-						address1,
-						city,
-						email,
-						phoneNumber,
-						zipcode,
-						address2,
-						description,
-						labId: user.labId!,
+			const clinic = await (
+				await tenantPrisma(labId)
+			).clinic.create({
+				data: {
+					name,
+					address1,
+					city,
+					email,
+					phoneNumber,
+					zipcode: zipcode ?? null,
+					address2: address2 ?? null,
+					description: description ?? null,
+					labId: labId,
+					currentBalance: currentBalance ?? 0,
+					status: status ?? "ACTIVE",
+					type: type ?? "CLINIC",
+					dentists: {
+						create: {
+							name: primaryDentist.name,
+							email: primaryDentist.email ?? null,
+							phoneNumber: primaryDentist.phoneNumber ?? null,
+							isOwner: primaryDentist.isOwner ?? true,
+							isDefault: primaryDentist.isDefault ?? true,
+							notes: primaryDentist.email ?? null,
+							labId: labId,
+						},
 					},
-					include: {
-						dentists: true,
-					},
-				});
-
-				const createdDentist = await tx.dentist.create({
-					data: {
-						name: primaryDentist.name,
-						email: primaryDentist.email,
-						phoneNumber: primaryDentist.phoneNumber,
-						isOwner: primaryDentist.isOwner,
-						isDefault: primaryDentist.isDefault,
-						notes: primaryDentist.email,
-						clinicId: createdClinic.id,
-						labId: user.labId!,
-					},
-				});
-
-				return { createdClinic, createdDentist };
+				},
+				include: {
+					dentists: true,
+					lab: true,
+				},
 			});
 
 			return {
-				clinic: results.createdClinic as ClinicDetailsUI,
+				clinic: {
+					...clinic,
+					currentBalance: Number(clinic.currentBalance),
+					discount: Number(clinic.discount),
+					creditLimit: Number(clinic.creditLimit),
+				},
 			};
 		} catch (e) {
 			if (e instanceof APIError || e instanceof Error) {
@@ -82,35 +67,22 @@ export const createClinicAction = actionClientWithSession
 		}
 	});
 
-export const getClinicsAction = actionClientWithSession
+export const getClinicsBySearchQueryAction = actionClientWithLab
 	.metadata({
-		actionName: "Get-Clinics-Action",
+		actionName: "Get-Clinics-By-Search-Query-Action",
+		requiredLabRole: "ADMIN",
 	})
 	.inputSchema(SearchInputSchema)
 	.action(async ({ parsedInput, ctx }) => {
-		const { searchQuery } = parsedInput;
-		const { user } = ctx;
-
-		if (!user) {
-			throw ERRORS.UNAUTHORIZED;
-		}
-
-		if (!user.labId) {
-			throw ERRORS.UNAUTHORIZED;
-		}
-
-		// const isolationStatus = await CheckLabIsolation();
-
-		// if (isolationStatus !== "OK") {
-		// 	throw ERRORS.UNAUTHORIZED;
-		// }
+		const { searchQuery, limit } = parsedInput;
+		const { labId } = ctx;
 
 		try {
 			const clinics = await (
-				await tenantPrisma(user.labId)
+				await tenantPrisma(labId)
 			).clinic.findMany({
 				where: {
-					labId: user.labId,
+					labId: labId,
 					name: {
 						startsWith: searchQuery,
 					},
@@ -118,18 +90,23 @@ export const getClinicsAction = actionClientWithSession
 				orderBy: {
 					createdAt: "desc",
 				},
-				take: 10,
+				take: limit,
 				include: {
-					cases: true,
+					lab: true,
 				},
 			});
 
 			return {
-				clinics,
+				clinics: clinics.map((c) => ({
+					...c,
+					currentBalance: Number(c.currentBalance),
+					discount: Number(c.discount),
+					creditLimit: Number(c.creditLimit),
+				})),
 			};
 		} catch (e) {
 			if (e instanceof APIError || e instanceof Error) {
-				console.error("[Get-Clinics-Action] Error", e.message);
+				console.error("[Get-Clinics-By-Search-Query-Action] Error", e.message);
 			}
 			throw e;
 		}

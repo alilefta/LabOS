@@ -4,6 +4,7 @@ import { ProductArgsObjectSchema as ProductArgsObjectSchema } from './ProductArg
 import { LabArgsObjectSchema as LabArgsObjectSchema } from './LabArgs.schema';
 import { CaseArgsObjectSchema as CaseArgsObjectSchema } from './CaseArgs.schema';
 import { CasePricingPlanArgsObjectSchema as CasePricingPlanArgsObjectSchema } from './CasePricingPlanArgs.schema';
+import { WorkTypeArgsObjectSchema as WorkTypeArgsObjectSchema } from './WorkTypeArgs.schema';
 import { SelectedToothFindManySchema as SelectedToothFindManySchema } from '../findManySelectedTooth.schema';
 import { CaseWorkItemCountOutputTypeArgsObjectSchema as CaseWorkItemCountOutputTypeArgsObjectSchema } from './CaseWorkItemCountOutputTypeArgs.schema'
 
@@ -24,6 +25,8 @@ const makeSchema = () => z.object({
   additionalToothPrice: z.boolean().optional(),
   bulkPriceThreshold: z.boolean().optional(),
   jawType: z.boolean().optional(),
+  workTypeId: z.boolean().optional(),
+  workType: z.union([z.boolean(), z.lazy(() => WorkTypeArgsObjectSchema)]).optional(),
   selectedTeeth: z.union([z.boolean(), z.lazy(() => SelectedToothFindManySchema)]).optional(),
   createdAt: z.boolean().optional(),
   updatedAt: z.boolean().optional(),

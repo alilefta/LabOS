@@ -10,6 +10,7 @@ export const CaseWorkItemGroupByResultSchema = z.array(z.object({
   bulkPrice: z.number(),
   additionalToothPrice: z.number(),
   bulkPriceThreshold: z.number(),
+  workTypeId: z.string(),
   createdAt: z.date(),
   updatedAt: z.date(),
   _count: z.object({
@@ -29,6 +30,8 @@ export const CaseWorkItemGroupByResultSchema = z.array(z.object({
     additionalToothPrice: z.number(),
     bulkPriceThreshold: z.number(),
     jawType: z.number(),
+    workTypeId: z.number(),
+    workType: z.number(),
     selectedTeeth: z.number(),
     createdAt: z.number(),
     updatedAt: z.number()
@@ -58,6 +61,7 @@ export const CaseWorkItemGroupByResultSchema = z.array(z.object({
     bulkPrice: z.number().nullable(),
     additionalToothPrice: z.number().nullable(),
     bulkPriceThreshold: z.number().nullable(),
+    workTypeId: z.string().nullable(),
     createdAt: z.date().nullable(),
     updatedAt: z.date().nullable()
   }).nullable().optional(),
@@ -72,6 +76,7 @@ export const CaseWorkItemGroupByResultSchema = z.array(z.object({
     bulkPrice: z.number().nullable(),
     additionalToothPrice: z.number().nullable(),
     bulkPriceThreshold: z.number().nullable(),
+    workTypeId: z.string().nullable(),
     createdAt: z.date().nullable(),
     updatedAt: z.date().nullable()
   }).nullable().optional()

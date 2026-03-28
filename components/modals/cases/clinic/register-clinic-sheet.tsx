@@ -2,7 +2,7 @@
 
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Building2, Sparkles, Loader2 } from "lucide-react";
+import { Building2, Sparkles, Loader2, UserCircle, Briefcase, Stethoscope, GraduationCap, Check } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFooter } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { InputWithLabel } from "@/components/ui/custom/input-with-label";
@@ -13,6 +13,7 @@ import { ClinicDetailsUI, CreateClinicInput, CreateClinicInputSchema } from "@/s
 import { createClinicAction } from "@/actions/clinic";
 import { handleSafeActionError } from "@/lib/safe-action-helpers";
 import { cn } from "@/lib/utils";
+import { ClinicType } from "@/schema/base/enums.base";
 
 interface Props {
 	isOpen: boolean;
@@ -21,6 +22,13 @@ interface Props {
 }
 
 type QueryDataShape = ClinicDetailsUI[];
+
+const CLINIC_TYPE_OPTIONS = [
+	{ id: "SOLO", label: "Solo Practice", icon: UserCircle, desc: "Single Practitioner" },
+	{ id: "CLINIC", label: "Multi-Dentist", icon: Briefcase, desc: "Group Practice" },
+	{ id: "HOSPITAL", label: "Medical Center", icon: Building2, desc: "Hospital/Surgical" },
+	{ id: "UNIVERSITY", label: "Academic", icon: GraduationCap, desc: "School/Research" },
+];
 
 export function RegisterClinicSheet({ isOpen, onClose, onClinicCreated }: Props) {
 	const form = useForm<CreateClinicInput>({
@@ -100,22 +108,52 @@ export function RegisterClinicSheet({ isOpen, onClose, onClinicCreated }: Props)
 					<form id="quick-clinic-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-10">
 						{/* SECTION 1: CLINIC TYPE TOGGLE */}
 						<section className="space-y-4">
-							<label className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground ml-1">Practice Structure</label>
-							<div className="grid grid-cols-2 gap-2 p-1 bg-slate-100 dark:bg-white/5 rounded-xl border border-border">
-								{["CLINIC", "SOLO"].map((type) => (
-									<button
-										key={type}
-										type="button"
-										onClick={() => form.setValue("type", type as any)}
-										className={cn(
-											"flex items-center justify-center gap-2 py-2 text-xs font-bold rounded-lg transition-all",
-											clinicType === type ? "bg-white dark:bg-[#121214] text-primary shadow-sm" : "text-muted-foreground hover:text-foreground",
-										)}
-									>
-										{type === "SOLO" ? <UserCircle className="w-3.5 h-3.5" /> : <Briefcase className="w-3.5 h-3.5" />}
-										{type === "SOLO" ? "Solo Practice" : "Multi-Dentist"}
-									</button>
-								))}
+							<div className="flex items-center justify-between px-1">
+								<label className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">Practice Structure</label>
+								<span className="text-[10px] font-mono text-primary font-bold bg-primary/10 px-2 py-0.5 rounded-md">{clinicType}</span>
+							</div>
+
+							<div className="grid grid-cols-2 gap-3">
+								{CLINIC_TYPE_OPTIONS.map((option) => {
+									const isSelected = clinicType === option.id;
+									return (
+										<button
+											key={option.id}
+											type="button"
+											onClick={() => form.setValue("type", option.id as ClinicType)}
+											className={cn(
+												"relative flex flex-col items-start p-4 rounded-2xl border transition-all duration-300 text-left group",
+												isSelected
+													? "bg-primary/5 border-primary shadow-ai-glow-light ring-1 ring-primary/20"
+													: "bg-card border-border hover:border-primary/40 hover:bg-slate-50/50 dark:hover:bg-white/5",
+											)}
+										>
+											<div
+												className={cn(
+													"w-8 h-8 rounded-lg flex items-center justify-center mb-3 transition-colors",
+													isSelected ? "bg-primary text-white" : "bg-slate-100 dark:bg-white/5 text-slate-400 group-hover:text-primary",
+												)}
+											>
+												<option.icon className="w-4 h-4" />
+											</div>
+
+											<div className="flex flex-col">
+												<span className={cn("text-[13px] font-bold leading-none mb-1", isSelected ? "text-foreground" : "text-muted-foreground group-hover:text-foreground")}>
+													{option.label}
+												</span>
+												<span className="text-[10px] text-muted-foreground font-medium opacity-80">{option.desc}</span>
+											</div>
+
+											{isSelected && (
+												<div className="absolute top-3 right-3 animate-in zoom-in duration-300">
+													<div className="w-4 h-4 rounded-full bg-primary flex items-center justify-center">
+														<Check className="w-2.5 h-2.5 text-white stroke-[4]" />
+													</div>
+												</div>
+											)}
+										</button>
+									);
+								})}
 							</div>
 						</section>
 
@@ -187,7 +225,7 @@ export function RegisterClinicSheet({ isOpen, onClose, onClinicCreated }: Props)
 								<Sparkles className="w-4 h-4 text-ai shrink-0 mt-0.5" />
 								<p className="text-[11px] text-muted-foreground leading-relaxed font-medium">
 									<span className="text-ai font-bold uppercase">Clinical Intelligence:</span>
-									Associating a Lead Dentist helps LabOS track specific preference patterns (e.g. "Dr. Mitchell prefers heavier proximal contacts").
+									Associating a Lead Dentist helps LabOS track specific preference patterns (e.g. &quot;Dr. Mitchell prefers heavier proximal contacts&quot;).
 								</p>
 							</div>
 						</div>
@@ -202,7 +240,7 @@ export function RegisterClinicSheet({ isOpen, onClose, onClinicCreated }: Props)
 						type="submit"
 						disabled={isExecuting || !form.formState.isDirty}
 						form="quick-clinic-form"
-						className="rounded-xl flex items-center justify-center gap-2 h-11 bg-primary shadow-premium font-bold hover:bg-primary/90 transition-all flex-1"
+						className="rounded-xl flex items-center justify-center gap-2 h-11 bg-primary shadow-premium font-bold hover:bg-primary/90 transition-all "
 					>
 						{isExecuting ? <Loader2 className="animate-spin" /> : "Register Partner"}
 					</Button>

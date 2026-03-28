@@ -1,42 +1,27 @@
 "use server";
 
-import { ERRORS } from "@/lib/errors";
-import { CheckLabIsolation } from "@/lib/get-session";
 import { tenantPrisma } from "@/lib/prisma";
-import { actionClientWithSession } from "@/lib/safe-action";
+import { actionClientWithLab } from "@/lib/safe-action";
 import { CaseBase } from "@/schema/base/case.base";
 import { CreatePatientInputSchema } from "@/schema/composed/patient.details";
 import { SearchInputSchema } from "@/schema/composed/shared-schema";
 import { APIError } from "better-auth";
 
-export const createPatientAction = actionClientWithSession
+export const createPatientAction = actionClientWithLab
 	.metadata({
 		actionName: "Create-New-Patient-Action",
+		requiredLabRole: "ADMIN",
 	})
 	.inputSchema(CreatePatientInputSchema)
 	.action(async ({ parsedInput, ctx }) => {
 		const { name, age, notes, description, gender } = parsedInput;
 
-		const { user } = ctx;
-
-		if (!user) {
-			throw ERRORS.UNAUTHORIZED;
-		}
-
-		if (!user.labId) {
-			throw ERRORS.UNAUTHORIZED;
-		}
-
-		const isolationStatus = await CheckLabIsolation();
-
-		if (isolationStatus !== "OK") {
-			throw ERRORS.UNAUTHORIZED;
-		}
+		const { labId } = ctx;
 
 		try {
 			// maybe there is a lab user but the lab ID is not set to that user
 			const patient = await (
-				await tenantPrisma(user.labId)
+				await tenantPrisma(labId)
 			).patient.create({
 				data: {
 					name,
@@ -44,7 +29,7 @@ export const createPatientAction = actionClientWithSession
 					gender: gender ?? null,
 					notes: notes ?? null,
 					description: description ?? null,
-					labId: user.labId,
+					labId: labId,
 				},
 				include: {
 					lab: true,
@@ -62,35 +47,22 @@ export const createPatientAction = actionClientWithSession
 		}
 	});
 
-export const getPatientsAction = actionClientWithSession
+export const getPatientsBySearchQueryAction = actionClientWithLab
 	.metadata({
-		actionName: "Get-Patients-Action",
+		actionName: "Get-Patients-By-Search-Query-Action",
+		requiredLabRole: "ADMIN",
 	})
 	.inputSchema(SearchInputSchema)
 	.action(async ({ parsedInput, ctx }) => {
 		const { searchQuery } = parsedInput;
-		const { user } = ctx;
-
-		if (!user) {
-			throw ERRORS.UNAUTHORIZED;
-		}
-
-		if (!user.labId) {
-			throw ERRORS.UNAUTHORIZED;
-		}
-
-		// const isolationStatus = await CheckLabIsolation();
-
-		// if (isolationStatus !== "OK") {
-		// 	throw ERRORS.UNAUTHORIZED;
-		// }
+		const { labId } = ctx;
 
 		try {
 			const patients = await (
-				await tenantPrisma(user.labId)
+				await tenantPrisma(labId)
 			).patient.findMany({
 				where: {
-					labId: user.labId,
+					labId: labId,
 					name: {
 						startsWith: searchQuery,
 					},
@@ -100,48 +72,42 @@ export const getPatientsAction = actionClientWithSession
 				},
 				take: 10,
 				include: {
+					lab: true,
 					cases: true,
 				},
 			});
 
 			return {
-				patients,
+				patients: patients.map((p) => ({
+					...p,
+					cases: p.cases.map((c) => ({
+						...c,
+						grandTotal: Number(c.grandTotal),
+					})),
+				})),
 			};
 		} catch (e) {
 			if (e instanceof APIError || e instanceof Error) {
-				console.error("[Get-Patients-Action] Error", e.message);
+				console.error("[Get-Patients-By-Search-Query-Action] Error", e.message);
 			}
 			throw e;
 		}
 	});
 
-export const getPatientsForListAction = actionClientWithSession
+export const getPatientsForListAction = actionClientWithLab
 	.metadata({
 		actionName: "Get-Patients-For-List-Action",
+		requiredLabRole: "ADMIN",
 	})
 	.action(async ({ ctx }) => {
-		const { user } = ctx;
-
-		if (!user) {
-			throw ERRORS.UNAUTHORIZED;
-		}
-
-		if (!user.labId) {
-			throw ERRORS.UNAUTHORIZED;
-		}
-
-		// const isolationStatus = await CheckLabIsolation();
-
-		// if (isolationStatus !== "OK") {
-		// 	throw ERRORS.UNAUTHORIZED;
-		// }
+		const { labId } = ctx;
 
 		try {
 			const patients = await (
-				await tenantPrisma(user.labId)
+				await tenantPrisma(labId)
 			).patient.findMany({
 				where: {
-					labId: user.labId,
+					labId: labId,
 				},
 				orderBy: {
 					createdAt: "desc",

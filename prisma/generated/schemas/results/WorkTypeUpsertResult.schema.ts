@@ -7,6 +7,8 @@ export const WorkTypeUpsertResultSchema = z.object({
   product: z.array(z.unknown()),
   labId: z.string(),
   lab: z.unknown(),
+  requireTeethSelection: z.boolean(),
+  caseWorkItems: z.array(z.unknown()),
   caseCategoryId: z.string(),
   caseCategory: z.unknown(),
   createdAt: z.date(),

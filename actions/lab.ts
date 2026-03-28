@@ -11,6 +11,7 @@ import { headers } from "next/headers";
 export const createLabAndLabUser = actionClientWithSession
 	.metadata({
 		actionName: "Create-Lab-And-Lab-User",
+		requiredLabRole: null,
 	})
 	.inputSchema(CreateLabAndLabUserInputSchema)
 	.action(async ({ parsedInput, ctx }) => {

@@ -27,7 +27,6 @@ export function InputWithLabel<S extends FieldValues>({ fieldTitle, nameInSchema
 				{fieldTitle}
 				{isOptional && <span className="text-slate-500 dark:text-zinc-500">(Optional)</span>}
 			</FieldLabel>
-
 			<Input
 				type={type || "text"}
 				{...field}

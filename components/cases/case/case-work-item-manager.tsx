@@ -1,71 +1,102 @@
 "use client";
 
-import { Plus, Trash2, ShieldCheck, Layers } from "lucide-react";
-import { DentalChartSelection } from "./dental-chart-selection";
+import { useState } from "react";
+import { Plus, Trash2, Layers, Edit2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useFormContext, useFieldArray } from "react-hook-form";
+import { CreateCaseInput } from "@/schema/composed/case.details";
+import { WorkItemEditorModal } from "@/components/modals/cases/work-items/work-item-editor-modal";
+// import { WorkItemEditorSheet } from "./work-item-editor-sheet"; // We will build this next
 
 export function CaseWorkItemManager() {
+	const { control, watch } = useFormContext<CreateCaseInput>();
+	const { fields, append, update, remove } = useFieldArray({
+		control,
+		name: "caseWorkItems",
+	});
+
+	const selectedCategoryId = watch("caseCategoryId");
+
+	// null = closed, -1 = adding new, >= 0 = editing existing
+	const [editingIndex, setEditingIndex] = useState<number | null>(null);
+
 	return (
-		<div className="space-y-6">
+		<section className="space-y-4">
 			<div className="flex items-center justify-between">
-				<div className="flex items-center gap-2">
-					<Layers className="w-5 h-5 text-primary" />
-					<h2 className="text-lg font-bold tracking-tight">Case Work Items</h2>
-				</div>
-				<Button variant="outline" size="sm" className="rounded-xl border-dashed border-primary/50 text-primary hover:bg-primary/5">
-					<Plus className="w-4 h-4 mr-2" /> Add Additional Product
+				<h3 className="text-[13px] font-semibold text-slate-700 dark:text-zinc-300">2. Case Work Items</h3>
+				<Button
+					type="button"
+					variant="outline"
+					size="sm"
+					disabled={!selectedCategoryId}
+					onClick={() => setEditingIndex(-1)}
+					className="rounded-xl border-dashed border-primary/50 text-primary hover:bg-primary/5 font-bold"
+				>
+					<Plus className="w-4 h-4 mr-2" /> Add Work Item
 				</Button>
 			</div>
 
-			<div className="lab-card overflow-hidden">
-				{/* Work Item Header */}
-				<div className="p-4 bg-slate-50 dark:bg-white/2 border-b border-border flex items-center justify-between">
-					<div className="flex items-center gap-3">
-						<span className="w-6 h-6 rounded-lg bg-primary text-white text-[10px] font-bold flex items-center justify-center">1</span>
-						<span className="text-sm font-bold text-foreground italic">Product: Zirconia Multi-Layer (Monolithic)</span>
+			<div className="space-y-3">
+				{/* --- EMPTY STATE --- */}
+				{fields.length === 0 && (
+					<div className="h-32 rounded-2xl border-2 border-dashed border-border flex flex-col items-center justify-center bg-slate-50/50 dark:bg-white/1">
+						<Layers className="w-6 h-6 text-slate-300 dark:text-zinc-600 mb-2" />
+						<p className="text-xs font-bold text-foreground">No work items added.</p>
+						<p className="text-[10px] text-muted-foreground mt-1">Select a category above, then add items.</p>
 					</div>
-					<Button variant="ghost" size="icon" className="text-muted-foreground hover:text-destructive">
-						<Trash2 className="w-4 h-4" />
-					</Button>
-				</div>
+				)}
 
-				{/* Work Item Content */}
-				<div className="p-6 space-y-8">
-					{/* Jaw & Teeth Selection */}
-					<div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-						<div className="lg:col-span-4">
-							<label className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground mb-3 block">Jaw Type</label>
-							<div className="flex gap-2">
-								{["Upper", "Lower", "Both"].map((jaw) => (
-									<button key={jaw} className="flex-1 h-10 rounded-xl border border-border text-xs font-bold hover:border-primary transition-all">
-										{jaw}
-									</button>
-								))}
-							</div>
-						</div>
-						<div className="lg:col-span-8">
-							<DentalChartSelection />
-						</div>
-					</div>
+				{/* --- SUMMARY CARDS --- */}
+				{fields.map((field, index) => {
+					const item = watch(`caseWorkItems.${index}`);
+					const hasTeeth = item.selectedTeeth?.length > 0;
 
-					{/* Pricing Details */}
-					<div className="p-4 rounded-2xl bg-emerald-500/5 border border-emerald-500/10 flex items-center justify-between">
-						<div className="flex items-center gap-3">
-							<div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-500">
-								<ShieldCheck className="w-5 h-5" />
+					return (
+						<div key={field.id} className="p-4 bg-card border border-border rounded-2xl flex items-center justify-between group hover:border-primary/40 transition-colors shadow-sm">
+							<div className="flex items-center gap-4">
+								<span className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-white/5 text-muted-foreground text-xs font-bold flex items-center justify-center border border-border">
+									#{index + 1}
+								</span>
+								<div>
+									<div className="flex items-center gap-2">
+										<span className="text-sm font-bold text-foreground">{item.productId ? `Product ID: ${item.productId}` : "Incomplete Work Item"}</span>
+										<span className="text-[9px] font-bold text-muted-foreground bg-slate-100 dark:bg-white/5 px-1.5 py-0.5 rounded-md uppercase">{item.jawType}</span>
+									</div>
+									<p className="text-[11px] text-primary font-mono font-medium mt-1">{hasTeeth ? `Teeth: ${item.selectedTeeth.join(", ")}` : "No teeth mapped"}</p>
+								</div>
 							</div>
-							<div>
-								<p className="text-xs font-bold text-foreground">Standard Pricing Plan Applied</p>
-								<p className="text-[10px] text-muted-foreground uppercase tracking-tight font-medium">Strategy: Bulk Discount (3+ Units)</p>
+
+							<div className="flex items-center gap-4">
+								<div className="text-right">
+									<p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground">Est. Total</p>
+									<p className="text-sm font-mono font-bold text-emerald-500">${Number(item.totalPrice || 0).toFixed(2)}</p>
+								</div>
+								<div className="flex items-center gap-1 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity">
+									<Button type="button" variant="ghost" size="icon" onClick={() => setEditingIndex(index)} className="h-8 w-8 text-muted-foreground hover:text-primary">
+										<Edit2 className="w-4 h-4" />
+									</Button>
+									<Button type="button" variant="ghost" size="icon" onClick={() => remove(index)} className="h-8 w-8 text-muted-foreground hover:text-destructive">
+										<Trash2 className="w-4 h-4" />
+									</Button>
+								</div>
 							</div>
 						</div>
-						<div className="text-right">
-							<p className="text-sm font-mono font-bold text-foreground">$420.00</p>
-							<p className="text-[10px] text-muted-foreground">($140.00 / unit)</p>
-						</div>
-					</div>
-				</div>
+					);
+				})}
 			</div>
-		</div>
+
+			{/* --- THE EDITOR SHEET --- */}
+			<WorkItemEditorModal
+				isOpen={editingIndex !== null}
+				onClose={() => setEditingIndex(null)}
+				// Provide existing data if editing, or defaults if adding new
+				initialData={editingIndex !== null && editingIndex >= 0 ? watch(`caseWorkItems.${editingIndex}`) : null}
+				onSave={(data) => {
+					if (editingIndex === -1) append(data);
+					else if (editingIndex !== null) update(editingIndex, data);
+					setEditingIndex(null);
+				}}
+			/>
+		</section>
 	);
 }

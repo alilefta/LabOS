@@ -15,6 +15,7 @@ const makeSchema = () => z.object({
   additionalToothPrice: SortOrderSchema.optional(),
   bulkPriceThreshold: SortOrderSchema.optional(),
   jawType: SortOrderSchema.optional(),
+  workTypeId: SortOrderSchema.optional(),
   createdAt: SortOrderSchema.optional(),
   updatedAt: SortOrderSchema.optional()
 }).strict();

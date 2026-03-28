@@ -51,6 +51,7 @@ const makeSchema = () => z.object({
   message: "Field 'bulkPriceThreshold' must be a Decimal",
 }).optional().nullable(),
   jawType: JawTypeSchema.optional(),
+  workTypeId: z.string().optional().nullable(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional()
 }).strict();

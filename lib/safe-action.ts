@@ -5,6 +5,10 @@ import z from "zod/v4";
 import { ActionError, ERRORS } from "@/lib/errors";
 import { getServerSession } from "./get-session";
 import { fallbackPayload, sanitizeInput, toPayload } from "./safe-action-helpers";
+import { generalPrisma } from "./prisma";
+import { AuthUserBaseSchema } from "@/schema/base/auth.base";
+import { AuthUser } from "./auth";
+import { LabRole, LabRoleSchema } from "@/schema/base/enums.base";
 
 // ----------------------------------------
 // Base Client
@@ -13,6 +17,7 @@ export const actionClient = createSafeActionClient({
 	defineMetadataSchema() {
 		return z.object({
 			actionName: z.string(),
+			requiredLabRole: LabRoleSchema.nullable(),
 		});
 	},
 	handleServerError(e) {
@@ -65,7 +70,7 @@ export const actionClient = createSafeActionClient({
 // ----------------------------------------
 
 export const loggingMiddleware = createMiddleware<{
-	metadata: { actionName: string };
+	metadata: { actionName: string; requiredLabRole: LabRole | null };
 }>().define(async ({ next, metadata, clientInput }) => {
 	const start = performance.now();
 
@@ -117,41 +122,92 @@ export const requireUserMiddleware = createMiddleware<{ metadata: { actionName: 
 	});
 });
 
-// Optional: Add lab-specific auth
-// export const requireLabMemberMiddleware = createMiddleware<{
-// 	metadata: { actionName: string };
-// }>().define(async ({ next, clientInput }) => {
-// 	// const profile = await getCurrentProfile();
+export const requireLabMiddleware = createMiddleware<{
+	metadata: { actionName: string; requiredLabRole: LabRole | null };
+}>().define(async ({ next, ctx }) => {
+	const { user } = ctx as { user: AuthUser };
 
-// 	if (!profile) {
-// 		throw ERRORS.UNAUTHORIZED;
-// 	}
+	// 1. Session must have labId
+	if (!user.labId) {
+		throw ERRORS.UNAUTHORIZED;
+	}
 
-// 	const labId = (clientInput as any).labId;
+	// 2. Verify lab actually exists in DB — don't trust session alone
+	const lab = await generalPrisma.lab.findUnique({
+		where: { id: user.labId },
+		select: { id: true, title: true, slug: true },
+	});
 
-// 	if (!labId) {
-// 		throw new ActionError("Server ID required");
-// 	}
+	if (!lab) {
+		throw ERRORS.LAB_NOT_FOUND;
+	}
 
-// 	const member = await prisma.member.findFirst({
-// 		where: {
-// 			profileId: profile.id,
-// 			labId,
-// 		},
-// 	});
+	// 3. Verify LabUser record exists and belongs to this lab
+	const labUser = await generalPrisma.labUser.findUnique({
+		where: { authUserId: user.id },
+		select: { id: true, labId: true, role: true, isActive: true },
+	});
 
-// 	if (!member) {
-// 		throw ERRORS.NOT_MEMBER;
-// 	}
+	if (!labUser) {
+		throw ERRORS.NOT_MEMBER;
+	}
 
-// 	return next({
-// 		ctx: {
-// 			profile, // Non-null
-// 			member, // Non-null
-// 			labId,
-// 		},
-// 	});
-// });
+	// 4. Cross-check session labId matches DB labUser.labId
+	// This is the tamper-proof check
+	if (labUser.labId !== user.labId) {
+		console.error("[Security] labId mismatch", {
+			sessionLabId: user.labId,
+			dbLabId: labUser.labId,
+			userId: user.id,
+		});
+		throw ERRORS.FORBIDDEN;
+	}
 
-// auth action client
+	// 5. Account must be active
+	if (!labUser.isActive) {
+		throw ERRORS.FORBIDDEN;
+	}
+
+	return next({
+		ctx: {
+			user,
+			lab, // verified lab
+			labUser, // verified lab membership with role
+			labId: lab.id, // convenience shorthand
+		},
+	});
+});
+
+// the shape of LabRole: type LabRole = "OWNER" | "MANAGER" | "ADMIN" | "STAFF"
+
+const ROLE_HIERARCHY: Record<LabRole, number> = {
+	OWNER: 4,
+	MANAGER: 3,
+	ADMIN: 2,
+	STAFF: 1,
+};
+
+export const requireRoleMiddleware = createMiddleware<{
+	metadata: { actionName: string; requiredLabRole: LabRole | null };
+}>().define(async ({ next, ctx, metadata }) => {
+	const { labUser } = ctx as { labUser: { role: LabRole } };
+
+	if (!metadata.requiredLabRole) {
+		return next({ ctx });
+	}
+
+	const userLevel = ROLE_HIERARCHY[labUser.role];
+	const requiredLevel = ROLE_HIERARCHY[metadata.requiredLabRole];
+
+	if (userLevel < requiredLevel) {
+		throw ERRORS.MISSING_PERMISSIONS;
+	}
+
+	return next({ ctx });
+});
+
+// Requires valid session only (for onboarding actions)
 export const actionClientWithSession = actionClient.use(loggingMiddleware).use(requireUserMiddleware);
+
+// Requires session + verified lab + optional role check
+export const actionClientWithLab = actionClient.use(loggingMiddleware).use(requireUserMiddleware).use(requireLabMiddleware).use(requireRoleMiddleware);

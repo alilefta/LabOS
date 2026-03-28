@@ -21,6 +21,7 @@ const makeSchema = () => z.object({
   additionalToothPrice: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
   bulkPriceThreshold: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
   jawType: SortOrderSchema.optional(),
+  workTypeId: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
   createdAt: SortOrderSchema.optional(),
   updatedAt: SortOrderSchema.optional(),
   _count: z.lazy(() => CaseWorkItemCountOrderByAggregateInputObjectSchema).optional(),

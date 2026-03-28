@@ -6,6 +6,7 @@ import { CasePricingPlanBaseSchema } from "../base/case-pricing-plan.base";
 import { DentistBaseSchema } from "../base/dentist.base";
 import { ClinicStatusSchema, ClinicTypeSchema } from "../base/enums.base";
 import { CreatePrimaryDentistInputSchema } from "./dentist.details";
+import { emptyToUndefinedTransformer } from "../base/utils.base";
 
 export const ClinicDetailsSchema = ClinicBaseSchema.extend({
 	lab: LabBaseSchema,
@@ -17,42 +18,57 @@ export const ClinicDetailsSchema = ClinicBaseSchema.extend({
 export type ClinicDetails = z.infer<typeof ClinicDetailsSchema>;
 
 export const ClinicDetailsUISchema = ClinicBaseSchema.extend({
-	lab: LabBaseSchema.nullable(),
-	cases: z.array(CaseBaseSchema).nullable(),
-	dentists: z.array(DentistBaseSchema).nullable(),
-	casePricingPlans: z.array(CasePricingPlanBaseSchema).nullable(),
+	lab: LabBaseSchema,
+	cases: z.array(CaseBaseSchema).optional(),
+	dentists: z.array(DentistBaseSchema).optional(),
+	casePricingPlans: z.array(CasePricingPlanBaseSchema).optional(),
 });
 
 export type ClinicDetailsUI = z.infer<typeof ClinicDetailsUISchema>;
 
-const emptyToUndefined = (v: string) => (v === "" ? undefined : v); // used inside transform(emptyToUndefined)
-
-// const optionalEmail = z
-// 	.string()
-// 	.trim()
-// 	.transform(emptyToUndefined)
-// 	.optional()
-// 	.pipe(z.email({ message: "Please enter a valid email address." }).optional());
+const optionalEmail = z
+	.string()
+	.trim()
+	.transform(emptyToUndefinedTransformer)
+	.optional()
+	.pipe(z.email({ message: "Please enter a valid email address." }).optional());
 
 export const CreateClinicInputSchema = z.object({
-	name: z.string(),
-	description: z.string().transform(emptyToUndefined).optional(),
-	website: z.string().transform(emptyToUndefined).optional(),
-	notes: z.string().transform(emptyToUndefined).optional(),
+	name: z.string().trim().min(2, "Clinic name must be at least 2 characters."),
+
+	description: z.string().trim().transform(emptyToUndefinedTransformer).optional(),
+
+	website: z.string().trim().transform(emptyToUndefinedTransformer).optional().pipe(z.string().url("Please enter a valid website URL.").optional()),
+
+	notes: z.string().trim().transform(emptyToUndefinedTransformer).optional(),
+
 	status: ClinicStatusSchema,
+
 	type: ClinicTypeSchema,
-	city: z.string(),
-	zipcode: z.string().transform(emptyToUndefined).optional(),
-	address1: z.string(),
-	address2: z.string().transform(emptyToUndefined).optional(),
-	email: z.string(),
-	phoneNumber: z.string(),
-	billingEmail: z.string().transform(emptyToUndefined).optional(),
-	billingPhoneNumber: z.string().transform(emptyToUndefined).optional(),
-	taxNumber: z.string().transform(emptyToUndefined).optional(),
-	discount: z.number().optional(),
-	creditLimit: z.number().optional(),
-	currentBalance: z.number(),
+
+	city: z.string().trim().min(2, "City is required."),
+
+	zipcode: z.string().trim().transform(emptyToUndefinedTransformer).optional(),
+
+	address1: z.string().trim().min(3, "Address is required."),
+
+	address2: z.string().trim().transform(emptyToUndefinedTransformer).optional(),
+
+	email: z.string().trim().email("Please enter a valid email address."),
+
+	phoneNumber: z.string().trim().min(7, "Please enter a valid phone number."),
+
+	billingEmail: optionalEmail,
+
+	billingPhoneNumber: z.string().trim().transform(emptyToUndefinedTransformer).optional(),
+
+	taxNumber: z.string().trim().transform(emptyToUndefinedTransformer).optional(),
+
+	discount: z.number().min(0, "Discount cannot be negative.").max(100, "Discount cannot exceed 100%.").optional(),
+
+	creditLimit: z.number().min(0, "Credit limit cannot be negative.").optional(),
+
+	currentBalance: z.number().min(0, "Current balance cannot be negative."),
 	primaryDentist: CreatePrimaryDentistInputSchema,
 });
 

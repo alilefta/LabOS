@@ -15,6 +15,7 @@ const makeSchema = () => z.object({
   additionalToothPrice: z.literal(true).optional(),
   bulkPriceThreshold: z.literal(true).optional(),
   jawType: z.literal(true).optional(),
+  workTypeId: z.literal(true).optional(),
   createdAt: z.literal(true).optional(),
   updatedAt: z.literal(true).optional(),
   _all: z.literal(true).optional()

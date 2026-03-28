@@ -7,6 +7,8 @@ export const WorkTypeAggregateResultSchema = z.object({  _count: z.object({
     product: z.number(),
     labId: z.number(),
     lab: z.number(),
+    requireTeethSelection: z.number(),
+    caseWorkItems: z.number(),
     caseCategoryId: z.number(),
     caseCategory: z.number(),
     createdAt: z.number(),

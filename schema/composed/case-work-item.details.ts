@@ -7,6 +7,8 @@ import { CasePricingPlanBaseSchema } from "../base/case-pricing-plan.base";
 
 import { SelectedToothBaseSchema } from "../base/selected-tooth.base";
 import { JawTypeSchema, PricingStrategySchema } from "../base/enums.base";
+import { WorkTypeBaseSchema } from "../base/worktype.base";
+import { CreateSelectedToothInputSchema } from "./selected-tooth.details";
 
 export const CaseWorkItemDetailsSchema = CaseWorkItemBaseSchema.extend({
 	product: ProductBaseSchema.nullable(),
@@ -14,6 +16,7 @@ export const CaseWorkItemDetailsSchema = CaseWorkItemBaseSchema.extend({
 	casePricingPlan: CasePricingPlanBaseSchema,
 	dentalCase: CaseBaseSchema,
 	selectedTeeth: z.array(SelectedToothBaseSchema),
+	workType: WorkTypeBaseSchema.nullable(),
 });
 
 export type CaseWorkItemBase = z.infer<typeof CaseWorkItemBaseSchema>;
@@ -29,6 +32,8 @@ export const CreateCaseWorkItemInputSchema = z.object({
 	bulkPrice: z.number().nullable(),
 	additionalToothPrice: z.number().nullable(),
 	bulkPriceThreshold: z.number().nullable(),
+	selectedTeeth: z.array(CreateSelectedToothInputSchema),
+
 	jawType: JawTypeSchema,
 });
 

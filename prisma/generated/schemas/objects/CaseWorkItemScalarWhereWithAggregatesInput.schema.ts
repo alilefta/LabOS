@@ -62,6 +62,7 @@ const caseworkitemscalarwherewithaggregatesinputSchema = z.object({
   message: "Field 'bulkPriceThreshold' must be a Decimal",
 })]).optional().nullable(),
   jawType: z.union([z.lazy(() => EnumJawTypeWithAggregatesFilterObjectSchema), JawTypeSchema]).optional(),
+  workTypeId: z.union([z.lazy(() => StringNullableWithAggregatesFilterObjectSchema), z.string()]).optional().nullable(),
   createdAt: z.union([z.lazy(() => DateTimeWithAggregatesFilterObjectSchema), z.coerce.date()]).optional(),
   updatedAt: z.union([z.lazy(() => DateTimeWithAggregatesFilterObjectSchema), z.coerce.date()]).optional()
 }).strict();

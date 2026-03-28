@@ -1,7 +1,7 @@
 "use client";
 
 import z from "zod";
-import { HierarchicalClinicalPicker } from "../case/hierarchical-clinical-picker";
+import { HierarchicalClinicalPicker } from "../case/case-category-selector";
 import { CaseWorkItemManager } from "../case/case-work-item-manager";
 import { CaseFileUploadZone } from "../case/case-file-upload-zone";
 import { ClinicalAssetPreview } from "../case/clinical-assets-preview";

@@ -29,12 +29,17 @@ const optionalEmail = z
 	.pipe(z.email({ message: "Please enter a valid email address." }).optional());
 
 export const CreatePrimaryDentistInputSchema = z.object({
-	name: z.string().trim().min(2, "Dentist name is required"),
+	name: z.string().trim().min(2, "Dentist name must be at least 2 characters."),
+
 	email: optionalEmail,
-	phoneNumber: z.string().trim().optional(),
+
+	phoneNumber: z.string().trim().transform(emptyToUndefinedTransformer).optional(),
+
 	isOwner: z.boolean().default(true).optional(),
+
 	isDefault: z.boolean().default(true).optional(),
-	notes: z.string().optional(),
+
+	notes: z.string().trim().transform(emptyToUndefinedTransformer).optional(),
 });
 
 export type CreatePrimaryDentistInput = z.infer<typeof CreatePrimaryDentistInputSchema>;

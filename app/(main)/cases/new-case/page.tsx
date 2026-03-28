@@ -4,10 +4,9 @@ import { CaseAiAuditor } from "@/components/cases/new-case/case-ai-auditor";
 
 import { CaseSummaryModal } from "@/components/cases/case/case-summary-modal";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { NewCaseHeader } from "@/components/cases/new-case/new-case-header";
 import { FormProvider, useForm } from "react-hook-form";
-import { HierarchicalClinicalPicker } from "@/components/cases/case/hierarchical-clinical-picker";
+import { CaseCategorySelector } from "@/components/cases/case/case-category-selector";
 import { CaseWorkItemManager } from "@/components/cases/case/case-work-item-manager";
 import { CaseFileUploadZone } from "@/components/cases/case/case-file-upload-zone";
 import { ClinicalAssetPreview } from "@/components/cases/case/clinical-assets-preview";
@@ -18,7 +17,7 @@ import { RegisterPatientSheet } from "@/components/modals/cases/patient/create-p
 import { PatientDetails } from "@/schema/composed/patient.details";
 import { RegisterClinicSheet } from "@/components/modals/cases/clinic/register-clinic-sheet";
 
-import { ClinicDetails } from "@/schema/composed/clinic.details";
+import { ClinicDetailsUI } from "@/schema/composed/clinic.details";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 export default function NewCasePage() {
@@ -29,7 +28,7 @@ export default function NewCasePage() {
 	const [openCreateNewClinicSheet, setOpenCreateNewClinicSheet] = useState(false);
 
 	const [newPatient, setNewPatient] = useState<PatientDetails | null>(null);
-	const [newClinic, setNewClinic] = useState<ClinicDetails | null>(null);
+	const [newClinic, setNewClinic] = useState<ClinicDetailsUI | null>(null);
 
 	const form = useForm<CreateCaseInput>({
 		resolver: zodResolver(CreateCaseInputSchema),
@@ -75,6 +74,10 @@ export default function NewCasePage() {
 		}
 	};
 
+	useEffect(() => {
+		console.log(form.formState.dirtyFields);
+	}, [form.formState.dirtyFields]);
+
 	const handleSaveDraft = () => {
 		// should store draft to db.
 		console.log("Draft Data:", draftData);
@@ -97,18 +100,17 @@ export default function NewCasePage() {
 									newCreatedClinic={newClinic}
 								/>
 								{/* SECTION 2: THE PRODUCT */}
-								<section className="space-y-6">
+								<section className="space-y-8">
 									<div className="flex items-center gap-3">
 										<div className="w-1.5 h-6 bg-primary rounded-full" />
 										<h2 className="text-xl font-bold tracking-tight">Clinical Prescription</h2>
 									</div>
-									<HierarchicalClinicalPicker />
+
+									<CaseCategorySelector />
+									<CaseWorkItemManager />
 								</section>
 
-								{/* SECTION 3: THE WORK DETAILS */}
-								<CaseWorkItemManager />
-
-								{/* SECTION 4: LOGISTICS & FILES */}
+								{/* SECTION 3: LOGISTICS & FILES */}
 								<section className="space-y-8">
 									<div className="flex items-center gap-3">
 										<div className="w-1.5 h-6 bg-primary rounded-full" />

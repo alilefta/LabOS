@@ -17,6 +17,8 @@ import { CaseScalarRelationFilterObjectSchema as CaseScalarRelationFilterObjectS
 import { CaseWhereInputObjectSchema as CaseWhereInputObjectSchema } from './CaseWhereInput.schema';
 import { CasePricingPlanScalarRelationFilterObjectSchema as CasePricingPlanScalarRelationFilterObjectSchema } from './CasePricingPlanScalarRelationFilter.schema';
 import { CasePricingPlanWhereInputObjectSchema as CasePricingPlanWhereInputObjectSchema } from './CasePricingPlanWhereInput.schema';
+import { WorkTypeNullableScalarRelationFilterObjectSchema as WorkTypeNullableScalarRelationFilterObjectSchema } from './WorkTypeNullableScalarRelationFilter.schema';
+import { WorkTypeWhereInputObjectSchema as WorkTypeWhereInputObjectSchema } from './WorkTypeWhereInput.schema';
 import { SelectedToothListRelationFilterObjectSchema as SelectedToothListRelationFilterObjectSchema } from './SelectedToothListRelationFilter.schema'
 
 import { DecimalJSLikeSchema, isValidDecimalInput } from '../../helpers/decimal-helpers';
@@ -71,12 +73,14 @@ const caseworkitemwhereinputSchema = z.object({
   message: "Field 'bulkPriceThreshold' must be a Decimal",
 })]).optional().nullable(),
   jawType: z.union([z.lazy(() => EnumJawTypeFilterObjectSchema), JawTypeSchema]).optional(),
+  workTypeId: z.union([z.lazy(() => StringNullableFilterObjectSchema), z.string()]).optional().nullable(),
   createdAt: z.union([z.lazy(() => DateTimeFilterObjectSchema), z.coerce.date()]).optional(),
   updatedAt: z.union([z.lazy(() => DateTimeFilterObjectSchema), z.coerce.date()]).optional(),
   product: z.union([z.lazy(() => ProductNullableScalarRelationFilterObjectSchema), z.lazy(() => ProductWhereInputObjectSchema)]).optional(),
   Lab: z.union([z.lazy(() => LabScalarRelationFilterObjectSchema), z.lazy(() => LabWhereInputObjectSchema)]).optional(),
   dentalCase: z.union([z.lazy(() => CaseScalarRelationFilterObjectSchema), z.lazy(() => CaseWhereInputObjectSchema)]).optional(),
   casePricingPlan: z.union([z.lazy(() => CasePricingPlanScalarRelationFilterObjectSchema), z.lazy(() => CasePricingPlanWhereInputObjectSchema)]).optional(),
+  workType: z.union([z.lazy(() => WorkTypeNullableScalarRelationFilterObjectSchema), z.lazy(() => WorkTypeWhereInputObjectSchema)]).optional(),
   selectedTeeth: z.lazy(() => SelectedToothListRelationFilterObjectSchema).optional()
 }).strict();
 export const CaseWorkItemWhereInputObjectSchema: z.ZodType<Prisma.CaseWorkItemWhereInput> = caseworkitemwhereinputSchema as unknown as z.ZodType<Prisma.CaseWorkItemWhereInput>;

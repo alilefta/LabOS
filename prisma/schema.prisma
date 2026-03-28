@@ -334,6 +334,10 @@ model CaseWorkItem {
 
   jawType JawType @default(UPPER)
 
+
+  workTypeId String?
+  workType   WorkType? @relation(fields: [workTypeId], references: [id], onDelete: SetNull)
+
   selectedTeeth SelectedTooth[]
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
@@ -393,6 +397,10 @@ model WorkType {
   labId   String
   lab     Lab       @relation(fields: [labId], references: [id], onDelete: Cascade)
 
+  requireTeethSelection Boolean @default(false)
+
+  caseWorkItems   CaseWorkItem[]
+
   caseCategoryId String
   caseCategory   CaseCategory @relation(fields: [caseCategoryId], references: [id], onDelete: Cascade)
 
@@ -442,6 +450,8 @@ model CasePricingPlan {
   productId String?   // if pricing is per-product
   product   Product?  @relation(fields: [productId], references: [id], onDelete: SetNull)
 
+
+
   clinicId  String?   // if pricing is per-clinic (custom deals)
   clinic    Clinic?   @relation(fields: [clinicId], references: [id], onDelete: SetNull)
 
@@ -455,8 +465,6 @@ model CasePricingPlan {
 
   @@index([labId])
 }
-
-
 
 model SelectedTooth {
   id             String        @id @default(uuid())

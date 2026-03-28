@@ -8,6 +8,7 @@ const makeSchema = () => z.object({
   description: SortOrderSchema.optional(),
   imageUrl: SortOrderSchema.optional(),
   labId: SortOrderSchema.optional(),
+  requireTeethSelection: SortOrderSchema.optional(),
   caseCategoryId: SortOrderSchema.optional(),
   createdAt: SortOrderSchema.optional(),
   updatedAt: SortOrderSchema.optional()

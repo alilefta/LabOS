@@ -6,6 +6,7 @@ import { ProductOrderByWithRelationInputObjectSchema as ProductOrderByWithRelati
 import { LabOrderByWithRelationInputObjectSchema as LabOrderByWithRelationInputObjectSchema } from './LabOrderByWithRelationInput.schema';
 import { CaseOrderByWithRelationInputObjectSchema as CaseOrderByWithRelationInputObjectSchema } from './CaseOrderByWithRelationInput.schema';
 import { CasePricingPlanOrderByWithRelationInputObjectSchema as CasePricingPlanOrderByWithRelationInputObjectSchema } from './CasePricingPlanOrderByWithRelationInput.schema';
+import { WorkTypeOrderByWithRelationInputObjectSchema as WorkTypeOrderByWithRelationInputObjectSchema } from './WorkTypeOrderByWithRelationInput.schema';
 import { SelectedToothOrderByRelationAggregateInputObjectSchema as SelectedToothOrderByRelationAggregateInputObjectSchema } from './SelectedToothOrderByRelationAggregateInput.schema'
 
 const makeSchema = () => z.object({
@@ -21,12 +22,14 @@ const makeSchema = () => z.object({
   additionalToothPrice: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
   bulkPriceThreshold: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
   jawType: SortOrderSchema.optional(),
+  workTypeId: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
   createdAt: SortOrderSchema.optional(),
   updatedAt: SortOrderSchema.optional(),
   product: z.lazy(() => ProductOrderByWithRelationInputObjectSchema).optional(),
   Lab: z.lazy(() => LabOrderByWithRelationInputObjectSchema).optional(),
   dentalCase: z.lazy(() => CaseOrderByWithRelationInputObjectSchema).optional(),
   casePricingPlan: z.lazy(() => CasePricingPlanOrderByWithRelationInputObjectSchema).optional(),
+  workType: z.lazy(() => WorkTypeOrderByWithRelationInputObjectSchema).optional(),
   selectedTeeth: z.lazy(() => SelectedToothOrderByRelationAggregateInputObjectSchema).optional()
 }).strict();
 export const CaseWorkItemOrderByWithRelationInputObjectSchema: z.ZodType<Prisma.CaseWorkItemOrderByWithRelationInput> = makeSchema() as unknown as z.ZodType<Prisma.CaseWorkItemOrderByWithRelationInput>;

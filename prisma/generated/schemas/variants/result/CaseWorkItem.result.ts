@@ -19,6 +19,8 @@ export const CaseWorkItemResultSchema = z.object({
     additionalToothPrice: z.number().nullable(),
     bulkPriceThreshold: z.number().nullable(),
     jawType: JawTypeSchema,
+    workTypeId: z.string().nullable(),
+    workType: z.unknown().nullable(),
     selectedTeeth: z.array(z.unknown()),
     createdAt: z.date(),
     updatedAt: z.date()
