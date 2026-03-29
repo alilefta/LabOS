@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { signOut } from "@/lib/auth-client";
 
 const mainNav = [
 	{ title: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
@@ -142,7 +143,13 @@ export function DashboardSidebar() {
 							<Settings className="w-4 h-4 mr-2" /> Settings
 						</DropdownMenuItem>
 						<DropdownMenuSeparator className="bg-border" />
-						<DropdownMenuItem className="rounded-lg cursor-pointer text-destructive focus:text-destructive">
+						<DropdownMenuItem
+							className="rounded-lg cursor-pointer text-destructive focus:text-destructive"
+							onClick={() => {
+								signOut();
+								router.refresh();
+							}}
+						>
 							<LogOut className="w-4 h-4 mr-2" /> Log out
 						</DropdownMenuItem>
 					</DropdownMenuContent>

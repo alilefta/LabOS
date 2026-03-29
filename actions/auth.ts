@@ -14,12 +14,13 @@ export const signInAction = actionClient
 	.inputSchema(SignInUserInputSchema)
 	.action(async ({ ctx, parsedInput }) => {
 		const { email, password, rememberMe } = parsedInput;
+		console.log("Recieved Auth OBJ:", parsedInput);
 		try {
 			const result = await auth.api.signInEmail({
 				body: {
 					email,
 					password,
-					rememberMe,
+					rememberMe: rememberMe ?? false,
 					callbackURL: SIGN_IN_CALLBACK_URL,
 				},
 			});
@@ -48,7 +49,7 @@ export const signUpAction = actionClient
 					name,
 					email,
 					password,
-					rememberMe,
+					rememberMe: rememberMe ?? false,
 					callbackURL: SIGN_UP_CALLBACK_URL,
 				},
 			});

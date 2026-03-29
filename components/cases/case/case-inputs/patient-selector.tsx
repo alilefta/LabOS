@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useEffect, useMemo, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import { Check, ChevronsUpDown, UserPlus, History, Loader2, Activity } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -16,7 +16,13 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 type DataShape = PatientDetailsUI[];
 
-export const PatientSelector = memo(({ onSelect, onCreateNew, newCreatedPatient }: { onSelect: (id: string) => void; onCreateNew: () => void; newCreatedPatient: PatientDetailsUI | null }) => {
+interface PatientSelector {
+	onSelect: (id: string) => void;
+	onCreateNew: () => void;
+	newCreatedPatient: PatientDetailsUI | null;
+}
+
+export const PatientSelector = memo(({ onCreateNew, newCreatedPatient, onSelect }: PatientSelector) => {
 	const [open, setOpen] = useState(false);
 	const [selectedId, setSelectedId] = useState("");
 	const [search, setSearch] = useState("");
@@ -54,6 +60,21 @@ export const PatientSelector = memo(({ onSelect, onCreateNew, newCreatedPatient 
 		});
 	}, [newCreatedPatient, queryClient, queryKey]);
 
+	const handleSelect = useCallback(
+		(patientId: string) => {
+			setSelectedId(patientId);
+			onSelect(patientId);
+			setOpen(false);
+		},
+		[onSelect],
+	);
+
+	const handleCreateNew = useCallback(() => {
+		setOpen(false);
+		onCreateNew();
+		setSearch("");
+	}, [onCreateNew]);
+
 	const patients = fetchedPatients || [];
 
 	return (
@@ -84,14 +105,7 @@ export const PatientSelector = memo(({ onSelect, onCreateNew, newCreatedPatient 
 							{!isFetching && patients.length === 0 && (
 								<CommandEmpty className="p-6 text-center">
 									<p className="text-xs text-muted-foreground mb-4">No record found for &quot;{search}&quot;</p>
-									<Button
-										onClick={() => {
-											setOpen(false);
-											onCreateNew();
-											setSearch("");
-										}}
-										className="w-full rounded-xl bg-primary shadow-ai-glow-light font-bold"
-									>
+									<Button onClick={handleCreateNew} className="w-full rounded-xl bg-primary shadow-ai-glow-light font-bold">
 										<UserPlus className="w-4 h-4 mr-2" /> Register New Clinical Profile
 									</Button>
 								</CommandEmpty>
@@ -99,16 +113,7 @@ export const PatientSelector = memo(({ onSelect, onCreateNew, newCreatedPatient 
 
 							<CommandGroup heading="Matching Clinical Profiles">
 								{patients.map((patient) => (
-									<PatientSearchItem
-										key={patient.id}
-										patient={patient}
-										isSelected={selectedId === patient.id}
-										onSelect={(id) => {
-											setSelectedId(id);
-											onSelect(id);
-											setOpen(false);
-										}}
-									/>
+									<PatientSearchItem key={patient.id} patient={patient} isSelected={selectedId === patient.id} onSelect={(id) => handleSelect(id)} />
 								))}
 							</CommandGroup>
 						</CommandList>

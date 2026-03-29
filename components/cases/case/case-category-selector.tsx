@@ -1,6 +1,6 @@
 "use client";
 
-import { useFormContext } from "react-hook-form";
+import { useFieldArray, useFormContext } from "react-hook-form";
 import { Check, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -14,8 +14,24 @@ const CATEGORIES = [
 ];
 
 export function CaseCategorySelector() {
-	const { watch, setValue } = useFormContext<CreateCaseInput>();
+	const { watch, setValue, control } = useFormContext<CreateCaseInput>();
 	const selectedCat = watch("caseCategoryId");
+	// We need access to the fields to check if we should clear them
+	const { fields, remove } = useFieldArray({ control, name: "caseWorkItems" });
+
+	const handleCategoryChange = (catId: string) => {
+		if (selectedCat === catId) return; // Do nothing if clicking same category
+
+		if (fields.length > 0) {
+			// In a real app, you might want a confirmation modal here.
+			// For now, we clear the work items to maintain schema integrity.
+			const confirmChange = window.confirm("Changing categories will remove your current work items. Continue?");
+			if (!confirmChange) return;
+			remove(); // Clears all items
+		}
+
+		setValue("caseCategoryId", catId, { shouldValidate: true });
+	};
 
 	return (
 		<section className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-500">
@@ -36,7 +52,7 @@ export function CaseCategorySelector() {
 					<button
 						key={cat.id}
 						type="button"
-						onClick={() => setValue("caseCategoryId", cat.id, { shouldValidate: true })}
+						onClick={() => handleCategoryChange(cat.id)}
 						className={cn(
 							"lab-card p-4 flex flex-col items-start text-left transition-all duration-300 group relative overflow-hidden",
 							selectedCat === cat.id ? "ring-2 ring-primary border-transparent bg-primary/5 shadow-ai-glow-light" : "hover:border-primary/40 bg-card border-border",
@@ -55,7 +71,7 @@ export function CaseCategorySelector() {
 
 						{selectedCat === cat.id && (
 							<div className="absolute top-3 right-3 w-5 h-5 rounded-full bg-primary flex items-center justify-center text-white animate-in zoom-in">
-								<Check className="w-3 h-3 stroke-[3]" />
+								<Check className="w-3 h-3 stroke-3" />
 							</div>
 						)}
 					</button>

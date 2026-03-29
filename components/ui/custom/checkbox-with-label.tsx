@@ -14,10 +14,10 @@ type Props<S extends FieldValues> = {
 	disabled?: boolean;
 };
 
-export function CheckboxWithLabel<S extends FieldValues>({ fieldTitle, nameInSchema, className, fieldState, field, disabled = false, ...props }: Props<S>) {
+export function CheckboxWithLabel<S extends FieldValues>({ fieldTitle, nameInSchema, className, fieldState, field, disabled = false }: Props<S>) {
 	return (
 		<Field data-invalid={fieldState.invalid} orientation={"horizontal"}>
-			<Checkbox {...field} {...props} id={nameInSchema} aria-invalid={fieldState.invalid} className={className} disabled={disabled} />
+			<Checkbox {...field} id={nameInSchema} aria-invalid={fieldState.invalid} className={className} disabled={disabled} onCheckedChange={field.onChange} checked={field.value} />
 			<FieldLabel htmlFor={nameInSchema}>{fieldTitle}</FieldLabel>
 
 			{fieldState.invalid && <FieldError errors={[fieldState.error]} />}
