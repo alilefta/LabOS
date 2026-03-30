@@ -20,5 +20,5 @@ const makeSchema = () => z.object({
   caseWorkItems: z.lazy(() => CaseWorkItemUpdateManyWithoutWorkTypeNestedInputObjectSchema).optional(),
   caseCategory: z.lazy(() => CaseCategoryUpdateOneRequiredWithoutWorkTypesNestedInputObjectSchema).optional()
 }).strict();
-export const WorkTypeUpdateWithoutProductInputObjectSchema: z.ZodType<Prisma.WorkTypeUpdateWithoutProductInput> = makeSchema() as unknown as z.ZodType<Prisma.WorkTypeUpdateWithoutProductInput>;
-export const WorkTypeUpdateWithoutProductInputObjectZodSchema = makeSchema();
+export const WorkTypeUpdateWithoutProductsInputObjectSchema: z.ZodType<Prisma.WorkTypeUpdateWithoutProductsInput> = makeSchema() as unknown as z.ZodType<Prisma.WorkTypeUpdateWithoutProductsInput>;
+export const WorkTypeUpdateWithoutProductsInputObjectZodSchema = makeSchema();

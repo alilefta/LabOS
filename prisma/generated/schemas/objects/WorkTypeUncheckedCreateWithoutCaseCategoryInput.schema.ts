@@ -12,7 +12,7 @@ const makeSchema = () => z.object({
   requireTeethSelection: z.boolean().optional(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
-  product: z.lazy(() => ProductUncheckedCreateNestedManyWithoutWorkTypeInputObjectSchema).optional(),
+  products: z.lazy(() => ProductUncheckedCreateNestedManyWithoutWorkTypeInputObjectSchema).optional(),
   caseWorkItems: z.lazy(() => CaseWorkItemUncheckedCreateNestedManyWithoutWorkTypeInputObjectSchema).optional()
 }).strict();
 export const WorkTypeUncheckedCreateWithoutCaseCategoryInputObjectSchema: z.ZodType<Prisma.WorkTypeUncheckedCreateWithoutCaseCategoryInput> = makeSchema() as unknown as z.ZodType<Prisma.WorkTypeUncheckedCreateWithoutCaseCategoryInput>;

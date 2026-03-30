@@ -12,7 +12,7 @@ const makeSchema = () => z.object({
   requireTeethSelection: z.boolean().optional(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
-  product: z.lazy(() => ProductCreateNestedManyWithoutWorkTypeInputObjectSchema).optional(),
+  products: z.lazy(() => ProductCreateNestedManyWithoutWorkTypeInputObjectSchema).optional(),
   lab: z.lazy(() => LabCreateNestedOneWithoutWorkTypesInputObjectSchema),
   caseWorkItems: z.lazy(() => CaseWorkItemCreateNestedManyWithoutWorkTypeInputObjectSchema).optional()
 }).strict();

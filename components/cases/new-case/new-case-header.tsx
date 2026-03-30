@@ -6,30 +6,44 @@ import { Button } from "@/components/ui/button";
 
 export function NewCaseHeader({ isSubmitForReviewEnabled, onSaveDraft }: { isSubmitForReviewEnabled: boolean; onSaveDraft: () => void }) {
 	return (
-		<header className="shrink-0 flex items-center justify-between mb-8 sticky top-0 z-20 bg-background/80 backdrop-blur-md pb-4 border-b border-border/50">
-			<div className="flex items-center gap-4">
-				<Link href="/cases">
-					<Button variant="outline" size="icon" className="rounded-xl border-border bg-transparent">
-						<ChevronLeft className="w-4 h-4" />
+		<header className="shrink-0 flex flex-col md:flex-row md:items-center justify-between gap-4 sm:gap-6 mb-6 sm:mb-8 sticky top-0 z-20 bg-background/80 backdrop-blur-xl pt-4 pb-4 border-b border-border">
+			{/* LEFT: Title & Context */}
+			<div className="flex items-start sm:items-center gap-3 sm:gap-4">
+				<Link href="/cases" className="shrink-0 mt-0.5 sm:mt-0">
+					<Button
+						variant="outline"
+						size="icon"
+						className="rounded-xl border-border bg-white dark:bg-white/5 shadow-sm hover:bg-slate-50 dark:hover:bg-white/10 h-9 w-9 sm:h-10 sm:w-10 transition-colors"
+					>
+						<ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5 text-slate-600 dark:text-zinc-400" />
 					</Button>
 				</Link>
-				<div>
-					<h1 className="text-2xl font-bold tracking-tight text-foreground">Register New Case</h1>
-					<p className="text-sm text-muted-foreground mt-0.5">Define patient requirements and manufacturing specs.</p>
+				<div className="flex flex-col min-w-0">
+					{/* line-clamp-1 prevents the title/subtitle from wrapping awkwardly on extremely small screens like iPhone SE */}
+					<h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground line-clamp-1">Register New Case</h1>
+					<p className="text-xs sm:text-sm text-muted-foreground mt-0.5 line-clamp-1">Define patient requirements and manufacturing specs.</p>
 				</div>
 			</div>
 
-			<div className="flex items-center gap-3">
-				<Button variant="ghost" onClick={onSaveDraft} className="rounded-xl font-semibold text-muted-foreground hover:text-foreground">
-					<Save className="w-4 h-4 mr-2" /> Save Draft
+			{/* RIGHT: Actions (Stacked & stretched on mobile, inline on desktop) */}
+			<div className="flex items-center gap-2 sm:gap-3 w-full md:w-auto mt-1 md:mt-0">
+				<Button
+					variant="ghost"
+					onClick={onSaveDraft}
+					className="flex-1 md:flex-none rounded-xl font-semibold text-muted-foreground hover:text-foreground h-10 px-3 sm:px-4 bg-slate-50 dark:bg-white/[0.02] md:bg-transparent border border-transparent md:border-none hover:border-border transition-all"
+				>
+					<Save className="w-4 h-4 mr-1.5 sm:mr-2 shrink-0" />
+					<span className="truncate">Save Draft</span>
 				</Button>
+
 				<Button
 					// disabled={isSubmitForReviewEnabled} // to be activated later
-					className="rounded-xl bg-primary text-primary-foreground px-6 font-bold shadow-premium hover:bg-primary/90"
+					className="flex-[2] md:flex-none rounded-xl bg-primary text-primary-foreground h-10 px-4 sm:px-6 font-bold shadow-premium hover:bg-primary/90 transition-all"
 					type="submit"
 					form="new-case-submission-form"
 				>
-					<Sparkles className="w-4 h-4 mr-2" /> Review & Submit
+					<Sparkles className="w-4 h-4 mr-1.5 sm:mr-2 shrink-0" />
+					<span className="truncate">Review & Submit</span>
 				</Button>
 			</div>
 		</header>

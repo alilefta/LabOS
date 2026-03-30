@@ -26,14 +26,6 @@ const casepricingplanscalarwherewithaggregatesinputSchema = z.object({
 ]).refine((v) => isValidDecimalInput(v), {
   message: "Field 'firstToothPrice' must be a Decimal",
 })]).optional().nullable(),
-  bulkPrice: z.union([z.lazy(() => DecimalNullableWithAggregatesFilterObjectSchema), z.union([
-  z.number(),
-  z.string(),
-  z.instanceof(Prisma.Decimal),
-  DecimalJSLikeSchema,
-]).refine((v) => isValidDecimalInput(v), {
-  message: "Field 'bulkPrice' must be a Decimal",
-})]).optional().nullable(),
   additionalToothPrice: z.union([z.lazy(() => DecimalNullableWithAggregatesFilterObjectSchema), z.union([
   z.number(),
   z.string(),
@@ -42,13 +34,29 @@ const casepricingplanscalarwherewithaggregatesinputSchema = z.object({
 ]).refine((v) => isValidDecimalInput(v), {
   message: "Field 'additionalToothPrice' must be a Decimal",
 })]).optional().nullable(),
-  bulkPriceThreshold: z.union([z.lazy(() => DecimalNullableWithAggregatesFilterObjectSchema), z.union([
+  TeethCountToApplyBulkPrice: z.union([z.lazy(() => DecimalNullableWithAggregatesFilterObjectSchema), z.union([
   z.number(),
   z.string(),
   z.instanceof(Prisma.Decimal),
   DecimalJSLikeSchema,
 ]).refine((v) => isValidDecimalInput(v), {
-  message: "Field 'bulkPriceThreshold' must be a Decimal",
+  message: "Field 'TeethCountToApplyBulkPrice' must be a Decimal",
+})]).optional().nullable(),
+  bulkPrice: z.union([z.lazy(() => DecimalNullableWithAggregatesFilterObjectSchema), z.union([
+  z.number(),
+  z.string(),
+  z.instanceof(Prisma.Decimal),
+  DecimalJSLikeSchema,
+]).refine((v) => isValidDecimalInput(v), {
+  message: "Field 'bulkPrice' must be a Decimal",
+})]).optional().nullable(),
+  toothPrice: z.union([z.lazy(() => DecimalNullableWithAggregatesFilterObjectSchema), z.union([
+  z.number(),
+  z.string(),
+  z.instanceof(Prisma.Decimal),
+  DecimalJSLikeSchema,
+]).refine((v) => isValidDecimalInput(v), {
+  message: "Field 'toothPrice' must be a Decimal",
 })]).optional().nullable(),
   productId: z.union([z.lazy(() => StringNullableWithAggregatesFilterObjectSchema), z.string()]).optional().nullable(),
   clinicId: z.union([z.lazy(() => StringNullableWithAggregatesFilterObjectSchema), z.string()]).optional().nullable(),

@@ -19,6 +19,9 @@ import { RegisterClinicSheet } from "@/components/modals/cases/clinic/register-c
 
 import { ClinicDetailsUI } from "@/schema/composed/clinic.details";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { CreateCategorySheet } from "@/components/modals/case-category/create-case-category-sheet";
+import { CaseCategoryDetailsUI } from "@/schema/composed/case-category.details";
+import { CreateWorkTypeSheet } from "@/components/modals/work-type/create-work-type-sheet";
 
 export default function NewCasePage() {
 	// 1. The Boss holds the temporary data
@@ -26,9 +29,11 @@ export default function NewCasePage() {
 	const [isSummaryOpen, setIsSummaryOpen] = useState(false);
 	const [openCreateNewPatientSheet, setOpenCreateNewPatientSheet] = useState(false);
 	const [openCreateNewClinicSheet, setOpenCreateNewClinicSheet] = useState(false);
+	const [openCreateNewCategory, setOpenCreateNewCategory] = useState(false);
 
 	const [newPatient, setNewPatient] = useState<PatientDetails | null>(null);
 	const [newClinic, setNewClinic] = useState<ClinicDetailsUI | null>(null);
+	const [newCategory, setNewCategory] = useState<CaseCategoryDetailsUI | null>(null);
 
 	const form = useForm<CreateCaseInput>({
 		resolver: zodResolver(CreateCaseInputSchema),
@@ -36,15 +41,20 @@ export default function NewCasePage() {
 			caseWorkItems: [
 				{
 					jawType: "UPPER",
-					casePricingPlanId: "",
-					additionalToothPrice: null,
-					bulkPrice: null,
-					bulkPriceThreshold: null,
-					labId: "",
-					pricingStrategy: "PERTOOTH",
-					firstToothPrice: 0,
 					productId: "",
 					totalPrice: 0,
+					casePricingPlan: {
+						name: "",
+						pricingStrategy: "BULK",
+						bulkPrice: 0,
+						additionalToothPrice: undefined,
+						productId: "",
+						clinicId: "",
+						firstToothPrice: undefined,
+						toothPrice: undefined,
+						isDefault: true,
+						teethCountToApplyBulkPrice: undefined,
+					},
 				},
 			],
 			grandTotal: 0,
@@ -106,7 +116,7 @@ export default function NewCasePage() {
 										<h2 className="text-xl font-bold tracking-tight">Clinical Prescription</h2>
 									</div>
 
-									<CaseCategorySelector />
+									<CaseCategorySelector onCreateNew={() => setOpenCreateNewCategory(true)} newCreatedCategory={newCategory} />
 									<CaseWorkItemManager />
 								</section>
 
@@ -137,7 +147,15 @@ export default function NewCasePage() {
 					{/* Modals */}
 					<RegisterPatientSheet isOpen={openCreateNewPatientSheet} onClose={() => setOpenCreateNewPatientSheet(false)} onPatientCreated={(p) => setNewPatient(p)} />
 					<RegisterClinicSheet isOpen={openCreateNewClinicSheet} onClose={() => setOpenCreateNewClinicSheet(false)} onClinicCreated={(c) => setNewClinic(c)} />
+					<CreateCategorySheet isOpen={openCreateNewCategory} onClose={() => setOpenCreateNewCategory(false)} onCategoryCreated={(c) => setNewCategory(c)} />
 
+					{/* THE ATOMIC SHEET */}
+					{/* <CreateWorkTypeSheet
+						isOpen={isSheetOpen}
+						onClose={() => setIsSheetOpen(false)}
+						categoryContext={{ id: selectedCategoryId, name: categoryName }}
+						onWorkTypeCreated={handleNewCreation}
+					/> */}
 					<CaseSummaryModal isOpen={isSummaryOpen} onClose={() => setIsSummaryOpen(false)} onConfirm={handleFinalConfirm} data={draftData} isSubmitting={isExecuting} />
 				</div>
 			</div>

@@ -5,7 +5,7 @@ export const WorkTypeFindManyResultSchema = z.object({
   name: z.string(),
   description: z.string().optional(),
   imageUrl: z.string().optional(),
-  product: z.array(z.unknown()),
+  products: z.array(z.unknown()),
   labId: z.string(),
   lab: z.unknown(),
   requireTeethSelection: z.boolean(),

@@ -23,14 +23,6 @@ const makeSchema = () => z.object({
 ]).refine((v) => isValidDecimalInput(v), {
   message: "Field 'firstToothPrice' must be a Decimal",
 }), z.lazy(() => NullableDecimalFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
-  bulkPrice: z.union([z.union([
-  z.number(),
-  z.string(),
-  z.instanceof(Prisma.Decimal),
-  DecimalJSLikeSchema,
-]).refine((v) => isValidDecimalInput(v), {
-  message: "Field 'bulkPrice' must be a Decimal",
-}), z.lazy(() => NullableDecimalFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
   additionalToothPrice: z.union([z.union([
   z.number(),
   z.string(),
@@ -39,13 +31,29 @@ const makeSchema = () => z.object({
 ]).refine((v) => isValidDecimalInput(v), {
   message: "Field 'additionalToothPrice' must be a Decimal",
 }), z.lazy(() => NullableDecimalFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
-  bulkPriceThreshold: z.union([z.union([
+  TeethCountToApplyBulkPrice: z.union([z.union([
   z.number(),
   z.string(),
   z.instanceof(Prisma.Decimal),
   DecimalJSLikeSchema,
 ]).refine((v) => isValidDecimalInput(v), {
-  message: "Field 'bulkPriceThreshold' must be a Decimal",
+  message: "Field 'TeethCountToApplyBulkPrice' must be a Decimal",
+}), z.lazy(() => NullableDecimalFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
+  bulkPrice: z.union([z.union([
+  z.number(),
+  z.string(),
+  z.instanceof(Prisma.Decimal),
+  DecimalJSLikeSchema,
+]).refine((v) => isValidDecimalInput(v), {
+  message: "Field 'bulkPrice' must be a Decimal",
+}), z.lazy(() => NullableDecimalFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
+  toothPrice: z.union([z.union([
+  z.number(),
+  z.string(),
+  z.instanceof(Prisma.Decimal),
+  DecimalJSLikeSchema,
+]).refine((v) => isValidDecimalInput(v), {
+  message: "Field 'toothPrice' must be a Decimal",
 }), z.lazy(() => NullableDecimalFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
   productId: z.union([z.string(), z.lazy(() => NullableStringFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
   clinicId: z.union([z.string(), z.lazy(() => NullableStringFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),

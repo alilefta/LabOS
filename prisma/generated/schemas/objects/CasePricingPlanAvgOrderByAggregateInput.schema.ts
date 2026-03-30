@@ -4,9 +4,10 @@ import { SortOrderSchema } from '../enums/SortOrder.schema'
 
 const makeSchema = () => z.object({
   firstToothPrice: SortOrderSchema.optional(),
-  bulkPrice: SortOrderSchema.optional(),
   additionalToothPrice: SortOrderSchema.optional(),
-  bulkPriceThreshold: SortOrderSchema.optional()
+  TeethCountToApplyBulkPrice: SortOrderSchema.optional(),
+  bulkPrice: SortOrderSchema.optional(),
+  toothPrice: SortOrderSchema.optional()
 }).strict();
 export const CasePricingPlanAvgOrderByAggregateInputObjectSchema: z.ZodType<Prisma.CasePricingPlanAvgOrderByAggregateInput> = makeSchema() as unknown as z.ZodType<Prisma.CasePricingPlanAvgOrderByAggregateInput>;
 export const CasePricingPlanAvgOrderByAggregateInputObjectZodSchema = makeSchema();

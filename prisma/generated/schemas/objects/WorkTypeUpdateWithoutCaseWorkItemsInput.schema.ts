@@ -16,7 +16,7 @@ const makeSchema = () => z.object({
   requireTeethSelection: z.union([z.boolean(), z.lazy(() => BoolFieldUpdateOperationsInputObjectSchema)]).optional(),
   createdAt: z.union([z.coerce.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputObjectSchema)]).optional(),
   updatedAt: z.union([z.coerce.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputObjectSchema)]).optional(),
-  product: z.lazy(() => ProductUpdateManyWithoutWorkTypeNestedInputObjectSchema).optional(),
+  products: z.lazy(() => ProductUpdateManyWithoutWorkTypeNestedInputObjectSchema).optional(),
   lab: z.lazy(() => LabUpdateOneRequiredWithoutWorkTypesNestedInputObjectSchema).optional(),
   caseCategory: z.lazy(() => CaseCategoryUpdateOneRequiredWithoutWorkTypesNestedInputObjectSchema).optional()
 }).strict();

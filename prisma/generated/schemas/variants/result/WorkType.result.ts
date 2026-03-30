@@ -5,7 +5,7 @@ export const WorkTypeResultSchema = z.object({
     name: z.string(),
     description: z.string().nullable(),
     imageUrl: z.string().nullable(),
-    product: z.array(z.unknown()),
+    products: z.array(z.unknown()),
     labId: z.string(),
     lab: z.unknown(),
     requireTeethSelection: z.boolean(),

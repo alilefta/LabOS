@@ -18,5 +18,5 @@ const makeSchema = () => z.object({
   updatedAt: z.union([z.coerce.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputObjectSchema)]).optional(),
   caseWorkItems: z.lazy(() => CaseWorkItemUncheckedUpdateManyWithoutWorkTypeNestedInputObjectSchema).optional()
 }).strict();
-export const WorkTypeUncheckedUpdateWithoutProductInputObjectSchema: z.ZodType<Prisma.WorkTypeUncheckedUpdateWithoutProductInput> = makeSchema() as unknown as z.ZodType<Prisma.WorkTypeUncheckedUpdateWithoutProductInput>;
-export const WorkTypeUncheckedUpdateWithoutProductInputObjectZodSchema = makeSchema();
+export const WorkTypeUncheckedUpdateWithoutProductsInputObjectSchema: z.ZodType<Prisma.WorkTypeUncheckedUpdateWithoutProductsInput> = makeSchema() as unknown as z.ZodType<Prisma.WorkTypeUncheckedUpdateWithoutProductsInput>;
+export const WorkTypeUncheckedUpdateWithoutProductsInputObjectZodSchema = makeSchema();

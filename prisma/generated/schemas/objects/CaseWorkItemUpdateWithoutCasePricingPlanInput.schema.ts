@@ -34,14 +34,6 @@ const makeSchema = () => z.object({
 ]).refine((v) => isValidDecimalInput(v), {
   message: "Field 'firstToothPrice' must be a Decimal",
 }), z.lazy(() => NullableDecimalFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
-  bulkPrice: z.union([z.union([
-  z.number(),
-  z.string(),
-  z.instanceof(Prisma.Decimal),
-  DecimalJSLikeSchema,
-]).refine((v) => isValidDecimalInput(v), {
-  message: "Field 'bulkPrice' must be a Decimal",
-}), z.lazy(() => NullableDecimalFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
   additionalToothPrice: z.union([z.union([
   z.number(),
   z.string(),
@@ -50,19 +42,35 @@ const makeSchema = () => z.object({
 ]).refine((v) => isValidDecimalInput(v), {
   message: "Field 'additionalToothPrice' must be a Decimal",
 }), z.lazy(() => NullableDecimalFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
-  bulkPriceThreshold: z.union([z.union([
+  teethCountToApplyBulkPrice: z.union([z.union([
   z.number(),
   z.string(),
   z.instanceof(Prisma.Decimal),
   DecimalJSLikeSchema,
 ]).refine((v) => isValidDecimalInput(v), {
-  message: "Field 'bulkPriceThreshold' must be a Decimal",
+  message: "Field 'teethCountToApplyBulkPrice' must be a Decimal",
+}), z.lazy(() => NullableDecimalFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
+  bulkPrice: z.union([z.union([
+  z.number(),
+  z.string(),
+  z.instanceof(Prisma.Decimal),
+  DecimalJSLikeSchema,
+]).refine((v) => isValidDecimalInput(v), {
+  message: "Field 'bulkPrice' must be a Decimal",
+}), z.lazy(() => NullableDecimalFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
+  toothPrice: z.union([z.union([
+  z.number(),
+  z.string(),
+  z.instanceof(Prisma.Decimal),
+  DecimalJSLikeSchema,
+]).refine((v) => isValidDecimalInput(v), {
+  message: "Field 'toothPrice' must be a Decimal",
 }), z.lazy(() => NullableDecimalFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
   jawType: z.union([JawTypeSchema, z.lazy(() => EnumJawTypeFieldUpdateOperationsInputObjectSchema)]).optional(),
   createdAt: z.union([z.coerce.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputObjectSchema)]).optional(),
   updatedAt: z.union([z.coerce.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputObjectSchema)]).optional(),
   product: z.lazy(() => ProductUpdateOneWithoutCaseWorkItemsNestedInputObjectSchema).optional(),
-  Lab: z.lazy(() => LabUpdateOneRequiredWithoutCaseWorkItemsNestedInputObjectSchema).optional(),
+  lab: z.lazy(() => LabUpdateOneRequiredWithoutCaseWorkItemsNestedInputObjectSchema).optional(),
   dentalCase: z.lazy(() => CaseUpdateOneRequiredWithoutCaseItemsNestedInputObjectSchema).optional(),
   workType: z.lazy(() => WorkTypeUpdateOneWithoutCaseWorkItemsNestedInputObjectSchema).optional(),
   selectedTeeth: z.lazy(() => SelectedToothUpdateManyWithoutCaseWorkItemNestedInputObjectSchema).optional()

@@ -11,7 +11,7 @@ const makeSchema = () => z.object({
   name: z.boolean().optional(),
   description: z.boolean().optional(),
   imageUrl: z.boolean().optional(),
-  product: z.union([z.boolean(), z.lazy(() => ProductFindManySchema)]).optional(),
+  products: z.union([z.boolean(), z.lazy(() => ProductFindManySchema)]).optional(),
   labId: z.boolean().optional(),
   lab: z.union([z.boolean(), z.lazy(() => LabArgsObjectSchema)]).optional(),
   requireTeethSelection: z.boolean().optional(),

@@ -57,6 +57,26 @@ export const labOSUploadRouter = {
 		.middleware(async ({ req }) => auth(req))
 		.onUploadComplete(async (data) => uploadComplete({ data, fileRouteName: "User Avatar Picture" })),
 
+	categoryIconAvatar: f({
+		image: {
+			maxFileSize: "4MB",
+			maxFileCount: 1,
+		},
+	})
+		// Set permissions and file types for this FileRoute
+		.middleware(async ({ req }) => auth(req))
+		.onUploadComplete(async (data) => uploadComplete({ data, fileRouteName: "Case Category Icon Avatar" })),
+
+	genericAvatar: f({
+		image: {
+			maxFileSize: "4MB",
+			maxFileCount: 1,
+		},
+	})
+		// Set permissions and file types for this FileRoute
+		.middleware(async ({ req }) => auth(req))
+		.onUploadComplete(async (data) => uploadComplete({ data, fileRouteName: "Generic Avatar Icon" })),
+
 	// messageFile: f({
 	// 	image: { maxFileSize: "8MB", maxFileCount: 5 },
 	// 	pdf: { maxFileSize: "8MB", maxFileCount: 5 },

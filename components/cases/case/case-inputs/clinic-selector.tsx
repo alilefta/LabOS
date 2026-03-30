@@ -12,6 +12,7 @@ import { CommandEmpty } from "cmdk";
 import { ClinicDetailsUI } from "@/schema/composed/clinic.details";
 import { getClinicsBySearchQueryAction } from "@/actions/clinic";
 import { Skeleton } from "@/components/ui/skeleton";
+import { handleSafeActionError } from "@/lib/safe-action-helpers";
 
 type DataShape = ClinicDetailsUI[];
 // Helper to get icon based on ClinicType
@@ -47,6 +48,10 @@ export const ClinicSelector = memo(({ onSelect, onCreateNew, newCreatedClinic }:
 		queryKey,
 		queryFn: async () => {
 			const res = await getClinicsBySearchQueryAction({ searchQuery: debouncedSearch, limit: 10 });
+			if (res.serverError || res.validationErrors) {
+				handleSafeActionError({ serverError: res.serverError, validationErrors: res.validationErrors });
+			}
+
 			return res.data?.clinics || [];
 		},
 		enabled: open,

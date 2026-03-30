@@ -14,7 +14,7 @@ import { CommandLoading } from "cmdk";
 
 interface GroupedProductSelectorProps {
 	selectedId: string;
-	categoryId: string; // CRITICAL: Passed from the main form to filter products
+	categoryId: string | null; // CRITICAL: Passed from the main form to filter products
 	onSelect: (id: string) => void;
 }
 
@@ -45,7 +45,7 @@ export function GroupedProductSelector({ selectedId, categoryId, onSelect }: Gro
 		staleTime: 1000 * 60 * 5,
 	});
 
-	const products = fetchedProducts || [];
+	const products = useMemo(() => fetchedProducts || [], [fetchedProducts]);
 
 	// Group the products by WorkType for the UI dynamically
 	const groupedProducts = useMemo(() => {

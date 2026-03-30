@@ -5,9 +5,10 @@ import { SortOrderSchema } from '../enums/SortOrder.schema'
 const makeSchema = () => z.object({
   totalPrice: SortOrderSchema.optional(),
   firstToothPrice: SortOrderSchema.optional(),
-  bulkPrice: SortOrderSchema.optional(),
   additionalToothPrice: SortOrderSchema.optional(),
-  bulkPriceThreshold: SortOrderSchema.optional()
+  teethCountToApplyBulkPrice: SortOrderSchema.optional(),
+  bulkPrice: SortOrderSchema.optional(),
+  toothPrice: SortOrderSchema.optional()
 }).strict();
 export const CaseWorkItemSumOrderByAggregateInputObjectSchema: z.ZodType<Prisma.CaseWorkItemSumOrderByAggregateInput> = makeSchema() as unknown as z.ZodType<Prisma.CaseWorkItemSumOrderByAggregateInput>;
 export const CaseWorkItemSumOrderByAggregateInputObjectZodSchema = makeSchema();

@@ -48,14 +48,6 @@ const caseworkitemwhereinputSchema = z.object({
 ]).refine((v) => isValidDecimalInput(v), {
   message: "Field 'firstToothPrice' must be a Decimal",
 })]).optional().nullable(),
-  bulkPrice: z.union([z.lazy(() => DecimalNullableFilterObjectSchema), z.union([
-  z.number(),
-  z.string(),
-  z.instanceof(Prisma.Decimal),
-  DecimalJSLikeSchema,
-]).refine((v) => isValidDecimalInput(v), {
-  message: "Field 'bulkPrice' must be a Decimal",
-})]).optional().nullable(),
   additionalToothPrice: z.union([z.lazy(() => DecimalNullableFilterObjectSchema), z.union([
   z.number(),
   z.string(),
@@ -64,20 +56,36 @@ const caseworkitemwhereinputSchema = z.object({
 ]).refine((v) => isValidDecimalInput(v), {
   message: "Field 'additionalToothPrice' must be a Decimal",
 })]).optional().nullable(),
-  bulkPriceThreshold: z.union([z.lazy(() => DecimalNullableFilterObjectSchema), z.union([
+  teethCountToApplyBulkPrice: z.union([z.lazy(() => DecimalNullableFilterObjectSchema), z.union([
   z.number(),
   z.string(),
   z.instanceof(Prisma.Decimal),
   DecimalJSLikeSchema,
 ]).refine((v) => isValidDecimalInput(v), {
-  message: "Field 'bulkPriceThreshold' must be a Decimal",
+  message: "Field 'teethCountToApplyBulkPrice' must be a Decimal",
+})]).optional().nullable(),
+  bulkPrice: z.union([z.lazy(() => DecimalNullableFilterObjectSchema), z.union([
+  z.number(),
+  z.string(),
+  z.instanceof(Prisma.Decimal),
+  DecimalJSLikeSchema,
+]).refine((v) => isValidDecimalInput(v), {
+  message: "Field 'bulkPrice' must be a Decimal",
+})]).optional().nullable(),
+  toothPrice: z.union([z.lazy(() => DecimalNullableFilterObjectSchema), z.union([
+  z.number(),
+  z.string(),
+  z.instanceof(Prisma.Decimal),
+  DecimalJSLikeSchema,
+]).refine((v) => isValidDecimalInput(v), {
+  message: "Field 'toothPrice' must be a Decimal",
 })]).optional().nullable(),
   jawType: z.union([z.lazy(() => EnumJawTypeFilterObjectSchema), JawTypeSchema]).optional(),
   workTypeId: z.union([z.lazy(() => StringNullableFilterObjectSchema), z.string()]).optional().nullable(),
   createdAt: z.union([z.lazy(() => DateTimeFilterObjectSchema), z.coerce.date()]).optional(),
   updatedAt: z.union([z.lazy(() => DateTimeFilterObjectSchema), z.coerce.date()]).optional(),
   product: z.union([z.lazy(() => ProductNullableScalarRelationFilterObjectSchema), z.lazy(() => ProductWhereInputObjectSchema)]).optional(),
-  Lab: z.union([z.lazy(() => LabScalarRelationFilterObjectSchema), z.lazy(() => LabWhereInputObjectSchema)]).optional(),
+  lab: z.union([z.lazy(() => LabScalarRelationFilterObjectSchema), z.lazy(() => LabWhereInputObjectSchema)]).optional(),
   dentalCase: z.union([z.lazy(() => CaseScalarRelationFilterObjectSchema), z.lazy(() => CaseWhereInputObjectSchema)]).optional(),
   casePricingPlan: z.union([z.lazy(() => CasePricingPlanScalarRelationFilterObjectSchema), z.lazy(() => CasePricingPlanWhereInputObjectSchema)]).optional(),
   workType: z.union([z.lazy(() => WorkTypeNullableScalarRelationFilterObjectSchema), z.lazy(() => WorkTypeWhereInputObjectSchema)]).optional(),

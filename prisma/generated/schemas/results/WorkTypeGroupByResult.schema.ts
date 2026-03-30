@@ -14,7 +14,7 @@ export const WorkTypeGroupByResultSchema = z.array(z.object({
     name: z.number(),
     description: z.number(),
     imageUrl: z.number(),
-    product: z.number(),
+    products: z.number(),
     labId: z.number(),
     lab: z.number(),
     requireTeethSelection: z.number(),

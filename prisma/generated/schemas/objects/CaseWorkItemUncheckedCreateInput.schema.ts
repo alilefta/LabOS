@@ -28,14 +28,6 @@ const makeSchema = () => z.object({
 ]).refine((v) => isValidDecimalInput(v), {
   message: "Field 'firstToothPrice' must be a Decimal",
 }).optional().nullable(),
-  bulkPrice: z.union([
-  z.number(),
-  z.string(),
-  z.instanceof(Prisma.Decimal),
-  DecimalJSLikeSchema,
-]).refine((v) => isValidDecimalInput(v), {
-  message: "Field 'bulkPrice' must be a Decimal",
-}).optional().nullable(),
   additionalToothPrice: z.union([
   z.number(),
   z.string(),
@@ -44,13 +36,29 @@ const makeSchema = () => z.object({
 ]).refine((v) => isValidDecimalInput(v), {
   message: "Field 'additionalToothPrice' must be a Decimal",
 }).optional().nullable(),
-  bulkPriceThreshold: z.union([
+  teethCountToApplyBulkPrice: z.union([
   z.number(),
   z.string(),
   z.instanceof(Prisma.Decimal),
   DecimalJSLikeSchema,
 ]).refine((v) => isValidDecimalInput(v), {
-  message: "Field 'bulkPriceThreshold' must be a Decimal",
+  message: "Field 'teethCountToApplyBulkPrice' must be a Decimal",
+}).optional().nullable(),
+  bulkPrice: z.union([
+  z.number(),
+  z.string(),
+  z.instanceof(Prisma.Decimal),
+  DecimalJSLikeSchema,
+]).refine((v) => isValidDecimalInput(v), {
+  message: "Field 'bulkPrice' must be a Decimal",
+}).optional().nullable(),
+  toothPrice: z.union([
+  z.number(),
+  z.string(),
+  z.instanceof(Prisma.Decimal),
+  DecimalJSLikeSchema,
+]).refine((v) => isValidDecimalInput(v), {
+  message: "Field 'toothPrice' must be a Decimal",
 }).optional().nullable(),
   jawType: JawTypeSchema.optional(),
   workTypeId: z.string().optional().nullable(),

@@ -1,7 +1,7 @@
 import * as z from 'zod';
 import type { Prisma } from '../../../../generated/prisma/client';
 import { CaseWorkItemCreateNestedManyWithoutProductInputObjectSchema as CaseWorkItemCreateNestedManyWithoutProductInputObjectSchema } from './CaseWorkItemCreateNestedManyWithoutProductInput.schema';
-import { WorkTypeCreateNestedOneWithoutProductInputObjectSchema as WorkTypeCreateNestedOneWithoutProductInputObjectSchema } from './WorkTypeCreateNestedOneWithoutProductInput.schema';
+import { WorkTypeCreateNestedOneWithoutProductsInputObjectSchema as WorkTypeCreateNestedOneWithoutProductsInputObjectSchema } from './WorkTypeCreateNestedOneWithoutProductsInput.schema';
 import { CasePricingPlanCreateNestedManyWithoutProductInputObjectSchema as CasePricingPlanCreateNestedManyWithoutProductInputObjectSchema } from './CasePricingPlanCreateNestedManyWithoutProductInput.schema'
 
 const makeSchema = () => z.object({
@@ -12,7 +12,7 @@ const makeSchema = () => z.object({
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
   caseWorkItems: z.lazy(() => CaseWorkItemCreateNestedManyWithoutProductInputObjectSchema).optional(),
-  workType: z.lazy(() => WorkTypeCreateNestedOneWithoutProductInputObjectSchema),
+  workType: z.lazy(() => WorkTypeCreateNestedOneWithoutProductsInputObjectSchema),
   casePricingPlans: z.lazy(() => CasePricingPlanCreateNestedManyWithoutProductInputObjectSchema).optional()
 }).strict();
 export const ProductCreateWithoutLabInputObjectSchema: z.ZodType<Prisma.ProductCreateWithoutLabInput> = makeSchema() as unknown as z.ZodType<Prisma.ProductCreateWithoutLabInput>;

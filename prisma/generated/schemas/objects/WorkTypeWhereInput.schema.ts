@@ -24,7 +24,7 @@ const worktypewhereinputSchema = z.object({
   caseCategoryId: z.union([z.lazy(() => StringFilterObjectSchema), z.string()]).optional(),
   createdAt: z.union([z.lazy(() => DateTimeFilterObjectSchema), z.coerce.date()]).optional(),
   updatedAt: z.union([z.lazy(() => DateTimeFilterObjectSchema), z.coerce.date()]).optional(),
-  product: z.lazy(() => ProductListRelationFilterObjectSchema).optional(),
+  products: z.lazy(() => ProductListRelationFilterObjectSchema).optional(),
   lab: z.union([z.lazy(() => LabScalarRelationFilterObjectSchema), z.lazy(() => LabWhereInputObjectSchema)]).optional(),
   caseWorkItems: z.lazy(() => CaseWorkItemListRelationFilterObjectSchema).optional(),
   caseCategory: z.union([z.lazy(() => CaseCategoryScalarRelationFilterObjectSchema), z.lazy(() => CaseCategoryWhereInputObjectSchema)]).optional()

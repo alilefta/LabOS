@@ -7,7 +7,7 @@ import { CaseCategoryArgsObjectSchema as CaseCategoryArgsObjectSchema } from './
 import { WorkTypeCountOutputTypeArgsObjectSchema as WorkTypeCountOutputTypeArgsObjectSchema } from './WorkTypeCountOutputTypeArgs.schema'
 
 const makeSchema = () => z.object({
-  product: z.union([z.boolean(), z.lazy(() => ProductFindManySchema)]).optional(),
+  products: z.union([z.boolean(), z.lazy(() => ProductFindManySchema)]).optional(),
   lab: z.union([z.boolean(), z.lazy(() => LabArgsObjectSchema)]).optional(),
   caseWorkItems: z.union([z.boolean(), z.lazy(() => CaseWorkItemFindManySchema)]).optional(),
   caseCategory: z.union([z.boolean(), z.lazy(() => CaseCategoryArgsObjectSchema)]).optional(),

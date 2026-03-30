@@ -1,5 +1,4 @@
 import { z } from "zod";
-
 import { JawTypeSchema, PricingStrategySchema } from "./enums.base";
 
 export const CaseWorkItemBaseSchema = z.object({
@@ -13,7 +12,8 @@ export const CaseWorkItemBaseSchema = z.object({
 	firstToothPrice: z.number().nullable(),
 	bulkPrice: z.number().nullable(),
 	additionalToothPrice: z.number().nullable(),
-	bulkPriceThreshold: z.number().nullable(),
+	teethCountToApplyBulkPrice: z.number().nullable(),
+	toothPrice: z.number().nullable(),
 	jawType: JawTypeSchema,
 	workTypeId: z.string().nullable(),
 	createdAt: z.date(),

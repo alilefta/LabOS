@@ -6,9 +6,10 @@ import { ProductBaseSchema } from "../base/product.base";
 import { CasePricingPlanBaseSchema } from "../base/case-pricing-plan.base";
 
 import { SelectedToothBaseSchema } from "../base/selected-tooth.base";
-import { JawTypeSchema, PricingStrategySchema } from "../base/enums.base";
+import { JawTypeSchema } from "../base/enums.base";
 import { WorkTypeBaseSchema } from "../base/worktype.base";
 import { CreateSelectedToothInputSchema } from "./selected-tooth.details";
+import { CreateCaseItemPricingPlanInputSchema } from "./case-pricing-plan.details";
 
 export const CaseWorkItemDetailsSchema = CaseWorkItemBaseSchema.extend({
 	product: ProductBaseSchema.nullable(),
@@ -19,22 +20,59 @@ export const CaseWorkItemDetailsSchema = CaseWorkItemBaseSchema.extend({
 	workType: WorkTypeBaseSchema.nullable(),
 });
 
-export type CaseWorkItemBase = z.infer<typeof CaseWorkItemBaseSchema>;
+export type CaseWorkItemDetails = z.infer<typeof CaseWorkItemDetailsSchema>;
 
-export const CreateCaseWorkItemInputSchema = z.object({
-	productId: z.string().nullable(),
-	labId: z.string(),
-	// caseId: z.string(),
-	casePricingPlanId: z.string(),
-	totalPrice: z.number(),
-	pricingStrategy: PricingStrategySchema,
-	firstToothPrice: z.number().nullable(),
-	bulkPrice: z.number().nullable(),
-	additionalToothPrice: z.number().nullable(),
-	bulkPriceThreshold: z.number().nullable(),
-	selectedTeeth: z.array(CreateSelectedToothInputSchema),
-
-	jawType: JawTypeSchema,
+export const CaseWorkItemDetailsUISchema = CaseWorkItemBaseSchema.extend({
+	product: ProductBaseSchema.optional(),
+	Lab: LabBaseSchema,
+	casePricingPlan: CasePricingPlanBaseSchema.optional(),
+	dentalCase: CaseBaseSchema.optional(),
+	selectedTeeth: z.array(SelectedToothBaseSchema).optional(),
+	workType: WorkTypeBaseSchema.optional(),
 });
 
-export type CreateWorkItemInput = z.infer<typeof CreateCaseWorkItemInputSchema>;
+export type CaseWorkItemDetailsUI = z.infer<typeof CaseWorkItemDetailsUISchema>;
+
+export const CreateCaseWorkItemInputSchema = z
+	.object({
+		productId: z.string().trim().min(1).nullable(),
+
+		totalPrice: z.number().min(0, "Total price must be >= 0"),
+
+		casePricingPlan: CreateCaseItemPricingPlanInputSchema,
+
+		// casePricingPlanId: z.string().optional(),
+
+		selectedTeeth: z.array(CreateSelectedToothInputSchema).optional(),
+
+		jawType: JawTypeSchema,
+	})
+	.superRefine((data, ctx) => {
+		const requiresTeeth = data.jawType !== "OTHER";
+
+		if (requiresTeeth) {
+			if (!data.selectedTeeth || data.selectedTeeth.length === 0) {
+				ctx.addIssue({
+					code: "custom",
+					message: "At least one tooth must be selected",
+					path: ["selectedTeeth"],
+				});
+			}
+		}
+
+		if (data.selectedTeeth) {
+			const positions = data.selectedTeeth.map((t) => t.toothPosition);
+
+			const unique = new Set(positions);
+
+			if (unique.size !== positions.length) {
+				ctx.addIssue({
+					code: "custom",
+					message: "Duplicate teeth are not allowed",
+					path: ["selectedTeeth"],
+				});
+			}
+		}
+	});
+
+export type CreateCaseWorkItemInput = z.infer<typeof CreateCaseWorkItemInputSchema>;

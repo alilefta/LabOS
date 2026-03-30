@@ -5,7 +5,7 @@ import { NullableStringFieldUpdateOperationsInputObjectSchema as NullableStringF
 import { DateTimeFieldUpdateOperationsInputObjectSchema as DateTimeFieldUpdateOperationsInputObjectSchema } from './DateTimeFieldUpdateOperationsInput.schema';
 import { CaseWorkItemUpdateManyWithoutProductNestedInputObjectSchema as CaseWorkItemUpdateManyWithoutProductNestedInputObjectSchema } from './CaseWorkItemUpdateManyWithoutProductNestedInput.schema';
 import { LabUpdateOneRequiredWithoutProductsNestedInputObjectSchema as LabUpdateOneRequiredWithoutProductsNestedInputObjectSchema } from './LabUpdateOneRequiredWithoutProductsNestedInput.schema';
-import { WorkTypeUpdateOneRequiredWithoutProductNestedInputObjectSchema as WorkTypeUpdateOneRequiredWithoutProductNestedInputObjectSchema } from './WorkTypeUpdateOneRequiredWithoutProductNestedInput.schema';
+import { WorkTypeUpdateOneRequiredWithoutProductsNestedInputObjectSchema as WorkTypeUpdateOneRequiredWithoutProductsNestedInputObjectSchema } from './WorkTypeUpdateOneRequiredWithoutProductsNestedInput.schema';
 import { CasePricingPlanUpdateManyWithoutProductNestedInputObjectSchema as CasePricingPlanUpdateManyWithoutProductNestedInputObjectSchema } from './CasePricingPlanUpdateManyWithoutProductNestedInput.schema'
 
 const makeSchema = () => z.object({
@@ -17,7 +17,7 @@ const makeSchema = () => z.object({
   updatedAt: z.union([z.coerce.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputObjectSchema)]).optional(),
   caseWorkItems: z.lazy(() => CaseWorkItemUpdateManyWithoutProductNestedInputObjectSchema).optional(),
   lab: z.lazy(() => LabUpdateOneRequiredWithoutProductsNestedInputObjectSchema).optional(),
-  workType: z.lazy(() => WorkTypeUpdateOneRequiredWithoutProductNestedInputObjectSchema).optional(),
+  workType: z.lazy(() => WorkTypeUpdateOneRequiredWithoutProductsNestedInputObjectSchema).optional(),
   casePricingPlans: z.lazy(() => CasePricingPlanUpdateManyWithoutProductNestedInputObjectSchema).optional()
 }).strict();
 export const ProductUpdateInputObjectSchema: z.ZodType<Prisma.ProductUpdateInput> = makeSchema() as unknown as z.ZodType<Prisma.ProductUpdateInput>;

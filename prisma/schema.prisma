@@ -318,7 +318,7 @@ model CaseWorkItem {
   productId String?
   product   Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
   labId     String
-  Lab       Lab      @relation(fields: [labId], references: [id], onDelete: Cascade)
+  lab       Lab      @relation(fields: [labId], references: [id], onDelete: Cascade)
 
   dentalCaseId    String
   dentalCase   Case   @relation(fields: [dentalCaseId], references: [id], onDelete: Cascade)
@@ -326,11 +326,21 @@ model CaseWorkItem {
   casePricingPlanId    String
   casePricingPlan      CasePricingPlan @relation(fields: [casePricingPlanId], references: [id], onDelete: Cascade)
   totalPrice           Decimal
+
+  // In case of updating the related case pricing plan in future, we keep history of case pricing plan here as well
   pricingStrategy      PricingStrategy @default(BULK)
-  firstToothPrice      Decimal?
-  bulkPrice            Decimal?
-  additionalToothPrice Decimal?
-  bulkPriceThreshold   Decimal?
+
+  // if pricing is "Custom"
+  firstToothPrice               Decimal?
+  additionalToothPrice          Decimal?
+  teethCountToApplyBulkPrice    Decimal?
+
+
+  // if pricing is "Bulk" or "custom" and bulk threshold applied
+  bulkPrice                     Decimal?
+
+  // if pricing is "Per Tooth"
+  toothPrice                    Decimal? 
 
   jawType JawType @default(UPPER)
 
@@ -393,9 +403,9 @@ model WorkType {
   description String?
   imageUrl    String?
 
-  product Product[]
-  labId   String
-  lab     Lab       @relation(fields: [labId], references: [id], onDelete: Cascade)
+  products    Product[]
+  labId       String
+  lab       Lab       @relation(fields: [labId], references: [id], onDelete: Cascade)
 
   requireTeethSelection Boolean @default(false)
 
@@ -442,10 +452,21 @@ model CasePricingPlan {
   isDefault Boolean @default(false)
 
   pricingStrategy      PricingStrategy @default(BULK)
-  firstToothPrice      Decimal?
-  bulkPrice            Decimal?
-  additionalToothPrice Decimal?
-  bulkPriceThreshold   Decimal?
+  
+
+
+  // if pricing is "Custom"
+  firstToothPrice               Decimal?
+  additionalToothPrice          Decimal?
+  TeethCountToApplyBulkPrice    Decimal?
+
+
+  // if pricing is "Bulk" or "custom" and bulk threshold applied
+  bulkPrice                     Decimal?
+
+  // if pricing is "Per Tooth"
+  toothPrice                    Decimal? 
+
 
   productId String?   // if pricing is per-product
   product   Product?  @relation(fields: [productId], references: [id], onDelete: SetNull)
@@ -454,10 +475,6 @@ model CasePricingPlan {
 
   clinicId  String?   // if pricing is per-clinic (custom deals)
   clinic    Clinic?   @relation(fields: [clinicId], references: [id], onDelete: SetNull)
-
-
-  // pricingHistoryId      String
-  // pricingHistory        PricingHistory    @relation(fields: [pricingHistoryId], references: [id], onDelete: Cascade)
 
   caseWorkItem CaseWorkItem[]
   createdAt    DateTime       @default(now())

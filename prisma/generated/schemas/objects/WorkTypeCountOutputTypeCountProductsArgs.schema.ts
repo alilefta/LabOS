@@ -5,5 +5,5 @@ import { ProductWhereInputObjectSchema as ProductWhereInputObjectSchema } from '
 const makeSchema = () => z.object({
   where: z.lazy(() => ProductWhereInputObjectSchema).optional()
 }).strict();
-export const WorkTypeCountOutputTypeCountProductArgsObjectSchema = makeSchema();
-export const WorkTypeCountOutputTypeCountProductArgsObjectZodSchema = makeSchema();
+export const WorkTypeCountOutputTypeCountProductsArgsObjectSchema = makeSchema();
+export const WorkTypeCountOutputTypeCountProductsArgsObjectZodSchema = makeSchema();

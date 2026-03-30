@@ -4,7 +4,7 @@ export const CaseWorkItemAggregateResultSchema = z.object({  _count: z.object({
     productId: z.number(),
     product: z.number(),
     labId: z.number(),
-    Lab: z.number(),
+    lab: z.number(),
     dentalCaseId: z.number(),
     dentalCase: z.number(),
     casePricingPlanId: z.number(),
@@ -12,9 +12,10 @@ export const CaseWorkItemAggregateResultSchema = z.object({  _count: z.object({
     totalPrice: z.number(),
     pricingStrategy: z.number(),
     firstToothPrice: z.number(),
-    bulkPrice: z.number(),
     additionalToothPrice: z.number(),
-    bulkPriceThreshold: z.number(),
+    teethCountToApplyBulkPrice: z.number(),
+    bulkPrice: z.number(),
+    toothPrice: z.number(),
     jawType: z.number(),
     workTypeId: z.number(),
     workType: z.number(),
@@ -25,16 +26,18 @@ export const CaseWorkItemAggregateResultSchema = z.object({  _count: z.object({
   _sum: z.object({
     totalPrice: z.number().nullable(),
     firstToothPrice: z.number().nullable(),
-    bulkPrice: z.number().nullable(),
     additionalToothPrice: z.number().nullable(),
-    bulkPriceThreshold: z.number().nullable()
+    teethCountToApplyBulkPrice: z.number().nullable(),
+    bulkPrice: z.number().nullable(),
+    toothPrice: z.number().nullable()
   }).nullable().optional(),
   _avg: z.object({
     totalPrice: z.number().nullable(),
     firstToothPrice: z.number().nullable(),
-    bulkPrice: z.number().nullable(),
     additionalToothPrice: z.number().nullable(),
-    bulkPriceThreshold: z.number().nullable()
+    teethCountToApplyBulkPrice: z.number().nullable(),
+    bulkPrice: z.number().nullable(),
+    toothPrice: z.number().nullable()
   }).nullable().optional(),
   _min: z.object({
     id: z.string().nullable(),
@@ -44,9 +47,10 @@ export const CaseWorkItemAggregateResultSchema = z.object({  _count: z.object({
     casePricingPlanId: z.string().nullable(),
     totalPrice: z.number().nullable(),
     firstToothPrice: z.number().nullable(),
-    bulkPrice: z.number().nullable(),
     additionalToothPrice: z.number().nullable(),
-    bulkPriceThreshold: z.number().nullable(),
+    teethCountToApplyBulkPrice: z.number().nullable(),
+    bulkPrice: z.number().nullable(),
+    toothPrice: z.number().nullable(),
     workTypeId: z.string().nullable(),
     createdAt: z.date().nullable(),
     updatedAt: z.date().nullable()
@@ -59,9 +63,10 @@ export const CaseWorkItemAggregateResultSchema = z.object({  _count: z.object({
     casePricingPlanId: z.string().nullable(),
     totalPrice: z.number().nullable(),
     firstToothPrice: z.number().nullable(),
-    bulkPrice: z.number().nullable(),
     additionalToothPrice: z.number().nullable(),
-    bulkPriceThreshold: z.number().nullable(),
+    teethCountToApplyBulkPrice: z.number().nullable(),
+    bulkPrice: z.number().nullable(),
+    toothPrice: z.number().nullable(),
     workTypeId: z.string().nullable(),
     createdAt: z.date().nullable(),
     updatedAt: z.date().nullable()

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Plus, Trash2, Layers, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useFormContext, useFieldArray } from "react-hook-form";
@@ -8,7 +8,6 @@ import { CreateCaseInput } from "@/schema/composed/case.details";
 import { WorkItemEditorModal } from "@/components/modals/cases/work-items/work-item-editor-modal";
 import { cn } from "@/lib/utils";
 import { TeethQuadrantSummary } from "./teeth-quadrant-summary";
-import { filterGraphicalNotStackedItems } from "recharts/types/state/selectors/axisSelectors";
 
 // 1. UNIVERSAL NUMBERING DICTIONARY
 // Maps the long Prisma Enum to the Universal Tooth Number (1-32)
@@ -55,6 +54,10 @@ export function CaseWorkItemManager() {
 	});
 
 	const selectedCategoryId = watch("caseCategoryId");
+
+	useEffect(() => {
+		console.log("Current Case Category Id", selectedCategoryId);
+	}, [selectedCategoryId]);
 
 	// null = closed, -1 = adding new, >= 0 = editing existing
 	const [editingIndex, setEditingIndex] = useState<number | null>(null);
@@ -189,6 +192,7 @@ export function CaseWorkItemManager() {
 			{/* --- THE EDITOR SHEET --- */}
 			<WorkItemEditorModal
 				isOpen={editingIndex !== null}
+				selectedCategoryId={selectedCategoryId}
 				onClose={() => setEditingIndex(null)}
 				initialData={editingIndex !== null && editingIndex >= 0 ? watch(`caseWorkItems.${editingIndex}`) : null}
 				onSave={(data) => {

@@ -5,7 +5,7 @@ export const WorkTypeInputSchema = z.object({
     name: z.string(),
     description: z.string().optional().nullable(),
     imageUrl: z.string().optional().nullable(),
-    product: z.array(z.unknown()),
+    products: z.array(z.unknown()),
     labId: z.string(),
     lab: z.unknown(),
     requireTeethSelection: z.boolean(),

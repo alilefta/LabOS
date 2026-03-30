@@ -9,17 +9,19 @@ import { HighFidelityDentalChart } from "./high-fidelity-dental-chart";
 import { ToothPosition } from "@/schema/base/tooth-position.base";
 import { GroupedProductSelector } from "@/components/cases/new-case/category-and-work-items/grouped-product-selector";
 import { JawType } from "@/schema/base/enums.base";
+import { CreateCaseWorkItemInput } from "@/schema/composed/case-work-item.details";
+import { SelectedToothBase } from "@/schema/base/selected-tooth.base";
 
 interface WorkItemEditorProps {
 	isOpen: boolean;
 	onClose: () => void;
-	onSave: (data: any) => void;
-	initialData?: any;
-	selectedCategoryId: string;
+	onSave: (data: CreateCaseWorkItemInput) => void;
+	initialData?: CreateCaseWorkItemInput;
+	selectedCategoryId: string | null;
 }
 
 // Helper to safely extract string arrays regardless of Prisma/Zod object shapes
-const parseTeethFromData = (teethData: any): ToothPosition[] => {
+const parseTeethFromData = (teethData: CreateCaseWorkItemInput["selectedTeeth"]): ToothPosition[] => {
 	if (!teethData || !Array.isArray(teethData)) return [];
 	return teethData.map((t) => (typeof t === "string" ? t : t.toothPosition));
 };
@@ -35,7 +37,7 @@ export function WorkItemEditorModal({ isOpen, onClose, onSave, initialData, sele
 		if (isOpen) {
 			setProductId(initialData?.productId || "");
 			setJawType(initialData?.jawType || "UPPER");
-			setSelectedTeeth(parseTeethFromData(initialData?.selectedTeeth));
+			setSelectedTeeth(parseTeethFromData(initialData?.selectedTeeth ?? []));
 		}
 	}, [isOpen, initialData]);
 
@@ -47,7 +49,7 @@ export function WorkItemEditorModal({ isOpen, onClose, onSave, initialData, sele
 		onSave({
 			productId,
 			jawType,
-			selectedTeeth,
+			selectedTeeth: selectedTeeth,
 			pricingStrategy: "PERTOOTH", // Placeholder
 			totalPrice: selectedTeeth.length * 140, // Placeholder calculation
 		});
@@ -65,16 +67,20 @@ export function WorkItemEditorModal({ isOpen, onClose, onSave, initialData, sele
 
 	return (
 		<Dialog open={isOpen} onOpenChange={onClose}>
-			<DialogContent className="lg:max-w-7xl! max-w-5xl! p-0 overflow-hidden border-border bg-card shadow-2xl rounded-[32px] gap-0 [&>button]:hidden">
-				{/* --- MODAL HEADER --- */}
-				<div className="p-6 border-b border-border flex items-center justify-between bg-background">
+			<DialogContent // CRITICAL RESPONSIVE FIXES:
+				// 1. max-h-[90vh] ensures it never bleeds off screen on mobile
+				// 2. We allow scrolling within the content area on mobile
+				className="w-[95vw]! sm:w-full! max-w-5xl! lg:max-w-7xl p-0 overflow-hidden border-border bg-card shadow-2xl rounded-[24px] lg:rounded-[32px] gap-0 [&>button]:hidden max-h-[90vh] flex flex-col"
+				showCloseButton={false}
+			>
+				<div className="p-4 sm:p-6 border-b border-border flex items-center justify-between bg-background shrink-0 z-20">
 					<div className="flex items-center gap-3">
-						<div className="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center text-primary shadow-ai-glow-light">
-							<Layers className="w-5 h-5" />
+						<div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl bg-primary/10 flex items-center justify-center text-primary shadow-ai-glow-light">
+							<Layers className="w-4 h-4 sm:w-5 sm:h-5" />
 						</div>
 						<div>
-							<DialogTitle className="text-xl font-bold tracking-tight">Configure Work Item</DialogTitle>
-							<p className="text-xs text-muted-foreground font-medium">Select product and map clinical positions.</p>
+							<DialogTitle className="text-lg sm:text-xl font-bold tracking-tight">Configure Work Item</DialogTitle>
+							<p className="hidden sm:block text-xs text-muted-foreground font-medium">Select product and map clinical positions.</p>
 						</div>
 					</div>
 					<DialogClose onClick={onClose} className="p-2 hover:bg-slate-100 dark:hover:bg-white/5 rounded-full transition-colors outline-none focus-visible:ring-2 focus-visible:ring-primary">
@@ -82,18 +88,23 @@ export function WorkItemEditorModal({ isOpen, onClose, onSave, initialData, sele
 					</DialogClose>
 				</div>
 
-				{/* --- MODAL BODY (SPLIT CANVAS) --- */}
-				<div className="flex flex-col lg:flex-row h-[65vh]! min-h-[600px]!">
+				{/* --- MODAL BODY (RESPONSIVE SPLIT) --- */}
+				{/* 
+				  Mobile: flex-col with auto height. 
+				  Desktop (lg): flex-row with fixed height to allow internal scrolling. 
+				*/}
+				<div className="flex flex-col lg:flex-row flex-1 overflow-y-auto lg:overflow-hidden min-h-0 bg-background lg:bg-transparent">
 					{/* LEFT PANE: Clinical Settings (35%) */}
-					<div className="w-full lg:w-[35%]! p-8 border-r border-border overflow-y-auto custom-scrollbar flex flex-col bg-background">
+					{/* LEFT/TOP PANE: Clinical Settings */}
+					<div className="w-full lg:w-[35%] p-5 sm:p-8 lg:border-r border-border lg:overflow-y-auto custom-scrollbar flex flex-col bg-background shrink-0 z-10">
 						<div className="space-y-6">
-							<div className="flex items-center gap-2 mb-2 pb-2 border-b border-border/50">
+							<div className="hidden lg:flex items-center gap-2 mb-2 pb-2 border-b border-border/50">
 								<Stethoscope className="w-4 h-4 text-primary" />
 								<h4 className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">Clinical Parameters</h4>
 							</div>
 
-							{/* Jaw Type Toggle - Mimicking CustomFieldWithLabel spacing */}
-							<div className="relative space-y-1.5 w-full">
+							{/* Jaw Type Toggle */}
+							<div className="relative  w-full flex flex-col gap-2">
 								<label className="text-[13px] font-semibold text-slate-700 dark:text-zinc-300">Target Arch</label>
 								<div className="flex p-1 bg-slate-100 dark:bg-white/5 rounded-xl border border-border h-11">
 									{["UPPER", "LOWER", "OTHER"].map((type) => (
@@ -103,11 +114,11 @@ export function WorkItemEditorModal({ isOpen, onClose, onSave, initialData, sele
 											onClick={() => {
 												if (jawType !== type) {
 													setJawType(type as JawType);
-													setSelectedTeeth([]); // Reset teeth on jaw change
+													setSelectedTeeth([]);
 												}
 											}}
 											className={cn(
-												"flex-1 text-[11px] font-bold rounded-lg transition-all uppercase tracking-tighter",
+												"flex-1 text-[10px] sm:text-[11px] font-bold rounded-lg transition-all uppercase tracking-tighter",
 												jawType === type ? "bg-white dark:bg-[#121214] text-primary shadow-sm ring-1 ring-border" : "text-muted-foreground hover:text-foreground",
 											)}
 										>
@@ -118,59 +129,57 @@ export function WorkItemEditorModal({ isOpen, onClose, onSave, initialData, sele
 							</div>
 
 							{/* Product Selector */}
-							<div className="relative space-y-1.5 w-full">
+							<div className="relative  w-full flex flex-col gap-2 ">
 								<label className="text-[13px] font-semibold text-slate-700 dark:text-zinc-300">Manufacturing Product</label>
 								<GroupedProductSelector selectedId={productId} onSelect={(id) => setProductId(id)} categoryId={selectedCategoryId} />
 							</div>
 						</div>
 
 						{/* Live Pricing / Status Preview */}
-						<div className="mt-auto pt-8">
+						<div className="mt-8 lg:mt-auto lg:pt-8">
 							{!productId ? (
-								<div className="p-5 rounded-2xl bg-slate-50 dark:bg-white/2 border border-dashed border-border flex flex-col items-center justify-center text-center gap-2">
-									<Calculator className="w-6 h-6 text-slate-300 dark:text-zinc-600" />
-									<p className="text-xs font-bold text-foreground">Awaiting Product Selection</p>
-									<p className="text-[10px] text-muted-foreground">Select a product to view estimated pricing.</p>
+								<div className="p-4 sm:p-5 rounded-2xl bg-slate-50 dark:bg-white/2 border border-dashed border-border flex flex-col items-center justify-center text-center gap-2">
+									<Calculator className="w-5 h-5 sm:w-6 sm:h-6 text-slate-300 dark:text-zinc-600" />
+									<p className="text-[11px] sm:text-xs font-bold text-foreground">Awaiting Product Selection</p>
 								</div>
 							) : (
-								<div className="p-5 rounded-2xl bg-emerald-500/5 border border-emerald-500/10 transition-all duration-300 animate-in fade-in zoom-in-95">
+								<div className="p-4 sm:p-5 rounded-2xl bg-emerald-500/5 border border-emerald-500/10 transition-all duration-300 animate-in fade-in zoom-in-95">
 									<div className="flex items-center justify-between mb-1">
-										<p className="text-[10px] font-bold text-emerald-600 dark:text-emerald-500 uppercase tracking-widest">Estimated Item Total</p>
-										<span className="text-[9px] font-bold bg-emerald-500/10 text-emerald-600 px-1.5 py-0.5 rounded-md">BULK RATE</span>
+										<p className="text-[9px] sm:text-[10px] font-bold text-emerald-600 dark:text-emerald-500 uppercase tracking-widest">Est. Item Total</p>
 									</div>
 									<div className="flex items-end justify-between mt-2">
-										<span className="text-3xl font-mono font-bold text-foreground">${(selectedTeeth.length * 140).toFixed(2)}</span>
-										<span className="text-xs font-bold text-muted-foreground">{selectedTeeth.length} Units Mapped</span>
+										<span className="text-2xl sm:text-3xl font-mono font-bold text-foreground">${(selectedTeeth.length * 140).toFixed(2)}</span>
+										<span className="text-[10px] sm:text-xs font-bold text-muted-foreground">{selectedTeeth.length} Units Mapped</span>
 									</div>
 								</div>
 							)}
 						</div>
 					</div>
 
-					{/* RIGHT PANE: The Dental Canvas (65%) */}
-					<div className="flex-1 bg-slate-50 dark:bg-[#09090B] relative flex flex-col overflow-hidden ">
+					{/* RIGHT/BOTTOM PANE: The Dental Canvas */}
+					<div className="flex-1 bg-slate-50 dark:bg-[#09090B] relative flex flex-col overflow-hidden min-h-[400px] lg:min-h-0 border-t lg:border-t-0 border-border">
 						{jawType === "OTHER" ? (
 							<div className="flex-1 flex flex-col items-center justify-center text-center p-8 animate-in fade-in">
 								<Layers className="w-12 h-12 text-slate-300 dark:text-zinc-700 mb-4" />
 								<h3 className="text-lg font-bold text-foreground">Non-Arch Restoration</h3>
-								<p className="text-sm text-muted-foreground mt-2 max-w-sm">
+								<p className="text-xs sm:text-sm text-muted-foreground mt-2 max-w-sm">
 									Dental charting is disabled for &quot;Other&quot; restorations. Describe specific mapping in clinical notes.
 								</p>
 							</div>
 						) : (
-							<HighFidelityDentalChart jawType={jawType} selectedTeeth={selectedTeeth} onToggleTooth={toggleTooth} />
+							<HighFidelityDentalChart jawType={jawType} selectedTeeth={selectedTeeth} onToggleTooth={toggleTooth} onSetTeeth={(teeth) => setSelectedTeeth(teeth)} />
 						)}
 					</div>
 				</div>
 
-				{/* --- MODAL FOOTER --- */}
-				<div className="p-6 border-t border-border bg-background flex justify-between items-center">
-					<div className="flex items-center gap-3">
-						<Button variant="ghost" type="button" onClick={onClose} className="rounded-xl h-12 px-6 font-semibold">
+				{/* --- MODAL FOOTER (Sticky Bottom) --- */}
+				<div className="p-4 sm:p-6 border-t border-border bg-background flex flex-col-reverse sm:flex-row justify-between items-center gap-4 shrink-0 z-20">
+					<div className="flex items-center justify-center sm:justify-start w-full sm:w-auto gap-3">
+						<Button variant="ghost" type="button" onClick={onClose} className="rounded-xl h-11 sm:h-12 px-6 font-semibold w-full sm:w-auto">
 							Cancel
 						</Button>
 
-						{/* Missing Requirements Helper */}
+						{/* Missing Requirements Helper (Hidden on tiny mobile, visible on sm+) */}
 						{!isComplete && (
 							<div className="hidden sm:flex items-center gap-2 text-amber-600 dark:text-amber-500 text-[11px] font-bold bg-amber-500/10 px-3 py-1.5 rounded-lg animate-in fade-in">
 								<AlertCircle className="w-3.5 h-3.5" />
@@ -184,7 +193,7 @@ export function WorkItemEditorModal({ isOpen, onClose, onSave, initialData, sele
 						onClick={handleSave}
 						disabled={!isComplete}
 						className={cn(
-							"rounded-xl h-12 px-8 font-bold transition-all flex gap-2 shadow-sm",
+							"rounded-xl h-11 sm:h-12 px-8 font-bold transition-all flex gap-2 shadow-sm w-full sm:w-auto",
 							isComplete ? "bg-primary hover:bg-primary/90 text-white shadow-premium" : "bg-slate-100 dark:bg-white/5 text-slate-400 dark:text-zinc-500 cursor-not-allowed",
 						)}
 					>
