@@ -15,7 +15,7 @@ const makeSchema = () => z.object({
   pricingStrategy: z.boolean().optional(),
   firstToothPrice: z.boolean().optional(),
   additionalToothPrice: z.boolean().optional(),
-  TeethCountToApplyBulkPrice: z.boolean().optional(),
+  teethCountToApplyBulkPrice: z.boolean().optional(),
   bulkPrice: z.boolean().optional(),
   toothPrice: z.boolean().optional(),
   productId: z.boolean().optional(),

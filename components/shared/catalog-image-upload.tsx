@@ -32,8 +32,8 @@ export function CatalogImageUpload<S extends FieldValues>({ nameInSchema, label 
 		onClientUploadComplete: (res) => {
 			if (!res || res.length === 0) return;
 			// Using ufsUrl as per your updated UploadThing config
-			const url = res[0].ufsUrl || res[0].url;
-			setValue("imageUrl", url, { shouldValidate: true });
+			const url = res[0].ufsUrl || res[0].ufsUrl;
+			setValue(nameInSchema as string, url, { shouldValidate: true });
 			toast.success(`${label} image uploaded`);
 		},
 		onUploadError: (error) => {
@@ -72,7 +72,7 @@ export function CatalogImageUpload<S extends FieldValues>({ nameInSchema, label 
 	const handleRemove = (e: React.MouseEvent) => {
 		e.stopPropagation();
 		setPreview(null);
-		setValue("imageUrl", "", { shouldValidate: true });
+		setValue(nameInSchema as string, "", { shouldValidate: true });
 	};
 
 	// Safely check for errors on the imageUrl field
@@ -128,10 +128,10 @@ export function CatalogImageUpload<S extends FieldValues>({ nameInSchema, label 
 			</div>
 
 			{hasError && (
-				<p className="text-[12px] font-medium text-destructive mt-1 flex items-center gap-1.5">
+				<div className="text-[12px] font-medium text-destructive mt-1 flex items-center gap-1.5">
 					<div className="w-1.5 h-1.5 rounded-full bg-destructive animate-pulse"></div>
 					{formState.errors.imageUrl?.message as string}
-				</p>
+				</div>
 			)}
 		</div>
 	);

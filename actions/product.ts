@@ -18,7 +18,7 @@ export const createProductAction = actionClientWithLab
 		const { labId } = ctx;
 
 		try {
-			const worktype = await (
+			const product = await (
 				await tenantPrisma(labId)
 			).product.create({
 				data: {
@@ -34,7 +34,7 @@ export const createProductAction = actionClientWithLab
 			});
 
 			return {
-				worktype,
+				product,
 			};
 		} catch (e) {
 			if (e instanceof APIError || e instanceof Error) {
@@ -55,7 +55,7 @@ export const getProductBySearchQueryAction = actionClientWithLab
 		const { labId } = ctx;
 
 		try {
-			const worktypes = await (
+			const products = await (
 				await tenantPrisma(labId)
 			).product.findMany({
 				where: {
@@ -74,7 +74,7 @@ export const getProductBySearchQueryAction = actionClientWithLab
 			});
 
 			return {
-				worktypes,
+				products,
 			};
 		} catch (e) {
 			if (e instanceof APIError || e instanceof Error) {

@@ -9,7 +9,7 @@ export const CasePricingPlanFindManyResultSchema = z.object({
   pricingStrategy: z.unknown(),
   firstToothPrice: z.number().optional(),
   additionalToothPrice: z.number().optional(),
-  TeethCountToApplyBulkPrice: z.number().optional(),
+  teethCountToApplyBulkPrice: z.number().optional(),
   bulkPrice: z.number().optional(),
   toothPrice: z.number().optional(),
   productId: z.string().optional(),

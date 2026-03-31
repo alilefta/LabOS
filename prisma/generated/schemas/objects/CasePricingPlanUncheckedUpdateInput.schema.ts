@@ -32,13 +32,13 @@ const makeSchema = () => z.object({
 ]).refine((v) => isValidDecimalInput(v), {
   message: "Field 'additionalToothPrice' must be a Decimal",
 }), z.lazy(() => NullableDecimalFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
-  TeethCountToApplyBulkPrice: z.union([z.union([
+  teethCountToApplyBulkPrice: z.union([z.union([
   z.number(),
   z.string(),
   z.instanceof(Prisma.Decimal),
   DecimalJSLikeSchema,
 ]).refine((v) => isValidDecimalInput(v), {
-  message: "Field 'TeethCountToApplyBulkPrice' must be a Decimal",
+  message: "Field 'teethCountToApplyBulkPrice' must be a Decimal",
 }), z.lazy(() => NullableDecimalFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
   bulkPrice: z.union([z.union([
   z.number(),

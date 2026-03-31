@@ -8,7 +8,7 @@ export const CasePricingPlanAggregateResultSchema = z.object({  _count: z.object
     pricingStrategy: z.number(),
     firstToothPrice: z.number(),
     additionalToothPrice: z.number(),
-    TeethCountToApplyBulkPrice: z.number(),
+    teethCountToApplyBulkPrice: z.number(),
     bulkPrice: z.number(),
     toothPrice: z.number(),
     productId: z.number(),
@@ -22,14 +22,14 @@ export const CasePricingPlanAggregateResultSchema = z.object({  _count: z.object
   _sum: z.object({
     firstToothPrice: z.number().nullable(),
     additionalToothPrice: z.number().nullable(),
-    TeethCountToApplyBulkPrice: z.number().nullable(),
+    teethCountToApplyBulkPrice: z.number().nullable(),
     bulkPrice: z.number().nullable(),
     toothPrice: z.number().nullable()
   }).nullable().optional(),
   _avg: z.object({
     firstToothPrice: z.number().nullable(),
     additionalToothPrice: z.number().nullable(),
-    TeethCountToApplyBulkPrice: z.number().nullable(),
+    teethCountToApplyBulkPrice: z.number().nullable(),
     bulkPrice: z.number().nullable(),
     toothPrice: z.number().nullable()
   }).nullable().optional(),
@@ -39,7 +39,7 @@ export const CasePricingPlanAggregateResultSchema = z.object({  _count: z.object
     name: z.string().nullable(),
     firstToothPrice: z.number().nullable(),
     additionalToothPrice: z.number().nullable(),
-    TeethCountToApplyBulkPrice: z.number().nullable(),
+    teethCountToApplyBulkPrice: z.number().nullable(),
     bulkPrice: z.number().nullable(),
     toothPrice: z.number().nullable(),
     productId: z.string().nullable(),
@@ -53,7 +53,7 @@ export const CasePricingPlanAggregateResultSchema = z.object({  _count: z.object
     name: z.string().nullable(),
     firstToothPrice: z.number().nullable(),
     additionalToothPrice: z.number().nullable(),
-    TeethCountToApplyBulkPrice: z.number().nullable(),
+    teethCountToApplyBulkPrice: z.number().nullable(),
     bulkPrice: z.number().nullable(),
     toothPrice: z.number().nullable(),
     productId: z.string().nullable(),

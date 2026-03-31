@@ -458,7 +458,7 @@ model CasePricingPlan {
   // if pricing is "Custom"
   firstToothPrice               Decimal?
   additionalToothPrice          Decimal?
-  TeethCountToApplyBulkPrice    Decimal?
+  teethCountToApplyBulkPrice    Decimal?
 
 
   // if pricing is "Bulk" or "custom" and bulk threshold applied

@@ -10,7 +10,7 @@ const makeSchema = () => z.object({
   pricingStrategy: z.literal(true).optional(),
   firstToothPrice: z.literal(true).optional(),
   additionalToothPrice: z.literal(true).optional(),
-  TeethCountToApplyBulkPrice: z.literal(true).optional(),
+  teethCountToApplyBulkPrice: z.literal(true).optional(),
   bulkPrice: z.literal(true).optional(),
   toothPrice: z.literal(true).optional(),
   productId: z.literal(true).optional(),

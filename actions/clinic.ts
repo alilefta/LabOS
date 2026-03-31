@@ -54,9 +54,9 @@ export const createClinicAction = actionClientWithLab
 			return {
 				clinic: {
 					...clinic,
-					currentBalance: Number(clinic.currentBalance),
-					discount: Number(clinic.discount),
-					creditLimit: Number(clinic.creditLimit),
+					currentBalance: clinic.currentBalance === null ? null : Number(clinic.currentBalance),
+					discount: clinic.discount === null ? null : Number(clinic.discount),
+					creditLimit: clinic.creditLimit === null ? null : Number(clinic.creditLimit),
 				},
 			};
 		} catch (e) {
@@ -99,9 +99,9 @@ export const getClinicsBySearchQueryAction = actionClientWithLab
 			return {
 				clinics: clinics.map((c) => ({
 					...c,
-					currentBalance: Number(c.currentBalance),
-					discount: Number(c.discount),
-					creditLimit: Number(c.creditLimit),
+					currentBalance: c.currentBalance === null ? null : Number(c.currentBalance),
+					discount: c.discount === null ? null : Number(c.discount),
+					creditLimit: c.creditLimit === null ? null : Number(c.creditLimit),
 				})),
 			};
 		} catch (e) {

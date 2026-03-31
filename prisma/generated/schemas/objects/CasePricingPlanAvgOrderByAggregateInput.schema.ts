@@ -5,7 +5,7 @@ import { SortOrderSchema } from '../enums/SortOrder.schema'
 const makeSchema = () => z.object({
   firstToothPrice: SortOrderSchema.optional(),
   additionalToothPrice: SortOrderSchema.optional(),
-  TeethCountToApplyBulkPrice: SortOrderSchema.optional(),
+  teethCountToApplyBulkPrice: SortOrderSchema.optional(),
   bulkPrice: SortOrderSchema.optional(),
   toothPrice: SortOrderSchema.optional()
 }).strict();

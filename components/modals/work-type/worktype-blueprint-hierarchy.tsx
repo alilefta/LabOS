@@ -10,61 +10,83 @@ interface HierarchyProps {
 }
 
 export function WorkTypeBlueprintHierarchy({ categoryName, isCreatingProductOnly, isCreatingPriceOnly }: HierarchyProps) {
+	// Determine active states based on what we are explicitly creating
+	const isWorkTypeActive = !isCreatingProductOnly && !isCreatingPriceOnly;
+	const isProductActive = isCreatingProductOnly || isWorkTypeActive;
+	const isPriceActive = isCreatingPriceOnly || isProductActive;
+
 	return (
-		<div className="p-5 rounded-3xl bg-slate-50 dark:bg-white/2 border border-border space-y-4">
-			<div className="flex items-center gap-2 mb-2">
-				<Info className="w-4 h-4 text-primary" />
+		<div className="p-5 rounded-2xl bg-slate-50/80 dark:bg-white/2 border border-border space-y-5 shadow-sm">
+			<div className="flex items-center gap-2">
+				<div className="w-6 h-6 rounded-md bg-primary/10 flex items-center justify-center">
+					<Info className="w-3.5 h-3.5 text-primary" />
+				</div>
 				<span className="text-[11px] font-bold uppercase tracking-widest text-foreground">Manufacturing Blueprint</span>
 			</div>
 
-			<div className="flex flex-col gap-2 pl-2 border-l-2 border-primary/20 ml-2">
-				{/* 1. Category (Read Only) */}
-				<div className="flex items-center gap-3 opacity-60">
-					<div className="w-6 h-6 rounded-lg bg-slate-200 dark:bg-white/10 flex items-center justify-center">
-						<LayoutGrid className="w-3.5 h-3.5" />
+			<div className="flex flex-col relative pl-2 ml-1">
+				{/* Continuous Timeline Line behind the icons */}
+				<div className="absolute top-4 bottom-4 left-2.75 w-0.5 bg-border dark:bg-white/5 -z-10"></div>
+				<div className="absolute top-4 bottom-4 left-2.75 w-0.5 bg-primary/20 -z-10" style={{ height: isCreatingPriceOnly ? "100%" : isCreatingProductOnly ? "66%" : "33%" }}></div>
+
+				{/* 1. Category (Read Only - Always muted) */}
+				<div className="flex items-start gap-4 opacity-60 pb-5">
+					<div className="w-6 h-6 rounded-full bg-slate-200 dark:bg-white/10 flex items-center justify-center ring-4 ring-slate-50 dark:ring-[#121214]">
+						<LayoutGrid className="w-3 h-3 text-slate-500" />
 					</div>
-					<div className="flex flex-col">
-						<span className="text-[10px] font-bold uppercase text-muted-foreground">Category</span>
-						<span className="text-xs font-bold text-foreground">{categoryName}</span>
+					<div className="flex flex-col mt-0.5">
+						<span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground leading-none mb-1">Parent Category</span>
+						<span className="text-xs font-bold text-foreground">{categoryName || "Selected Category"}</span>
 					</div>
 				</div>
-
-				<div className="h-4 w-px bg-border ml-3" />
 
 				{/* 2. Work Type */}
-				<div className={cn("flex items-center gap-3 transition-opacity", isCreatingProductOnly && "opacity-60")}>
-					<div className={cn("w-6 h-6 rounded-lg flex items-center justify-center shadow-sm", isCreatingProductOnly ? "bg-slate-200 dark:bg-white/10" : "bg-primary text-white")}>
-						<Layers className="w-3.5 h-3.5" />
+				<div className={cn("flex items-start gap-4 transition-all duration-300 pb-5", !isWorkTypeActive && "opacity-60")}>
+					<div
+						className={cn(
+							"w-6 h-6 rounded-full flex items-center justify-center ring-4 ring-slate-50 dark:ring-[#121214] shadow-sm transition-colors duration-300",
+							isWorkTypeActive ? "bg-primary text-white shadow-primary/20" : "bg-slate-200 dark:bg-white/10 text-slate-500",
+						)}
+					>
+						<Layers className="w-3 h-3" />
 					</div>
-					<div className="flex flex-col">
-						<span className="text-[10px] font-bold uppercase text-muted-foreground">Work type</span>
-						<span className="text-xs font-bold text-foreground">{isCreatingProductOnly ? "Existing Department" : "Defining New Department"}</span>
+					<div className="flex flex-col mt-0.5">
+						<span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground leading-none mb-1">Work Type</span>
+						<span className={cn("text-xs font-bold", isWorkTypeActive ? "text-primary" : "text-foreground")}>{isWorkTypeActive ? "Defining New Department" : "Existing Department"}</span>
 					</div>
 				</div>
-
-				<div className="h-4 w-px bg-border ml-3" />
 
 				{/* 3. Product */}
-				<div className="flex items-center gap-3">
-					<div className="w-6 h-6 rounded-lg bg-ai text-white flex items-center justify-center shadow-sm shadow-ai/20">
-						<Package className="w-3.5 h-3.5" />
+				<div className={cn("flex items-start gap-4 transition-all duration-300 pb-5", !isProductActive && "opacity-60")}>
+					<div
+						className={cn(
+							"w-6 h-6 rounded-full flex items-center justify-center ring-4 ring-slate-50 dark:ring-[#121214] shadow-sm transition-colors duration-300",
+							isProductActive ? "bg-ai text-white shadow-ai/20" : "bg-slate-200 dark:bg-white/10 text-slate-500",
+						)}
+					>
+						<Package className="w-3 h-3" />
 					</div>
-					<div className="flex flex-col">
-						<span className="text-[10px] font-bold uppercase text-muted-foreground">Initial product</span>
-						<span className="text-xs font-bold text-foreground">Defining Catalog Item</span>
+					<div className="flex flex-col mt-0.5">
+						<span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground leading-none mb-1">Manufacturing Product</span>
+						<span className={cn("text-xs font-bold", isProductActive ? "text-ai" : "text-foreground")}>{isProductActive ? "Defining Catalog Item" : "Existing Product"}</span>
 					</div>
 				</div>
 
-				<div className="h-4 w-px bg-border ml-3" />
-
 				{/* 4. Pricing */}
-				<div className="flex items-center gap-3">
-					<div className="w-6 h-6 rounded-lg bg-emerald-500 text-white flex items-center justify-center shadow-sm">
-						<Wallet className="w-3.5 h-3.5" />
+				<div className={cn("flex items-start gap-4 transition-all duration-300", !isPriceActive && "opacity-60")}>
+					<div
+						className={cn(
+							"w-6 h-6 rounded-full flex items-center justify-center ring-4 ring-slate-50 dark:ring-[#121214] shadow-sm transition-colors duration-300",
+							isPriceActive ? "bg-emerald-500 text-white shadow-emerald-500/20" : "bg-slate-200 dark:bg-white/10 text-slate-500",
+						)}
+					>
+						<Wallet className="w-3 h-3" />
 					</div>
-					<div className="flex flex-col">
-						<span className="text-[10px] font-bold uppercase text-muted-foreground">Default pricing</span>
-						<span className="text-xs font-bold text-foreground">Defining Financial Logic</span>
+					<div className="flex flex-col mt-0.5">
+						<span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground leading-none mb-1">Default Pricing</span>
+						<span className={cn("text-xs font-bold", isPriceActive ? "text-emerald-500 dark:text-emerald-400" : "text-foreground")}>
+							{isPriceActive ? "Defining Financial Logic" : "Existing Pricing Plan"}
+						</span>
 					</div>
 				</div>
 			</div>

@@ -30,7 +30,10 @@ export type GetCaseCategoriesForCaseInput = z.infer<typeof GetCaseCategoriesForC
 export const CreateCaseCategoryInputSchema = z.object({
 	name: z.string().trim().min(2, "Category name must be at least 2 characters."),
 	description: z.string().trim().transform(emptyToUndefinedTransformer).optional(),
-	imageUrl: z.url().optional(),
+	imageUrl: z
+		.union([z.literal(""), z.string().trim().url("Please enter a valid image URL")])
+		.transform(emptyToUndefinedTransformer)
+		.optional(),
 	isActive: z.boolean().default(true).optional(),
 });
 

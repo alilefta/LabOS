@@ -6,8 +6,6 @@ import { CaseSummaryModal } from "@/components/cases/case/case-summary-modal";
 import { useEffect, useState } from "react";
 import { NewCaseHeader } from "@/components/cases/new-case/new-case-header";
 import { FormProvider, useForm } from "react-hook-form";
-import { CaseCategorySelector } from "@/components/cases/case/case-category-selector";
-import { CaseWorkItemManager } from "@/components/cases/case/case-work-item-manager";
 import { CaseFileUploadZone } from "@/components/cases/case/case-file-upload-zone";
 import { ClinicalAssetPreview } from "@/components/cases/case/clinical-assets-preview";
 import { CreateCaseInput, CreateCaseInputSchema } from "@/schema/composed/case.details";
@@ -22,6 +20,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { CreateCategorySheet } from "@/components/modals/case-category/create-case-category-sheet";
 import { CaseCategoryDetailsUI } from "@/schema/composed/case-category.details";
 import { CreateWorkTypeSheet } from "@/components/modals/work-type/create-work-type-sheet";
+import { HierarchicalClinicalPicker } from "@/components/cases/new-case/sections/hierarchical-clinical-picker";
+import { CreateProductSheet } from "@/components/modals/product/create-product-sheet";
+import { CreatePricingPlanSheet } from "@/components/modals/pricing/create-pricing-plan-sheet";
 
 export default function NewCasePage() {
 	// 1. The Boss holds the temporary data
@@ -43,18 +44,6 @@ export default function NewCasePage() {
 					jawType: "UPPER",
 					productId: "",
 					totalPrice: 0,
-					casePricingPlan: {
-						name: "",
-						pricingStrategy: "BULK",
-						bulkPrice: 0,
-						additionalToothPrice: undefined,
-						productId: "",
-						clinicId: "",
-						firstToothPrice: undefined,
-						toothPrice: undefined,
-						isDefault: true,
-						teethCountToApplyBulkPrice: undefined,
-					},
 				},
 			],
 			grandTotal: 0,
@@ -76,6 +65,8 @@ export default function NewCasePage() {
 		setDraftData(data); // Save the validated data in memory
 		setIsSummaryOpen(true); // Pop the modal!
 	};
+
+	const selectedCategoryId = form.watch("caseCategoryId");
 
 	// 4. The Boss gives the Modal a walkie-talkie
 	const handleFinalConfirm = async () => {
@@ -110,15 +101,7 @@ export default function NewCasePage() {
 									newCreatedClinic={newClinic}
 								/>
 								{/* SECTION 2: THE PRODUCT */}
-								<section className="space-y-8">
-									<div className="flex items-center gap-3">
-										<div className="w-1.5 h-6 bg-primary rounded-full" />
-										<h2 className="text-xl font-bold tracking-tight">Clinical Prescription</h2>
-									</div>
-
-									<CaseCategorySelector onCreateNew={() => setOpenCreateNewCategory(true)} newCreatedCategory={newCategory} />
-									<CaseWorkItemManager />
-								</section>
+								<HierarchicalClinicalPicker newCreatedCategory={newCategory} handleOpenCreateCategorySheet={() => setOpenCreateNewCategory(true)} />
 
 								{/* SECTION 3: LOGISTICS & FILES */}
 								<section className="space-y-8">
@@ -149,13 +132,10 @@ export default function NewCasePage() {
 					<RegisterClinicSheet isOpen={openCreateNewClinicSheet} onClose={() => setOpenCreateNewClinicSheet(false)} onClinicCreated={(c) => setNewClinic(c)} />
 					<CreateCategorySheet isOpen={openCreateNewCategory} onClose={() => setOpenCreateNewCategory(false)} onCategoryCreated={(c) => setNewCategory(c)} />
 
-					{/* THE ATOMIC SHEET */}
-					{/* <CreateWorkTypeSheet
-						isOpen={isSheetOpen}
-						onClose={() => setIsSheetOpen(false)}
-						categoryContext={{ id: selectedCategoryId, name: categoryName }}
-						onWorkTypeCreated={handleNewCreation}
-					/> */}
+					<CreateWorkTypeSheet />
+					<CreateProductSheet />
+					<CreatePricingPlanSheet />
+
 					<CaseSummaryModal isOpen={isSummaryOpen} onClose={() => setIsSummaryOpen(false)} onConfirm={handleFinalConfirm} data={draftData} isSubmitting={isExecuting} />
 				</div>
 			</div>

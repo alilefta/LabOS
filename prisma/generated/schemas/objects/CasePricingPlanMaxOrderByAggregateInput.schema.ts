@@ -10,7 +10,7 @@ const makeSchema = () => z.object({
   pricingStrategy: SortOrderSchema.optional(),
   firstToothPrice: SortOrderSchema.optional(),
   additionalToothPrice: SortOrderSchema.optional(),
-  TeethCountToApplyBulkPrice: SortOrderSchema.optional(),
+  teethCountToApplyBulkPrice: SortOrderSchema.optional(),
   bulkPrice: SortOrderSchema.optional(),
   toothPrice: SortOrderSchema.optional(),
   productId: SortOrderSchema.optional(),

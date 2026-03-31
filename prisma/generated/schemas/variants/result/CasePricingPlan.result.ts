@@ -10,7 +10,7 @@ export const CasePricingPlanResultSchema = z.object({
     pricingStrategy: PricingStrategySchema,
     firstToothPrice: z.number().nullable(),
     additionalToothPrice: z.number().nullable(),
-    TeethCountToApplyBulkPrice: z.number().nullable(),
+    teethCountToApplyBulkPrice: z.number().nullable(),
     bulkPrice: z.number().nullable(),
     toothPrice: z.number().nullable(),
     productId: z.string().nullable(),

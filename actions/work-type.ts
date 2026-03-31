@@ -107,8 +107,6 @@ export const getWorkTypesByCategoryAction = actionClientWithLab
 				},
 				take: limit,
 				include: {
-					lab: true,
-					caseCategory: true,
 					products: true,
 				},
 			});

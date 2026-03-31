@@ -4,8 +4,9 @@ import { CaseWorkItemBaseSchema } from "../base/case-work-item.base";
 import { ProductBaseSchema } from "../base/product.base";
 import { ClinicBaseSchema } from "../base/clinic.base";
 import { PricingStrategySchema } from "../base/enums.base";
+import { CasePricingPlanBaseSchema } from "../base/case-pricing-plan.base";
 
-export const CasePricingPlanDetailsSchema = z.object({
+export const CasePricingPlanDetailsSchema = CasePricingPlanBaseSchema.extend({
 	lab: LabBaseSchema,
 	caseWorkItem: z.array(CaseWorkItemBaseSchema),
 	product: ProductBaseSchema,
@@ -14,9 +15,9 @@ export const CasePricingPlanDetailsSchema = z.object({
 
 export type CasePricingPlanDetails = z.infer<typeof CasePricingPlanDetailsSchema>;
 
-export const CasePricingPlanDetailsUISchema = z.object({
+export const CasePricingPlanDetailsUISchema = CasePricingPlanBaseSchema.extend({
 	lab: LabBaseSchema.optional(),
-	caseWorkItem: z.array(CaseWorkItemBaseSchema),
+	caseWorkItem: z.array(CaseWorkItemBaseSchema).optional(),
 	product: ProductBaseSchema.optional(),
 	clinic: ClinicBaseSchema.optional(),
 });
@@ -36,8 +37,9 @@ export const CreateCaseItemPricingPlanInputSchema = z
 		additionalToothPrice: z.number().min(0).optional(),
 		teethCountToApplyBulkPrice: z.number().int().min(1).optional(),
 		toothPrice: z.number().optional(),
-		productId: z.string().trim().min(1).optional(),
-		clinicId: z.string().trim().min(1).optional(),
+
+		productId: z.string().trim().min(1),
+		clinicId: z.string().trim().min(1),
 	})
 	.superRefine((data, ctx) => {
 		if (data.pricingStrategy === "PERTOOTH") {
@@ -93,3 +95,17 @@ export const CreateCaseItemPricingPlanInputSchema = z
 	});
 
 export type CreateCaseItemPricingPlanInput = z.infer<typeof CreateCaseItemPricingPlanInputSchema>;
+
+export const GetPricingPlansByProductIdInputSchema = z.object({
+	productId: z.string().trim().min(1),
+	limit: z.number().default(10),
+});
+
+export type GetPricingPlansByProductIdInput = z.infer<typeof GetPricingPlansByProductIdInputSchema>;
+
+export const GetPricingPlansByClinicIdInputSchema = z.object({
+	clinicId: z.string().trim().min(1),
+	limit: z.number().default(10),
+});
+
+export type GetPricingPlansByClinicIdInput = z.infer<typeof GetPricingPlansByClinicIdInputSchema>;

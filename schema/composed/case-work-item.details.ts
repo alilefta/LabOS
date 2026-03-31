@@ -35,13 +35,14 @@ export type CaseWorkItemDetailsUI = z.infer<typeof CaseWorkItemDetailsUISchema>;
 
 export const CreateCaseWorkItemInputSchema = z
 	.object({
-		productId: z.string().trim().min(1).nullable(),
+		productId: z.string().trim().min(1).optional(),
+		workTypeId: z.string().trim().min(1).optional(),
 
 		totalPrice: z.number().min(0, "Total price must be >= 0"),
 
-		casePricingPlan: CreateCaseItemPricingPlanInputSchema,
+		// casePricingPlan: CreateCaseItemPricingPlanInputSchema, // creation of pricing plan belongs to Product so it is removed from here
 
-		// casePricingPlanId: z.string().optional(),
+		casePricingPlanId: z.string().optional(), // selecting exisitng
 
 		selectedTeeth: z.array(CreateSelectedToothInputSchema).optional(),
 

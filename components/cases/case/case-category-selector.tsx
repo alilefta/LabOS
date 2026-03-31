@@ -32,9 +32,10 @@ type DataShape = CaseCategoryDetailsUI[];
 interface Props {
 	onCreateNew: () => void;
 	newCreatedCategory: CaseCategoryDetailsUI | null;
+	onSelect: (id: string, name: string) => void;
 }
 
-export function CaseCategorySelector({ onCreateNew, newCreatedCategory }: Props) {
+export function CaseCategorySelector({ onCreateNew, newCreatedCategory, onSelect }: Props) {
 	const [pendingCategory, setPendingCategory] = useState<string | null>(null);
 	const { watch, setValue, control } = useFormContext<CreateCaseInput>();
 	const selectedCat = watch("caseCategoryId");
@@ -59,6 +60,13 @@ export function CaseCategorySelector({ onCreateNew, newCreatedCategory }: Props)
 			return (res.data?.categories || []) as DataShape;
 		},
 	});
+
+	const handleSelect = useCallback(
+		(id: string, catName: string) => {
+			onSelect(id, catName);
+		},
+		[onSelect],
+	);
 
 	const handleCreateNew = useCallback(() => {
 		onCreateNew();

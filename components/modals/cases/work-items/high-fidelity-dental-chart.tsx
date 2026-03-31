@@ -164,8 +164,8 @@ export function HighFidelityDentalChart({ jawType, selectedTeeth, onToggleTooth,
             */}
 			<div
 				className={cn(
-					"relative z-10 w-full max-w-[450px] mx-auto transition-transform duration-700 ease-[cubic-bezier(0.23,1,0.32,1)]",
-					jawType === "UPPER" ? "translate-y-[15%]" : jawType === "LOWER" ? "-translate-y-[30%]" : "translate-y-0",
+					"relative z-10 w-full max-w-112.5 mx-auto transition-transform duration-700 ease-[cubic-bezier(0.23,1,0.32,1)]",
+					jawType === "UPPER" ? "translate-y-[0%] lg:translate-y-[25%]" : jawType === "LOWER" ? "lg:-translate-y-[25%] -translate-y-[44%]" : "translate-y-0",
 				)}
 			>
 				<TooltipProvider delayDuration={100}>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Plus, Trash2, Layers, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useFormContext, useFieldArray } from "react-hook-form";
@@ -8,6 +8,7 @@ import { CreateCaseInput } from "@/schema/composed/case.details";
 import { WorkItemEditorModal } from "@/components/modals/cases/work-items/work-item-editor-modal";
 import { cn } from "@/lib/utils";
 import { TeethQuadrantSummary } from "./teeth-quadrant-summary";
+import { CreateCaseWorkItemInput } from "@/schema/composed/case-work-item.details";
 
 // 1. UNIVERSAL NUMBERING DICTIONARY
 // Maps the long Prisma Enum to the Universal Tooth Number (1-32)
@@ -78,6 +79,15 @@ export function CaseWorkItemManager() {
 		}
 	};
 
+	const handleSaveData = useCallback(
+		(data: CreateCaseWorkItemInput) => {
+			if (editingIndex === -1) append(data);
+			else if (editingIndex !== null) update(editingIndex, data);
+			setEditingIndex(null);
+		},
+		[append, update, editingIndex],
+	);
+
 	return (
 		<section className="space-y-4">
 			<div className="flex items-center justify-between">
@@ -109,14 +119,6 @@ export function CaseWorkItemManager() {
 					const item = watch(`caseWorkItems.${index}`);
 					const hasTeeth = item && item.selectedTeeth && item.selectedTeeth?.length > 0;
 					const isComplete = (item && !!item.productId) || false;
-
-					// Map the object array to a sorted number array
-					// const teethDisplayString = hasTeeth
-					// 	? item.selectedTeeth
-					// 			.map((t) => TOOTH_NUMBER_MAP[t.toothPosition || t] || "?") // Safely handle TS type
-					// 			.sort((a, b) => (Number(a) || 0) - (Number(b) || 0))
-					// 			.join(", ")
-					// 	: "No specific teeth mapped";
 
 					return (
 						<div
@@ -152,10 +154,10 @@ export function CaseWorkItemManager() {
 											{item.jawType}
 										</span>
 									</div>
-									<p className={cn("text-[11px] font-medium", hasTeeth ? "text-primary font-mono" : "text-muted-foreground")}>
+									<div className={cn("text-[11px] font-medium", hasTeeth ? "text-primary font-mono" : "text-muted-foreground")}>
 										{/* {hasTeeth ? `Teeth: ${teethDisplayString}` : teethDisplayString} */}
 										<TeethQuadrantSummary selectedTeeth={item.selectedTeeth} />
-									</p>
+									</div>
 								</div>
 							</div>
 
@@ -195,11 +197,7 @@ export function CaseWorkItemManager() {
 				selectedCategoryId={selectedCategoryId}
 				onClose={() => setEditingIndex(null)}
 				initialData={editingIndex !== null && editingIndex >= 0 ? watch(`caseWorkItems.${editingIndex}`) : null}
-				onSave={(data) => {
-					if (editingIndex === -1) append(data);
-					else if (editingIndex !== null) update(editingIndex, data);
-					setEditingIndex(null);
-				}}
+				onSave={handleSaveData}
 			/>
 		</section>
 	);
