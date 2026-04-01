@@ -40,7 +40,11 @@ export function CaseCategorySelector({ onCreateNew, newCreatedCategory, onSelect
 	const { watch, setValue, control } = useFormContext<CreateCaseInput>();
 	const selectedCat = watch("caseCategoryId");
 
-	const { fields, remove } = useFieldArray({ control, name: "caseWorkItems" });
+	const { remove } = useFieldArray({ control, name: "caseWorkItems" });
+
+	// Watch all current items to see if the user actually configured anything
+	const currentWorkItems = watch("caseWorkItems") || [];
+	const hasConfiguredItems = currentWorkItems.some((item) => item && item.productId && item.productId.trim() !== "");
 
 	const queryKey = ["categories"] as const;
 
@@ -74,26 +78,31 @@ export function CaseCategorySelector({ onCreateNew, newCreatedCategory, onSelect
 
 	const displayCategories = fetchedCategories && fetchedCategories.length > 0 ? fetchedCategories : [];
 
-	const handleCategoryClick = (catId: string) => {
-		if (selectedCat === catId) return;
+	const handleCategoryClick = (category: CaseCategoryDetailsUI) => {
+		if (selectedCat === category.id) return;
 
-		if (fields.length > 0) {
-			setPendingCategory(catId);
+		// Only trigger the destructive warning if they actually selected a Product in one of the items
+		if (hasConfiguredItems) {
+			setPendingCategory(category.id);
 		} else {
-			setValue("caseCategoryId", catId, { shouldValidate: true });
+			// Silently switch the category (keeps their default empty item intact)
+			setValue("caseCategoryId", category.id, { shouldValidate: true });
+			handleSelect(category.id, category.name);
 		}
 	};
 
 	useEffect(() => {
 		if (newCreatedCategory?.id) {
 			setValue("caseCategoryId", newCreatedCategory.id, { shouldValidate: true });
+			handleSelect(newCreatedCategory.id, newCreatedCategory.name);
 		}
-	}, [newCreatedCategory, setValue]);
-
+	}, [newCreatedCategory, setValue, handleSelect]);
 	const confirmCategoryChange = () => {
 		if (pendingCategory) {
-			remove();
+			remove(); // User confirmed, wipe all items since they are tied to the old category
 			setValue("caseCategoryId", pendingCategory, { shouldValidate: true });
+			const cat = displayCategories.find((c) => c.id === pendingCategory);
+			if (cat) handleSelect(cat.id, cat.name);
 			setPendingCategory(null);
 		}
 	};
@@ -118,7 +127,7 @@ export function CaseCategorySelector({ onCreateNew, newCreatedCategory, onSelect
 			</div>
 
 			<div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 px-2">
-				{isLoading || isFetching
+				{isLoading || (isFetching && displayCategories.length === 0)
 					? /* --- BEAUTIFUL LOADING SKELETONS --- */
 						Array.from({ length: 8 }).map((_, i) => (
 							<div
@@ -146,7 +155,7 @@ export function CaseCategorySelector({ onCreateNew, newCreatedCategory, onSelect
 								<button
 									key={cat.id}
 									type="button"
-									onClick={() => handleCategoryClick(cat.id)}
+									onClick={() => handleCategoryClick(cat)}
 									className={cn(
 										"lab-card p-4 sm:p-5 flex flex-col items-start text-left transition-all duration-300 group relative overflow-hidden h-full",
 										isSelected
@@ -178,12 +187,13 @@ export function CaseCategorySelector({ onCreateNew, newCreatedCategory, onSelect
 								</button>
 							);
 						})}
-				{!isFetching && (
+				{/* Create New Button */}
+				{!isLoading && (
 					<button
 						type="button"
 						onClick={handleCreateNew}
 						className={cn(
-							"lab-card p-4 sm:p-5 flex flex-col items-center justify-center text-center transition-all duration-300 group h-full",
+							"lab-card p-4 sm:p-5 flex flex-col items-center justify-center text-center transition-all duration-300 group h-full min-h-35",
 							"border-2 border-dashed border-border hover:border-primary/40 bg-transparent hover:bg-slate-50 dark:hover:bg-white/2",
 						)}
 					>

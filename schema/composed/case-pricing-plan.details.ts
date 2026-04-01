@@ -54,25 +54,16 @@ export const CreateCaseItemPricingPlanInputSchema = z
 		}
 
 		if (data.pricingStrategy === "BULK") {
-			if (data.bulkPrice === null) {
+			// Only require bulkPrice. The teethCount is irrelevant for a pure flat rate!
+			if (data.bulkPrice === null || data.bulkPrice === undefined) {
 				ctx.addIssue({
 					code: "invalid_type",
-					message: "Bulk price is required",
+					message: "Flat Arch/Case price is required for Bulk strategy.",
 					path: ["bulkPrice"],
 					expected: "number",
 				});
 			}
-
-			if (data.teethCountToApplyBulkPrice === null) {
-				ctx.addIssue({
-					code: "invalid_type",
-					message: "Bulk price threshold is required",
-					path: ["bulkPriceThreshold"],
-					expected: "number",
-				});
-			}
 		}
-
 		if (data.pricingStrategy === "CUSTOM") {
 			if (data.firstToothPrice === null) {
 				ctx.addIssue({

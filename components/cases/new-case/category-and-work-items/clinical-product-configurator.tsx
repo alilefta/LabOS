@@ -37,7 +37,12 @@ export function ClinicalProductConfigurator({ categoryId, selectedProductId, sel
 	const [priceOpen, setPriceOpen] = useState(false);
 
 	// Zustand Store Connectors
-	const { openWorkTypeSheet, openProductSheet, openPricingSheet, newCreatedWorkTypeId, newCreatedProductId, newCreatedPricingId } = useClinicalCreationStore();
+	const openWorkTypeSheet = useClinicalCreationStore((state) => state.openWorkTypeSheet);
+	const openProductSheet = useClinicalCreationStore((state) => state.openProductSheet);
+	const openPricingSheet = useClinicalCreationStore((state) => state.openPricingSheet);
+	const newCreatedWorkTypeId = useClinicalCreationStore((state) => state.newCreatedWorkTypeId);
+	const newCreatedProductId = useClinicalCreationStore((state) => state.newCreatedProductId);
+	const newCreatedPricingId = useClinicalCreationStore((state) => state.newCreatedPricingId);
 
 	// --- 1. REACT QUERY FETCHING (Cached, fast, automatic) ---
 
@@ -167,7 +172,7 @@ export function ClinicalProductConfigurator({ categoryId, selectedProductId, sel
 
 // --- SUB-COMPONENT: REUSABLE SELECTOR ---
 
-interface SelectorProps {
+type BaseSelectorProps = {
 	isOpen: boolean;
 	setIsOpen: (value: boolean) => void;
 	isDisabled: boolean;
@@ -175,19 +180,20 @@ interface SelectorProps {
 	value: string;
 	placeholder: string;
 	icon: LucideIcon;
-	items: any[];
 	onSelect: (id: string) => void;
 	onCreate: () => void;
 	createLabel: string;
 	emptyText: string;
-	type: "workType" | "product" | "pricing";
-}
+};
 
-const SelectorDropdown = ({ isOpen, setIsOpen, isDisabled, isLoading, value, placeholder, icon: Icon, items, onSelect, onCreate, createLabel, emptyText, type }: SelectorProps) => {
+type SelectorProps = BaseSelectorProps & ({ type: "workType"; items: WorktypeDetailsUI[] } | { type: "product"; items: ProductDetailsUI[] } | { type: "pricing"; items: CasePricingPlanDetailsUI[] });
+
+const SelectorDropdown = (props: SelectorProps) => {
+	const { isOpen, setIsOpen, isDisabled, isLoading, value, placeholder, icon: Icon, items, onSelect, onCreate, createLabel, emptyText } = props;
 	const selectedItem = items.find((i) => i.id === value);
 
 	// Helper to format pricing strategy display correctly
-	const formatPricing = (item: any) => {
+	const formatPricing = (item: CasePricingPlanDetailsUI) => {
 		if (item.pricingStrategy === "PERTOOTH") return `$${item.firstToothPrice}`;
 		if (item.pricingStrategy === "BULK") return `$${item.bulkPrice} Bulk`;
 		if (item.pricingStrategy === "CUSTOM") return `Custom`;
@@ -236,7 +242,7 @@ const SelectorDropdown = ({ isOpen, setIsOpen, isDisabled, isLoading, value, pla
 									<div key={i} className="flex items-center justify-between p-3 rounded-lg border border-transparent">
 										<div className="flex flex-col gap-1.5 w-full">
 											<div className="h-3.5 w-3/4 bg-slate-200 dark:bg-white/10 rounded-md animate-pulse" />
-											{type === "pricing" && <div className="h-2.5 w-1/3 bg-slate-100 dark:bg-white/5 rounded-md animate-pulse" />}
+											{props.type === "pricing" && <div className="h-2.5 w-1/3 bg-slate-100 dark:bg-white/5 rounded-md animate-pulse" />}
 										</div>
 									</div>
 								))}
@@ -259,10 +265,10 @@ const SelectorDropdown = ({ isOpen, setIsOpen, isDisabled, isLoading, value, pla
 												<span className="text-[13px] font-bold text-foreground group-hover:text-primary transition-colors truncate">{item.name}</span>
 
 												{/* Dynamically extract pricing strategy details based on your Prisma Schema */}
-												{type === "pricing" && item.pricingStrategy && (
+												{props.type === "pricing" && (
 													<span className="text-[10px] text-muted-foreground uppercase tracking-wider mt-0.5 flex items-center gap-1.5">
 														<span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-														{item.pricingStrategy} • {formatPricing(item)}
+														{item.pricingStrategy} • {formatPricing(item as CasePricingPlanDetailsUI)}
 													</span>
 												)}
 											</div>

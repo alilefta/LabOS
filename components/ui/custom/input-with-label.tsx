@@ -4,7 +4,6 @@ import { ControllerFieldState, ControllerRenderProps, FieldValues, FieldPath } f
 import { Input } from "@/components/ui/input";
 import { InputHTMLAttributes } from "react";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
-import { cx } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 type Props<S extends FieldValues> = {
@@ -12,18 +11,30 @@ type Props<S extends FieldValues> = {
 	nameInSchema: FieldPath<S>;
 	containerClassName?: string;
 	inputClassName?: string;
+	labelClassName?: string;
 	fieldState: ControllerFieldState;
 	field: ControllerRenderProps<S>;
 	placeholder?: string;
 	isOptional?: boolean;
 } & InputHTMLAttributes<HTMLInputElement>;
 
-export function InputWithLabel<S extends FieldValues>({ fieldTitle, nameInSchema, inputClassName, containerClassName, fieldState, field, placeholder, isOptional = false, ...props }: Props<S>) {
+export function InputWithLabel<S extends FieldValues>({
+	fieldTitle,
+	nameInSchema,
+	inputClassName,
+	containerClassName,
+	fieldState,
+	field,
+	placeholder,
+	isOptional = false,
+	labelClassName,
+	...props
+}: Props<S>) {
 	const { type } = props;
 
 	return (
-		<Field data-invalid={fieldState.invalid} aria-invalid={fieldState.invalid} className={cx("relative space-y-1.5 w-full", containerClassName)}>
-			<FieldLabel htmlFor={nameInSchema} className="text-[13px] font-semibold text-slate-700 dark:text-zinc-300">
+		<Field data-invalid={fieldState.invalid} aria-invalid={fieldState.invalid} className={cn("relative flex flex-col  space-y-1.5 w-full", containerClassName)}>
+			<FieldLabel htmlFor={nameInSchema} className={cn("text-[13px] font-semibold text-slate-700 dark:text-zinc-300", labelClassName)}>
 				{fieldTitle}
 				{isOptional && <span className="text-slate-500 dark:text-zinc-500">(Optional)</span>}
 			</FieldLabel>

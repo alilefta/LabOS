@@ -20,8 +20,6 @@ import { createProductAction } from "@/actions/product";
 import { handleSafeActionError } from "@/lib/safe-action-helpers";
 import { CreateProductInput, CreateProductInputSchema } from "@/schema/composed/product.details";
 
-// ---------------------------------------------------------
-
 export function CreateProductSheet() {
 	// 1. High-Performance Atomic Zustand Subscriptions
 	const isProductSheetOpen = useClinicalCreationStore((state) => state.isProductSheetOpen);
@@ -42,7 +40,7 @@ export function CreateProductSheet() {
 
 	const { executeAsync: createProduct, isExecuting } = useAction(createProductAction, {
 		onSuccess: ({ data }) => {
-			toast.success("Work type department created successfully");
+			toast.success("Product created successfully");
 
 			// MAGIC: Tell Zustand this ID was just created so the Configurator auto-selects it!
 			if (data?.product?.id) {
@@ -63,8 +61,6 @@ export function CreateProductSheet() {
 	}, [activeWorkTypeId, form]);
 
 	const onSubmit = async (data: CreateProductInput) => {
-		console.log("Submitting Product:", data);
-
 		await createProduct(data);
 	};
 
@@ -72,7 +68,7 @@ export function CreateProductSheet() {
 		<Sheet open={isProductSheetOpen} onOpenChange={(open) => !open && closeAllSheets()}>
 			<SheetContent className="sm:max-w-md! border-l border-border bg-card dark:bg-[#09090B] p-0 flex flex-col shadow-2xl">
 				{/* --- HEADER (Violet AI Branding) --- */}
-				<SheetHeader className="p-8 border-b border-border bg-gradient-to-br from-ai/5 to-transparent relative overflow-hidden">
+				<SheetHeader className="p-8 border-b border-border bg-linear-to-br from-ai/5 to-transparent relative overflow-hidden">
 					<div className="absolute top-0 right-0 p-8 opacity-10">
 						<Box className="w-24 h-24 text-ai" />
 					</div>
@@ -107,7 +103,7 @@ export function CreateProductSheet() {
 										Product Image <span className="text-[10px] text-muted-foreground font-normal ml-1">(Optional)</span>
 									</label>
 								</div>
-								<div className="p-4 rounded-2xl border border-border bg-slate-50/50 dark:bg-white/[0.02]">
+								<div className="p-4 rounded-2xl border border-border bg-slate-50/50 dark:bg-white/2">
 									<CatalogImageUpload nameInSchema="imageUrl" label="Product" />
 								</div>
 							</div>
@@ -131,7 +127,7 @@ export function CreateProductSheet() {
 				</div>
 
 				{/* --- FOOTER --- */}
-				<SheetFooter className="p-8 border-t border-border bg-slate-50/30 dark:bg-white/[0.01]">
+				<SheetFooter className="p-8 border-t border-border bg-slate-50/30 dark:bg-white/1">
 					<Button variant="ghost" onClick={closeAllSheets} className="rounded-xl h-11! px-6 font-semibold">
 						Cancel
 					</Button>

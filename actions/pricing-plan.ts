@@ -45,7 +45,7 @@ export const createPricingPlanAction = actionClientWithLab
 			});
 
 			return {
-				pricingPlan: pricingPlansNormalizer(pricingPlan),
+				pricingPlan: pricingPlansNormalizer(pricingPlan) as CasePricingPlanDetailsUI,
 			};
 		} catch (e) {
 			if (e instanceof APIError || e instanceof Error) {
