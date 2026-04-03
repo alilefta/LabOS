@@ -3,7 +3,7 @@
 import { CaseAiAuditor } from "@/components/cases/new-case/case-ai-auditor";
 
 import { CaseSummaryModal } from "@/components/cases/case/case-summary-modal";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { NewCaseHeader } from "@/components/cases/new-case/new-case-header";
 import { FormProvider, useForm } from "react-hook-form";
 import { CaseFileUploadZone } from "@/components/cases/case/case-file-upload-zone";
@@ -23,6 +23,7 @@ import { CreateWorkTypeSheet } from "@/components/modals/work-type/create-work-t
 import { HierarchicalClinicalPicker } from "@/components/cases/new-case/sections/hierarchical-clinical-picker";
 import { CreateProductSheet } from "@/components/modals/product/create-product-sheet";
 import { CreatePricingPlanSheet } from "@/components/modals/pricing/create-pricing-plan-sheet";
+import { CreateCaseAssetFilesInput } from "@/schema/composed/case-asset-file.details";
 
 export default function NewCasePage() {
 	// 1. The Boss holds the temporary data
@@ -46,13 +47,13 @@ export default function NewCasePage() {
 					totalPrice: 0,
 				},
 			],
+			caseAssetFiles: [],
 			grandTotal: 0,
 			caseCategoryId: "",
 			technicianId: "",
 			status: "DRAFT",
 			clinicId: "",
 			deadline: new Date(),
-			labId: "",
 			patientId: "",
 			salesRepsId: "",
 		},
@@ -66,8 +67,6 @@ export default function NewCasePage() {
 		setIsSummaryOpen(true); // Pop the modal!
 	};
 
-	const selectedCategoryId = form.watch("caseCategoryId");
-
 	// 4. The Boss gives the Modal a walkie-talkie
 	const handleFinalConfirm = async () => {
 		if (draftData) {
@@ -75,6 +74,13 @@ export default function NewCasePage() {
 		}
 	};
 
+	const handleUploadedAssets = useCallback(
+		(files: CreateCaseAssetFilesInput[]) => {
+			const current = form.getValues("caseAssetFiles") ?? [];
+			form.setValue("caseAssetFiles", [...current, ...files], { shouldValidate: true });
+		},
+		[form],
+	);
 	useEffect(() => {
 		console.log(form.formState.dirtyFields);
 	}, [form.formState.dirtyFields]);
@@ -111,12 +117,8 @@ export default function NewCasePage() {
 									</div>
 
 									<div className="grid grid-cols-1 gap-12">
-										<CaseFileUploadZone />
-
-										<div className="space-y-4">
-											<h4 className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1">Attachment Review</h4>
-											<ClinicalAssetPreview />
-										</div>
+										<CaseFileUploadZone onUploadFiles={handleUploadedAssets} />
+										<ClinicalAssetPreview />
 									</div>
 								</section>
 							</div>
