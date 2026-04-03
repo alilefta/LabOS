@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Plus, Trash2, Layers, AlertCircle, Edit2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useFormContext, useFieldArray } from "react-hook-form";
+import { useFormContext, useFieldArray, useWatch } from "react-hook-form";
 import { CreateCaseInput } from "@/schema/composed/case.details";
 import { WorkItemEditorModal } from "@/components/modals/cases/work-items/work-item-editor-modal";
 import { cn } from "@/lib/utils";
@@ -54,7 +54,14 @@ export function CaseWorkItemManager() {
 		name: "caseWorkItems",
 	});
 
-	const selectedCategoryId = watch("caseCategoryId");
+	const selectedCategoryId = useWatch({
+		control,
+		name: "caseCategoryId",
+	});
+	const selectedClinicId = useWatch({
+		control,
+		name: "clinicId",
+	});
 
 	useEffect(() => {
 		console.log("Current Case Category Id", selectedCategoryId);
@@ -70,9 +77,8 @@ export function CaseWorkItemManager() {
 	};
 
 	// 2. SMART "ADD" LOGIC
-	// SMART "ADD" LOGIC
 	const handleAddOrEditEmpty = () => {
-		// Check if the very first item is completely blank (from defaultValues)
+		// Check if the very first item is completely blank
 		if (fields.length === 1 && !watch("caseWorkItems.0.productId")) {
 			setEditingIndex(0); // Edit the blank one instead of duplicating
 		} else {
@@ -89,15 +95,16 @@ export function CaseWorkItemManager() {
 		[append, update, editingIndex],
 	);
 
-	useEffect(() => {
-		console.group("Current Fields:", fields, "Current Category:", selectedCategoryId);
-	}, [watch("caseWorkItems")]);
-
 	// --- CRITICAL BUG FIX: RHF Flush Cycle Desync ---
 	// We actively check the watch state instead of relying purely on fields.length
 	// This guarantees the empty state shows up instantly when remove() is called.
-	const activeItems = fields.map((_, index) => watch(`caseWorkItems.${index}`)).filter(Boolean);
-	const isEmpty = activeItems.length === 0;
+	// const activeItems = fields.map((_, index) => watch(`caseWorkItems.${index}`)).filter(Boolean);
+	// const isEmpty = activeItems.length === 0;
+
+	// new
+	// --- CRITICAL BUG FIX: The RHF Fallback Pattern ---
+	// Using fields.length is the safest way to determine if the array is empty.
+	const isEmpty = fields.length === 0;
 
 	return (
 		<section className="space-y-4">
@@ -118,7 +125,7 @@ export function CaseWorkItemManager() {
 			<div className="space-y-3">
 				{/* --- EMPTY STATE --- */}
 				{isEmpty && (
-					<div className="h-32 rounded-2xl border-2 border-dashed border-border flex flex-col items-center justify-center bg-slate-50/50 dark:bg-white/2 animate-in fade-in zoom-in-95 duration-300">
+					<div className="py-12 rounded-2xl border-2 border-dashed border-border flex flex-col items-center justify-center bg-slate-50/50 dark:bg-white/2 animate-in fade-in zoom-in-95 duration-300">
 						<div className="w-10 h-10 rounded-xl bg-white dark:bg-[#121214] border border-border shadow-sm flex items-center justify-center mb-3">
 							<Layers className="w-5 h-5 text-slate-400 dark:text-zinc-500" />
 						</div>
@@ -130,12 +137,12 @@ export function CaseWorkItemManager() {
 				{/* --- SUMMARY CARDS --- */}
 				{!isEmpty &&
 					fields.map((field, index) => {
-						const item = watch(`caseWorkItems.${index}`);
-						// 2. CRITICAL BUG FIX: Safe return during array flush cycles
-						if (!item) return null;
+						// CRITICAL RHF FIX: Fallback to `field` if `watch` is undefined during a micro-render cycle
+						const watchedItem = watch(`caseWorkItems.${index}`);
+						const item = watchedItem || field;
 
-						const hasTeeth = item && item.selectedTeeth && item.selectedTeeth?.length > 0;
-						const isComplete = (item && !!item.productId) || false;
+						const hasTeeth = item.selectedTeeth && item.selectedTeeth.length > 0;
+						const isComplete = !!item.productId;
 
 						return (
 							<div
@@ -152,9 +159,9 @@ export function CaseWorkItemManager() {
 								<div className="flex items-start gap-4">
 									<span
 										className={cn(
-											"w-8 h-8 shrink-0 rounded-xl text-xs font-bold flex items-center justify-center border",
+											"w-8 h-8 shrink-0 rounded-xl text-xs font-bold flex items-center justify-center border transition-colors",
 											isComplete
-												? "bg-slate-100 dark:bg-[#121214] text-muted-foreground border-border group-hover:text-primary group-hover:border-primary/30 transition-colors"
+												? "bg-slate-100 dark:bg-[#121214] text-muted-foreground border-border group-hover:text-primary group-hover:border-primary/30"
 												: "bg-amber-500/20 text-amber-600 border-amber-500/20",
 										)}
 									>
@@ -178,6 +185,7 @@ export function CaseWorkItemManager() {
 											</span>
 										</div>
 										<div className={cn("text-[11px] font-medium", hasTeeth ? "text-primary font-mono" : "text-muted-foreground")}>
+											{/* Ensure we pass the properly formatted object array to your summary component */}
 											<TeethQuadrantSummary selectedTeeth={item.selectedTeeth} />
 										</div>
 									</div>
@@ -196,18 +204,18 @@ export function CaseWorkItemManager() {
 									)}
 
 									<div className="flex items-center gap-1">
-										{/* Mobile Edit Button (Visible only on small screens for better touch targets) */}
+										{/* Mobile Edit Button */}
 										<Button type="button" variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/10 sm:hidden rounded-lg">
 											<Edit2 className="w-4 h-4" />
 										</Button>
 
-										{/* Delete Button: Always visible, subtle until hovered */}
+										{/* Delete Button */}
 										<Button
 											type="button"
 											variant="ghost"
 											size="icon"
 											onClick={(e) => {
-												e.stopPropagation(); // Prevents opening the modal when clicking delete
+												e.stopPropagation();
 												remove(index);
 											}}
 											className="h-8 w-8 rounded-lg text-slate-400 dark:text-zinc-600 hover:text-destructive hover:bg-destructive/10 bg-slate-50 dark:bg-white/2 sm:bg-transparent transition-all"
@@ -224,10 +232,11 @@ export function CaseWorkItemManager() {
 			{/* --- THE EDITOR SHEET --- */}
 			<WorkItemEditorModal
 				isOpen={editingIndex !== null}
-				selectedCategoryId={selectedCategoryId}
+				selectedCategoryId={selectedCategoryId ?? null}
 				onClose={() => setEditingIndex(null)}
 				initialData={editingIndex !== null && editingIndex >= 0 ? watch(`caseWorkItems.${editingIndex}`) : null}
 				onSave={handleSaveData}
+				selectedClinicId={selectedClinicId ?? null}
 			/>
 		</section>
 	);

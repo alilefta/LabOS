@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Check, ChevronsUpDown, Plus, Layers, Package, CreditCard, LucideIcon, Loader2 } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
@@ -19,15 +19,24 @@ import { getPricingPlansByProductAction } from "@/actions/pricing-plan";
 import { handleSafeActionError } from "@/lib/safe-action-helpers";
 
 interface ClinicalProductConfiguratorProps {
-	categoryId: string | null;
-	selectedWorkTypeId: string; // Lifted state up if needed, otherwise managed internally
-	selectedProductId: string;
-	selectedPricingPlanId: string;
+	categoryId?: string | null;
+	clinicId?: string | null;
+	selectedProductId?: string | null;
+	selectedPricingPlanId?: string | null;
 	onProductSelect: (id: string) => void;
-	onPricingPlanSelect: (id: string) => void;
+	onWorkTypeSelect: (id: string) => void;
+	onPricingPlanSelect: (id: string, plan: CasePricingPlanDetailsUI | null) => void;
 }
 
-export function ClinicalProductConfigurator({ categoryId, selectedProductId, selectedPricingPlanId, onProductSelect, onPricingPlanSelect }: ClinicalProductConfiguratorProps) {
+export function ClinicalProductConfigurator({
+	categoryId,
+	clinicId,
+	selectedProductId,
+	selectedPricingPlanId,
+	onProductSelect,
+	onPricingPlanSelect,
+	onWorkTypeSelect,
+}: ClinicalProductConfiguratorProps) {
 	// Internal cascading state for WorkType
 	const [selectedWorkTypeId, setSelectedWorkTypeId] = useState<string>("");
 
@@ -44,52 +53,82 @@ export function ClinicalProductConfigurator({ categoryId, selectedProductId, sel
 	const newCreatedProductId = useClinicalCreationStore((state) => state.newCreatedProductId);
 	const newCreatedPricingId = useClinicalCreationStore((state) => state.newCreatedPricingId);
 
-	// --- 1. REACT QUERY FETCHING (Cached, fast, automatic) ---
+	// ---  RENDER-PHASE STATE UPDATES (Fixes the useEffect Warning) ---
+	const [prevNewCreatedWorkTypeId, setPrevNewCreatedWorkTypeId] = useState(newCreatedWorkTypeId);
 
+	if (newCreatedWorkTypeId !== prevNewCreatedWorkTypeId) {
+		setPrevNewCreatedWorkTypeId(newCreatedWorkTypeId);
+		if (newCreatedWorkTypeId) {
+			setSelectedWorkTypeId(newCreatedWorkTypeId); // Updates immediately, no flicker!
+		}
+	}
+
+	// --- REACT QUERY FETCHING (Strict Null Checks Added) ---
 	const { data: workTypes = [], isFetching: isLoadingWT } = useQuery({
 		queryKey: ["workTypes", categoryId],
 		queryFn: async () => {
-			const res = await getWorkTypesByCategoryAction({ caseCategoryId: categoryId!, limit: 50 });
+			if (!categoryId) return [];
+			const res = await getWorkTypesByCategoryAction({ caseCategoryId: categoryId, limit: 50 });
 			if (res.serverError || res.validationErrors) handleSafeActionError({ serverError: res.serverError, validationErrors: res.validationErrors });
 			return (res.data?.workTypes as WorktypeDetailsUI[]) || [];
 		},
-		enabled: !!categoryId, // Only fetch if we have a category
+		enabled: !!categoryId && typeof categoryId === "string" && categoryId.length > 0,
 	});
 
 	const { data: products = [], isFetching: isLoadingProducts } = useQuery({
 		queryKey: ["products", selectedWorkTypeId],
 		queryFn: async () => {
+			if (!selectedWorkTypeId) return [];
 			const res = await getProductsByWorkTypeAction({ workTypeId: selectedWorkTypeId, limit: 50 });
 			if (res.serverError || res.validationErrors) handleSafeActionError({ serverError: res.serverError, validationErrors: res.validationErrors });
 			return (res.data?.products as ProductDetailsUI[]) || [];
 		},
-		enabled: !!selectedWorkTypeId,
+		enabled: !!selectedWorkTypeId && typeof selectedWorkTypeId === "string" && selectedWorkTypeId.length > 0,
 	});
 
 	const { data: pricingPlans = [], isFetching: isLoadingPricing } = useQuery({
 		queryKey: ["pricingPlans", selectedProductId],
 		queryFn: async () => {
+			if (!selectedProductId) return [];
 			const res = await getPricingPlansByProductAction({ productId: selectedProductId, limit: 50 });
 			if (res.serverError || res.validationErrors) handleSafeActionError({ serverError: res.serverError, validationErrors: res.validationErrors });
 			return (res.data?.pricings as CasePricingPlanDetailsUI[]) || [];
 		},
-		enabled: !!selectedProductId,
+		enabled: !!selectedProductId && typeof selectedProductId === "string" && selectedProductId.length > 0,
 	});
 
-	// --- 2. AUTO-SELECTION MAGIC (Listens to Zustand) ---
+	// --- 2. AUTO-SELECTION & SYNCING ---
+
+	// Sync local WorkType state if the parent clears the Product
+	useEffect(() => {
+		if (!selectedProductId) {
+			onPricingPlanSelect("", null);
+		}
+	}, [selectedProductId, onPricingPlanSelect]);
 
 	useEffect(() => {
-		if (newCreatedWorkTypeId) setSelectedWorkTypeId(newCreatedWorkTypeId);
-	}, [newCreatedWorkTypeId]);
+		if (newCreatedWorkTypeId) {
+			onWorkTypeSelect(newCreatedWorkTypeId);
+		}
+	}, [newCreatedWorkTypeId, onWorkTypeSelect]);
 
 	useEffect(() => {
 		if (newCreatedProductId) onProductSelect(newCreatedProductId);
 	}, [newCreatedProductId, onProductSelect]);
 
 	useEffect(() => {
-		if (newCreatedPricingId) onPricingPlanSelect(newCreatedPricingId);
-	}, [newCreatedPricingId, onPricingPlanSelect]);
+		if (selectedPricingPlanId && pricingPlans.length > 0) {
+			const plan = pricingPlans.find((p) => p.id === selectedPricingPlanId);
+			if (plan) onPricingPlanSelect(selectedPricingPlanId, plan);
+		}
+	}, [selectedPricingPlanId, pricingPlans, onPricingPlanSelect]);
 
+	useEffect(() => {
+		if (newCreatedPricingId) {
+			const plan = pricingPlans.find((p) => p.id === newCreatedPricingId) || null;
+			onPricingPlanSelect(newCreatedPricingId, plan);
+		}
+	}, [newCreatedPricingId, pricingPlans, onPricingPlanSelect]);
 	// --- 3. RENDER ---
 
 	return (
@@ -107,12 +146,13 @@ export function ClinicalProductConfigurator({ categoryId, selectedProductId, sel
 					items={workTypes}
 					onSelect={(id: string) => {
 						setSelectedWorkTypeId(id);
-						onProductSelect(""); // Reset child
-						onPricingPlanSelect(""); // Reset grandchild
+						onWorkTypeSelect(id);
+						onProductSelect("");
+						onPricingPlanSelect("", null);
 					}}
 					onCreate={() => {
 						setWtOpen(false);
-						openWorkTypeSheet(categoryId!);
+						if (categoryId) openWorkTypeSheet(categoryId);
 					}}
 					createLabel="Create New Work Type"
 					emptyText="No work types found."
@@ -127,17 +167,17 @@ export function ClinicalProductConfigurator({ categoryId, selectedProductId, sel
 					setIsOpen={setProdOpen}
 					isDisabled={!selectedWorkTypeId}
 					isLoading={isLoadingProducts}
-					value={selectedProductId}
+					value={selectedProductId || ""}
 					placeholder="Select Product..."
 					icon={Package}
 					items={products}
 					onSelect={(id: string) => {
 						onProductSelect(id);
-						onPricingPlanSelect(""); // Reset grandchild
+						onPricingPlanSelect("", null);
 					}}
 					onCreate={() => {
 						setProdOpen(false);
-						openProductSheet(selectedWorkTypeId);
+						if (selectedWorkTypeId) openProductSheet(selectedWorkTypeId);
 					}}
 					createLabel="Create New Product"
 					emptyText="No products found in this work type."
@@ -152,14 +192,17 @@ export function ClinicalProductConfigurator({ categoryId, selectedProductId, sel
 					setIsOpen={setPriceOpen}
 					isDisabled={!selectedProductId}
 					isLoading={isLoadingPricing}
-					value={selectedPricingPlanId}
+					value={selectedPricingPlanId || ""}
 					placeholder="Select Pricing Plan..."
 					icon={CreditCard}
 					items={pricingPlans}
-					onSelect={onPricingPlanSelect}
+					onSelect={(id: string) => {
+						const plan = pricingPlans.find((p) => p.id === id) || null;
+						onPricingPlanSelect(id, plan);
+					}}
 					onCreate={() => {
 						setPriceOpen(false);
-						openPricingSheet(selectedProductId);
+						if (selectedProductId) openPricingSheet(selectedProductId, clinicId);
 					}}
 					createLabel="Create Custom Pricing"
 					emptyText="No pricing plans configured."
@@ -186,16 +229,22 @@ type BaseSelectorProps = {
 	emptyText: string;
 };
 
-type SelectorProps = BaseSelectorProps & ({ type: "workType"; items: WorktypeDetailsUI[] } | { type: "product"; items: ProductDetailsUI[] } | { type: "pricing"; items: CasePricingPlanDetailsUI[] });
+// Unified type allowing strict casting below
+type SelectorProps = BaseSelectorProps & {
+	type: "workType" | "product" | "pricing";
+	items: Array<WorktypeDetailsUI | ProductDetailsUI | CasePricingPlanDetailsUI>;
+};
 
 const SelectorDropdown = (props: SelectorProps) => {
-	const { isOpen, setIsOpen, isDisabled, isLoading, value, placeholder, icon: Icon, items, onSelect, onCreate, createLabel, emptyText } = props;
+	const { isOpen, setIsOpen, isDisabled, isLoading, value, placeholder, icon: Icon, items, onSelect, onCreate, createLabel, emptyText, type } = props;
+
+	// Safely find the selected item
 	const selectedItem = items.find((i) => i.id === value);
 
 	// Helper to format pricing strategy display correctly
-	const formatPricing = (item: CasePricingPlanDetailsUI) => {
-		if (item.pricingStrategy === "PERTOOTH") return `$${item.firstToothPrice}`;
-		if (item.pricingStrategy === "BULK") return `$${item.bulkPrice} Bulk`;
+	const formatPricing = (item: Partial<CasePricingPlanDetailsUI>) => {
+		if (item.pricingStrategy === "PERTOOTH") return `$${item.toothPrice || 0}`;
+		if (item.pricingStrategy === "BULK") return `$${item.bulkPrice || 0} Bulk`;
 		if (item.pricingStrategy === "CUSTOM") return `Custom`;
 		return "";
 	};
@@ -210,11 +259,10 @@ const SelectorDropdown = (props: SelectorProps) => {
 					className={cn(
 						"w-full h-11 justify-between rounded-xl border-border bg-card px-4 transition-all shadow-sm",
 						isOpen ? "ring-[3px] ring-primary/20 border-primary outline-none" : "hover:border-primary/50",
-						isDisabled && "opacity-50 cursor-not-allowed bg-slate-50 dark:bg-white/[0.02]",
+						isDisabled && "opacity-50 cursor-not-allowed bg-slate-50 dark:bg-white/2",
 					)}
 				>
 					<div className="flex items-center gap-3 truncate min-w-0">
-						{/* If loading and we don't have a value yet, show spinner. Otherwise show icon */}
 						{isLoading && !selectedItem ? (
 							<Loader2 className="w-4 h-4 shrink-0 animate-spin text-primary" />
 						) : (
@@ -229,20 +277,19 @@ const SelectorDropdown = (props: SelectorProps) => {
 				</Button>
 			</PopoverTrigger>
 
-			{/* Using Tailwind v4/v5 variable for exact trigger width */}
 			<PopoverContent className="p-0 rounded-2xl border-border shadow-premium overflow-hidden w-(--radix-popover-trigger-width)">
 				<Command className="dark:bg-[#121214]">
 					<CommandInput placeholder="Search..." className="py-2.5 text-[13px]" />
 
-					<CommandList className="max-h-[220px] custom-scrollbar">
-						{/* BEAUTIFUL LOADING SKELETON */}
+					<CommandList className="max-h-55 custom-scrollbar">
+						{/* SKELETON LOADER */}
 						{isLoading ? (
 							<div className="p-2 space-y-1">
 								{Array.from({ length: 3 }).map((_, i) => (
 									<div key={i} className="flex items-center justify-between p-3 rounded-lg border border-transparent">
 										<div className="flex flex-col gap-1.5 w-full">
 											<div className="h-3.5 w-3/4 bg-slate-200 dark:bg-white/10 rounded-md animate-pulse" />
-											{props.type === "pricing" && <div className="h-2.5 w-1/3 bg-slate-100 dark:bg-white/5 rounded-md animate-pulse" />}
+											{type === "pricing" && <div className="h-2.5 w-1/3 bg-slate-100 dark:bg-white/5 rounded-md animate-pulse" />}
 										</div>
 									</div>
 								))}
@@ -254,7 +301,8 @@ const SelectorDropdown = (props: SelectorProps) => {
 									{items.map((item) => (
 										<CommandItem
 											key={item.id}
-											value={item.name}
+											value={item.id} // CRITICAL FIX: Always use the unique ID for `value`
+											keywords={[item.name]} // CRITICAL FIX: Let users search by the item's name
 											onSelect={() => {
 												onSelect(item.id);
 												setIsOpen(false);
@@ -264,8 +312,8 @@ const SelectorDropdown = (props: SelectorProps) => {
 											<div className="flex flex-col min-w-0">
 												<span className="text-[13px] font-bold text-foreground group-hover:text-primary transition-colors truncate">{item.name}</span>
 
-												{/* Dynamically extract pricing strategy details based on your Prisma Schema */}
-												{props.type === "pricing" && (
+												{/* Extract pricing strategy details safely */}
+												{type === "pricing" && "pricingStrategy" in item && (
 													<span className="text-[10px] text-muted-foreground uppercase tracking-wider mt-0.5 flex items-center gap-1.5">
 														<span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
 														{item.pricingStrategy} • {formatPricing(item as CasePricingPlanDetailsUI)}
@@ -281,7 +329,7 @@ const SelectorDropdown = (props: SelectorProps) => {
 					</CommandList>
 
 					{/* STICKY CREATE BUTTON */}
-					<div className="p-2 border-t border-border bg-slate-50/80 dark:bg-white/[0.02]">
+					<div className="p-2 border-t border-border bg-slate-50/80 dark:bg-white/2">
 						<Button
 							variant="ghost"
 							onClick={onCreate}
