@@ -1,6 +1,6 @@
 "use client";
 
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Building2, Sparkles, Loader2, UserCircle, Briefcase, Stethoscope, GraduationCap, Check } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFooter } from "@/components/ui/sheet";
@@ -63,7 +63,10 @@ export function RegisterClinicSheet({ isOpen, onClose, onClinicCreated }: Props)
 		mode: "onBlur",
 	});
 
-	const clinicType = form.watch("type");
+	const clinicType = useWatch({
+		control: form.control,
+		name: "type",
+	});
 
 	const queryClient = useQueryClient();
 
@@ -86,9 +89,6 @@ export function RegisterClinicSheet({ isOpen, onClose, onClinicCreated }: Props)
 	const onSubmit = async (data: CreateClinicInput) => {
 		await registerClinic(data);
 	};
-
-	const isDirty =
-		form.formState.dirtyFields.name && form.formState.dirtyFields.city && form.formState.dirtyFields.address1 && form.formState.dirtyFields.phoneNumber && form.formState.dirtyFields.email;
 
 	return (
 		<Sheet open={isOpen} onOpenChange={onClose}>
@@ -147,7 +147,7 @@ export function RegisterClinicSheet({ isOpen, onClose, onClinicCreated }: Props)
 											{isSelected && (
 												<div className="absolute top-3 right-3 animate-in zoom-in duration-300">
 													<div className="w-4 h-4 rounded-full bg-primary flex items-center justify-center">
-														<Check className="w-2.5 h-2.5 text-white stroke-[4]" />
+														<Check className="w-2.5 h-2.5 text-white stroke-4" />
 													</div>
 												</div>
 											)}

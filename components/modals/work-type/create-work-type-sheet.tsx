@@ -14,12 +14,15 @@ import { InputWithLabel } from "@/components/ui/custom/input-with-label";
 import { CustomFieldWithLabel } from "@/components/ui/custom/custom-field-with-label";
 
 import { handleSafeActionError } from "@/lib/safe-action-helpers";
-import { CreateWorkTypeInput, CreateWorkTypeInputSchema } from "@/schema/composed/worktype.details";
+import { CreateWorkTypeInput, CreateWorkTypeInputSchema, WorktypeDetailsUI } from "@/schema/composed/worktype.details";
 import { useClinicalCreationStore } from "@/store/use-clinical-creation-store";
 import { WorkTypeBlueprintHierarchy } from "./worktype-blueprint-hierarchy";
-import { CatalogImageUpload } from "@/components/shared/catalog-image-upload";
+import { CatalogImageUpload } from "@/components/shared/file-assets/catalog-image-upload";
 
 import { createWorkTypeAction } from "@/actions/work-type";
+import { useQueryClient } from "@tanstack/react-query";
+
+type QueryDataShape = WorktypeDetailsUI[];
 
 export function CreateWorkTypeSheet() {
 	// 1. Connect to Zustand Store
@@ -27,6 +30,8 @@ export function CreateWorkTypeSheet() {
 	const closeAllSheets = useClinicalCreationStore((state) => state.closeAllSheets);
 	const activeCategoryId = useClinicalCreationStore((state) => state.activeCategoryId);
 	const setNewlyCreated = useClinicalCreationStore((state) => state.setNewlyCreated);
+
+	const queryClient = useQueryClient();
 
 	const form = useForm<CreateWorkTypeInput>({
 		resolver: zodResolver(CreateWorkTypeInputSchema),
@@ -55,6 +60,10 @@ export function CreateWorkTypeSheet() {
 			if (data?.worktype?.id) {
 				setNewlyCreated("workType", data.worktype.id);
 			}
+
+			queryClient.setQueryData<QueryDataShape>(["workTypes", activeCategoryId], (old: QueryDataShape | undefined) => {
+				return old ? [data.worktype, ...old] : [data.worktype];
+			});
 
 			closeAllSheets();
 			form.reset();
@@ -117,7 +126,7 @@ export function CreateWorkTypeSheet() {
 										Work Type Image <span className="text-[10px] text-muted-foreground font-normal ml-1">(Optional)</span>
 									</label>
 								</div>
-								<div className="p-4 rounded-2xl border border-border bg-slate-50/50 dark:bg-white/[0.02]">
+								<div className="p-4 rounded-2xl border border-border bg-slate-50/50 dark:bg-white/2">
 									<CatalogImageUpload nameInSchema="imageUrl" label="Work Type" />{" "}
 								</div>
 							</div>

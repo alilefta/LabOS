@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { X, Layers, Check, Stethoscope, AlertCircle, Calculator, CreditCard } from "lucide-react";
-import { Dialog, DialogClose, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { HighFidelityDentalChart } from "./high-fidelity-dental-chart"; // Assuming this exists
@@ -10,7 +10,7 @@ import { ToothPosition } from "@/schema/base/tooth-position.base";
 import { JawType } from "@/schema/base/enums.base";
 import { CreateCaseWorkItemInput } from "@/schema/composed/case-work-item.details";
 import { ClinicalProductConfigurator } from "@/components/cases/new-case/category-and-work-items/clinical-product-configurator";
-import { toast } from "sonner";
+import { CasePricingPlanDetailsUI } from "@/schema/composed/case-pricing-plan.details";
 
 interface WorkItemEditorProps {
 	isOpen: boolean;
@@ -18,6 +18,7 @@ interface WorkItemEditorProps {
 	onSave: (data: CreateCaseWorkItemInput) => void;
 	initialData: CreateCaseWorkItemInput | null;
 	selectedCategoryId: string | null;
+	selectedClinicId: string | null;
 }
 
 const parseTeethFromData = (teethData: CreateCaseWorkItemInput["selectedTeeth"]): ToothPosition[] => {
@@ -25,38 +26,81 @@ const parseTeethFromData = (teethData: CreateCaseWorkItemInput["selectedTeeth"])
 	return teethData.map((t) => (typeof t === "string" ? t : t.toothPosition));
 };
 
-export function WorkItemEditorModal({ isOpen, onClose, onSave, initialData, selectedCategoryId }: WorkItemEditorProps) {
+export function WorkItemEditorModal({ isOpen, onClose, onSave, initialData, selectedCategoryId, selectedClinicId }: WorkItemEditorProps) {
 	// Local State
 	const [productId, setProductId] = useState(initialData?.productId || "");
 	const [pricingPlanId, setPricingPlanId] = useState(initialData?.casePricingPlanId || "");
+	const [pricingPlanObj, setPricingPlanObj] = useState<CasePricingPlanDetailsUI | null>(null); // Lifted object
 	const [worktypeId, setWorktypeId] = useState(initialData?.workTypeId || "");
 	const [jawType, setJawType] = useState<"UPPER" | "LOWER" | "OTHER">(initialData?.jawType || "UPPER");
 	const [selectedTeeth, setSelectedTeeth] = useState<ToothPosition[]>(parseTeethFromData(initialData?.selectedTeeth ?? []));
+	const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
 
-	// Reset state when modal opens
-	// useEffect(() => {
-	// 	if (isOpen) {
-	// 		setProductId(initialData?.productId || "");
-	// 		setWorktypeId(initialData?.workTypeId || "");
-	// 		setPricingPlanId(initialData?.casePricingPlanId || "");
-	// 		setJawType(initialData?.jawType || "UPPER");
-	// 		setSelectedTeeth(parseTeethFromData(initialData?.selectedTeeth ?? []));
-	// 	}
-	// }, [isOpen, initialData]);
+	if (isOpen !== prevIsOpen) {
+		setPrevIsOpen(isOpen);
+
+		if (isOpen) {
+			// Reset state when modal opens
+			setProductId(initialData?.productId || "");
+			setPricingPlanId(initialData?.casePricingPlanId || "");
+			setWorktypeId(initialData?.workTypeId || "");
+			setJawType(initialData?.jawType || "UPPER");
+			setSelectedTeeth(parseTeethFromData(initialData?.selectedTeeth ?? []));
+		} else {
+			setPricingPlanObj(null);
+		}
+	}
 
 	const toggleTooth = (id: ToothPosition) => {
 		setSelectedTeeth((prev) => (prev.includes(id) ? prev.filter((t) => t !== id) : [...prev, id]));
 	};
+
+	// --- THE MATHEMATICAL PRICING ENGINE ---
+	const calculatedPrice = useMemo(() => {
+		if (!pricingPlanObj) return 0;
+		const count = selectedTeeth.length;
+
+		// If JawType is OTHER (No charting), assume count is 1 for pricing purposes if needed,
+		// though flat rates usually apply here.
+		const effectiveCount = jawType === "OTHER" && count === 0 ? 1 : count;
+
+		// Don't charge if no teeth selected (unless it's a flat bulk rate)
+		if (effectiveCount === 0 && pricingPlanObj.pricingStrategy !== "BULK") return 0;
+
+		switch (pricingPlanObj.pricingStrategy) {
+			case "BULK":
+				return Number(pricingPlanObj.bulkPrice || 0);
+
+			case "PERTOOTH":
+				// Standard multiplication
+				return effectiveCount * Number(pricingPlanObj.toothPrice || 0);
+
+			case "CUSTOM":
+				// 1. Check if they hit the Bulk Cap interval first!
+				if (pricingPlanObj.teethCountToApplyBulkPrice && pricingPlanObj.bulkPrice && effectiveCount >= Number(pricingPlanObj.teethCountToApplyBulkPrice)) {
+					return Number(pricingPlanObj.bulkPrice);
+				}
+
+				// 2. Otherwise, apply Tiered Pricing (1st tooth = X, rest = Y)
+				const firstPrice = Number(pricingPlanObj.firstToothPrice || 0);
+				const additionalPrice = Number(pricingPlanObj.additionalToothPrice || 0);
+
+				if (effectiveCount === 1) return firstPrice;
+				return firstPrice + additionalPrice * (effectiveCount - 1);
+
+			default:
+				return 0;
+		}
+	}, [pricingPlanObj, selectedTeeth.length, jawType]);
 
 	const handleSave = () => {
 		onSave({
 			productId,
 			workTypeId: worktypeId,
 			jawType,
-			selectedTeeth: selectedTeeth,
+			selectedTeeth: selectedTeeth.map((t) => ({ toothPosition: t })), // Map back to expected structure
 			casePricingPlanId: pricingPlanId,
-			pricingStrategy: "PERTOOTH", // Will be fetched from actual plan in production
-			totalPrice: selectedTeeth.length * 140, // Placeholder calculation
+			totalPrice: calculatedPrice, // Placeholder calculation
 		});
 	};
 
@@ -73,10 +117,16 @@ export function WorkItemEditorModal({ isOpen, onClose, onSave, initialData, sele
 
 	return (
 		<Dialog open={isOpen} onOpenChange={onClose}>
+			<DialogHeader className="sr-only">
+				<DialogTitle>Case Work Items Selector</DialogTitle>
+				<DialogDescription>Here You can build the case work items for your case</DialogDescription>
+			</DialogHeader>
 			<DialogContent
-				className="w-[95vw]! sm:w-full! max-w-5xl! lg:max-w-7xl p-0 overflow-hidden border-border bg-card shadow-2xl rounded-[24px] lg:rounded-[32px] gap-0 [&>button]:hidden max-h-[100vh] lg:max-h-[90vh] flex flex-col"
+				className="w-[95vw]! sm:w-full! max-w-5xl! lg:max-w-7xl p-0 overflow-hidden border-border bg-card shadow-2xl rounded-3xl lg:rounded-4xl gap-0 [&>button]:hidden max-h-screen lg:max-h-[90vh] flex flex-col"
 				showCloseButton={false}
 			>
+				<DialogDescription className="sr-only">Here You can build the case work items for your case</DialogDescription>
+
 				{/* --- HEADER --- */}
 				<div className="p-4 sm:p-6 border-b border-border flex items-center justify-between bg-background shrink-0 z-20">
 					<div className="flex items-center gap-3">
@@ -133,22 +183,25 @@ export function WorkItemEditorModal({ isOpen, onClose, onSave, initialData, sele
 								selectedProductId={productId}
 								selectedPricingPlanId={pricingPlanId}
 								onProductSelect={(id) => setProductId(id)}
-								onPricingPlanSelect={(id) => setPricingPlanId(id)}
+								onPricingPlanSelect={(id, plan) => {
+									setPricingPlanObj(plan);
+									setPricingPlanId(id);
+								}}
+								clinicId={selectedClinicId}
 								onWorkTypeSelect={(id) => setWorktypeId(id)}
-								selectedWorkTypeId={worktypeId}
 							/>
 						</div>
 
 						{/* Live Pricing / Status Preview */}
 						<div className="mt-8 lg:mt-auto lg:pt-8">
 							{!pricingPlanId ? (
-								<div className="p-5 rounded-2xl bg-slate-50 dark:bg-white/[0.02] border border-dashed border-border flex flex-col items-center justify-center text-center gap-2">
+								<div className="p-5 rounded-2xl bg-slate-50 dark:bg-white/2 border border-dashed border-border flex flex-col items-center justify-center text-center gap-2">
 									<Calculator className="w-6 h-6 text-slate-300 dark:text-zinc-600 mb-1" />
 									<p className="text-xs font-bold text-foreground">Awaiting Pricing Plan</p>
 									<p className="text-[10px] text-muted-foreground">Select a pricing plan above to estimate costs.</p>
 								</div>
 							) : (
-								<div className="p-5 rounded-2xl bg-gradient-to-br from-emerald-500/10 to-emerald-500/5 border border-emerald-500/20 transition-all duration-300 animate-in fade-in zoom-in-95 relative overflow-hidden">
+								<div className="p-5 rounded-2xl bg-linear-to-br from-emerald-500/10 to-emerald-500/5 border border-emerald-500/20 transition-all duration-300 animate-in fade-in zoom-in-95 relative overflow-hidden">
 									<div className="absolute -right-4 -top-4 w-16 h-16 bg-emerald-500/10 rounded-full blur-xl"></div>
 
 									<div className="flex items-center justify-between mb-4 relative z-10">
@@ -156,11 +209,17 @@ export function WorkItemEditorModal({ isOpen, onClose, onSave, initialData, sele
 											<CreditCard className="w-3.5 h-3.5" /> Est. Item Total
 										</p>
 										<span className="px-2 py-0.5 rounded-md bg-white dark:bg-[#121214] border border-emerald-500/20 text-[9px] font-bold text-emerald-600 uppercase">
-											Per-Tooth Rate
+											{pricingPlanObj?.pricingStrategy === "PERTOOTH" ? (
+												<>Strict Per-Unit</>
+											) : pricingPlanObj?.pricingStrategy === "BULK" ? (
+												<>Flat Rate / Arch</>
+											) : (
+												<>Tiered & Hybrid</>
+											)}
 										</span>
 									</div>
 									<div className="flex items-end justify-between mt-2 relative z-10">
-										<span className="text-3xl font-mono font-bold text-foreground">${(selectedTeeth.length * 140).toFixed(2)}</span>
+										<span className="text-3xl font-mono font-bold text-foreground">${calculatedPrice.toFixed(2)}</span>
 										<span className="text-xs font-bold text-muted-foreground">{selectedTeeth.length} Units Mapped</span>
 									</div>
 								</div>
@@ -169,7 +228,7 @@ export function WorkItemEditorModal({ isOpen, onClose, onSave, initialData, sele
 					</div>
 
 					{/* RIGHT PANE: The Dental Canvas */}
-					<div className="flex-1 bg-slate-50 dark:bg-[#09090B] relative flex flex-col overflow-hidden min-h-[400px] lg:min-h-0 border-t lg:border-t-0 border-border">
+					<div className="flex-1 bg-slate-50 dark:bg-[#09090B] relative flex flex-col overflow-hidden min-h-100 lg:min-h-0 border-t lg:border-t-0 border-border">
 						{jawType === "OTHER" ? (
 							<div className="flex-1 flex flex-col items-center justify-center text-center p-8 animate-in fade-in">
 								<Layers className="w-12 h-12 text-slate-300 dark:text-zinc-700 mb-4" />

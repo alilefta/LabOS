@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useForm, Controller, FormProvider, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2, Wallet, DollarSign, Calculator, Info } from "lucide-react";
+import { Loader2, Wallet, DollarSign, Calculator, Info, Globe, Building2 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -14,20 +14,27 @@ import { InputWithLabel } from "@/components/ui/custom/input-with-label";
 
 import { useClinicalCreationStore } from "@/store/use-clinical-creation-store";
 
-import { CreateCaseItemPricingPlanInput, CreateCaseItemPricingPlanInputSchema } from "@/schema/composed/case-pricing-plan.details";
+import { CasePricingPlanDetailsUI, CreateCaseItemPricingPlanInput, CreateCaseItemPricingPlanInputSchema } from "@/schema/composed/case-pricing-plan.details";
 import { createPricingPlanAction } from "@/actions/pricing-plan";
 import { useAction } from "next-safe-action/hooks";
 import { handleSafeActionError } from "@/lib/safe-action-helpers";
 import { WorkTypeBlueprintHierarchy } from "../work-type/worktype-blueprint-hierarchy";
+import { useQueryClient } from "@tanstack/react-query";
+
+type QueryDataShape = CasePricingPlanDetailsUI[];
 
 export function CreatePricingPlanSheet() {
 	const isPricingSheetOpen = useClinicalCreationStore((state) => state.isPricingSheetOpen);
 	const closeAllSheets = useClinicalCreationStore((state) => state.closeAllSheets);
 	const activeProductId = useClinicalCreationStore((state) => state.activeProductId);
+	const activeClinicId = useClinicalCreationStore((state) => state.activeClinicId as string | null);
 	const setNewlyCreated = useClinicalCreationStore((state) => state.setNewlyCreated);
 
 	// Local state to toggle the hybrid "Bulk Cap" inside the CUSTOM strategy
 	const [showCustomBulkCap, setShowCustomBulkCap] = useState(false);
+	const [pricingScope, setPricingScope] = useState<"GENERAL" | "CUSTOM_CLINIC">("GENERAL");
+
+	const queryClient = useQueryClient();
 
 	const form = useForm<CreateCaseItemPricingPlanInput>({
 		resolver: zodResolver(CreateCaseItemPricingPlanInputSchema),
@@ -51,6 +58,11 @@ export function CreatePricingPlanSheet() {
 			if (data?.pricingPlan?.id) {
 				setNewlyCreated("pricing", data.pricingPlan.id);
 			}
+
+			queryClient.setQueryData<QueryDataShape>(["pricingPlans", activeProductId], (old: QueryDataShape | undefined) => {
+				return old ? [data.pricingPlan, ...old] : [data.pricingPlan];
+			});
+
 			closeAllSheets();
 			form.reset();
 		},
@@ -82,8 +94,21 @@ export function CreatePricingPlanSheet() {
 	};
 
 	const onSubmit = async (data: CreateCaseItemPricingPlanInput) => {
-		await createPlan(data);
+		// INJECT THE CLINIC ID IF CUSTOM SCOPE IS SELECTED
+		const payload = {
+			...data,
+			clinicId: pricingScope === "CUSTOM_CLINIC" && activeClinicId ? activeClinicId : undefined,
+			// If it's a custom deal for a clinic, it usually shouldn't be the "Global Default"
+			isDefault: pricingScope === "GENERAL" ? data.isDefault : false,
+		};
+
+		console.log("Submitting Payload:", payload);
+		await createPlan(payload);
 	};
+
+	useEffect(() => {
+		console.log("Form Errors for Create-Pricing-Plans-sheet", form.formState.errors);
+	}, [form.formState.errors]);
 
 	return (
 		<Sheet open={isPricingSheetOpen} onOpenChange={(open) => !open && closeAllSheets()}>
@@ -113,6 +138,48 @@ export function CreatePricingPlanSheet() {
 									<InputWithLabel field={field} fieldState={fieldState} fieldTitle="Plan Name" nameInSchema="name" placeholder="e.g. Standard Zirconia Rate" />
 								)}
 							/>
+
+							{/* --- NEW: PRICING SCOPE SELECTOR --- */}
+							<div className="space-y-3">
+								<label className="text-[13px] font-bold text-slate-700 dark:text-zinc-300">Pricing Scope</label>
+								<div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+									<button
+										type="button"
+										onClick={() => setPricingScope("GENERAL")}
+										className={cn(
+											"flex flex-col p-4 rounded-xl border text-left transition-all duration-200 relative overflow-hidden",
+											pricingScope === "GENERAL"
+												? "border-emerald-500 bg-emerald-500/5 ring-1 ring-emerald-500/20 shadow-sm"
+												: "border-border bg-slate-50 dark:bg-white/2 hover:border-slate-300 dark:hover:border-white/10",
+										)}
+									>
+										<Globe className={cn("w-5 h-5 mb-2", pricingScope === "GENERAL" ? "text-emerald-500" : "text-muted-foreground")} />
+										<span className={cn("text-sm font-bold mb-1", pricingScope === "GENERAL" ? "text-emerald-600 dark:text-emerald-500" : "text-foreground")}>Standard Rate</span>
+										<span className="text-[10px] text-muted-foreground leading-snug">Available to all clinics in your lab.</span>
+									</button>
+
+									<button
+										type="button"
+										disabled={!activeClinicId} // Disable if they opened this sheet from Settings instead of New Case
+										onClick={() => setPricingScope("CUSTOM_CLINIC")}
+										className={cn(
+											"flex flex-col p-4 rounded-xl border text-left transition-all duration-200 relative overflow-hidden",
+											pricingScope === "CUSTOM_CLINIC"
+												? "border-emerald-500 bg-emerald-500/5 ring-1 ring-emerald-500/20 shadow-sm"
+												: "border-border bg-slate-50 dark:bg-white/2 hover:border-slate-300 dark:hover:border-white/10",
+											!activeClinicId && "opacity-50 cursor-not-allowed",
+										)}
+									>
+										<Building2 className={cn("w-5 h-5 mb-2", pricingScope === "CUSTOM_CLINIC" ? "text-emerald-500" : "text-muted-foreground")} />
+										<span className={cn("text-sm font-bold mb-1", pricingScope === "CUSTOM_CLINIC" ? "text-emerald-600 dark:text-emerald-500" : "text-foreground")}>
+											Custom Deal
+										</span>
+										<span className="text-[10px] text-muted-foreground leading-snug">
+											{!activeClinicId ? "Only available when creating a case for a specific clinic." : "Locked exclusively to the current active clinic."}
+										</span>
+									</button>
+								</div>
+							</div>
 
 							{/* --- DYNAMIC STRATEGY SELECTOR --- */}
 							<div className="flex flex-col gap-3">
@@ -219,9 +286,9 @@ export function CreatePricingPlanSheet() {
 									/>
 								)}
 
-								{/* SCENARIO 2: FLAT / BULK */}
+								{/* SCENARIO 2: PURE BULK / FLAT RATE */}
 								{selectedStrategy === "BULK" && (
-									<div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+									<div className="space-y-2 animate-in fade-in slide-in-from-top-2 duration-300">
 										<Controller
 											control={form.control}
 											name="bulkPrice"
@@ -230,40 +297,22 @@ export function CreatePricingPlanSheet() {
 													type="number"
 													field={field}
 													fieldState={fieldState}
-													fieldTitle="Flat Arch Price ($)"
+													fieldTitle="Flat Arch/Case Price ($)"
 													nameInSchema="bulkPrice"
 													placeholder="e.g. 500.00"
 												/>
 											)}
 										/>
-										<div className="flex flex-col gap-1.5">
-											<Controller
-												control={form.control}
-												name="teethCountToApplyBulkPrice"
-												render={({ field, fieldState }) => (
-													<InputWithLabel
-														type="number"
-														field={field}
-														fieldState={fieldState}
-														fieldTitle="Apply After (Units)"
-														nameInSchema="teethCountToApplyBulkPrice"
-														placeholder="e.g. 1"
-													/>
-												)}
-											/>
-											<div className="flex items-start gap-1.5 mt-1 text-muted-foreground">
-												<Info className="w-3.5 h-3.5 shrink-0 mt-0.5 text-emerald-500" />
-												<p className="text-[10px] font-medium leading-snug">
-													Set units to <strong className="text-foreground">1</strong> to apply a flat fee immediately (e.g. Bite Rims).
-												</p>
-											</div>
-										</div>
+										<p className="text-[10px] font-medium text-muted-foreground flex items-start gap-1.5 ml-1 mt-1.5">
+											<Info className="w-3.5 h-3.5 shrink-0 text-emerald-500" />
+											This single price will be billed regardless of how many teeth the clinician maps.
+										</p>
 									</div>
 								)}
 
-								{/* SCENARIO 3: CUSTOM / HYBRID */}
+								{/* SCENARIO 3: CUSTOM / HYBRID (The Math Intervals) */}
 								{selectedStrategy === "CUSTOM" && (
-									<div className="flex flex-col gap-6">
+									<div className="space-y-6 animate-in fade-in slide-in-from-top-2 duration-300">
 										<div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
 											<Controller
 												control={form.control}
@@ -299,20 +348,14 @@ export function CreatePricingPlanSheet() {
 										<div className="pt-2">
 											<div className="flex items-center justify-between p-4 rounded-xl bg-white dark:bg-white/2 border border-border shadow-sm">
 												<div className="flex flex-col gap-0.5 pr-4">
-													<span className="text-[13px] font-bold text-foreground">Enable Bulk Cap</span>
-													<span className="text-[10px] text-muted-foreground leading-snug">
-														If the case exceeds a certain number of teeth, override unit pricing and apply a flat fee.
-													</span>
+													<span className="text-[13px] font-bold text-foreground">Enable Volume Cap</span>
+													<span className="text-[10px] text-muted-foreground leading-snug">If the case exceeds a certain number of units, cap the price at a flat fee.</span>
 												</div>
-												<Switch
-													checked={showCustomBulkCap}
-													onCheckedChange={(checked) => handleCheckedChange(checked)}
-													className="data-[state=checked]:bg-emerald-500 shrink-0"
-												/>
+												<Switch checked={showCustomBulkCap} onCheckedChange={handleCheckedChange} className="data-[state=checked]:bg-emerald-500 shrink-0" />
 											</div>
 										</div>
 
-										{/* Revealed Bulk Fields */}
+										{/* Revealed Bulk Fields for Custom */}
 										{showCustomBulkCap && (
 											<div className="grid grid-cols-1 sm:grid-cols-2 gap-5 p-4 rounded-xl bg-emerald-500/5 border border-emerald-500/20 animate-in fade-in slide-in-from-top-2 duration-300">
 												<Controller

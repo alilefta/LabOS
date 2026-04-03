@@ -15,10 +15,13 @@ import { CustomFieldWithLabel } from "@/components/ui/custom/custom-field-with-l
 import { useClinicalCreationStore } from "@/store/use-clinical-creation-store";
 
 import { WorkTypeBlueprintHierarchy } from "../work-type/worktype-blueprint-hierarchy";
-import { CatalogImageUpload } from "@/components/shared/catalog-image-upload";
+import { CatalogImageUpload } from "@/components/shared/file-assets/catalog-image-upload";
 import { createProductAction } from "@/actions/product";
 import { handleSafeActionError } from "@/lib/safe-action-helpers";
-import { CreateProductInput, CreateProductInputSchema } from "@/schema/composed/product.details";
+import { CreateProductInput, CreateProductInputSchema, ProductDetailsUI } from "@/schema/composed/product.details";
+import { useQueryClient } from "@tanstack/react-query";
+
+type QueryDataShape = ProductDetailsUI[];
 
 export function CreateProductSheet() {
 	// 1. High-Performance Atomic Zustand Subscriptions
@@ -26,6 +29,8 @@ export function CreateProductSheet() {
 	const closeAllSheets = useClinicalCreationStore((state) => state.closeAllSheets);
 	const activeWorkTypeId = useClinicalCreationStore((state) => state.activeWorkTypeId);
 	const setNewlyCreated = useClinicalCreationStore((state) => state.setNewlyCreated);
+
+	const queryClient = useQueryClient();
 
 	const form = useForm<CreateProductInput>({
 		resolver: zodResolver(CreateProductInputSchema),
@@ -46,6 +51,10 @@ export function CreateProductSheet() {
 			if (data?.product?.id) {
 				setNewlyCreated("product", data.product.id);
 			}
+
+			queryClient.setQueryData<QueryDataShape>(["products", activeWorkTypeId], (old: QueryDataShape | undefined) => {
+				return old ? [data.product, ...old] : [data.product];
+			});
 
 			closeAllSheets();
 			form.reset();
