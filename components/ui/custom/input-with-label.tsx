@@ -39,9 +39,9 @@ export function InputWithLabel<S extends FieldValues>({
 				{isOptional && <span className="text-slate-500 dark:text-zinc-500">(Optional)</span>}
 			</FieldLabel>
 			<Input
-				type={type || "text"}
 				{...field}
 				{...props}
+				type={type || "text"}
 				value={field.value ?? ""}
 				id={nameInSchema}
 				aria-invalid={fieldState.invalid}
@@ -62,6 +62,13 @@ export function InputWithLabel<S extends FieldValues>({
 					type === "number" && "no-spinner",
 					inputClassName,
 				)}
+				onChange={(e) => {
+					if (type === "number") {
+						field.onChange(e.target.value === "" ? undefined : e.target.valueAsNumber);
+					} else {
+						field.onChange(e.target.value);
+					}
+				}}
 			/>
 
 			{fieldState.invalid && <FieldError errors={[fieldState.error]} className="text-[11px] font-medium text-destructive mt-1.5 block" />}
