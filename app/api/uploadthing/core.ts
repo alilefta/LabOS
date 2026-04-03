@@ -8,17 +8,22 @@ const f = createUploadthing();
 const auth = async (req: Request) => {
 	const session = await getServerSession();
 
-	if (!session) {
-		throw new UploadThingError("Unauthorized! You must be logged in to upload a file");
-	}
+	if (!session) throw new UploadThingError("Unauthorized");
 
-	return { userId: session.user.id };
+	const labId = session.user.labId;
+	if (!labId) throw new UploadThingError("No lab associated with this account");
+
+	return {
+		userId: session.user.id,
+		labId, // ← pass it through
+	};
 };
 
 type UploadCompleteResults = {
 	data: {
 		metadata: {
 			userId: string;
+			labId: string;
 		};
 		file: UploadedFileData;
 	};
@@ -33,7 +38,7 @@ const uploadComplete = ({ data, fileRouteName }: UploadCompleteResults) => {
 	console.log("file url", file.ufsUrl);
 
 	// !!! Whatever is returned here is sent to the clientside `onClientUploadComplete` callback
-	return { uploadedBy: metadata.userId };
+	return { uploadedBy: metadata.userId, labId: metadata.labId };
 };
 
 // FileRouter for your app, can contain multiple FileRoutes
@@ -76,6 +81,26 @@ export const labOSUploadRouter = {
 		// Set permissions and file types for this FileRoute
 		.middleware(async ({ req }) => auth(req))
 		.onUploadComplete(async (data) => uploadComplete({ data, fileRouteName: "Generic Avatar Icon" })),
+
+	caseAssetsRoute: f({
+		image: {
+			maxFileSize: "16MB",
+			maxFileCount: 1,
+		},
+
+		video: {
+			maxFileSize: "256MB",
+			maxFileCount: 1,
+		},
+
+		blob: {
+			maxFileSize: "256MB",
+			maxFileCount: 1,
+		},
+	})
+		// Set permissions and file types for this FileRoute
+		.middleware(async ({ req }) => auth(req))
+		.onUploadComplete(async (data) => uploadComplete({ data, fileRouteName: "Case Assets Route" })),
 
 	// messageFile: f({
 	// 	image: { maxFileSize: "8MB", maxFileCount: 5 },
