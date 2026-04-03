@@ -11,6 +11,7 @@ const makeSchema = () => z.object({
   description: z.boolean().optional(),
   documentUrl: z.boolean().optional(),
   assetFileType: z.boolean().optional(),
+  fileExtension: z.boolean().optional(),
   labId: z.boolean().optional(),
   lab: z.union([z.boolean(), z.lazy(() => LabArgsObjectSchema)]).optional(),
   createdAt: z.boolean().optional(),

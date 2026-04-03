@@ -13,6 +13,7 @@ const makeSchema = () => z.object({
   description: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
   documentUrl: SortOrderSchema.optional(),
   assetFileType: SortOrderSchema.optional(),
+  fileExtension: SortOrderSchema.optional(),
   labId: SortOrderSchema.optional(),
   createdAt: SortOrderSchema.optional(),
   updatedAt: SortOrderSchema.optional(),

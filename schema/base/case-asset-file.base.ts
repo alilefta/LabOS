@@ -8,6 +8,8 @@ export const CaseAssetFileBaseSchema = z.object({
 	description: z.string().nullable(),
 	documentUrl: z.string(),
 	assetFileType: AssetFileTypeSchema,
+	fileExtension: z.string(),
+
 	labId: z.string(),
 	createdAt: z.date(),
 	updatedAt: z.date(),

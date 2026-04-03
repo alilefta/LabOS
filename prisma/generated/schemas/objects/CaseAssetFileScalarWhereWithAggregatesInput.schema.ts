@@ -16,6 +16,7 @@ const caseassetfilescalarwherewithaggregatesinputSchema = z.object({
   description: z.union([z.lazy(() => StringNullableWithAggregatesFilterObjectSchema), z.string()]).optional().nullable(),
   documentUrl: z.union([z.lazy(() => StringWithAggregatesFilterObjectSchema), z.string()]).optional(),
   assetFileType: z.union([z.lazy(() => EnumAssetFileTypeWithAggregatesFilterObjectSchema), AssetFileTypeSchema]).optional(),
+  fileExtension: z.union([z.lazy(() => StringWithAggregatesFilterObjectSchema), z.string()]).optional(),
   labId: z.union([z.lazy(() => StringWithAggregatesFilterObjectSchema), z.string()]).optional(),
   createdAt: z.union([z.lazy(() => DateTimeWithAggregatesFilterObjectSchema), z.coerce.date()]).optional(),
   updatedAt: z.union([z.lazy(() => DateTimeWithAggregatesFilterObjectSchema), z.coerce.date()]).optional()

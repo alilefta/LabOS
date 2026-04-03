@@ -9,6 +9,7 @@ const makeSchema = () => z.object({
   description: SortOrderSchema.optional(),
   documentUrl: SortOrderSchema.optional(),
   assetFileType: SortOrderSchema.optional(),
+  fileExtension: SortOrderSchema.optional(),
   labId: SortOrderSchema.optional(),
   createdAt: SortOrderSchema.optional(),
   updatedAt: SortOrderSchema.optional()

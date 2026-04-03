@@ -359,19 +359,20 @@ model CaseWorkItem {
 }
 
 model CaseAssetFile {
-  id     String @id @default(uuid())
-  dentalCaseId String
-  dentalCase   Case   @relation(fields: [dentalCaseId], references: [id], onDelete: Cascade)
+  id                  String @id @default(uuid())
+  dentalCaseId        String
+  dentalCase          Case   @relation(fields: [dentalCaseId], references: [id], onDelete: Cascade)
 
-  title         String?
-  description   String?
-  documentUrl   String
-  assetFileType AssetFileType @default(IMAGE)
-  labId         String
-  lab           Lab           @relation(fields: [labId], references: [id], onDelete: Cascade)
+  title               String?
+  description         String?
+  documentUrl         String
+  assetFileType       AssetFileType @default(IMAGE)
+  fileExtension       String
+  labId               String
+  lab                 Lab           @relation(fields: [labId], references: [id], onDelete: Cascade)
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
 
   @@index([labId])
   @@index([dentalCaseId])

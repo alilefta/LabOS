@@ -39,15 +39,15 @@ export const CreateCaseItemPricingPlanInputSchema = z
 		toothPrice: z.number().optional(),
 
 		productId: z.string().trim().min(1),
-		clinicId: z.string().trim().min(1),
+		clinicId: z.string().trim().min(1).optional(),
 	})
 	.superRefine((data, ctx) => {
 		if (data.pricingStrategy === "PERTOOTH") {
 			if (data.toothPrice === null) {
 				ctx.addIssue({
 					code: "invalid_type",
-					message: "First tooth price is required",
-					path: ["firstToothPrice"],
+					message: "Tooth price is required",
+					path: ["toothPrice"],
 					expected: "number",
 				});
 			}

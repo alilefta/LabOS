@@ -20,6 +20,7 @@ const caseassetfilewhereinputSchema = z.object({
   description: z.union([z.lazy(() => StringNullableFilterObjectSchema), z.string()]).optional().nullable(),
   documentUrl: z.union([z.lazy(() => StringFilterObjectSchema), z.string()]).optional(),
   assetFileType: z.union([z.lazy(() => EnumAssetFileTypeFilterObjectSchema), AssetFileTypeSchema]).optional(),
+  fileExtension: z.union([z.lazy(() => StringFilterObjectSchema), z.string()]).optional(),
   labId: z.union([z.lazy(() => StringFilterObjectSchema), z.string()]).optional(),
   createdAt: z.union([z.lazy(() => DateTimeFilterObjectSchema), z.coerce.date()]).optional(),
   updatedAt: z.union([z.lazy(() => DateTimeFilterObjectSchema), z.coerce.date()]).optional(),

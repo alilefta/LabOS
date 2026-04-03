@@ -9,6 +9,7 @@ export const CaseAssetFileInputSchema = z.object({
     description: z.string().optional().nullable(),
     documentUrl: z.string(),
     assetFileType: AssetFileTypeSchema,
+    fileExtension: z.string(),
     labId: z.string(),
     lab: z.unknown(),
     createdAt: z.date(),

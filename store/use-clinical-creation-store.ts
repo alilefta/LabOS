@@ -11,6 +11,8 @@ interface ClinicalCreationState {
 	activeWorkTypeId: string | null;
 	activeProductId: string | null;
 
+	activeClinicId: string | null; // required for pricing plan
+
 	// --- NEWLY CREATED IDs (Used by the Configurator to auto-select) ---
 	newCreatedWorkTypeId: string | null;
 	newCreatedProductId: string | null;
@@ -19,7 +21,7 @@ interface ClinicalCreationState {
 	// --- ACTIONS ---
 	openWorkTypeSheet: (categoryId: string) => void;
 	openProductSheet: (workTypeId: string) => void;
-	openPricingSheet: (productId: string) => void;
+	openPricingSheet: (productId: string, clinicId?: string | null) => void;
 
 	closeAllSheets: () => void;
 
@@ -35,6 +37,7 @@ export const useClinicalCreationStore = create<ClinicalCreationState>((set) => (
 	activeCategoryId: null,
 	activeWorkTypeId: null,
 	activeProductId: null,
+	activeClinicId: null,
 
 	newCreatedWorkTypeId: null,
 	newCreatedProductId: null,
@@ -43,7 +46,7 @@ export const useClinicalCreationStore = create<ClinicalCreationState>((set) => (
 	// Opens the sheet AND sets the parent ID it needs
 	openWorkTypeSheet: (categoryId) => set({ isWorkTypeSheetOpen: true, activeCategoryId: categoryId }),
 	openProductSheet: (workTypeId) => set({ isProductSheetOpen: true, activeWorkTypeId: workTypeId }),
-	openPricingSheet: (productId) => set({ isPricingSheetOpen: true, activeProductId: productId }),
+	openPricingSheet: (productId, clinicId) => set({ isPricingSheetOpen: true, activeProductId: productId, activeClinicId: clinicId || null }),
 
 	closeAllSheets: () =>
 		set({

@@ -18,7 +18,7 @@ export const ClinicDetailsSchema = ClinicBaseSchema.extend({
 export type ClinicDetails = z.infer<typeof ClinicDetailsSchema>;
 
 export const ClinicDetailsUISchema = ClinicBaseSchema.extend({
-	lab: LabBaseSchema,
+	lab: LabBaseSchema.optional(),
 	cases: z.array(CaseBaseSchema).optional(),
 	dentists: z.array(DentistBaseSchema).optional(),
 	casePricingPlans: z.array(CasePricingPlanBaseSchema).optional(),

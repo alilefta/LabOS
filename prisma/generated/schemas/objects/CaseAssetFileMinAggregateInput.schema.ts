@@ -9,6 +9,7 @@ const makeSchema = () => z.object({
   description: z.literal(true).optional(),
   documentUrl: z.literal(true).optional(),
   assetFileType: z.literal(true).optional(),
+  fileExtension: z.literal(true).optional(),
   labId: z.literal(true).optional(),
   createdAt: z.literal(true).optional(),
   updatedAt: z.literal(true).optional()

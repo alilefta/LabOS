@@ -10,6 +10,7 @@ const makeSchema = () => z.object({
   description: z.string().optional().nullable(),
   documentUrl: z.string(),
   assetFileType: AssetFileTypeSchema.optional(),
+  fileExtension: z.string(),
   createdAt: z.coerce.date().optional(),
   dentalCase: z.lazy(() => CaseCreateNestedOneWithoutCaseAssetFilesInputObjectSchema),
   lab: z.lazy(() => LabCreateNestedOneWithoutCaseAssetFilesInputObjectSchema)

@@ -5,6 +5,7 @@ export const CaseAssetFileGroupByResultSchema = z.array(z.object({
   title: z.string(),
   description: z.string(),
   documentUrl: z.string(),
+  fileExtension: z.string(),
   labId: z.string(),
   createdAt: z.date(),
   updatedAt: z.date(),
@@ -16,6 +17,7 @@ export const CaseAssetFileGroupByResultSchema = z.array(z.object({
     description: z.number(),
     documentUrl: z.number(),
     assetFileType: z.number(),
+    fileExtension: z.number(),
     labId: z.number(),
     lab: z.number(),
     createdAt: z.number(),
@@ -27,6 +29,7 @@ export const CaseAssetFileGroupByResultSchema = z.array(z.object({
     title: z.string().nullable(),
     description: z.string().nullable(),
     documentUrl: z.string().nullable(),
+    fileExtension: z.string().nullable(),
     labId: z.string().nullable(),
     createdAt: z.date().nullable(),
     updatedAt: z.date().nullable()
@@ -37,6 +40,7 @@ export const CaseAssetFileGroupByResultSchema = z.array(z.object({
     title: z.string().nullable(),
     description: z.string().nullable(),
     documentUrl: z.string().nullable(),
+    fileExtension: z.string().nullable(),
     labId: z.string().nullable(),
     createdAt: z.date().nullable(),
     updatedAt: z.date().nullable()

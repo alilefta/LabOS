@@ -9,7 +9,6 @@ import { SelectedToothBaseSchema } from "../base/selected-tooth.base";
 import { JawTypeSchema } from "../base/enums.base";
 import { WorkTypeBaseSchema } from "../base/worktype.base";
 import { CreateSelectedToothInputSchema } from "./selected-tooth.details";
-import { CreateCaseItemPricingPlanInputSchema } from "./case-pricing-plan.details";
 
 export const CaseWorkItemDetailsSchema = CaseWorkItemBaseSchema.extend({
 	product: ProductBaseSchema.nullable(),

@@ -54,7 +54,7 @@ export const createClinicAction = actionClientWithLab
 			return {
 				clinic: {
 					...clinic,
-					currentBalance: clinic.currentBalance === null ? null : Number(clinic.currentBalance),
+					currentBalance: Number(clinic.currentBalance),
 					discount: clinic.discount === null ? null : Number(clinic.discount),
 					creditLimit: clinic.creditLimit === null ? null : Number(clinic.creditLimit),
 				},

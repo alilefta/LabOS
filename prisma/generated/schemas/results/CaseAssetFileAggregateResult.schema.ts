@@ -7,6 +7,7 @@ export const CaseAssetFileAggregateResultSchema = z.object({  _count: z.object({
     description: z.number(),
     documentUrl: z.number(),
     assetFileType: z.number(),
+    fileExtension: z.number(),
     labId: z.number(),
     lab: z.number(),
     createdAt: z.number(),
@@ -18,6 +19,7 @@ export const CaseAssetFileAggregateResultSchema = z.object({  _count: z.object({
     title: z.string().nullable(),
     description: z.string().nullable(),
     documentUrl: z.string().nullable(),
+    fileExtension: z.string().nullable(),
     labId: z.string().nullable(),
     createdAt: z.date().nullable(),
     updatedAt: z.date().nullable()
@@ -28,6 +30,7 @@ export const CaseAssetFileAggregateResultSchema = z.object({  _count: z.object({
     title: z.string().nullable(),
     description: z.string().nullable(),
     documentUrl: z.string().nullable(),
+    fileExtension: z.string().nullable(),
     labId: z.string().nullable(),
     createdAt: z.date().nullable(),
     updatedAt: z.date().nullable()

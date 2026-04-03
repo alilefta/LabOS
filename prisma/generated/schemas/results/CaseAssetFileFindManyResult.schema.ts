@@ -8,6 +8,7 @@ export const CaseAssetFileFindManyResultSchema = z.object({
   description: z.string().optional(),
   documentUrl: z.string(),
   assetFileType: z.unknown(),
+  fileExtension: z.string(),
   labId: z.string(),
   lab: z.unknown(),
   createdAt: z.date(),
