@@ -76,7 +76,7 @@ export function CategoryIconUpload() {
 				className={cn(
 					"group relative flex flex-col items-center justify-center w-28 h-28 rounded-2xl border-2 border-dashed transition-all duration-300 cursor-pointer overflow-hidden shadow-sm",
 					// Drag state
-					isDragActive ? "border-primary bg-primary/5 scale-105" : "border-border bg-slate-50 dark:bg-white/[0.02] hover:border-primary/50 hover:bg-slate-100 dark:hover:bg-white/5",
+					isDragActive ? "border-primary bg-primary/5 scale-105" : "border-border bg-slate-50 dark:bg-white/2 hover:border-primary/50 hover:bg-slate-100 dark:hover:bg-white/5",
 					// Preview state
 					preview && "border-solid border-border shadow-md",
 					// Error state

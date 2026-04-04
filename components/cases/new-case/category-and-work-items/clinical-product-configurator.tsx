@@ -26,6 +26,7 @@ interface ClinicalProductConfiguratorProps {
 	onProductSelect: (id: string) => void;
 	onWorkTypeSelect: (id: string) => void;
 	onPricingPlanSelect: (id: string, plan: CasePricingPlanDetailsUI | null) => void;
+	selectedCategoryName: string | null;
 }
 
 export function ClinicalProductConfigurator({
@@ -36,6 +37,7 @@ export function ClinicalProductConfigurator({
 	onProductSelect,
 	onPricingPlanSelect,
 	onWorkTypeSelect,
+	selectedCategoryName,
 }: ClinicalProductConfiguratorProps) {
 	// Internal cascading state for WorkType
 	const [selectedWorkTypeId, setSelectedWorkTypeId] = useState<string>("");
@@ -152,7 +154,7 @@ export function ClinicalProductConfigurator({
 					}}
 					onCreate={() => {
 						setWtOpen(false);
-						if (categoryId) openWorkTypeSheet(categoryId);
+						if (categoryId) openWorkTypeSheet(categoryId, selectedCategoryName ?? "Selected Category");
 					}}
 					createLabel="Create New Work Type"
 					emptyText="No work types found."

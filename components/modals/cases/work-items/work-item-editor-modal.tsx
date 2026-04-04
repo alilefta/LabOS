@@ -19,6 +19,7 @@ interface WorkItemEditorProps {
 	initialData: CreateCaseWorkItemInput | null;
 	selectedCategoryId: string | null;
 	selectedClinicId: string | null;
+	selectedCategoryName: string | null;
 }
 
 const parseTeethFromData = (teethData: CreateCaseWorkItemInput["selectedTeeth"]): ToothPosition[] => {
@@ -26,7 +27,7 @@ const parseTeethFromData = (teethData: CreateCaseWorkItemInput["selectedTeeth"])
 	return teethData.map((t) => (typeof t === "string" ? t : t.toothPosition));
 };
 
-export function WorkItemEditorModal({ isOpen, onClose, onSave, initialData, selectedCategoryId, selectedClinicId }: WorkItemEditorProps) {
+export function WorkItemEditorModal({ isOpen, onClose, onSave, initialData, selectedCategoryId, selectedClinicId, selectedCategoryName }: WorkItemEditorProps) {
 	// Local State
 	const [productId, setProductId] = useState(initialData?.productId || "");
 	const [pricingPlanId, setPricingPlanId] = useState(initialData?.casePricingPlanId || "");
@@ -182,6 +183,7 @@ export function WorkItemEditorModal({ isOpen, onClose, onSave, initialData, sele
 								categoryId={selectedCategoryId}
 								selectedProductId={productId}
 								selectedPricingPlanId={pricingPlanId}
+								selectedCategoryName={selectedCategoryName}
 								onProductSelect={(id) => setProductId(id)}
 								onPricingPlanSelect={(id, plan) => {
 									setPricingPlanObj(plan);

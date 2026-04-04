@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { X, ChevronLeft, ChevronRight, Download, Box, ImageIcon, Video, Info, FileText } from "lucide-react";
@@ -13,6 +13,19 @@ const ScannerFilesViewer = dynamic(() => import("./scanner-files-viewer").then((
 	ssr: false,
 	loading: () => <div className="w-full h-full flex items-center justify-center text-foreground text-sm font-medium animate-pulse">Loading 3D Engine...</div>,
 });
+
+const getIcon = (type?: AssetFileType) => {
+	switch (type) {
+		case "SCANNERFILE":
+			return <Box className="w-5 h-5" />;
+		case "IMAGE":
+			return <ImageIcon className="w-5 h-5" />;
+		case "VIDEO":
+			return <Video className="w-5 h-5" />;
+		default:
+			return <ImageIcon className="w-5 h-5 opacity-50" />;
+	}
+};
 
 interface Asset {
 	id?: string;
@@ -30,28 +43,20 @@ interface Props {
 	initialIndex: number;
 }
 
-const getIcon = (type: AssetFileType) => {
-	switch (type) {
-		case "SCANNERFILE":
-			return <Box className="w-5 h-5" />;
-		case "IMAGE":
-			return <ImageIcon className="w-5 h-5" />;
-		case "VIDEO":
-			return <Video className="w-5 h-5" />;
-	}
-};
-
 export function ClinicalAssetLightbox({ isOpen, onClose, assets, initialIndex }: Props) {
-	const [currentIndex, setCurrentIndex] = useState(initialIndex || 0);
+	console.log("Clinical Asset Lightbox Re-rendered,", assets);
+	const [currentIndex, setCurrentIndex] = useState(initialIndex);
 	// const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
 	const [loading, setLoading] = useState(true);
 
-	useEffect(() => {
-		if (isOpen) {
-			setCurrentIndex(initialIndex);
-			setLoading(true);
-		}
-	}, [isOpen, initialIndex]);
+	// useEffect(() => {
+	// 	if (isOpen) {
+	// 		setCurrentIndex(initialIndex);
+	// 		setLoading(true);
+	// 	} else {
+	// 		setCurrentIndex(0);
+	// 	}
+	// }, [isOpen, initialIndex]);
 
 	// // Reset index when modal opens
 	// useEffect(() => {
@@ -59,17 +64,23 @@ export function ClinicalAssetLightbox({ isOpen, onClose, assets, initialIndex }:
 	// }, [isOpen, initialIndex]);
 
 	// Action-bound loading state (NO useEffect needed)
-	const handleNext = (e?: React.MouseEvent | KeyboardEvent) => {
-		e?.stopPropagation();
-		setLoading(true);
-		setCurrentIndex((prev) => (prev + 1) % assets.length);
-	};
+	const handleNext = useCallback(
+		(e?: React.MouseEvent | KeyboardEvent) => {
+			e?.stopPropagation();
+			setLoading(true);
+			setCurrentIndex((prev) => (prev + 1) % assets.length);
+		},
+		[assets.length],
+	);
 
-	const handlePrev = (e?: React.MouseEvent | KeyboardEvent) => {
-		e?.stopPropagation();
-		setLoading(true);
-		setCurrentIndex((prev) => (prev - 1 + assets.length) % assets.length);
-	};
+	const handlePrev = useCallback(
+		(e?: React.MouseEvent | KeyboardEvent) => {
+			e?.stopPropagation();
+			setLoading(true);
+			setCurrentIndex((prev) => (prev - 1 + assets.length) % assets.length);
+		},
+		[assets.length],
+	);
 
 	// Keyboard Navigation
 	useEffect(() => {
@@ -77,10 +88,11 @@ export function ClinicalAssetLightbox({ isOpen, onClose, assets, initialIndex }:
 			if (!isOpen) return;
 			if (e.key === "ArrowRight") handleNext();
 			if (e.key === "ArrowLeft") handlePrev();
+			if (e.key === "Escape") onClose();
 		};
 		window.addEventListener("keydown", handleKeyDown);
 		return () => window.removeEventListener("keydown", handleKeyDown);
-	}, [isOpen, assets.length]);
+	}, [isOpen, handleNext, handlePrev, onClose]);
 
 	if (!assets || assets.length === 0) return null;
 
@@ -88,16 +100,16 @@ export function ClinicalAssetLightbox({ isOpen, onClose, assets, initialIndex }:
 	// If the array shrinks in the background (deletion), force the index back into bounds
 	const safeIndex = Math.min(currentIndex, Math.max(0, assets.length - 1));
 	const currentAsset = assets[safeIndex];
-
 	// Ultimate safety check
 	if (!currentAsset) return null;
 
-	const isImage = currentAsset.assetFileType === "IMAGE";
-	const isVideo = currentAsset.assetFileType === "VIDEO";
-	const is3D = currentAsset.assetFileType === "SCANNERFILE";
+	// --- FIX 3: Optional Chaining to prevent mid-render crashes ---
+	const isImage = currentAsset?.assetFileType === "IMAGE";
+	const isVideo = currentAsset?.assetFileType === "VIDEO";
+	const is3D = currentAsset?.assetFileType === "SCANNERFILE";
 
 	const supported3D = ["stl", "obj", "ply", "gltf", "glb"];
-	const canRender3D = is3D && currentAsset.documentUrl && currentAsset.fileExtension && supported3D.includes(currentAsset.fileExtension.toLowerCase());
+	const canRender3D = is3D && currentAsset?.documentUrl && currentAsset?.fileExtension && supported3D.includes(currentAsset.fileExtension.toLowerCase());
 	return (
 		<Dialog open={isOpen} onOpenChange={onClose}>
 			{/* Accessibility requirements */}
@@ -105,18 +117,18 @@ export function ClinicalAssetLightbox({ isOpen, onClose, assets, initialIndex }:
 			<DialogDescription className="sr-only">Detailed view of clinical asset with metadata.</DialogDescription>
 
 			<DialogContent
-				className="max-w-[100vw]! w-screen h-screen max-h-screen p-0 border-none bg-[#09090B]/95 backdrop-blur-2xl rounded-none flex flex-col overflow-hidden [&>button]:hidden z-[100]"
+				className="max-w-[100vw]! w-screen h-screen max-h-screen p-0 border-none bg-[#09090B]/95 backdrop-blur-2xl rounded-none flex flex-col overflow-hidden [&>button]:hidden z-100"
 				showCloseButton={false}
 			>
 				{/* --- TOP NAVIGATION BAR --- */}
 				<div className="h-16 shrink-0 flex items-center justify-between px-6 border-b border-white/10 bg-black/20">
 					<div className="flex items-center gap-4">
 						<div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-white">
-							{getIcon(currentAsset.assetFileType)}
-							<span className="text-[11px] font-bold uppercase tracking-widest">{currentAsset.assetFileType}</span>
+							{getIcon(currentAsset?.assetFileType)}
+							<span className="text-[11px] font-bold uppercase tracking-widest">{currentAsset?.assetFileType}</span>
 						</div>
 						<div className="flex flex-col">
-							<span className="text-sm font-bold text-white truncate max-w-md">{currentAsset.title || "Untitled Asset"}</span>
+							<span className="text-sm font-bold text-white truncate max-w-md">{currentAsset?.title || "Untitled Asset"}</span>
 							<span className="text-[10px] text-zinc-400 font-mono">
 								File {currentIndex + 1} of {assets.length}
 							</span>
@@ -124,9 +136,9 @@ export function ClinicalAssetLightbox({ isOpen, onClose, assets, initialIndex }:
 					</div>
 
 					<div className="flex items-center gap-4">
-						{currentAsset.documentUrl && (
+						{currentAsset?.documentUrl && (
 							<Button variant="outline" size="sm" className="h-9 rounded-xl border-white/10 bg-white/5 text-white hover:bg-white/10 hover:text-white" asChild>
-								<a href={currentAsset.documentUrl} download target="_blank" rel="noreferrer">
+								<a href={currentAsset?.documentUrl} download target="_blank" rel="noreferrer">
 									<Download className="w-4 h-4 mr-2" /> Download
 								</a>
 							</Button>
@@ -142,8 +154,8 @@ export function ClinicalAssetLightbox({ isOpen, onClose, assets, initialIndex }:
 				<div className="flex-1 flex flex-col lg:flex-row min-h-0 relative">
 					{/* Left/Main: The Media Viewer (75%) */}
 					<div className="flex-1 relative flex items-center justify-center p-4 sm:p-12 min-h-0 bg-black/40">
-						{isImage && currentAsset.documentUrl ? (
-							<div key={currentAsset.documentUrl} className="relative w-full h-full flex items-center justify-center animate-in zoom-in-95 duration-500">
+						{isImage && currentAsset?.documentUrl ? (
+							<div key={currentAsset?.documentUrl} className="relative w-full h-full flex items-center justify-center animate-in zoom-in-95 duration-500">
 								<div className="relative w-full h-full flex items-center justify-center">
 									{loading && (
 										<div className="absolute inset-0 flex items-center justify-center">
@@ -152,8 +164,8 @@ export function ClinicalAssetLightbox({ isOpen, onClose, assets, initialIndex }:
 									)}
 
 									<Image
-										src={currentAsset.documentUrl}
-										alt={currentAsset.title}
+										src={currentAsset?.documentUrl}
+										alt={currentAsset?.title}
 										priority
 										fill
 										className={cn("object-contain rounded-xl shadow-2xl ring-1 ring-white/10 transition-opacity duration-300", loading ? "opacity-0" : "opacity-100")}
@@ -161,29 +173,29 @@ export function ClinicalAssetLightbox({ isOpen, onClose, assets, initialIndex }:
 									/>
 								</div>
 							</div>
-						) : isVideo && currentAsset.documentUrl ? (
+						) : isVideo && currentAsset?.documentUrl ? (
 							<div className="relative w-full max-w-5xl rounded-2xl overflow-hidden shadow-2xl ring-1 ring-white/10 bg-black animate-in zoom-in-95 duration-500">
-								<video src={currentAsset.documentUrl} controls autoPlay className="w-full h-auto max-h-[70vh] outline-none" />
+								<video src={currentAsset?.documentUrl} controls autoPlay className="w-full h-auto max-h-[70vh] outline-none" />
 							</div>
-						) : canRender3D && currentAsset.documentUrl ? (
+						) : canRender3D && currentAsset?.documentUrl ? (
 							<div className="absolute inset-0 w-full h-full animate-in zoom-in-95 duration-500">
-								<ScannerFilesViewer url={currentAsset.documentUrl} extension={currentAsset.fileExtension} />
+								<ScannerFilesViewer url={currentAsset?.documentUrl} extension={currentAsset?.fileExtension} />
 							</div>
 						) : (
 							/* UNSUPPORTED / 3D SCAN STATE */
-							// Maybe here will goes the viewer if the currentAsset.fileExtension is supported
+							// Maybe here will goes the viewer if the currentAsset?.fileExtension is supported
 							<div className="flex flex-col items-center justify-center text-center max-w-md animate-in fade-in duration-500">
-								<div className="w-24 h-24 rounded-[24px] bg-primary/10 border border-primary/20 flex items-center justify-center text-primary mb-6 shadow-[0_0_30px_rgba(37,99,235,0.2)]">
+								<div className="w-24 h-24 rounded-24 bg-primary/10 border border-primary/20 flex items-center justify-center text-primary mb-6 shadow-[0_0_30px_rgba(37,99,235,0.2)]">
 									<Box className="w-12 h-12" />
 								</div>
 								<h3 className="text-2xl font-bold text-white mb-2">3D Scan Data</h3>
 								<p className="text-sm text-zinc-400 leading-relaxed mb-8">
-									In-browser 3D rendering for <span className="font-mono text-white bg-white/10 px-1 rounded">.{currentAsset.fileExtension}</span> is disabled to conserve
+									In-browser 3D rendering for <span className="font-mono text-white bg-white/10 px-1 rounded">.{currentAsset?.fileExtension}</span> is disabled to conserve
 									performance. Download the file to open it in Exocad or 3Shape.
 								</p>
-								{currentAsset.documentUrl && (
+								{currentAsset?.documentUrl && (
 									<Button className="rounded-xl h-12 px-8 bg-primary text-white shadow-premium font-bold hover:bg-primary/90" asChild>
-										<a href={currentAsset.documentUrl} download target="_blank" rel="noreferrer">
+										<a href={currentAsset?.documentUrl} download target="_blank" rel="noreferrer">
 											<Download className="w-4 h-4 mr-2" /> Download Mesh Data
 										</a>
 									</Button>
@@ -224,12 +236,12 @@ export function ClinicalAssetLightbox({ isOpen, onClose, assets, initialIndex }:
 						<div className="space-y-6">
 							<div>
 								<label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest block mb-1">Asset Name</label>
-								<p className="text-sm font-semibold text-white wrap-break-word">{currentAsset.title || "No title provided"}</p>
+								<p className="text-sm font-semibold text-white wrap-break-word">{currentAsset?.title || "No title provided"}</p>
 							</div>
 
 							<div>
 								<label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest block mb-1">Description / Notes</label>
-								{currentAsset.description ? (
+								{currentAsset?.description ? (
 									<div className="p-4 rounded-xl bg-white/5 border border-white/5 text-sm text-zinc-300 leading-relaxed italic">&quot;{currentAsset.description}&quot;</div>
 								) : (
 									<p className="text-sm text-zinc-600 italic">No clinical notes attached to this file.</p>

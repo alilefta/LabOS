@@ -4,7 +4,7 @@ import { Info, LayoutGrid, Layers, Package, Wallet } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface HierarchyProps {
-	categoryName: string;
+	categoryName?: string | null;
 	isCreatingProductOnly?: boolean;
 	isCreatingPriceOnly?: boolean;
 }

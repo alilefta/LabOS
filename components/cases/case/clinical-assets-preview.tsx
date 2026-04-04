@@ -1,7 +1,7 @@
 "use client";
 
 import { useFormContext, Controller, useFieldArray } from "react-hook-form";
-import { Box, ImageIcon, Video, Trash2, Eye, FileSearch, Play } from "lucide-react";
+import { Box, ImageIcon, Video, Trash2, Eye, Play } from "lucide-react";
 import { CreateCaseInput } from "@/schema/composed/case.details";
 import { AssetFileType } from "@/schema/base/enums.base";
 import { CustomFieldWithLabel } from "@/components/ui/custom/custom-field-with-label";
@@ -9,7 +9,6 @@ import Image from "next/image";
 import { ClinicalAssetLightbox } from "@/components/shared/file-assets/clinical-asset-lightbox";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
-import { InputWithLabel } from "@/components/ui/custom/input-with-label";
 
 const getIcon = (type: AssetFileType) => {
 	switch (type) {
@@ -22,8 +21,17 @@ const getIcon = (type: AssetFileType) => {
 	}
 };
 
+interface Asset {
+	id?: string;
+	title: string;
+	description?: string | null;
+	documentUrl?: string;
+	assetFileType: AssetFileType;
+	fileExtension: string; // Added to match your new schema
+}
+
 export function ClinicalAssetPreview() {
-	const { control } = useFormContext<CreateCaseInput>();
+	const { control, getValues } = useFormContext<CreateCaseInput>();
 	console.log("Assets Preview Re-render");
 	const { fields, remove } = useFieldArray({
 		control,
@@ -31,14 +39,17 @@ export function ClinicalAssetPreview() {
 	});
 	const isEmpty = fields.length === 0;
 	// Lightbox State
-	const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+	const [lightboxState, setLightboxState] = useState<{
+		stableAssets: Asset[]; // frozen at open time
+		index: number;
+	} | null>(null);
 
-	// Safe removal handler
-	// const handleRemove = (indexToRemove: number) => {
-	// 	const updatedAssets = [...fields];
-	// 	updatedAssets.splice(indexToRemove, 1);
-	// 	setValue("caseAssetFiles", updatedAssets, { shouldValidate: true });
-	// };
+	const openAssetLightboxModal = (index: number) => {
+		setLightboxState({
+			stableAssets: [...getValues("caseAssetFiles")],
+			index,
+		});
+	};
 
 	if (isEmpty) return null;
 
@@ -46,7 +57,7 @@ export function ClinicalAssetPreview() {
 		<div className="space-y-4">
 			<h4 className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1">Attachment Review</h4>
 			{/* --- EMPTY STATE --- */}
-			{isEmpty && (
+			{/* {isEmpty && (
 				<div className="h-40 rounded-2xl border-2 border-dashed border-border flex flex-col items-center justify-center bg-slate-50/50 dark:bg-white/2 animate-in fade-in zoom-in-95 duration-300">
 					<div className="w-12 h-12 rounded-xl bg-white dark:bg-[#121214] border border-border shadow-sm flex items-center justify-center mb-4">
 						<FileSearch className="w-6 h-6 text-slate-400 dark:text-zinc-500" />
@@ -56,16 +67,17 @@ export function ClinicalAssetPreview() {
 						Upload 3D scans, Rx documents, or patient photos in the dropzone above to review and annotate them here.
 					</p>
 				</div>
-			)}
+			)} */}
 
 			{/* --- ATTACHMENT GRID --- */}
 			{!isEmpty && (
 				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
 					{fields.map((field, index) => {
 						const currentLiveAsset = fields[index] || field;
+						const fileType = currentLiveAsset?.assetFileType;
 
-						const isImage = currentLiveAsset.assetFileType === "IMAGE";
-						const isVideo = currentLiveAsset.assetFileType === "VIDEO";
+						const isImage = fileType === "IMAGE";
+						const isVideo = fileType === "VIDEO";
 
 						return (
 							<div
@@ -102,23 +114,45 @@ export function ClinicalAssetPreview() {
 										</div>
 									)}
 
-									{/* THE "AWWWARDS" HOVER OVERLAY */}
-									<div className="absolute inset-0 bg-black/40 dark:bg-black/60 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center gap-4 z-20">
+									{/* --- HYBRID INTERACTION UX --- */}
+
+									{/* 1. DESKTOP Hover Overlay (Hidden on Mobile/Tablet) */}
+									<div className="hidden lg:flex absolute inset-0 bg-black/40 dark:bg-black/60 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-all duration-300 items-center justify-center gap-4 z-20">
 										<button
-											title="open asset preview"
+											title="View in full screen"
 											type="button"
-											onClick={() => setLightboxIndex(index)}
+											onClick={() => openAssetLightboxModal(index)}
 											className="w-12 h-12 rounded-full bg-white/20 hover:bg-primary border border-white/30 text-white flex items-center justify-center shadow-xl backdrop-blur-md transition-all duration-300 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-primary/50"
 										>
 											<Eye className="w-5 h-5" />
 										</button>
 										<button
-											title="remove asset"
+											title="Remove the asset"
 											type="button"
 											onClick={() => remove(index)}
 											className="w-12 h-12 rounded-full bg-white/20 hover:bg-destructive border border-white/30 text-white flex items-center justify-center shadow-xl backdrop-blur-md transition-all duration-300 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-destructive/50"
 										>
 											<Trash2 className="w-5 h-5" />
+										</button>
+									</div>
+
+									{/* 2. MOBILE / TABLET Floating Actions (Always visible, hidden on Desktop) */}
+									<div className="flex lg:hidden absolute top-2 right-2 z-20 gap-2">
+										<button
+											type="button"
+											title="View in full screen"
+											onClick={() => openAssetLightboxModal(index)}
+											className="w-9 h-9 rounded-full bg-black/40 backdrop-blur-md border border-white/20 text-white flex items-center justify-center shadow-lg active:scale-95 transition-transform"
+										>
+											<Eye className="w-4 h-4" />
+										</button>
+										<button
+											type="button"
+											title="Remove the asset"
+											onClick={() => remove(index)}
+											className="w-9 h-9 rounded-full bg-destructive/80 backdrop-blur-md border border-white/20 text-white flex items-center justify-center shadow-lg active:scale-95 transition-transform"
+										>
+											<Trash2 className="w-4 h-4" />
 										</button>
 									</div>
 								</div>
@@ -172,7 +206,13 @@ export function ClinicalAssetPreview() {
 			)}
 
 			{/* LIGHTBOX RENDER */}
-			<ClinicalAssetLightbox isOpen={lightboxIndex !== null} onClose={() => setLightboxIndex(null)} assets={fields} initialIndex={lightboxIndex ?? 0} />
+			<ClinicalAssetLightbox
+				key={lightboxState?.index ?? -1} // ← remounts when a different asset is opened
+				isOpen={lightboxState !== null}
+				onClose={() => setLightboxState(null)}
+				assets={lightboxState?.stableAssets ?? []}
+				initialIndex={lightboxState?.index ?? 0}
+			/>
 		</div>
 	);
 }

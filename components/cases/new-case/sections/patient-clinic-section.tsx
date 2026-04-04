@@ -45,7 +45,6 @@ export function PatientAndClinicSection({
 			</div>
 			<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 				<ClinicSelector onCreateNew={handleOpenClinicCreationSheet} newCreatedClinic={newCreatedClinic} onSelect={handleClinicSelect} />
-
 				<PatientSelector onCreateNew={handleOpenPatientCreationSheet} newCreatedPatient={newCreatedPatient} onSelect={handlePatientSelect} />
 			</div>
 		</section>

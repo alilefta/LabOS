@@ -29,6 +29,7 @@ export function CreateWorkTypeSheet() {
 	const isWorkTypeSheetOpen = useClinicalCreationStore((state) => state.isWorkTypeSheetOpen);
 	const closeAllSheets = useClinicalCreationStore((state) => state.closeAllSheets);
 	const activeCategoryId = useClinicalCreationStore((state) => state.activeCategoryId);
+	const activeCategoryName = useClinicalCreationStore((state) => state.activeCategoryName);
 	const setNewlyCreated = useClinicalCreationStore((state) => state.setNewlyCreated);
 
 	const queryClient = useQueryClient();
@@ -107,7 +108,7 @@ export function CreateWorkTypeSheet() {
 				{/* --- FORM BODY --- */}
 				<div className="flex-1 overflow-y-auto p-8 space-y-8 custom-scrollbar">
 					{/* --- UX FEATURE: HIERARCHY EDUCATION --- */}
-					<WorkTypeBlueprintHierarchy categoryName="Selected Category" isCreatingProductOnly={false} isCreatingPriceOnly={false} />
+					<WorkTypeBlueprintHierarchy categoryName={activeCategoryName} isCreatingProductOnly={false} isCreatingPriceOnly={false} />
 
 					<FormProvider {...form}>
 						<form id="create-work-type-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">

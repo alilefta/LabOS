@@ -1,9 +1,9 @@
 "use client";
 
 import z from "zod";
-import { HierarchicalClinicalPicker } from "../case/case-category-selector";
+import { HierarchicalClinicalPicker } from "../case/case-inputs/case-category-selector";
 import { CaseWorkItemManager } from "../case/case-work-item-manager";
-import { CaseFileUploadZone } from "../case/case-file-upload-zone";
+import { CaseFileUploadZone } from "../case/case-inputs/case-file-upload-zone";
 import { ClinicalAssetPreview } from "../case/clinical-assets-preview";
 import { Controller, useFormContext } from "react-hook-form";
 import { CreateCaseInput } from "@/schema/composed/case.details";

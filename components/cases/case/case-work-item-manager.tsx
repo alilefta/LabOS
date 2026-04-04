@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { Plus, Trash2, Layers, AlertCircle, Edit2 } from "lucide-react";
+import { Plus, Trash2, Layers, AlertCircle, Edit2, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useFormContext, useFieldArray, useWatch } from "react-hook-form";
 import { CreateCaseInput } from "@/schema/composed/case.details";
@@ -9,6 +9,7 @@ import { WorkItemEditorModal } from "@/components/modals/cases/work-items/work-i
 import { cn } from "@/lib/utils";
 import { TeethQuadrantSummary } from "./teeth-quadrant-summary";
 import { CreateCaseWorkItemInput } from "@/schema/composed/case-work-item.details";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 // 1. UNIVERSAL NUMBERING DICTIONARY
 // Maps the long Prisma Enum to the Universal Tooth Number (1-32)
@@ -47,7 +48,7 @@ import { CreateCaseWorkItemInput } from "@/schema/composed/case-work-item.detail
 // 	LowerRightThirdMolar: 32,
 // };
 
-export function CaseWorkItemManager() {
+export function CaseWorkItemManager({ categoryName }: { categoryName: string | null }) {
 	const { control, watch } = useFormContext<CreateCaseInput>();
 	const { fields, append, update, remove } = useFieldArray({
 		control,
@@ -109,7 +110,20 @@ export function CaseWorkItemManager() {
 	return (
 		<section className="space-y-4">
 			<div className="flex items-center justify-between">
-				<h3 className="text-[13px] font-semibold text-slate-700 dark:text-zinc-300">2. Case Work Items</h3>
+				<div className="flex items-center gap-2">
+					<div className="w-6 h-6 rounded-md bg-primary/10 text-primary flex items-center justify-center font-bold text-xs">2</div>
+					<h3 className="text-[15px] font-bold text-foreground tracking-tight">Select Case Items</h3>
+					<TooltipProvider>
+						<Tooltip delayDuration={300}>
+							<TooltipTrigger asChild>
+								<div className="w-5 h-5 rounded-full bg-slate-100 dark:bg-white/10 flex items-center justify-center cursor-help transition-colors hover:bg-slate-200 dark:hover:bg-white/20">
+									<Info className="w-3 h-3 text-muted-foreground" />
+								</div>
+							</TooltipTrigger>
+							<TooltipContent className="max-w-50">Case items represent the elements or jaws of the case.</TooltipContent>
+						</Tooltip>
+					</TooltipProvider>
+				</div>
 				<Button
 					type="button"
 					variant="outline"
@@ -233,6 +247,7 @@ export function CaseWorkItemManager() {
 			<WorkItemEditorModal
 				isOpen={editingIndex !== null}
 				selectedCategoryId={selectedCategoryId ?? null}
+				selectedCategoryName={categoryName}
 				onClose={() => setEditingIndex(null)}
 				initialData={editingIndex !== null && editingIndex >= 0 ? watch(`caseWorkItems.${editingIndex}`) : null}
 				onSave={handleSaveData}

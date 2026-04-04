@@ -119,9 +119,7 @@ export function CaseCategorySelector({ onCreateNew, newCreatedCategory, onSelect
 								<Info className="w-3 h-3 text-muted-foreground" />
 							</div>
 						</TooltipTrigger>
-						<TooltipContent className="glass-ai-panel p-3 max-w-50 text-xs border-border text-center leading-relaxed">
-							Categories filter the available materials and pricing logic for this case.
-						</TooltipContent>
+						<TooltipContent className="max-w-50">Categories filter the available materials and pricing logic for this case.</TooltipContent>
 					</Tooltip>
 				</TooltipProvider>
 			</div>
