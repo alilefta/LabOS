@@ -6,7 +6,7 @@ import { CaseSummaryModal } from "@/components/cases/case/case-summary-modal";
 import { useCallback, useEffect, useState } from "react";
 import { NewCaseHeader } from "@/components/cases/new-case/new-case-header";
 import { FormProvider, useForm } from "react-hook-form";
-import { CaseFileUploadZone } from "@/components/cases/case/case-file-upload-zone";
+import { CaseFileUploadZone } from "@/components/cases/case/case-inputs/case-file-upload-zone";
 import { ClinicalAssetPreview } from "@/components/cases/case/clinical-assets-preview";
 import { CreateCaseInput, CreateCaseInputSchema } from "@/schema/composed/case.details";
 import { PatientAndClinicSection } from "@/components/cases/new-case/sections/patient-clinic-section";
@@ -24,6 +24,8 @@ import { HierarchicalClinicalPicker } from "@/components/cases/new-case/sections
 import { CreateProductSheet } from "@/components/modals/product/create-product-sheet";
 import { CreatePricingPlanSheet } from "@/components/modals/pricing/create-pricing-plan-sheet";
 import { CreateCaseAssetFilesInput } from "@/schema/composed/case-asset-file.details";
+import { toast } from "sonner";
+import { LogisticsAndRoutingSection } from "@/components/cases/new-case/sections/logisitc-and-routing-section";
 
 export default function NewCasePage() {
 	// 1. The Boss holds the temporary data
@@ -74,6 +76,41 @@ export default function NewCasePage() {
 		}
 	};
 
+	const handleSaveDraft = async () => {
+		// 1. Get raw values directly (bypasses RHF/Zod strict validation)
+		const currentData = form.getValues();
+
+		// 2. Validate the bare minimum requirement (Patient)
+		if (!currentData.patientId) {
+			toast.error("Draft Error", {
+				description: "A patient must be selected to save a draft.",
+			});
+
+			// UX Touch: Scroll to the patient section
+			document.getElementsByName("patientId")[0]?.scrollIntoView({ behavior: "smooth", block: "center" });
+			return;
+		}
+
+		// 3. Prepare payload (Force status to DRAFT)
+		const draftPayload: CreateCaseInput = {
+			...currentData,
+			status: "DRAFT",
+		};
+
+		console.log("Saving Draft to DB:", draftPayload);
+
+		// 4. Call Server Action
+		toast.promise(
+			// executeAsyncSaveDraft(draftPayload) --> Your actual server action
+			new Promise((resolve) => setTimeout(resolve, 1500)), // Mocking network
+			{
+				loading: "Saving draft...",
+				success: "Draft saved successfully. You can safely exit.",
+				error: "Failed to save draft.",
+			},
+		);
+	};
+
 	const handleUploadedAssets = useCallback(
 		(files: CreateCaseAssetFilesInput[]) => {
 			const current = form.getValues("caseAssetFiles") ?? [];
@@ -85,10 +122,10 @@ export default function NewCasePage() {
 		console.log(form.formState.dirtyFields);
 	}, [form.formState.dirtyFields]);
 
-	const handleSaveDraft = () => {
-		// should store draft to db.
-		console.log("Draft Data:", draftData);
-	};
+	// const handleSaveDraft = () => {
+	// 	// should store draft to db.
+	// 	console.log("Draft Data:", draftData);
+	// };
 
 	return (
 		<div className="flex flex-col h-full animate-in fade-in duration-700">
@@ -121,6 +158,9 @@ export default function NewCasePage() {
 										<ClinicalAssetPreview />
 									</div>
 								</section>
+
+								{/* SECTION 5: LOGISTICS & ROUTING */}
+								<LogisticsAndRoutingSection newCreatedSalesRep={() => {}} newCreatedTechnician={() => {}} onOpenSalesRepSheet={() => {}} onOpenTechnicianSheet={() => {}} />
 							</div>
 						</form>
 					</FormProvider>
