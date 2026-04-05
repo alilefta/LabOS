@@ -4,8 +4,6 @@ import { LabSubscriptionPlanArgsObjectSchema as LabSubscriptionPlanArgsObjectSch
 import { LabUserFindManySchema as LabUserFindManySchema } from '../findManyLabUser.schema';
 import { ClinicFindManySchema as ClinicFindManySchema } from '../findManyClinic.schema';
 import { CaseFindManySchema as CaseFindManySchema } from '../findManyCase.schema';
-import { TechnicianFindManySchema as TechnicianFindManySchema } from '../findManyTechnician.schema';
-import { SalesRepresentativeFindManySchema as SalesRepresentativeFindManySchema } from '../findManySalesRepresentative.schema';
 import { CaseCategoryFindManySchema as CaseCategoryFindManySchema } from '../findManyCaseCategory.schema';
 import { WorkTypeFindManySchema as WorkTypeFindManySchema } from '../findManyWorkType.schema';
 import { ProductFindManySchema as ProductFindManySchema } from '../findManyProduct.schema';
@@ -15,6 +13,8 @@ import { CasePricingPlanFindManySchema as CasePricingPlanFindManySchema } from '
 import { CaseAssetFileFindManySchema as CaseAssetFileFindManySchema } from '../findManyCaseAssetFile.schema';
 import { PatientFindManySchema as PatientFindManySchema } from '../findManyPatient.schema';
 import { DentistFindManySchema as DentistFindManySchema } from '../findManyDentist.schema';
+import { CaseStaffAssignmentFindManySchema as CaseStaffAssignmentFindManySchema } from '../findManyCaseStaffAssignment.schema';
+import { LabStaffFindManySchema as LabStaffFindManySchema } from '../findManyLabStaff.schema';
 import { LabCountOutputTypeArgsObjectSchema as LabCountOutputTypeArgsObjectSchema } from './LabCountOutputTypeArgs.schema'
 
 const makeSchema = () => z.object({
@@ -22,8 +22,6 @@ const makeSchema = () => z.object({
   users: z.union([z.boolean(), z.lazy(() => LabUserFindManySchema)]).optional(),
   clinics: z.union([z.boolean(), z.lazy(() => ClinicFindManySchema)]).optional(),
   cases: z.union([z.boolean(), z.lazy(() => CaseFindManySchema)]).optional(),
-  technicians: z.union([z.boolean(), z.lazy(() => TechnicianFindManySchema)]).optional(),
-  salesReps: z.union([z.boolean(), z.lazy(() => SalesRepresentativeFindManySchema)]).optional(),
   caseCategories: z.union([z.boolean(), z.lazy(() => CaseCategoryFindManySchema)]).optional(),
   workTypes: z.union([z.boolean(), z.lazy(() => WorkTypeFindManySchema)]).optional(),
   products: z.union([z.boolean(), z.lazy(() => ProductFindManySchema)]).optional(),
@@ -33,6 +31,8 @@ const makeSchema = () => z.object({
   caseAssetFiles: z.union([z.boolean(), z.lazy(() => CaseAssetFileFindManySchema)]).optional(),
   patients: z.union([z.boolean(), z.lazy(() => PatientFindManySchema)]).optional(),
   dentists: z.union([z.boolean(), z.lazy(() => DentistFindManySchema)]).optional(),
+  staffAssignments: z.union([z.boolean(), z.lazy(() => CaseStaffAssignmentFindManySchema)]).optional(),
+  LabStaff: z.union([z.boolean(), z.lazy(() => LabStaffFindManySchema)]).optional(),
   _count: z.union([z.boolean(), z.lazy(() => LabCountOutputTypeArgsObjectSchema)]).optional()
 }).strict();
 export const LabIncludeObjectSchema: z.ZodType<Prisma.LabInclude> = makeSchema() as unknown as z.ZodType<Prisma.LabInclude>;

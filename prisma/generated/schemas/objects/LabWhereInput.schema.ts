@@ -8,8 +8,6 @@ import { LabSubscriptionPlanWhereInputObjectSchema as LabSubscriptionPlanWhereIn
 import { LabUserListRelationFilterObjectSchema as LabUserListRelationFilterObjectSchema } from './LabUserListRelationFilter.schema';
 import { ClinicListRelationFilterObjectSchema as ClinicListRelationFilterObjectSchema } from './ClinicListRelationFilter.schema';
 import { CaseListRelationFilterObjectSchema as CaseListRelationFilterObjectSchema } from './CaseListRelationFilter.schema';
-import { TechnicianListRelationFilterObjectSchema as TechnicianListRelationFilterObjectSchema } from './TechnicianListRelationFilter.schema';
-import { SalesRepresentativeListRelationFilterObjectSchema as SalesRepresentativeListRelationFilterObjectSchema } from './SalesRepresentativeListRelationFilter.schema';
 import { CaseCategoryListRelationFilterObjectSchema as CaseCategoryListRelationFilterObjectSchema } from './CaseCategoryListRelationFilter.schema';
 import { WorkTypeListRelationFilterObjectSchema as WorkTypeListRelationFilterObjectSchema } from './WorkTypeListRelationFilter.schema';
 import { ProductListRelationFilterObjectSchema as ProductListRelationFilterObjectSchema } from './ProductListRelationFilter.schema';
@@ -18,7 +16,9 @@ import { SelectedToothListRelationFilterObjectSchema as SelectedToothListRelatio
 import { CasePricingPlanListRelationFilterObjectSchema as CasePricingPlanListRelationFilterObjectSchema } from './CasePricingPlanListRelationFilter.schema';
 import { CaseAssetFileListRelationFilterObjectSchema as CaseAssetFileListRelationFilterObjectSchema } from './CaseAssetFileListRelationFilter.schema';
 import { PatientListRelationFilterObjectSchema as PatientListRelationFilterObjectSchema } from './PatientListRelationFilter.schema';
-import { DentistListRelationFilterObjectSchema as DentistListRelationFilterObjectSchema } from './DentistListRelationFilter.schema'
+import { DentistListRelationFilterObjectSchema as DentistListRelationFilterObjectSchema } from './DentistListRelationFilter.schema';
+import { CaseStaffAssignmentListRelationFilterObjectSchema as CaseStaffAssignmentListRelationFilterObjectSchema } from './CaseStaffAssignmentListRelationFilter.schema';
+import { LabStaffListRelationFilterObjectSchema as LabStaffListRelationFilterObjectSchema } from './LabStaffListRelationFilter.schema'
 
 const labwhereinputSchema = z.object({
   AND: z.union([z.lazy(() => LabWhereInputObjectSchema), z.lazy(() => LabWhereInputObjectSchema).array()]).optional(),
@@ -35,8 +35,6 @@ const labwhereinputSchema = z.object({
   users: z.lazy(() => LabUserListRelationFilterObjectSchema).optional(),
   clinics: z.lazy(() => ClinicListRelationFilterObjectSchema).optional(),
   cases: z.lazy(() => CaseListRelationFilterObjectSchema).optional(),
-  technicians: z.lazy(() => TechnicianListRelationFilterObjectSchema).optional(),
-  salesReps: z.lazy(() => SalesRepresentativeListRelationFilterObjectSchema).optional(),
   caseCategories: z.lazy(() => CaseCategoryListRelationFilterObjectSchema).optional(),
   workTypes: z.lazy(() => WorkTypeListRelationFilterObjectSchema).optional(),
   products: z.lazy(() => ProductListRelationFilterObjectSchema).optional(),
@@ -45,7 +43,9 @@ const labwhereinputSchema = z.object({
   casePricingPlans: z.lazy(() => CasePricingPlanListRelationFilterObjectSchema).optional(),
   caseAssetFiles: z.lazy(() => CaseAssetFileListRelationFilterObjectSchema).optional(),
   patients: z.lazy(() => PatientListRelationFilterObjectSchema).optional(),
-  dentists: z.lazy(() => DentistListRelationFilterObjectSchema).optional()
+  dentists: z.lazy(() => DentistListRelationFilterObjectSchema).optional(),
+  staffAssignments: z.lazy(() => CaseStaffAssignmentListRelationFilterObjectSchema).optional(),
+  LabStaff: z.lazy(() => LabStaffListRelationFilterObjectSchema).optional()
 }).strict();
 export const LabWhereInputObjectSchema: z.ZodType<Prisma.LabWhereInput> = labwhereinputSchema as unknown as z.ZodType<Prisma.LabWhereInput>;
 export const LabWhereInputObjectZodSchema = labwhereinputSchema;

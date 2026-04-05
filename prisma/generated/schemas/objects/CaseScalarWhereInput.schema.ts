@@ -16,7 +16,6 @@ const casescalarwhereinputSchema = z.object({
   patientId: z.union([z.lazy(() => StringFilterObjectSchema), z.string()]).optional(),
   caseNumber: z.union([z.lazy(() => StringFilterObjectSchema), z.string()]).optional(),
   labId: z.union([z.lazy(() => StringFilterObjectSchema), z.string()]).optional(),
-  salesRepsId: z.union([z.lazy(() => StringNullableFilterObjectSchema), z.string()]).optional().nullable(),
   caseCategoryId: z.union([z.lazy(() => StringNullableFilterObjectSchema), z.string()]).optional().nullable(),
   status: z.union([z.lazy(() => EnumCaseStatusFilterObjectSchema), CaseStatusSchema]).optional(),
   grandTotal: z.union([z.lazy(() => DecimalFilterObjectSchema), z.union([
@@ -29,7 +28,6 @@ const casescalarwhereinputSchema = z.object({
 })]).optional(),
   clinicId: z.union([z.lazy(() => StringNullableFilterObjectSchema), z.string()]).optional().nullable(),
   dentistId: z.union([z.lazy(() => StringNullableFilterObjectSchema), z.string()]).optional().nullable(),
-  technicianId: z.union([z.lazy(() => StringNullableFilterObjectSchema), z.string()]).optional().nullable(),
   deadline: z.union([z.lazy(() => DateTimeFilterObjectSchema), z.coerce.date()]).optional(),
   createdAt: z.union([z.lazy(() => DateTimeFilterObjectSchema), z.coerce.date()]).optional(),
   updatedAt: z.union([z.lazy(() => DateTimeFilterObjectSchema), z.coerce.date()]).optional()

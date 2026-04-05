@@ -1,0 +1,15 @@
+import type { Prisma } from '../../../generated/prisma/client';
+import * as z from 'zod';
+import { LabStaffWhereInputObjectSchema as LabStaffWhereInputObjectSchema } from './objects/LabStaffWhereInput.schema';
+import { LabStaffOrderByWithAggregationInputObjectSchema as LabStaffOrderByWithAggregationInputObjectSchema } from './objects/LabStaffOrderByWithAggregationInput.schema';
+import { LabStaffScalarWhereWithAggregatesInputObjectSchema as LabStaffScalarWhereWithAggregatesInputObjectSchema } from './objects/LabStaffScalarWhereWithAggregatesInput.schema';
+import { LabStaffScalarFieldEnumSchema } from './enums/LabStaffScalarFieldEnum.schema';
+import { LabStaffCountAggregateInputObjectSchema as LabStaffCountAggregateInputObjectSchema } from './objects/LabStaffCountAggregateInput.schema';
+import { LabStaffMinAggregateInputObjectSchema as LabStaffMinAggregateInputObjectSchema } from './objects/LabStaffMinAggregateInput.schema';
+import { LabStaffMaxAggregateInputObjectSchema as LabStaffMaxAggregateInputObjectSchema } from './objects/LabStaffMaxAggregateInput.schema';
+import { LabStaffAvgAggregateInputObjectSchema as LabStaffAvgAggregateInputObjectSchema } from './objects/LabStaffAvgAggregateInput.schema';
+import { LabStaffSumAggregateInputObjectSchema as LabStaffSumAggregateInputObjectSchema } from './objects/LabStaffSumAggregateInput.schema';
+
+export const LabStaffGroupBySchema: z.ZodType<Prisma.LabStaffGroupByArgs> = z.object({ where: LabStaffWhereInputObjectSchema.optional(), orderBy: z.union([LabStaffOrderByWithAggregationInputObjectSchema, LabStaffOrderByWithAggregationInputObjectSchema.array()]).optional(), having: LabStaffScalarWhereWithAggregatesInputObjectSchema.optional(), take: z.number().optional(), skip: z.number().optional(), by: z.array(LabStaffScalarFieldEnumSchema), _count: z.union([ z.literal(true), LabStaffCountAggregateInputObjectSchema ]).optional(), _min: LabStaffMinAggregateInputObjectSchema.optional(), _max: LabStaffMaxAggregateInputObjectSchema.optional(), _avg: LabStaffAvgAggregateInputObjectSchema.optional(), _sum: LabStaffSumAggregateInputObjectSchema.optional() }).strict() as unknown as z.ZodType<Prisma.LabStaffGroupByArgs>;
+
+export const LabStaffGroupByZodSchema = z.object({ where: LabStaffWhereInputObjectSchema.optional(), orderBy: z.union([LabStaffOrderByWithAggregationInputObjectSchema, LabStaffOrderByWithAggregationInputObjectSchema.array()]).optional(), having: LabStaffScalarWhereWithAggregatesInputObjectSchema.optional(), take: z.number().optional(), skip: z.number().optional(), by: z.array(LabStaffScalarFieldEnumSchema), _count: z.union([ z.literal(true), LabStaffCountAggregateInputObjectSchema ]).optional(), _min: LabStaffMinAggregateInputObjectSchema.optional(), _max: LabStaffMaxAggregateInputObjectSchema.optional(), _avg: LabStaffAvgAggregateInputObjectSchema.optional(), _sum: LabStaffSumAggregateInputObjectSchema.optional() }).strict();

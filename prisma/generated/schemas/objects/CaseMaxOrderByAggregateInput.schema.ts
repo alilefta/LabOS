@@ -7,13 +7,11 @@ const makeSchema = () => z.object({
   patientId: SortOrderSchema.optional(),
   caseNumber: SortOrderSchema.optional(),
   labId: SortOrderSchema.optional(),
-  salesRepsId: SortOrderSchema.optional(),
   caseCategoryId: SortOrderSchema.optional(),
   status: SortOrderSchema.optional(),
   grandTotal: SortOrderSchema.optional(),
   clinicId: SortOrderSchema.optional(),
   dentistId: SortOrderSchema.optional(),
-  technicianId: SortOrderSchema.optional(),
   deadline: SortOrderSchema.optional(),
   createdAt: SortOrderSchema.optional(),
   updatedAt: SortOrderSchema.optional()

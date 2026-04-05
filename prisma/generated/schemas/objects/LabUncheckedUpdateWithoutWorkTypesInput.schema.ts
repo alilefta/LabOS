@@ -7,8 +7,6 @@ import { LabSubscriptionPlanUncheckedUpdateOneWithoutLabNestedInputObjectSchema 
 import { LabUserUncheckedUpdateManyWithoutLabNestedInputObjectSchema as LabUserUncheckedUpdateManyWithoutLabNestedInputObjectSchema } from './LabUserUncheckedUpdateManyWithoutLabNestedInput.schema';
 import { ClinicUncheckedUpdateManyWithoutLabNestedInputObjectSchema as ClinicUncheckedUpdateManyWithoutLabNestedInputObjectSchema } from './ClinicUncheckedUpdateManyWithoutLabNestedInput.schema';
 import { CaseUncheckedUpdateManyWithoutLabNestedInputObjectSchema as CaseUncheckedUpdateManyWithoutLabNestedInputObjectSchema } from './CaseUncheckedUpdateManyWithoutLabNestedInput.schema';
-import { TechnicianUncheckedUpdateManyWithoutLabNestedInputObjectSchema as TechnicianUncheckedUpdateManyWithoutLabNestedInputObjectSchema } from './TechnicianUncheckedUpdateManyWithoutLabNestedInput.schema';
-import { SalesRepresentativeUncheckedUpdateManyWithoutLabNestedInputObjectSchema as SalesRepresentativeUncheckedUpdateManyWithoutLabNestedInputObjectSchema } from './SalesRepresentativeUncheckedUpdateManyWithoutLabNestedInput.schema';
 import { CaseCategoryUncheckedUpdateManyWithoutLabNestedInputObjectSchema as CaseCategoryUncheckedUpdateManyWithoutLabNestedInputObjectSchema } from './CaseCategoryUncheckedUpdateManyWithoutLabNestedInput.schema';
 import { ProductUncheckedUpdateManyWithoutLabNestedInputObjectSchema as ProductUncheckedUpdateManyWithoutLabNestedInputObjectSchema } from './ProductUncheckedUpdateManyWithoutLabNestedInput.schema';
 import { CaseWorkItemUncheckedUpdateManyWithoutLabNestedInputObjectSchema as CaseWorkItemUncheckedUpdateManyWithoutLabNestedInputObjectSchema } from './CaseWorkItemUncheckedUpdateManyWithoutLabNestedInput.schema';
@@ -16,7 +14,9 @@ import { SelectedToothUncheckedUpdateManyWithoutLabNestedInputObjectSchema as Se
 import { CasePricingPlanUncheckedUpdateManyWithoutLabNestedInputObjectSchema as CasePricingPlanUncheckedUpdateManyWithoutLabNestedInputObjectSchema } from './CasePricingPlanUncheckedUpdateManyWithoutLabNestedInput.schema';
 import { CaseAssetFileUncheckedUpdateManyWithoutLabNestedInputObjectSchema as CaseAssetFileUncheckedUpdateManyWithoutLabNestedInputObjectSchema } from './CaseAssetFileUncheckedUpdateManyWithoutLabNestedInput.schema';
 import { PatientUncheckedUpdateManyWithoutLabNestedInputObjectSchema as PatientUncheckedUpdateManyWithoutLabNestedInputObjectSchema } from './PatientUncheckedUpdateManyWithoutLabNestedInput.schema';
-import { DentistUncheckedUpdateManyWithoutLabNestedInputObjectSchema as DentistUncheckedUpdateManyWithoutLabNestedInputObjectSchema } from './DentistUncheckedUpdateManyWithoutLabNestedInput.schema'
+import { DentistUncheckedUpdateManyWithoutLabNestedInputObjectSchema as DentistUncheckedUpdateManyWithoutLabNestedInputObjectSchema } from './DentistUncheckedUpdateManyWithoutLabNestedInput.schema';
+import { CaseStaffAssignmentUncheckedUpdateManyWithoutLabNestedInputObjectSchema as CaseStaffAssignmentUncheckedUpdateManyWithoutLabNestedInputObjectSchema } from './CaseStaffAssignmentUncheckedUpdateManyWithoutLabNestedInput.schema';
+import { LabStaffUncheckedUpdateManyWithoutLabNestedInputObjectSchema as LabStaffUncheckedUpdateManyWithoutLabNestedInputObjectSchema } from './LabStaffUncheckedUpdateManyWithoutLabNestedInput.schema'
 
 const makeSchema = () => z.object({
   id: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputObjectSchema)]).optional(),
@@ -30,8 +30,6 @@ const makeSchema = () => z.object({
   users: z.lazy(() => LabUserUncheckedUpdateManyWithoutLabNestedInputObjectSchema).optional(),
   clinics: z.lazy(() => ClinicUncheckedUpdateManyWithoutLabNestedInputObjectSchema).optional(),
   cases: z.lazy(() => CaseUncheckedUpdateManyWithoutLabNestedInputObjectSchema).optional(),
-  technicians: z.lazy(() => TechnicianUncheckedUpdateManyWithoutLabNestedInputObjectSchema).optional(),
-  salesReps: z.lazy(() => SalesRepresentativeUncheckedUpdateManyWithoutLabNestedInputObjectSchema).optional(),
   caseCategories: z.lazy(() => CaseCategoryUncheckedUpdateManyWithoutLabNestedInputObjectSchema).optional(),
   products: z.lazy(() => ProductUncheckedUpdateManyWithoutLabNestedInputObjectSchema).optional(),
   caseWorkItems: z.lazy(() => CaseWorkItemUncheckedUpdateManyWithoutLabNestedInputObjectSchema).optional(),
@@ -39,7 +37,9 @@ const makeSchema = () => z.object({
   casePricingPlans: z.lazy(() => CasePricingPlanUncheckedUpdateManyWithoutLabNestedInputObjectSchema).optional(),
   caseAssetFiles: z.lazy(() => CaseAssetFileUncheckedUpdateManyWithoutLabNestedInputObjectSchema).optional(),
   patients: z.lazy(() => PatientUncheckedUpdateManyWithoutLabNestedInputObjectSchema).optional(),
-  dentists: z.lazy(() => DentistUncheckedUpdateManyWithoutLabNestedInputObjectSchema).optional()
+  dentists: z.lazy(() => DentistUncheckedUpdateManyWithoutLabNestedInputObjectSchema).optional(),
+  staffAssignments: z.lazy(() => CaseStaffAssignmentUncheckedUpdateManyWithoutLabNestedInputObjectSchema).optional(),
+  LabStaff: z.lazy(() => LabStaffUncheckedUpdateManyWithoutLabNestedInputObjectSchema).optional()
 }).strict();
 export const LabUncheckedUpdateWithoutWorkTypesInputObjectSchema: z.ZodType<Prisma.LabUncheckedUpdateWithoutWorkTypesInput> = makeSchema() as unknown as z.ZodType<Prisma.LabUncheckedUpdateWithoutWorkTypesInput>;
 export const LabUncheckedUpdateWithoutWorkTypesInputObjectZodSchema = makeSchema();

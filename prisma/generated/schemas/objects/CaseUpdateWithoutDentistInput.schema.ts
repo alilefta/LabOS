@@ -7,11 +7,10 @@ import { DecimalFieldUpdateOperationsInputObjectSchema as DecimalFieldUpdateOper
 import { DateTimeFieldUpdateOperationsInputObjectSchema as DateTimeFieldUpdateOperationsInputObjectSchema } from './DateTimeFieldUpdateOperationsInput.schema';
 import { PatientUpdateOneRequiredWithoutCasesNestedInputObjectSchema as PatientUpdateOneRequiredWithoutCasesNestedInputObjectSchema } from './PatientUpdateOneRequiredWithoutCasesNestedInput.schema';
 import { LabUpdateOneRequiredWithoutCasesNestedInputObjectSchema as LabUpdateOneRequiredWithoutCasesNestedInputObjectSchema } from './LabUpdateOneRequiredWithoutCasesNestedInput.schema';
-import { SalesRepresentativeUpdateOneWithoutCasesNestedInputObjectSchema as SalesRepresentativeUpdateOneWithoutCasesNestedInputObjectSchema } from './SalesRepresentativeUpdateOneWithoutCasesNestedInput.schema';
 import { CaseWorkItemUpdateManyWithoutDentalCaseNestedInputObjectSchema as CaseWorkItemUpdateManyWithoutDentalCaseNestedInputObjectSchema } from './CaseWorkItemUpdateManyWithoutDentalCaseNestedInput.schema';
 import { CaseCategoryUpdateOneWithoutCasesNestedInputObjectSchema as CaseCategoryUpdateOneWithoutCasesNestedInputObjectSchema } from './CaseCategoryUpdateOneWithoutCasesNestedInput.schema';
 import { ClinicUpdateOneWithoutCasesNestedInputObjectSchema as ClinicUpdateOneWithoutCasesNestedInputObjectSchema } from './ClinicUpdateOneWithoutCasesNestedInput.schema';
-import { TechnicianUpdateOneWithoutCasesNestedInputObjectSchema as TechnicianUpdateOneWithoutCasesNestedInputObjectSchema } from './TechnicianUpdateOneWithoutCasesNestedInput.schema';
+import { CaseStaffAssignmentUpdateManyWithoutCaseNestedInputObjectSchema as CaseStaffAssignmentUpdateManyWithoutCaseNestedInputObjectSchema } from './CaseStaffAssignmentUpdateManyWithoutCaseNestedInput.schema';
 import { CaseAssetFileUpdateManyWithoutDentalCaseNestedInputObjectSchema as CaseAssetFileUpdateManyWithoutDentalCaseNestedInputObjectSchema } from './CaseAssetFileUpdateManyWithoutDentalCaseNestedInput.schema'
 
 import { DecimalJSLikeSchema, isValidDecimalInput } from '../../helpers/decimal-helpers';
@@ -32,11 +31,10 @@ const makeSchema = () => z.object({
   updatedAt: z.union([z.coerce.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputObjectSchema)]).optional(),
   patient: z.lazy(() => PatientUpdateOneRequiredWithoutCasesNestedInputObjectSchema).optional(),
   lab: z.lazy(() => LabUpdateOneRequiredWithoutCasesNestedInputObjectSchema).optional(),
-  salesReps: z.lazy(() => SalesRepresentativeUpdateOneWithoutCasesNestedInputObjectSchema).optional(),
   caseItems: z.lazy(() => CaseWorkItemUpdateManyWithoutDentalCaseNestedInputObjectSchema).optional(),
   caseCategory: z.lazy(() => CaseCategoryUpdateOneWithoutCasesNestedInputObjectSchema).optional(),
   clinic: z.lazy(() => ClinicUpdateOneWithoutCasesNestedInputObjectSchema).optional(),
-  Technician: z.lazy(() => TechnicianUpdateOneWithoutCasesNestedInputObjectSchema).optional(),
+  staffAssignments: z.lazy(() => CaseStaffAssignmentUpdateManyWithoutCaseNestedInputObjectSchema).optional(),
   caseAssetFiles: z.lazy(() => CaseAssetFileUpdateManyWithoutDentalCaseNestedInputObjectSchema).optional()
 }).strict();
 export const CaseUpdateWithoutDentistInputObjectSchema: z.ZodType<Prisma.CaseUpdateWithoutDentistInput> = makeSchema() as unknown as z.ZodType<Prisma.CaseUpdateWithoutDentistInput>;

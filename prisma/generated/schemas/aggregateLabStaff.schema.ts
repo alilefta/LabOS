@@ -1,0 +1,14 @@
+import type { Prisma } from '../../../generated/prisma/client';
+import * as z from 'zod';
+import { LabStaffOrderByWithRelationInputObjectSchema as LabStaffOrderByWithRelationInputObjectSchema } from './objects/LabStaffOrderByWithRelationInput.schema';
+import { LabStaffWhereInputObjectSchema as LabStaffWhereInputObjectSchema } from './objects/LabStaffWhereInput.schema';
+import { LabStaffWhereUniqueInputObjectSchema as LabStaffWhereUniqueInputObjectSchema } from './objects/LabStaffWhereUniqueInput.schema';
+import { LabStaffCountAggregateInputObjectSchema as LabStaffCountAggregateInputObjectSchema } from './objects/LabStaffCountAggregateInput.schema';
+import { LabStaffMinAggregateInputObjectSchema as LabStaffMinAggregateInputObjectSchema } from './objects/LabStaffMinAggregateInput.schema';
+import { LabStaffMaxAggregateInputObjectSchema as LabStaffMaxAggregateInputObjectSchema } from './objects/LabStaffMaxAggregateInput.schema';
+import { LabStaffAvgAggregateInputObjectSchema as LabStaffAvgAggregateInputObjectSchema } from './objects/LabStaffAvgAggregateInput.schema';
+import { LabStaffSumAggregateInputObjectSchema as LabStaffSumAggregateInputObjectSchema } from './objects/LabStaffSumAggregateInput.schema';
+
+export const LabStaffAggregateSchema: z.ZodType<Prisma.LabStaffAggregateArgs> = z.object({ orderBy: z.union([LabStaffOrderByWithRelationInputObjectSchema, LabStaffOrderByWithRelationInputObjectSchema.array()]).optional(), where: LabStaffWhereInputObjectSchema.optional(), cursor: LabStaffWhereUniqueInputObjectSchema.optional(), take: z.number().optional(), skip: z.number().optional(), _count: z.union([ z.literal(true), LabStaffCountAggregateInputObjectSchema ]).optional(), _min: LabStaffMinAggregateInputObjectSchema.optional(), _max: LabStaffMaxAggregateInputObjectSchema.optional(), _avg: LabStaffAvgAggregateInputObjectSchema.optional(), _sum: LabStaffSumAggregateInputObjectSchema.optional() }).strict() as unknown as z.ZodType<Prisma.LabStaffAggregateArgs>;
+
+export const LabStaffAggregateZodSchema = z.object({ orderBy: z.union([LabStaffOrderByWithRelationInputObjectSchema, LabStaffOrderByWithRelationInputObjectSchema.array()]).optional(), where: LabStaffWhereInputObjectSchema.optional(), cursor: LabStaffWhereUniqueInputObjectSchema.optional(), take: z.number().optional(), skip: z.number().optional(), _count: z.union([ z.literal(true), LabStaffCountAggregateInputObjectSchema ]).optional(), _min: LabStaffMinAggregateInputObjectSchema.optional(), _max: LabStaffMaxAggregateInputObjectSchema.optional(), _avg: LabStaffAvgAggregateInputObjectSchema.optional(), _sum: LabStaffSumAggregateInputObjectSchema.optional() }).strict();

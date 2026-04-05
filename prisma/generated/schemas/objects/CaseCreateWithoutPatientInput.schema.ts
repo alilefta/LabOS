@@ -2,12 +2,11 @@ import * as z from 'zod';
 import { Prisma } from '../../../../generated/prisma/client';
 import { CaseStatusSchema } from '../enums/CaseStatus.schema';
 import { LabCreateNestedOneWithoutCasesInputObjectSchema as LabCreateNestedOneWithoutCasesInputObjectSchema } from './LabCreateNestedOneWithoutCasesInput.schema';
-import { SalesRepresentativeCreateNestedOneWithoutCasesInputObjectSchema as SalesRepresentativeCreateNestedOneWithoutCasesInputObjectSchema } from './SalesRepresentativeCreateNestedOneWithoutCasesInput.schema';
 import { CaseWorkItemCreateNestedManyWithoutDentalCaseInputObjectSchema as CaseWorkItemCreateNestedManyWithoutDentalCaseInputObjectSchema } from './CaseWorkItemCreateNestedManyWithoutDentalCaseInput.schema';
 import { CaseCategoryCreateNestedOneWithoutCasesInputObjectSchema as CaseCategoryCreateNestedOneWithoutCasesInputObjectSchema } from './CaseCategoryCreateNestedOneWithoutCasesInput.schema';
 import { ClinicCreateNestedOneWithoutCasesInputObjectSchema as ClinicCreateNestedOneWithoutCasesInputObjectSchema } from './ClinicCreateNestedOneWithoutCasesInput.schema';
 import { DentistCreateNestedOneWithoutCasesInputObjectSchema as DentistCreateNestedOneWithoutCasesInputObjectSchema } from './DentistCreateNestedOneWithoutCasesInput.schema';
-import { TechnicianCreateNestedOneWithoutCasesInputObjectSchema as TechnicianCreateNestedOneWithoutCasesInputObjectSchema } from './TechnicianCreateNestedOneWithoutCasesInput.schema';
+import { CaseStaffAssignmentCreateNestedManyWithoutCaseInputObjectSchema as CaseStaffAssignmentCreateNestedManyWithoutCaseInputObjectSchema } from './CaseStaffAssignmentCreateNestedManyWithoutCaseInput.schema';
 import { CaseAssetFileCreateNestedManyWithoutDentalCaseInputObjectSchema as CaseAssetFileCreateNestedManyWithoutDentalCaseInputObjectSchema } from './CaseAssetFileCreateNestedManyWithoutDentalCaseInput.schema'
 
 import { DecimalJSLikeSchema, isValidDecimalInput } from '../../helpers/decimal-helpers';
@@ -27,12 +26,11 @@ const makeSchema = () => z.object({
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
   lab: z.lazy(() => LabCreateNestedOneWithoutCasesInputObjectSchema),
-  salesReps: z.lazy(() => SalesRepresentativeCreateNestedOneWithoutCasesInputObjectSchema).optional(),
   caseItems: z.lazy(() => CaseWorkItemCreateNestedManyWithoutDentalCaseInputObjectSchema).optional(),
   caseCategory: z.lazy(() => CaseCategoryCreateNestedOneWithoutCasesInputObjectSchema).optional(),
   clinic: z.lazy(() => ClinicCreateNestedOneWithoutCasesInputObjectSchema).optional(),
   dentist: z.lazy(() => DentistCreateNestedOneWithoutCasesInputObjectSchema).optional(),
-  Technician: z.lazy(() => TechnicianCreateNestedOneWithoutCasesInputObjectSchema).optional(),
+  staffAssignments: z.lazy(() => CaseStaffAssignmentCreateNestedManyWithoutCaseInputObjectSchema).optional(),
   caseAssetFiles: z.lazy(() => CaseAssetFileCreateNestedManyWithoutDentalCaseInputObjectSchema).optional()
 }).strict();
 export const CaseCreateWithoutPatientInputObjectSchema: z.ZodType<Prisma.CaseCreateWithoutPatientInput> = makeSchema() as unknown as z.ZodType<Prisma.CaseCreateWithoutPatientInput>;

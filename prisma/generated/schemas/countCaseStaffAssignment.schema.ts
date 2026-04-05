@@ -1,0 +1,10 @@
+import type { Prisma } from '../../../generated/prisma/client';
+import * as z from 'zod';
+import { CaseStaffAssignmentOrderByWithRelationInputObjectSchema as CaseStaffAssignmentOrderByWithRelationInputObjectSchema } from './objects/CaseStaffAssignmentOrderByWithRelationInput.schema';
+import { CaseStaffAssignmentWhereInputObjectSchema as CaseStaffAssignmentWhereInputObjectSchema } from './objects/CaseStaffAssignmentWhereInput.schema';
+import { CaseStaffAssignmentWhereUniqueInputObjectSchema as CaseStaffAssignmentWhereUniqueInputObjectSchema } from './objects/CaseStaffAssignmentWhereUniqueInput.schema';
+import { CaseStaffAssignmentCountAggregateInputObjectSchema as CaseStaffAssignmentCountAggregateInputObjectSchema } from './objects/CaseStaffAssignmentCountAggregateInput.schema';
+
+export const CaseStaffAssignmentCountSchema: z.ZodType<Prisma.CaseStaffAssignmentCountArgs> = z.object({ orderBy: z.union([CaseStaffAssignmentOrderByWithRelationInputObjectSchema, CaseStaffAssignmentOrderByWithRelationInputObjectSchema.array()]).optional(), where: CaseStaffAssignmentWhereInputObjectSchema.optional(), cursor: CaseStaffAssignmentWhereUniqueInputObjectSchema.optional(), take: z.number().optional(), skip: z.number().optional(), select: z.union([ z.literal(true), CaseStaffAssignmentCountAggregateInputObjectSchema ]).optional() }).strict() as unknown as z.ZodType<Prisma.CaseStaffAssignmentCountArgs>;
+
+export const CaseStaffAssignmentCountZodSchema = z.object({ orderBy: z.union([CaseStaffAssignmentOrderByWithRelationInputObjectSchema, CaseStaffAssignmentOrderByWithRelationInputObjectSchema.array()]).optional(), where: CaseStaffAssignmentWhereInputObjectSchema.optional(), cursor: CaseStaffAssignmentWhereUniqueInputObjectSchema.optional(), take: z.number().optional(), skip: z.number().optional(), select: z.union([ z.literal(true), CaseStaffAssignmentCountAggregateInputObjectSchema ]).optional() }).strict();

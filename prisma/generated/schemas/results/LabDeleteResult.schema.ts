@@ -9,8 +9,6 @@ export const LabDeleteResultSchema = z.nullable(z.object({
   users: z.array(z.unknown()),
   clinics: z.array(z.unknown()),
   cases: z.array(z.unknown()),
-  technicians: z.array(z.unknown()),
-  salesReps: z.array(z.unknown()),
   caseCategories: z.array(z.unknown()),
   workTypes: z.array(z.unknown()),
   products: z.array(z.unknown()),
@@ -20,6 +18,8 @@ export const LabDeleteResultSchema = z.nullable(z.object({
   caseAssetFiles: z.array(z.unknown()),
   patients: z.array(z.unknown()),
   dentists: z.array(z.unknown()),
+  staffAssignments: z.array(z.unknown()),
+  LabStaff: z.array(z.unknown()),
   createdAt: z.date(),
   updatedAt: z.date()
 }));

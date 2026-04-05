@@ -8,7 +8,6 @@ const makeSchema = () => z.object({
   patientId: z.string(),
   caseNumber: z.string(),
   labId: z.string(),
-  salesRepsId: z.string().optional().nullable(),
   caseCategoryId: z.string().optional().nullable(),
   status: CaseStatusSchema.optional(),
   grandTotal: z.union([
@@ -21,7 +20,6 @@ const makeSchema = () => z.object({
 }).optional(),
   clinicId: z.string().optional().nullable(),
   dentistId: z.string().optional().nullable(),
-  technicianId: z.string().optional().nullable(),
   deadline: z.coerce.date(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional()

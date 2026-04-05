@@ -10,8 +10,6 @@ import { PatientScalarRelationFilterObjectSchema as PatientScalarRelationFilterO
 import { PatientWhereInputObjectSchema as PatientWhereInputObjectSchema } from './PatientWhereInput.schema';
 import { LabScalarRelationFilterObjectSchema as LabScalarRelationFilterObjectSchema } from './LabScalarRelationFilter.schema';
 import { LabWhereInputObjectSchema as LabWhereInputObjectSchema } from './LabWhereInput.schema';
-import { SalesRepresentativeNullableScalarRelationFilterObjectSchema as SalesRepresentativeNullableScalarRelationFilterObjectSchema } from './SalesRepresentativeNullableScalarRelationFilter.schema';
-import { SalesRepresentativeWhereInputObjectSchema as SalesRepresentativeWhereInputObjectSchema } from './SalesRepresentativeWhereInput.schema';
 import { CaseWorkItemListRelationFilterObjectSchema as CaseWorkItemListRelationFilterObjectSchema } from './CaseWorkItemListRelationFilter.schema';
 import { CaseCategoryNullableScalarRelationFilterObjectSchema as CaseCategoryNullableScalarRelationFilterObjectSchema } from './CaseCategoryNullableScalarRelationFilter.schema';
 import { CaseCategoryWhereInputObjectSchema as CaseCategoryWhereInputObjectSchema } from './CaseCategoryWhereInput.schema';
@@ -19,8 +17,7 @@ import { ClinicNullableScalarRelationFilterObjectSchema as ClinicNullableScalarR
 import { ClinicWhereInputObjectSchema as ClinicWhereInputObjectSchema } from './ClinicWhereInput.schema';
 import { DentistNullableScalarRelationFilterObjectSchema as DentistNullableScalarRelationFilterObjectSchema } from './DentistNullableScalarRelationFilter.schema';
 import { DentistWhereInputObjectSchema as DentistWhereInputObjectSchema } from './DentistWhereInput.schema';
-import { TechnicianNullableScalarRelationFilterObjectSchema as TechnicianNullableScalarRelationFilterObjectSchema } from './TechnicianNullableScalarRelationFilter.schema';
-import { TechnicianWhereInputObjectSchema as TechnicianWhereInputObjectSchema } from './TechnicianWhereInput.schema';
+import { CaseStaffAssignmentListRelationFilterObjectSchema as CaseStaffAssignmentListRelationFilterObjectSchema } from './CaseStaffAssignmentListRelationFilter.schema';
 import { CaseAssetFileListRelationFilterObjectSchema as CaseAssetFileListRelationFilterObjectSchema } from './CaseAssetFileListRelationFilter.schema'
 
 import { DecimalJSLikeSchema, isValidDecimalInput } from '../../helpers/decimal-helpers';
@@ -32,7 +29,6 @@ const casewhereinputSchema = z.object({
   patientId: z.union([z.lazy(() => StringFilterObjectSchema), z.string()]).optional(),
   caseNumber: z.union([z.lazy(() => StringFilterObjectSchema), z.string()]).optional(),
   labId: z.union([z.lazy(() => StringFilterObjectSchema), z.string()]).optional(),
-  salesRepsId: z.union([z.lazy(() => StringNullableFilterObjectSchema), z.string()]).optional().nullable(),
   caseCategoryId: z.union([z.lazy(() => StringNullableFilterObjectSchema), z.string()]).optional().nullable(),
   status: z.union([z.lazy(() => EnumCaseStatusFilterObjectSchema), CaseStatusSchema]).optional(),
   grandTotal: z.union([z.lazy(() => DecimalFilterObjectSchema), z.union([
@@ -45,18 +41,16 @@ const casewhereinputSchema = z.object({
 })]).optional(),
   clinicId: z.union([z.lazy(() => StringNullableFilterObjectSchema), z.string()]).optional().nullable(),
   dentistId: z.union([z.lazy(() => StringNullableFilterObjectSchema), z.string()]).optional().nullable(),
-  technicianId: z.union([z.lazy(() => StringNullableFilterObjectSchema), z.string()]).optional().nullable(),
   deadline: z.union([z.lazy(() => DateTimeFilterObjectSchema), z.coerce.date()]).optional(),
   createdAt: z.union([z.lazy(() => DateTimeFilterObjectSchema), z.coerce.date()]).optional(),
   updatedAt: z.union([z.lazy(() => DateTimeFilterObjectSchema), z.coerce.date()]).optional(),
   patient: z.union([z.lazy(() => PatientScalarRelationFilterObjectSchema), z.lazy(() => PatientWhereInputObjectSchema)]).optional(),
   lab: z.union([z.lazy(() => LabScalarRelationFilterObjectSchema), z.lazy(() => LabWhereInputObjectSchema)]).optional(),
-  salesReps: z.union([z.lazy(() => SalesRepresentativeNullableScalarRelationFilterObjectSchema), z.lazy(() => SalesRepresentativeWhereInputObjectSchema)]).optional(),
   caseItems: z.lazy(() => CaseWorkItemListRelationFilterObjectSchema).optional(),
   caseCategory: z.union([z.lazy(() => CaseCategoryNullableScalarRelationFilterObjectSchema), z.lazy(() => CaseCategoryWhereInputObjectSchema)]).optional(),
   clinic: z.union([z.lazy(() => ClinicNullableScalarRelationFilterObjectSchema), z.lazy(() => ClinicWhereInputObjectSchema)]).optional(),
   dentist: z.union([z.lazy(() => DentistNullableScalarRelationFilterObjectSchema), z.lazy(() => DentistWhereInputObjectSchema)]).optional(),
-  Technician: z.union([z.lazy(() => TechnicianNullableScalarRelationFilterObjectSchema), z.lazy(() => TechnicianWhereInputObjectSchema)]).optional(),
+  staffAssignments: z.lazy(() => CaseStaffAssignmentListRelationFilterObjectSchema).optional(),
   caseAssetFiles: z.lazy(() => CaseAssetFileListRelationFilterObjectSchema).optional()
 }).strict();
 export const CaseWhereInputObjectSchema: z.ZodType<Prisma.CaseWhereInput> = casewhereinputSchema as unknown as z.ZodType<Prisma.CaseWhereInput>;

@@ -3,8 +3,6 @@ import type { Prisma } from '../../../../generated/prisma/client';
 import { LabSubscriptionPlanUncheckedCreateNestedOneWithoutLabInputObjectSchema as LabSubscriptionPlanUncheckedCreateNestedOneWithoutLabInputObjectSchema } from './LabSubscriptionPlanUncheckedCreateNestedOneWithoutLabInput.schema';
 import { LabUserUncheckedCreateNestedManyWithoutLabInputObjectSchema as LabUserUncheckedCreateNestedManyWithoutLabInputObjectSchema } from './LabUserUncheckedCreateNestedManyWithoutLabInput.schema';
 import { CaseUncheckedCreateNestedManyWithoutLabInputObjectSchema as CaseUncheckedCreateNestedManyWithoutLabInputObjectSchema } from './CaseUncheckedCreateNestedManyWithoutLabInput.schema';
-import { TechnicianUncheckedCreateNestedManyWithoutLabInputObjectSchema as TechnicianUncheckedCreateNestedManyWithoutLabInputObjectSchema } from './TechnicianUncheckedCreateNestedManyWithoutLabInput.schema';
-import { SalesRepresentativeUncheckedCreateNestedManyWithoutLabInputObjectSchema as SalesRepresentativeUncheckedCreateNestedManyWithoutLabInputObjectSchema } from './SalesRepresentativeUncheckedCreateNestedManyWithoutLabInput.schema';
 import { CaseCategoryUncheckedCreateNestedManyWithoutLabInputObjectSchema as CaseCategoryUncheckedCreateNestedManyWithoutLabInputObjectSchema } from './CaseCategoryUncheckedCreateNestedManyWithoutLabInput.schema';
 import { WorkTypeUncheckedCreateNestedManyWithoutLabInputObjectSchema as WorkTypeUncheckedCreateNestedManyWithoutLabInputObjectSchema } from './WorkTypeUncheckedCreateNestedManyWithoutLabInput.schema';
 import { ProductUncheckedCreateNestedManyWithoutLabInputObjectSchema as ProductUncheckedCreateNestedManyWithoutLabInputObjectSchema } from './ProductUncheckedCreateNestedManyWithoutLabInput.schema';
@@ -13,7 +11,9 @@ import { SelectedToothUncheckedCreateNestedManyWithoutLabInputObjectSchema as Se
 import { CasePricingPlanUncheckedCreateNestedManyWithoutLabInputObjectSchema as CasePricingPlanUncheckedCreateNestedManyWithoutLabInputObjectSchema } from './CasePricingPlanUncheckedCreateNestedManyWithoutLabInput.schema';
 import { CaseAssetFileUncheckedCreateNestedManyWithoutLabInputObjectSchema as CaseAssetFileUncheckedCreateNestedManyWithoutLabInputObjectSchema } from './CaseAssetFileUncheckedCreateNestedManyWithoutLabInput.schema';
 import { PatientUncheckedCreateNestedManyWithoutLabInputObjectSchema as PatientUncheckedCreateNestedManyWithoutLabInputObjectSchema } from './PatientUncheckedCreateNestedManyWithoutLabInput.schema';
-import { DentistUncheckedCreateNestedManyWithoutLabInputObjectSchema as DentistUncheckedCreateNestedManyWithoutLabInputObjectSchema } from './DentistUncheckedCreateNestedManyWithoutLabInput.schema'
+import { DentistUncheckedCreateNestedManyWithoutLabInputObjectSchema as DentistUncheckedCreateNestedManyWithoutLabInputObjectSchema } from './DentistUncheckedCreateNestedManyWithoutLabInput.schema';
+import { CaseStaffAssignmentUncheckedCreateNestedManyWithoutLabInputObjectSchema as CaseStaffAssignmentUncheckedCreateNestedManyWithoutLabInputObjectSchema } from './CaseStaffAssignmentUncheckedCreateNestedManyWithoutLabInput.schema';
+import { LabStaffUncheckedCreateNestedManyWithoutLabInputObjectSchema as LabStaffUncheckedCreateNestedManyWithoutLabInputObjectSchema } from './LabStaffUncheckedCreateNestedManyWithoutLabInput.schema'
 
 const makeSchema = () => z.object({
   id: z.string().optional(),
@@ -26,8 +26,6 @@ const makeSchema = () => z.object({
   labSubscriptionPlan: z.lazy(() => LabSubscriptionPlanUncheckedCreateNestedOneWithoutLabInputObjectSchema).optional(),
   users: z.lazy(() => LabUserUncheckedCreateNestedManyWithoutLabInputObjectSchema).optional(),
   cases: z.lazy(() => CaseUncheckedCreateNestedManyWithoutLabInputObjectSchema).optional(),
-  technicians: z.lazy(() => TechnicianUncheckedCreateNestedManyWithoutLabInputObjectSchema).optional(),
-  salesReps: z.lazy(() => SalesRepresentativeUncheckedCreateNestedManyWithoutLabInputObjectSchema).optional(),
   caseCategories: z.lazy(() => CaseCategoryUncheckedCreateNestedManyWithoutLabInputObjectSchema).optional(),
   workTypes: z.lazy(() => WorkTypeUncheckedCreateNestedManyWithoutLabInputObjectSchema).optional(),
   products: z.lazy(() => ProductUncheckedCreateNestedManyWithoutLabInputObjectSchema).optional(),
@@ -36,7 +34,9 @@ const makeSchema = () => z.object({
   casePricingPlans: z.lazy(() => CasePricingPlanUncheckedCreateNestedManyWithoutLabInputObjectSchema).optional(),
   caseAssetFiles: z.lazy(() => CaseAssetFileUncheckedCreateNestedManyWithoutLabInputObjectSchema).optional(),
   patients: z.lazy(() => PatientUncheckedCreateNestedManyWithoutLabInputObjectSchema).optional(),
-  dentists: z.lazy(() => DentistUncheckedCreateNestedManyWithoutLabInputObjectSchema).optional()
+  dentists: z.lazy(() => DentistUncheckedCreateNestedManyWithoutLabInputObjectSchema).optional(),
+  staffAssignments: z.lazy(() => CaseStaffAssignmentUncheckedCreateNestedManyWithoutLabInputObjectSchema).optional(),
+  LabStaff: z.lazy(() => LabStaffUncheckedCreateNestedManyWithoutLabInputObjectSchema).optional()
 }).strict();
 export const LabUncheckedCreateWithoutClinicsInputObjectSchema: z.ZodType<Prisma.LabUncheckedCreateWithoutClinicsInput> = makeSchema() as unknown as z.ZodType<Prisma.LabUncheckedCreateWithoutClinicsInput>;
 export const LabUncheckedCreateWithoutClinicsInputObjectZodSchema = makeSchema();

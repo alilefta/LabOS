@@ -7,6 +7,7 @@ import { EnumCaseStatusFieldUpdateOperationsInputObjectSchema as EnumCaseStatusF
 import { DecimalFieldUpdateOperationsInputObjectSchema as DecimalFieldUpdateOperationsInputObjectSchema } from './DecimalFieldUpdateOperationsInput.schema';
 import { DateTimeFieldUpdateOperationsInputObjectSchema as DateTimeFieldUpdateOperationsInputObjectSchema } from './DateTimeFieldUpdateOperationsInput.schema';
 import { CaseWorkItemUncheckedUpdateManyWithoutDentalCaseNestedInputObjectSchema as CaseWorkItemUncheckedUpdateManyWithoutDentalCaseNestedInputObjectSchema } from './CaseWorkItemUncheckedUpdateManyWithoutDentalCaseNestedInput.schema';
+import { CaseStaffAssignmentUncheckedUpdateManyWithoutCaseNestedInputObjectSchema as CaseStaffAssignmentUncheckedUpdateManyWithoutCaseNestedInputObjectSchema } from './CaseStaffAssignmentUncheckedUpdateManyWithoutCaseNestedInput.schema';
 import { CaseAssetFileUncheckedUpdateManyWithoutDentalCaseNestedInputObjectSchema as CaseAssetFileUncheckedUpdateManyWithoutDentalCaseNestedInputObjectSchema } from './CaseAssetFileUncheckedUpdateManyWithoutDentalCaseNestedInput.schema'
 
 import { DecimalJSLikeSchema, isValidDecimalInput } from '../../helpers/decimal-helpers';
@@ -14,7 +15,6 @@ const makeSchema = () => z.object({
   id: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputObjectSchema)]).optional(),
   caseNumber: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputObjectSchema)]).optional(),
   labId: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputObjectSchema)]).optional(),
-  salesRepsId: z.union([z.string(), z.lazy(() => NullableStringFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
   caseCategoryId: z.union([z.string(), z.lazy(() => NullableStringFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
   status: z.union([CaseStatusSchema, z.lazy(() => EnumCaseStatusFieldUpdateOperationsInputObjectSchema)]).optional(),
   grandTotal: z.union([z.union([
@@ -27,11 +27,11 @@ const makeSchema = () => z.object({
 }), z.lazy(() => DecimalFieldUpdateOperationsInputObjectSchema)]).optional(),
   clinicId: z.union([z.string(), z.lazy(() => NullableStringFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
   dentistId: z.union([z.string(), z.lazy(() => NullableStringFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
-  technicianId: z.union([z.string(), z.lazy(() => NullableStringFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
   deadline: z.union([z.coerce.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputObjectSchema)]).optional(),
   createdAt: z.union([z.coerce.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputObjectSchema)]).optional(),
   updatedAt: z.union([z.coerce.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputObjectSchema)]).optional(),
   caseItems: z.lazy(() => CaseWorkItemUncheckedUpdateManyWithoutDentalCaseNestedInputObjectSchema).optional(),
+  staffAssignments: z.lazy(() => CaseStaffAssignmentUncheckedUpdateManyWithoutCaseNestedInputObjectSchema).optional(),
   caseAssetFiles: z.lazy(() => CaseAssetFileUncheckedUpdateManyWithoutDentalCaseNestedInputObjectSchema).optional()
 }).strict();
 export const CaseUncheckedUpdateWithoutPatientInputObjectSchema: z.ZodType<Prisma.CaseUncheckedUpdateWithoutPatientInput> = makeSchema() as unknown as z.ZodType<Prisma.CaseUncheckedUpdateWithoutPatientInput>;

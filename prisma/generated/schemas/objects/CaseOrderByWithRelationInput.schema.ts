@@ -4,12 +4,11 @@ import { SortOrderSchema } from '../enums/SortOrder.schema';
 import { SortOrderInputObjectSchema as SortOrderInputObjectSchema } from './SortOrderInput.schema';
 import { PatientOrderByWithRelationInputObjectSchema as PatientOrderByWithRelationInputObjectSchema } from './PatientOrderByWithRelationInput.schema';
 import { LabOrderByWithRelationInputObjectSchema as LabOrderByWithRelationInputObjectSchema } from './LabOrderByWithRelationInput.schema';
-import { SalesRepresentativeOrderByWithRelationInputObjectSchema as SalesRepresentativeOrderByWithRelationInputObjectSchema } from './SalesRepresentativeOrderByWithRelationInput.schema';
 import { CaseWorkItemOrderByRelationAggregateInputObjectSchema as CaseWorkItemOrderByRelationAggregateInputObjectSchema } from './CaseWorkItemOrderByRelationAggregateInput.schema';
 import { CaseCategoryOrderByWithRelationInputObjectSchema as CaseCategoryOrderByWithRelationInputObjectSchema } from './CaseCategoryOrderByWithRelationInput.schema';
 import { ClinicOrderByWithRelationInputObjectSchema as ClinicOrderByWithRelationInputObjectSchema } from './ClinicOrderByWithRelationInput.schema';
 import { DentistOrderByWithRelationInputObjectSchema as DentistOrderByWithRelationInputObjectSchema } from './DentistOrderByWithRelationInput.schema';
-import { TechnicianOrderByWithRelationInputObjectSchema as TechnicianOrderByWithRelationInputObjectSchema } from './TechnicianOrderByWithRelationInput.schema';
+import { CaseStaffAssignmentOrderByRelationAggregateInputObjectSchema as CaseStaffAssignmentOrderByRelationAggregateInputObjectSchema } from './CaseStaffAssignmentOrderByRelationAggregateInput.schema';
 import { CaseAssetFileOrderByRelationAggregateInputObjectSchema as CaseAssetFileOrderByRelationAggregateInputObjectSchema } from './CaseAssetFileOrderByRelationAggregateInput.schema'
 
 const makeSchema = () => z.object({
@@ -17,24 +16,21 @@ const makeSchema = () => z.object({
   patientId: SortOrderSchema.optional(),
   caseNumber: SortOrderSchema.optional(),
   labId: SortOrderSchema.optional(),
-  salesRepsId: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
   caseCategoryId: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
   status: SortOrderSchema.optional(),
   grandTotal: SortOrderSchema.optional(),
   clinicId: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
   dentistId: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
-  technicianId: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
   deadline: SortOrderSchema.optional(),
   createdAt: SortOrderSchema.optional(),
   updatedAt: SortOrderSchema.optional(),
   patient: z.lazy(() => PatientOrderByWithRelationInputObjectSchema).optional(),
   lab: z.lazy(() => LabOrderByWithRelationInputObjectSchema).optional(),
-  salesReps: z.lazy(() => SalesRepresentativeOrderByWithRelationInputObjectSchema).optional(),
   caseItems: z.lazy(() => CaseWorkItemOrderByRelationAggregateInputObjectSchema).optional(),
   caseCategory: z.lazy(() => CaseCategoryOrderByWithRelationInputObjectSchema).optional(),
   clinic: z.lazy(() => ClinicOrderByWithRelationInputObjectSchema).optional(),
   dentist: z.lazy(() => DentistOrderByWithRelationInputObjectSchema).optional(),
-  Technician: z.lazy(() => TechnicianOrderByWithRelationInputObjectSchema).optional(),
+  staffAssignments: z.lazy(() => CaseStaffAssignmentOrderByRelationAggregateInputObjectSchema).optional(),
   caseAssetFiles: z.lazy(() => CaseAssetFileOrderByRelationAggregateInputObjectSchema).optional()
 }).strict();
 export const CaseOrderByWithRelationInputObjectSchema: z.ZodType<Prisma.CaseOrderByWithRelationInput> = makeSchema() as unknown as z.ZodType<Prisma.CaseOrderByWithRelationInput>;
