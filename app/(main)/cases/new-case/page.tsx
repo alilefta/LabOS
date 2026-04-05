@@ -52,12 +52,10 @@ export default function NewCasePage() {
 			caseAssetFiles: [],
 			grandTotal: 0,
 			caseCategoryId: "",
-			technicianId: "",
 			status: "DRAFT",
 			clinicId: "",
 			deadline: new Date(),
 			patientId: "",
-			salesRepsId: "",
 		},
 	});
 
@@ -159,8 +157,8 @@ export default function NewCasePage() {
 									</div>
 								</section>
 
-								{/* SECTION 5: LOGISTICS & ROUTING */}
-								<LogisticsAndRoutingSection newCreatedSalesRep={() => {}} newCreatedTechnician={() => {}} onOpenSalesRepSheet={() => {}} onOpenTechnicianSheet={() => {}} />
+								{/* SECTION 4: LOGISTICS & ROUTING */}
+								<LogisticsAndRoutingSection newRegisteredStaffMember={null} onOpenRegisterMemberSheet={() => {}} />
 							</div>
 						</form>
 					</FormProvider>
