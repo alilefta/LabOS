@@ -39,3 +39,11 @@ export type PatientGender = z.infer<typeof PatientGenderSchema>;
 // ========== Subscription Tier ============
 export const SubscriptionTierSchema = z.enum(["FREE", "STARTER", "PROFESSIONAL", "ENTERPRISE"]);
 export type SubscriptionTier = z.infer<typeof SubscriptionTierSchema>;
+
+// ========== Commission Type ============
+export const CommissionTypeSchema = z.enum(["PERCENTAGE", "FIXED"]);
+export type CommissionType = z.infer<typeof CommissionTypeSchema>;
+
+// ========== Staff Role Category ============
+export const StaffRoleCategorySchema = z.enum(["TECHNICIAN", "SENIOR_TECHNICIAN", "QC_INSPECTOR", "COURIER", "SALES_REP", "ACCOUNT_MANAGER", "RECEPTIONIST", "MANAGER", "ACCOUNTANT"]);
+export type StaffRoleCategory = z.infer<typeof StaffRoleCategorySchema>;
