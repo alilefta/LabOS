@@ -7,7 +7,7 @@ import { CaseCategoryBaseSchema } from "../base/case-category.base";
 import { ClinicBaseSchema } from "../base/clinic.base";
 import { CaseAssetFileBaseSchema } from "../base/case-asset-file.base";
 import { CreateCaseWorkItemInputSchema } from "./case-work-item.details";
-import { CaseStatusSchema, CommissionTypeSchema } from "../base/enums.base";
+import { CaseStatusSchema } from "../base/enums.base";
 import { DentistBaseSchema } from "../base/dentist.base";
 import { CreateCaseAssetFilesInputSchema } from "./case-asset-file.details";
 import { emptyToUndefinedTransformer } from "../base/utils.base";

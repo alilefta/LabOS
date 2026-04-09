@@ -39,10 +39,12 @@ export function InputWithLabel<S extends FieldValues>({
 				{isOptional && <span className="text-slate-500 dark:text-zinc-500">(Optional)</span>}
 			</FieldLabel>
 			<Input
-				{...field}
 				{...props}
+				{...field}
 				type={type || "text"}
-				value={field.value ?? ""}
+				// value={field.value ?? ""}
+
+				value={field.value === undefined || field.value === null ? "" : field.value}
 				id={nameInSchema}
 				aria-invalid={fieldState.invalid}
 				placeholder={placeholder}
@@ -62,13 +64,30 @@ export function InputWithLabel<S extends FieldValues>({
 					type === "number" && "no-spinner",
 					inputClassName,
 				)}
-				onChange={(e) => {
-					if (type === "number") {
-						field.onChange(e.target.value === "" ? undefined : e.target.valueAsNumber);
-					} else {
-						field.onChange(e.target.value);
-					}
-				}}
+				// onChange={(e) => {
+				// 	if (type === "number") {
+				// 		field.onChange(e.target.value === "" ? undefined : e.target.valueAsNumber);
+				// 	} else {
+				// 		field.onChange(e.target.value);
+				// 	}
+				// }}
+
+				// 2. THE FIX: Let RHF handle the raw string natively!
+				// onChange={(e) => {
+				// 	// Allow any custom onChange passed via props to run
+				// 	if (propsOnChange) {
+				// 		propsOnChange(e);
+				// 	}
+
+				// 	// If it's a number field and the user clears it, pass undefined
+				// 	if (type === "number" && e.target.value === "") {
+				// 		field.onChange(undefined);
+				// 	} else {
+				// 		// Otherwise, just pass the raw event.
+				// 		// RHF stores the string, Zod transforms it to a number on submit!
+				// 		field.onChange(e);
+				// 	}
+				// }}
 			/>
 
 			{fieldState.invalid && <FieldError errors={[fieldState.error]} className="text-[11px] font-medium text-destructive mt-1.5 block" />}

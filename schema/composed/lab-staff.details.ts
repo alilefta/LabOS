@@ -19,7 +19,12 @@ export const LabStaffDetailsUISchema = LabStaffBaseSchema.extend({
 
 export type LabStaffDetailsUI = z.infer<typeof LabStaffDetailsUISchema>;
 
-export const CreateLabStaffDetailsInputSchema = LabStaffBaseSchema.extend({
+export const CreateLabStaffInputSchema = LabStaffBaseSchema.omit({
+	id: true,
+	labId: true,
+	createdAt: true,
+	updatedAt: true,
+}).extend({
 	firstName: z.string().trim().min(2, "First name must be at least 2 characters."),
 	lastName: z.string().trim().min(2, "Last name must be at least 2 characters."),
 	phoneNumber: z.string().trim().min(7, "Please enter a valid phone number."),
@@ -33,7 +38,15 @@ export const CreateLabStaffDetailsInputSchema = LabStaffBaseSchema.extend({
 	roleCategory: StaffRoleCategorySchema,
 	specialization: z.string().transform(emptyToUndefinedTransformer).optional(),
 	commissionType: CommissionTypeSchema,
-	commissionValue: z.number().optional(),
+	commissionValue: z.coerce.number<number>().min(0, "").optional(),
 });
 
-export type CreateLabStaffDetailsInput = z.infer<typeof CreateLabStaffDetailsInputSchema>;
+export type CreateLabStaffInput = z.infer<typeof CreateLabStaffInputSchema>;
+
+export const GetLabStaffByRoleAndSearchQueryInputSchema = z.object({
+	role: StaffRoleCategorySchema,
+	searchQuery: z.string(),
+	limit: z.number().default(20),
+});
+
+export type GetLabStaffByRoleAndSearchQueryInput = z.infer<typeof GetLabStaffByRoleAndSearchQueryInputSchema>;

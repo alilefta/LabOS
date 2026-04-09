@@ -53,7 +53,7 @@ export function RegisterPatientSheet({ isOpen, onClose, onPatientCreated }: Prop
 
 	return (
 		<Sheet open={isOpen} onOpenChange={onClose}>
-			<SheetContent className="sm:max-w-md! border-l border-border bg-card dark:bg-[#09090B] p-0 flex flex-col shadow-2xl">
+			<SheetContent className="lg:max-w-md! max-w-full! w-full! sm:w-[90%]! md:w-[70%]! border-l border-border bg-card dark:bg-[#09090B] p-0 flex flex-col shadow-2xl">
 				{/* --- HEADER --- */}
 				<SheetHeader className="p-8 border-b border-border bg-linear-to-br from-primary/5 to-transparent relative overflow-hidden">
 					<div className="absolute top-0 right-0 p-8 opacity-10">

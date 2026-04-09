@@ -26,6 +26,9 @@ import { CreatePricingPlanSheet } from "@/components/modals/pricing/create-prici
 import { CreateCaseAssetFilesInput } from "@/schema/composed/case-asset-file.details";
 import { toast } from "sonner";
 import { LogisticsAndRoutingSection } from "@/components/cases/new-case/sections/logisitc-and-routing-section";
+import { RegisterStaffSheet } from "@/components/modals/cases/staff/register-staff-sheet";
+import { LabStaffDetailsUI } from "@/schema/composed/lab-staff.details";
+import { StaffRoleCategory } from "@/schema/base/enums.base";
 
 export default function NewCasePage() {
 	// 1. The Boss holds the temporary data
@@ -35,7 +38,16 @@ export default function NewCasePage() {
 	const [openCreateNewClinicSheet, setOpenCreateNewClinicSheet] = useState(false);
 	const [openCreateNewCategory, setOpenCreateNewCategory] = useState(false);
 
+	const [registerNewStaffMemberState, setRegisterNewStaffMemberState] = useState<{
+		open: boolean;
+		requiredRoles: StaffRoleCategory[];
+	}>({
+		open: false,
+		requiredRoles: [],
+	});
+
 	const [newPatient, setNewPatient] = useState<PatientDetails | null>(null);
+	const [newStaffMember, setNewStaffMember] = useState<LabStaffDetailsUI | null>(null);
 	const [newClinic, setNewClinic] = useState<ClinicDetailsUI | null>(null);
 	const [newCategory, setNewCategory] = useState<CaseCategoryDetailsUI | null>(null);
 
@@ -158,7 +170,10 @@ export default function NewCasePage() {
 								</section>
 
 								{/* SECTION 4: LOGISTICS & ROUTING */}
-								<LogisticsAndRoutingSection newRegisteredStaffMember={null} onOpenRegisterMemberSheet={() => {}} />
+								<LogisticsAndRoutingSection
+									newRegisteredStaffMember={newStaffMember}
+									handleOpenRegisterLabStaffSheet={(roles) => setRegisterNewStaffMemberState({ open: true, requiredRoles: roles })}
+								/>
 							</div>
 						</form>
 					</FormProvider>
@@ -175,6 +190,13 @@ export default function NewCasePage() {
 					<CreateWorkTypeSheet />
 					<CreateProductSheet />
 					<CreatePricingPlanSheet />
+
+					<RegisterStaffSheet
+						isOpen={registerNewStaffMemberState.open}
+						onClose={() => setRegisterNewStaffMemberState({ open: false, requiredRoles: [] })}
+						requiredRoles={registerNewStaffMemberState.requiredRoles}
+						onStaffCreated={(s) => setNewStaffMember(s)}
+					/>
 
 					<CaseSummaryModal isOpen={isSummaryOpen} onClose={() => setIsSummaryOpen(false)} onConfirm={handleFinalConfirm} data={draftData} isSubmitting={isExecuting} />
 				</div>

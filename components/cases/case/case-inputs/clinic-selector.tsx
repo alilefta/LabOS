@@ -1,6 +1,6 @@
 "use client";
 
-import { Building2, MapPin, ChevronsUpDown, Loader2, Plus, Check, UserCircle, Hospital, GraduationCap, Briefcase } from "lucide-react";
+import { Building2, MapPin, ChevronsUpDown, Loader2, Plus, Check, UserCircle, Hospital, GraduationCap, Briefcase, Loader } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Button } from "@/components/ui/button";
@@ -122,9 +122,6 @@ export const ClinicSelector = memo(({ onSelect, onCreateNew, newCreatedClinic }:
 							{!isFetching && clinics.length === 0 && (
 								<CommandEmpty className="p-6 text-center">
 									<p className="text-xs text-muted-foreground mb-4 font-medium">No partner found.</p>
-									<Button onClick={handleCreateNew} className="w-full rounded-xl bg-primary text-white font-bold h-9 shadow-ai-glow-light">
-										<Plus className="w-3.5 h-3.5 mr-2" /> Register {search ? `"${search}"` : "New Clinic"}
-									</Button>
 								</CommandEmpty>
 							)}
 
@@ -158,6 +155,18 @@ export const ClinicSelector = memo(({ onSelect, onCreateNew, newCreatedClinic }:
 								))}
 							</CommandGroup>
 						</CommandList>
+						{/* --- NEW: STICKY CREATION FOOTER --- */}
+						<div className="p-2 border-t border-border bg-slate-50/80 dark:bg-white/2 shrink-0">
+							<Button
+								variant="ghost"
+								onClick={handleCreateNew}
+								disabled={isFetching}
+								className="w-full justify-start text-primary hover:text-primary hover:bg-primary/10 rounded-xl text-[13px] font-bold h-10 transition-colors"
+							>
+								{isFetching ? <Loader className="mr-2 h-4 w-4 animate-spin" /> : <Plus className="mr-2 h-4 w-4" />}
+								{search.length > 0 ? `Register "${search}"` : "Register New Clinic"}
+							</Button>
+						</div>
 					</Command>
 				</PopoverContent>
 			</Popover>

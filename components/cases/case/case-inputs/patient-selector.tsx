@@ -1,7 +1,7 @@
 "use client";
 
 import { memo, useCallback, useEffect, useMemo, useState } from "react";
-import { Check, ChevronsUpDown, UserPlus, History, Loader2, Activity } from "lucide-react";
+import { Check, ChevronsUpDown, UserPlus, History, Loader2, Activity, Loader } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
@@ -92,9 +92,9 @@ export const PatientSelector = memo(({ onCreateNew, newCreatedPatient, onSelect 
 				</PopoverTrigger>
 
 				<PopoverContent className="PopoverContent p-0 rounded-2xl border-border shadow-premium overflow-hidden w-[--radix-popover-trigger-width]">
-					<Command className="dark:bg-[#121214]" shouldFilter={false}>
-						<CommandInput placeholder="Type name or clinical ID..." value={search} onValueChange={setSearch} className="py-3" />
-						<CommandList className="max-h-80 custom-scrollbar">
+					<Command className="dark:bg-[#121214] flex-1 min-h-0 flex flex-col" shouldFilter={false}>
+						<CommandInput placeholder="Type name or clinical ID..." value={search} onValueChange={setSearch} className="py-3  shrink-0" />
+						<CommandList className="max-h-60 custom-scrollbar flex-1">
 							{isFetching && (
 								<div className="p-2 space-y-2">
 									<Skeleton className="h-12 w-full rounded-lg" />
@@ -104,20 +104,31 @@ export const PatientSelector = memo(({ onCreateNew, newCreatedPatient, onSelect 
 
 							{!isFetching && patients.length === 0 && (
 								<CommandEmpty className="p-6 text-center">
-									<p className="text-xs text-muted-foreground mb-4">No record found for &quot;{search}&quot;</p>
-									<Button onClick={handleCreateNew} className="w-full rounded-xl bg-primary shadow-ai-glow-light font-bold">
-										<UserPlus className="w-4 h-4 mr-2" /> Register New Clinical Profile
-									</Button>
+									<p className="text-xs text-muted-foreground font-medium">No record found.</p>
 								</CommandEmpty>
 							)}
 
-							<CommandGroup heading="Matching Clinical Profiles">
-								{patients.map((patient) => (
-									<PatientSearchItem key={patient.id} patient={patient} isSelected={selectedId === patient.id} onSelect={(id) => handleSelect(id)} />
-								))}
-							</CommandGroup>
+							{patients.length > 0 && (
+								<CommandGroup heading="Matching Clinical Profiles">
+									{patients.map((patient) => (
+										<PatientSearchItem key={patient.id} patient={patient} isSelected={selectedId === patient.id} onSelect={handleSelect} />
+									))}
+								</CommandGroup>
+							)}
 						</CommandList>
 					</Command>
+					{/* --- NEW: STICKY CREATION FOOTER --- */}
+					<div className="p-2 border-t border-border bg-slate-50/80 dark:bg-white/2 shrink-0">
+						<Button
+							variant="ghost"
+							onClick={handleCreateNew}
+							disabled={isFetching}
+							className="w-full justify-start text-primary hover:text-primary hover:bg-primary/10 rounded-xl text-[13px] font-bold h-10 transition-colors"
+						>
+							{isFetching ? <Loader className="mr-2 h-4 w-4 animate-spin" /> : <UserPlus className="mr-2 h-4 w-4" />}
+							{search.length > 0 ? `Register "${search}"` : "Register New Patient"}
+						</Button>
+					</div>
 				</PopoverContent>
 			</Popover>
 		</div>
