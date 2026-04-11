@@ -47,6 +47,8 @@ export const CreateCaseInputSchema = z.object({
 	deadline: z.date(),
 	caseWorkItems: z.array(CreateCaseWorkItemInputSchema),
 	caseAssetFiles: z.array(CreateCaseAssetFilesInputSchema),
+	notes: z.string().transform(emptyToUndefinedTransformer).optional(),
+
 	staffAssignments: z
 		.array(
 			CreateCaseStaffAssignmentInputSchema.omit({

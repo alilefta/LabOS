@@ -16,6 +16,13 @@ export const CaseWorkItemBaseSchema = z.object({
 	toothPrice: z.number().nullable(),
 	jawType: JawTypeSchema,
 	workTypeId: z.string().nullable(),
+
+	notes: z.string().nullable(),
+	shadeSystem: z.string().nullable(),
+	baseShade: z.string().nullable(),
+	stumpShade: z.string().nullable(),
+	shadeNotes: z.string().nullable(),
+
 	createdAt: z.date(),
 	updatedAt: z.date(),
 });

@@ -9,6 +9,7 @@ import { SelectedToothBaseSchema } from "../base/selected-tooth.base";
 import { JawTypeSchema } from "../base/enums.base";
 import { WorkTypeBaseSchema } from "../base/worktype.base";
 import { CreateSelectedToothInputSchema } from "./selected-tooth.details";
+// import { emptyToUndefinedTransformer } from "../base/utils.base";
 
 export const CaseWorkItemDetailsSchema = CaseWorkItemBaseSchema.extend({
 	product: ProductBaseSchema.nullable(),
@@ -46,6 +47,12 @@ export const CreateCaseWorkItemInputSchema = z
 		selectedTeeth: z.array(CreateSelectedToothInputSchema).optional(),
 
 		jawType: JawTypeSchema,
+
+		notes: z.string().optional(),
+		shadeSystem: z.string().optional(),
+		baseShade: z.string().optional(),
+		stumpShade: z.string().optional(),
+		shadeNotes: z.string().optional(),
 	})
 	.superRefine((data, ctx) => {
 		const requiresTeeth = data.jawType !== "OTHER";
