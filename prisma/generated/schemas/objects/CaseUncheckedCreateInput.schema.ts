@@ -23,6 +23,7 @@ const makeSchema = () => z.object({
 }).optional(),
   clinicId: z.string().optional().nullable(),
   dentistId: z.string().optional().nullable(),
+  notes: z.string().optional().nullable(),
   deadline: z.coerce.date(),
   createdAt: z.coerce.date().optional(),
   caseItems: z.lazy(() => CaseWorkItemUncheckedCreateNestedManyWithoutDentalCaseInputObjectSchema).optional(),

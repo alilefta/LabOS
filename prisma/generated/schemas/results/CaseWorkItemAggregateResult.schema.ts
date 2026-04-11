@@ -19,6 +19,11 @@ export const CaseWorkItemAggregateResultSchema = z.object({  _count: z.object({
     jawType: z.number(),
     workTypeId: z.number(),
     workType: z.number(),
+    notes: z.number(),
+    shadeSystem: z.number(),
+    baseShade: z.number(),
+    stumpShade: z.number(),
+    shadeNotes: z.number(),
     selectedTeeth: z.number(),
     createdAt: z.number(),
     updatedAt: z.number()
@@ -52,6 +57,11 @@ export const CaseWorkItemAggregateResultSchema = z.object({  _count: z.object({
     bulkPrice: z.number().nullable(),
     toothPrice: z.number().nullable(),
     workTypeId: z.string().nullable(),
+    notes: z.string().nullable(),
+    shadeSystem: z.string().nullable(),
+    baseShade: z.string().nullable(),
+    stumpShade: z.string().nullable(),
+    shadeNotes: z.string().nullable(),
     createdAt: z.date().nullable(),
     updatedAt: z.date().nullable()
   }).nullable().optional(),
@@ -68,6 +78,11 @@ export const CaseWorkItemAggregateResultSchema = z.object({  _count: z.object({
     bulkPrice: z.number().nullable(),
     toothPrice: z.number().nullable(),
     workTypeId: z.string().nullable(),
+    notes: z.string().nullable(),
+    shadeSystem: z.string().nullable(),
+    baseShade: z.string().nullable(),
+    stumpShade: z.string().nullable(),
+    shadeNotes: z.string().nullable(),
     createdAt: z.date().nullable(),
     updatedAt: z.date().nullable()
   }).nullable().optional()});

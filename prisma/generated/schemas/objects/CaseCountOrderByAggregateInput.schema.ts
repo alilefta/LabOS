@@ -12,6 +12,7 @@ const makeSchema = () => z.object({
   grandTotal: SortOrderSchema.optional(),
   clinicId: SortOrderSchema.optional(),
   dentistId: SortOrderSchema.optional(),
+  notes: SortOrderSchema.optional(),
   deadline: SortOrderSchema.optional(),
   createdAt: SortOrderSchema.optional(),
   updatedAt: SortOrderSchema.optional()

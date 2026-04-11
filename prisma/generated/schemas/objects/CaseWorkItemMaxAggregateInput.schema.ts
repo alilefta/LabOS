@@ -17,6 +17,11 @@ const makeSchema = () => z.object({
   toothPrice: z.literal(true).optional(),
   jawType: z.literal(true).optional(),
   workTypeId: z.literal(true).optional(),
+  notes: z.literal(true).optional(),
+  shadeSystem: z.literal(true).optional(),
+  baseShade: z.literal(true).optional(),
+  stumpShade: z.literal(true).optional(),
+  shadeNotes: z.literal(true).optional(),
   createdAt: z.literal(true).optional(),
   updatedAt: z.literal(true).optional()
 }).strict();

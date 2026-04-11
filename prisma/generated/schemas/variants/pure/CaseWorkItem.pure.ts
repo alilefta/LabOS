@@ -22,6 +22,11 @@ export const CaseWorkItemModelSchema = z.object({
     jawType: JawTypeSchema,
     workTypeId: z.string().nullable(),
     workType: z.unknown().nullable(),
+    notes: z.string().nullable(),
+    shadeSystem: z.string().nullable(),
+    baseShade: z.string().nullable(),
+    stumpShade: z.string().nullable(),
+    shadeNotes: z.string().nullable(),
     selectedTeeth: z.array(z.unknown()),
     createdAt: z.date(),
     updatedAt: z.date()

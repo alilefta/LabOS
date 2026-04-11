@@ -15,6 +15,7 @@ export const CaseAggregateResultSchema = z.object({  _count: z.object({
     clinic: z.number(),
     dentistId: z.number(),
     dentist: z.number(),
+    notes: z.number(),
     staffAssignments: z.number(),
     caseAssetFiles: z.number(),
     deadline: z.number(),
@@ -36,6 +37,7 @@ export const CaseAggregateResultSchema = z.object({  _count: z.object({
     grandTotal: z.number().nullable(),
     clinicId: z.string().nullable(),
     dentistId: z.string().nullable(),
+    notes: z.string().nullable(),
     deadline: z.date().nullable(),
     createdAt: z.date().nullable(),
     updatedAt: z.date().nullable()
@@ -49,6 +51,7 @@ export const CaseAggregateResultSchema = z.object({  _count: z.object({
     grandTotal: z.number().nullable(),
     clinicId: z.string().nullable(),
     dentistId: z.string().nullable(),
+    notes: z.string().nullable(),
     deadline: z.date().nullable(),
     createdAt: z.date().nullable(),
     updatedAt: z.date().nullable()

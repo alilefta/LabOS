@@ -17,6 +17,7 @@ export const CaseResultSchema = z.object({
     clinic: z.unknown().nullable(),
     dentistId: z.string().nullable(),
     dentist: z.unknown().nullable(),
+    notes: z.string().nullable(),
     staffAssignments: z.array(z.unknown()),
     caseAssetFiles: z.array(z.unknown()),
     deadline: z.date(),

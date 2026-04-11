@@ -26,6 +26,7 @@ const makeSchema = () => z.object({
   clinic: z.union([z.boolean(), z.lazy(() => ClinicArgsObjectSchema)]).optional(),
   dentistId: z.boolean().optional(),
   dentist: z.union([z.boolean(), z.lazy(() => DentistArgsObjectSchema)]).optional(),
+  notes: z.boolean().optional(),
   staffAssignments: z.union([z.boolean(), z.lazy(() => CaseStaffAssignmentFindManySchema)]).optional(),
   caseAssetFiles: z.union([z.boolean(), z.lazy(() => CaseAssetFileFindManySchema)]).optional(),
   deadline: z.boolean().optional(),

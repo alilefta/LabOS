@@ -15,6 +15,7 @@ export const CaseUpsertResultSchema = z.object({
   clinic: z.unknown().optional(),
   dentistId: z.string().optional(),
   dentist: z.unknown().optional(),
+  notes: z.string().optional(),
   staffAssignments: z.array(z.unknown()),
   caseAssetFiles: z.array(z.unknown()),
   deadline: z.date(),

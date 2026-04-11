@@ -17,6 +17,11 @@ const makeSchema = () => z.object({
   toothPrice: SortOrderSchema.optional(),
   jawType: SortOrderSchema.optional(),
   workTypeId: SortOrderSchema.optional(),
+  notes: SortOrderSchema.optional(),
+  shadeSystem: SortOrderSchema.optional(),
+  baseShade: SortOrderSchema.optional(),
+  stumpShade: SortOrderSchema.optional(),
+  shadeNotes: SortOrderSchema.optional(),
   createdAt: SortOrderSchema.optional(),
   updatedAt: SortOrderSchema.optional()
 }).strict();

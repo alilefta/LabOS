@@ -19,6 +19,11 @@ export const CaseWorkItemUpsertResultSchema = z.object({
   jawType: z.unknown(),
   workTypeId: z.string().optional(),
   workType: z.unknown().optional(),
+  notes: z.string().optional(),
+  shadeSystem: z.string().optional(),
+  baseShade: z.string().optional(),
+  stumpShade: z.string().optional(),
+  shadeNotes: z.string().optional(),
   selectedTeeth: z.array(z.unknown()),
   createdAt: z.date(),
   updatedAt: z.date()

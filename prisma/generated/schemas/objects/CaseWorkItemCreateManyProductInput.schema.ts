@@ -60,6 +60,11 @@ const makeSchema = () => z.object({
 }).optional().nullable(),
   jawType: JawTypeSchema.optional(),
   workTypeId: z.string().optional().nullable(),
+  notes: z.string().optional().nullable(),
+  shadeSystem: z.string().optional().nullable(),
+  baseShade: z.string().optional().nullable(),
+  stumpShade: z.string().optional().nullable(),
+  shadeNotes: z.string().optional().nullable(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional()
 }).strict();

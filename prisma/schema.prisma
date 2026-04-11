@@ -202,7 +202,7 @@ model Clinic {
   name                String
   description         String?
   website             String?
-  notes               String?   // internal lab notes about this clinic
+  notes               String?  
   status              ClinicStatus            @default(ACTIVE)
       
   type                ClinicType              @default(CLINIC) // signals solo vs multi-dentis
@@ -288,6 +288,7 @@ model Case {
   dentistId           String?       // which dentist within the clinic ordered this
   dentist             Dentist?      @relation(fields: [dentistId], references: [id], onDelete: SetNull)
 
+  notes               String?  // new
 
   staffAssignments    CaseStaffAssignment[]
 
@@ -363,6 +364,15 @@ model CaseWorkItem {
 
   workTypeId String?
   workType   WorkType? @relation(fields: [workTypeId], references: [id], onDelete: SetNull)
+
+
+  notes         String?   // per-item technician instructions
+
+  // Shade tracking
+  shadeSystem   String?   // "VITA_CLASSICAL", "VITA_3D_MASTER", "CHROMASCOP" — free text, lab defines
+  baseShade     String?   // "A2", "OM3", "210" — depends on system
+  stumpShade    String?   // underlying tooth shade
+  shadeNotes    String?   // "bleached effect", "custom gradient cervical to incisal"
 
   selectedTeeth SelectedTooth[]
   createdAt     DateTime        @default(now())

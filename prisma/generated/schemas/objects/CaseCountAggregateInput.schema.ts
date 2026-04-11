@@ -12,6 +12,7 @@ const makeSchema = () => z.object({
   grandTotal: z.literal(true).optional(),
   clinicId: z.literal(true).optional(),
   dentistId: z.literal(true).optional(),
+  notes: z.literal(true).optional(),
   deadline: z.literal(true).optional(),
   createdAt: z.literal(true).optional(),
   updatedAt: z.literal(true).optional(),
