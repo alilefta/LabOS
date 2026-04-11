@@ -1,5 +1,6 @@
 import { DashboardSidebar } from "@/components/dashboard/dashboard-sidebar";
 import { DashboardTopHeader } from "@/components/dashboard/dashboard-top-header";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryProvider } from "@/providers/query-provider";
 import { ReactNode } from "react";
 
@@ -25,7 +26,9 @@ export default async function MainLayout({ children }: MainLayoutProps) {
 					<div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-primary/5 rounded-full blur-[120px] pointer-events-none -z-10 dark:block hidden"></div>
 
 					<QueryProvider>
-						<div className="w-full max-w-[1800px] mx-auto h-full">{children}</div>
+						<TooltipProvider delayDuration={300}>
+							<div className="w-full max-w-[1800px] mx-auto h-full">{children}</div>
+						</TooltipProvider>
 					</QueryProvider>
 				</main>
 			</div>

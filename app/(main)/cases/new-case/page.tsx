@@ -29,6 +29,8 @@ import { LogisticsAndRoutingSection } from "@/components/cases/new-case/sections
 import { RegisterStaffSheet } from "@/components/modals/cases/staff/register-staff-sheet";
 import { LabStaffDetailsUI } from "@/schema/composed/lab-staff.details";
 import { StaffRoleCategory } from "@/schema/base/enums.base";
+import { useAction } from "next-safe-action/hooks";
+import { handleSafeActionError } from "@/lib/safe-action-helpers";
 
 export default function NewCasePage() {
 	// 1. The Boss holds the temporary data
@@ -50,6 +52,22 @@ export default function NewCasePage() {
 	const [newStaffMember, setNewStaffMember] = useState<LabStaffDetailsUI | null>(null);
 	const [newClinic, setNewClinic] = useState<ClinicDetailsUI | null>(null);
 	const [newCategory, setNewCategory] = useState<CaseCategoryDetailsUI | null>(null);
+
+	const handleOpenClinicSheet = useCallback(() => setOpenCreateNewClinicSheet(true), []);
+	const handleOpenPatientSheet = useCallback(() => setOpenCreateNewPatientSheet(true), []);
+	const handleOpenCategorySheet = useCallback(() => setOpenCreateNewCategory(true), []);
+	const handleOpenStaffSheet = useCallback((roles: StaffRoleCategory[]) => {
+		setRegisterNewStaffMemberState({ open: true, requiredRoles: roles });
+	}, []);
+
+	// const {} = useAction(saveDraftCaseAction, {
+	// 	onSuccess: ({data}) => {
+
+	// 	},
+	// 	onError: ({error}) => {
+	// 		handleSafeActionError(error)
+	// 	},
+	// })
 
 	const form = useForm<CreateCaseInput>({
 		resolver: zodResolver(CreateCaseInputSchema),
@@ -74,18 +92,17 @@ export default function NewCasePage() {
 	const isExecuting = false;
 
 	// 3. The Boss gives the Form a walkie-talkie
-	const handleFormValid = (data: CreateCaseInput) => {
-		setDraftData(data); // Save the validated data in memory
-		setIsSummaryOpen(true); // Pop the modal!
-	};
+	const handleFormValid = useCallback((data: CreateCaseInput) => {
+		setDraftData(data);
+		setIsSummaryOpen(true);
+	}, []);
 
 	// 4. The Boss gives the Modal a walkie-talkie
-	const handleFinalConfirm = async () => {
+	const handleFinalConfirm = useCallback(async () => {
 		if (draftData) {
-			// await createCase(draftData); // Send to DB!
+			// await createCase(draftData);
 		}
-	};
-
+	}, [draftData]);
 	const handleSaveDraft = async () => {
 		// 1. Get raw values directly (bypasses RHF/Zod strict validation)
 		const currentData = form.getValues();
@@ -128,18 +145,14 @@ export default function NewCasePage() {
 		},
 		[form],
 	);
+
 	useEffect(() => {
 		console.log(form.formState.dirtyFields);
 	}, [form.formState.dirtyFields]);
 
-	// const handleSaveDraft = () => {
-	// 	// should store draft to db.
-	// 	console.log("Draft Data:", draftData);
-	// };
-
 	return (
 		<div className="flex flex-col h-full animate-in fade-in duration-700">
-			<NewCaseHeader isSubmitForReviewEnabled={!form.formState.disabled} onSaveDraft={handleSaveDraft} />
+			<NewCaseHeader isSubmitForReviewEnabled={!form.formState.disabled} isSaveDraftEnabled={true} onSaveDraft={handleSaveDraft} onSubmitCaseForReview={() => setIsSummaryOpen(true)} />
 			<div className="flex-1 min-h-0">
 				<div className="flex flex-col xl:flex-row gap-8 h-full">
 					{/* FORM SECTION (Left) */}
@@ -148,13 +161,13 @@ export default function NewCasePage() {
 							<div className="flex-1 overflow-y-auto no-scrollbar pb-20 space-y-12">
 								{/* SECTION 1: ORIGIN */}
 								<PatientAndClinicSection
-									handleOpenClinicCreationSheet={() => setOpenCreateNewClinicSheet(true)}
-									handleOpenPatientCreationSheet={() => setOpenCreateNewPatientSheet(true)}
+									handleOpenClinicCreationSheet={handleOpenClinicSheet}
+									handleOpenPatientCreationSheet={handleOpenPatientSheet}
 									newCreatedPatient={newPatient}
 									newCreatedClinic={newClinic}
 								/>
 								{/* SECTION 2: THE PRODUCT */}
-								<HierarchicalClinicalPicker newCreatedCategory={newCategory} handleOpenCreateCategorySheet={() => setOpenCreateNewCategory(true)} />
+								<HierarchicalClinicalPicker newCreatedCategory={newCategory} handleOpenCreateCategorySheet={handleOpenCategorySheet} />
 
 								{/* SECTION 3: LOGISTICS & FILES */}
 								<section className="space-y-8">
@@ -165,15 +178,12 @@ export default function NewCasePage() {
 
 									<div className="grid grid-cols-1 gap-12">
 										<CaseFileUploadZone onUploadFiles={handleUploadedAssets} />
-										<ClinicalAssetPreview />
+										<ClinicalAssetPreview control={form.control} getValues={form.getValues} />
 									</div>
 								</section>
 
 								{/* SECTION 4: LOGISTICS & ROUTING */}
-								<LogisticsAndRoutingSection
-									newRegisteredStaffMember={newStaffMember}
-									handleOpenRegisterLabStaffSheet={(roles) => setRegisterNewStaffMemberState({ open: true, requiredRoles: roles })}
-								/>
+								<LogisticsAndRoutingSection newRegisteredStaffMember={newStaffMember} handleOpenRegisterLabStaffSheet={handleOpenStaffSheet} />
 							</div>
 						</form>
 					</FormProvider>
