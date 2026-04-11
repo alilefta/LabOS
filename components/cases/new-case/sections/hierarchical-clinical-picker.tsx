@@ -5,23 +5,23 @@ import { CaseCategorySelector } from "../../case/case-inputs/case-category-selec
 import { CaseWorkItemManager } from "../../case/case-work-item-manager";
 import { CreateCaseInput } from "@/schema/composed/case.details";
 import { useFormContext } from "react-hook-form";
-import { useCallback, useState } from "react";
+import { memo, useCallback, useState } from "react";
 
 interface Props {
 	handleOpenCreateCategorySheet: () => void;
 	newCreatedCategory: CaseCategoryDetailsUI | null;
 }
-export function HierarchicalClinicalPicker({ handleOpenCreateCategorySheet, newCreatedCategory }: Props) {
-	const form = useFormContext<CreateCaseInput>();
+export const HierarchicalClinicalPicker = memo(function HierarchicalClinicalPicker({ handleOpenCreateCategorySheet, newCreatedCategory }: Props) {
+	const { setValue } = useFormContext<CreateCaseInput>();
 	const [selectedCategoryName, setSelectedCategoryName] = useState<string | null>(null);
 
 	const handleCategorySelect = useCallback(
 		(id: string, catName: string) => {
-			form.setValue("caseCategoryId", id, { shouldValidate: true });
+			setValue("caseCategoryId", id, { shouldValidate: true });
 
 			setSelectedCategoryName(catName);
 		},
-		[form],
+		[setValue],
 	);
 
 	return (
@@ -31,8 +31,8 @@ export function HierarchicalClinicalPicker({ handleOpenCreateCategorySheet, newC
 				<h2 className="text-xl font-bold tracking-tight">Clinical Prescription</h2>
 			</div>
 
-			<CaseCategorySelector onCreateNew={handleOpenCreateCategorySheet} newCreatedCategory={newCreatedCategory} onSelect={(id, catName) => handleCategorySelect(id, catName)} />
+			<CaseCategorySelector onCreateNew={handleOpenCreateCategorySheet} newCreatedCategory={newCreatedCategory} onSelect={handleCategorySelect} />
 			<CaseWorkItemManager categoryName={selectedCategoryName} />
 		</section>
 	);
-}
+});

@@ -1,8 +1,9 @@
 "use client";
 
 import { Sparkles, AlertCircle, CheckCircle2, Info } from "lucide-react";
+import { memo } from "react";
 
-export function CaseAiAuditor() {
+export const CaseAiAuditor = memo(function CaseAiAuditor() {
 	return (
 		<div className="lab-card flex flex-col overflow-hidden animate-in fade-in slide-in-from-right-4">
 			{/* Header */}
@@ -56,4 +57,4 @@ export function CaseAiAuditor() {
 			</div>
 		</div>
 	);
-}
+});

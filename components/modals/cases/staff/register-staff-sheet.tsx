@@ -18,7 +18,7 @@ import { useAction } from "next-safe-action/hooks";
 import { handleSafeActionError } from "@/lib/safe-action-helpers";
 import { createLabStaffAction } from "@/actions/staff";
 
-type QueryData = LabStaffDetailsUI[];
+type DataShape = LabStaffDetailsUI[];
 
 // const transform = {
 // 	input: (value: number | undefined) => (isNaN(value) || value === undefined ? "" : value.toString()),
@@ -34,7 +34,7 @@ interface Props {
 	isOpen: boolean;
 	onClose: () => void;
 	onStaffCreated?: (newStaff: LabStaffDetailsUI) => void;
-	requiredRoles: StaffRoleCategory[]; // used to allow the selection of the reqiured roles only.
+	requiredRoles?: StaffRoleCategory[]; // used to allow the selection of the reqiured roles only.
 }
 
 // Visual mapping for the Enums to make the UI look incredible
@@ -71,16 +71,36 @@ export function RegisterStaffSheet({ isOpen, onClose, onStaffCreated, requiredRo
 	const selectedRole = useWatch({ control: form.control, name: "roleCategory" });
 	const selectedCommission = useWatch({ control: form.control, name: "commissionType" });
 
+	const displayedRoles = requiredRoles && requiredRoles.length > 0 ? ROLE_OPTIONS.filter((option) => requiredRoles.includes(option.id as StaffRoleCategory)) : ROLE_OPTIONS.slice(0, 6);
+
 	const { executeAsync: registerStaff, isExecuting } = useAction(createLabStaffAction, {
 		onSuccess: ({ data }) => {
 			toast.success("Team member registered successfully!");
 
-			// Optimistically update the dropdowns in the parent form
-			// queryClient.setQueryData<QueryData>(["labStaff", "active"], (old: QueryData | undefined) => {
-			// 	return old ? [data.staff, ...old] : [data.staff];
-			// });
+			if (data.staff.isActive) {
+				const defaultSearchQueryKey = ["labStaff", "search", ""] as const;
 
-			if (onStaffCreated) onStaffCreated(data.staff as unknown as LabStaffDetailsUI);
+				queryClient.setQueryData<DataShape>(defaultSearchQueryKey, (prevData): DataShape => {
+					if (!prevData) return [];
+
+					const isMemberExists = prevData.find((staff) => staff.id === data.staff.id);
+					if (!isMemberExists) {
+						return [data.staff as unknown as LabStaffDetailsUI, ...prevData];
+					}
+					return prevData;
+				});
+
+				// Trigger auto-assignment in the parent component
+				if (onStaffCreated) onStaffCreated(data.staff as unknown as LabStaffDetailsUI);
+			} else {
+				// UX Touch: Remind the user why the staff member didn't appear in the dropdown
+				toast.info("Account saved as Inactive", {
+					description: "This member will not appear in assignment lists until activated.",
+				});
+			}
+
+			// Always invalidate the main query so the global settings tables stay fresh
+			queryClient.invalidateQueries({ queryKey: ["labStaff"] });
 			onClose();
 			form.reset();
 		},
@@ -117,7 +137,7 @@ export function RegisterStaffSheet({ isOpen, onClose, onStaffCreated, requiredRo
 							</div>
 
 							<div className="grid grid-cols-2 gap-3">
-								{ROLE_OPTIONS.map((option) => {
+								{displayedRoles.map((option) => {
 									const isSelected = selectedRole === option.id;
 									return (
 										<button

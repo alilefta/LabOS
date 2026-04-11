@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { memo, useCallback, useEffect, useState } from "react";
 import { useFieldArray, useFormContext } from "react-hook-form";
 import { AlertTriangle, Check, Info, Plus } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
@@ -35,7 +35,7 @@ interface Props {
 	onSelect: (id: string, name: string) => void;
 }
 
-export function CaseCategorySelector({ onCreateNew, newCreatedCategory, onSelect }: Props) {
+export const CaseCategorySelector = memo(function CaseCategorySelector({ onCreateNew, newCreatedCategory, onSelect }: Props) {
 	const [pendingCategory, setPendingCategory] = useState<string | null>(null);
 	const { watch, setValue, control } = useFormContext<CreateCaseInput>();
 	const selectedCat = watch("caseCategoryId");
@@ -97,7 +97,7 @@ export function CaseCategorySelector({ onCreateNew, newCreatedCategory, onSelect
 			handleSelect(newCreatedCategory.id, newCreatedCategory.name);
 		}
 	}, [newCreatedCategory, setValue, handleSelect]);
-	const confirmCategoryChange = () => {
+	const confirmCategoryChange = useCallback(() => {
 		if (pendingCategory) {
 			remove(); // User confirmed, wipe all items since they are tied to the old category
 			setValue("caseCategoryId", pendingCategory, { shouldValidate: true });
@@ -105,7 +105,7 @@ export function CaseCategorySelector({ onCreateNew, newCreatedCategory, onSelect
 			if (cat) handleSelect(cat.id, cat.name);
 			setPendingCategory(null);
 		}
-	};
+	}, [displayCategories, handleSelect, pendingCategory, setValue, remove]);
 
 	return (
 		<section className="space-y-5 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -227,4 +227,4 @@ export function CaseCategorySelector({ onCreateNew, newCreatedCategory, onSelect
 			</AlertDialog>
 		</section>
 	);
-}
+});

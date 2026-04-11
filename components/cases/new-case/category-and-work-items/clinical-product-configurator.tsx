@@ -22,6 +22,7 @@ interface ClinicalProductConfiguratorProps {
 	categoryId?: string | null;
 	clinicId?: string | null;
 	selectedProductId?: string | null;
+	selectedWorkTypeId?: string | null;
 	selectedPricingPlanId?: string | null;
 	onProductSelect: (id: string) => void;
 	onWorkTypeSelect: (id: string) => void;
@@ -32,6 +33,7 @@ interface ClinicalProductConfiguratorProps {
 export function ClinicalProductConfigurator({
 	categoryId,
 	clinicId,
+	selectedWorkTypeId,
 	selectedProductId,
 	selectedPricingPlanId,
 	onProductSelect,
@@ -40,7 +42,7 @@ export function ClinicalProductConfigurator({
 	selectedCategoryName,
 }: ClinicalProductConfiguratorProps) {
 	// Internal cascading state for WorkType
-	const [selectedWorkTypeId, setSelectedWorkTypeId] = useState<string>("");
+	// const [selectedWorkTypeId, setSelectedWorkTypeId] = useState<string>("");
 
 	// Dropdown open states
 	const [wtOpen, setWtOpen] = useState(false);
@@ -61,7 +63,7 @@ export function ClinicalProductConfigurator({
 	if (newCreatedWorkTypeId !== prevNewCreatedWorkTypeId) {
 		setPrevNewCreatedWorkTypeId(newCreatedWorkTypeId);
 		if (newCreatedWorkTypeId) {
-			setSelectedWorkTypeId(newCreatedWorkTypeId); // Updates immediately, no flicker!
+			onWorkTypeSelect(newCreatedWorkTypeId);
 		}
 	}
 
@@ -142,12 +144,11 @@ export function ClinicalProductConfigurator({
 					setIsOpen={setWtOpen}
 					isDisabled={!categoryId}
 					isLoading={isLoadingWT}
-					value={selectedWorkTypeId}
+					value={selectedWorkTypeId || ""}
 					placeholder={!categoryId ? "Select Category first" : "Select Work Type..."}
 					icon={Layers}
 					items={workTypes}
 					onSelect={(id: string) => {
-						setSelectedWorkTypeId(id);
 						onWorkTypeSelect(id);
 						onProductSelect("");
 						onPricingPlanSelect("", null);

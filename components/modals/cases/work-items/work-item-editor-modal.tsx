@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef, useCallback } from "react";
 import { X, Layers, Check, Stethoscope, AlertCircle, Calculator, CreditCard } from "lucide-react";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,8 @@ import { JawType } from "@/schema/base/enums.base";
 import { CreateCaseWorkItemInput } from "@/schema/composed/case-work-item.details";
 import { ClinicalProductConfigurator } from "@/components/cases/new-case/category-and-work-items/clinical-product-configurator";
 import { CasePricingPlanDetailsUI } from "@/schema/composed/case-pricing-plan.details";
+
+import { MetadataEditorRef, WorkItemMetadataEditor } from "@/components/cases/new-case/category-and-work-items/work-item-metadata-editor";
 
 interface WorkItemEditorProps {
 	isOpen: boolean;
@@ -28,7 +30,6 @@ const parseTeethFromData = (teethData: CreateCaseWorkItemInput["selectedTeeth"])
 };
 
 export function WorkItemEditorModal({ isOpen, onClose, onSave, initialData, selectedCategoryId, selectedClinicId, selectedCategoryName }: WorkItemEditorProps) {
-	// Local State
 	const [productId, setProductId] = useState(initialData?.productId || "");
 	const [pricingPlanId, setPricingPlanId] = useState(initialData?.casePricingPlanId || "");
 	const [pricingPlanObj, setPricingPlanObj] = useState<CasePricingPlanDetailsUI | null>(null); // Lifted object
@@ -37,25 +38,27 @@ export function WorkItemEditorModal({ isOpen, onClose, onSave, initialData, sele
 	const [selectedTeeth, setSelectedTeeth] = useState<ToothPosition[]>(parseTeethFromData(initialData?.selectedTeeth ?? []));
 	const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
 
+	const metadataRef = useRef<MetadataEditorRef>(null);
+
 	if (isOpen !== prevIsOpen) {
 		setPrevIsOpen(isOpen);
 
 		if (isOpen) {
-			// Reset state when modal opens
 			setProductId(initialData?.productId || "");
 			setPricingPlanId(initialData?.casePricingPlanId || "");
 			setWorktypeId(initialData?.workTypeId || "");
 			setJawType(initialData?.jawType || "UPPER");
 			setSelectedTeeth(parseTeethFromData(initialData?.selectedTeeth ?? []));
+
+			console.log("The Modal is Opened, and the initial data: ==== ", initialData);
 		} else {
 			setPricingPlanObj(null);
 		}
 	}
 
-	const toggleTooth = (id: ToothPosition) => {
+	const toggleTooth = useCallback((id: ToothPosition) => {
 		setSelectedTeeth((prev) => (prev.includes(id) ? prev.filter((t) => t !== id) : [...prev, id]));
-	};
-
+	}, []);
 	// --- THE MATHEMATICAL PRICING ENGINE ---
 	const calculatedPrice = useMemo(() => {
 		if (!pricingPlanObj) return 0;
@@ -95,6 +98,8 @@ export function WorkItemEditorModal({ isOpen, onClose, onSave, initialData, sele
 	}, [pricingPlanObj, selectedTeeth.length, jawType]);
 
 	const handleSave = () => {
+		const metadata = metadataRef.current?.getValues() || {};
+
 		onSave({
 			productId,
 			workTypeId: worktypeId,
@@ -102,8 +107,12 @@ export function WorkItemEditorModal({ isOpen, onClose, onSave, initialData, sele
 			selectedTeeth: selectedTeeth.map((t) => ({ toothPosition: t })), // Map back to expected structure
 			casePricingPlanId: pricingPlanId,
 			totalPrice: calculatedPrice, // Placeholder calculation
+
+			...metadata,
 		});
 	};
+
+	const handleSetTeeth = useCallback((teeth: ToothPosition[]) => setSelectedTeeth(teeth), []);
 
 	// UX: Determine exactly what is missing for the "Save" button
 	const missingRequirements = useMemo(() => {
@@ -123,7 +132,7 @@ export function WorkItemEditorModal({ isOpen, onClose, onSave, initialData, sele
 				<DialogDescription>Here You can build the case work items for your case</DialogDescription>
 			</DialogHeader>
 			<DialogContent
-				className="w-[95vw]! sm:w-full! max-w-5xl! lg:max-w-7xl p-0 overflow-hidden border-border bg-card shadow-2xl rounded-3xl lg:rounded-4xl gap-0 [&>button]:hidden max-h-screen lg:max-h-[90vh] flex flex-col"
+				className="w-[95vw]! sm:w-full! max-w-5xl! lg:max-w-7xl! p-0 overflow-hidden border-border bg-card shadow-2xl rounded-3xl lg:rounded-4xl gap-0 [&>button]:hidden max-h-screen lg:max-h-[90vh] flex flex-col"
 				showCloseButton={false}
 			>
 				<DialogDescription className="sr-only">Here You can build the case work items for your case</DialogDescription>
@@ -183,6 +192,7 @@ export function WorkItemEditorModal({ isOpen, onClose, onSave, initialData, sele
 								categoryId={selectedCategoryId}
 								selectedProductId={productId}
 								selectedPricingPlanId={pricingPlanId}
+								selectedWorkTypeId={worktypeId}
 								selectedCategoryName={selectedCategoryName}
 								onProductSelect={(id) => setProductId(id)}
 								onPricingPlanSelect={(id, plan) => {
@@ -192,6 +202,9 @@ export function WorkItemEditorModal({ isOpen, onClose, onSave, initialData, sele
 								clinicId={selectedClinicId}
 								onWorkTypeSelect={(id) => setWorktypeId(id)}
 							/>
+
+							{/* --- CLINICAL METADATA & SHADE SECTION --- */}
+							<WorkItemMetadataEditor key={initialData?.productId || "new-item"} ref={metadataRef} initialData={initialData} />
 						</div>
 
 						{/* Live Pricing / Status Preview */}
@@ -240,7 +253,7 @@ export function WorkItemEditorModal({ isOpen, onClose, onSave, initialData, sele
 								</p>
 							</div>
 						) : (
-							<HighFidelityDentalChart jawType={jawType} selectedTeeth={selectedTeeth} onToggleTooth={toggleTooth} onSetTeeth={(teeth: ToothPosition[]) => setSelectedTeeth(teeth)} />
+							<HighFidelityDentalChart isLocked={!productId || !pricingPlanId} jawType={jawType} selectedTeeth={selectedTeeth} onToggleTooth={toggleTooth} onSetTeeth={handleSetTeeth} />
 						)}
 					</div>
 				</div>

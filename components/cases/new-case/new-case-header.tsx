@@ -4,7 +4,14 @@ import { ChevronLeft, Save, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
-export function NewCaseHeader({ isSubmitForReviewEnabled, onSaveDraft }: { isSubmitForReviewEnabled: boolean; onSaveDraft: () => void }) {
+interface Props {
+	isSubmitForReviewEnabled: boolean;
+	onSaveDraft: () => void;
+	onSubmitCaseForReview: () => void;
+	isSaveDraftEnabled: boolean;
+}
+
+export function NewCaseHeader({ isSubmitForReviewEnabled, onSaveDraft, onSubmitCaseForReview, isSaveDraftEnabled }: Props) {
 	return (
 		<header className="shrink-0 flex flex-col md:flex-row md:items-center justify-between gap-4 sm:gap-6 mb-6 sm:mb-8 sticky top-0 z-20 bg-background/80 backdrop-blur-xl pt-4 pb-4 border-b border-border">
 			{/* LEFT: Title & Context */}
@@ -30,17 +37,20 @@ export function NewCaseHeader({ isSubmitForReviewEnabled, onSaveDraft }: { isSub
 				<Button
 					variant="ghost"
 					onClick={onSaveDraft}
-					className="flex-1 md:flex-none rounded-xl font-semibold text-muted-foreground hover:text-foreground h-10 px-3 sm:px-4 bg-slate-50 dark:bg-white/[0.02] md:bg-transparent border border-transparent md:border-none hover:border-border transition-all"
+					type="button"
+					disabled={isSaveDraftEnabled}
+					className="flex-1 md:flex-none rounded-xl font-semibold text-muted-foreground hover:text-foreground h-10 px-3 sm:px-4 bg-slate-50 dark:bg-white/2 md:bg-transparent border border-transparent md:border-none hover:border-border transition-all"
 				>
 					<Save className="w-4 h-4 mr-1.5 sm:mr-2 shrink-0" />
 					<span className="truncate">Save Draft</span>
 				</Button>
 
 				<Button
-					// disabled={isSubmitForReviewEnabled} // to be activated later
-					className="flex-[2] md:flex-none rounded-xl bg-primary text-primary-foreground h-10 px-4 sm:px-6 font-bold shadow-premium hover:bg-primary/90 transition-all"
+					disabled={isSubmitForReviewEnabled} // to be activated later
+					className="flex-2 md:flex-none rounded-xl bg-primary text-primary-foreground h-10 px-4 sm:px-6 font-bold shadow-premium hover:bg-primary/90 transition-all"
 					type="submit"
 					form="new-case-submission-form"
+					onClick={onSubmitCaseForReview}
 				>
 					<Sparkles className="w-4 h-4 mr-1.5 sm:mr-2 shrink-0" />
 					<span className="truncate">Review & Submit</span>

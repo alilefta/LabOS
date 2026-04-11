@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { memo, useCallback, useEffect, useState } from "react";
 import { Plus, Trash2, Layers, AlertCircle, Edit2, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useFormContext, useFieldArray, useWatch } from "react-hook-form";
@@ -10,6 +10,8 @@ import { cn } from "@/lib/utils";
 import { TeethQuadrantSummary } from "./teeth-quadrant-summary";
 import { CreateCaseWorkItemInput } from "@/schema/composed/case-work-item.details";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { useQueryClient } from "@tanstack/react-query";
+import { ProductDetailsUI } from "@/schema/composed/product.details";
 
 // 1. UNIVERSAL NUMBERING DICTIONARY
 // Maps the long Prisma Enum to the Universal Tooth Number (1-32)
@@ -48,7 +50,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 // 	LowerRightThirdMolar: 32,
 // };
 
-export function CaseWorkItemManager({ categoryName }: { categoryName: string | null }) {
+export const CaseWorkItemManager = memo(function CaseWorkItemManager({ categoryName }: { categoryName: string | null }) {
 	const { control, watch } = useFormContext<CreateCaseInput>();
 	const { fields, append, update, remove } = useFieldArray({
 		control,
@@ -64,6 +66,8 @@ export function CaseWorkItemManager({ categoryName }: { categoryName: string | n
 		name: "clinicId",
 	});
 
+	const queryClient = useQueryClient();
+
 	useEffect(() => {
 		console.log("Current Case Category Id", selectedCategoryId);
 	}, [selectedCategoryId]);
@@ -71,21 +75,30 @@ export function CaseWorkItemManager({ categoryName }: { categoryName: string | n
 	// null = closed, -1 = adding new, >= 0 = editing existing
 	const [editingIndex, setEditingIndex] = useState<number | null>(null);
 
-	const getProductName = (id: string | null) => {
-		if (!id) return "Incomplete Work Item";
-		// Example: return products.find(p => p.id === id)?.name || id;
-		return `Product ${id.substring(0, 4)}...`;
-	};
+	const getProductName = useCallback(
+		(id: string | null, selectedWorkTypeId: string | null) => {
+			if (!id) return "Incomplete Work Item";
+			// Example: return products.find(p => p.id === id)?.name || id;
+
+			if (selectedWorkTypeId) {
+				const products = queryClient.getQueryData<ProductDetailsUI[] | undefined>(["products", selectedWorkTypeId]);
+				if (products && products.length > 0) return products?.find((p) => p.id === id)?.name;
+			}
+
+			return `Product ${id.substring(0, 4)}...`;
+		},
+		[queryClient],
+	);
 
 	// 2. SMART "ADD" LOGIC
-	const handleAddOrEditEmpty = () => {
+	const handleAddOrEditEmpty = useCallback(() => {
 		// Check if the very first item is completely blank
 		if (fields.length === 1 && !watch("caseWorkItems.0.productId")) {
 			setEditingIndex(0); // Edit the blank one instead of duplicating
 		} else {
 			setEditingIndex(-1); // Add a new one
 		}
-	};
+	}, [fields.length, watch]);
 
 	const handleSaveData = useCallback(
 		(data: CreateCaseWorkItemInput) => {
@@ -184,7 +197,9 @@ export function CaseWorkItemManager({ categoryName }: { categoryName: string | n
 
 									<div className="flex flex-col gap-1.5">
 										<div className="flex flex-wrap items-center gap-2">
-											<span className="text-sm font-bold text-foreground group-hover:text-primary transition-colors">{getProductName(item.productId ?? null)}</span>
+											<span className="text-sm font-bold text-foreground group-hover:text-primary transition-colors">
+												{getProductName(item.productId ?? null, item.workTypeId ?? null)}
+											</span>
 											<span
 												className={cn(
 													"text-[9px] font-bold px-1.5 py-0.5 rounded-md uppercase tracking-wider",
@@ -255,4 +270,4 @@ export function CaseWorkItemManager({ categoryName }: { categoryName: string | n
 			/>
 		</section>
 	);
-}
+});

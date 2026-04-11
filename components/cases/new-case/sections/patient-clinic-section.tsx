@@ -6,9 +6,9 @@ import { PatientSelector } from "../../case/case-inputs/patient-selector";
 import { CreateCaseInput } from "@/schema/composed/case.details";
 import { ClinicDetailsUI } from "@/schema/composed/clinic.details";
 import { PatientDetails } from "@/schema/composed/patient.details";
-import { useCallback } from "react";
+import { memo, useCallback } from "react";
 
-export function PatientAndClinicSection({
+export const PatientAndClinicSection = memo(function PatientAndClinicSection({
 	handleOpenPatientCreationSheet,
 	handleOpenClinicCreationSheet,
 	newCreatedClinic,
@@ -19,22 +19,22 @@ export function PatientAndClinicSection({
 	newCreatedPatient: PatientDetails | null;
 	newCreatedClinic: ClinicDetailsUI | null;
 }) {
-	const form = useFormContext<CreateCaseInput>();
+	const { setValue } = useFormContext<CreateCaseInput>();
 
 	// Stable references — won't change between renders
 
 	const handleClinicSelect = useCallback(
 		(id: string) => {
-			form.setValue("clinicId", id, { shouldValidate: true });
+			setValue("clinicId", id, { shouldValidate: true });
 		},
-		[form],
+		[setValue],
 	);
 
 	const handlePatientSelect = useCallback(
 		(id: string) => {
-			form.setValue("patientId", id, { shouldValidate: true });
+			setValue("patientId", id, { shouldValidate: true });
 		},
-		[form],
+		[setValue],
 	);
 
 	return (
@@ -49,4 +49,4 @@ export function PatientAndClinicSection({
 			</div>
 		</section>
 	);
-}
+});

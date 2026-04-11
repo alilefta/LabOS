@@ -53,7 +53,7 @@ export function InitialStaffAssigner({ onOpenRegisterMemberSheet, newRegisteredS
 	);
 
 	useEffect(() => {
-		if (newRegisteredStaffMember) {
+		if (newRegisteredStaffMember && newRegisteredStaffMember.isActive) {
 			const role = newRegisteredStaffMember.roleCategory;
 			const isIntakeRole = role === "COURIER" || role === "SALES_REP";
 			const targetRole = isIntakeRole ? "COURIER" : "TECHNICIAN";
@@ -157,7 +157,7 @@ export const StaffDropdown = memo(({ label, roleTarget, icon: Icon, iconColor, p
 		if (foundInSearch) return foundInSearch;
 
 		// 2. Check if they were JUST created by the modal
-		if (newRegisteredStaffMember && newRegisteredStaffMember.id === assignedId) {
+		if (newRegisteredStaffMember && newRegisteredStaffMember.isActive && newRegisteredStaffMember.id === assignedId) {
 			return newRegisteredStaffMember;
 		}
 

@@ -1,13 +1,13 @@
 "use client";
 
-import { useFormContext, Controller, useFieldArray } from "react-hook-form";
+import { Controller, useFieldArray, Control, UseFormGetValues } from "react-hook-form";
 import { Box, ImageIcon, Video, Trash2, Eye, Play } from "lucide-react";
 import { CreateCaseInput } from "@/schema/composed/case.details";
 import { AssetFileType } from "@/schema/base/enums.base";
 import { CustomFieldWithLabel } from "@/components/ui/custom/custom-field-with-label";
 import Image from "next/image";
 import { ClinicalAssetLightbox } from "@/components/shared/file-assets/clinical-asset-lightbox";
-import { useState } from "react";
+import { memo, useState } from "react";
 import { cn } from "@/lib/utils";
 
 const getIcon = (type: AssetFileType) => {
@@ -27,11 +27,14 @@ interface Asset {
 	description?: string | null;
 	documentUrl?: string;
 	assetFileType: AssetFileType;
-	fileExtension: string; // Added to match your new schema
+	fileExtension: string;
 }
 
-export function ClinicalAssetPreview() {
-	const { control, getValues } = useFormContext<CreateCaseInput>();
+interface Props {
+	control: Control<CreateCaseInput>;
+	getValues: UseFormGetValues<CreateCaseInput>;
+}
+export const ClinicalAssetPreview = memo(function ClinicalAssetPreview({ control, getValues }: Props) {
 	console.log("Assets Preview Re-render");
 	const { fields, remove } = useFieldArray({
 		control,
@@ -215,4 +218,6 @@ export function ClinicalAssetPreview() {
 			/>
 		</div>
 	);
-}
+});
+
+ClinicalAssetPreview.displayName = "ClinicalAssetPreview";

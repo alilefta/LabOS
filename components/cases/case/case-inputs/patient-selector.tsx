@@ -26,22 +26,24 @@ export const PatientSelector = memo(({ onCreateNew, newCreatedPatient, onSelect 
 	const [open, setOpen] = useState(false);
 	const [selectedId, setSelectedId] = useState("");
 	const [search, setSearch] = useState("");
-	const debouncedSearch = useDebounce({ value: search, delay: 300 }); // Wait 300ms after typing
+	const debouncedSearch = useDebounce({ value: search, delay: 300 });
 
 	const queryClient = useQueryClient();
 	const queryKey = useMemo(() => ["patients", "search", debouncedSearch], [debouncedSearch]);
 
+	const queryFN = useCallback(async () => {
+		const res = await getPatientsBySearchQueryAction({ searchQuery: debouncedSearch, limit: 10 });
+
+		if (res.serverError || res.validationErrors) {
+			handleSafeActionError({ serverError: res.serverError, validationErrors: res.validationErrors });
+		}
+
+		return (res.data?.patients as DataShape) || [];
+	}, [debouncedSearch]);
+
 	const { data: fetchedPatients, isFetching } = useQuery({
 		queryKey,
-		queryFn: async () => {
-			const res = await getPatientsBySearchQueryAction({ searchQuery: debouncedSearch, limit: 10 });
-
-			if (res.serverError || res.validationErrors) {
-				handleSafeActionError({ serverError: res.serverError, validationErrors: res.validationErrors });
-			}
-
-			return (res.data?.patients as DataShape) || [];
-		},
+		queryFn: queryFN,
 		enabled: open, // Only fetch when the popover is actually open
 		staleTime: 1000 * 60 * 5, // Cache results for 5 mins
 	});
@@ -49,7 +51,6 @@ export const PatientSelector = memo(({ onCreateNew, newCreatedPatient, onSelect 
 	useEffect(() => {
 		if (!newCreatedPatient) return;
 		queryClient.setQueryData<DataShape>(queryKey, (data): DataShape => {
-			console.log("Data from Query Setter", data);
 			if (!data) return [];
 
 			const isPatientExists = data.find((patient) => patient.id === newCreatedPatient.id);
@@ -137,7 +138,7 @@ export const PatientSelector = memo(({ onCreateNew, newCreatedPatient, onSelect 
 
 PatientSelector.displayName = "PatientSelector";
 
-function PatientSearchItem({ patient, isSelected, onSelect }: { patient: PatientDetailsUI; isSelected: boolean; onSelect: (id: string) => void }) {
+const PatientSearchItem = memo(function PatientSearchItem({ patient, isSelected, onSelect }: { patient: PatientDetailsUI; isSelected: boolean; onSelect: (id: string) => void }) {
 	return (
 		<HoverCard openDelay={200}>
 			<HoverCardTrigger asChild>
@@ -213,4 +214,4 @@ function PatientSearchItem({ patient, isSelected, onSelect }: { patient: Patient
 			</HoverCardContent>
 		</HoverCard>
 	);
-}
+});
