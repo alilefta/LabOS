@@ -35,7 +35,6 @@ interface Props {
 	getValues: UseFormGetValues<CreateCaseInput>;
 }
 export const ClinicalAssetPreview = memo(function ClinicalAssetPreview({ control, getValues }: Props) {
-	console.log("Assets Preview Re-render");
 	const { fields, remove } = useFieldArray({
 		control,
 		name: "caseAssetFiles",

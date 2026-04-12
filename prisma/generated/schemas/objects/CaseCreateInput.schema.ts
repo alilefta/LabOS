@@ -22,9 +22,9 @@ const makeSchema = () => z.object({
   DecimalJSLikeSchema,
 ]).refine((v) => isValidDecimalInput(v), {
   message: "Field 'grandTotal' must be a Decimal",
-}).optional(),
+}).optional().nullable(),
   notes: z.string().optional().nullable(),
-  deadline: z.coerce.date(),
+  deadline: z.coerce.date().optional().nullable(),
   createdAt: z.coerce.date().optional(),
   patient: z.lazy(() => PatientCreateNestedOneWithoutCasesInputObjectSchema),
   lab: z.lazy(() => LabCreateNestedOneWithoutCasesInputObjectSchema),

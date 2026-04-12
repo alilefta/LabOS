@@ -38,6 +38,7 @@ const makeSchema = () => z.object({
   dentists: z.union([z.boolean(), z.lazy(() => DentistFindManySchema)]).optional(),
   staffAssignments: z.union([z.boolean(), z.lazy(() => CaseStaffAssignmentFindManySchema)]).optional(),
   LabStaff: z.union([z.boolean(), z.lazy(() => LabStaffFindManySchema)]).optional(),
+  nextCaseNumber: z.boolean().optional(),
   createdAt: z.boolean().optional(),
   updatedAt: z.boolean().optional(),
   _count: z.union([z.boolean(), z.lazy(() => LabCountOutputTypeArgsObjectSchema)]).optional()

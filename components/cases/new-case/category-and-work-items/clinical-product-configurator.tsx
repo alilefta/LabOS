@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { memo, useCallback, useEffect, useState } from "react";
 import { Check, ChevronsUpDown, Plus, Layers, Package, CreditCard, LucideIcon, Loader2 } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
@@ -41,9 +41,6 @@ export function ClinicalProductConfigurator({
 	onWorkTypeSelect,
 	selectedCategoryName,
 }: ClinicalProductConfiguratorProps) {
-	// Internal cascading state for WorkType
-	// const [selectedWorkTypeId, setSelectedWorkTypeId] = useState<string>("");
-
 	// Dropdown open states
 	const [wtOpen, setWtOpen] = useState(false);
 	const [prodOpen, setProdOpen] = useState(false);
@@ -67,37 +64,43 @@ export function ClinicalProductConfigurator({
 		}
 	}
 
+	const workTypeQF = useCallback(async () => {
+		if (!categoryId) return [];
+		const res = await getWorkTypesByCategoryAction({ caseCategoryId: categoryId, limit: 50 });
+		if (res.serverError || res.validationErrors) handleSafeActionError({ serverError: res.serverError, validationErrors: res.validationErrors });
+		return (res.data?.workTypes as WorktypeDetailsUI[]) || [];
+	}, [categoryId]);
+
+	const productsQF = useCallback(async () => {
+		if (!selectedWorkTypeId) return [];
+		const res = await getProductsByWorkTypeAction({ workTypeId: selectedWorkTypeId, limit: 50 });
+		if (res.serverError || res.validationErrors) handleSafeActionError({ serverError: res.serverError, validationErrors: res.validationErrors });
+		return (res.data?.products as ProductDetailsUI[]) || [];
+	}, [selectedWorkTypeId]);
+
+	const pricingsQF = useCallback(async () => {
+		if (!selectedProductId) return [];
+		const res = await getPricingPlansByProductAction({ productId: selectedProductId, limit: 50 });
+		if (res.serverError || res.validationErrors) handleSafeActionError({ serverError: res.serverError, validationErrors: res.validationErrors });
+		return (res.data?.pricings as CasePricingPlanDetailsUI[]) || [];
+	}, [selectedProductId]);
+
 	// --- REACT QUERY FETCHING (Strict Null Checks Added) ---
 	const { data: workTypes = [], isFetching: isLoadingWT } = useQuery({
 		queryKey: ["workTypes", categoryId],
-		queryFn: async () => {
-			if (!categoryId) return [];
-			const res = await getWorkTypesByCategoryAction({ caseCategoryId: categoryId, limit: 50 });
-			if (res.serverError || res.validationErrors) handleSafeActionError({ serverError: res.serverError, validationErrors: res.validationErrors });
-			return (res.data?.workTypes as WorktypeDetailsUI[]) || [];
-		},
+		queryFn: workTypeQF,
 		enabled: !!categoryId && typeof categoryId === "string" && categoryId.length > 0,
 	});
 
 	const { data: products = [], isFetching: isLoadingProducts } = useQuery({
 		queryKey: ["products", selectedWorkTypeId],
-		queryFn: async () => {
-			if (!selectedWorkTypeId) return [];
-			const res = await getProductsByWorkTypeAction({ workTypeId: selectedWorkTypeId, limit: 50 });
-			if (res.serverError || res.validationErrors) handleSafeActionError({ serverError: res.serverError, validationErrors: res.validationErrors });
-			return (res.data?.products as ProductDetailsUI[]) || [];
-		},
+		queryFn: productsQF,
 		enabled: !!selectedWorkTypeId && typeof selectedWorkTypeId === "string" && selectedWorkTypeId.length > 0,
 	});
 
 	const { data: pricingPlans = [], isFetching: isLoadingPricing } = useQuery({
 		queryKey: ["pricingPlans", selectedProductId],
-		queryFn: async () => {
-			if (!selectedProductId) return [];
-			const res = await getPricingPlansByProductAction({ productId: selectedProductId, limit: 50 });
-			if (res.serverError || res.validationErrors) handleSafeActionError({ serverError: res.serverError, validationErrors: res.validationErrors });
-			return (res.data?.pricings as CasePricingPlanDetailsUI[]) || [];
-		},
+		queryFn: pricingsQF,
 		enabled: !!selectedProductId && typeof selectedProductId === "string" && selectedProductId.length > 0,
 	});
 
@@ -238,7 +241,7 @@ type SelectorProps = BaseSelectorProps & {
 	items: Array<WorktypeDetailsUI | ProductDetailsUI | CasePricingPlanDetailsUI>;
 };
 
-const SelectorDropdown = (props: SelectorProps) => {
+const SelectorDropdown = memo(function SelectorDropdown(props: SelectorProps) {
 	const { isOpen, setIsOpen, isDisabled, isLoading, value, placeholder, icon: Icon, items, onSelect, onCreate, createLabel, emptyText, type } = props;
 
 	// Safely find the selected item
@@ -345,4 +348,4 @@ const SelectorDropdown = (props: SelectorProps) => {
 			</PopoverContent>
 		</Popover>
 	);
-};
+});

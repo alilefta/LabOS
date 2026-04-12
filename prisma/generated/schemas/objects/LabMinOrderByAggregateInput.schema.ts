@@ -8,6 +8,7 @@ const makeSchema = () => z.object({
   slug: SortOrderSchema.optional(),
   brandAvatarUrl: SortOrderSchema.optional(),
   subtitle: SortOrderSchema.optional(),
+  nextCaseNumber: SortOrderSchema.optional(),
   createdAt: SortOrderSchema.optional(),
   updatedAt: SortOrderSchema.optional()
 }).strict();

@@ -31,6 +31,7 @@ import { LabStaffDetailsUI } from "@/schema/composed/lab-staff.details";
 import { StaffRoleCategory } from "@/schema/base/enums.base";
 import { useAction } from "next-safe-action/hooks";
 import { handleSafeActionError } from "@/lib/safe-action-helpers";
+import { GlobalCaseNotesSection } from "@/components/cases/new-case/sections/global-case-notes-section";
 
 export default function NewCasePage() {
 	// 1. The Boss holds the temporary data
@@ -79,13 +80,15 @@ export default function NewCasePage() {
 					totalPrice: 0,
 				},
 			],
-			caseAssetFiles: [],
-			grandTotal: 0,
+			caseAssetFiles: undefined,
+			grandTotal: undefined,
 			caseCategoryId: "",
-			status: "DRAFT",
 			clinicId: "",
-			deadline: new Date(),
+			dentistId: undefined,
+			deadline: undefined,
 			patientId: "",
+			notes: undefined,
+			status: "NEW",
 		},
 	});
 
@@ -157,7 +160,7 @@ export default function NewCasePage() {
 				<div className="flex flex-col xl:flex-row gap-8 h-full">
 					{/* FORM SECTION (Left) */}
 					<FormProvider {...form}>
-						<form className="flex-1 overflow-y-auto no-scrollbar pb-20 space-y-12" id="new-case-submission-form" onSubmit={form.handleSubmit(handleFormValid)}>
+						<form className="flex-1 overflow-y-auto no-scrollbar pb-32 space-y-12" id="new-case-submission-form" onSubmit={form.handleSubmit(handleFormValid)}>
 							<div className="flex-1 overflow-y-auto no-scrollbar pb-20 space-y-12">
 								{/* SECTION 1: ORIGIN */}
 								<PatientAndClinicSection
@@ -182,13 +185,16 @@ export default function NewCasePage() {
 									</div>
 								</section>
 
-								{/* SECTION 4: LOGISTICS & ROUTING */}
+								{/* SECTION 4: CLINICAL NOTES */}
+								<GlobalCaseNotesSection control={form.control} />
+
+								{/* SECTION 5: LOGISTICS & ROUTING */}
 								<LogisticsAndRoutingSection newRegisteredStaffMember={newStaffMember} handleOpenRegisterLabStaffSheet={handleOpenStaffSheet} />
 							</div>
 						</form>
 					</FormProvider>
 					{/* AI AUDITOR (Right) */}
-					<div className="w-full xl:w-96 shrink-0 flex flex-col gap-6 h-fit sticky top-24">
+					<div className="fixed bottom-0 left-0 right-0 z-40  xl:w-96 xl:shrink-0 xl:flex xl:flex-col xl:gap-6 xl:h-fit xl:sticky xl:top-24">
 						<CaseAiAuditor />
 					</div>
 
@@ -196,18 +202,15 @@ export default function NewCasePage() {
 					<RegisterPatientSheet isOpen={openCreateNewPatientSheet} onClose={() => setOpenCreateNewPatientSheet(false)} onPatientCreated={(p) => setNewPatient(p)} />
 					<RegisterClinicSheet isOpen={openCreateNewClinicSheet} onClose={() => setOpenCreateNewClinicSheet(false)} onClinicCreated={(c) => setNewClinic(c)} />
 					<CreateCategorySheet isOpen={openCreateNewCategory} onClose={() => setOpenCreateNewCategory(false)} onCategoryCreated={(c) => setNewCategory(c)} />
-
 					<CreateWorkTypeSheet />
 					<CreateProductSheet />
 					<CreatePricingPlanSheet />
-
 					<RegisterStaffSheet
 						isOpen={registerNewStaffMemberState.open}
 						onClose={() => setRegisterNewStaffMemberState({ open: false, requiredRoles: [] })}
 						requiredRoles={registerNewStaffMemberState.requiredRoles}
 						onStaffCreated={(s) => setNewStaffMember(s)}
 					/>
-
 					<CaseSummaryModal isOpen={isSummaryOpen} onClose={() => setIsSummaryOpen(false)} onConfirm={handleFinalConfirm} data={draftData} isSubmitting={isExecuting} />
 				</div>
 			</div>

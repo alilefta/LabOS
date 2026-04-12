@@ -12,7 +12,7 @@ export const CaseInputSchema = z.object({
     caseCategoryId: z.string().optional().nullable(),
     caseCategory: z.unknown().optional().nullable(),
     status: CaseStatusSchema,
-    grandTotal: z.number(),
+    grandTotal: z.number().optional().nullable(),
     clinicId: z.string().optional().nullable(),
     clinic: z.unknown().optional().nullable(),
     dentistId: z.string().optional().nullable(),
@@ -20,7 +20,7 @@ export const CaseInputSchema = z.object({
     notes: z.string().optional().nullable(),
     staffAssignments: z.array(z.unknown()),
     caseAssetFiles: z.array(z.unknown()),
-    deadline: z.date(),
+    deadline: z.date().optional().nullable(),
     createdAt: z.date(),
     updatedAt: z.date()
 }).strict();

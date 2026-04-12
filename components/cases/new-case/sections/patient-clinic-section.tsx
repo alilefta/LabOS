@@ -24,8 +24,9 @@ export const PatientAndClinicSection = memo(function PatientAndClinicSection({
 	// Stable references — won't change between renders
 
 	const handleClinicSelect = useCallback(
-		(id: string) => {
-			setValue("clinicId", id, { shouldValidate: true });
+		(clinicId: string, dentistId: string) => {
+			setValue("clinicId", clinicId, { shouldValidate: true });
+			setValue("dentistId", dentistId, { shouldValidate: true });
 		},
 		[setValue],
 	);

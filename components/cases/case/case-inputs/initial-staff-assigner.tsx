@@ -1,7 +1,7 @@
 "use client";
 
 import { memo, useCallback, useEffect, useMemo, useState } from "react";
-import { useFormContext } from "react-hook-form";
+import { useFormContext, useWatch } from "react-hook-form";
 import { useQuery } from "@tanstack/react-query";
 import { Check, ChevronsUpDown, Loader, Loader2, LucideIcon, Truck, UserPlus, Wrench, X } from "lucide-react";
 
@@ -23,22 +23,21 @@ interface Props {
 	newRegisteredStaffMember: LabStaffDetailsUI | null;
 }
 
-export function InitialStaffAssigner({ onOpenRegisterMemberSheet, newRegisteredStaffMember }: Props) {
-	const { watch, setValue, getValues } = useFormContext<CreateCaseInput>();
+export const InitialStaffAssigner = memo(function InitialStaffAssigner({ onOpenRegisterMemberSheet, newRegisteredStaffMember }: Props) {
+	const { setValue, getValues, control } = useFormContext<CreateCaseInput>();
 
 	// We only watch this so the UI components re-render when an assignment is made
-	const currentAssignments = watch("staffAssignments") || [];
-
+	const currentAssignments = useWatch({
+		control,
+		name: "staffAssignments",
+		defaultValue: [],
+	});
 	const handleAssign = useCallback(
 		(staffMember: LabStaffDetailsUI | null, roleTarget: StaffRoleCategory) => {
-			// Use getValues() instead of currentAssignments to prevent the infinite dependency loop
 			const currentArray = getValues("staffAssignments") || [];
-
-			// Filter out the old person holding this exact role
 			const filteredArray = currentArray.filter((a) => a.roleCategory !== roleTarget);
 
 			if (staffMember) {
-				// Add the new person, snapshotting their current commission!
 				filteredArray.push({
 					staffId: staffMember.id,
 					roleCategory: roleTarget,
@@ -49,7 +48,7 @@ export function InitialStaffAssigner({ onOpenRegisterMemberSheet, newRegisteredS
 
 			setValue("staffAssignments", filteredArray, { shouldDirty: true, shouldValidate: true });
 		},
-		[getValues, setValue], // Only stable RHF functions here. No reactive variables!
+		[getValues, setValue],
 	);
 
 	useEffect(() => {
@@ -65,7 +64,7 @@ export function InitialStaffAssigner({ onOpenRegisterMemberSheet, newRegisteredS
 	// Fast render helper
 	const getAssignedStaffId = useCallback(
 		(roleTarget: StaffRoleCategory) => {
-			return currentAssignments.find((a) => a.roleCategory === roleTarget)?.staffId || "";
+			return currentAssignments && currentAssignments.length > 0 ? currentAssignments.find((a) => a.roleCategory === roleTarget)?.staffId || "" : "";
 		},
 		[currentAssignments],
 	);
@@ -105,7 +104,7 @@ export function InitialStaffAssigner({ onOpenRegisterMemberSheet, newRegisteredS
 			/>
 		</div>
 	);
-}
+});
 
 interface StaffDropdownProps {
 	label: string;

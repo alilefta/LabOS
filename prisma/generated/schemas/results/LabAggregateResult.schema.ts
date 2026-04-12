@@ -20,15 +20,23 @@ export const LabAggregateResultSchema = z.object({  _count: z.object({
     dentists: z.number(),
     staffAssignments: z.number(),
     LabStaff: z.number(),
+    nextCaseNumber: z.number(),
     createdAt: z.number(),
     updatedAt: z.number()
   }).optional(),
+  _sum: z.object({
+    nextCaseNumber: z.number().nullable()
+  }).nullable().optional(),
+  _avg: z.object({
+    nextCaseNumber: z.number().nullable()
+  }).nullable().optional(),
   _min: z.object({
     id: z.string().nullable(),
     title: z.string().nullable(),
     slug: z.string().nullable(),
     brandAvatarUrl: z.string().nullable(),
     subtitle: z.string().nullable(),
+    nextCaseNumber: z.number().int().nullable(),
     createdAt: z.date().nullable(),
     updatedAt: z.date().nullable()
   }).nullable().optional(),
@@ -38,6 +46,7 @@ export const LabAggregateResultSchema = z.object({  _count: z.object({
     slug: z.string().nullable(),
     brandAvatarUrl: z.string().nullable(),
     subtitle: z.string().nullable(),
+    nextCaseNumber: z.number().int().nullable(),
     createdAt: z.date().nullable(),
     updatedAt: z.date().nullable()
   }).nullable().optional()});

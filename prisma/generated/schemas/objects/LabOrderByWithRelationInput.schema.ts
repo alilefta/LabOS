@@ -24,6 +24,7 @@ const makeSchema = () => z.object({
   slug: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
   brandAvatarUrl: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
   subtitle: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
+  nextCaseNumber: SortOrderSchema.optional(),
   createdAt: SortOrderSchema.optional(),
   updatedAt: SortOrderSchema.optional(),
   labSubscriptionPlan: z.lazy(() => LabSubscriptionPlanOrderByWithRelationInputObjectSchema).optional(),

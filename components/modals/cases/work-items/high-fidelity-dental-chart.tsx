@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { ToothPosition } from "@/schema/base/tooth-position.base";
 import { teethPaths as TEETH_PATHS } from "@/lib/odontogram-data";
 import { CheckSquare, Eraser, Lock } from "lucide-react";
@@ -81,7 +81,6 @@ interface ChartProps {
 }
 
 export const HighFidelityDentalChart = memo(function HighFidelityDentalChart({ jawType, selectedTeeth, onToggleTooth, onSetTeeth, isLocked = false }: ChartProps) {
-	console.log("HighFidelityDentalChart --- re-rendered");
 	// Power Action Handlers
 	const handleSelectArch = useCallback(() => {
 		if (!onSetTeeth || isLocked) return;
@@ -106,86 +105,90 @@ export const HighFidelityDentalChart = memo(function HighFidelityDentalChart({ j
 	const selectedSet = useMemo(() => new Set(selectedTeeth), [selectedTeeth]);
 
 	return (
-		<div className="flex-1 w-full h-full flex flex-col items-center justify-center relative p-8">
-			{/* Ambient Radial Glow (Behind the teeth) */}
-			<div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-200 h-200 bg-[radial-gradient(closest-side,var(--color-primary),transparent)] opacity-[0.08] dark:opacity-10 pointer-events-none" />
-			{/* --- POWER ACTIONS (Arch Controls) --- */}
-			{jawType !== "OTHER" && (
-				<div
-					className={cn(
-						"absolute top-6 right-6 z-20 flex items-center gap-2 bg-background/80 backdrop-blur-xl p-1.5 rounded-2xl border border-border shadow-sm transition-opacity duration-400",
-						isLocked && "opacity-50 pointer-events-none",
-					)}
-				>
-					<Button size="sm" variant="ghost" onClick={handleSelectArch} disabled={isLocked} className="h-8 rounded-xl text-[11px] font-bold text-primary hover:bg-primary/10">
-						<CheckSquare className="w-3.5 h-3.5 mr-1.5" /> Select Full Arch
-					</Button>
-					<div className="w-px h-4 bg-border" />
-					<Button
-						size="sm"
-						variant="ghost"
-						onClick={handleClearArch}
-						disabled={isLocked || selectedTeeth.length === 0}
-						className="h-8 rounded-xl text-[11px] font-bold text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+		<TooltipProvider delayDuration={150}>
+			<div className="flex-1 w-full h-full flex flex-col items-center justify-center relative p-8">
+				{/* Ambient Radial Glow (Behind the teeth) */}
+				<div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-200 h-200 bg-[radial-gradient(closest-side,var(--color-primary),transparent)] opacity-[0.08] dark:opacity-10 pointer-events-none" />
+				{/* --- POWER ACTIONS (Arch Controls) --- */}
+				{jawType !== "OTHER" && (
+					<div
+						className={cn(
+							"absolute top-6 right-6 z-20 flex items-center gap-2 bg-background/80 backdrop-blur-xl p-1.5 rounded-2xl border border-border shadow-sm transition-opacity duration-400",
+							isLocked && "opacity-50 pointer-events-none",
+						)}
 					>
-						<Eraser className="w-3.5 h-3.5 mr-1.5" /> Clear
-					</Button>
-				</div>
-			)}
-
-			<div
-				className={cn(
-					"relative z-10 w-full max-w-112.5 mx-auto transition-transform duration-700 ease-[cubic-bezier(0.23,1,0.32,1)]",
-					jawType === "UPPER" ? "translate-y-[0%] lg:translate-y-[25%]" : jawType === "LOWER" ? "lg:-translate-y-[25%] -translate-y-[44%]" : "translate-y-0",
-				)}
-			>
-				<svg
-					viewBox="-50 -50 509 794"
-					className={cn("w-full h-auto overflow-visible drop-shadow-xl transition-all duration-500", isLocked && "grayscale-30 blur-[1px]")}
-					style={{ willChange: "transform" }} // ← promotes to GPU layer
-				>
-					{QUADRANTS.map((quadrant) => {
-						// Fade Logic
-						const isFaded = (jawType === "UPPER" && !quadrant.isUpper) || (jawType === "LOWER" && quadrant.isUpper);
-
-						return (
-							// THE FIX: Reverted to pure SVG transform attribute
-							<g
-								key={quadrant.id}
-								transform={quadrant.transform}
-								className={cn("transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)]", isFaded && "opacity-15 grayscale blur-[2px] pointer-events-none")}
-							>
-								{TEETH_PATHS.map((tooth, index) => {
-									const toothEnum = quadrant.teeth[index];
-									return (
-										<ToothItem
-											key={toothEnum}
-											toothData={tooth}
-											enumId={toothEnum}
-											isSelected={selectedSet.has(toothEnum)} // O(1) — only this tooth re-renders
-											isLocked={isLocked}
-											onToggle={handleToggle}
-										/>
-									);
-								})}
-							</g>
-						);
-					})}
-				</svg>
-				{/* --- THE LOCKED GLASS OVERLAY --- */}
-				{isLocked && jawType !== "OTHER" && (
-					<div className="absolute inset-0 z-30 flex items-center justify-center animate-in fade-in zoom-in-95 duration-500 pointer-events-none">
-						<div className="bg-background/90 backdrop-blur-xl border border-border shadow-2xl p-6 rounded-3xl flex flex-col items-center text-center max-w-70">
-							<div className="w-12 h-12 rounded-2xl bg-amber-500/10 flex items-center justify-center text-amber-500 mb-4 shadow-[0_0_15px_rgba(245,158,11,0.2)]">
-								<Lock className="w-6 h-6" />
-							</div>
-							<h3 className="text-base font-bold text-foreground mb-1">Charting Locked</h3>
-							<p className="text-xs text-muted-foreground font-medium leading-relaxed">Please select a Manufacturing Product and Pricing Plan from the left menu before mapping teeth.</p>
-						</div>
+						<Button size="sm" variant="ghost" onClick={handleSelectArch} disabled={isLocked} className="h-8 rounded-xl text-[11px] font-bold text-primary hover:bg-primary/10">
+							<CheckSquare className="w-3.5 h-3.5 mr-1.5" /> Select Full Arch
+						</Button>
+						<div className="w-px h-4 bg-border" />
+						<Button
+							size="sm"
+							variant="ghost"
+							onClick={handleClearArch}
+							disabled={isLocked || selectedTeeth.length === 0}
+							className="h-8 rounded-xl text-[11px] font-bold text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+						>
+							<Eraser className="w-3.5 h-3.5 mr-1.5" /> Clear
+						</Button>
 					</div>
 				)}
+
+				<div
+					className={cn(
+						"relative z-10 w-full max-w-112.5 mx-auto transition-transform duration-700 ease-[cubic-bezier(0.23,1,0.32,1)]",
+						jawType === "UPPER" ? "translate-y-[0%] lg:translate-y-[25%]" : jawType === "LOWER" ? "lg:-translate-y-[25%] -translate-y-[44%]" : "translate-y-0",
+					)}
+				>
+					<svg
+						viewBox="-50 -50 509 794"
+						className={cn("w-full h-auto overflow-visible drop-shadow-xl transition-all duration-500", isLocked && "grayscale-30 blur-[1px]")}
+						style={{ willChange: "transform" }} // ← promotes to GPU layer
+					>
+						{QUADRANTS.map((quadrant) => {
+							// Fade Logic
+							const isFaded = (jawType === "UPPER" && !quadrant.isUpper) || (jawType === "LOWER" && quadrant.isUpper);
+
+							return (
+								// THE FIX: Reverted to pure SVG transform attribute
+								<g
+									key={quadrant.id}
+									transform={quadrant.transform}
+									className={cn("transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)]", isFaded && "opacity-15 grayscale blur-[2px] pointer-events-none")}
+								>
+									{TEETH_PATHS.map((tooth, index) => {
+										const toothEnum = quadrant.teeth[index];
+										return (
+											<ToothItem
+												key={toothEnum}
+												toothData={tooth}
+												enumId={toothEnum}
+												isSelected={selectedSet.has(toothEnum)} // O(1) — only this tooth re-renders
+												isLocked={isLocked}
+												onToggle={handleToggle}
+											/>
+										);
+									})}
+								</g>
+							);
+						})}
+					</svg>
+					{/* --- THE LOCKED GLASS OVERLAY --- */}
+					{isLocked && jawType !== "OTHER" && (
+						<div className="absolute inset-0 z-30 flex items-center justify-center animate-in fade-in zoom-in-95 duration-500 pointer-events-none">
+							<div className="bg-background/90 backdrop-blur-xl border border-border shadow-2xl p-6 rounded-3xl flex flex-col items-center text-center max-w-70">
+								<div className="w-12 h-12 rounded-2xl bg-amber-500/10 flex items-center justify-center text-amber-500 mb-4 shadow-[0_0_15px_rgba(245,158,11,0.2)]">
+									<Lock className="w-6 h-6" />
+								</div>
+								<h3 className="text-base font-bold text-foreground mb-1">Charting Locked</h3>
+								<p className="text-xs text-muted-foreground font-medium leading-relaxed">
+									Please select a Manufacturing Product and Pricing Plan from the left menu before mapping teeth.
+								</p>
+							</div>
+						</div>
+					)}
+				</div>
 			</div>
-		</div>
+		</TooltipProvider>
 	);
 });
 

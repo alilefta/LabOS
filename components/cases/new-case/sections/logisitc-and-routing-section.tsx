@@ -15,13 +15,13 @@ interface Props {
 }
 
 export function LogisticsAndRoutingSection({ newRegisteredStaffMember, handleOpenRegisterLabStaffSheet }: Props) {
-	const form = useFormContext<CreateCaseInput>();
+	const { control, setValue } = useFormContext<CreateCaseInput>();
 
 	const handleDeadlineSelect = useCallback(
 		(deadline: Date | undefined) => {
-			if (deadline) form.setValue("deadline", deadline, { shouldValidate: true });
+			if (deadline) setValue("deadline", deadline, { shouldValidate: true });
 		},
-		[form],
+		[setValue],
 	);
 
 	return (
@@ -36,7 +36,7 @@ export function LogisticsAndRoutingSection({ newRegisteredStaffMember, handleOpe
 				<div className="lg:col-span-1 flex flex-col gap-2">
 					{/* We use Controller here because Date is a primitive value */}
 					<Controller
-						control={form.control}
+						control={control}
 						name="deadline"
 						render={({ field, fieldState }) => <DeadlineSelector value={field.value} onChange={handleDeadlineSelect} fieldState={fieldState} />}
 					/>

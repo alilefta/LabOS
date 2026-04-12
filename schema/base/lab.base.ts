@@ -9,6 +9,7 @@ export const LabBaseSchema = z.object({
 	slug: z.string().nullable(),
 	brandAvatarUrl: z.string().nullable(),
 	subtitle: z.string().nullable(),
+	nextCaseNumber: z.number().int(),
 });
 
 export type LabBase = z.infer<typeof LabBaseSchema>;

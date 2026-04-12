@@ -30,7 +30,7 @@ const getClinicIcon = (type: string) => {
 };
 
 interface ClinicSelectorProps {
-	onSelect: (id: string) => void;
+	onSelect: (clinicId: string, dentistId: string) => void;
 	onCreateNew: () => void;
 	newCreatedClinic: ClinicDetailsUI | null;
 }
@@ -59,9 +59,9 @@ export const ClinicSelector = memo(({ onSelect, onCreateNew, newCreatedClinic }:
 	});
 
 	const handleSelect = useCallback(
-		(clinicId: string, clinicName: string) => {
+		(clinicId: string, clinicName: string, dentistId: string) => {
 			setSelectedId(clinicId);
-			onSelect(clinicId);
+			onSelect(clinicId, dentistId);
 			setOpen(false);
 		},
 		[onSelect],
@@ -130,7 +130,7 @@ export const ClinicSelector = memo(({ onSelect, onCreateNew, newCreatedClinic }:
 									<CommandItem
 										key={clinic.id}
 										value={clinic.name}
-										onSelect={() => handleSelect(clinic.id, clinic.name)}
+										onSelect={() => handleSelect(clinic.id, clinic.name, clinic.dentists.filter((cd) => cd.isDefault === true || cd.isOwner === true)[0].id)}
 										className="flex items-center justify-between py-3 px-4 cursor-pointer hover:bg-primary/5 group"
 									>
 										<div className="flex flex-col items-start gap-1 flex-1">

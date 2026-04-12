@@ -184,6 +184,11 @@ model Lab {
   staffAssignments    CaseStaffAssignment[]
   LabStaff            LabStaff[]
 
+  //tracker to get instant case number instead of making count() db query each time
+  nextCaseNumber      Int                     @default(0) 
+
+  // nextInvoiceSequence Int @default(0) // We'll uncomment this in month 3!
+
 
   createdAt           DateTime                @default(now())
   updatedAt           DateTime                @updatedAt
@@ -280,7 +285,7 @@ model Case {
   caseCategory        CaseCategory? @relation(fields: [caseCategoryId], references: [id], onDelete: SetNull)
 
   status              CaseStatus    @default(DRAFT)
-  grandTotal          Decimal       @default(0)
+  grandTotal          Decimal?       @default(0)
 
   clinicId            String?
   clinic              Clinic?       @relation(fields: [clinicId], references: [id], onDelete: SetNull)
@@ -288,13 +293,13 @@ model Case {
   dentistId           String?       // which dentist within the clinic ordered this
   dentist             Dentist?      @relation(fields: [dentistId], references: [id], onDelete: SetNull)
 
-  notes               String?  // new
+  notes               String? 
 
   staffAssignments    CaseStaffAssignment[]
 
 
   caseAssetFiles      CaseAssetFile[]
-  deadline            DateTime
+  deadline            DateTime?
   createdAt           DateTime        @default(now())
   updatedAt           DateTime        @updatedAt
 

@@ -1,0 +1,6 @@
+-- AlterTable
+ALTER TABLE "Case" ALTER COLUMN "grandTotal" DROP NOT NULL,
+ALTER COLUMN "deadline" DROP NOT NULL;
+
+-- AlterTable
+ALTER TABLE "Lab" ADD COLUMN     "nextCaseNumber" INTEGER NOT NULL DEFAULT 0;

@@ -10,7 +10,7 @@ export const CaseCreateResultSchema = z.object({
   caseCategoryId: z.string().optional(),
   caseCategory: z.unknown().optional(),
   status: z.unknown(),
-  grandTotal: z.number(),
+  grandTotal: z.number().optional(),
   clinicId: z.string().optional(),
   clinic: z.unknown().optional(),
   dentistId: z.string().optional(),
@@ -18,7 +18,7 @@ export const CaseCreateResultSchema = z.object({
   notes: z.string().optional(),
   staffAssignments: z.array(z.unknown()),
   caseAssetFiles: z.array(z.unknown()),
-  deadline: z.date(),
+  deadline: z.date().optional(),
   createdAt: z.date(),
   updatedAt: z.date()
 });

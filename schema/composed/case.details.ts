@@ -7,12 +7,13 @@ import { CaseCategoryBaseSchema } from "../base/case-category.base";
 import { ClinicBaseSchema } from "../base/clinic.base";
 import { CaseAssetFileBaseSchema } from "../base/case-asset-file.base";
 import { CreateCaseWorkItemInputSchema } from "./case-work-item.details";
-import { CaseStatusSchema } from "../base/enums.base";
+import { AssetFileTypeSchema, CaseStatusSchema, CommissionTypeSchema, JawTypeSchema, StaffRoleCategorySchema } from "../base/enums.base";
 import { DentistBaseSchema } from "../base/dentist.base";
 import { CreateCaseAssetFilesInputSchema } from "./case-asset-file.details";
 import { emptyToUndefinedTransformer } from "../base/utils.base";
 import { LabStaffBaseSchema } from "../base/lab-staff.base";
 import { CreateCaseStaffAssignmentInputSchema } from "./case-staff-assignment.details";
+import { ToothPositionSchema } from "../base/tooth-position.base";
 
 export const CaseDetailsSchema = CaseBaseSchema.extend({
 	caseCategory: CaseCategoryBaseSchema.optional(),
@@ -38,27 +39,150 @@ export const CaseDetailsUISchema = CaseBaseSchema.extend({
 });
 export type CaseDetailsUI = z.infer<typeof CaseDetailsUISchema>;
 
-export const CreateCaseInputSchema = z.object({
-	patientId: z.string(),
-	caseCategoryId: z.string().trim().transform(emptyToUndefinedTransformer).optional(),
-	status: CaseStatusSchema,
-	grandTotal: z.number(),
+export const CreateCaseInputSchema = z
+	.object({
+		patientId: z.string().min(1, "Patient is required"), // ← add min(1), empty string would pass
+		caseCategoryId: z.string().trim().transform(emptyToUndefinedTransformer).optional(),
+		status: CaseStatusSchema, // ← add default, shouldn't need client to set this
+		grandTotal: z.number().min(0).optional(), // ← add min(0), negative total makes no sense
+		clinicId: z.string().trim().transform(emptyToUndefinedTransformer).optional(),
+		deadline: z.date().optional(),
+		dentistId: z.string().trim().transform(emptyToUndefinedTransformer).optional(), // ← missing
+		caseWorkItems: z.array(CreateCaseWorkItemInputSchema), // ← default to empty array
+		caseAssetFiles: z.array(CreateCaseAssetFilesInputSchema),
+		notes: z.string().trim().transform(emptyToUndefinedTransformer).optional(),
+		staffAssignments: z
+			.array(
+				CreateCaseStaffAssignmentInputSchema.omit({
+					caseId: true,
+					commissionTotal: true,
+					isPaid: true,
+					paidAt: true,
+				}),
+			)
+			.optional(),
+	})
+	.superRefine((data, ctx) => {
+		if (data.status !== "DRAFT") {
+			if (!data.patientId || data.patientId.trim() === "") {
+				ctx.addIssue({
+					code: "custom",
+					message: "A patient is required to submit a case.",
+					path: ["patientId"],
+				});
+			}
+
+			if (!data.deadline) {
+				ctx.addIssue({
+					code: "custom",
+					message: "A deadline is required to submit a case.",
+					path: ["deadline"],
+				});
+			}
+
+			if (!data.clinicId) {
+				ctx.addIssue({
+					code: "custom",
+					message: "A clinic must be selected.",
+					path: ["clinicId"],
+				});
+			}
+
+			if (!data.caseCategoryId) {
+				// ← missing from your original
+				ctx.addIssue({
+					code: "custom",
+					message: "A case category must be selected.",
+					path: ["caseCategoryId"],
+				});
+			}
+
+			if (data.caseWorkItems.length === 0) {
+				ctx.addIssue({
+					code: "custom",
+					message: "At least one work item is required.",
+					path: ["caseWorkItems"],
+				});
+			}
+
+			// ← missing: if dentistId provided but no clinicId, that's inconsistent
+			if (data.dentistId && !data.clinicId) {
+				ctx.addIssue({
+					code: "custom",
+					message: "A clinic must be selected when a dentist is specified.",
+					path: ["clinicId"],
+				});
+			}
+		}
+	});
+
+export type CreateCaseInput = z.infer<typeof CreateCaseInputSchema>;
+
+// ================== Draft Schema ==========================
+// Draft schema — much more permissive than the full case schema
+// Only patientId is required, everything else is optional
+export const SaveDraftCaseInputSchema = z.object({
+	// The one hard requirement — a draft must be linked to a patient
+	patientId: z.string().min(1, "A patient must be selected to save a draft."),
+
+	// Optional — may not have been selected yet
 	clinicId: z.string().trim().transform(emptyToUndefinedTransformer).optional(),
-	deadline: z.date(),
-	caseWorkItems: z.array(CreateCaseWorkItemInputSchema),
-	caseAssetFiles: z.array(CreateCaseAssetFilesInputSchema),
-	notes: z.string().transform(emptyToUndefinedTransformer).optional(),
+	dentistId: z.string().trim().transform(emptyToUndefinedTransformer).optional(),
+	caseCategoryId: z.string().trim().transform(emptyToUndefinedTransformer).optional(),
+	deadline: z.date().optional(),
+	notes: z.string().trim().transform(emptyToUndefinedTransformer).optional(),
+
+	// Work items — optional and individually permissive
+	// A draft work item doesn't need teeth or pricing
+	caseWorkItems: z
+		.array(
+			z.object({
+				productId: z.string().trim().transform(emptyToUndefinedTransformer).optional(),
+				workTypeId: z.string().trim().transform(emptyToUndefinedTransformer).optional(),
+				casePricingPlanId: z.string().trim().transform(emptyToUndefinedTransformer).optional(),
+				jawType: JawTypeSchema.default("UPPER"),
+				totalPrice: z.number().min(0).default(0),
+				selectedTeeth: z
+					.array(
+						z.object({
+							toothPosition: ToothPositionSchema,
+						}),
+					)
+					.default([]),
+				notes: z.string().trim().transform(emptyToUndefinedTransformer).optional(),
+				shadeSystem: z.string().trim().transform(emptyToUndefinedTransformer).optional(),
+				baseShade: z.string().trim().transform(emptyToUndefinedTransformer).optional(),
+				stumpShade: z.string().trim().transform(emptyToUndefinedTransformer).optional(),
+				shadeNotes: z.string().trim().transform(emptyToUndefinedTransformer).optional(),
+			}),
+		)
+		.default([]),
 
 	staffAssignments: z
 		.array(
-			CreateCaseStaffAssignmentInputSchema.omit({
-				caseId: true,
-				commissionTotal: true, // Computed at completion
-				isPaid: true, // Defaults to false in DB
-				paidAt: true, // Null until actually paid
+			z.object({
+				staffId: z.string().min(1),
+				roleCategory: StaffRoleCategorySchema,
+				commissionType: CommissionTypeSchema,
+				commissionValue: z.number().min(0),
 			}),
 		)
-		.optional(),
+		.default([]),
+
+	caseAssetFiles: z
+		.array(
+			z.object({
+				title: z.string().trim().transform(emptyToUndefinedTransformer).optional(),
+				description: z.string().trim().transform(emptyToUndefinedTransformer).optional(),
+				documentUrl: z.string().url(),
+				assetFileType: AssetFileTypeSchema,
+				fileExtension: z.string().min(1),
+			}),
+		)
+		.default([]),
+
+	// If updating an existing draft — pass the existing case id
+	existingDraftId: z.string().optional(),
 });
 
-export type CreateCaseInput = z.infer<typeof CreateCaseInputSchema>;
+export type SaveDraftCaseInput = z.infer<typeof SaveDraftCaseInputSchema>;

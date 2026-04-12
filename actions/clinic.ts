@@ -93,6 +93,7 @@ export const getClinicsBySearchQueryAction = actionClientWithLab
 				take: limit,
 				include: {
 					lab: true,
+					dentists: true,
 				},
 			});
 

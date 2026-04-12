@@ -20,6 +20,7 @@ export const LabUpdateResultSchema = z.nullable(z.object({
   dentists: z.array(z.unknown()),
   staffAssignments: z.array(z.unknown()),
   LabStaff: z.array(z.unknown()),
+  nextCaseNumber: z.number().int(),
   createdAt: z.date(),
   updatedAt: z.date()
 }));

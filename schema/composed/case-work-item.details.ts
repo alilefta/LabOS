@@ -9,6 +9,8 @@ import { SelectedToothBaseSchema } from "../base/selected-tooth.base";
 import { JawTypeSchema } from "../base/enums.base";
 import { WorkTypeBaseSchema } from "../base/worktype.base";
 import { CreateSelectedToothInputSchema } from "./selected-tooth.details";
+import { ToothPositionSchema } from "../base/tooth-position.base";
+import { emptyToUndefinedTransformer } from "../base/utils.base";
 // import { emptyToUndefinedTransformer } from "../base/utils.base";
 
 export const CaseWorkItemDetailsSchema = CaseWorkItemBaseSchema.extend({
@@ -33,49 +35,73 @@ export const CaseWorkItemDetailsUISchema = CaseWorkItemBaseSchema.extend({
 
 export type CaseWorkItemDetailsUI = z.infer<typeof CaseWorkItemDetailsUISchema>;
 
-export const CreateCaseWorkItemInputSchema = z
-	.object({
-		productId: z.string().trim().min(1).optional(),
-		workTypeId: z.string().trim().min(1).optional(),
-
+export const CreateCaseWorkItemInputSchema = CaseWorkItemBaseSchema.omit({
+	labId: true,
+	id: true,
+	dentalCaseId: true,
+	createdAt: true,
+	updatedAt: true,
+	additionalToothPrice: true,
+	bulkPrice: true,
+	firstToothPrice: true,
+	toothPrice: true,
+	teethCountToApplyBulkPrice: true,
+	pricingStrategy: true,
+})
+	.extend({
+		productId: z.string().trim().min(1, "Product is required"), // ← remove optional, product is required for a work item
+		workTypeId: z.string().trim().min(1, "Work type is required"), // ← same
+		casePricingPlanId: z.string().min(1, "Pricing plan is required"), // ← add min(1)
 		totalPrice: z.number().min(0, "Total price must be >= 0"),
-
-		// casePricingPlan: CreateCaseItemPricingPlanInputSchema, // creation of pricing plan belongs to Product so it is removed from here
-
-		casePricingPlanId: z.string().optional(), // selecting exisitng
-
+		jawType: JawTypeSchema,
 		selectedTeeth: z.array(CreateSelectedToothInputSchema).optional(),
 
-		jawType: JawTypeSchema,
-
-		notes: z.string().optional(),
-		shadeSystem: z.string().optional(),
-		baseShade: z.string().optional(),
-		stumpShade: z.string().optional(),
-		shadeNotes: z.string().optional(),
+		// Shade fields — all optional, no validation needed beyond string
+		notes: z.string().trim().transform(emptyToUndefinedTransformer).optional(),
+		shadeSystem: z.string().trim().transform(emptyToUndefinedTransformer).optional(),
+		baseShade: z.string().trim().transform(emptyToUndefinedTransformer).optional(),
+		stumpShade: z.string().trim().transform(emptyToUndefinedTransformer).optional(),
+		shadeNotes: z.string().trim().transform(emptyToUndefinedTransformer).optional(),
 	})
 	.superRefine((data, ctx) => {
-		const requiresTeeth = data.jawType !== "OTHER";
+		if (data.jawType !== "OTHER" && data.selectedTeeth && data.selectedTeeth.length === 0) {
+			ctx.addIssue({
+				code: "custom",
+				message: "At least one tooth must be selected for upper/lower jaw items.",
+				path: ["selectedTeeth"],
+			});
+		}
 
-		if (requiresTeeth) {
-			if (!data.selectedTeeth || data.selectedTeeth.length === 0) {
+		// Duplicate teeth check
+		if (data.selectedTeeth && data.selectedTeeth.length > 0) {
+			const positions = data.selectedTeeth.map((t) => t.toothPosition);
+			if (new Set(positions).size !== positions.length) {
 				ctx.addIssue({
 					code: "custom",
-					message: "At least one tooth must be selected",
+					message: "Duplicate tooth positions are not allowed.",
 					path: ["selectedTeeth"],
 				});
 			}
 		}
 
-		if (data.selectedTeeth) {
-			const positions = data.selectedTeeth.map((t) => t.toothPosition);
-
-			const unique = new Set(positions);
-
-			if (unique.size !== positions.length) {
+		// Upper jaw teeth should not contain lower jaw positions and vice versa
+		if (data.jawType === "UPPER" && data.selectedTeeth && data.selectedTeeth.length > 0) {
+			const hasLowerTeeth = data.selectedTeeth.some((t) => t.toothPosition.startsWith("Lower"));
+			if (hasLowerTeeth) {
 				ctx.addIssue({
 					code: "custom",
-					message: "Duplicate teeth are not allowed",
+					message: "Upper jaw work items cannot contain lower jaw teeth.",
+					path: ["selectedTeeth"],
+				});
+			}
+		}
+
+		if (data.jawType === "LOWER" && data.selectedTeeth && data.selectedTeeth.length > 0) {
+			const hasUpperTeeth = data.selectedTeeth.some((t) => t.toothPosition.startsWith("Upper"));
+			if (hasUpperTeeth) {
+				ctx.addIssue({
+					code: "custom",
+					message: "Lower jaw work items cannot contain upper jaw teeth.",
 					path: ["selectedTeeth"],
 				});
 			}
@@ -83,3 +109,20 @@ export const CreateCaseWorkItemInputSchema = z
 	});
 
 export type CreateCaseWorkItemInput = z.infer<typeof CreateCaseWorkItemInputSchema>;
+
+export const CreateCaseWorkItemInputSchemaPure = CaseWorkItemDetailsUISchema.omit({
+	id: true,
+	dentalCaseId: true,
+	labId: true,
+	createdAt: true,
+	updatedAt: true,
+	Lab: true,
+}).extend({
+	selectedTeeth: z.array(
+		z.object({
+			toothPosition: ToothPositionSchema,
+		}),
+	),
+});
+
+export type CreateCaseWorkItemInputSchemaPure = z.infer<typeof CreateCaseWorkItemInputSchemaPure>;

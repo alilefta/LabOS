@@ -8,12 +8,11 @@ export const CaseBaseSchema = z.object({
 	labId: z.string(),
 	caseCategoryId: z.string().nullable(),
 	status: CaseStatusSchema,
-	grandTotal: z.number(),
+	grandTotal: z.number().nullable(),
 	clinicId: z.string().nullable(),
 	dentistId: z.string().nullable(),
-	deadline: z.date(),
+	deadline: z.date().nullable(),
 	notes: z.string().nullable(),
-
 	createdAt: z.date(),
 	updatedAt: z.date(),
 });

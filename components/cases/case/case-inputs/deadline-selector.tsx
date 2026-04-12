@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useMemo, useState } from "react";
+import { memo, useCallback, useMemo, useState } from "react";
 import { format, differenceInDays, startOfDay, addDays } from "date-fns";
 import { CalendarIcon, Clock, Truck } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -15,22 +15,42 @@ interface DeadlineSelectorProps {
 	fieldState: ControllerFieldState;
 }
 
+const TODAY = startOfDay(new Date());
+
+const isCalenderDisabled = (date: Date) => date < TODAY;
+const CALENDAR_CLASS_NAMES = {
+	day_selected: "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground rounded-lg",
+	day_today: "bg-accent text-accent-foreground rounded-lg",
+} as const;
+
 export const DeadlineSelector = memo(({ value, onChange, fieldState }: DeadlineSelectorProps) => {
+	console.log("Deadline-Selector --- re-rendered");
 	const [open, setOpen] = useState(false);
 
 	// UX Intelligence: Calculate if this is a "Rush" job based on the selected date
 	const isRushJob = useMemo(() => {
 		if (!value) return false;
-		const daysUntil = differenceInDays(startOfDay(value), startOfDay(new Date()));
+		const daysUntil = differenceInDays(startOfDay(value), TODAY);
 		return daysUntil <= 3 && daysUntil >= 0;
 	}, [value]);
 
 	// Quick Action Handlers
-	const handleQuickSelect = (daysToAdd: number) => {
-		const newDate = addDays(new Date(), daysToAdd);
-		onChange(newDate);
-		setOpen(false);
-	};
+	const handleQuickSelect = useCallback(
+		(daysToAdd: number) => {
+			const newDate = addDays(TODAY, daysToAdd);
+			onChange(newDate);
+			setOpen(false);
+		},
+		[onChange],
+	);
+
+	const handleSelect = useCallback(
+		(date: Date | undefined) => {
+			onChange(date);
+			setOpen(false);
+		},
+		[onChange],
+	);
 
 	return (
 		<div className="flex flex-col gap-2">
@@ -56,20 +76,17 @@ export const DeadlineSelector = memo(({ value, onChange, fieldState }: DeadlineS
 					</Button>
 				</PopoverTrigger>
 
-				<PopoverContent className="w-auto p-0 rounded-2xl border-border shadow-premium overflow-hidden" align="start">
+				<PopoverContent className="w-auto! p-0 rounded-2xl border-border shadow-premium overflow-hidden" align="start">
 					<Calendar
 						mode="single"
 						selected={value}
-						onSelect={(date) => {
-							onChange(date);
-							setOpen(false);
-						}}
-						disabled={(date) => date < startOfDay(new Date())} // Disable past dates
+						onSelect={handleSelect}
+						disabled={isCalenderDisabled} // Disable past dates
 						autoFocus
-						classNames={{
-							day_selected: "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground rounded-lg",
-							day_today: "bg-accent text-accent-foreground rounded-lg",
-						}}
+						classNames={CALENDAR_CLASS_NAMES}
+						startMonth={TODAY}
+						endMonth={addDays(TODAY, 365)}
+						className="w-full"
 					/>
 
 					{/* Quick Actions Footer inside the Calendar */}

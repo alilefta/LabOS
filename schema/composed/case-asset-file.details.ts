@@ -21,10 +21,7 @@ export type CaseAssetFileDetailsUI = z.infer<typeof CaseAssetFileDetailsUISchema
 export const CreateCaseAssetFilesInputSchema = z.object({
 	title: z.string().trim().min(1, "Case's asset name is required"),
 	description: z.string().trim().transform(emptyToUndefinedTransformer).optional(),
-	documentUrl: z
-		.union([z.literal(""), z.string().trim().url("Please enter a valid asset URL")])
-		.transform(emptyToUndefinedTransformer)
-		.optional(),
+	documentUrl: z.url("Please enter a valid asset URL"),
 	fileExtension: z.string(),
 	assetFileType: AssetFileTypeSchema,
 });

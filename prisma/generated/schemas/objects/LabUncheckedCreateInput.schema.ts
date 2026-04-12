@@ -22,6 +22,7 @@ const makeSchema = () => z.object({
   slug: z.string().optional().nullable(),
   brandAvatarUrl: z.string().optional().nullable(),
   subtitle: z.string().optional().nullable(),
+  nextCaseNumber: z.number().int().optional(),
   createdAt: z.coerce.date().optional(),
   labSubscriptionPlan: z.lazy(() => LabSubscriptionPlanUncheckedCreateNestedOneWithoutLabInputObjectSchema).optional(),
   users: z.lazy(() => LabUserUncheckedCreateNestedManyWithoutLabInputObjectSchema).optional(),

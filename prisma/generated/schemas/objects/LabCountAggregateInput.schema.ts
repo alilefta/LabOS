@@ -8,6 +8,7 @@ const makeSchema = () => z.object({
   slug: z.literal(true).optional(),
   brandAvatarUrl: z.literal(true).optional(),
   subtitle: z.literal(true).optional(),
+  nextCaseNumber: z.literal(true).optional(),
   createdAt: z.literal(true).optional(),
   updatedAt: z.literal(true).optional(),
   _all: z.literal(true).optional()
