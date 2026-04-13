@@ -14,6 +14,7 @@ import { emptyToUndefinedTransformer } from "../base/utils.base";
 import { LabStaffBaseSchema } from "../base/lab-staff.base";
 import { CreateCaseStaffAssignmentInputSchema } from "./case-staff-assignment.details";
 import { ToothPositionSchema } from "../base/tooth-position.base";
+import { CaseStaffAssignmentBaseSchema } from "../base/case-staff-assignment.base";
 
 export const CaseDetailsSchema = CaseBaseSchema.extend({
 	caseCategory: CaseCategoryBaseSchema.optional(),
@@ -32,8 +33,8 @@ export const CaseDetailsUISchema = CaseBaseSchema.extend({
 	caseItems: z.array(CaseWorkItemBaseSchema),
 	clinic: ClinicBaseSchema.optional(),
 	caseAssetFiles: z.array(CaseAssetFileBaseSchema).optional(),
-	lab: LabBaseSchema,
-	patient: PatientBaseSchema,
+	lab: LabBaseSchema.optional(),
+	patient: PatientBaseSchema.optional(),
 	dentist: DentistBaseSchema.optional(),
 	staffAssignments: z.array(LabStaffBaseSchema).optional(),
 });
@@ -47,10 +48,11 @@ export const CreateCaseInputSchema = z
 		grandTotal: z.number().min(0).optional(), // ← add min(0), negative total makes no sense
 		clinicId: z.string().trim().transform(emptyToUndefinedTransformer).optional(),
 		deadline: z.date().optional(),
-		dentistId: z.string().trim().transform(emptyToUndefinedTransformer).optional(), // ← missing
-		caseWorkItems: z.array(CreateCaseWorkItemInputSchema), // ← default to empty array
-		caseAssetFiles: z.array(CreateCaseAssetFilesInputSchema),
+		dentistId: z.string().trim().transform(emptyToUndefinedTransformer).optional(),
+		caseWorkItems: z.array(CreateCaseWorkItemInputSchema),
+		caseAssetFiles: z.array(CreateCaseAssetFilesInputSchema).optional(),
 		notes: z.string().trim().transform(emptyToUndefinedTransformer).optional(),
+		existingDraftId: z.string().optional(),
 		staffAssignments: z
 			.array(
 				CreateCaseStaffAssignmentInputSchema.omit({
@@ -63,56 +65,58 @@ export const CreateCaseInputSchema = z
 			.optional(),
 	})
 	.superRefine((data, ctx) => {
-		if (data.status !== "DRAFT") {
-			if (!data.patientId || data.patientId.trim() === "") {
-				ctx.addIssue({
-					code: "custom",
-					message: "A patient is required to submit a case.",
-					path: ["patientId"],
-				});
-			}
+		if (data.status === "DRAFT") return;
 
-			if (!data.deadline) {
-				ctx.addIssue({
-					code: "custom",
-					message: "A deadline is required to submit a case.",
-					path: ["deadline"],
-				});
-			}
+		if (!data.patientId || data.patientId.trim() === "") {
+			ctx.addIssue({
+				code: "custom",
+				message: "A patient is required to submit a case.",
+				path: ["patientId"],
+			});
+		}
 
-			if (!data.clinicId) {
-				ctx.addIssue({
-					code: "custom",
-					message: "A clinic must be selected.",
-					path: ["clinicId"],
-				});
-			}
+		if (!data.deadline) {
+			ctx.addIssue({
+				code: "custom",
+				message: "A deadline is required to submit a case.",
+				path: ["deadline"],
+			});
+		}
 
-			if (!data.caseCategoryId) {
-				// ← missing from your original
-				ctx.addIssue({
-					code: "custom",
-					message: "A case category must be selected.",
-					path: ["caseCategoryId"],
-				});
-			}
+		if (!data.clinicId) {
+			ctx.addIssue({
+				code: "custom",
+				message: "A clinic must be selected.",
+				path: ["clinicId"],
+			});
+		}
 
-			if (data.caseWorkItems.length === 0) {
-				ctx.addIssue({
-					code: "custom",
-					message: "At least one work item is required.",
-					path: ["caseWorkItems"],
-				});
-			}
+		if (!data.caseCategoryId) {
+			// ← missing from your original
+			ctx.addIssue({
+				code: "custom",
+				message: "A case category must be selected.",
+				path: ["caseCategoryId"],
+			});
+		}
+		// Filter out empty ghost rows before checking
+		const validWorkItems = (data.caseWorkItems ?? []).filter((item) => item.productId || item.casePricingPlanId);
 
-			// ← missing: if dentistId provided but no clinicId, that's inconsistent
-			if (data.dentistId && !data.clinicId) {
-				ctx.addIssue({
-					code: "custom",
-					message: "A clinic must be selected when a dentist is specified.",
-					path: ["clinicId"],
-				});
-			}
+		if (validWorkItems.length === 0) {
+			ctx.addIssue({
+				code: "custom",
+				message: "At least one work item is required.",
+				path: ["caseWorkItems"],
+			});
+		}
+
+		// ← missing: if dentistId provided but no clinicId, that's inconsistent
+		if (data.dentistId && !data.clinicId) {
+			ctx.addIssue({
+				code: "custom",
+				message: "A clinic must be selected when a dentist is specified.",
+				path: ["clinicId"],
+			});
 		}
 	});
 
@@ -186,3 +190,41 @@ export const SaveDraftCaseInputSchema = z.object({
 });
 
 export type SaveDraftCaseInput = z.infer<typeof SaveDraftCaseInputSchema>;
+
+// ── Draft DTO ──────────────────────────────────────────────────────────────
+// Returned from saveDraftCaseAction and loadDraftByIdAction.
+// All Decimals already normalized to number by server-only-helpers.
+// Safe to pass to client components.
+
+export const DraftCaseSummaryDTOSchema = z.object({
+	id: z.string(),
+	caseNumber: z.string(),
+	lastSavedAt: z.date(),
+	patientName: z.string(),
+	clinicName: z.string().nullable(),
+});
+
+export type DraftCaseSummaryDTO = z.infer<typeof DraftCaseSummaryDTOSchema>;
+
+// Full draft — used when resuming/hydrating the form
+export const DraftCaseDTOSchema = CaseBaseSchema.extend({
+	// Relations — always included when loading a draft for editing
+	patient: PatientBaseSchema.partial(),
+	clinic: ClinicBaseSchema.partial().nullable(),
+
+	caseItems: z.array(
+		CaseWorkItemBaseSchema.extend({
+			selectedTeeth: z.array(
+				z.object({
+					toothPosition: ToothPositionSchema,
+				}),
+			),
+		}),
+	),
+
+	staffAssignments: z.array(CaseStaffAssignmentBaseSchema.partial()),
+
+	caseAssetFiles: z.array(CaseAssetFileBaseSchema.partial()),
+});
+
+export type DraftCaseDTO = z.infer<typeof DraftCaseDTOSchema>;

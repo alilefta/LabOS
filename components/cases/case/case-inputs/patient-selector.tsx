@@ -13,6 +13,7 @@ import { getPatientsBySearchQueryAction } from "@/actions/patient";
 import { handleSafeActionError } from "@/lib/safe-action-helpers";
 import useDebounce from "@/hooks/useDebounce";
 import { Skeleton } from "@/components/ui/skeleton";
+import { FieldError } from "react-hook-form";
 
 type DataShape = PatientDetailsUI[];
 
@@ -20,9 +21,10 @@ interface PatientSelector {
 	onSelect: (id: string) => void;
 	onCreateNew: () => void;
 	newCreatedPatient: PatientDetailsUI | null;
+	fieldError: FieldError | undefined;
 }
 
-export const PatientSelector = memo(({ onCreateNew, newCreatedPatient, onSelect }: PatientSelector) => {
+export const PatientSelector = memo(({ onCreateNew, newCreatedPatient, onSelect, fieldError }: PatientSelector) => {
 	const [open, setOpen] = useState(false);
 	const [selectedId, setSelectedId] = useState("");
 	const [search, setSearch] = useState("");
@@ -132,6 +134,7 @@ export const PatientSelector = memo(({ onCreateNew, newCreatedPatient, onSelect 
 					</div>
 				</PopoverContent>
 			</Popover>
+			{fieldError && <span className="text-[11px] font-medium text-destructive ml-1">{fieldError.message}</span>}
 		</div>
 	);
 });

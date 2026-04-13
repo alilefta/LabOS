@@ -1,6 +1,6 @@
 "use client";
 
-import { useFormContext } from "react-hook-form";
+import { Controller, useFormContext } from "react-hook-form";
 import { ClinicSelector } from "../../case/case-inputs/clinic-selector";
 import { PatientSelector } from "../../case/case-inputs/patient-selector";
 import { CreateCaseInput } from "@/schema/composed/case.details";
@@ -13,13 +13,15 @@ export const PatientAndClinicSection = memo(function PatientAndClinicSection({
 	handleOpenClinicCreationSheet,
 	newCreatedClinic,
 	newCreatedPatient,
+	onPatientSelect,
 }: {
 	handleOpenPatientCreationSheet: () => void;
 	handleOpenClinicCreationSheet: () => void;
 	newCreatedPatient: PatientDetails | null;
 	newCreatedClinic: ClinicDetailsUI | null;
+	onPatientSelect?: (patientId: string) => void;
 }) {
-	const { setValue } = useFormContext<CreateCaseInput>();
+	const { setValue, control } = useFormContext<CreateCaseInput>();
 
 	// Stable references — won't change between renders
 
@@ -34,8 +36,9 @@ export const PatientAndClinicSection = memo(function PatientAndClinicSection({
 	const handlePatientSelect = useCallback(
 		(id: string) => {
 			setValue("patientId", id, { shouldValidate: true });
+			onPatientSelect?.(id);
 		},
-		[setValue],
+		[setValue, onPatientSelect],
 	);
 
 	return (
@@ -46,7 +49,13 @@ export const PatientAndClinicSection = memo(function PatientAndClinicSection({
 			</div>
 			<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 				<ClinicSelector onCreateNew={handleOpenClinicCreationSheet} newCreatedClinic={newCreatedClinic} onSelect={handleClinicSelect} />
-				<PatientSelector onCreateNew={handleOpenPatientCreationSheet} newCreatedPatient={newCreatedPatient} onSelect={handlePatientSelect} />
+				<Controller
+					control={control}
+					name="patientId"
+					render={({ fieldState }) => (
+						<PatientSelector fieldError={fieldState.error} onCreateNew={handleOpenPatientCreationSheet} newCreatedPatient={newCreatedPatient} onSelect={handlePatientSelect} />
+					)}
+				/>
 			</div>
 		</section>
 	);

@@ -26,7 +26,7 @@ export type CaseWorkItemDetails = z.infer<typeof CaseWorkItemDetailsSchema>;
 
 export const CaseWorkItemDetailsUISchema = CaseWorkItemBaseSchema.extend({
 	product: ProductBaseSchema.optional(),
-	Lab: LabBaseSchema,
+	Lab: LabBaseSchema.optional(),
 	casePricingPlan: CasePricingPlanBaseSchema.optional(),
 	dentalCase: CaseBaseSchema.optional(),
 	selectedTeeth: z.array(SelectedToothBaseSchema).optional(),
@@ -109,20 +109,3 @@ export const CreateCaseWorkItemInputSchema = CaseWorkItemBaseSchema.omit({
 	});
 
 export type CreateCaseWorkItemInput = z.infer<typeof CreateCaseWorkItemInputSchema>;
-
-export const CreateCaseWorkItemInputSchemaPure = CaseWorkItemDetailsUISchema.omit({
-	id: true,
-	dentalCaseId: true,
-	labId: true,
-	createdAt: true,
-	updatedAt: true,
-	Lab: true,
-}).extend({
-	selectedTeeth: z.array(
-		z.object({
-			toothPosition: ToothPositionSchema,
-		}),
-	),
-});
-
-export type CreateCaseWorkItemInputSchemaPure = z.infer<typeof CreateCaseWorkItemInputSchemaPure>;

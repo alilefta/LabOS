@@ -1,17 +1,19 @@
 "use client";
 
-import { ChevronLeft, Save, Sparkles } from "lucide-react";
+import { ChevronLeft, LoaderCircle, Save, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
 interface Props {
 	isSubmitForReviewEnabled: boolean;
+	isSaveDraftEnabled: boolean;
+	isSavingDraft: boolean;
+	isSubmittingCase: boolean;
 	onSaveDraft: () => void;
 	onSubmitCaseForReview: () => void;
-	isSaveDraftEnabled: boolean;
 }
 
-export function NewCaseHeader({ isSubmitForReviewEnabled, onSaveDraft, onSubmitCaseForReview, isSaveDraftEnabled }: Props) {
+export function NewCaseHeader({ isSubmitForReviewEnabled, isSaveDraftEnabled, isSavingDraft, isSubmittingCase, onSaveDraft, onSubmitCaseForReview }: Props) {
 	return (
 		<header className="shrink-0 flex flex-col md:flex-row md:items-center justify-between gap-4 sm:gap-6 mb-6 sm:mb-8 sticky top-0 z-20 bg-background/80 backdrop-blur-xl pt-4 pb-4 border-b border-border">
 			{/* LEFT: Title & Context */}
@@ -38,22 +40,22 @@ export function NewCaseHeader({ isSubmitForReviewEnabled, onSaveDraft, onSubmitC
 					variant="ghost"
 					onClick={onSaveDraft}
 					type="button"
-					disabled={isSaveDraftEnabled}
+					// disabled={!isSaveDraftEnabled || isSavingDraft}
 					className="flex-1 md:flex-none rounded-xl font-semibold text-muted-foreground hover:text-foreground h-10 px-3 sm:px-4 bg-slate-50 dark:bg-white/2 md:bg-transparent border border-transparent md:border-none hover:border-border transition-all"
 				>
-					<Save className="w-4 h-4 mr-1.5 sm:mr-2 shrink-0" />
-					<span className="truncate">Save Draft</span>
+					{isSavingDraft ? <LoaderCircle className="w-4 h-4 mr-1.5 animate-spin" /> : <Save className="w-4 h-4 mr-1.5 sm:mr-2 shrink-0" />}
+					<span className="truncate">{isSavingDraft ? "Saving..." : "Save Draft"}</span>
 				</Button>
 
 				<Button
-					disabled={isSubmitForReviewEnabled} // to be activated later
+					disabled={!isSubmitForReviewEnabled || isSubmittingCase}
 					className="flex-2 md:flex-none rounded-xl bg-primary text-primary-foreground h-10 px-4 sm:px-6 font-bold shadow-premium hover:bg-primary/90 transition-all"
 					type="submit"
 					form="new-case-submission-form"
 					onClick={onSubmitCaseForReview}
 				>
-					<Sparkles className="w-4 h-4 mr-1.5 sm:mr-2 shrink-0" />
-					<span className="truncate">Review & Submit</span>
+					{isSubmittingCase ? <LoaderCircle className="w-4 h-4 mr-1.5 animate-spin" /> : <Sparkles className="w-4 h-4 mr-1.5 sm:mr-2 shrink-0" />}
+					<span className="truncate">{isSubmittingCase ? "Submitting..." : "Review & Submit"}</span>
 				</Button>
 			</div>
 		</header>

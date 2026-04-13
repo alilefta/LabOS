@@ -1,15 +1,16 @@
 "use server";
 
 import { CasePricingPlanModel } from "@/generated/prisma/models";
-import { ActionError, ERRORS } from "@/lib/errors";
+import { ERRORS } from "@/lib/errors";
 import { tenantPrisma } from "@/lib/prisma";
 import { actionClientWithLab } from "@/lib/safe-action";
+import { caseServerToFrontDTO, draftCaseServerToDTO, draftSummaryServerToDTO } from "@/lib/server-only-helpers";
 
 import { JawType } from "@/schema/base/enums.base";
 import { ToothPosition } from "@/schema/base/tooth-position.base";
-import { CaseWorkItemDetails } from "@/schema/composed/case-work-item.details";
 import { CreateCaseInputSchema, SaveDraftCaseInputSchema } from "@/schema/composed/case.details";
 import { APIError } from "better-auth";
+import z from "zod/v3";
 
 export const createDentalCaseAction = actionClientWithLab
 	.metadata({
@@ -32,6 +33,11 @@ export const createDentalCaseAction = actionClientWithLab
 		// for selected teeth I should normalize them to be positions
 		// for assets they can be created throughly
 		// for work items at least one should exists, AND have pricingPlanId AND if jawType is Upper or Lower there should be teeth selected
+		const validWorkItems = (caseWorkItems ?? []).filter((item) => item.productId && item.casePricingPlanId);
+
+		if (status !== "DRAFT" && validWorkItems.length === 0) {
+			throw ERRORS.INVALID_INPUT;
+		}
 
 		try {
 			const prisma = await tenantPrisma(labId);
@@ -44,7 +50,7 @@ export const createDentalCaseAction = actionClientWithLab
 			// Run all checks in parallel for performance.
 			// ─────────────────────────────────────────────────────────────────
 
-			const pricingPlanIds = [...new Set(caseWorkItems.map((cw) => cw.casePricingPlanId))];
+			const pricingPlanIds = [...new Set(validWorkItems.map((cw) => cw.casePricingPlanId))];
 			const staffIds = staffAssignments?.map((s) => s.staffId) ?? [];
 
 			const [patient, clinic, category, pricingPlans, staffMembers] = await Promise.all([
@@ -126,7 +132,7 @@ export const createDentalCaseAction = actionClientWithLab
 			// Every pricing plan ID must resolve to a record in this lab
 			const pricingPlanMap = new Map(pricingPlans.map((pp) => [pp.id, pp]));
 
-			for (const cw of caseWorkItems) {
+			for (const cw of validWorkItems) {
 				if (!pricingPlanMap.has(cw.casePricingPlanId)) {
 					throw ERRORS.NOT_FOUND;
 				}
@@ -150,10 +156,10 @@ export const createDentalCaseAction = actionClientWithLab
 			// Never trust client-computed prices. Always recompute from DB records.
 			// ─────────────────────────────────────────────────────────────────
 
-			const computedWorkItems = caseWorkItems.map((cw) => {
+			const computedWorkItems = validWorkItems.map((cw) => {
 				const plan = pricingPlanMap.get(cw.casePricingPlanId)!;
 				const teeth = cw.selectedTeeth?.map((t) => t.toothPosition) ?? [];
-				const totalPrice = computerCaseItemPrice(plan, teeth, cw.jawType);
+				const totalPrice = computeCaseItemPrice(plan, teeth, cw.jawType);
 
 				return {
 					// Identity
@@ -347,7 +353,7 @@ export const createDentalCaseAction = actionClientWithLab
 				});
 			});
 
-			return { dentalCase };
+			return { dentalCase: caseServerToFrontDTO(dentalCase) };
 		} catch (e) {
 			if (e instanceof APIError || e instanceof Error) {
 				console.error("[Create-New-Dental-Case-Action] Error", e.message);
@@ -448,7 +454,7 @@ export const saveDraftCaseAction = actionClientWithLab
 				const teeth = cw.selectedTeeth?.map((t) => t.toothPosition) ?? [];
 
 				// Only compute if we have a plan — otherwise store 0
-				const totalPrice = plan ? computerCaseItemPrice(plan, teeth, cw.jawType) : 0;
+				const totalPrice = plan ? computeCaseItemPrice(plan, teeth, cw.jawType) : 0;
 
 				return {
 					productId: cw.productId ?? null,
@@ -498,7 +504,7 @@ export const saveDraftCaseAction = actionClientWithLab
 					});
 
 					return tx.case.update({
-						where: { id: existingDraftId },
+						where: { id: existingDraftId, labId },
 						data: {
 							patientId,
 							clinicId: clinicId ?? null,
@@ -515,7 +521,7 @@ export const saveDraftCaseAction = actionClientWithLab
 											create: computedWorkItems.map((item) => ({
 												productId: item.productId,
 												workTypeId: item.workTypeId,
-												casePricingPlanId: item.casePricingPlanId,
+												casePricingPlanId: item.casePricingPlanId!,
 												jawType: item.jawType,
 												totalPrice: item.totalPrice,
 												pricingStrategy: item.pricingStrategy,
@@ -547,7 +553,7 @@ export const saveDraftCaseAction = actionClientWithLab
 									: undefined,
 
 							staffAssignments:
-								staffAssignments.length > 0
+								staffAssignments && staffAssignments.length > 0
 									? {
 											createMany: {
 												data: staffAssignments.map((s) => ({
@@ -564,7 +570,7 @@ export const saveDraftCaseAction = actionClientWithLab
 									: undefined,
 
 							caseAssetFiles:
-								caseAssetFiles.length > 0
+								caseAssetFiles && caseAssetFiles.length > 0
 									? {
 											createMany: {
 												data: caseAssetFiles.map((f) => ({
@@ -598,6 +604,7 @@ export const saveDraftCaseAction = actionClientWithLab
 
 				const caseNumber = `LAB-${updatedLab.nextCaseNumber.toString().padStart(4, "0")}`;
 
+				console.log("Recieved Pricing Plans", computedWorkItems);
 				return tx.case.create({
 					data: {
 						patientId,
@@ -617,7 +624,7 @@ export const saveDraftCaseAction = actionClientWithLab
 										create: computedWorkItems.map((item) => ({
 											productId: item.productId,
 											workTypeId: item.workTypeId,
-											casePricingPlanId: item.casePricingPlanId,
+											casePricingPlanId: item.casePricingPlanId!,
 											jawType: item.jawType,
 											totalPrice: item.totalPrice,
 											pricingStrategy: item.pricingStrategy,
@@ -632,7 +639,6 @@ export const saveDraftCaseAction = actionClientWithLab
 											stumpShade: item.stumpShade,
 											shadeNotes: item.shadeNotes,
 											labId,
-
 											selectedTeeth:
 												item.selectedTeeth.length > 0
 													? {
@@ -649,7 +655,7 @@ export const saveDraftCaseAction = actionClientWithLab
 								: undefined,
 
 						staffAssignments:
-							staffAssignments.length > 0
+							staffAssignments && staffAssignments.length > 0
 								? {
 										createMany: {
 											data: staffAssignments.map((s) => ({
@@ -666,7 +672,7 @@ export const saveDraftCaseAction = actionClientWithLab
 								: undefined,
 
 						caseAssetFiles:
-							caseAssetFiles.length > 0
+							caseAssetFiles && caseAssetFiles.length > 0
 								? {
 										createMany: {
 											data: caseAssetFiles.map((f) => ({
@@ -691,7 +697,9 @@ export const saveDraftCaseAction = actionClientWithLab
 				});
 			});
 
-			return { draftCase };
+			return {
+				draftCase: draftCaseServerToDTO(draftCase),
+			};
 		} catch (e) {
 			if (e instanceof APIError || e instanceof Error) {
 				console.error("[Save-Draft-Dental-Case-Action] Error", e.message);
@@ -700,7 +708,132 @@ export const saveDraftCaseAction = actionClientWithLab
 		}
 	});
 
-const computerCaseItemPrice = (pricingPlan: CasePricingPlanModel, selectedTeeth: ToothPosition[], jawType: JawType) => {
+// ========================== Retrieval =================================
+export const getRecentDraftsAction = actionClientWithLab
+	.metadata({
+		actionName: "Get-Recent-Drafts-Action",
+		requiredLabRole: null,
+	})
+	.inputSchema(z.object({ limit: z.number().min(1).max(20).default(5) }))
+	.action(async ({ parsedInput, ctx }) => {
+		const { labId } = ctx;
+		const prisma = await tenantPrisma(labId);
+
+		const drafts = await prisma.case.findMany({
+			where: { status: "DRAFT" },
+			orderBy: { updatedAt: "desc" },
+			take: parsedInput.limit,
+			select: {
+				id: true,
+				caseNumber: true,
+				updatedAt: true,
+				patient: { select: { id: true, name: true } },
+				clinic: { select: { id: true, name: true } },
+			},
+		});
+
+		return {
+			drafts: drafts.map(draftSummaryServerToDTO),
+		};
+	});
+
+export const getDraftByPatientAction = actionClientWithLab
+	.metadata({
+		actionName: "Get-Draft-By-Patient-Action",
+		requiredLabRole: null,
+	})
+	.inputSchema(z.object({ patientId: z.string().min(1) }))
+	.action(async ({ parsedInput, ctx }) => {
+		const { labId } = ctx;
+		const prisma = await tenantPrisma(labId);
+
+		const draft = await prisma.case.findFirst({
+			where: {
+				patientId: parsedInput.patientId,
+				status: "DRAFT",
+			},
+			orderBy: { updatedAt: "desc" }, // most recent if multiple
+			select: {
+				id: true,
+				caseNumber: true,
+				updatedAt: true,
+				caseCategoryId: true,
+				clinicId: true,
+				deadline: true,
+				notes: true,
+				patient: { select: { id: true, name: true } },
+				clinic: { select: { id: true, name: true } },
+				caseCategory: { select: { id: true, name: true } },
+				caseItems: {
+					include: {
+						selectedTeeth: { select: { toothPosition: true } },
+					},
+				},
+				staffAssignments: {
+					select: {
+						staffId: true,
+						roleCategory: true,
+						commissionType: true,
+						commissionValue: true,
+					},
+				},
+				caseAssetFiles: {
+					select: {
+						title: true,
+						description: true,
+						documentUrl: true,
+						assetFileType: true,
+						fileExtension: true,
+					},
+				},
+			},
+		});
+
+		return { draft: draft ?? null };
+	});
+
+export const loadDraftByIdAction = actionClientWithLab
+	.metadata({
+		actionName: "Load-Draft-By-Id-Action",
+		requiredLabRole: null,
+	})
+	.inputSchema(z.object({ draftId: z.string().min(1) }))
+	.action(async ({ parsedInput, ctx }) => {
+		const { labId } = ctx;
+		const prisma = await tenantPrisma(labId);
+
+		const draft = await prisma.case.findUnique({
+			where: { id: parsedInput.draftId },
+			include: {
+				patient: { select: { id: true, name: true } },
+				clinic: { select: { id: true, name: true, city: true, type: true } },
+				caseCategory: { select: { id: true, name: true } },
+				caseItems: {
+					include: {
+						selectedTeeth: { select: { toothPosition: true } },
+						product: { select: { id: true, name: true } },
+						workType: { select: { id: true, name: true } },
+					},
+				},
+				staffAssignments: {
+					select: {
+						staffId: true,
+						roleCategory: true,
+						commissionType: true,
+						commissionValue: true,
+					},
+				},
+				caseAssetFiles: true,
+			},
+		});
+
+		if (!draft) throw ERRORS.NOT_FOUND;
+		if (draft.status !== "DRAFT") throw ERRORS.OPERATION_NOT_ALLOWED;
+
+		return { draft: draftCaseServerToDTO(draft) };
+	});
+
+const computeCaseItemPrice = (pricingPlan: CasePricingPlanModel, selectedTeeth: ToothPosition[], jawType: JawType) => {
 	if (!pricingPlan) return 0;
 	const count = selectedTeeth.length;
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useCallback, useEffect, useState } from "react";
+import { memo, useCallback, useState } from "react";
 import { Plus, Trash2, Layers, AlertCircle, Edit2, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useFormContext, useFieldArray, useWatch } from "react-hook-form";
@@ -68,10 +68,6 @@ export const CaseWorkItemManager = memo(function CaseWorkItemManager({ categoryN
 
 	const queryClient = useQueryClient();
 
-	useEffect(() => {
-		console.log("Current Case Category Id", selectedCategoryId);
-	}, [selectedCategoryId]);
-
 	// null = closed, -1 = adding new, >= 0 = editing existing
 	const [editingIndex, setEditingIndex] = useState<number | null>(null);
 
@@ -82,7 +78,7 @@ export const CaseWorkItemManager = memo(function CaseWorkItemManager({ categoryN
 
 			if (selectedWorkTypeId) {
 				const products = queryClient.getQueryData<ProductDetailsUI[] | undefined>(["products", selectedWorkTypeId]);
-				if (products && products.length > 0) return products?.find((p) => p.id === id)?.name;
+				if (products && products.length > 0) return products?.find((p) => p.id === id)?.name || `Product ${id.substring(0, 4)}...`;
 			}
 
 			return `Product ${id.substring(0, 4)}...`;
@@ -92,11 +88,12 @@ export const CaseWorkItemManager = memo(function CaseWorkItemManager({ categoryN
 
 	// 2. SMART "ADD" LOGIC
 	const handleAddOrEditEmpty = useCallback(() => {
-		// Check if the very first item is completely blank
-		if (fields.length === 1 && !watch("caseWorkItems.0.productId")) {
-			setEditingIndex(0); // Edit the blank one instead of duplicating
+		// 2. SAFE WATCH: Safely check if the first item exists and has a productId
+		const firstItemProductId = watch("caseWorkItems.0.productId");
+		if (fields.length === 1 && !firstItemProductId) {
+			setEditingIndex(0);
 		} else {
-			setEditingIndex(-1); // Add a new one
+			setEditingIndex(-1);
 		}
 	}, [fields.length, watch]);
 
@@ -119,6 +116,13 @@ export const CaseWorkItemManager = memo(function CaseWorkItemManager({ categoryN
 	// --- CRITICAL BUG FIX: The RHF Fallback Pattern ---
 	// Using fields.length is the safest way to determine if the array is empty.
 	const isEmpty = fields.length === 0;
+	const getInitialDataForModal = (): CreateCaseWorkItemInput | null => {
+		if (editingIndex === null || editingIndex < 0) return null;
+
+		// Safely extract the item. If watch returns undefined (because the array is optional), return null.
+		const item = watch(`caseWorkItems.${editingIndex}`);
+		return item ?? null;
+	};
 
 	return (
 		<section className="space-y-4">
@@ -264,7 +268,7 @@ export const CaseWorkItemManager = memo(function CaseWorkItemManager({ categoryN
 				selectedCategoryId={selectedCategoryId ?? null}
 				selectedCategoryName={categoryName}
 				onClose={() => setEditingIndex(null)}
-				initialData={editingIndex !== null && editingIndex >= 0 ? watch(`caseWorkItems.${editingIndex}`) : null}
+				initialData={getInitialDataForModal()}
 				onSave={handleSaveData}
 				selectedClinicId={selectedClinicId ?? null}
 			/>

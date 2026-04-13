@@ -6,7 +6,6 @@ export const CaseStaffAssignmentBaseSchema = z.object({
 	caseId: z.string(),
 	staffId: z.string(),
 	labId: z.string(),
-	role: z.string(),
 	roleCategory: StaffRoleCategorySchema,
 	commissionType: CommissionTypeSchema,
 	commissionValue: z.number(),

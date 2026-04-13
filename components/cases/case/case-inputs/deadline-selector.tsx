@@ -10,7 +10,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { ControllerFieldState } from "react-hook-form";
 
 interface DeadlineSelectorProps {
-	value: Date;
+	value: Date | undefined;
 	onChange: (date: Date | undefined) => void;
 	fieldState: ControllerFieldState;
 }
