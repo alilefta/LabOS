@@ -4,7 +4,7 @@ import { CasePricingPlanModel } from "@/generated/prisma/models";
 import { ERRORS } from "@/lib/errors";
 import { tenantPrisma } from "@/lib/prisma";
 import { actionClientWithLab } from "@/lib/safe-action";
-import { caseServerToFrontDTO, draftCaseServerToDTO, draftSummaryServerToDTO } from "@/lib/server-only-helpers";
+import { caseServerToFrontDTO, draftCaseServerToDTO, draftSummaryServerToDTO, optionalSelectiveDraftCaseServerToDTO } from "@/lib/server-only-helpers";
 
 import { JawType } from "@/schema/base/enums.base";
 import { ToothPosition } from "@/schema/base/tooth-position.base";
@@ -19,8 +19,10 @@ export const createDentalCaseAction = actionClientWithLab
 	})
 	.inputSchema(CreateCaseInputSchema)
 	.action(async ({ parsedInput, ctx }) => {
-		const { patientId, clinicId, dentistId, caseCategoryId, status, deadline, caseAssetFiles, caseWorkItems, staffAssignments, notes } = parsedInput;
+		const { patientId, clinicId, dentistId, caseCategoryId, status, deadline, caseAssetFiles, caseWorkItems, staffAssignments, notes, existingDraftId } = parsedInput;
 		const { labId } = ctx;
+
+		// !!!!!!!!!!!! creating a case from stored draft should be done through update not create!!!!!
 
 		// Check if the required fields exists.
 		// Get the selected pricing plan, and copy the pricing as a backup to the case work item.
@@ -55,27 +57,27 @@ export const createDentalCaseAction = actionClientWithLab
 
 			const [patient, clinic, category, pricingPlans, staffMembers] = await Promise.all([
 				prisma.patient.findUnique({
-					where: { id: patientId },
+					where: { id: patientId, labId },
 					select: { id: true },
 				}),
 
 				clinicId
 					? prisma.clinic.findUnique({
-							where: { id: clinicId },
+							where: { id: clinicId, labId },
 							select: { id: true, status: true },
 						})
 					: Promise.resolve(null),
 
 				caseCategoryId
 					? prisma.caseCategory.findUnique({
-							where: { id: caseCategoryId },
+							where: { id: caseCategoryId, labId },
 							select: { id: true, isActive: true },
 						})
 					: Promise.resolve(null),
 
 				pricingPlanIds.length > 0
 					? prisma.casePricingPlan.findMany({
-							where: { id: { in: pricingPlanIds } },
+							where: { id: { in: pricingPlanIds }, labId },
 						})
 					: Promise.resolve([]),
 
@@ -84,6 +86,7 @@ export const createDentalCaseAction = actionClientWithLab
 							where: {
 								id: { in: staffIds },
 								isActive: true,
+								labId,
 							},
 							select: { id: true, roleCategory: true },
 						})
@@ -117,7 +120,7 @@ export const createDentalCaseAction = actionClientWithLab
 			// Dentist must belong to the selected clinic
 			if (dentistId && clinicId) {
 				const dentist = await prisma.dentist.findFirst({
-					where: { id: dentistId, clinicId },
+					where: { id: dentistId, clinicId, labId },
 					select: { id: true },
 				});
 				if (!dentist) throw ERRORS.NOT_FOUND;
@@ -206,154 +209,210 @@ export const createDentalCaseAction = actionClientWithLab
 			// if the case creation fails, the counter must not increment.
 			// ─────────────────────────────────────────────────────────────────
 
-			const dentalCase = await prisma.$transaction(async (tx) => {
-				// Atomic case number — prevents race conditions under concurrent requests
-				const updatedLab = await tx.lab.update({
-					where: { id: labId },
-					data: { nextCaseNumber: { increment: 1 } },
-					select: { nextCaseNumber: true },
-				});
+			const createdCase = await prisma.$transaction(
+				async (tx) => {
+					// Atomic case number — prevents race conditions under concurrent requests
+					const updatedLab = await tx.lab.update({
+						where: { id: labId },
+						data: { nextCaseNumber: { increment: 1 } },
+						select: { nextCaseNumber: true },
+					});
 
-				const caseNumber = `LAB-${updatedLab.nextCaseNumber.toString().padStart(4, "0")}`;
+					const caseNumber = `LAB-${updatedLab.nextCaseNumber.toString().padStart(4, "0")}`;
 
-				return tx.case.create({
-					data: {
-						// Core fields
-						patientId,
-						labId,
-						caseNumber,
-						status: resolvedStatus,
-						grandTotal,
-						notes: notes ?? null,
-						deadline: deadline ?? null,
+					return tx.case.create({
+						data: {
+							// Core fields
+							patientId,
+							labId,
+							caseNumber,
+							status: resolvedStatus,
+							grandTotal,
+							notes: notes ?? null,
+							deadline: deadline ?? null,
 
-						// Optional relations
-						clinicId: clinicId ?? null,
-						dentistId: dentistId ?? null,
-						caseCategoryId: caseCategoryId ?? null,
+							// Optional relations
+							clinicId: clinicId ?? null,
+							dentistId: dentistId ?? null,
+							caseCategoryId: caseCategoryId ?? null,
 
-						// Work items with nested teeth
-						caseItems:
-							computedWorkItems.length > 0
-								? {
-										create: computedWorkItems.map((item) => ({
-											productId: item.productId,
-											workTypeId: item.workTypeId,
-											casePricingPlanId: item.casePricingPlanId,
-											jawType: item.jawType,
-											totalPrice: item.totalPrice,
+							// Work items with nested teeth
+							caseItems:
+								computedWorkItems.length > 0
+									? {
+											create: computedWorkItems.map((item) => ({
+												productId: item.productId,
+												workTypeId: item.workTypeId,
+												casePricingPlanId: item.casePricingPlanId,
+												jawType: item.jawType,
+												totalPrice: item.totalPrice,
 
-											// Pricing snapshot
-											pricingStrategy: item.pricingStrategy,
-											bulkPrice: item.bulkPrice,
-											toothPrice: item.toothPrice,
-											firstToothPrice: item.firstToothPrice,
-											additionalToothPrice: item.additionalToothPrice,
-											teethCountToApplyBulkPrice: item.teethCountToApplyBulkPrice,
+												// Pricing snapshot
+												pricingStrategy: item.pricingStrategy,
+												bulkPrice: item.bulkPrice,
+												toothPrice: item.toothPrice,
+												firstToothPrice: item.firstToothPrice,
+												additionalToothPrice: item.additionalToothPrice,
+												teethCountToApplyBulkPrice: item.teethCountToApplyBulkPrice,
 
-											// Clinical metadata
-											notes: item.notes,
-											shadeSystem: item.shadeSystem,
-											baseShade: item.baseShade,
-											stumpShade: item.stumpShade,
-											shadeNotes: item.shadeNotes,
+												// Clinical metadata
+												notes: item.notes,
+												shadeSystem: item.shadeSystem,
+												baseShade: item.baseShade,
+												stumpShade: item.stumpShade,
+												shadeNotes: item.shadeNotes,
 
-											// Teeth — nested createMany inside create
-											selectedTeeth:
-												item.selectedTeeth.length > 0
-													? {
-															createMany: {
-																data: item.selectedTeeth.map((pos) => ({
-																	toothPosition: pos,
-																	// labId injected by tenantPrisma
-																	labId,
-																})),
-															},
-														}
-													: undefined,
-											labId,
-										})),
-									}
-								: undefined,
-
-						// Staff assignments — snapshot commission at time of assignment
-						staffAssignments:
-							staffAssignments && staffAssignments.length > 0
-								? {
-										createMany: {
-											data: staffAssignments.map((s) => ({
-												staffId: s.staffId,
-												roleCategory: s.roleCategory,
-												commissionType: s.commissionType,
-												commissionValue: s.commissionValue,
-												commissionTotal: 0, // computed at case completion
-												isPaid: false,
-												// labId injected by tenantPrisma
+												// Teeth — nested createMany inside create
+												selectedTeeth:
+													item.selectedTeeth.length > 0
+														? {
+																createMany: {
+																	data: item.selectedTeeth.map((pos) => ({
+																		toothPosition: pos,
+																		// labId injected by tenantPrisma
+																		labId,
+																	})),
+																},
+															}
+														: undefined,
 												labId,
 											})),
-										},
-									}
-								: undefined,
+										}
+									: undefined,
 
-						// Asset files
-						caseAssetFiles:
-							caseAssetFiles && caseAssetFiles.length > 0
-								? {
-										createMany: {
-											data: caseAssetFiles.map((f) => ({
-												title: f.title ?? null,
-												description: f.description ?? null,
-												documentUrl: f.documentUrl,
-												assetFileType: f.assetFileType,
-												fileExtension: f.fileExtension,
-												labId,
-											})),
-										},
-									}
-								: undefined,
+							// Staff assignments — snapshot commission at time of assignment
+							staffAssignments:
+								staffAssignments && staffAssignments.length > 0
+									? {
+											createMany: {
+												data: staffAssignments.map((s) => ({
+													staffId: s.staffId,
+													roleCategory: s.roleCategory,
+													commissionType: s.commissionType,
+													commissionValue: s.commissionValue,
+													commissionTotal: 0, // computed at case completion
+													isPaid: false,
+													// labId injected by tenantPrisma
+													labId,
+												})),
+											},
+										}
+									: undefined,
+
+							// Asset files
+							caseAssetFiles:
+								caseAssetFiles && caseAssetFiles.length > 0
+									? {
+											createMany: {
+												data: caseAssetFiles.map((f) => ({
+													title: f.title ?? null,
+													description: f.description ?? null,
+													documentUrl: f.documentUrl,
+													assetFileType: f.assetFileType,
+													fileExtension: f.fileExtension,
+													labId,
+												})),
+											},
+										}
+									: undefined,
+						},
+
+						// Return enough data for the client to update its state
+						// include: {
+						// 	patient: {
+						// 		select: { id: true, name: true, age: true, gender: true },
+						// 	},
+						// 	clinic: {
+						// 		select: { id: true, name: true, city: true, type: true },
+						// 	},
+						// 	dentist: {
+						// 		select: { id: true, name: true },
+						// 	},
+						// 	caseCategory: {
+						// 		select: { id: true, name: true, imageUrl: true },
+						// 	},
+						// 	caseItems: {
+						// 		include: {
+						// 			selectedTeeth: { select: { id: true, toothPosition: true } },
+						// 			product: { select: { id: true, name: true } },
+						// 			workType: { select: { id: true, name: true } },
+						// 		},
+						// 	},
+						// 	staffAssignments: {
+						// 		include: {
+						// 			staff: {
+						// 				select: {
+						// 					id: true,
+						// 					firstName: true,
+						// 					lastName: true,
+						// 					roleCategory: true,
+						// 					jobTitle: true,
+						// 					avatarUrl: true,
+						// 				},
+						// 			},
+						// 		},
+						// 	},
+						// 	caseAssetFiles: true,
+						// },
+						// 🔥 OPTIMIZATION: Only return the ID, drop the transaction lock immediately
+						select: { id: true },
+					});
+				},
+				{
+					// 🔥 OPTIMIZATION: Give the DB breathing room for complex nested writes
+					maxWait: 5000, // 5 seconds max wait to connect/lock
+					timeout: 15000, // 15 seconds max execution time
+				},
+			);
+
+			// ─────────────────────────────────────────────────────────────────
+			// STEP 5: Fetch the Fully Populated DTO (READ ONLY)
+			// Happens outside the transaction, completely safe and fast!
+			// ─────────────────────────────────────────────────────────────────
+
+			const dentalCase = await prisma.case.findUniqueOrThrow({
+				where: { id: createdCase.id },
+				include: {
+					patient: {
+						select: { id: true, name: true, age: true, gender: true },
 					},
-
-					// Return enough data for the client to update its state
-					include: {
-						patient: {
-							select: { id: true, name: true, age: true, gender: true },
+					clinic: {
+						select: { id: true, name: true, city: true, type: true },
+					},
+					dentist: {
+						select: { id: true, name: true },
+					},
+					caseCategory: {
+						select: { id: true, name: true, imageUrl: true },
+					},
+					caseItems: {
+						include: {
+							selectedTeeth: { select: { id: true, toothPosition: true } },
+							product: { select: { id: true, name: true } },
+							workType: { select: { id: true, name: true } },
 						},
-						clinic: {
-							select: { id: true, name: true, city: true, type: true },
-						},
-						dentist: {
-							select: { id: true, name: true },
-						},
-						caseCategory: {
-							select: { id: true, name: true, imageUrl: true },
-						},
-						caseItems: {
-							include: {
-								selectedTeeth: { select: { id: true, toothPosition: true } },
-								product: { select: { id: true, name: true } },
-								workType: { select: { id: true, name: true } },
-							},
-						},
-						staffAssignments: {
-							include: {
-								staff: {
-									select: {
-										id: true,
-										firstName: true,
-										lastName: true,
-										roleCategory: true,
-										jobTitle: true,
-										avatarUrl: true,
-									},
+					},
+					staffAssignments: {
+						include: {
+							staff: {
+								select: {
+									id: true,
+									firstName: true,
+									lastName: true,
+									roleCategory: true,
+									jobTitle: true,
+									avatarUrl: true,
 								},
 							},
 						},
-						caseAssetFiles: true,
 					},
-				});
+					caseAssetFiles: true,
+				},
 			});
 
 			return { dentalCase: caseServerToFrontDTO(dentalCase) };
+
+			// return { caseId: dentalCase.id };
 		} catch (e) {
 			if (e instanceof APIError || e instanceof Error) {
 				console.error("[Create-New-Dental-Case-Action] Error", e.message);
@@ -380,7 +439,7 @@ export const saveDraftCaseAction = actionClientWithLab
 
 		try {
 			const patient = await prisma.patient.findUnique({
-				where: { id: patientId },
+				where: { id: patientId, labId },
 				select: { id: true },
 			});
 
@@ -392,7 +451,7 @@ export const saveDraftCaseAction = actionClientWithLab
 
 			if (existingDraftId) {
 				const existingDraft = await prisma.case.findUnique({
-					where: { id: existingDraftId },
+					where: { id: existingDraftId, labId },
 					select: { id: true, status: true },
 				});
 
@@ -413,14 +472,14 @@ export const saveDraftCaseAction = actionClientWithLab
 			const [clinic, category] = await Promise.all([
 				clinicId
 					? prisma.clinic.findUnique({
-							where: { id: clinicId },
+							where: { id: clinicId, labId },
 							select: { id: true, status: true },
 						})
 					: Promise.resolve(null),
 
 				caseCategoryId
 					? prisma.caseCategory.findUnique({
-							where: { id: caseCategoryId },
+							where: { id: caseCategoryId, labId },
 							select: { id: true, isActive: true },
 						})
 					: Promise.resolve(null),
@@ -442,7 +501,7 @@ export const saveDraftCaseAction = actionClientWithLab
 			const pricingPlans =
 				pricingPlanIds.length > 0
 					? await prisma.casePricingPlan.findMany({
-							where: { id: { in: pricingPlanIds } },
+							where: { id: { in: pricingPlanIds }, labId },
 						})
 					: [];
 
@@ -494,13 +553,13 @@ export const saveDraftCaseAction = actionClientWithLab
 					// Delete existing nested records — simpler than diffing
 					// Work items, teeth, assets, assignments are cheap to recreate
 					await tx.caseWorkItem.deleteMany({
-						where: { dentalCaseId: existingDraftId },
+						where: { dentalCaseId: existingDraftId, labId },
 					});
 					await tx.caseAssetFile.deleteMany({
-						where: { dentalCaseId: existingDraftId },
+						where: { dentalCaseId: existingDraftId, labId },
 					});
 					await tx.caseStaffAssignment.deleteMany({
-						where: { caseId: existingDraftId },
+						where: { caseId: existingDraftId, labId },
 					});
 
 					return tx.case.update({
@@ -604,7 +663,6 @@ export const saveDraftCaseAction = actionClientWithLab
 
 				const caseNumber = `LAB-${updatedLab.nextCaseNumber.toString().padStart(4, "0")}`;
 
-				console.log("Recieved Pricing Plans", computedWorkItems);
 				return tx.case.create({
 					data: {
 						patientId,
@@ -720,7 +778,7 @@ export const getRecentDraftsAction = actionClientWithLab
 		const prisma = await tenantPrisma(labId);
 
 		const drafts = await prisma.case.findMany({
-			where: { status: "DRAFT" },
+			where: { status: "DRAFT", labId },
 			orderBy: { updatedAt: "desc" },
 			take: parsedInput.limit,
 			select: {
@@ -750,6 +808,7 @@ export const getDraftByPatientAction = actionClientWithLab
 		const draft = await prisma.case.findFirst({
 			where: {
 				patientId: parsedInput.patientId,
+				labId,
 				status: "DRAFT",
 			},
 			orderBy: { updatedAt: "desc" }, // most recent if multiple
@@ -803,7 +862,7 @@ export const loadDraftByIdAction = actionClientWithLab
 		const prisma = await tenantPrisma(labId);
 
 		const draft = await prisma.case.findUnique({
-			where: { id: parsedInput.draftId },
+			where: { id: parsedInput.draftId, labId },
 			include: {
 				patient: { select: { id: true, name: true } },
 				clinic: { select: { id: true, name: true, city: true, type: true } },
@@ -830,7 +889,7 @@ export const loadDraftByIdAction = actionClientWithLab
 		if (!draft) throw ERRORS.NOT_FOUND;
 		if (draft.status !== "DRAFT") throw ERRORS.OPERATION_NOT_ALLOWED;
 
-		return { draft: draftCaseServerToDTO(draft) };
+		return { draft: optionalSelectiveDraftCaseServerToDTO(draft) };
 	});
 
 const computeCaseItemPrice = (pricingPlan: CasePricingPlanModel, selectedTeeth: ToothPosition[], jawType: JawType) => {

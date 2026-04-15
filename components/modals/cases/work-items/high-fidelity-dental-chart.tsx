@@ -106,7 +106,8 @@ export const HighFidelityDentalChart = memo(function HighFidelityDentalChart({ j
 
 	return (
 		<TooltipProvider delayDuration={150}>
-			<div className="flex-1 w-full h-full flex flex-col items-center justify-center relative p-8">
+			<div className="flex-1 w-full h-full flex flex-col items-center justify-center relative p-8 overflow-hidden">
+				{" "}
 				{/* Ambient Radial Glow (Behind the teeth) */}
 				<div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-200 h-200 bg-[radial-gradient(closest-side,var(--color-primary),transparent)] opacity-[0.08] dark:opacity-10 pointer-events-none" />
 				{/* --- POWER ACTIONS (Arch Controls) --- */}
@@ -132,7 +133,6 @@ export const HighFidelityDentalChart = memo(function HighFidelityDentalChart({ j
 						</Button>
 					</div>
 				)}
-
 				<div
 					className={cn(
 						"relative z-10 w-full max-w-112.5 mx-auto transition-transform duration-700 ease-[cubic-bezier(0.23,1,0.32,1)]",
@@ -172,21 +172,20 @@ export const HighFidelityDentalChart = memo(function HighFidelityDentalChart({ j
 							);
 						})}
 					</svg>
-					{/* --- THE LOCKED GLASS OVERLAY --- */}
-					{isLocked && jawType !== "OTHER" && (
-						<div className="absolute inset-0 z-30 flex items-center justify-center animate-in fade-in zoom-in-95 duration-500 pointer-events-none">
-							<div className="bg-background/90 backdrop-blur-xl border border-border shadow-2xl p-6 rounded-3xl flex flex-col items-center text-center max-w-70">
-								<div className="w-12 h-12 rounded-2xl bg-amber-500/10 flex items-center justify-center text-amber-500 mb-4 shadow-[0_0_15px_rgba(245,158,11,0.2)]">
-									<Lock className="w-6 h-6" />
-								</div>
-								<h3 className="text-base font-bold text-foreground mb-1">Charting Locked</h3>
-								<p className="text-xs text-muted-foreground font-medium leading-relaxed">
-									Please select a Manufacturing Product and Pricing Plan from the left menu before mapping teeth.
-								</p>
-							</div>
-						</div>
-					)}
 				</div>
+				{/* --- THE LOCKED GLASS OVERLAY  --- */}
+				{/* Now sits dead-center in the parent relative container, ignoring jawType translations */}
+				{isLocked && jawType !== "OTHER" && (
+					<div className="absolute inset-0 z-30 flex items-center justify-center animate-in fade-in zoom-in-95 duration-500 bg-background/10 backdrop-blur-[2px]">
+						<div className="bg-background/90 backdrop-blur-xl border border-border shadow-2xl p-6 rounded-3xl flex flex-col items-center text-center max-w-70">
+							<div className="w-12 h-12 rounded-2xl bg-amber-500/10 flex items-center justify-center text-amber-500 mb-4 shadow-[0_0_15px_rgba(245,158,11,0.2)]">
+								<Lock className="w-6 h-6" />
+							</div>
+							<h3 className="text-base font-bold text-foreground mb-1">Charting Locked</h3>
+							<p className="text-xs text-muted-foreground font-medium leading-relaxed">Please select a Manufacturing Product and Pricing Plan from the left menu before mapping teeth.</p>
+						</div>
+					</div>
+				)}
 			</div>
 		</TooltipProvider>
 	);

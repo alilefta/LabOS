@@ -62,19 +62,16 @@ enum JawType {
   OTHER // for maxillofacial 
 }
 
-
-
 enum ClinicStatus {
   ACTIVE
   INACTIVE
-  SUSPENDED  // e.g. overdue payments
+  SUSPENDED // e.g. overdue payments
 }
 
-
 enum ClinicType {
-  SOLO       // one dentist = the owner, Dentist record mirrors Clinic contact
-  CLINIC     // multiple dentists
-  HOSPITAL   // hospital dental department
+  SOLO // one dentist = the owner, Dentist record mirrors Clinic contact
+  CLINIC // multiple dentists
+  HOSPITAL // hospital dental department
   UNIVERSITY // teaching hospital
 }
 
@@ -83,7 +80,6 @@ enum PatientGender {
   FEMALE
   OTHER
 }
-
 
 enum SubscriptionTier {
   FREE
@@ -97,28 +93,26 @@ enum CommissionType {
   FIXED
 }
 
-
 enum StaffRoleCategory {
   //  Core production
-  TECHNICIAN         // makes the actual dental work
-  SENIOR_TECHNICIAN  // supervises, handles complex cases
-  QC_INSPECTOR       // quality control before delivery
+  TECHNICIAN // makes the actual dental work
+  SENIOR_TECHNICIAN // supervises, handles complex cases
+  QC_INSPECTOR // quality control before delivery
 
-   // Logistics
-  COURIER            // picks up and delivers cases
-  
-   // Client-facing
-  SALES_REP          // brings in new clinics, manages relationships
-  ACCOUNT_MANAGER    // manages existing clinic accounts
+  // Logistics
+  COURIER // picks up and delivers cases
 
-   // Internal
-  RECEPTIONIST       // creates cases, handles incoming prescriptions
-  MANAGER            // assigns work, oversees operations
-  
-   // Finance
-  ACCOUNTANT         // handles invoices and payments
+  // Client-facing
+  SALES_REP // brings in new clinics, manages relationships
+  ACCOUNT_MANAGER // manages existing clinic accounts
+
+  // Internal
+  RECEPTIONIST // creates cases, handles incoming prescriptions
+  MANAGER // assigns work, oversees operations
+
+  // Finance
+  ACCOUNTANT // handles invoices and payments
 }
-
 
 enum ToothPosition {
   // Upper Right Quadrant (1)
@@ -157,159 +151,151 @@ enum ToothPosition {
 }
 
 model Lab {
-  id                  String                  @id @default(uuid())
+  id String @id @default(uuid())
 
-  title               String
-  slug                String?
-  brandAvatarUrl      String?
-  subtitle            String?
+  title          String
+  slug           String?
+  brandAvatarUrl String?
+  subtitle       String?
 
   labSubscriptionPlan LabSubscriptionPlan?
   users               LabUser[]
 
-  clinics             Clinic[]
-  cases               Case[]
+  clinics          Clinic[]
+  cases            Case[]
   // technicians         Technician[]
   // salesReps           SalesRepresentative[]
-  caseCategories      CaseCategory[]
-  workTypes           WorkType[]
-  products            Product[]
-  caseWorkItems       CaseWorkItem[]
-  selectedTeeth       SelectedTooth[]
-  casePricingPlans    CasePricingPlan[]
-  caseAssetFiles      CaseAssetFile[]
+  caseCategories   CaseCategory[]
+  workTypes        WorkType[]
+  products         Product[]
+  caseWorkItems    CaseWorkItem[]
+  selectedTeeth    SelectedTooth[]
+  casePricingPlans CasePricingPlan[]
+  caseAssetFiles   CaseAssetFile[]
 
-  patients            Patient[]
-  dentists            Dentist[]
-  staffAssignments    CaseStaffAssignment[]
-  LabStaff            LabStaff[]
+  patients         Patient[]
+  dentists         Dentist[]
+  staffAssignments CaseStaffAssignment[]
+  LabStaff         LabStaff[]
 
   //tracker to get instant case number instead of making count() db query each time
-  nextCaseNumber      Int                     @default(0) 
+  nextCaseNumber Int @default(0)
 
   // nextInvoiceSequence Int @default(0) // We'll uncomment this in month 3!
 
-
-  createdAt           DateTime                @default(now())
-  updatedAt           DateTime                @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
-
-
-
 model Clinic {
-  id                  String                  @id @default(uuid())
-  labId               String
-  lab                 Lab                     @relation(fields: [labId], references: [id], onDelete: Cascade)
-
+  id    String @id @default(uuid())
+  labId String
+  lab   Lab    @relation(fields: [labId], references: [id], onDelete: Cascade)
 
   // Basic Info
-  name                String
-  description         String?
-  website             String?
-  notes               String?  
-  status              ClinicStatus            @default(ACTIVE)
-      
-  type                ClinicType              @default(CLINIC) // signals solo vs multi-dentis
-      
-  // Location       
-  city                String
-  zipcode             String?
-  address1            String
-  address2            String?
-  
+  name        String
+  description String?
+  website     String?
+  notes       String?
+  status      ClinicStatus @default(ACTIVE)
 
- // Primary Contact
-  email               String
-  phoneNumber         String
+  type ClinicType @default(CLINIC) // signals solo vs multi-dentis
+
+  // Location       
+  city     String
+  zipcode  String?
+  address1 String
+  address2 String?
+
+  // Primary Contact
+  email       String
+  phoneNumber String
 
   // Billing Contact (optional, defaults to primary if null)
-  billingEmail        String?
-  billingPhoneNumber  String?
-  taxNumber           String?  // for invoicing
+  billingEmail       String?
+  billingPhoneNumber String?
+  taxNumber          String? // for invoicing
 
-   // Business Relationship
-  discount            Decimal?                @db.Decimal(5, 2)  // % discount applied to all cases
-  creditLimit         Decimal?                @db.Decimal(10, 2) // max outstanding balance allowed
-  currentBalance      Decimal                 @default(0) @db.Decimal(10, 2) // outstanding amount owed
+  // Business Relationship
+  discount       Decimal? @db.Decimal(5, 2) // % discount applied to all cases
+  creditLimit    Decimal? @db.Decimal(10, 2) // max outstanding balance allowed
+  currentBalance Decimal  @default(0) @db.Decimal(10, 2) // outstanding amount owed
 
-  cases               Case[]
-  dentists            Dentist[]
+  cases    Case[]
+  dentists Dentist[]
 
-  casePricingPlans    CasePricingPlan[]
+  casePricingPlans CasePricingPlan[]
 
-  createdAt           DateTime                @default(now())
-  updatedAt           DateTime                @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([labId])
 }
 
 model Dentist {
-  id                  String                  @id @default(uuid())
-  clinicId            String
-  clinic              Clinic                  @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  id       String @id @default(uuid())
+  clinicId String
+  clinic   Clinic @relation(fields: [clinicId], references: [id], onDelete: Cascade)
 
   labId String
   lab   Lab    @relation(fields: [labId], references: [id], onDelete: Cascade)
 
-  name                String
-  email               String?
-  phoneNumber         String?
-  isOwner             Boolean                 @default(false) // for SOLO type, this dentist IS the clinic owner
-  isDefault           Boolean                 @default(false)
-  notes               String?
+  name        String
+  email       String?
+  phoneNumber String?
+  isOwner     Boolean @default(false) // for SOLO type, this dentist IS the clinic owner
+  isDefault   Boolean @default(false)
+  notes       String?
 
-  cases               Case[]
+  cases Case[]
 
-  createdAt           DateTime                @default(now())
-  updatedAt           DateTime                @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([clinicId])
   @@index([labId])
 }
 
 model Case {
-  id                  String  @id @default(uuid())
-  patientId           String
-  patient             Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  id        String  @id @default(uuid())
+  patientId String
+  patient   Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
 
-  caseNumber          String // Per lab and should be auto-genertaed - // "LAB-001", "LAB-002" — generated in application logic
+  caseNumber String // Per lab and should be auto-genertaed - // "LAB-001", "LAB-002" — generated in application logic
 
-  labId               String
-  lab                 Lab    @relation(fields: [labId], references: [id], onDelete: Cascade)
+  labId String
+  lab   Lab    @relation(fields: [labId], references: [id], onDelete: Cascade)
 
+  caseItems CaseWorkItem[]
 
-  caseItems           CaseWorkItem[]
+  caseCategoryId String?
+  caseCategory   CaseCategory? @relation(fields: [caseCategoryId], references: [id], onDelete: SetNull)
 
-  caseCategoryId      String?  
-  caseCategory        CaseCategory? @relation(fields: [caseCategoryId], references: [id], onDelete: SetNull)
+  status     CaseStatus @default(DRAFT)
+  grandTotal Decimal?   @default(0)
 
-  status              CaseStatus    @default(DRAFT)
-  grandTotal          Decimal?       @default(0)
+  clinicId String?
+  clinic   Clinic? @relation(fields: [clinicId], references: [id], onDelete: SetNull)
 
-  clinicId            String?
-  clinic              Clinic?       @relation(fields: [clinicId], references: [id], onDelete: SetNull)
+  dentistId String? // which dentist within the clinic ordered this
+  dentist   Dentist? @relation(fields: [dentistId], references: [id], onDelete: SetNull)
 
-  dentistId           String?       // which dentist within the clinic ordered this
-  dentist             Dentist?      @relation(fields: [dentistId], references: [id], onDelete: SetNull)
+  notes String?
 
-  notes               String? 
+  staffAssignments CaseStaffAssignment[]
 
-  staffAssignments    CaseStaffAssignment[]
+  caseAssetFiles CaseAssetFile[]
+  deadline       DateTime?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
 
-
-  caseAssetFiles      CaseAssetFile[]
-  deadline            DateTime?
-  createdAt           DateTime        @default(now())
-  updatedAt           DateTime        @updatedAt
-
+  @@unique([labId, caseNumber])
   @@index([labId])
   @@index([clinicId])
-  @@unique([labId, caseNumber])
 }
 
 model Patient {
-  id          String  @id @default(uuid())
+  id          String         @id @default(uuid())
   name        String
   description String? // e.g. "allergic to metal"
   notes       String?
@@ -325,7 +311,7 @@ model Patient {
   // email       String?
   // phoneNumber String?
 
-  cases  Case[]
+  cases Case[]
   labId String
   lab   Lab    @relation(fields: [labId], references: [id], onDelete: Cascade)
 
@@ -342,42 +328,39 @@ model CaseWorkItem {
   labId     String
   lab       Lab      @relation(fields: [labId], references: [id], onDelete: Cascade)
 
-  dentalCaseId    String
+  dentalCaseId String
   dentalCase   Case   @relation(fields: [dentalCaseId], references: [id], onDelete: Cascade)
 
-  casePricingPlanId    String
-  casePricingPlan      CasePricingPlan @relation(fields: [casePricingPlanId], references: [id], onDelete: Cascade)
-  totalPrice           Decimal
+  casePricingPlanId String
+  casePricingPlan   CasePricingPlan @relation(fields: [casePricingPlanId], references: [id], onDelete: Cascade)
+  totalPrice        Decimal
 
   // In case of updating the related case pricing plan in future, we keep history of case pricing plan here as well
-  pricingStrategy      PricingStrategy @default(BULK)
+  pricingStrategy PricingStrategy @default(BULK)
 
   // if pricing is "Custom"
-  firstToothPrice               Decimal?
-  additionalToothPrice          Decimal?
-  teethCountToApplyBulkPrice    Decimal?
-
+  firstToothPrice            Decimal?
+  additionalToothPrice       Decimal?
+  teethCountToApplyBulkPrice Decimal?
 
   // if pricing is "Bulk" or "custom" and bulk threshold applied
-  bulkPrice                     Decimal?
+  bulkPrice Decimal?
 
   // if pricing is "Per Tooth"
-  toothPrice                    Decimal? 
+  toothPrice Decimal?
 
   jawType JawType @default(UPPER)
-
 
   workTypeId String?
   workType   WorkType? @relation(fields: [workTypeId], references: [id], onDelete: SetNull)
 
-
-  notes         String?   // per-item technician instructions
+  notes String? // per-item technician instructions
 
   // Shade tracking
-  shadeSystem   String?   // "VITA_CLASSICAL", "VITA_3D_MASTER", "CHROMASCOP" — free text, lab defines
-  baseShade     String?   // "A2", "OM3", "210" — depends on system
-  stumpShade    String?   // underlying tooth shade
-  shadeNotes    String?   // "bleached effect", "custom gradient cervical to incisal"
+  shadeSystem String? // "VITA_CLASSICAL", "VITA_3D_MASTER", "CHROMASCOP" — free text, lab defines
+  baseShade   String? // "A2", "OM3", "210" — depends on system
+  stumpShade  String? // underlying tooth shade
+  shadeNotes  String? // "bleached effect", "custom gradient cervical to incisal"
 
   selectedTeeth SelectedTooth[]
   createdAt     DateTime        @default(now())
@@ -390,27 +373,27 @@ model CaseWorkItem {
 }
 
 model CaseAssetFile {
-  id                  String @id @default(uuid())
-  dentalCaseId        String
-  dentalCase          Case   @relation(fields: [dentalCaseId], references: [id], onDelete: Cascade)
+  id           String @id @default(uuid())
+  dentalCaseId String
+  dentalCase   Case   @relation(fields: [dentalCaseId], references: [id], onDelete: Cascade)
 
-  title               String?
-  description         String?
-  documentUrl         String
-  assetFileType       AssetFileType @default(IMAGE)
-  fileExtension       String
-  labId               String
-  lab                 Lab           @relation(fields: [labId], references: [id], onDelete: Cascade)
+  title         String?
+  description   String?
+  documentUrl   String
+  assetFileType AssetFileType @default(IMAGE)
+  fileExtension String
+  labId         String
+  lab           Lab           @relation(fields: [labId], references: [id], onDelete: Cascade)
 
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([labId])
   @@index([dentalCaseId])
 }
 
 model CaseCategory {
-  id          String @id @default(uuid())
+  id          String  @id @default(uuid())
   name        String
   description String?
   imageUrl    String?
@@ -430,18 +413,18 @@ model CaseCategory {
 }
 
 model WorkType {
-  id          String @id @default(uuid())
+  id          String  @id @default(uuid())
   name        String
   description String?
   imageUrl    String?
 
-  products    Product[]
-  labId       String
-  lab       Lab       @relation(fields: [labId], references: [id], onDelete: Cascade)
+  products Product[]
+  labId    String
+  lab      Lab       @relation(fields: [labId], references: [id], onDelete: Cascade)
 
   requireTeethSelection Boolean @default(false)
 
-  caseWorkItems   CaseWorkItem[]
+  caseWorkItems CaseWorkItem[]
 
   caseCategoryId String
   caseCategory   CaseCategory @relation(fields: [caseCategoryId], references: [id], onDelete: Cascade)
@@ -454,22 +437,22 @@ model WorkType {
 }
 
 model Product {
-  id                          String @id @default(uuid())
-  name                        String
-  description                 String?
-  imageUrl                    String?
-            
-  caseWorkItems               CaseWorkItem[]
+  id          String  @id @default(uuid())
+  name        String
+  description String?
+  imageUrl    String?
 
-  labId                       String
-  lab                         Lab    @relation(fields: [labId], references: [id], onDelete: Cascade)
+  caseWorkItems CaseWorkItem[]
 
-  workTypeId                  String
-  workType                    WorkType @relation(fields: [workTypeId], references: [id], onDelete: Cascade)
-  createdAt                   DateTime @default(now())
-  updatedAt                   DateTime @updatedAt
+  labId String
+  lab   Lab    @relation(fields: [labId], references: [id], onDelete: Cascade)
 
-  casePricingPlans            CasePricingPlan[]
+  workTypeId String
+  workType   WorkType @relation(fields: [workTypeId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  casePricingPlans CasePricingPlan[]
 
   @@index([labId])
   @@index([workTypeId])
@@ -483,30 +466,24 @@ model CasePricingPlan {
   name      String
   isDefault Boolean @default(false)
 
-  pricingStrategy      PricingStrategy @default(BULK)
-  
-
+  pricingStrategy PricingStrategy @default(BULK)
 
   // if pricing is "Custom"
-  firstToothPrice               Decimal?
-  additionalToothPrice          Decimal?
-  teethCountToApplyBulkPrice    Decimal?
-
+  firstToothPrice            Decimal?
+  additionalToothPrice       Decimal?
+  teethCountToApplyBulkPrice Decimal?
 
   // if pricing is "Bulk" or "custom" and bulk threshold applied
-  bulkPrice                     Decimal?
+  bulkPrice Decimal?
 
   // if pricing is "Per Tooth"
-  toothPrice                    Decimal? 
+  toothPrice Decimal?
 
+  productId String? // if pricing is per-product
+  product   Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
 
-  productId String?   // if pricing is per-product
-  product   Product?  @relation(fields: [productId], references: [id], onDelete: SetNull)
-
-
-
-  clinicId  String?   // if pricing is per-clinic (custom deals)
-  clinic    Clinic?   @relation(fields: [clinicId], references: [id], onDelete: SetNull)
+  clinicId String? // if pricing is per-clinic (custom deals)
+  clinic   Clinic? @relation(fields: [clinicId], references: [id], onDelete: SetNull)
 
   caseWorkItem CaseWorkItem[]
   createdAt    DateTime       @default(now())
@@ -532,7 +509,7 @@ model SelectedTooth {
 }
 
 model LabStaff {
-  id        String  @id @default(uuid())
+  id        String @id @default(uuid())
   firstName String
   lastName  String
 
@@ -546,17 +523,17 @@ model LabStaff {
 
   // The lab defines what this person does
   // Machine-readable — used for filtering, logic, UI
-  roleCategory  StaffRoleCategory
+  roleCategory StaffRoleCategory
 
   // Human-readable — display only, any language
-  jobTitle      String?  // "مندوب", "Zahntechniker", "Ceramiste"  
-  specialization   String?  // "Ceramics", "Implants" — only relevant for some roles
+  jobTitle       String? // "مندوب", "Zahntechniker", "Ceramiste"  
+  specialization String? // "Ceramics", "Implants" — only relevant for some roles
 
   // Commission config — defined per staff member
-  commissionType   CommissionType @default(PERCENTAGE)
-  commissionValue  Decimal?       @db.Decimal(10, 2) // % or fixed amount
+  commissionType  CommissionType @default(PERCENTAGE)
+  commissionValue Decimal?       @db.Decimal(10, 2) // % or fixed amount
 
-  cases            CaseStaffAssignment[]
+  cases CaseStaffAssignment[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -568,17 +545,17 @@ model LabStaff {
 
 // Junction table — a case can have multiple staff with different roles
 model CaseStaffAssignment {
-  id         String   @id @default(uuid())
-  caseId     String
-  case       Case     @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  id     String @id @default(uuid())
+  caseId String
+  case   Case   @relation(fields: [caseId], references: [id], onDelete: Cascade)
 
-  staffId    String
-  staff      LabStaff @relation(fields: [staffId], references: [id], onDelete: Cascade)
+  staffId String
+  staff   LabStaff @relation(fields: [staffId], references: [id], onDelete: Cascade)
 
-  labId      String
-  lab        Lab      @relation(fields: [labId], references: [id], onDelete: Cascade)
+  labId String
+  lab   Lab    @relation(fields: [labId], references: [id], onDelete: Cascade)
 
-  roleCategory StaffRoleCategory  // snapshot from staff at assignment time
+  roleCategory StaffRoleCategory // snapshot from staff at assignment time
 
   // Commission snapshot at time of assignment
   // Don't calculate later — prices change
@@ -586,18 +563,17 @@ model CaseStaffAssignment {
   commissionValue Decimal        @db.Decimal(10, 2)
   commissionTotal Decimal        @default(0) @db.Decimal(10, 2) // computed on case completion
 
-  isPaid     Boolean  @default(false)
-  paidAt     DateTime?
+  isPaid Boolean   @default(false)
+  paidAt DateTime?
 
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([caseId, staffId]) // one assignment per staff per case
   @@index([labId])
   @@index([caseId])
   @@index([staffId])
 }
-
 
 // model Technician {
 //   id        String  @id @default(uuid())
@@ -649,28 +625,27 @@ model CaseStaffAssignment {
 //   @@index([labId])
 // }
 model LabSubscriptionPlan {
-  id                            String @id @default(uuid())
-  labId                         String @unique
-  lab                           Lab    @relation(fields: [labId], references: [id], onDelete: Cascade)
+  id    String @id @default(uuid())
+  labId String @unique
+  lab   Lab    @relation(fields: [labId], references: [id], onDelete: Cascade)
 
   // Idk what the pricing model should be 
-  tier                          SubscriptionTier @default(FREE)
-  maxMembers                    Int              @default(3)
-  maxCasesMonth                 Int              @default(50)
-  stripeCustomerId              String?
-  stripeSubscriptionId          String?
-  stripePriceId                 String?
+  tier                 SubscriptionTier @default(FREE)
+  maxMembers           Int              @default(3)
+  maxCasesMonth        Int              @default(50)
+  stripeCustomerId     String?
+  stripeSubscriptionId String?
+  stripePriceId        String?
 
   //discountCode          
 
-  subscriptionNextRenewal       DateTime?
-  isCancelled                   Boolean   @default(false)
-  cancellationDate              DateTime?
-  createdAt                     DateTime  @default(now())
-  updatedAt                     DateTime  @updatedAt
+  subscriptionNextRenewal DateTime?
+  isCancelled             Boolean   @default(false)
+  cancellationDate        DateTime?
+  createdAt               DateTime  @default(now())
+  updatedAt               DateTime  @updatedAt
 
   //@@index([labId])  // this can be removed because @unqiue on labId automatically creates an index
-
 }
 
 model LabUser {
@@ -725,14 +700,14 @@ model SuperUser {
 }
 
 model AuthUser {
-  id            String    @id
+  id            String       @id
   name          String
   email         String
-  emailVerified Boolean   @default(false)
+  emailVerified Boolean      @default(false)
   image         String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  role          AuthUserRole    @default(LAB_USER)
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  role          AuthUserRole @default(LAB_USER)
   // labId         String?
   sessions      Session[]
   accounts      Account[]

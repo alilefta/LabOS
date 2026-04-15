@@ -3,17 +3,37 @@
 import { ChevronLeft, LoaderCircle, Save, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { CreateCaseInput } from "@/schema/composed/case.details";
+import { Control, useWatch } from "react-hook-form";
+import { useMemo } from "react";
 
 interface Props {
-	isSubmitForReviewEnabled: boolean;
-	isSaveDraftEnabled: boolean;
+	// Removed isSaveDraftEnabled from props, we will calculate it locally!
 	isSavingDraft: boolean;
 	isSubmittingCase: boolean;
 	onSaveDraft: () => void;
 	onSubmitCaseForReview: () => void;
+	control: Control<CreateCaseInput>;
 }
 
-export function NewCaseHeader({ isSubmitForReviewEnabled, isSaveDraftEnabled, isSavingDraft, isSubmittingCase, onSaveDraft, onSubmitCaseForReview }: Props) {
+export function NewCaseHeader({ control, isSavingDraft, isSubmittingCase, onSaveDraft, onSubmitCaseForReview }: Props) {
+	// ── FORM STATE WATCHERS ──────────────────────────────────────────
+	const patientId = useWatch({ control, name: "patientId" });
+	const clinicId = useWatch({ control, name: "clinicId" });
+	const caseCategoryId = useWatch({ control, name: "caseCategoryId" });
+	const deadline = useWatch({ control, name: "deadline" });
+	const caseWorkItems = useWatch({ control, name: "caseWorkItems" });
+
+	// ── BUTTON LOGIC ──────────────────────────────────────────────────
+	// 1. Draft requires ONLY a patient
+	const isSaveDraftEnabled = !!patientId;
+
+	// 2. Submit requires full core logic
+	const isSubmitEnabled = useMemo(() => {
+		const hasValidWorkItems = (caseWorkItems ?? []).some((item) => item.productId && item.casePricingPlanId);
+		return !!patientId && !!clinicId && !!caseCategoryId && !!deadline && hasValidWorkItems;
+	}, [patientId, clinicId, caseCategoryId, deadline, caseWorkItems]);
+
 	return (
 		<header className="shrink-0 flex flex-col md:flex-row md:items-center justify-between gap-4 sm:gap-6 mb-6 sm:mb-8 sticky top-0 z-20 bg-background/80 backdrop-blur-xl pt-4 pb-4 border-b border-border">
 			{/* LEFT: Title & Context */}
@@ -40,7 +60,7 @@ export function NewCaseHeader({ isSubmitForReviewEnabled, isSaveDraftEnabled, is
 					variant="ghost"
 					onClick={onSaveDraft}
 					type="button"
-					// disabled={!isSaveDraftEnabled || isSavingDraft}
+					disabled={!isSaveDraftEnabled || isSavingDraft} // Now uses internal logic
 					className="flex-1 md:flex-none rounded-xl font-semibold text-muted-foreground hover:text-foreground h-10 px-3 sm:px-4 bg-slate-50 dark:bg-white/2 md:bg-transparent border border-transparent md:border-none hover:border-border transition-all"
 				>
 					{isSavingDraft ? <LoaderCircle className="w-4 h-4 mr-1.5 animate-spin" /> : <Save className="w-4 h-4 mr-1.5 sm:mr-2 shrink-0" />}
@@ -48,7 +68,7 @@ export function NewCaseHeader({ isSubmitForReviewEnabled, isSaveDraftEnabled, is
 				</Button>
 
 				<Button
-					disabled={!isSubmitForReviewEnabled || isSubmittingCase}
+					disabled={!isSubmitEnabled || isSubmittingCase}
 					className="flex-2 md:flex-none rounded-xl bg-primary text-primary-foreground h-10 px-4 sm:px-6 font-bold shadow-premium hover:bg-primary/90 transition-all"
 					type="submit"
 					form="new-case-submission-form"

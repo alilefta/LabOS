@@ -3,9 +3,9 @@
 import { CaseAiAuditor } from "@/components/cases/new-case/case-ai-auditor";
 
 import { CaseSummaryModal } from "@/components/cases/case/case-summary-modal";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useState } from "react";
 import { NewCaseHeader } from "@/components/cases/new-case/new-case-header";
-import { FormProvider, useForm, useWatch } from "react-hook-form";
+import { FormProvider, useForm } from "react-hook-form";
 import { CaseFileUploadZone } from "@/components/cases/case/case-inputs/case-file-upload-zone";
 import { ClinicalAssetPreview } from "@/components/cases/case/clinical-assets-preview";
 import { CreateCaseInput, CreateCaseInputSchema, SaveDraftCaseInputSchema } from "@/schema/composed/case.details";
@@ -40,55 +40,66 @@ import { PatientDraftPrompt } from "@/components/cases/new-case/drafts/patient-d
 import { mapDraftToFormValues } from "@/lib/case-helpers";
 
 export default function NewCasePage() {
-	// 1. The Boss holds the temporary data
+	// 1. Temporary State
 	const [draftData, setDraftData] = useState<CreateCaseInput | null>(null);
+	const [existingDraftId, setExistingDraftId] = useState<string | undefined>(undefined);
+
+	// Modal States
 	const [isSummaryOpen, setIsSummaryOpen] = useState(false);
 	const [openCreateNewPatientSheet, setOpenCreateNewPatientSheet] = useState(false);
 	const [openCreateNewClinicSheet, setOpenCreateNewClinicSheet] = useState(false);
 	const [openCreateNewCategory, setOpenCreateNewCategory] = useState(false);
+	const [registerNewStaffMemberState, setRegisterNewStaffMemberState] = useState<{ open: boolean; requiredRoles: StaffRoleCategory[] }>({ open: false, requiredRoles: [] });
 
-	const [registerNewStaffMemberState, setRegisterNewStaffMemberState] = useState<{
-		open: boolean;
-		requiredRoles: StaffRoleCategory[];
-	}>({
-		open: false,
-		requiredRoles: [],
-	});
-
+	// Newly Created Entities
 	const [newPatient, setNewPatient] = useState<PatientDetails | null>(null);
 	const [newStaffMember, setNewStaffMember] = useState<LabStaffDetailsUI | null>(null);
 	const [newClinic, setNewClinic] = useState<ClinicDetailsUI | null>(null);
 	const [newCategory, setNewCategory] = useState<CaseCategoryDetailsUI | null>(null);
 
+	// Contextual Draft State
+	const [patientDraftPrompt, setPatientDraftPrompt] = useState<{ draftId: string; caseNumber: string; lastSavedAt: Date } | null>(null);
+
+	// React Hook Form Setup
+	const form = useForm<CreateCaseInput>({
+		resolver: zodResolver(CreateCaseInputSchema),
+		defaultValues: {
+			caseWorkItems: [],
+			caseAssetFiles: [],
+			grandTotal: undefined,
+			caseCategoryId: "",
+			clinicId: "",
+			dentistId: undefined,
+			deadline: undefined,
+			patientId: "",
+			notes: undefined,
+			status: "NEW",
+		},
+	});
+
 	const router = useRouter();
 
+	// 3. Handlers
 	const handleOpenClinicSheet = useCallback(() => setOpenCreateNewClinicSheet(true), []);
 	const handleOpenPatientSheet = useCallback(() => setOpenCreateNewPatientSheet(true), []);
 	const handleOpenCategorySheet = useCallback(() => setOpenCreateNewCategory(true), []);
-	const handleOpenStaffSheet = useCallback((roles: StaffRoleCategory[]) => {
-		setRegisterNewStaffMemberState({ open: true, requiredRoles: roles });
-	}, []);
-
-	const [patientDraftPrompt, setPatientDraftPrompt] = useState<{
-		draftId: string;
-		caseNumber: string;
-		lastSavedAt: Date;
-	} | null>(null);
+	const handleOpenStaffSheet = useCallback((roles: StaffRoleCategory[]) => setRegisterNewStaffMemberState({ open: true, requiredRoles: roles }), []);
 
 	// ── Recent drafts for banner ───────────────────────────────────────
+	// --- DATA FETCHING ---
 	const { data: recentDraftsData, isLoading: isLoadingDrafts } = useQuery({
 		queryKey: ["recent-drafts"],
 		queryFn: async () => {
 			const res = await getRecentDraftsAction({ limit: 5 });
+			if (res.serverError || res.validationErrors) handleSafeActionError({ serverError: res.serverError, validationErrors: res.validationErrors });
 			return res?.data?.drafts ?? [];
 		},
 	});
-
 	const recentDrafts = recentDraftsData ?? [];
 
+	// ------------ SERVER ACTIONS ------------
 	const { executeAsync: saveDraft, isExecuting: isExecutingSavingDraft } = useAction(saveDraftCaseAction, {
 		onSuccess: ({ data }) => {
-			// Store the draft id so subsequent saves update instead of create
 			setExistingDraftId(data.draftCase.id);
 			toast.success("Draft saved. You can safely exit.");
 		},
@@ -102,40 +113,26 @@ export default function NewCasePage() {
 		},
 		onError: ({ error }) => handleSafeActionError(error),
 	});
-
-	// Track the draft id for upsert behaviour
-	const [existingDraftId, setExistingDraftId] = useState<string | undefined>(undefined);
-
-	const form = useForm<CreateCaseInput>({
-		resolver: zodResolver(CreateCaseInputSchema),
-
-		defaultValues: {
-			caseWorkItems: [],
-			caseAssetFiles: undefined,
-			grandTotal: undefined,
-			caseCategoryId: "",
-			clinicId: "",
-			dentistId: undefined,
-			deadline: undefined,
-			patientId: "",
-			notes: undefined,
-			status: "NEW",
-		},
-	});
-
 	const isExecuting = false;
 
 	// ── SUBMIT FLOW ────────────────────────────────────────────────────
 	// RHF validates with full CreateCaseInputSchema (status: "NEW")
 	// superRefine enforces all required fields
 	const handleFormValid = useCallback((data: CreateCaseInput) => {
-		// Filter ghost rows before showing summary
+		const validItems = (data.caseWorkItems ?? []).filter((item) => item.productId && item.casePricingPlanId);
+
+		// Calculate the real grand total dynamically
+		const calculatedGrandTotal = validItems.reduce((sum, item) => sum + Number(item.totalPrice || 0), 0);
+
 		const cleanData: CreateCaseInput = {
 			...data,
 			status: "NEW",
-			caseWorkItems: (data.caseWorkItems ?? []).filter((item) => item.productId && item.casePricingPlanId),
+			caseWorkItems: validItems,
+			grandTotal: calculatedGrandTotal, // Inject the math
 		};
+
 		setDraftData(cleanData);
+		console.log(cleanData);
 		setIsSummaryOpen(true);
 	}, []);
 
@@ -143,7 +140,6 @@ export default function NewCasePage() {
 		if (!draftData) return;
 		await createCase(draftData);
 	}, [draftData, createCase]);
-
 	// ── DRAFT FLOW ─────────────────────────────────────────────────────
 	// Bypass RHF entirely — validate with SaveDraftCaseInputSchema directly
 	const handleSaveDraft = useCallback(async () => {
@@ -184,22 +180,17 @@ export default function NewCasePage() {
 
 	// ── Patient draft detection ────────────────────────────────────────
 	// Called from PatientAndClinicSection when a patient is selected
+	// --- DRAFT RECOVERY LOGIC ---
 	const handlePatientSelect = useCallback(
 		async (patientId: string) => {
 			form.setValue("patientId", patientId, { shouldValidate: true });
-
-			// Don't check if we already have a draft loaded
 			if (existingDraftId) return;
 
 			const res = await getDraftByPatientAction({ patientId });
 			const draft = res?.data?.draft;
 
 			if (draft) {
-				setPatientDraftPrompt({
-					draftId: draft.id,
-					caseNumber: draft.caseNumber,
-					lastSavedAt: draft.updatedAt,
-				});
+				setPatientDraftPrompt({ draftId: draft.id, caseNumber: draft.caseNumber, lastSavedAt: draft.updatedAt });
 			} else {
 				setPatientDraftPrompt(null);
 			}
@@ -211,19 +202,21 @@ export default function NewCasePage() {
 	const handleResumeDraft = useCallback(
 		async (draftId: string) => {
 			const res = await loadDraftByIdAction({ draftId });
-			const draft = res?.data?.draft;
+			if (res.serverError || res.validationErrors) handleSafeActionError({ serverError: res.serverError, validationErrors: res.validationErrors });
 
+			const draft = res?.data?.draft;
 			if (!draft) {
 				toast.error("Could not load draft.");
 				return;
 			}
 
-			// Hydrate the form with draft data
 			form.reset(mapDraftToFormValues(draft));
 			setExistingDraftId(draftId);
 			setPatientDraftPrompt(null);
-
+			// form.setValue("draftId", draft.id);
+			// form.setValue("caseNumber", draft.caseNumber);
 			toast.success(`Draft ${draft.caseNumber} loaded.`);
+			form.setValue("existingDraftId", draftId);
 		},
 		[form],
 	);
@@ -232,46 +225,27 @@ export default function NewCasePage() {
 		setPatientDraftPrompt(null);
 	}, []);
 
-	useEffect(() => {
-		console.log(form.formState.dirtyFields);
-	}, [form.formState.dirtyFields]);
-
-	// ── SUBMIT BUTTON ENABLED ──────────────────────────────────────────
-	// Watch only patientId, clinicId, caseCategoryId, deadline for header button state
-	// Don't use form.formState.isValid — it's only true after a submit attempt with mode: "onSubmit"
-	const patientId = useWatch({ control: form.control, name: "patientId" });
-	const clinicId = useWatch({ control: form.control, name: "clinicId" });
-	const caseCategoryId = useWatch({ control: form.control, name: "caseCategoryId" });
-	const deadline = useWatch({ control: form.control, name: "deadline" });
-	const caseWorkItems = useWatch({ control: form.control, name: "caseWorkItems" });
-
-	const isSubmitEnabled = useMemo(() => {
-		const hasValidWorkItems = (caseWorkItems ?? []).some((item) => item.productId && item.casePricingPlanId);
-		return !!patientId && !!clinicId && !!caseCategoryId && !!deadline && hasValidWorkItems;
-	}, [patientId, clinicId, caseCategoryId, deadline, caseWorkItems]);
-
 	return (
 		<div className="flex flex-col h-full animate-in fade-in duration-700">
 			<NewCaseHeader
-				isSubmitForReviewEnabled={isSubmitEnabled}
-				isSaveDraftEnabled={true}
 				isSavingDraft={isExecutingSavingDraft}
 				isSubmittingCase={isCreatingCase}
 				onSaveDraft={handleSaveDraft}
+				control={form.control}
 				onSubmitCaseForReview={() => form.handleSubmit(handleFormValid)()}
 			/>
-			<div className="flex-1 min-h-0">
+			<div className="flex-1 min-h-0 relative z-10">
 				<div className="flex flex-col xl:flex-row gap-8 h-full">
 					{/* FORM SECTION (Left) */}
 					<FormProvider {...form}>
-						<form className="flex-1 overflow-y-auto no-scrollbar pb-32 space-y-12" id="new-case-submission-form" onSubmit={form.handleSubmit(handleFormValid)}>
+						<form className="flex-1 overflow-y-auto no-scrollbar pb-48 xl:pb-32 space-y-12" id="new-case-submission-form" onSubmit={form.handleSubmit(handleFormValid)}>
 							<div className="flex-1 overflow-y-auto no-scrollbar pb-20 space-y-12">
-								{/* Generic banner — shown on page load if drafts exist */}
+								{/* DRAFTS BANNER (Global) */}
 								{!isLoadingDrafts && recentDrafts.length > 0 && !existingDraftId && !patientDraftPrompt && (
 									<DraftRecoveryBanner drafts={recentDrafts} onResumeDraft={handleResumeDraft} />
 								)}
 
-								{/* Patient-specific draft prompt */}
+								{/* DRAFTS PROMPT (Contextual to Patient) */}
 								{patientDraftPrompt && (
 									<PatientDraftPrompt
 										caseNumber={patientDraftPrompt.caseNumber}
@@ -280,6 +254,7 @@ export default function NewCasePage() {
 										onDismiss={handleDismissPatientDraft}
 									/>
 								)}
+
 								{/* SECTION 1: ORIGIN */}
 								<PatientAndClinicSection
 									handleOpenClinicCreationSheet={handleOpenClinicSheet}
@@ -312,8 +287,13 @@ export default function NewCasePage() {
 							</div>
 						</form>
 					</FormProvider>
-					{/* AI AUDITOR (Right) */}
-					<div className="fixed bottom-0 left-0 right-0 z-40  xl:w-96 xl:shrink-0 xl:flex xl:flex-col xl:gap-6 xl:h-fit xl:sticky xl:top-24">
+					{/* AI AUDITOR (Right - Desktop) */}
+					<div className="hidden xl:flex w-96 shrink-0 flex-col gap-6 sticky top-0 h-fit z-20">
+						<CaseAiAuditor />
+					</div>
+
+					{/* AI AUDITOR (Floating Bottom - Mobile) */}
+					<div className="xl:hidden fixed bottom-0 left-0 right-0 z-40 bg-background/95 backdrop-blur-xl border-t border-border p-4 shadow-[0_-10px_40px_rgba(0,0,0,0.05)]">
 						<CaseAiAuditor />
 					</div>
 
@@ -330,7 +310,14 @@ export default function NewCasePage() {
 						requiredRoles={registerNewStaffMemberState.requiredRoles}
 						onStaffCreated={(s) => setNewStaffMember(s)}
 					/>
-					<CaseSummaryModal isOpen={isSummaryOpen} onClose={() => setIsSummaryOpen(false)} onConfirm={handleFinalConfirm} data={draftData} isSubmitting={isExecuting} />
+					<CaseSummaryModal
+						isOpen={isSummaryOpen}
+						onClose={() => setIsSummaryOpen(false)}
+						onConfirm={handleFinalConfirm}
+						existingDraftId={existingDraftId}
+						data={draftData}
+						isSubmitting={isExecuting}
+					/>
 				</div>
 			</div>
 		</div>

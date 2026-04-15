@@ -24,7 +24,7 @@ const CALENDAR_CLASS_NAMES = {
 } as const;
 
 export const DeadlineSelector = memo(({ value, onChange, fieldState }: DeadlineSelectorProps) => {
-	console.log("Deadline-Selector --- re-rendered");
+	// console.log("Deadline-Selector --- re-rendered");
 	const [open, setOpen] = useState(false);
 
 	// UX Intelligence: Calculate if this is a "Rush" job based on the selected date

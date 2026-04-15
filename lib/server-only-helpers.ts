@@ -45,8 +45,8 @@ type DraftCaseRaw = CaseModel & {
 	caseItems: (CaseWorkItemModel & {
 		selectedTeeth: Pick<SelectedToothModel, "toothPosition">[];
 	})[];
-	staffAssignments: CaseStaffAssignmentModel[];
-	caseAssetFiles: CaseAssetFileModel[];
+	staffAssignments: Partial<CaseStaffAssignmentModel>[];
+	caseAssetFiles: Partial<CaseAssetFileModel>[];
 };
 
 export function draftCaseServerToDTO(raw: DraftCaseRaw): DraftCaseDTO {
@@ -81,13 +81,59 @@ export function draftCaseServerToDTO(raw: DraftCaseRaw): DraftCaseDTO {
 			selectedTeeth: item.selectedTeeth,
 		})),
 
-		staffAssignments: raw.staffAssignments.map((s) => ({
-			...s,
-			commissionValue: Number(s.commissionValue),
-			commissionTotal: Number(s.commissionTotal),
+		staffAssignments: raw.staffAssignments
+			.filter((sa) => sa !== undefined)
+			.map((s) => ({
+				...s,
+				commissionValue: Number(s.commissionValue),
+				commissionTotal: Number(s.commissionTotal),
+			})),
+
+		caseAssetFiles: raw.caseAssetFiles.filter((caf) => caf !== undefined),
+	};
+}
+
+export function optionalSelectiveDraftCaseServerToDTO(raw: DraftCaseRaw): DraftCaseDTO {
+	return {
+		// CaseBase fields — normalize Decimals
+		id: raw.id,
+		patientId: raw.patientId,
+		caseNumber: raw.caseNumber,
+		labId: raw.labId,
+		caseCategoryId: raw.caseCategoryId,
+		status: raw.status,
+		grandTotal: raw.grandTotal !== null ? Number(raw.grandTotal) : null,
+		clinicId: raw.clinicId,
+		dentistId: raw.dentistId,
+		deadline: raw.deadline,
+		notes: raw.notes,
+		createdAt: raw.createdAt,
+		updatedAt: raw.updatedAt,
+
+		// Relations
+		patient: raw.patient,
+		clinic: raw.clinic,
+
+		caseItems: raw.caseItems.map((item) => ({
+			...item,
+			totalPrice: Number(item.totalPrice),
+			bulkPrice: item.bulkPrice !== null ? Number(item.bulkPrice) : null,
+			toothPrice: item.toothPrice !== null ? Number(item.toothPrice) : null,
+			firstToothPrice: item.firstToothPrice !== null ? Number(item.firstToothPrice) : null,
+			additionalToothPrice: item.additionalToothPrice !== null ? Number(item.additionalToothPrice) : null,
+			teethCountToApplyBulkPrice: item.teethCountToApplyBulkPrice !== null ? Number(item.teethCountToApplyBulkPrice) : null,
+			selectedTeeth: item.selectedTeeth,
 		})),
 
-		caseAssetFiles: raw.caseAssetFiles,
+		staffAssignments: raw.staffAssignments
+			.filter((s) => s !== undefined)
+			.map((s) => ({
+				...s,
+				commissionValue: Number(s.commissionValue),
+				commissionTotal: Number(s.commissionTotal),
+			})),
+
+		caseAssetFiles: raw.caseAssetFiles.filter((caf) => caf !== undefined),
 	};
 }
 

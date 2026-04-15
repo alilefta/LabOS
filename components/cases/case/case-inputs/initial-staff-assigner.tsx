@@ -140,7 +140,7 @@ export const StaffDropdown = memo(({ label, roleTarget, icon: Icon, iconColor, p
 			}
 			return (res.data?.staff as DataShape) || [];
 		},
-		enabled: open,
+		enabled: open || !!assignedId,
 		staleTime: 1000 * 60 * 5,
 	});
 
@@ -210,6 +210,9 @@ export const StaffDropdown = memo(({ label, roleTarget, icon: Icon, iconColor, p
 											{activeDisplayStaff.jobTitle || activeDisplayStaff.roleCategory}
 										</span>
 									</span>
+								) : assignedId ? (
+									// CRITICAL FIX: Graceful fallback while TanStack Query fetches the name
+									<span className="font-mono text-muted-foreground">ID: {assignedId.substring(0, 8)}...</span>
 								) : (
 									placeholder
 								)}

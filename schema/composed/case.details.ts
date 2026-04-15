@@ -24,7 +24,7 @@ export const CaseDetailsSchema = CaseBaseSchema.extend({
 	lab: LabBaseSchema,
 	patient: PatientBaseSchema,
 	dentist: DentistBaseSchema.optional(),
-	staffAssignments: z.array(LabStaffBaseSchema),
+	staffAssignments: z.array(CaseStaffAssignmentBaseSchema),
 });
 export type CaseDetails = z.infer<typeof CaseDetailsSchema>;
 
@@ -36,12 +36,14 @@ export const CaseDetailsUISchema = CaseBaseSchema.extend({
 	lab: LabBaseSchema.optional(),
 	patient: PatientBaseSchema.optional(),
 	dentist: DentistBaseSchema.optional(),
-	staffAssignments: z.array(LabStaffBaseSchema).optional(),
+	staffAssignments: z.array(CaseStaffAssignmentBaseSchema).optional(),
 });
 export type CaseDetailsUI = z.infer<typeof CaseDetailsUISchema>;
 
 export const CreateCaseInputSchema = z
 	.object({
+		// draftId: z.string().optional(), // if draft was saved
+		// caseNumber: z.string().optional(), // if draft was saved
 		patientId: z.string().min(1, "Patient is required"), // ← add min(1), empty string would pass
 		caseCategoryId: z.string().trim().transform(emptyToUndefinedTransformer).optional(),
 		status: CaseStatusSchema, // ← add default, shouldn't need client to set this
@@ -228,3 +230,36 @@ export const DraftCaseDTOSchema = CaseBaseSchema.extend({
 });
 
 export type DraftCaseDTO = z.infer<typeof DraftCaseDTOSchema>;
+
+// Used for Case Summary and Draft info
+export type CaseSummaryMetadata = {
+	caseNumber: string;
+	clinicInfo: {
+		id: string;
+		name: string;
+		dentists: { id: string; name: string; isOwner: boolean; isDefault: boolean }[];
+	} | null;
+	patientInfo: {
+		id: string;
+		name: string;
+		age: number | null;
+		gender: string | null;
+		description: string | null;
+		cases: { id: string }[];
+	} | null;
+	courier: { id: string; firstName: string; lastName: string } | null;
+	technician: { id: string; firstName: string; lastName: string } | null;
+	technicalDetails: {
+		name: string;
+		clinicId: string | null;
+		product: {
+			id: string;
+			name: string;
+			workType: {
+				id: string;
+				name: string;
+				caseCategory: { id: string; name: string };
+			};
+		} | null;
+	}[];
+};

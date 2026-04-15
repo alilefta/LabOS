@@ -8,7 +8,6 @@ import { emptyToUndefinedTransformer } from "../base/utils.base";
 export const LabStaffDetailsSchema = LabStaffBaseSchema.extend({
 	lab: LabBaseSchema,
 	cases: z.array(CaseBaseSchema),
-	staff: LabStaffBaseSchema,
 });
 
 export type LabStaffDetails = z.infer<typeof LabStaffDetailsSchema>;
@@ -16,7 +15,6 @@ export type LabStaffDetails = z.infer<typeof LabStaffDetailsSchema>;
 export const LabStaffDetailsUISchema = LabStaffBaseSchema.extend({
 	lab: LabBaseSchema.optional(),
 	cases: z.array(CaseBaseSchema).optional(),
-	staff: LabStaffBaseSchema.optional(),
 });
 
 export type LabStaffDetailsUI = z.infer<typeof LabStaffDetailsUISchema>;
