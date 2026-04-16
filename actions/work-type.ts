@@ -91,7 +91,7 @@ export const getWorkTypesByCategoryAction = actionClientWithLab
 	})
 	.inputSchema(GetWorkTypesByCategoryInputSchema)
 	.action(async ({ parsedInput, ctx }) => {
-		const { limit, caseCategoryId } = parsedInput;
+		const { limit, caseCategoryId, requireTeethSelection } = parsedInput;
 		const { labId } = ctx;
 
 		try {
@@ -101,6 +101,7 @@ export const getWorkTypesByCategoryAction = actionClientWithLab
 				where: {
 					labId: labId,
 					caseCategoryId: caseCategoryId,
+					requireTeethSelection,
 				},
 				orderBy: {
 					createdAt: "desc",

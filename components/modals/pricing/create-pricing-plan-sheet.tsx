@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { memo, useEffect, useMemo, useState } from "react";
 import { useForm, Controller, FormProvider, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2, Wallet, DollarSign, Calculator, Info, Globe, Building2 } from "lucide-react";
+import { Loader2, Wallet, DollarSign, Calculator, Info, Globe, Building2, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -20,16 +20,19 @@ import { useAction } from "next-safe-action/hooks";
 import { handleSafeActionError } from "@/lib/safe-action-helpers";
 import { WorkTypeBlueprintHierarchy } from "../work-type/worktype-blueprint-hierarchy";
 import { useQueryClient } from "@tanstack/react-query";
+import { PricingStrategy } from "@/schema/base/enums.base";
 
 type QueryDataShape = CasePricingPlanDetailsUI[];
 
-export function CreatePricingPlanSheet() {
+export const CreatePricingPlanSheet = memo(function CreatePricingPlanSheet() {
 	const isPricingSheetOpen = useClinicalCreationStore((state) => state.isPricingSheetOpen);
 	const closeAllSheets = useClinicalCreationStore((state) => state.closeAllSheets);
 	const activeProductId = useClinicalCreationStore((state) => state.activeProductId);
 	const activeClinicId = useClinicalCreationStore((state) => state.activeClinicId as string | null);
 	const setNewlyCreated = useClinicalCreationStore((state) => state.setNewlyCreated);
 
+	// Atomic subscription to the required strategy requirement
+	const requiredPricingStrategy = useClinicalCreationStore((state) => state.requiredPricingStrategy);
 	// Local state to toggle the hybrid "Bulk Cap" inside the CUSTOM strategy
 	const [showCustomBulkCap, setShowCustomBulkCap] = useState(false);
 	const [pricingScope, setPricingScope] = useState<"GENERAL" | "CUSTOM_CLINIC">("GENERAL");
@@ -52,22 +55,14 @@ export function CreatePricingPlanSheet() {
 		name: "pricingStrategy",
 	});
 
-	const { executeAsync: createPlan, isExecuting } = useAction(createPricingPlanAction, {
-		onSuccess: ({ data }) => {
-			toast.success("Pricing plan created successfully");
-			if (data?.pricingPlan?.id) {
-				setNewlyCreated("pricing", data.pricingPlan.id);
-			}
-
-			queryClient.setQueryData<QueryDataShape>(["pricingPlans", activeProductId], (old: QueryDataShape | undefined) => {
-				return old ? [data.pricingPlan, ...old] : [data.pricingPlan];
-			});
-
-			closeAllSheets();
-			form.reset();
-		},
-		onError: ({ error }) => handleSafeActionError(error),
-	});
+	// Sync Strategy Requirement: If a specific strategy is requested (e.g. BULK for Maxillofacial),
+	// force the form to that value immediately.
+	useEffect(() => {
+		if (isPricingSheetOpen && requiredPricingStrategy) {
+			form.setValue("pricingStrategy", requiredPricingStrategy);
+			form.clearErrors();
+		}
+	}, [isPricingSheetOpen, requiredPricingStrategy, form]);
 
 	useEffect(() => {
 		if (activeProductId) {
@@ -81,8 +76,28 @@ export function CreatePricingPlanSheet() {
 		}, 0);
 	};
 
+	const { executeAsync: createPlan, isExecuting } = useAction(createPricingPlanAction, {
+		onSuccess: ({ data }) => {
+			toast.success("Pricing plan created successfully");
+			if (data?.pricingPlan?.id) {
+				setNewlyCreated("pricing", data.pricingPlan.id);
+			}
+
+			queryClient.setQueryData<QueryDataShape>(["pricingPlans", activeProductId], (old: QueryDataShape | undefined) => {
+				return old ? [data.pricingPlan, ...old] : [data.pricingPlan];
+			});
+
+			queryClient.invalidateQueries({ queryKey: ["pricingPlans", activeProductId] });
+
+			closeAllSheets();
+			form.reset();
+		},
+		onError: ({ error }) => handleSafeActionError(error),
+	});
+
 	// Clean up fields when switching strategies so we don't send dirty schema data
 	const handleStrategyChange = (strategy: "BULK" | "PERTOOTH" | "CUSTOM") => {
+		if (requiredPricingStrategy) return;
 		form.setValue("pricingStrategy", strategy);
 		form.setValue("firstToothPrice", undefined);
 		form.setValue("additionalToothPrice", undefined);
@@ -92,6 +107,20 @@ export function CreatePricingPlanSheet() {
 		setShowCustomBulkCap(false);
 		form.clearErrors();
 	};
+
+	// Helper to filter which buttons to show
+	const visibleStrategies = useMemo(() => {
+		const all = [
+			{ id: "PERTOOTH", label: "Strict Per-Unit", sub: "Every selected tooth costs exactly the same amount." },
+			{ id: "BULK", label: "Flat Rate / Arch", sub: "A single flat fee regardless of the number of teeth mapped." },
+			{ id: "CUSTOM", label: "Tiered & Hybrid", sub: "Different price for the first unit, with optional bulk capping." },
+		];
+
+		if (requiredPricingStrategy) {
+			return all.filter((s) => s.id === requiredPricingStrategy);
+		}
+		return all;
+	}, [requiredPricingStrategy]);
 
 	const onSubmit = async (data: CreateCaseItemPricingPlanInput) => {
 		// INJECT THE CLINIC ID IF CUSTOM SCOPE IS SELECTED
@@ -122,7 +151,11 @@ export function CreatePricingPlanSheet() {
 						<Wallet className="w-6 h-6" />
 					</div>
 					<SheetTitle className="text-2xl font-bold tracking-tight text-foreground">Define Pricing Logic</SheetTitle>
-					<SheetDescription className="text-sm text-muted-foreground font-medium max-w-[90%]">Set the financial baseline and scaling rules for this product.</SheetDescription>
+					<SheetDescription className="text-sm text-muted-foreground font-medium max-w-[90%]">
+						{requiredPricingStrategy
+							? `Configuring a required ${requiredPricingStrategy.toLowerCase()} strategy for this clinical workflow.`
+							: "Set the financial baseline and scaling rules for this product."}
+					</SheetDescription>{" "}
 				</SheetHeader>
 
 				{/* --- FORM BODY --- */}
@@ -183,88 +216,45 @@ export function CreatePricingPlanSheet() {
 
 							{/* --- DYNAMIC STRATEGY SELECTOR --- */}
 							<div className="flex flex-col gap-3">
-								<label className="text-[13px] font-bold text-slate-700 dark:text-zinc-300">Billing Strategy</label>
+								<div className="flex items-center justify-between">
+									<label className="text-[13px] font-bold text-slate-700 dark:text-zinc-300">Billing Strategy</label>
+									{requiredPricingStrategy && (
+										<span className="text-[10px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full flex items-center gap-1.5 border border-primary/20">
+											<ShieldCheck className="w-3 h-3" /> System Enforced
+										</span>
+									)}
+								</div>
+
 								<div className="grid grid-cols-1 gap-3">
-									{/* 1. PER TOOTH */}
-									<button
-										type="button"
-										onClick={() => handleStrategyChange("PERTOOTH")}
-										className={cn(
-											"flex items-center justify-between p-4 rounded-2xl border text-left transition-all duration-200",
-											selectedStrategy === "PERTOOTH"
-												? "border-emerald-500 bg-emerald-500/5 ring-1 ring-emerald-500/20 shadow-sm"
-												: "border-border bg-slate-50 dark:bg-white/2 hover:border-slate-300 dark:hover:border-white/10",
-										)}
-									>
-										<div className="flex flex-col gap-1 pr-4">
-											<span className={cn("text-sm font-bold", selectedStrategy === "PERTOOTH" ? "text-emerald-600 dark:text-emerald-500" : "text-foreground")}>
-												Strict Per-Unit
-											</span>
-											<span className="text-[11px] text-muted-foreground leading-snug">Every selected tooth costs exactly the same amount.</span>
-										</div>
-										<div
+									{visibleStrategies.map((strategy) => (
+										<button
+											key={strategy.id}
+											type="button"
+											onClick={() => handleStrategyChange(strategy.id as PricingStrategy)}
 											className={cn(
-												"w-4 h-4 rounded-full border flex items-center justify-center shrink-0",
-												selectedStrategy === "PERTOOTH" ? "border-emerald-500" : "border-slate-300 dark:border-zinc-600",
+												"flex items-center justify-between p-4 rounded-2xl border text-left transition-all duration-200",
+												selectedStrategy === strategy.id
+													? "border-emerald-500 bg-emerald-500/5 ring-1 ring-emerald-500/20 shadow-sm"
+													: "border-border bg-slate-50 dark:bg-white/2 hover:border-slate-300 dark:hover:border-white/10",
+												requiredPricingStrategy && "cursor-default", // Remove hover feedback if locked
 											)}
 										>
-											{selectedStrategy === "PERTOOTH" && <div className="w-2 h-2 rounded-full bg-emerald-500" />}
-										</div>
-									</button>
-
-									{/* 2. PURE BULK / FLAT */}
-									<button
-										type="button"
-										onClick={() => handleStrategyChange("BULK")}
-										className={cn(
-											"flex items-center justify-between p-4 rounded-2xl border text-left transition-all duration-200",
-											selectedStrategy === "BULK"
-												? "border-emerald-500 bg-emerald-500/5 ring-1 ring-emerald-500/20 shadow-sm"
-												: "border-border bg-slate-50 dark:bg-white/2 hover:border-slate-300 dark:hover:border-white/10",
-										)}
-									>
-										<div className="flex flex-col gap-1 pr-4">
-											<span className={cn("text-sm font-bold", selectedStrategy === "BULK" ? "text-emerald-600 dark:text-emerald-500" : "text-foreground")}>
-												Flat Rate / Arch
-											</span>
-											<span className="text-[11px] text-muted-foreground leading-snug">A single flat fee regardless of the number of teeth mapped.</span>
-										</div>
-										<div
-											className={cn(
-												"w-4 h-4 rounded-full border flex items-center justify-center shrink-0",
-												selectedStrategy === "BULK" ? "border-emerald-500" : "border-slate-300 dark:border-zinc-600",
-											)}
-										>
-											{selectedStrategy === "BULK" && <div className="w-2 h-2 rounded-full bg-emerald-500" />}
-										</div>
-									</button>
-
-									{/* 3. CUSTOM / HYBRID */}
-									<button
-										type="button"
-										onClick={() => handleStrategyChange("CUSTOM")}
-										className={cn(
-											"flex items-center justify-between p-4 rounded-2xl border text-left transition-all duration-200",
-											selectedStrategy === "CUSTOM"
-												? "border-emerald-500 bg-emerald-500/5 ring-1 ring-emerald-500/20 shadow-sm"
-												: "border-border bg-slate-50 dark:bg-white/2 hover:border-slate-300 dark:hover:border-white/10",
-										)}
-									>
-										<div className="flex flex-col gap-1 pr-4">
-											<span className={cn("text-sm font-bold", selectedStrategy === "CUSTOM" ? "text-emerald-600 dark:text-emerald-500" : "text-foreground")}>
-												Tiered & Hybrid
-											</span>
-											<span className="text-[11px] text-muted-foreground leading-snug">Different price for the first unit, with optional bulk capping.</span>
-										</div>
-										<div
-											className={cn(
-												"w-4 h-4 rounded-full border flex items-center justify-center shrink-0",
-												selectedStrategy === "CUSTOM" ? "border-emerald-500" : "border-slate-300 dark:border-zinc-600",
-											)}
-										>
-											{selectedStrategy === "CUSTOM" && <div className="w-2 h-2 rounded-full bg-emerald-500" />}
-										</div>
-									</button>
+											<div className="flex flex-col gap-1 pr-4">
+												<span className={cn("text-sm font-bold", selectedStrategy === strategy.id ? "text-emerald-600 dark:text-emerald-500" : "text-foreground")}>
+													{strategy.label}
+												</span>
+												<span className="text-[11px] text-muted-foreground leading-snug">{strategy.sub}</span>
+											</div>
+											<div
+												className={cn(
+													"w-4 h-4 rounded-full border flex items-center justify-center shrink-0",
+													selectedStrategy === strategy.id ? "border-emerald-500" : "border-slate-300 dark:border-zinc-600",
+												)}
+											>
+												{selectedStrategy === strategy.id && <div className="w-2 h-2 rounded-full bg-emerald-500" />}
+											</div>
+										</button>
+									))}
 								</div>
 							</div>
 
@@ -422,4 +412,4 @@ export function CreatePricingPlanSheet() {
 			</SheetContent>
 		</Sheet>
 	);
-}
+});

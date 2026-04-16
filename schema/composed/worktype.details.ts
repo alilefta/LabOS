@@ -5,7 +5,6 @@ import { LabBaseSchema } from "../base/lab.base";
 import { CaseCategoryBaseSchema } from "../base/case-category.base";
 import { CaseWorkItemBaseSchema } from "../base/case-work-item.base";
 import { emptyToUndefinedTransformer } from "../base/utils.base";
-import { CreateProductInputSchema } from "./product.details";
 
 export const WorktypeDetailsSchema = WorkTypeBaseSchema.extend({
 	product: z.array(ProductBaseSchema),
@@ -49,6 +48,7 @@ export type GetProductsByWorkTypeInput = z.infer<typeof GetProductsByWorkTypeInp
 export const GetWorkTypesByCategoryInputSchema = z.object({
 	caseCategoryId: z.string(),
 	limit: z.number().default(10),
+	requireTeethSelection: z.boolean(),
 });
 
 export type GetWorkTypesByCategoryInput = z.infer<typeof GetWorkTypesByCategoryInputSchema>;

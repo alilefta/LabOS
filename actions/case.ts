@@ -98,6 +98,16 @@ export const createDentalCaseAction = actionClientWithLab
 			// Zod handles shape/type. We handle cross-entity business rules here.
 			// ─────────────────────────────────────────────────────────────────
 
+			if (existingDraftId) {
+				const existingDraft = await prisma.case.findUnique({
+					where: { id: existingDraftId, labId },
+					select: { id: true, status: true },
+				});
+
+				if (!existingDraft) throw ERRORS.NOT_FOUND;
+				if (existingDraft.status !== "DRAFT") throw ERRORS.OPERATION_NOT_ALLOWED;
+			}
+
 			// Patient must exist in this lab
 			if (!patient) {
 				throw ERRORS.NOT_FOUND;
@@ -211,7 +221,107 @@ export const createDentalCaseAction = actionClientWithLab
 
 			const createdCase = await prisma.$transaction(
 				async (tx) => {
-					// Atomic case number — prevents race conditions under concurrent requests
+					// ── UPDATE existing draft → promote to real case ──────────────
+					if (existingDraftId) {
+						// Delete stale nested records — will be replaced with fresh computed data
+						await tx.caseWorkItem.deleteMany({
+							where: { dentalCaseId: existingDraftId, labId },
+						});
+						await tx.caseAssetFile.deleteMany({
+							where: { dentalCaseId: existingDraftId, labId },
+						});
+						await tx.caseStaffAssignment.deleteMany({
+							where: { caseId: existingDraftId, labId },
+						});
+
+						return tx.case.update({
+							where: { id: existingDraftId, labId },
+							data: {
+								// Promote — status changes from DRAFT to NEW or ASSIGNED
+								status: resolvedStatus,
+								grandTotal,
+								notes: notes ?? null,
+								deadline: deadline ?? null,
+								clinicId: clinicId ?? null,
+								dentistId: dentistId ?? null,
+								caseCategoryId: caseCategoryId ?? null,
+								patientId,
+
+								// Recreate work items with fresh computed prices
+								caseItems:
+									computedWorkItems.length > 0
+										? {
+												create: computedWorkItems.map((item) => ({
+													productId: item.productId,
+													workTypeId: item.workTypeId,
+													casePricingPlanId: item.casePricingPlanId,
+													jawType: item.jawType,
+													totalPrice: item.totalPrice,
+													pricingStrategy: item.pricingStrategy,
+													bulkPrice: item.bulkPrice,
+													toothPrice: item.toothPrice,
+													firstToothPrice: item.firstToothPrice,
+													additionalToothPrice: item.additionalToothPrice,
+													teethCountToApplyBulkPrice: item.teethCountToApplyBulkPrice,
+													notes: item.notes,
+													shadeSystem: item.shadeSystem,
+													baseShade: item.baseShade,
+													stumpShade: item.stumpShade,
+													shadeNotes: item.shadeNotes,
+													labId,
+													selectedTeeth:
+														item.selectedTeeth.length > 0
+															? {
+																	createMany: {
+																		data: item.selectedTeeth.map((pos) => ({
+																			toothPosition: pos,
+																			labId,
+																		})),
+																	},
+																}
+															: undefined,
+												})),
+											}
+										: undefined,
+
+								staffAssignments:
+									staffAssignments && staffAssignments.length > 0
+										? {
+												createMany: {
+													data: staffAssignments.map((s) => ({
+														staffId: s.staffId,
+														roleCategory: s.roleCategory,
+														commissionType: s.commissionType,
+														commissionValue: s.commissionValue,
+														commissionTotal: 0,
+														isPaid: false,
+														labId,
+													})),
+												},
+											}
+										: undefined,
+
+								caseAssetFiles:
+									caseAssetFiles && caseAssetFiles.length > 0
+										? {
+												createMany: {
+													data: caseAssetFiles.map((f) => ({
+														title: f.title ?? null,
+														description: f.description ?? null,
+														documentUrl: f.documentUrl,
+														assetFileType: f.assetFileType,
+														fileExtension: f.fileExtension,
+														labId,
+													})),
+												},
+											}
+										: undefined,
+							},
+							select: { id: true },
+						});
+					}
+
+					// ── CREATE new case ────────────────────────────────────────────
 					const updatedLab = await tx.lab.update({
 						where: { id: labId },
 						data: { nextCaseNumber: { increment: 1 } },
@@ -222,7 +332,6 @@ export const createDentalCaseAction = actionClientWithLab
 
 					return tx.case.create({
 						data: {
-							// Core fields
 							patientId,
 							labId,
 							caseNumber,
@@ -230,13 +339,9 @@ export const createDentalCaseAction = actionClientWithLab
 							grandTotal,
 							notes: notes ?? null,
 							deadline: deadline ?? null,
-
-							// Optional relations
 							clinicId: clinicId ?? null,
 							dentistId: dentistId ?? null,
 							caseCategoryId: caseCategoryId ?? null,
-
-							// Work items with nested teeth
 							caseItems:
 								computedWorkItems.length > 0
 									? {
@@ -246,41 +351,32 @@ export const createDentalCaseAction = actionClientWithLab
 												casePricingPlanId: item.casePricingPlanId,
 												jawType: item.jawType,
 												totalPrice: item.totalPrice,
-
-												// Pricing snapshot
 												pricingStrategy: item.pricingStrategy,
 												bulkPrice: item.bulkPrice,
 												toothPrice: item.toothPrice,
 												firstToothPrice: item.firstToothPrice,
 												additionalToothPrice: item.additionalToothPrice,
 												teethCountToApplyBulkPrice: item.teethCountToApplyBulkPrice,
-
-												// Clinical metadata
 												notes: item.notes,
 												shadeSystem: item.shadeSystem,
 												baseShade: item.baseShade,
 												stumpShade: item.stumpShade,
 												shadeNotes: item.shadeNotes,
-
-												// Teeth — nested createMany inside create
+												labId,
 												selectedTeeth:
 													item.selectedTeeth.length > 0
 														? {
 																createMany: {
 																	data: item.selectedTeeth.map((pos) => ({
 																		toothPosition: pos,
-																		// labId injected by tenantPrisma
 																		labId,
 																	})),
 																},
 															}
 														: undefined,
-												labId,
 											})),
 										}
 									: undefined,
-
-							// Staff assignments — snapshot commission at time of assignment
 							staffAssignments:
 								staffAssignments && staffAssignments.length > 0
 									? {
@@ -290,16 +386,13 @@ export const createDentalCaseAction = actionClientWithLab
 													roleCategory: s.roleCategory,
 													commissionType: s.commissionType,
 													commissionValue: s.commissionValue,
-													commissionTotal: 0, // computed at case completion
+													commissionTotal: 0,
 													isPaid: false,
-													// labId injected by tenantPrisma
 													labId,
 												})),
 											},
 										}
 									: undefined,
-
-							// Asset files
 							caseAssetFiles:
 								caseAssetFiles && caseAssetFiles.length > 0
 									? {
@@ -316,53 +409,10 @@ export const createDentalCaseAction = actionClientWithLab
 										}
 									: undefined,
 						},
-
-						// Return enough data for the client to update its state
-						// include: {
-						// 	patient: {
-						// 		select: { id: true, name: true, age: true, gender: true },
-						// 	},
-						// 	clinic: {
-						// 		select: { id: true, name: true, city: true, type: true },
-						// 	},
-						// 	dentist: {
-						// 		select: { id: true, name: true },
-						// 	},
-						// 	caseCategory: {
-						// 		select: { id: true, name: true, imageUrl: true },
-						// 	},
-						// 	caseItems: {
-						// 		include: {
-						// 			selectedTeeth: { select: { id: true, toothPosition: true } },
-						// 			product: { select: { id: true, name: true } },
-						// 			workType: { select: { id: true, name: true } },
-						// 		},
-						// 	},
-						// 	staffAssignments: {
-						// 		include: {
-						// 			staff: {
-						// 				select: {
-						// 					id: true,
-						// 					firstName: true,
-						// 					lastName: true,
-						// 					roleCategory: true,
-						// 					jobTitle: true,
-						// 					avatarUrl: true,
-						// 				},
-						// 			},
-						// 		},
-						// 	},
-						// 	caseAssetFiles: true,
-						// },
-						// 🔥 OPTIMIZATION: Only return the ID, drop the transaction lock immediately
 						select: { id: true },
 					});
 				},
-				{
-					// 🔥 OPTIMIZATION: Give the DB breathing room for complex nested writes
-					maxWait: 5000, // 5 seconds max wait to connect/lock
-					timeout: 15000, // 15 seconds max execution time
-				},
+				{ maxWait: 5000, timeout: 15000 },
 			);
 
 			// ─────────────────────────────────────────────────────────────────

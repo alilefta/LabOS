@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useCallback, useEffect, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Check, ChevronsUpDown, Plus, Layers, Package, CreditCard, LucideIcon, Loader2 } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
@@ -17,6 +17,7 @@ import { getWorkTypesByCategoryAction } from "@/actions/work-type";
 import { getProductsByWorkTypeAction } from "@/actions/product";
 import { getPricingPlansByProductAction } from "@/actions/pricing-plan";
 import { handleSafeActionError } from "@/lib/safe-action-helpers";
+import { JawType } from "@/schema/base/enums.base";
 
 interface ClinicalProductConfiguratorProps {
 	categoryId?: string | null;
@@ -28,9 +29,10 @@ interface ClinicalProductConfiguratorProps {
 	onWorkTypeSelect: (id: string) => void;
 	onPricingPlanSelect: (id: string, plan: CasePricingPlanDetailsUI | null) => void;
 	selectedCategoryName: string | null;
+	selectedJawType: JawType;
 }
 
-export function ClinicalProductConfigurator({
+export const ClinicalProductConfigurator = memo(function ClinicalProductConfigurator({
 	categoryId,
 	clinicId,
 	selectedWorkTypeId,
@@ -40,6 +42,7 @@ export function ClinicalProductConfigurator({
 	onPricingPlanSelect,
 	onWorkTypeSelect,
 	selectedCategoryName,
+	selectedJawType,
 }: ClinicalProductConfiguratorProps) {
 	// Dropdown open states
 	const [wtOpen, setWtOpen] = useState(false);
@@ -50,62 +53,120 @@ export function ClinicalProductConfigurator({
 	const openWorkTypeSheet = useClinicalCreationStore((state) => state.openWorkTypeSheet);
 	const openProductSheet = useClinicalCreationStore((state) => state.openProductSheet);
 	const openPricingSheet = useClinicalCreationStore((state) => state.openPricingSheet);
+
 	const newCreatedWorkTypeId = useClinicalCreationStore((state) => state.newCreatedWorkTypeId);
 	const newCreatedProductId = useClinicalCreationStore((state) => state.newCreatedProductId);
 	const newCreatedPricingId = useClinicalCreationStore((state) => state.newCreatedPricingId);
+	const consumeNewlyCreated = useClinicalCreationStore((state) => state.consumeNewlyCreated);
 
-	// ---  RENDER-PHASE STATE UPDATES (Fixes the useEffect Warning) ---
-	const [prevNewCreatedWorkTypeId, setPrevNewCreatedWorkTypeId] = useState(newCreatedWorkTypeId);
+	console.log("WT ID", selectedWorkTypeId, "Product ID", selectedProductId, "Pricing Plan ID", selectedPricingPlanId);
 
-	if (newCreatedWorkTypeId !== prevNewCreatedWorkTypeId) {
-		setPrevNewCreatedWorkTypeId(newCreatedWorkTypeId);
-		if (newCreatedWorkTypeId) {
-			onWorkTypeSelect(newCreatedWorkTypeId);
+	// Prevent clearing on initial mount
+	const prevJawType = useRef<JawType>(selectedJawType);
+	// --- 1. CASCADING RESET ON JAW TYPE CHANGE ---
+	// If the user switches from UPPER to OTHER, we MUST clear the selections to prevent
+	// impossible configurations (e.g. holding a Crown ID when Jaw is Other)
+	useEffect(() => {
+		if (prevJawType.current !== selectedJawType) {
+			onWorkTypeSelect("");
+			onProductSelect("");
+			onPricingPlanSelect("", null);
+			prevJawType.current = selectedJawType;
 		}
-	}
-
-	const workTypeQF = useCallback(async () => {
-		if (!categoryId) return [];
-		const res = await getWorkTypesByCategoryAction({ caseCategoryId: categoryId, limit: 50 });
-		if (res.serverError || res.validationErrors) handleSafeActionError({ serverError: res.serverError, validationErrors: res.validationErrors });
-		return (res.data?.workTypes as WorktypeDetailsUI[]) || [];
-	}, [categoryId]);
-
-	const productsQF = useCallback(async () => {
-		if (!selectedWorkTypeId) return [];
-		const res = await getProductsByWorkTypeAction({ workTypeId: selectedWorkTypeId, limit: 50 });
-		if (res.serverError || res.validationErrors) handleSafeActionError({ serverError: res.serverError, validationErrors: res.validationErrors });
-		return (res.data?.products as ProductDetailsUI[]) || [];
-	}, [selectedWorkTypeId]);
-
-	const pricingsQF = useCallback(async () => {
-		if (!selectedProductId) return [];
-		const res = await getPricingPlansByProductAction({ productId: selectedProductId, limit: 50 });
-		if (res.serverError || res.validationErrors) handleSafeActionError({ serverError: res.serverError, validationErrors: res.validationErrors });
-		return (res.data?.pricings as CasePricingPlanDetailsUI[]) || [];
-	}, [selectedProductId]);
+	}, [selectedJawType, onWorkTypeSelect, onProductSelect, onPricingPlanSelect]);
 
 	// --- REACT QUERY FETCHING (Strict Null Checks Added) ---
 	const { data: workTypes = [], isFetching: isLoadingWT } = useQuery({
-		queryKey: ["workTypes", categoryId],
-		queryFn: workTypeQF,
-		enabled: !!categoryId && typeof categoryId === "string" && categoryId.length > 0,
+		queryKey: ["workTypes", categoryId, selectedJawType],
+		queryFn: async () => {
+			if (!categoryId) return [];
+			const res = await getWorkTypesByCategoryAction({
+				caseCategoryId: categoryId,
+				limit: 50,
+				// Pass the exact clinical requirement to the backend
+				requireTeethSelection: selectedJawType !== "OTHER",
+			});
+			if (res.serverError || res.validationErrors) handleSafeActionError({ serverError: res.serverError, validationErrors: res.validationErrors });
+			return (res.data?.workTypes as WorktypeDetailsUI[]) || [];
+		},
+		enabled: !!categoryId,
 	});
 
 	const { data: products = [], isFetching: isLoadingProducts } = useQuery({
 		queryKey: ["products", selectedWorkTypeId],
-		queryFn: productsQF,
-		enabled: !!selectedWorkTypeId && typeof selectedWorkTypeId === "string" && selectedWorkTypeId.length > 0,
+		queryFn: async () => {
+			if (!selectedWorkTypeId) return [];
+			const res = await getProductsByWorkTypeAction({ workTypeId: selectedWorkTypeId, limit: 50 });
+			if (res.serverError || res.validationErrors) handleSafeActionError({ serverError: res.serverError, validationErrors: res.validationErrors });
+			return (res.data?.products as ProductDetailsUI[]) || [];
+		},
+		enabled: !!selectedWorkTypeId,
 	});
 
-	const { data: pricingPlans = [], isFetching: isLoadingPricing } = useQuery({
+	const { data: rawPricingPlans = [], isFetching: isLoadingPricing } = useQuery({
 		queryKey: ["pricingPlans", selectedProductId],
-		queryFn: pricingsQF,
-		enabled: !!selectedProductId && typeof selectedProductId === "string" && selectedProductId.length > 0,
+		queryFn: async () => {
+			if (!selectedProductId) return [];
+			const res = await getPricingPlansByProductAction({ productId: selectedProductId, limit: 50 });
+			if (res.serverError || res.validationErrors) handleSafeActionError({ serverError: res.serverError, validationErrors: res.validationErrors });
+			return (res.data?.pricings as CasePricingPlanDetailsUI[]) || [];
+		},
+		enabled: !!selectedProductId,
 	});
+
+	// --- 3. CLINICAL FILTERING LOGIC ---
+	// If jaw is "OTHER", filter out everything except "BULK" pricing
+	const pricingPlans = useMemo(() => {
+		if (selectedJawType === "OTHER") {
+			return rawPricingPlans.filter((plan) => plan.pricingStrategy === "BULK");
+		}
+		return rawPricingPlans;
+	}, [rawPricingPlans, selectedJawType]);
+
+	// --- 4. STABLE EVENT HANDLERS ---
+	const handleWorktypeSelect = useCallback(
+		(id: string) => {
+			onWorkTypeSelect(id);
+			onProductSelect("");
+			onPricingPlanSelect("", null);
+		},
+		[onPricingPlanSelect, onProductSelect, onWorkTypeSelect],
+	);
+
+	const handleProductSelect = useCallback(
+		(id: string) => {
+			onProductSelect(id);
+			onPricingPlanSelect("", null);
+		},
+		[onPricingPlanSelect, onProductSelect],
+	);
+
+	const handlePricingSelect = useCallback(
+		(id: string) => {
+			const plan = pricingPlans.find((p) => p.id === id) || null;
+			onPricingPlanSelect(id, plan);
+		},
+		[onPricingPlanSelect, pricingPlans],
+	);
+
+	const handleWorktypeCreate = useCallback(() => {
+		setWtOpen(false);
+		if (categoryId) openWorkTypeSheet(categoryId, selectedCategoryName ?? "Selected Category", selectedJawType);
+	}, [categoryId, openWorkTypeSheet, selectedCategoryName, selectedJawType]);
+
+	const handleProductCreate = useCallback(() => {
+		setProdOpen(false);
+		if (selectedWorkTypeId) openProductSheet(selectedWorkTypeId);
+	}, [selectedWorkTypeId, openProductSheet]);
+
+	const handlePricingCreate = useCallback(() => {
+		setPriceOpen(false);
+		if (selectedProductId) {
+			openPricingSheet(selectedProductId, clinicId, selectedJawType === "OTHER" ? "BULK" : null);
+		}
+	}, [selectedProductId, clinicId, openPricingSheet, selectedJawType]);
 
 	// --- 2. AUTO-SELECTION & SYNCING ---
-
 	// Sync local WorkType state if the parent clears the Product
 	useEffect(() => {
 		if (!selectedProductId) {
@@ -116,27 +177,24 @@ export function ClinicalProductConfigurator({
 	useEffect(() => {
 		if (newCreatedWorkTypeId) {
 			onWorkTypeSelect(newCreatedWorkTypeId);
+			consumeNewlyCreated("workType"); // Destroys the global state immediately
 		}
-	}, [newCreatedWorkTypeId, onWorkTypeSelect]);
+	}, [newCreatedWorkTypeId, onWorkTypeSelect, consumeNewlyCreated]);
 
 	useEffect(() => {
-		if (newCreatedProductId) onProductSelect(newCreatedProductId);
-	}, [newCreatedProductId, onProductSelect]);
-
-	useEffect(() => {
-		if (selectedPricingPlanId && pricingPlans.length > 0) {
-			const plan = pricingPlans.find((p) => p.id === selectedPricingPlanId);
-			if (plan) onPricingPlanSelect(selectedPricingPlanId, plan);
+		if (newCreatedProductId) {
+			onProductSelect(newCreatedProductId);
+			consumeNewlyCreated("product"); // Destroys the global state immediately
 		}
-	}, [selectedPricingPlanId, pricingPlans, onPricingPlanSelect]);
+	}, [newCreatedProductId, onProductSelect, consumeNewlyCreated]);
 
 	useEffect(() => {
-		if (newCreatedPricingId) {
+		if (newCreatedPricingId && pricingPlans.length > 0) {
 			const plan = pricingPlans.find((p) => p.id === newCreatedPricingId) || null;
 			onPricingPlanSelect(newCreatedPricingId, plan);
+			consumeNewlyCreated("pricing"); // Destroys the global state immediately
 		}
-	}, [newCreatedPricingId, pricingPlans, onPricingPlanSelect]);
-	// --- 3. RENDER ---
+	}, [newCreatedPricingId, pricingPlans, onPricingPlanSelect, consumeNewlyCreated]);
 
 	return (
 		<div className="flex flex-col gap-5 animate-in fade-in duration-500">
@@ -151,17 +209,10 @@ export function ClinicalProductConfigurator({
 					placeholder={!categoryId ? "Select Category first" : "Select Work Type..."}
 					icon={Layers}
 					items={workTypes}
-					onSelect={(id: string) => {
-						onWorkTypeSelect(id);
-						onProductSelect("");
-						onPricingPlanSelect("", null);
-					}}
-					onCreate={() => {
-						setWtOpen(false);
-						if (categoryId) openWorkTypeSheet(categoryId, selectedCategoryName ?? "Selected Category");
-					}}
+					onSelect={handleWorktypeSelect}
+					onCreate={handleWorktypeCreate}
 					createLabel="Create New Work Type"
-					emptyText="No work types found."
+					emptyText={selectedJawType === "OTHER" ? "No non-arch departments found." : "No work types found."}
 					type="workType"
 				/>
 			</div>
@@ -177,14 +228,8 @@ export function ClinicalProductConfigurator({
 					placeholder="Select Product..."
 					icon={Package}
 					items={products}
-					onSelect={(id: string) => {
-						onProductSelect(id);
-						onPricingPlanSelect("", null);
-					}}
-					onCreate={() => {
-						setProdOpen(false);
-						if (selectedWorkTypeId) openProductSheet(selectedWorkTypeId);
-					}}
+					onSelect={handleProductSelect}
+					onCreate={handleProductCreate}
 					createLabel="Create New Product"
 					emptyText="No products found in this work type."
 					type="product"
@@ -202,22 +247,16 @@ export function ClinicalProductConfigurator({
 					placeholder="Select Pricing Plan..."
 					icon={CreditCard}
 					items={pricingPlans}
-					onSelect={(id: string) => {
-						const plan = pricingPlans.find((p) => p.id === id) || null;
-						onPricingPlanSelect(id, plan);
-					}}
-					onCreate={() => {
-						setPriceOpen(false);
-						if (selectedProductId) openPricingSheet(selectedProductId, clinicId);
-					}}
+					onSelect={handlePricingSelect}
+					onCreate={handlePricingCreate}
 					createLabel="Create Custom Pricing"
-					emptyText="No pricing plans configured."
+					emptyText={selectedJawType === "OTHER" ? "Only BULK pricing allowed for Maxillofacial." : "No pricing plans configured."}
 					type="pricing"
 				/>
 			</div>
 		</div>
 	);
-}
+});
 
 // --- SUB-COMPONENT: REUSABLE SELECTOR ---
 

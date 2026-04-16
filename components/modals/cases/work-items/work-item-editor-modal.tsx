@@ -19,7 +19,7 @@ interface WorkItemEditorProps {
 	onClose: () => void;
 	onSave: (data: CreateCaseWorkItemInput) => void;
 	initialData: CreateCaseWorkItemInput | null;
-	selectedCategoryId: string | null;
+	selectedCategoryId: string;
 	selectedClinicId: string | null;
 	selectedCategoryName: string | null;
 }
@@ -38,6 +38,19 @@ export function WorkItemEditorModal({ isOpen, onClose, onSave, initialData, sele
 	const [selectedTeeth, setSelectedTeeth] = useState<ToothPosition[]>(parseTeethFromData(initialData?.selectedTeeth ?? []));
 	const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
 
+	const handleProductSelect = useCallback((id: string) => {
+		setProductId(id);
+	}, []);
+
+	const handleWorkTypeSelect = useCallback((id: string) => {
+		setWorktypeId(id);
+	}, []);
+
+	const handlePricingPlanSelect = useCallback((id: string, plan: CasePricingPlanDetailsUI | null) => {
+		setPricingPlanObj(plan);
+		setPricingPlanId(id);
+	}, []);
+
 	const metadataRef = useRef<MetadataEditorRef>(null);
 
 	if (isOpen !== prevIsOpen) {
@@ -49,8 +62,6 @@ export function WorkItemEditorModal({ isOpen, onClose, onSave, initialData, sele
 			setWorktypeId(initialData?.workTypeId || "");
 			setJawType(initialData?.jawType || "UPPER");
 			setSelectedTeeth(parseTeethFromData(initialData?.selectedTeeth ?? []));
-
-			console.log("The Modal is Opened, and the initial data: ==== ", initialData);
 		} else {
 			setPricingPlanObj(null);
 		}
@@ -194,13 +205,11 @@ export function WorkItemEditorModal({ isOpen, onClose, onSave, initialData, sele
 								selectedPricingPlanId={pricingPlanId}
 								selectedWorkTypeId={worktypeId}
 								selectedCategoryName={selectedCategoryName}
-								onProductSelect={(id) => setProductId(id)}
-								onPricingPlanSelect={(id, plan) => {
-									setPricingPlanObj(plan);
-									setPricingPlanId(id);
-								}}
+								selectedJawType={jawType}
+								onProductSelect={handleProductSelect} // <-- Stable
+								onPricingPlanSelect={handlePricingPlanSelect} // <-- Stable
+								onWorkTypeSelect={handleWorkTypeSelect} // <-- Stable
 								clinicId={selectedClinicId}
-								onWorkTypeSelect={(id) => setWorktypeId(id)}
 							/>
 
 							{/* --- CLINICAL METADATA & SHADE SECTION --- */}

@@ -12,11 +12,10 @@ interface Props {
 	isSavingDraft: boolean;
 	isSubmittingCase: boolean;
 	onSaveDraft: () => void;
-	onSubmitCaseForReview: () => void;
 	control: Control<CreateCaseInput>;
 }
 
-export function NewCaseHeader({ control, isSavingDraft, isSubmittingCase, onSaveDraft, onSubmitCaseForReview }: Props) {
+export function NewCaseHeader({ control, isSavingDraft, isSubmittingCase, onSaveDraft }: Props) {
 	// ── FORM STATE WATCHERS ──────────────────────────────────────────
 	const patientId = useWatch({ control, name: "patientId" });
 	const clinicId = useWatch({ control, name: "clinicId" });
@@ -72,7 +71,6 @@ export function NewCaseHeader({ control, isSavingDraft, isSubmittingCase, onSave
 					className="flex-2 md:flex-none rounded-xl bg-primary text-primary-foreground h-10 px-4 sm:px-6 font-bold shadow-premium hover:bg-primary/90 transition-all"
 					type="submit"
 					form="new-case-submission-form"
-					onClick={onSubmitCaseForReview}
 				>
 					{isSubmittingCase ? <LoaderCircle className="w-4 h-4 mr-1.5 animate-spin" /> : <Sparkles className="w-4 h-4 mr-1.5 sm:mr-2 shrink-0" />}
 					<span className="truncate">{isSubmittingCase ? "Submitting..." : "Review & Submit"}</span>

@@ -32,11 +32,11 @@ export const CreateCaseItemPricingPlanInputSchema = z
 
 		pricingStrategy: PricingStrategySchema,
 
-		firstToothPrice: z.number().min(0).optional(),
-		bulkPrice: z.number().min(0).optional(),
-		additionalToothPrice: z.number().min(0).optional(),
-		teethCountToApplyBulkPrice: z.number().int().min(1).optional(),
-		toothPrice: z.number().optional(),
+		firstToothPrice: z.coerce.number<number>().min(0, "").optional(),
+		bulkPrice: z.coerce.number<number>().min(0, "").optional(),
+		additionalToothPrice: z.coerce.number<number>().min(0, "").optional(),
+		teethCountToApplyBulkPrice: z.coerce.number<number>().min(0, "").optional(),
+		toothPrice: z.coerce.number<number>().min(0, "").optional(),
 
 		productId: z.string().trim().min(1),
 		clinicId: z.string().trim().min(1).optional(),

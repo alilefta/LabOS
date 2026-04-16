@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { memo, useEffect } from "react";
 import { useForm, Controller, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, Layers, Network, Stethoscope } from "lucide-react";
@@ -24,12 +24,13 @@ import { useQueryClient } from "@tanstack/react-query";
 
 type QueryDataShape = WorktypeDetailsUI[];
 
-export function CreateWorkTypeSheet() {
+export const CreateWorkTypeSheet = memo(function CreateWorkTypeSheet() {
 	// 1. Connect to Zustand Store
 	const isWorkTypeSheetOpen = useClinicalCreationStore((state) => state.isWorkTypeSheetOpen);
 	const closeAllSheets = useClinicalCreationStore((state) => state.closeAllSheets);
 	const activeCategoryId = useClinicalCreationStore((state) => state.activeCategoryId);
 	const activeCategoryName = useClinicalCreationStore((state) => state.activeCategoryName);
+	const activeJawType = useClinicalCreationStore((state) => state.activeJawType);
 	const setNewlyCreated = useClinicalCreationStore((state) => state.setNewlyCreated);
 
 	const queryClient = useQueryClient();
@@ -51,20 +52,30 @@ export function CreateWorkTypeSheet() {
 		if (activeCategoryId) {
 			form.setValue("caseCategoryId", activeCategoryId);
 		}
-	}, [activeCategoryId, form]);
+
+		// If they opened this from the "OTHER" (Maxillofacial) context, turn off teeth requirement automatically!
+		if (activeJawType) {
+			form.setValue("requireTeethSelection", activeJawType !== "OTHER");
+		}
+	}, [activeCategoryId, activeJawType, form]);
 
 	const { executeAsync: createWorkType, isExecuting } = useAction(createWorkTypeAction, {
 		onSuccess: ({ data }) => {
 			toast.success("Work type department created successfully");
 
-			// MAGIC: Tell Zustand this ID was just created so the Configurator auto-selects it!
 			if (data?.worktype?.id) {
 				setNewlyCreated("workType", data.worktype.id);
 			}
 
-			queryClient.setQueryData<QueryDataShape>(["workTypes", activeCategoryId], (old: QueryDataShape | undefined) => {
-				return old ? [data.worktype, ...old] : [data.worktype];
-			});
+			if (activeJawType && activeCategoryId) {
+				queryClient.setQueryData<QueryDataShape>(["workTypes", activeCategoryId, activeJawType], (old: QueryDataShape | undefined) => {
+					return old ? [data.worktype, ...old] : [data.worktype];
+				});
+			} else {
+				queryClient.invalidateQueries({
+					queryKey: ["workTypes", activeCategoryId],
+				});
+			}
 
 			closeAllSheets();
 			form.reset();
@@ -75,21 +86,11 @@ export function CreateWorkTypeSheet() {
 	const onSubmit = async (data: CreateWorkTypeInput) => {
 		await createWorkType(data);
 		console.log("Submitting Work Type:", data);
-
-		// Mock success flow:
-		toast.success("Work type department created successfully");
-		setNewlyCreated("workType", "mock-new-wt-id");
-		closeAllSheets();
-		form.reset();
 	};
-
-	useEffect(() => {
-		console.log("Create-work-type-sheet-form Errors", form.formState.errors);
-	}, [form.formState.errors]);
 
 	return (
 		<Sheet open={isWorkTypeSheetOpen} onOpenChange={(open) => !open && closeAllSheets()}>
-			<SheetContent className="sm:max-w-md! border-l border-border bg-card dark:bg-[#09090B] p-0 flex flex-col shadow-2xl">
+			<SheetContent className="sm:max-w-md! border-l border-border bg-card dark:bg-[#09090B] p-0 flex flex-col shadow-2xl ">
 				{/* --- HEADER --- */}
 				<SheetHeader className="p-8 border-b border-border bg-linear-to-br from-primary/5 to-transparent relative overflow-hidden">
 					<div className="absolute top-0 right-0 p-8 opacity-10">
@@ -187,4 +188,4 @@ export function CreateWorkTypeSheet() {
 			</SheetContent>
 		</Sheet>
 	);
-}
+});

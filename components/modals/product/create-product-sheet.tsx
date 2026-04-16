@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { memo, useEffect } from "react";
 import { useForm, Controller, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, Package, Box } from "lucide-react";
@@ -23,7 +23,7 @@ import { useQueryClient } from "@tanstack/react-query";
 
 type QueryDataShape = ProductDetailsUI[];
 
-export function CreateProductSheet() {
+export const CreateProductSheet = memo(function CreateProductSheet() {
 	// 1. High-Performance Atomic Zustand Subscriptions
 	const isProductSheetOpen = useClinicalCreationStore((state) => state.isProductSheetOpen);
 	const closeAllSheets = useClinicalCreationStore((state) => state.closeAllSheets);
@@ -43,6 +43,8 @@ export function CreateProductSheet() {
 		mode: "onBlur",
 	});
 
+	console.log("Create-Product-Sheet Rendered, WT ID:", activeWorkTypeId);
+
 	const { executeAsync: createProduct, isExecuting } = useAction(createProductAction, {
 		onSuccess: ({ data }) => {
 			toast.success("Product created successfully");
@@ -54,6 +56,10 @@ export function CreateProductSheet() {
 
 			queryClient.setQueryData<QueryDataShape>(["products", activeWorkTypeId], (old: QueryDataShape | undefined) => {
 				return old ? [data.product, ...old] : [data.product];
+			});
+
+			queryClient.invalidateQueries({
+				queryKey: ["products", activeWorkTypeId],
 			});
 
 			closeAllSheets();
@@ -152,4 +158,4 @@ export function CreateProductSheet() {
 			</SheetContent>
 		</Sheet>
 	);
-}
+});

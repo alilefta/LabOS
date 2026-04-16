@@ -263,15 +263,17 @@ export const CaseWorkItemManager = memo(function CaseWorkItemManager({ categoryN
 			</div>
 
 			{/* --- THE EDITOR SHEET --- */}
-			<WorkItemEditorModal
-				isOpen={editingIndex !== null}
-				selectedCategoryId={selectedCategoryId ?? null}
-				selectedCategoryName={categoryName}
-				onClose={() => setEditingIndex(null)}
-				initialData={getInitialDataForModal()}
-				onSave={handleSaveData}
-				selectedClinicId={selectedClinicId ?? null}
-			/>
+			{selectedCategoryId && (
+				<WorkItemEditorModal
+					isOpen={editingIndex !== null}
+					selectedCategoryId={selectedCategoryId}
+					selectedCategoryName={categoryName}
+					onClose={() => setEditingIndex(null)}
+					initialData={getInitialDataForModal()}
+					onSave={handleSaveData}
+					selectedClinicId={selectedClinicId ?? null}
+				/>
+			)}
 		</section>
 	);
 });

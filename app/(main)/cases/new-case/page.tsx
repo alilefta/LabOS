@@ -6,8 +6,6 @@ import { CaseSummaryModal } from "@/components/cases/case/case-summary-modal";
 import { useCallback, useState } from "react";
 import { NewCaseHeader } from "@/components/cases/new-case/new-case-header";
 import { FormProvider, useForm } from "react-hook-form";
-import { CaseFileUploadZone } from "@/components/cases/case/case-inputs/case-file-upload-zone";
-import { ClinicalAssetPreview } from "@/components/cases/case/clinical-assets-preview";
 import { CreateCaseInput, CreateCaseInputSchema, SaveDraftCaseInputSchema } from "@/schema/composed/case.details";
 import { PatientAndClinicSection } from "@/components/cases/new-case/sections/patient-clinic-section";
 import { RegisterPatientSheet } from "@/components/modals/cases/patient/create-patient-sheet";
@@ -38,6 +36,8 @@ import { DraftRecoveryBanner } from "@/components/cases/new-case/drafts/draft-re
 import { useQuery } from "@tanstack/react-query";
 import { PatientDraftPrompt } from "@/components/cases/new-case/drafts/patient-draft-prompt";
 import { mapDraftToFormValues } from "@/lib/case-helpers";
+import { AssetsAndFilesSection } from "@/components/cases/new-case/sections/assets-and-files-section";
+import { useClinicalCreationStore } from "@/store/use-clinical-creation-store";
 
 export default function NewCasePage() {
 	// 1. Temporary State
@@ -56,6 +56,10 @@ export default function NewCasePage() {
 	const [newStaffMember, setNewStaffMember] = useState<LabStaffDetailsUI | null>(null);
 	const [newClinic, setNewClinic] = useState<ClinicDetailsUI | null>(null);
 	const [newCategory, setNewCategory] = useState<CaseCategoryDetailsUI | null>(null);
+
+	const isWTCreationSheetOpen = useClinicalCreationStore((st) => st.isWorkTypeSheetOpen);
+	const isProductCreationSheetOpen = useClinicalCreationStore((st) => st.isProductSheetOpen);
+	const isPricingPlanCreationSheetOpen = useClinicalCreationStore((st) => st.isPricingSheetOpen);
 
 	// Contextual Draft State
 	const [patientDraftPrompt, setPatientDraftPrompt] = useState<{ draftId: string; caseNumber: string; lastSavedAt: Date } | null>(null);
@@ -113,7 +117,6 @@ export default function NewCasePage() {
 		},
 		onError: ({ error }) => handleSafeActionError(error),
 	});
-	const isExecuting = false;
 
 	// ── SUBMIT FLOW ────────────────────────────────────────────────────
 	// RHF validates with full CreateCaseInputSchema (status: "NEW")
@@ -132,14 +135,13 @@ export default function NewCasePage() {
 		};
 
 		setDraftData(cleanData);
-		console.log(cleanData);
 		setIsSummaryOpen(true);
 	}, []);
 
 	const handleFinalConfirm = useCallback(async () => {
 		if (!draftData) return;
-		await createCase(draftData);
-	}, [draftData, createCase]);
+		await createCase({ ...draftData, existingDraftId });
+	}, [draftData, createCase, existingDraftId]);
 	// ── DRAFT FLOW ─────────────────────────────────────────────────────
 	// Bypass RHF entirely — validate with SaveDraftCaseInputSchema directly
 	const handleSaveDraft = useCallback(async () => {
@@ -227,13 +229,7 @@ export default function NewCasePage() {
 
 	return (
 		<div className="flex flex-col h-full animate-in fade-in duration-700">
-			<NewCaseHeader
-				isSavingDraft={isExecutingSavingDraft}
-				isSubmittingCase={isCreatingCase}
-				onSaveDraft={handleSaveDraft}
-				control={form.control}
-				onSubmitCaseForReview={() => form.handleSubmit(handleFormValid)()}
-			/>
+			<NewCaseHeader isSavingDraft={isExecutingSavingDraft} isSubmittingCase={isCreatingCase} onSaveDraft={handleSaveDraft} control={form.control} />
 			<div className="flex-1 min-h-0 relative z-10">
 				<div className="flex flex-col xl:flex-row gap-8 h-full">
 					{/* FORM SECTION (Left) */}
@@ -266,18 +262,8 @@ export default function NewCasePage() {
 								{/* SECTION 2: THE PRODUCT */}
 								<HierarchicalClinicalPicker newCreatedCategory={newCategory} handleOpenCreateCategorySheet={handleOpenCategorySheet} />
 
-								{/* SECTION 3: LOGISTICS & FILES */}
-								<section className="space-y-8">
-									<div className="flex items-center gap-3">
-										<div className="w-1.5 h-6 bg-primary rounded-full" />
-										<h2 className="text-xl font-bold tracking-tight">Technical Assets</h2>
-									</div>
-
-									<div className="grid grid-cols-1 gap-12">
-										<CaseFileUploadZone onUploadFiles={handleUploadedAssets} />
-										<ClinicalAssetPreview control={form.control} getValues={form.getValues} />
-									</div>
-								</section>
+								{/* SECTION 3: Assets & FILES */}
+								<AssetsAndFilesSection control={form.control} getValues={form.getValues} onUploadFiles={handleUploadedAssets} />
 
 								{/* SECTION 4: CLINICAL NOTES */}
 								<GlobalCaseNotesSection control={form.control} />
@@ -301,9 +287,9 @@ export default function NewCasePage() {
 					<RegisterPatientSheet isOpen={openCreateNewPatientSheet} onClose={() => setOpenCreateNewPatientSheet(false)} onPatientCreated={(p) => setNewPatient(p)} />
 					<RegisterClinicSheet isOpen={openCreateNewClinicSheet} onClose={() => setOpenCreateNewClinicSheet(false)} onClinicCreated={(c) => setNewClinic(c)} />
 					<CreateCategorySheet isOpen={openCreateNewCategory} onClose={() => setOpenCreateNewCategory(false)} onCategoryCreated={(c) => setNewCategory(c)} />
-					<CreateWorkTypeSheet />
-					<CreateProductSheet />
-					<CreatePricingPlanSheet />
+					{isWTCreationSheetOpen && <CreateWorkTypeSheet />}
+					{isProductCreationSheetOpen && <CreateProductSheet />}
+					{isPricingPlanCreationSheetOpen && <CreatePricingPlanSheet />}
 					<RegisterStaffSheet
 						isOpen={registerNewStaffMemberState.open}
 						onClose={() => setRegisterNewStaffMemberState({ open: false, requiredRoles: [] })}
@@ -316,7 +302,7 @@ export default function NewCasePage() {
 						onConfirm={handleFinalConfirm}
 						existingDraftId={existingDraftId}
 						data={draftData}
-						isSubmitting={isExecuting}
+						isSubmitting={isCreatingCase}
 					/>
 				</div>
 			</div>
