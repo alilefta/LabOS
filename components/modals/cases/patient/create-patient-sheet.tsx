@@ -7,7 +7,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFo
 import { Button } from "@/components/ui/button";
 import { InputWithLabel } from "@/components/ui/custom/input-with-label";
 import { toast } from "sonner";
-import { CreatePatientInput, CreatePatientInputSchema, PatientDetails } from "@/schema/composed/patient.details";
+import { CreatePatientInput, CreatePatientInputSchema, PatientDetails, PatientDetailsUI } from "@/schema/composed/patient.details";
 import { useAction } from "next-safe-action/hooks";
 import { createPatientAction } from "@/actions/patient";
 import { handleSafeActionError } from "@/lib/safe-action-helpers";
@@ -15,12 +15,15 @@ import { useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { InputGroupTextarea } from "@/components/ui/input-group";
 import { CustomFieldWithLabel } from "@/components/ui/custom/custom-field-with-label";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface Props {
 	isOpen: boolean;
 	onClose: () => void;
 	onPatientCreated: (newPatient: PatientDetails) => void;
 }
+
+type DataShape = PatientDetailsUI[];
 
 export function RegisterPatientSheet({ isOpen, onClose, onPatientCreated }: Props) {
 	const form = useForm<CreatePatientInput>({
@@ -29,10 +32,24 @@ export function RegisterPatientSheet({ isOpen, onClose, onPatientCreated }: Prop
 		mode: "onBlur",
 	});
 
+	const queryClient = useQueryClient();
+
 	const { executeAsync: registerPatient, isExecuting } = useAction(createPatientAction, {
 		onSuccess: ({ data }) => {
 			toast.success("Clinical profile created");
 			onPatientCreated(data.patient);
+			const defaultSearchQueryKey = ["patients", "search", ""] as const;
+
+			queryClient.setQueryData<DataShape>(defaultSearchQueryKey, (prevData): DataShape => {
+				if (!prevData) return [data.patient];
+
+				const isPatientExists = prevData.find((patient) => patient.id === data.patient.id);
+				if (!isPatientExists) {
+					return [data.patient as unknown as PatientDetailsUI, ...prevData];
+				}
+				return prevData;
+			});
+
 			onClose();
 			form.reset();
 		},

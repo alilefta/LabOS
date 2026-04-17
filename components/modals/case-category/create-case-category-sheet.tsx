@@ -12,17 +12,18 @@ import { toast } from "sonner";
 import { useAction } from "next-safe-action/hooks";
 import { createCaseCategoryAction } from "@/actions/case-category"; // Assuming your action name
 import { handleSafeActionError } from "@/lib/safe-action-helpers";
-import { cn } from "@/lib/utils";
 import { CaseCategoryDetailsUI, CreateCaseCategoryInput, CreateCaseCategoryInputSchema } from "@/schema/composed/case-category.details";
 import { CategoryIconUpload } from "./category-icon-upload";
+import { memo } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface Props {
 	isOpen: boolean;
 	onClose: () => void;
 	onCategoryCreated?: (newCategory: CaseCategoryDetailsUI) => void;
 }
-
-export function CreateCategorySheet({ isOpen, onClose, onCategoryCreated }: Props) {
+type QueryDataShape = CaseCategoryDetailsUI[];
+export const CreateCategorySheet = memo(function CreateCategorySheet({ isOpen, onClose, onCategoryCreated }: Props) {
 	const form = useForm<CreateCaseCategoryInput>({
 		resolver: zodResolver(CreateCaseCategoryInputSchema),
 		defaultValues: {
@@ -33,11 +34,23 @@ export function CreateCategorySheet({ isOpen, onClose, onCategoryCreated }: Prop
 		mode: "onBlur",
 	});
 
+	const queryClient = useQueryClient();
 	const { executeAsync: createCategory, isExecuting } = useAction(createCaseCategoryAction, {
 		onSuccess: ({ data }) => {
 			toast.success("Clinical category created successfully");
 
 			if (onCategoryCreated) onCategoryCreated(data.category);
+
+			// --- CRITICAL BUG FIX: Duplicate Key Prevention ---
+			queryClient.setQueryData<QueryDataShape>(["categories"], (old: QueryDataShape | undefined) => {
+				if (!old) return [data.category];
+
+				// Safely check if the background fetch already pulled this new item in
+				const exists = old.some((c) => c.id === data.category.id);
+				if (exists) return old;
+
+				return [...old, data.category];
+			});
 
 			onClose();
 			form.reset();
@@ -68,46 +81,47 @@ export function CreateCategorySheet({ isOpen, onClose, onCategoryCreated }: Prop
 				{/* --- FORM BODY --- */}
 				<div className="flex-1 overflow-y-auto p-8 space-y-8 custom-scrollbar">
 					{/* --- UX FEATURE: HIERARCHY EDUCATION --- */}
-					<div className="p-5 rounded-3xl bg-slate-50 dark:bg-white/2 border border-border space-y-4">
+					<div className="p-5 rounded-3xl bg-slate-50 dark:bg-white/2 border border-border space-y-4 shadow-sm">
 						<div className="flex items-center gap-2 mb-2">
 							<Info className="w-4 h-4 text-primary" />
 							<span className="text-[11px] font-bold uppercase tracking-widest text-foreground">Understanding hierarchy</span>
 						</div>
 
 						{/* Visual Tree Representation */}
-						<div className="flex flex-col gap-2 pl-2 border-l-2 border-primary/20 ml-2">
-							<div className="flex items-center gap-3">
-								<div className="w-6 h-6 rounded-lg bg-primary text-white flex items-center justify-center shadow-sm">
-									<LayoutGrid className="w-3.5 h-3.5" />
+						<div className="flex flex-col relative pl-2 ml-1">
+							<div className="absolute top-4 bottom-4 left-2.75 w-0.5 bg-border dark:bg-white/5 -z-10"></div>
+
+							<div className="flex items-start gap-4 pb-5">
+								<div className="w-6 h-6 rounded-full bg-primary text-white flex items-center justify-center ring-4 ring-slate-50 dark:ring-[#121214] shadow-sm shadow-primary/20">
+									<LayoutGrid className="w-3 h-3" />
 								</div>
-								<div className="flex flex-col">
-									<span className="text-xs font-bold text-foreground">Category (Current)</span>
-									<span className="text-[10px] text-muted-foreground">e.g. Fixed Prosthetics</span>
-								</div>
-							</div>
-							<div className="h-4 w-px bg-border ml-3" />
-							<div className="flex items-center gap-3 opacity-60">
-								<div className="w-6 h-6 rounded-lg bg-slate-200 dark:bg-white/10 flex items-center justify-center">
-									<Layers className="w-3.5 h-3.5" />
-								</div>
-								<div className="flex flex-col">
-									<span className="text-xs font-bold">Work type</span>
-									<span className="text-[10px]">e.g. Crowns & Bridges</span>
+								<div className="flex flex-col mt-0.5">
+									<span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground leading-none mb-1">Category (Current)</span>
+									<span className="text-xs font-bold text-foreground">e.g. Fixed Prosthetics</span>
 								</div>
 							</div>
-							<div className="h-4 w-px bg-border ml-3" />
-							<div className="flex items-center gap-3 opacity-40">
-								<div className="w-6 h-6 rounded-lg bg-slate-200 dark:bg-white/10 flex items-center justify-center">
-									<Package className="w-3.5 h-3.5" />
+
+							<div className="flex items-start gap-4 opacity-60 pb-5">
+								<div className="w-6 h-6 rounded-full bg-slate-200 dark:bg-white/10 flex items-center justify-center ring-4 ring-slate-50 dark:ring-[#121214]">
+									<Layers className="w-3 h-3 text-slate-500" />
 								</div>
-								<div className="flex flex-col">
-									<span className="text-xs font-bold">Product</span>
-									<span className="text-[10px]">e.g. Zirconia Multi-layer</span>
+								<div className="flex flex-col mt-0.5">
+									<span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground leading-none mb-1">Work type</span>
+									<span className="text-xs font-bold text-foreground">e.g. Crowns & Bridges</span>
+								</div>
+							</div>
+
+							<div className="flex items-start gap-4 opacity-40">
+								<div className="w-6 h-6 rounded-full bg-slate-200 dark:bg-white/10 flex items-center justify-center ring-4 ring-slate-50 dark:ring-[#121214]">
+									<Package className="w-3 h-3 text-slate-500" />
+								</div>
+								<div className="flex flex-col mt-0.5">
+									<span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground leading-none mb-1">Product</span>
+									<span className="text-xs font-bold text-foreground">e.g. Zirconia Multi-layer</span>
 								</div>
 							</div>
 						</div>
 					</div>
-
 					<FormProvider {...form}>
 						<form id="create-category-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
 							<Controller
@@ -169,4 +183,4 @@ export function CreateCategorySheet({ isOpen, onClose, onCategoryCreated }: Prop
 			</SheetContent>
 		</Sheet>
 	);
-}
+});

@@ -81,7 +81,7 @@ export function RegisterStaffSheet({ isOpen, onClose, onStaffCreated, requiredRo
 				const defaultSearchQueryKey = ["labStaff", "search", ""] as const;
 
 				queryClient.setQueryData<DataShape>(defaultSearchQueryKey, (prevData): DataShape => {
-					if (!prevData) return [];
+					if (!prevData) return [data.staff];
 
 					const isMemberExists = prevData.find((staff) => staff.id === data.staff.id);
 					if (!isMemberExists) {

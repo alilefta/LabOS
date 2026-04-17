@@ -84,7 +84,13 @@ export const CreatePricingPlanSheet = memo(function CreatePricingPlanSheet() {
 			}
 
 			queryClient.setQueryData<QueryDataShape>(["pricingPlans", activeProductId], (old: QueryDataShape | undefined) => {
-				return old ? [data.pricingPlan, ...old] : [data.pricingPlan];
+				if (!old) return [data.pricingPlan];
+
+				// Safely check if the background fetch already pulled this new item in
+				const exists = old.some((c) => c.id === data.pricingPlan.id);
+				if (exists) return old;
+
+				return [...old, data.pricingPlan];
 			});
 
 			queryClient.invalidateQueries({ queryKey: ["pricingPlans", activeProductId] });

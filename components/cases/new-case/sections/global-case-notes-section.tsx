@@ -1,12 +1,13 @@
 "use client";
 
-import { Controller, Control } from "react-hook-form";
+import { Controller, useFormContext } from "react-hook-form";
 import { CreateCaseInput } from "@/schema/composed/case.details";
 import { CustomFieldWithLabel } from "@/components/ui/custom/custom-field-with-label";
 import { cn } from "@/lib/utils";
 import { memo } from "react";
 
-export const GlobalCaseNotesSection = memo(function GlobalCaseNotesSection({ control }: { control: Control<CreateCaseInput> }) {
+export const GlobalCaseNotesSection = memo(function GlobalCaseNotesSection() {
+	const { control } = useFormContext<CreateCaseInput>();
 	return (
 		<section className="space-y-6 animate-in fade-in duration-500">
 			<div className="flex items-center gap-3">

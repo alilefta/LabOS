@@ -11,8 +11,8 @@ export const CaseBaseSchema = z.object({
 	grandTotal: z.number().nullable(),
 	clinicId: z.string().nullable(),
 	dentistId: z.string().nullable(),
-	deadline: z.date().nullable(),
 	notes: z.string().nullable(),
+	deadline: z.date().nullable(),
 	createdAt: z.date(),
 	updatedAt: z.date(),
 });

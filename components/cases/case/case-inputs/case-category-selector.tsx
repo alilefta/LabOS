@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useCallback, useEffect, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import { useFieldArray, useFormContext } from "react-hook-form";
 import { AlertTriangle, Check, Info, Plus } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
@@ -76,20 +76,23 @@ export const CaseCategorySelector = memo(function CaseCategorySelector({ onCreat
 		onCreateNew();
 	}, [onCreateNew]);
 
-	const displayCategories = fetchedCategories && fetchedCategories.length > 0 ? fetchedCategories : [];
+	const displayCategories = useMemo(() => (fetchedCategories && fetchedCategories.length > 0 ? fetchedCategories : []), [fetchedCategories]);
 
-	const handleCategoryClick = (category: CaseCategoryDetailsUI) => {
-		if (selectedCat === category.id) return;
+	const handleCategoryClick = useCallback(
+		(category: CaseCategoryDetailsUI) => {
+			if (selectedCat === category.id) return;
 
-		// Only trigger the destructive warning if they actually selected a Product in one of the items
-		if (hasConfiguredItems) {
-			setPendingCategory(category.id);
-		} else {
-			// Silently switch the category (keeps their default empty item intact)
-			setValue("caseCategoryId", category.id, { shouldValidate: true });
-			handleSelect(category.id, category.name);
-		}
-	};
+			// Only trigger the destructive warning if they actually selected a Product in one of the items
+			if (hasConfiguredItems) {
+				setPendingCategory(category.id);
+			} else {
+				// Silently switch the category (keeps their default empty item intact)
+				setValue("caseCategoryId", category.id, { shouldValidate: true });
+				handleSelect(category.id, category.name);
+			}
+		},
+		[handleSelect, hasConfiguredItems, selectedCat, setValue],
+	);
 
 	useEffect(() => {
 		if (newCreatedCategory?.id) {

@@ -6,37 +6,36 @@ import { PatientBaseSchema } from "../base/patient.base";
 import { CaseCategoryBaseSchema } from "../base/case-category.base";
 import { ClinicBaseSchema } from "../base/clinic.base";
 import { CaseAssetFileBaseSchema } from "../base/case-asset-file.base";
-import { CreateCaseWorkItemInputSchema } from "./case-work-item.details";
+import { CaseWorkItemDetailsUISchema, CreateCaseWorkItemInputSchema } from "./case-work-item.details";
 import { AssetFileTypeSchema, CaseStatusSchema, CommissionTypeSchema, JawTypeSchema, StaffRoleCategorySchema } from "../base/enums.base";
 import { DentistBaseSchema } from "../base/dentist.base";
 import { CreateCaseAssetFilesInputSchema } from "./case-asset-file.details";
 import { emptyToUndefinedTransformer } from "../base/utils.base";
-import { LabStaffBaseSchema } from "../base/lab-staff.base";
-import { CreateCaseStaffAssignmentInputSchema } from "./case-staff-assignment.details";
+import { CaseStaffAssignmentDetailsUISchema, CreateCaseStaffAssignmentInputSchema } from "./case-staff-assignment.details";
 import { ToothPositionSchema } from "../base/tooth-position.base";
 import { CaseStaffAssignmentBaseSchema } from "../base/case-staff-assignment.base";
 
 export const CaseDetailsSchema = CaseBaseSchema.extend({
-	caseCategory: CaseCategoryBaseSchema.optional(),
+	caseCategory: CaseCategoryBaseSchema.nullable(),
 	caseItems: z.array(CaseWorkItemBaseSchema),
-	clinic: ClinicBaseSchema.optional(),
-	caseAssetFiles: z.array(CaseAssetFileBaseSchema).optional(),
+	clinic: ClinicBaseSchema.nullable(),
+	caseAssetFiles: z.array(CaseAssetFileBaseSchema).nullable(),
 	lab: LabBaseSchema,
 	patient: PatientBaseSchema,
-	dentist: DentistBaseSchema.optional(),
+	dentist: DentistBaseSchema.nullable(),
 	staffAssignments: z.array(CaseStaffAssignmentBaseSchema),
 });
 export type CaseDetails = z.infer<typeof CaseDetailsSchema>;
 
 export const CaseDetailsUISchema = CaseBaseSchema.extend({
-	caseCategory: CaseCategoryBaseSchema.optional(),
-	caseItems: z.array(CaseWorkItemBaseSchema),
-	clinic: ClinicBaseSchema.optional(),
-	caseAssetFiles: z.array(CaseAssetFileBaseSchema).optional(),
-	lab: LabBaseSchema.optional(),
-	patient: PatientBaseSchema.optional(),
-	dentist: DentistBaseSchema.optional(),
-	staffAssignments: z.array(CaseStaffAssignmentBaseSchema).optional(),
+	caseCategory: CaseCategoryBaseSchema.nullable(),
+	caseItems: z.array(CaseWorkItemDetailsUISchema),
+	clinic: ClinicBaseSchema.nullable(),
+	caseAssetFiles: z.array(CaseAssetFileBaseSchema).nullable(),
+	lab: LabBaseSchema.nullable(),
+	patient: PatientBaseSchema.nullable(),
+	dentist: DentistBaseSchema.nullable(),
+	staffAssignments: z.array(CaseStaffAssignmentDetailsUISchema).nullable(),
 });
 export type CaseDetailsUI = z.infer<typeof CaseDetailsUISchema>;
 

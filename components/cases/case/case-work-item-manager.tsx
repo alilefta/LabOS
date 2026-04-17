@@ -12,6 +12,8 @@ import { CreateCaseWorkItemInput } from "@/schema/composed/case-work-item.detail
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useQueryClient } from "@tanstack/react-query";
 import { ProductDetailsUI } from "@/schema/composed/product.details";
+import { JawType } from "@/schema/base/enums.base";
+import { WorktypeDetailsUI } from "@/schema/composed/worktype.details";
 
 // 1. UNIVERSAL NUMBERING DICTIONARY
 // Maps the long Prisma Enum to the Universal Tooth Number (1-32)
@@ -82,6 +84,19 @@ export const CaseWorkItemManager = memo(function CaseWorkItemManager({ categoryN
 			}
 
 			return `Product ${id.substring(0, 4)}...`;
+		},
+		[queryClient],
+	);
+
+	const getWorkTypeName = useCallback(
+		(id: string | null, selectedCategoryId: string | null, selectedJawType: JawType | null) => {
+			if (!id) return "Incomplete Work Item";
+			if (selectedCategoryId) {
+				const worktypes = queryClient.getQueryData<WorktypeDetailsUI[] | undefined>(["workTypes", selectedCategoryId, selectedJawType]);
+				if (worktypes && worktypes.length > 0) return worktypes?.find((wt) => wt.id === id)?.name || `WorkType ${id.substring(0, 4)}...`;
+			}
+
+			return `WorkType ${id.substring(0, 4)}...`;
 		},
 		[queryClient],
 	);
@@ -202,7 +217,7 @@ export const CaseWorkItemManager = memo(function CaseWorkItemManager({ categoryN
 									<div className="flex flex-col gap-1.5">
 										<div className="flex flex-wrap items-center gap-2">
 											<span className="text-sm font-bold text-foreground group-hover:text-primary transition-colors">
-												{getProductName(item.productId ?? null, item.workTypeId ?? null)}
+												{getWorkTypeName(item.workTypeId ?? null, selectedCategoryId ?? null, item.jawType)} - {getProductName(item.productId ?? null, item.workTypeId ?? null)}
 											</span>
 											<span
 												className={cn(

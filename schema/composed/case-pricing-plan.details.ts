@@ -16,10 +16,10 @@ export const CasePricingPlanDetailsSchema = CasePricingPlanBaseSchema.extend({
 export type CasePricingPlanDetails = z.infer<typeof CasePricingPlanDetailsSchema>;
 
 export const CasePricingPlanDetailsUISchema = CasePricingPlanBaseSchema.extend({
-	lab: LabBaseSchema.optional(),
-	caseWorkItem: z.array(CaseWorkItemBaseSchema).optional(),
-	product: ProductBaseSchema.optional(),
-	clinic: ClinicBaseSchema.optional(),
+	lab: LabBaseSchema.nullable(),
+	caseWorkItem: z.array(CaseWorkItemBaseSchema).nullable(),
+	product: ProductBaseSchema.nullable(),
+	clinic: ClinicBaseSchema.nullable(),
 });
 
 export type CasePricingPlanDetailsUI = z.infer<typeof CasePricingPlanDetailsUISchema>;

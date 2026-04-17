@@ -75,8 +75,20 @@ export function RegisterClinicSheet({ isOpen, onClose, onClinicCreated }: Props)
 			toast.success("Clinic partner registered!");
 
 			// Update the TanStack Query Cache for the Selector
-			queryClient.setQueryData<QueryDataShape>(["clinics", "search", ""], (old: QueryDataShape | undefined) => {
-				return old ? [data.clinic, ...old] : [data.clinic];
+			// queryClient.setQueryData<QueryDataShape>(, (old: QueryDataShape | undefined) => {
+			// 	return old ? [data.clinic, ...old] : [data.clinic];
+			// });
+
+			const defaultSearchQueryKey = ["clinics", "search", ""] as const;
+
+			queryClient.setQueryData<QueryDataShape>(defaultSearchQueryKey, (prevData): QueryDataShape => {
+				if (!prevData) return [data.clinic];
+
+				const isClinicExists = prevData.find((clinic) => clinic.id === data.clinic.id);
+				if (!isClinicExists) {
+					return [data.clinic as unknown as ClinicDetailsUI, ...prevData];
+				}
+				return prevData;
 			});
 
 			if (onClinicCreated) onClinicCreated(data.clinic);

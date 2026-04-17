@@ -7,7 +7,6 @@ import { useCallback, useState } from "react";
 import { NewCaseHeader } from "@/components/cases/new-case/new-case-header";
 import { FormProvider, useForm } from "react-hook-form";
 import { CreateCaseInput, CreateCaseInputSchema, SaveDraftCaseInputSchema } from "@/schema/composed/case.details";
-import { PatientAndClinicSection } from "@/components/cases/new-case/sections/patient-clinic-section";
 import { RegisterPatientSheet } from "@/components/modals/cases/patient/create-patient-sheet";
 
 import { PatientDetails } from "@/schema/composed/patient.details";
@@ -18,26 +17,21 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { CreateCategorySheet } from "@/components/modals/case-category/create-case-category-sheet";
 import { CaseCategoryDetailsUI } from "@/schema/composed/case-category.details";
 import { CreateWorkTypeSheet } from "@/components/modals/work-type/create-work-type-sheet";
-import { HierarchicalClinicalPicker } from "@/components/cases/new-case/sections/hierarchical-clinical-picker";
 import { CreateProductSheet } from "@/components/modals/product/create-product-sheet";
 import { CreatePricingPlanSheet } from "@/components/modals/pricing/create-pricing-plan-sheet";
 import { CreateCaseAssetFilesInput } from "@/schema/composed/case-asset-file.details";
 import { toast } from "sonner";
-import { LogisticsAndRoutingSection } from "@/components/cases/new-case/sections/logisitc-and-routing-section";
 import { RegisterStaffSheet } from "@/components/modals/cases/staff/register-staff-sheet";
 import { LabStaffDetailsUI } from "@/schema/composed/lab-staff.details";
 import { StaffRoleCategory } from "@/schema/base/enums.base";
 import { useAction } from "next-safe-action/hooks";
 import { handleSafeActionError } from "@/lib/safe-action-helpers";
-import { GlobalCaseNotesSection } from "@/components/cases/new-case/sections/global-case-notes-section";
 import { createDentalCaseAction, getDraftByPatientAction, getRecentDraftsAction, loadDraftByIdAction, saveDraftCaseAction } from "@/actions/case";
 import { useRouter } from "next/navigation";
-import { DraftRecoveryBanner } from "@/components/cases/new-case/drafts/draft-recovery-banner";
 import { useQuery } from "@tanstack/react-query";
-import { PatientDraftPrompt } from "@/components/cases/new-case/drafts/patient-draft-prompt";
 import { mapDraftToFormValues } from "@/lib/case-helpers";
-import { AssetsAndFilesSection } from "@/components/cases/new-case/sections/assets-and-files-section";
 import { useClinicalCreationStore } from "@/store/use-clinical-creation-store";
+import { NewCaseFormContent } from "@/components/cases/new-case/new-case-form-content";
 
 export default function NewCasePage() {
 	// 1. Temporary State
@@ -112,8 +106,10 @@ export default function NewCasePage() {
 
 	const { executeAsync: createCase, isExecuting: isCreatingCase } = useAction(createDentalCaseAction, {
 		onSuccess: ({ data }) => {
-			toast.success(`Case ${data.dentalCase.caseNumber} submitted successfully.`);
-			router.push(`/cases/${data.dentalCase.id}`);
+			setExistingDraftId(undefined); // clear stale draft reference
+
+			toast.success(`Case ${data.createdCase.caseNumber} submitted successfully.`);
+			router.push(`/cases/${data.createdCase.id}`);
 		},
 		onError: ({ error }) => handleSafeActionError(error),
 	});
@@ -141,6 +137,7 @@ export default function NewCasePage() {
 	const handleFinalConfirm = useCallback(async () => {
 		if (!draftData) return;
 		await createCase({ ...draftData, existingDraftId });
+		setIsSummaryOpen(false);
 	}, [draftData, createCase, existingDraftId]);
 	// ── DRAFT FLOW ─────────────────────────────────────────────────────
 	// Bypass RHF entirely — validate with SaveDraftCaseInputSchema directly
@@ -215,8 +212,6 @@ export default function NewCasePage() {
 			form.reset(mapDraftToFormValues(draft));
 			setExistingDraftId(draftId);
 			setPatientDraftPrompt(null);
-			// form.setValue("draftId", draft.id);
-			// form.setValue("caseNumber", draft.caseNumber);
 			toast.success(`Draft ${draft.caseNumber} loaded.`);
 			form.setValue("existingDraftId", draftId);
 		},
@@ -235,42 +230,24 @@ export default function NewCasePage() {
 					{/* FORM SECTION (Left) */}
 					<FormProvider {...form}>
 						<form className="flex-1 overflow-y-auto no-scrollbar pb-48 xl:pb-32 space-y-12" id="new-case-submission-form" onSubmit={form.handleSubmit(handleFormValid)}>
-							<div className="flex-1 overflow-y-auto no-scrollbar pb-20 space-y-12">
-								{/* DRAFTS BANNER (Global) */}
-								{!isLoadingDrafts && recentDrafts.length > 0 && !existingDraftId && !patientDraftPrompt && (
-									<DraftRecoveryBanner drafts={recentDrafts} onResumeDraft={handleResumeDraft} />
-								)}
-
-								{/* DRAFTS PROMPT (Contextual to Patient) */}
-								{patientDraftPrompt && (
-									<PatientDraftPrompt
-										caseNumber={patientDraftPrompt.caseNumber}
-										lastSavedAt={patientDraftPrompt.lastSavedAt}
-										onResume={() => handleResumeDraft(patientDraftPrompt.draftId)}
-										onDismiss={handleDismissPatientDraft}
-									/>
-								)}
-
-								{/* SECTION 1: ORIGIN */}
-								<PatientAndClinicSection
-									handleOpenClinicCreationSheet={handleOpenClinicSheet}
-									handleOpenPatientCreationSheet={handleOpenPatientSheet}
-									newCreatedPatient={newPatient}
-									newCreatedClinic={newClinic}
-									onPatientSelect={handlePatientSelect}
-								/>
-								{/* SECTION 2: THE PRODUCT */}
-								<HierarchicalClinicalPicker newCreatedCategory={newCategory} handleOpenCreateCategorySheet={handleOpenCategorySheet} />
-
-								{/* SECTION 3: Assets & FILES */}
-								<AssetsAndFilesSection control={form.control} getValues={form.getValues} onUploadFiles={handleUploadedAssets} />
-
-								{/* SECTION 4: CLINICAL NOTES */}
-								<GlobalCaseNotesSection control={form.control} />
-
-								{/* SECTION 5: LOGISTICS & ROUTING */}
-								<LogisticsAndRoutingSection newRegisteredStaffMember={newStaffMember} handleOpenRegisterLabStaffSheet={handleOpenStaffSheet} />
-							</div>
+							<NewCaseFormContent
+								isLoadingDrafts={isLoadingDrafts}
+								recentDrafts={recentDrafts}
+								existingDraftId={existingDraftId}
+								patientDraftPrompt={patientDraftPrompt}
+								onResumeDraft={handleResumeDraft}
+								onDismissPatientDraft={handleDismissPatientDraft}
+								onOpenClinicSheet={handleOpenClinicSheet}
+								onOpenPatientSheet={handleOpenPatientSheet}
+								onOpenCategorySheet={handleOpenCategorySheet}
+								onOpenStaffSheet={handleOpenStaffSheet}
+								newPatient={newPatient}
+								newClinic={newClinic}
+								newCategory={newCategory}
+								newStaffMember={newStaffMember}
+								onPatientSelect={handlePatientSelect}
+								onUploadAssets={handleUploadedAssets}
+							/>
 						</form>
 					</FormProvider>
 					{/* AI AUDITOR (Right - Desktop) */}
@@ -309,3 +286,40 @@ export default function NewCasePage() {
 		</div>
 	);
 }
+
+// <div className="flex-1 overflow-y-auto no-scrollbar pb-20 space-y-12">
+// 	{/* DRAFTS BANNER (Global) */}
+// 	{!isLoadingDrafts && recentDrafts.length > 0 && !existingDraftId && !patientDraftPrompt && (
+// 		<DraftRecoveryBanner drafts={recentDrafts} onResumeDraft={handleResumeDraft} />
+// 	)}
+
+// 	{/* DRAFTS PROMPT (Contextual to Patient) */}
+// 	{patientDraftPrompt && (
+// 		<PatientDraftPrompt
+// 			caseNumber={patientDraftPrompt.caseNumber}
+// 			lastSavedAt={patientDraftPrompt.lastSavedAt}
+// 			onResume={() => handleResumeDraft(patientDraftPrompt.draftId)}
+// 			onDismiss={handleDismissPatientDraft}
+// 		/>
+// 	)}
+
+// 	{/* SECTION 1: ORIGIN */}
+// 	<PatientAndClinicSection
+// 		handleOpenClinicCreationSheet={handleOpenClinicSheet}
+// 		handleOpenPatientCreationSheet={handleOpenPatientSheet}
+// 		newCreatedPatient={newPatient}
+// 		newCreatedClinic={newClinic}
+// 		onPatientSelect={handlePatientSelect}
+// 	/>
+// 	{/* SECTION 2: THE PRODUCT */}
+// 	<HierarchicalClinicalPicker newCreatedCategory={newCategory} handleOpenCreateCategorySheet={handleOpenCategorySheet} />
+
+// 	{/* SECTION 3: Assets & FILES */}
+// 	<AssetsAndFilesSection control={form.control} getValues={form.getValues} onUploadFiles={handleUploadedAssets} />
+
+// 	{/* SECTION 4: CLINICAL NOTES */}
+// 	<GlobalCaseNotesSection control={form.control} />
+
+// 	{/* SECTION 5: LOGISTICS & ROUTING */}
+// 	<LogisticsAndRoutingSection newRegisteredStaffMember={newStaffMember} handleOpenRegisterLabStaffSheet={handleOpenStaffSheet} />
+// </div>;

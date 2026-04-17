@@ -14,9 +14,9 @@ export const CaseStaffAssignmentDetailsSchema = CaseStaffAssignmentBaseSchema.ex
 export type CaseStaffAssignmentDetails = z.infer<typeof CaseStaffAssignmentDetailsSchema>;
 
 export const CaseStaffAssignmentDetailsUISchema = CaseStaffAssignmentBaseSchema.extend({
-	case: CaseBaseSchema.optional(),
-	staff: LabStaffBaseSchema.optional(),
-	lab: LabBaseSchema.optional(),
+	case: CaseBaseSchema.nullable(),
+	staff: LabStaffBaseSchema.nullable(),
+	lab: LabBaseSchema.nullable(),
 });
 
 export type CaseStaffAssignmentDetailsUI = z.infer<typeof CaseStaffAssignmentDetailsUISchema>;

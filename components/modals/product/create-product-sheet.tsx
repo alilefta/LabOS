@@ -55,7 +55,13 @@ export const CreateProductSheet = memo(function CreateProductSheet() {
 			}
 
 			queryClient.setQueryData<QueryDataShape>(["products", activeWorkTypeId], (old: QueryDataShape | undefined) => {
-				return old ? [data.product, ...old] : [data.product];
+				if (!old) return [data.product];
+
+				// Safely check if the background fetch already pulled this new item in
+				const exists = old.some((c) => c.id === data.product.id);
+				if (exists) return old;
+
+				return [...old, data.product];
 			});
 
 			queryClient.invalidateQueries({

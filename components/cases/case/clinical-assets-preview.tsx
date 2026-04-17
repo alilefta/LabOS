@@ -35,6 +35,7 @@ interface Props {
 	getValues: UseFormGetValues<CreateCaseInput>;
 }
 export const ClinicalAssetPreview = memo(function ClinicalAssetPreview({ control, getValues }: Props) {
+	console.log("Assets re-rendered");
 	const { fields, remove } = useFieldArray({
 		control,
 		name: "caseAssetFiles",
@@ -48,7 +49,7 @@ export const ClinicalAssetPreview = memo(function ClinicalAssetPreview({ control
 
 	const openAssetLightboxModal = (index: number) => {
 		setLightboxState({
-			stableAssets: [...getValues("caseAssetFiles")],
+			stableAssets: [...(getValues("caseAssetFiles") || [])],
 			index,
 		});
 	};
@@ -59,6 +60,7 @@ export const ClinicalAssetPreview = memo(function ClinicalAssetPreview({ control
 		<div className="space-y-4">
 			<h4 className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1">Attachment Review</h4>
 			{/* --- EMPTY STATE --- */}
+			{/* Prefer showing nothing over empty state!!!! */}
 			{/* {isEmpty && (
 				<div className="h-40 rounded-2xl border-2 border-dashed border-border flex flex-col items-center justify-center bg-slate-50/50 dark:bg-white/2 animate-in fade-in zoom-in-95 duration-300">
 					<div className="w-12 h-12 rounded-xl bg-white dark:bg-[#121214] border border-border shadow-sm flex items-center justify-center mb-4">
@@ -89,30 +91,37 @@ export const ClinicalAssetPreview = memo(function ClinicalAssetPreview({ control
 								{/* Visual Header / Thumbnail */}
 								<div className="h-36 bg-slate-100 dark:bg-[#09090B] border-b border-border relative flex flex-col items-center justify-center overflow-hidden">
 									{/* 1. IMAGE RENDERING */}
+									{/* 1. OPTIMIZED IMAGE RENDERING */}
 									{isImage && currentLiveAsset.documentUrl ? (
-										<Image src={currentLiveAsset.documentUrl} alt="Asset" fill className="object-cover transition-transform duration-700 group-hover:scale-105" />
-									) : isVideo && currentLiveAsset.documentUrl ? (
-										<>
-											<video
-												src={currentLiveAsset.documentUrl}
-												className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-												preload="metadata"
-												muted
-											/>
-											<div className="absolute inset-0 flex items-center justify-center pointer-events-none transition-opacity duration-300 group-hover:opacity-0">
-												<div className="w-10 h-10 rounded-full bg-black/40 backdrop-blur-md border border-white/20 flex items-center justify-center text-white shadow-lg">
-													<Play className="w-4 h-4 ml-0.5" />
-												</div>
-											</div>
-										</>
+										<Image
+											src={currentLiveAsset.documentUrl}
+											alt="Asset"
+											fill
+											// Starts invisible (opacity-0), then transitions smoothly when loaded
+											className="object-cover opacity-0 transition-all duration-700 group-hover:scale-105"
+											onLoad={(e) => {
+												e.currentTarget.classList.remove("opacity-0");
+												e.currentTarget.classList.add("opacity-80", "group-hover:opacity-100");
+											}}
+										/>
 									) : (
-										// 3D MODEL FALLBACK UI
-										<div className="relative z-10 flex flex-col items-center justify-center text-center p-4">
+										// 2. OPTIMIZED VIDEO & 3D MODEL FALLBACK UI
+										// Removed heavy <video> tag, relying purely on lightweight UI
+										<div className="relative z-10 flex flex-col items-center justify-center text-center p-4 w-full h-full bg-slate-50 dark:bg-white/2">
 											{getIcon(currentLiveAsset.assetFileType)}
-											<span className="text-xs font-bold text-foreground line-clamp-1 mb-2">{currentLiveAsset.title}</span>
+											<span className="text-xs font-bold text-foreground line-clamp-1 mb-2 px-2">{currentLiveAsset.title}</span>
 											<span className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest bg-background/80 px-2 py-0.5 rounded-md backdrop-blur-md shadow-sm border border-border">
 												{currentLiveAsset.fileExtension || currentLiveAsset.assetFileType}
 											</span>
+
+											{/* Show a Play Button overlay specifically for Videos */}
+											{isVideo && (
+												<div className="absolute inset-0 flex items-center justify-center pointer-events-none ">
+													<div className="w-10 h-10 rounded-full bg-black/40 backdrop-blur-md border border-white/20 flex items-center justify-center text-white shadow-lg">
+														<Play className="w-4 h-4 ml-0.5" />
+													</div>
+												</div>
+											)}
 										</div>
 									)}
 

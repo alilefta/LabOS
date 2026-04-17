@@ -3,7 +3,9 @@ import { daError, DAResult, daSuccess, toDAError } from "@/lib/data-access-error
 import { ERRORS } from "@/lib/errors";
 import { getServerSession } from "@/lib/get-session";
 import { tenantPrisma } from "@/lib/prisma";
+import { serverCaseToCaseDetailsDTOMapper } from "@/lib/server-only-helpers";
 import { CaseBase } from "@/schema/base/case.base";
+import { CaseDetailsUI } from "@/schema/composed/case.details";
 
 export async function getCases(page: number, limit: number): Promise<DAResult<CaseBase[]>> {
 	try {
@@ -25,7 +27,7 @@ export async function getCases(page: number, limit: number): Promise<DAResult<Ca
 			where: { labId },
 			orderBy: { createdAt: "desc" },
 			include: {
-				Technician: true,
+				staffAssignments: true,
 				clinic: true,
 				caseItems: true,
 				patient: true,
@@ -40,6 +42,54 @@ export async function getCases(page: number, limit: number): Promise<DAResult<Ca
 	}
 }
 
+export async function getDentalCaseById(caseId: string) {
+	const session = await getServerSession();
+
+	if (!session) {
+		return daError(ERRORS.UNAUTHORIZED.toJSON());
+	}
+
+	const labId = session.user.labId;
+
+	if (!labId) {
+		return daError(ERRORS.LAB_NOT_FOUND.toJSON());
+	}
+
+	const prisma = await tenantPrisma(labId);
+
+	const dentalCase = await prisma.case.findUnique({
+		where: {
+			id: caseId,
+			labId: labId,
+		},
+		include: {
+			clinic: true,
+			patient: true,
+			dentist: true,
+			caseAssetFiles: true,
+			staffAssignments: {
+				include: {
+					staff: true,
+				},
+			},
+			caseItems: {
+				include: {
+					casePricingPlan: true,
+					product: true,
+					selectedTeeth: true,
+					workType: true,
+				},
+			},
+			caseCategory: true,
+		},
+	});
+
+	if (!dentalCase) {
+		return daError(ERRORS.NOT_FOUND.toJSON());
+	}
+
+	return daSuccess<CaseDetailsUI | null>(serverCaseToCaseDetailsDTOMapper({ ...dentalCase, lab: null, caseItems: dentalCase.caseItems.map((ci) => ({ ...ci, lab: null, dentalCase: null })) }));
+}
 export const rawCaseToCaseBaseMapper = (data: Case[]): CaseBase[] => {
 	return data.map((c) => ({
 		...c,

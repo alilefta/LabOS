@@ -69,7 +69,13 @@ export const CreateWorkTypeSheet = memo(function CreateWorkTypeSheet() {
 
 			if (activeJawType && activeCategoryId) {
 				queryClient.setQueryData<QueryDataShape>(["workTypes", activeCategoryId, activeJawType], (old: QueryDataShape | undefined) => {
-					return old ? [data.worktype, ...old] : [data.worktype];
+					if (!old) return [data.worktype];
+
+					// Safely check if the background fetch already pulled this new item in
+					const exists = old.some((c) => c.id === data.worktype.id);
+					if (exists) return old;
+
+					return [...old, data.worktype];
 				});
 			} else {
 				queryClient.invalidateQueries({

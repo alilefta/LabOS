@@ -9,9 +9,7 @@ import { SelectedToothBaseSchema } from "../base/selected-tooth.base";
 import { JawTypeSchema } from "../base/enums.base";
 import { WorkTypeBaseSchema } from "../base/worktype.base";
 import { CreateSelectedToothInputSchema } from "./selected-tooth.details";
-import { ToothPositionSchema } from "../base/tooth-position.base";
 import { emptyToUndefinedTransformer } from "../base/utils.base";
-// import { emptyToUndefinedTransformer } from "../base/utils.base";
 
 export const CaseWorkItemDetailsSchema = CaseWorkItemBaseSchema.extend({
 	product: ProductBaseSchema.nullable(),
@@ -25,12 +23,12 @@ export const CaseWorkItemDetailsSchema = CaseWorkItemBaseSchema.extend({
 export type CaseWorkItemDetails = z.infer<typeof CaseWorkItemDetailsSchema>;
 
 export const CaseWorkItemDetailsUISchema = CaseWorkItemBaseSchema.extend({
-	product: ProductBaseSchema.optional(),
-	Lab: LabBaseSchema.optional(),
-	casePricingPlan: CasePricingPlanBaseSchema.optional(),
-	dentalCase: CaseBaseSchema.optional(),
-	selectedTeeth: z.array(SelectedToothBaseSchema).optional(),
-	workType: WorkTypeBaseSchema.optional(),
+	product: ProductBaseSchema.nullable(),
+	lab: LabBaseSchema.nullable(),
+	casePricingPlan: CasePricingPlanBaseSchema.nullable(),
+	dentalCase: CaseBaseSchema.nullable(),
+	selectedTeeth: z.array(SelectedToothBaseSchema).nullable(),
+	workType: WorkTypeBaseSchema.nullable(),
 });
 
 export type CaseWorkItemDetailsUI = z.infer<typeof CaseWorkItemDetailsUISchema>;

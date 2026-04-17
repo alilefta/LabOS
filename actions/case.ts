@@ -4,7 +4,7 @@ import { CasePricingPlanModel } from "@/generated/prisma/models";
 import { ERRORS } from "@/lib/errors";
 import { tenantPrisma } from "@/lib/prisma";
 import { actionClientWithLab } from "@/lib/safe-action";
-import { caseServerToFrontDTO, draftCaseServerToDTO, draftSummaryServerToDTO, optionalSelectiveDraftCaseServerToDTO } from "@/lib/server-only-helpers";
+import { serverCaseToCaseDetailsDTOMapper, draftCaseServerToDTO, draftSummaryServerToDTO, optionalSelectiveDraftCaseServerToDTO } from "@/lib/server-only-helpers";
 
 import { JawType } from "@/schema/base/enums.base";
 import { ToothPosition } from "@/schema/base/tooth-position.base";
@@ -35,6 +35,7 @@ export const createDentalCaseAction = actionClientWithLab
 		// for selected teeth I should normalize them to be positions
 		// for assets they can be created throughly
 		// for work items at least one should exists, AND have pricingPlanId AND if jawType is Upper or Lower there should be teeth selected
+
 		const validWorkItems = (caseWorkItems ?? []).filter((item) => item.productId && item.casePricingPlanId);
 
 		if (status !== "DRAFT" && validWorkItems.length === 0) {
@@ -55,7 +56,7 @@ export const createDentalCaseAction = actionClientWithLab
 			const pricingPlanIds = [...new Set(validWorkItems.map((cw) => cw.casePricingPlanId))];
 			const staffIds = staffAssignments?.map((s) => s.staffId) ?? [];
 
-			const [patient, clinic, category, pricingPlans, staffMembers] = await Promise.all([
+			const [patient, clinic, category, pricingPlans, staffMembers, dentist] = await Promise.all([
 				prisma.patient.findUnique({
 					where: { id: patientId, labId },
 					select: { id: true },
@@ -91,22 +92,34 @@ export const createDentalCaseAction = actionClientWithLab
 							select: { id: true, roleCategory: true },
 						})
 					: Promise.resolve([]),
+				dentistId && clinicId ? prisma.dentist.findFirst({ where: { id: dentistId, clinicId, labId }, select: { id: true } }) : Promise.resolve(null),
 			]);
+
+			// Resolve whether we're updating an existing draft or creating fresh
+			let resolvedDraftId: string | undefined = parsedInput.existingDraftId;
+
+			if (resolvedDraftId) {
+				const existingDraft = await prisma.case.findUnique({
+					where: { id: resolvedDraftId, labId },
+					select: { id: true, status: true, patientId: true },
+				});
+
+				if (!existingDraft) throw ERRORS.NOT_FOUND;
+				if (existingDraft.status !== "DRAFT") {
+					resolvedDraftId = undefined; // replaced the throw with this line, NEED TEST
+					// throw ERRORS.OPERATION_NOT_ALLOWED;
+				}
+
+				if (existingDraft.patientId !== patientId) {
+					// Patient changed — create a new case, leave the original draft alone
+					resolvedDraftId = undefined;
+				}
+			}
 
 			// ─────────────────────────────────────────────────────────────────
 			// STEP 2: Business Rule Validation
 			// Zod handles shape/type. We handle cross-entity business rules here.
 			// ─────────────────────────────────────────────────────────────────
-
-			if (existingDraftId) {
-				const existingDraft = await prisma.case.findUnique({
-					where: { id: existingDraftId, labId },
-					select: { id: true, status: true },
-				});
-
-				if (!existingDraft) throw ERRORS.NOT_FOUND;
-				if (existingDraft.status !== "DRAFT") throw ERRORS.OPERATION_NOT_ALLOWED;
-			}
 
 			// Patient must exist in this lab
 			if (!patient) {
@@ -128,13 +141,7 @@ export const createDentalCaseAction = actionClientWithLab
 			}
 
 			// Dentist must belong to the selected clinic
-			if (dentistId && clinicId) {
-				const dentist = await prisma.dentist.findFirst({
-					where: { id: dentistId, clinicId, labId },
-					select: { id: true },
-				});
-				if (!dentist) throw ERRORS.NOT_FOUND;
-			}
+			if (!dentist) throw ERRORS.NOT_FOUND;
 
 			// Category must exist and be active
 			if (caseCategoryId) {
@@ -222,20 +229,27 @@ export const createDentalCaseAction = actionClientWithLab
 			const createdCase = await prisma.$transaction(
 				async (tx) => {
 					// ── UPDATE existing draft → promote to real case ──────────────
-					if (existingDraftId) {
+					if (resolvedDraftId) {
 						// Delete stale nested records — will be replaced with fresh computed data
-						await tx.caseWorkItem.deleteMany({
-							where: { dentalCaseId: existingDraftId, labId },
-						});
-						await tx.caseAssetFile.deleteMany({
-							where: { dentalCaseId: existingDraftId, labId },
-						});
-						await tx.caseStaffAssignment.deleteMany({
-							where: { caseId: existingDraftId, labId },
-						});
+						// await tx.caseWorkItem.deleteMany({
+						// 	where: { dentalCaseId: resolvedDraftId, labId },
+						// });
+						// await tx.caseAssetFile.deleteMany({
+						// 	where: { dentalCaseId: resolvedDraftId, labId },
+						// });
+						// await tx.caseStaffAssignment.deleteMany({
+						// 	where: { caseId: resolvedDraftId, labId },
+						// });
+
+						// To improve RTT I replaced the queries above with this sequential pattern
+						await Promise.all([
+							tx.caseWorkItem.deleteMany({ where: { dentalCaseId: existingDraftId, labId } }),
+							tx.caseAssetFile.deleteMany({ where: { dentalCaseId: existingDraftId, labId } }),
+							tx.caseStaffAssignment.deleteMany({ where: { caseId: existingDraftId, labId } }),
+						]);
 
 						return tx.case.update({
-							where: { id: existingDraftId, labId },
+							where: { id: resolvedDraftId, labId },
 							data: {
 								// Promote — status changes from DRAFT to NEW or ASSIGNED
 								status: resolvedStatus,
@@ -317,7 +331,7 @@ export const createDentalCaseAction = actionClientWithLab
 											}
 										: undefined,
 							},
-							select: { id: true },
+							select: { id: true, caseNumber: true },
 						});
 					}
 
@@ -409,7 +423,7 @@ export const createDentalCaseAction = actionClientWithLab
 										}
 									: undefined,
 						},
-						select: { id: true },
+						select: { id: true, caseNumber: true },
 					});
 				},
 				{ maxWait: 5000, timeout: 15000 },
@@ -420,47 +434,7 @@ export const createDentalCaseAction = actionClientWithLab
 			// Happens outside the transaction, completely safe and fast!
 			// ─────────────────────────────────────────────────────────────────
 
-			const dentalCase = await prisma.case.findUniqueOrThrow({
-				where: { id: createdCase.id },
-				include: {
-					patient: {
-						select: { id: true, name: true, age: true, gender: true },
-					},
-					clinic: {
-						select: { id: true, name: true, city: true, type: true },
-					},
-					dentist: {
-						select: { id: true, name: true },
-					},
-					caseCategory: {
-						select: { id: true, name: true, imageUrl: true },
-					},
-					caseItems: {
-						include: {
-							selectedTeeth: { select: { id: true, toothPosition: true } },
-							product: { select: { id: true, name: true } },
-							workType: { select: { id: true, name: true } },
-						},
-					},
-					staffAssignments: {
-						include: {
-							staff: {
-								select: {
-									id: true,
-									firstName: true,
-									lastName: true,
-									roleCategory: true,
-									jobTitle: true,
-									avatarUrl: true,
-								},
-							},
-						},
-					},
-					caseAssetFiles: true,
-				},
-			});
-
-			return { dentalCase: caseServerToFrontDTO(dentalCase) };
+			return { createdCase: createdCase };
 
 			// return { caseId: dentalCase.id };
 		} catch (e) {
@@ -602,15 +576,20 @@ export const saveDraftCaseAction = actionClientWithLab
 				if (existingDraftId) {
 					// Delete existing nested records — simpler than diffing
 					// Work items, teeth, assets, assignments are cheap to recreate
-					await tx.caseWorkItem.deleteMany({
-						where: { dentalCaseId: existingDraftId, labId },
-					});
-					await tx.caseAssetFile.deleteMany({
-						where: { dentalCaseId: existingDraftId, labId },
-					});
-					await tx.caseStaffAssignment.deleteMany({
-						where: { caseId: existingDraftId, labId },
-					});
+					// await tx.caseWorkItem.deleteMany({
+					// 	where: { dentalCaseId: existingDraftId, labId },
+					// });
+					// await tx.caseAssetFile.deleteMany({
+					// 	where: { dentalCaseId: existingDraftId, labId },
+					// });
+					// await tx.caseStaffAssignment.deleteMany({
+					// 	where: { caseId: existingDraftId, labId },
+					// });
+					await Promise.all([
+						tx.caseWorkItem.deleteMany({ where: { dentalCaseId: existingDraftId, labId } }),
+						tx.caseAssetFile.deleteMany({ where: { dentalCaseId: existingDraftId, labId } }),
+						tx.caseStaffAssignment.deleteMany({ where: { caseId: existingDraftId, labId } }),
+					]);
 
 					return tx.case.update({
 						where: { id: existingDraftId, labId },
@@ -845,6 +824,68 @@ export const getRecentDraftsAction = actionClientWithLab
 		};
 	});
 
+// export const getDentalCaseByIdAction = actionClientWithLab
+// 	.metadata({
+// 		actionName: "Get-Dental-Case-By-Id-Action",
+// 		requiredLabRole: null,
+// 	})
+// 	.inputSchema(z.object({ caseId: z.string().min(1) }))
+// 	.action(async ({ parsedInput, ctx }) => {
+// 		const { labId } = ctx;
+// 		const prisma = await tenantPrisma(labId);
+
+// 		try {
+// 			const dentalCase = await prisma.case.findUniqueOrThrow({
+// 				where: { id: parsedInput.caseId, labId },
+// 				include: {
+// 					patient: {
+// 						select: { id: true, name: true, age: true, gender: true },
+// 					},
+// 					clinic: {
+// 						select: { id: true, name: true, city: true, type: true },
+// 					},
+// 					dentist: {
+// 						select: { id: true, name: true },
+// 					},
+// 					caseCategory: {
+// 						select: { id: true, name: true, imageUrl: true },
+// 					},
+// 					caseItems: {
+// 						include: {
+// 							selectedTeeth: { select: { id: true, toothPosition: true } },
+// 							product: { select: { id: true, name: true } },
+// 							workType: { select: { id: true, name: true } },
+// 						},
+// 					},
+// 					staffAssignments: {
+// 						include: {
+// 							staff: {
+// 								select: {
+// 									id: true,
+// 									firstName: true,
+// 									lastName: true,
+// 									roleCategory: true,
+// 									jobTitle: true,
+// 									avatarUrl: true,
+// 								},
+// 							},
+// 						},
+// 					},
+// 					caseAssetFiles: true,
+// 				},
+// 			});
+
+// 			return {
+// 				dentalCase: serverCaseToCaseDetailsDTOMapper({ ...dentalCase, lab: null, staffAssignments: de}),
+// 			};
+// 		} catch (e) {
+// 			if (e instanceof APIError || e instanceof Error) {
+// 				console.error("[Get-Dental-Case-By-ID-Action] Error", e.message);
+// 			}
+// 			throw e;
+// 		}
+// 	});
+
 export const getDraftByPatientAction = actionClientWithLab
 	.metadata({
 		actionName: "Get-Draft-By-Patient-Action",
@@ -942,6 +983,7 @@ export const loadDraftByIdAction = actionClientWithLab
 		return { draft: optionalSelectiveDraftCaseServerToDTO(draft) };
 	});
 
+// ========================== Helpers =====================
 const computeCaseItemPrice = (pricingPlan: CasePricingPlanModel, selectedTeeth: ToothPosition[], jawType: JawType) => {
 	if (!pricingPlan) return 0;
 	const count = selectedTeeth.length;

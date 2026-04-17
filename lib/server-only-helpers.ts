@@ -1,39 +1,162 @@
-import { CaseAssetFileModel, CaseModel, CaseStaffAssignmentModel, CaseWorkItemModel, ClinicModel, PatientModel, SelectedToothModel } from "@/generated/prisma/models";
+import {
+	CaseAssetFileModel,
+	CaseCategoryModel,
+	CaseModel,
+	CasePricingPlanModel,
+	CaseStaffAssignmentModel,
+	CaseWorkItemModel,
+	ClinicModel,
+	DentistModel,
+	LabModel,
+	LabStaffModel,
+	PatientModel,
+	ProductModel,
+	SelectedToothModel,
+	WorkTypeModel,
+} from "@/generated/prisma/models";
+import { CasePricingPlanBase } from "@/schema/base/case-pricing-plan.base";
+import { CasePricingPlanDetailsUI } from "@/schema/composed/case-pricing-plan.details";
 import { CaseStaffAssignmentDetailsUI } from "@/schema/composed/case-staff-assignment.details";
 import { CaseWorkItemDetailsUI } from "@/schema/composed/case-work-item.details";
 import { CaseDetailsUI, DraftCaseDTO, DraftCaseSummaryDTO } from "@/schema/composed/case.details";
+import { ClinicDetailsUI } from "@/schema/composed/clinic.details";
 
-export function caseWorkItemServerToFrontDTO(caseWorkItems: CaseWorkItemModel[]): CaseWorkItemDetailsUI[] {
-	return caseWorkItems.map((cw) => ({
-		...cw,
-		additionalToothPrice: cw.additionalToothPrice === null ? null : Number(cw.additionalToothPrice),
-		bulkPrice: cw.bulkPrice === null ? null : Number(cw.bulkPrice),
-		firstToothPrice: cw.firstToothPrice === null ? null : Number(cw.firstToothPrice),
-		teethCountToApplyBulkPrice: cw.teethCountToApplyBulkPrice === null ? null : Number(cw.teethCountToApplyBulkPrice),
-		toothPrice: cw.toothPrice === null ? null : Number(cw.toothPrice),
-		totalPrice: Number(cw.totalPrice),
+type CaseItemsWithDetails = CaseWorkItemModel & {
+	product: ProductModel | null;
+	casePricingPlan: CasePricingPlanModel | null;
+	workType: WorkTypeModel | null;
+	selectedTeeth: SelectedToothModel[];
+	lab: LabModel | null;
+	dentalCase: CaseModel | null;
+};
+
+export function caseWorkItemServerToFrontDTO(caseWorkItems: CaseItemsWithDetails[]): CaseWorkItemDetailsUI[] {
+	return caseWorkItems.map((cwi) => ({
+		...cwi,
+		casePricingPlan: cwi.casePricingPlan ? (pricingPlansNormalizer(cwi.casePricingPlan) as CasePricingPlanBase) : null,
+		additionalToothPrice: cwi.additionalToothPrice === null ? null : Number(cwi.additionalToothPrice),
+		bulkPrice: cwi.bulkPrice === null ? null : Number(cwi.bulkPrice),
+		firstToothPrice: cwi.firstToothPrice === null ? null : Number(cwi.firstToothPrice),
+		teethCountToApplyBulkPrice: cwi.teethCountToApplyBulkPrice === null ? null : Number(cwi.teethCountToApplyBulkPrice),
+		toothPrice: cwi.toothPrice === null ? null : Number(cwi.toothPrice),
+		totalPrice: Number(cwi.totalPrice),
+		selectedTeeth: cwi.selectedTeeth,
+		dentalCase: null,
 	}));
 }
 
-export function staffAssignmentServerToFrontDTO(caseStaffAssignments: CaseStaffAssignmentModel[]): CaseStaffAssignmentDetailsUI[] {
+type CaseStaffAssignmentWithStaffMember = CaseStaffAssignmentModel & {
+	staff: LabStaffModel | null;
+};
+
+export function staffAssignmentServerToFrontDTO(caseStaffAssignments: CaseStaffAssignmentWithStaffMember[]): CaseStaffAssignmentDetailsUI[] {
 	return caseStaffAssignments.map((csa) => ({
 		...csa,
 		commissionTotal: Number(csa.commissionTotal),
 		commissionValue: Number(csa.commissionValue),
+		staff: csa.staff
+			? {
+					...csa.staff,
+					commissionValue: csa.staff.commissionValue ? Number(csa.staff.commissionValue) : null,
+				}
+			: null,
+		case: null,
+		lab: null,
 	}));
 }
 
-export function caseServerToFrontDTO(
-	dentalCase: CaseModel & {
-		caseItems: CaseWorkItemModel[];
-		staffAssignments: CaseStaffAssignmentModel[];
-	},
-): CaseDetailsUI {
+export function clinicNormalizer(clinic: ClinicModel): ClinicDetailsUI {
+	return {
+		...clinic,
+		creditLimit: clinic.creditLimit !== null ? Number(clinic.creditLimit) : null,
+		currentBalance: Number(clinic.currentBalance),
+		discount: clinic.discount !== null ? Number(clinic.discount) : null,
+	};
+}
+
+type CasePricingPlanWithDetails = CasePricingPlanModel & {
+	lab: LabModel | null;
+	product: ProductModel | null;
+	clinic: ClinicModel | null;
+	caseWorkItem: CaseWorkItemModel | null;
+};
+function pricingPlansNormalizer(pricingPlan: CasePricingPlanModel[] | CasePricingPlanModel): CasePricingPlanBase[] | CasePricingPlanBase {
+	if (Array.isArray(pricingPlan)) {
+		return pricingPlan.map((p) => ({
+			...p,
+			additionalToothPrice: p.additionalToothPrice === null ? null : Number(p.additionalToothPrice),
+			bulkPrice: p.bulkPrice === null ? null : Number(p.bulkPrice),
+			firstToothPrice: p.firstToothPrice === null ? null : Number(p.firstToothPrice),
+			teethCountToApplyBulkPrice: p.teethCountToApplyBulkPrice === null ? null : Number(p.teethCountToApplyBulkPrice),
+			toothPrice: p.toothPrice === null ? null : Number(p.toothPrice),
+		}));
+	} else {
+		return {
+			...pricingPlan,
+			additionalToothPrice: pricingPlan.additionalToothPrice === null ? null : Number(pricingPlan.additionalToothPrice),
+			bulkPrice: pricingPlan.bulkPrice === null ? null : Number(pricingPlan.bulkPrice),
+			firstToothPrice: pricingPlan.firstToothPrice === null ? null : Number(pricingPlan.firstToothPrice),
+			teethCountToApplyBulkPrice: pricingPlan.teethCountToApplyBulkPrice === null ? null : Number(pricingPlan.teethCountToApplyBulkPrice),
+			toothPrice: pricingPlan.toothPrice === null ? null : Number(pricingPlan.toothPrice),
+		};
+	}
+}
+
+// export function caseServerToFrontDTO(
+// 	dentalCase: CaseModel & {
+// 		caseItems: CaseWorkItemModel[];
+// 		staffAssignments: CaseStaffAssignmentWithStaffMember[];
+// 	},
+// ): CaseDetailsUI | null {
+// 	return {
+// 		...dentalCase,
+// 		grandTotal: dentalCase.grandTotal ? Number(dentalCase.grandTotal) : null,
+// 		caseItems: caseWorkItemServerToFrontDTO(dentalCase.caseItems),
+// 		staffAssignments: staffAssignmentServerToFrontDTO(dentalCase.staffAssignments),
+// 		clinic: null,
+// 	};
+// }
+
+// type ProductWithWorkType = ProductModel & {
+// 	workType: WorkTypeModel | undefined;
+// };
+
+export function serverCaseToCaseDetailsDTOMapper(
+	dentalCase:
+		| (CaseModel & {
+				caseItems: CaseItemsWithDetails[];
+				staffAssignments: CaseStaffAssignmentWithStaffMember[] | null;
+				caseCategory: CaseCategoryModel | null;
+				clinic: ClinicModel | null;
+				caseAssetFiles: CaseAssetFileModel[] | null;
+				lab: LabModel | null;
+				patient: PatientModel | null;
+				dentist: DentistModel | null;
+		  })
+		| null,
+): CaseDetailsUI | null {
+	if (!dentalCase) return null;
+
 	return {
 		...dentalCase,
 		grandTotal: dentalCase.grandTotal ? Number(dentalCase.grandTotal) : null,
-		caseItems: caseWorkItemServerToFrontDTO(dentalCase.caseItems),
-		staffAssignments: staffAssignmentServerToFrontDTO(dentalCase.staffAssignments),
+		staffAssignments: dentalCase.staffAssignments ? staffAssignmentServerToFrontDTO(dentalCase.staffAssignments) : null,
+		caseItems: dentalCase.caseItems.map((cwi) => ({
+			...cwi,
+			casePricingPlan: cwi.casePricingPlan ? (pricingPlansNormalizer(cwi.casePricingPlan) as CasePricingPlanBase) : null,
+			additionalToothPrice: cwi.additionalToothPrice === null ? null : Number(cwi.additionalToothPrice),
+			bulkPrice: cwi.bulkPrice === null ? null : Number(cwi.bulkPrice),
+			firstToothPrice: cwi.firstToothPrice === null ? null : Number(cwi.firstToothPrice),
+			teethCountToApplyBulkPrice: cwi.teethCountToApplyBulkPrice === null ? null : Number(cwi.teethCountToApplyBulkPrice),
+			toothPrice: cwi.toothPrice === null ? null : Number(cwi.toothPrice),
+			totalPrice: Number(cwi.totalPrice),
+			product: cwi.product,
+			workType: cwi.workType,
+			Lab: null,
+			dentalCase: null,
+			selectedTeeth: cwi.selectedTeeth,
+		})),
+		clinic: dentalCase.clinic ? clinicNormalizer(dentalCase.clinic) : null,
 	};
 }
 

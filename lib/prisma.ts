@@ -15,7 +15,9 @@ declare global {
 
 const prisma = globalThis.prismaGlobal ?? prismaClientSingleton();
 
-const tenantPrisma = async (labId: string) =>
+const tenantPrismaCache = new Map<string, ReturnType<typeof createTenantPrisma>>();
+
+const createTenantPrisma = async (labId: string) =>
 	prisma.$extends({
 		query: {
 			$allModels: {
@@ -55,6 +57,13 @@ const tenantPrisma = async (labId: string) =>
 			},
 		},
 	});
+
+const tenantPrisma = (labId: string) => {
+	if (!tenantPrismaCache.has(labId)) {
+		tenantPrismaCache.set(labId, createTenantPrisma(labId));
+	}
+	return tenantPrismaCache.get(labId)!;
+};
 
 export { tenantPrisma, prisma as generalPrisma };
 
