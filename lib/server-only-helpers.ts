@@ -21,6 +21,27 @@ import { CaseWorkItemDetailsUI } from "@/schema/composed/case-work-item.details"
 import { CaseDetailsUI, DraftCaseDTO, DraftCaseSummaryDTO } from "@/schema/composed/case.details";
 import { ClinicDetailsUI } from "@/schema/composed/clinic.details";
 
+import type * as runtime from "@prisma/client/runtime/client";
+
+// ============================================================================
+// 1. UTILITY HELPERS
+// ============================================================================
+
+// Safely converts Prisma Decimal to JS Number, handling nulls gracefully.
+const toNum = (val: runtime.Decimal | null | undefined): number | null => {
+	if (val === null || val === undefined) return null;
+	return Number(val);
+};
+
+const toStrictNum = (val: runtime.Decimal | null | undefined, fallback = 0): number => {
+	if (val === null || val === undefined) return fallback;
+	return Number(val);
+};
+
+// ============================================================================
+// 2. ATOMIC MODEL MAPPERS (Base Fields & Simple Relations)
+// ============================================================================
+
 type CaseItemsWithDetails = CaseWorkItemModel & {
 	product: ProductModel | null;
 	casePricingPlan: CasePricingPlanModel | null;
@@ -188,7 +209,7 @@ export function draftCaseServerToDTO(raw: DraftCaseRaw): DraftCaseDTO {
 		notes: raw.notes,
 		createdAt: raw.createdAt,
 		updatedAt: raw.updatedAt,
-
+		caseCategory: null,
 		// Relations
 		patient: raw.patient,
 		clinic: raw.clinic,
@@ -232,6 +253,7 @@ export function optionalSelectiveDraftCaseServerToDTO(raw: DraftCaseRaw): DraftC
 		notes: raw.notes,
 		createdAt: raw.createdAt,
 		updatedAt: raw.updatedAt,
+		caseCategory: null,
 
 		// Relations
 		patient: raw.patient,

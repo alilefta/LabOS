@@ -17,6 +17,8 @@
     "@react-three/fiber": "^9.5.0",
     "@tanstack/react-query": "^5.95.2",
     "@tanstack/react-query-devtools": "^5.97.0",
+    "@tanstack/react-table": "^8.21.3",
+    "@tanstack/react-virtual": "^3.13.24",
     "@uploadthing/react": "^7.3.3",
     "better-auth": "^1.5.5",
     "class-variance-authority": "^0.7.1",

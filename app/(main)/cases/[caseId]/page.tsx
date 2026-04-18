@@ -9,25 +9,19 @@ import { ProductionPipelineStepper } from "@/components/cases/case-details/secti
 import { NeuralAuditorCard } from "@/components/cases/case-details/sections/neural-auditor-card";
 import { ClinicalRxFeed } from "@/components/cases/case-details/sections/clinical-rx-feed";
 import { getDentalCaseById } from "@/data/case";
-
-// TODO: V2 - Imports for the components we will build next!
-// import { NeuralAuditorCard } from "@/components/cases/case-dossier/neural-auditor-card";
-// import { ProductionPipelineStepper } from "@/components/cases/case-dossier/production-pipeline-stepper";
-// import { ClinicalRxFeed } from "@/components/cases/case-dossier/clinical-rx-feed";
-// import { DigitalAssetVault } from "@/components/cases/case-dossier/digital-asset-vault";
-// import { AuditTrailLog } from "@/components/cases/case-dossier/audit-trail-log";
+import { DigitalAssetVault } from "@/components/cases/case-details/sections/digital-asset-vault";
+import { AuditTrailLog } from "@/components/cases/case-details/sections/audit-trail-log";
 
 export const metadata = {
 	title: "Case Dossier | LabOS",
 };
-const DEADLINE_PLACEHOLDER = new Date(Date.now() + 1000 * 60 * 60 * 24 * 3);
 
-export default async function CaseDossierPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function CaseDossierPage({ params }: { params: Promise<{ caseId: string }> }) {
 	// 1. SERVER-SIDE DATA FETCHING
 	// Replace this with your actual Prisma fetch action: `await getCaseByIdAction(params.id)`
-	const { id } = await params;
+	const { caseId } = await params;
 
-	const results = await getDentalCaseById(id);
+	const results = await getDentalCaseById(caseId);
 
 	if (!results.success) {
 		notFound();
@@ -108,8 +102,8 @@ export default async function CaseDossierPage({ params }: { params: Promise<{ id
 						<NeuralAuditorCard />
 						<ProductionPipelineStepper currentStatus={dentalCase.status} />
 						<ClinicalRxFeed workItems={dentalCase.caseItems} />
-						{/* <DigitalAssetVault assets={dentalCase.caseAssetFiles} /> */}
-						{/* <AuditTrailLog /> */}
+						<DigitalAssetVault assets={dentalCase.caseAssetFiles ?? []} />
+						<AuditTrailLog />
 
 						{/* Placeholder to keep layout height visible during dev */}
 						<div className="h-96 rounded-[24px] border-2 border-dashed border-border flex items-center justify-center bg-slate-50/50 dark:bg-white/[0.02]">

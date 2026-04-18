@@ -212,7 +212,6 @@ export const DraftCaseDTOSchema = CaseBaseSchema.extend({
 	// Relations — always included when loading a draft for editing
 	patient: PatientBaseSchema.partial(),
 	clinic: ClinicBaseSchema.partial().nullable(),
-
 	caseItems: z.array(
 		CaseWorkItemBaseSchema.extend({
 			selectedTeeth: z.array(
@@ -222,10 +221,9 @@ export const DraftCaseDTOSchema = CaseBaseSchema.extend({
 			),
 		}),
 	),
-
 	staffAssignments: z.array(CaseStaffAssignmentBaseSchema.partial()),
-
 	caseAssetFiles: z.array(CaseAssetFileBaseSchema.partial()),
+	caseCategory: CaseCategoryBaseSchema.partial().nullable(),
 });
 
 export type DraftCaseDTO = z.infer<typeof DraftCaseDTOSchema>;

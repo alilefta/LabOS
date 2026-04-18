@@ -2,6 +2,7 @@ import { Case } from "@/generated/prisma/client";
 import { daError, DAResult, daSuccess, toDAError } from "@/lib/data-access-errors";
 import { ERRORS } from "@/lib/errors";
 import { getServerSession } from "@/lib/get-session";
+import { composeCaseDTO } from "@/lib/mappers";
 import { tenantPrisma } from "@/lib/prisma";
 import { serverCaseToCaseDetailsDTOMapper } from "@/lib/server-only-helpers";
 import { CaseBase } from "@/schema/base/case.base";
@@ -55,6 +56,10 @@ export async function getDentalCaseById(caseId: string) {
 		return daError(ERRORS.LAB_NOT_FOUND.toJSON());
 	}
 
+	if (!caseId) {
+		return daError(ERRORS.NOT_FOUND.toJSON());
+	}
+
 	const prisma = await tenantPrisma(labId);
 
 	const dentalCase = await prisma.case.findUnique({
@@ -88,7 +93,8 @@ export async function getDentalCaseById(caseId: string) {
 		return daError(ERRORS.NOT_FOUND.toJSON());
 	}
 
-	return daSuccess<CaseDetailsUI | null>(serverCaseToCaseDetailsDTOMapper({ ...dentalCase, lab: null, caseItems: dentalCase.caseItems.map((ci) => ({ ...ci, lab: null, dentalCase: null })) }));
+	// return daSuccess<CaseDetailsUI | null>(serverCaseToCaseDetailsDTOMapper({ ...dentalCase, lab: null, caseItems: dentalCase.caseItems.map((ci) => ({ ...ci, lab: null, dentalCase: null })) }));
+	return daSuccess<CaseDetailsUI | null>(composeCaseDTO(dentalCase));
 }
 export const rawCaseToCaseBaseMapper = (data: Case[]): CaseBase[] => {
 	return data.map((c) => ({

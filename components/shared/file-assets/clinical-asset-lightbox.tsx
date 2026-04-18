@@ -8,6 +8,7 @@ import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { AssetFileType } from "@/schema/base/enums.base";
 import dynamic from "next/dynamic";
+import { CaseAssetFileDetailsUI } from "@/schema/composed/case-asset-file.details";
 
 const ScannerFilesViewer = dynamic(() => import("./scanner-files-viewer").then((m) => m.ScannerFilesViewer), {
 	ssr: false,
@@ -39,7 +40,7 @@ interface Asset {
 interface Props {
 	isOpen: boolean;
 	onClose: () => void;
-	assets: Asset[];
+	assets: CaseAssetFileDetailsUI[];
 	initialIndex: number;
 }
 
@@ -165,7 +166,7 @@ export function ClinicalAssetLightbox({ isOpen, onClose, assets, initialIndex }:
 
 									<Image
 										src={currentAsset?.documentUrl}
-										alt={currentAsset?.title}
+										alt={currentAsset?.title ?? "Asset File"}
 										priority
 										fill
 										className={cn("object-contain rounded-xl shadow-2xl ring-1 ring-white/10 transition-opacity duration-300", loading ? "opacity-0" : "opacity-100")}
