@@ -11,7 +11,7 @@ export default async function MainLayout({ children }: MainLayoutProps) {
 	return (
 		<div className="flex h-screen w-full overflow-hidden bg-background selection:bg-primary/30">
 			{/* Desktop Sidebar (Hidden on Mobile) */}
-			<div className="hidden lg:block w-64 shrink-0 border-r border-border bg-card dark:bg-[#09090B] z-20">
+			<div className="hidden lg:block shrink-0 border-r border-border bg-card dark:bg-[#09090B] z-20">
 				<DashboardSidebar />
 			</div>
 

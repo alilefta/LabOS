@@ -39,6 +39,7 @@ enum CaseStatus {
   ASSIGNED
   PROCESSING
   COMPLETED
+  // QC //new 
   FAILED
   DELIVERED
   DRAFT
@@ -148,6 +149,18 @@ enum ToothPosition {
   LowerRightFirstMolar
   LowerRightSecondMolar
   LowerRightThirdMolar
+}
+
+enum CaseActivityType {
+  CASE_CREATED
+  STATUS_CHANGED
+  STAFF_ASSIGNED
+  STAFF_REMOVED
+  NOTE_ADDED
+  FILE_UPLOADED
+  FILE_DELETED
+  DEADLINE_CHANGED
+  AI_AUDIT_COMPLETED
 }
 
 model Lab {
@@ -285,13 +298,17 @@ model Case {
   staffAssignments CaseStaffAssignment[]
 
   caseAssetFiles CaseAssetFile[]
-  deadline       DateTime?
-  createdAt      DateTime        @default(now())
-  updatedAt      DateTime        @updatedAt
+
+  deadline  DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 
   @@unique([labId, caseNumber])
   @@index([labId])
   @@index([clinicId])
+  // new
+  @@index([labId, deadline])
+  @@index([labId, status])
 }
 
 model Patient {
@@ -570,10 +587,32 @@ model CaseStaffAssignment {
   updatedAt DateTime @updatedAt
 
   @@unique([caseId, staffId]) // one assignment per staff per case
+  // new field to match the workflow
+  @@index([caseId, roleCategory])
   @@index([labId])
   @@index([caseId])
   @@index([staffId])
 }
+
+// model CaseActivityLog {
+//   id     String @id @default(uuid())
+//   caseId String
+//   case   Case   @relation(fields: [caseId], references: [id], onDelete: Cascade)
+//   labId  String
+//   lab    Lab    @relation(fields: [labId], references: [id], onDelete: Cascade)
+
+//   actorId   String?  // labUser who performed the action (null = system)
+//   actorName String   // snapshot — don't rely on joins for display
+
+//   type    CaseActivityType
+//   summary String           // human-readable "Status changed to Processing"
+//   payload Json?            // structured diff — old/new values
+
+//   createdAt DateTime @default(now())
+
+//   @@index([caseId])
+//   @@index([labId])
+// }
 
 // model Technician {
 //   id        String  @id @default(uuid())

@@ -10,7 +10,7 @@ const PIPELINE_STEPS = [
 	{ id: "NEW", label: "Intake", icon: FileCheck },
 	{ id: "ASSIGNED", label: "Assigned", icon: User },
 	{ id: "PROCESSING", label: "Milling / Prod", icon: FlaskConical },
-	{ id: "QC", label: "QC Check", icon: Microscope },
+	// { id: "QC", label: "QC Check", icon: Microscope }, // not sure about QC as not all labs has this workflow
 	{ id: "COMPLETED", label: "Completed", icon: PackageCheck },
 	{ id: "DELIVERED", label: "Delivered", icon: Truck },
 ];
@@ -46,7 +46,7 @@ export function ProductionPipelineStepper({ currentStatus }: StepperProps) {
 					/>
 
 					{/* The Nodes */}
-					<div className="relative flex justify-between">
+					<div className="relative flex justify-between mx-4">
 						{PIPELINE_STEPS.map((step, index) => {
 							const isPast = index < activeIndex;
 							const isActive = index === activeIndex;

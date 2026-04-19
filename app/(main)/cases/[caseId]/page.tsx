@@ -1,14 +1,13 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ShieldCheck, Printer, ArrowRight, ChevronLeft, Download } from "lucide-react";
-
+import { ShieldCheck, Printer, ArrowRight, ChevronLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CaseDetailsSidebar } from "@/components/cases/case-details/case-details-sidebar";
 import { CaseDetailsUI } from "@/schema/composed/case.details";
 import { ProductionPipelineStepper } from "@/components/cases/case-details/sections/production-pipeline-stepper";
 import { NeuralAuditorCard } from "@/components/cases/case-details/sections/neural-auditor-card";
 import { ClinicalRxFeed } from "@/components/cases/case-details/sections/clinical-rx-feed";
-import { getDentalCaseById } from "@/data/case";
+import { getDentalCaseById } from "@/data/cases/case";
 import { DigitalAssetVault } from "@/components/cases/case-details/sections/digital-asset-vault";
 import { AuditTrailLog } from "@/components/cases/case-details/sections/audit-trail-log";
 
@@ -18,7 +17,6 @@ export const metadata = {
 
 export default async function CaseDossierPage({ params }: { params: Promise<{ caseId: string }> }) {
 	// 1. SERVER-SIDE DATA FETCHING
-	// Replace this with your actual Prisma fetch action: `await getCaseByIdAction(params.id)`
 	const { caseId } = await params;
 
 	const results = await getDentalCaseById(caseId);
@@ -28,24 +26,6 @@ export default async function CaseDossierPage({ params }: { params: Promise<{ ca
 	}
 
 	const dentalCase = results.data as CaseDetailsUI;
-
-	// const dentalCase = {
-	// 	id,
-	// 	caseNumber: "LAB-4492-AX",
-	// 	status: "NEW",
-	// 	patientId: "pat_123",
-	// 	clinicId: "clin_456",
-	// 	dentistId: "den_789",
-	// 	deadline: DEADLINE_PLACEHOLDER, // 3 days from now
-	// 	grandTotal: 420.0,
-	// 	createdAt: new Date(),
-	// 	staffAssignments: [{ roleCategory: "COURIER", staff: { firstName: "Ahmed", lastName: "Ali", jobTitle: "Baghdad Route" } }],
-	// 	// ... mock data ...
-	// 	labId: "lab-123",
-	// 	caseCategoryId: "x123232323",
-	// 	notes: "",
-	// 	updatedAt: new Date(),
-	// } as CaseDetailsUI;
 
 	return (
 		<div className="flex flex-col h-full animate-in fade-in duration-700 bg-background">

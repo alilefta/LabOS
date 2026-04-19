@@ -9,16 +9,6 @@ import { ClinicalAssetLightbox } from "@/components/shared/file-assets/clinical-
 import { AssetFileType } from "@/schema/base/enums.base";
 import { CaseAssetFileDetailsUI } from "@/schema/composed/case-asset-file.details";
 
-// interface Asset {
-// 	id: string;
-// 	title: string;
-// 	description?: string | null;
-// 	documentUrl: string;
-// 	assetFileType: AssetFileType;
-// 	fileExtension: string;
-// 	createdAt: Date;
-// }
-
 interface Props {
 	assets: CaseAssetFileDetailsUI[];
 }

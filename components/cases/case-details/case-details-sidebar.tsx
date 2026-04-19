@@ -3,8 +3,7 @@
 import { MapPin, User, Truck, Wrench, CalendarClock, Clock, Wallet, LockKeyhole } from "lucide-react";
 import { format, differenceInDays, startOfDay } from "date-fns";
 import { cn } from "@/lib/utils";
-
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+// import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 
 // Replace `any` with your actual Prisma Case payload type once fully wired

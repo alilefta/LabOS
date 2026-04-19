@@ -4,7 +4,6 @@ import { ERRORS } from "@/lib/errors";
 import { getServerSession } from "@/lib/get-session";
 import { composeCaseDTO } from "@/lib/mappers";
 import { tenantPrisma } from "@/lib/prisma";
-import { serverCaseToCaseDetailsDTOMapper } from "@/lib/server-only-helpers";
 import { CaseBase } from "@/schema/base/case.base";
 import { CaseDetailsUI } from "@/schema/composed/case.details";
 

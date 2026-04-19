@@ -50,20 +50,6 @@ export function ClinicalAssetLightbox({ isOpen, onClose, assets, initialIndex }:
 	// const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
 	const [loading, setLoading] = useState(true);
 
-	// useEffect(() => {
-	// 	if (isOpen) {
-	// 		setCurrentIndex(initialIndex);
-	// 		setLoading(true);
-	// 	} else {
-	// 		setCurrentIndex(0);
-	// 	}
-	// }, [isOpen, initialIndex]);
-
-	// // Reset index when modal opens
-	// useEffect(() => {
-	// 	if (isOpen) setCurrentIndex(initialIndex);
-	// }, [isOpen, initialIndex]);
-
 	// Action-bound loading state (NO useEffect needed)
 	const handleNext = useCallback(
 		(e?: React.MouseEvent | KeyboardEvent) => {

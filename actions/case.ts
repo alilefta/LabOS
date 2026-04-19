@@ -141,7 +141,7 @@ export const createDentalCaseAction = actionClientWithLab
 			}
 
 			// Dentist must belong to the selected clinic
-			if (!dentist) throw ERRORS.NOT_FOUND;
+			if (dentistId && !dentist) throw ERRORS.NOT_FOUND;
 
 			// Category must exist and be active
 			if (caseCategoryId) {
@@ -243,9 +243,9 @@ export const createDentalCaseAction = actionClientWithLab
 
 						// To improve RTT I replaced the queries above with this sequential pattern
 						await Promise.all([
-							tx.caseWorkItem.deleteMany({ where: { dentalCaseId: existingDraftId, labId } }),
-							tx.caseAssetFile.deleteMany({ where: { dentalCaseId: existingDraftId, labId } }),
-							tx.caseStaffAssignment.deleteMany({ where: { caseId: existingDraftId, labId } }),
+							tx.caseWorkItem.deleteMany({ where: { dentalCaseId: resolvedDraftId, labId } }),
+							tx.caseAssetFile.deleteMany({ where: { dentalCaseId: resolvedDraftId, labId } }),
+							tx.caseStaffAssignment.deleteMany({ where: { caseId: resolvedDraftId, labId } }),
 						]);
 
 						return tx.case.update({

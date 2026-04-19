@@ -7,7 +7,7 @@ import { CaseCategoryBaseSchema } from "../base/case-category.base";
 import { ClinicBaseSchema } from "../base/clinic.base";
 import { CaseAssetFileBaseSchema } from "../base/case-asset-file.base";
 import { CaseWorkItemDetailsUISchema, CreateCaseWorkItemInputSchema } from "./case-work-item.details";
-import { AssetFileTypeSchema, CaseStatusSchema, CommissionTypeSchema, JawTypeSchema, StaffRoleCategorySchema } from "../base/enums.base";
+import { AssetFileTypeSchema, CaseStatus, CaseStatusSchema, CommissionTypeSchema, JawTypeSchema, StaffRoleCategorySchema } from "../base/enums.base";
 import { DentistBaseSchema } from "../base/dentist.base";
 import { CreateCaseAssetFilesInputSchema } from "./case-asset-file.details";
 import { emptyToUndefinedTransformer } from "../base/utils.base";
@@ -259,4 +259,112 @@ export type CaseSummaryMetadata = {
 			};
 		} | null;
 	}[];
+};
+
+// ====================== Get-Cases + Filters =========================
+
+export const PulseFilterSchema = z.enum(["overdue", "due_today", "unassigned", "processing", "all"]);
+export type PulseFilter = z.infer<typeof PulseFilterSchema>;
+
+export const DateFilterFieldSchema = z.enum(["createdAt", "deadline"]);
+
+export type DateFilterField = z.infer<typeof DateFilterFieldSchema>;
+
+export const DatePresetSchema = z.enum(["this_month", "last_month", "last_3_months", "last_6_months", "custom"]);
+export type DatePreset = z.infer<typeof DatePresetSchema>;
+
+export const DateRangeFilterSchema = z.object({
+	field: DateFilterFieldSchema,
+	preset: DatePresetSchema,
+	from: z.date().nullable(), // only used when preset === "custom"
+	to: z.date().nullable(), // only used when preset === "custom"
+});
+
+export type DateRangeFilter = z.infer<typeof DateRangeFilterSchema>;
+
+export const CasesFiltersSchema = z.object({
+	pulseFilter: PulseFilterSchema,
+	statuses: z.array(CaseStatusSchema),
+	clinicId: z.string().nullable(),
+	staffId: z.string().nullable(),
+	categoryId: z.string().nullable(),
+	isRushOnly: z.boolean(),
+	dateRange: DateRangeFilterSchema.nullable(),
+});
+
+export type CasesFilters = z.infer<typeof CasesFiltersSchema>;
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Shared types
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const DEFAULT_CASES_FILTERS: CasesFilters = {
+	pulseFilter: "all",
+	statuses: [],
+	clinicId: null,
+	staffId: null,
+	categoryId: null,
+	isRushOnly: false,
+	dateRange: null,
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// CaseListDTO
+// ─────────────────────────────────────────────────────────────────────────────
+// Lean projection — only what the table columns need.
+// Not reusing CaseDetailsUI deliberately: the list view is a different read
+// model. Pulling full case details for 30+ rows at once would be wasteful.
+
+export type CaseListDTO = {
+	id: string;
+	caseNumber: string;
+	status: CaseStatus;
+	deadline: Date | null;
+	grandTotal: number | null;
+	patientName: string;
+	clinicName: string | null;
+	dentistName: string | null;
+	caseCategory: string | null;
+	primaryProduct: string | null; // first work item's product name
+	leadTechnician: {
+		id: string;
+		firstName: string;
+		lastName: string;
+		avatarUrl: string | null;
+	} | null;
+	staffCount: number; // total assignments — for "X people assigned" hint
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 1. getCasesList
+// ─────────────────────────────────────────────────────────────────────────────
+
+export type GetCasesListResult = {
+	cases: CaseListDTO[];
+	nextCursor: string | null;
+	totalCount: number;
+};
+
+export const GetCasesListInputSchema = z.object({
+	// labId: z.string(), // provided by ctx
+	cursor: z.string().optional(),
+	take: z.number().optional(),
+	search: z.string().optional(),
+	filters: CasesFiltersSchema,
+});
+
+export type GetCasesListInput = z.infer<typeof GetCasesListInputSchema>;
+
+export type PulseStats = {
+	overdue: number;
+	dueToday: number;
+	unassigned: number;
+	processing: number;
+	total: number;
+};
+
+export type RevenueStats = {
+	dueTodayTotal: number; // sum of grandTotal for cases due today (any non-draft status)
+	overdueTotal: number; // sum of grandTotal for overdue active cases
+	monthToDateTotal: number; // sum of grandTotal for cases completed this calendar month
 };
