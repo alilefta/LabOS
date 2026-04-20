@@ -2,7 +2,7 @@ import * as z from 'zod';
 import { Prisma } from '../../../../generated/prisma/client';
 import { CaseStatusSchema } from '../enums/CaseStatus.schema';
 import { CaseWorkItemUncheckedCreateNestedManyWithoutDentalCaseInputObjectSchema as CaseWorkItemUncheckedCreateNestedManyWithoutDentalCaseInputObjectSchema } from './CaseWorkItemUncheckedCreateNestedManyWithoutDentalCaseInput.schema';
-import { CaseActivityLogUncheckedCreateNestedManyWithoutCaseInputObjectSchema as CaseActivityLogUncheckedCreateNestedManyWithoutCaseInputObjectSchema } from './CaseActivityLogUncheckedCreateNestedManyWithoutCaseInput.schema';
+import { CaseActivityLogUncheckedCreateNestedManyWithoutDentalCaseInputObjectSchema as CaseActivityLogUncheckedCreateNestedManyWithoutDentalCaseInputObjectSchema } from './CaseActivityLogUncheckedCreateNestedManyWithoutDentalCaseInput.schema';
 import { CaseAssetFileUncheckedCreateNestedManyWithoutDentalCaseInputObjectSchema as CaseAssetFileUncheckedCreateNestedManyWithoutDentalCaseInputObjectSchema } from './CaseAssetFileUncheckedCreateNestedManyWithoutDentalCaseInput.schema'
 
 import { DecimalJSLikeSchema, isValidDecimalInput } from '../../helpers/decimal-helpers';
@@ -28,7 +28,7 @@ const makeSchema = () => z.object({
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
   caseItems: z.lazy(() => CaseWorkItemUncheckedCreateNestedManyWithoutDentalCaseInputObjectSchema).optional(),
-  caseActivityLogs: z.lazy(() => CaseActivityLogUncheckedCreateNestedManyWithoutCaseInputObjectSchema).optional(),
+  caseActivityLogs: z.lazy(() => CaseActivityLogUncheckedCreateNestedManyWithoutDentalCaseInputObjectSchema).optional(),
   caseAssetFiles: z.lazy(() => CaseAssetFileUncheckedCreateNestedManyWithoutDentalCaseInputObjectSchema).optional()
 }).strict();
 export const CaseUncheckedCreateWithoutStaffAssignmentsInputObjectSchema: z.ZodType<Prisma.CaseUncheckedCreateWithoutStaffAssignmentsInput> = makeSchema() as unknown as z.ZodType<Prisma.CaseUncheckedCreateWithoutStaffAssignmentsInput>;

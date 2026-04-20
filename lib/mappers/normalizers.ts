@@ -7,6 +7,7 @@
 
 import type * as runtime from "@prisma/client/runtime/client";
 import type {
+	CaseActivityLogModel,
 	CaseAssetFileModel,
 	CaseCategoryModel,
 	CaseModel,
@@ -36,6 +37,8 @@ import { SelectedToothBase } from "@/schema/base/selected-tooth.base";
 import { LabBase } from "@/schema/base/lab.base";
 import { WorktypeBase } from "@/schema/base/worktype.base";
 import { CaseAssetFileBase } from "@/schema/base/case-asset-file.base";
+import { CaseActivityLogBase } from "@/schema/base/case-activity-logs.base";
+import { CaseActivityPayload, CaseActivityPayloadSchema } from "@/schema/composed/case-activity-logs.details";
 
 // ─── Decimal utility ──────────────────────────────────────────────────────────
 
@@ -98,6 +101,27 @@ export function normalizeCase(raw: CaseModel): CaseBase {
 	return {
 		...raw,
 		grandTotal: d(raw.grandTotal),
+	};
+}
+
+export function parseActivityPayload(log: CaseActivityLogBase): CaseActivityPayload | null {
+	const result = CaseActivityPayloadSchema.safeParse({
+		type: log.type,
+		payload: log.payload ?? {},
+	});
+
+	if (!result.success) {
+		console.error("[ActivityLog] Failed to parse payload", log.id, result.error);
+		return null;
+	}
+
+	return result.data;
+}
+
+export function normalizeCaseActivity(raw: CaseActivityLogModel): CaseActivityLogBase {
+	return {
+		...raw,
+		payload: parseActivityPayload(raw) as CaseActivityPayload,
 	};
 }
 

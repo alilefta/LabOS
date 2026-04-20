@@ -7,7 +7,7 @@ import { CaseDetailsUI } from "@/schema/composed/case.details";
 import { ProductionPipelineStepper } from "@/components/cases/case-details/sections/production-pipeline-stepper";
 import { NeuralAuditorCard } from "@/components/cases/case-details/sections/neural-auditor-card";
 import { ClinicalRxFeed } from "@/components/cases/case-details/sections/clinical-rx-feed";
-import { getDentalCaseById } from "@/data/cases/case";
+import { getDentalCaseById } from "@/data/cases/get-case";
 import { DigitalAssetVault } from "@/components/cases/case-details/sections/digital-asset-vault";
 import { AuditTrailLog } from "@/components/cases/case-details/sections/audit-trail-log";
 
@@ -83,7 +83,7 @@ export default async function CaseDossierPage({ params }: { params: Promise<{ ca
 						<ProductionPipelineStepper currentStatus={dentalCase.status} />
 						<ClinicalRxFeed workItems={dentalCase.caseItems} />
 						<DigitalAssetVault assets={dentalCase.caseAssetFiles ?? []} />
-						<AuditTrailLog />
+						<AuditTrailLog logs={dentalCase?.caseActivityLogs?.map((cal) => ({ ...cal, dentalCase: null, lab: null })) ?? []} />
 
 						{/* Placeholder to keep layout height visible during dev */}
 						<div className="h-96 rounded-[24px] border-2 border-dashed border-border flex items-center justify-center bg-slate-50/50 dark:bg-white/[0.02]">

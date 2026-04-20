@@ -21,6 +21,9 @@ import { CaseWorkItemDetailsUI } from "@/schema/composed/case-work-item.details"
 import { CaseDetailsUI, DraftCaseDTO, DraftCaseSummaryDTO } from "@/schema/composed/case.details";
 import { ClinicDetailsUI } from "@/schema/composed/clinic.details";
 
+import { JawType } from "@/schema/base/enums.base";
+import { ToothPosition } from "@/schema/base/tooth-position.base";
+
 import type * as runtime from "@prisma/client/runtime/client";
 
 // ============================================================================
@@ -177,6 +180,7 @@ export function serverCaseToCaseDetailsDTOMapper(
 			dentalCase: null,
 			selectedTeeth: cwi.selectedTeeth,
 		})),
+
 		clinic: dentalCase.clinic ? clinicNormalizer(dentalCase.clinic) : null,
 	};
 }
@@ -291,3 +295,41 @@ export function draftSummaryServerToDTO(raw: { id: string; caseNumber: string; u
 		clinicName: raw.clinic?.name ?? null,
 	};
 }
+
+// ========================== Helpers =====================
+export const computeCaseItemPrice = (pricingPlan: CasePricingPlanModel, selectedTeeth: ToothPosition[], jawType: JawType) => {
+	if (!pricingPlan) return 0;
+	const count = selectedTeeth.length;
+
+	// If JawType is OTHER (No charting), assume count is 1 for pricing purposes if needed,
+	// though flat rates usually apply here.
+	const effectiveCount = jawType === "OTHER" && count === 0 ? 1 : count;
+
+	// Don't charge if no teeth selected (unless it's a flat bulk rate)
+	if (effectiveCount === 0 && pricingPlan.pricingStrategy !== "BULK") return 0;
+
+	switch (pricingPlan.pricingStrategy) {
+		case "BULK":
+			return Number(pricingPlan.bulkPrice || 0);
+
+		case "PERTOOTH":
+			// Standard multiplication
+			return effectiveCount * Number(pricingPlan.toothPrice || 0);
+
+		case "CUSTOM":
+			// 1. Check if they hit the Bulk Cap interval first!
+			if (pricingPlan.teethCountToApplyBulkPrice && pricingPlan.bulkPrice && effectiveCount >= Number(pricingPlan.teethCountToApplyBulkPrice)) {
+				return Number(pricingPlan.bulkPrice);
+			}
+
+			// 2. Otherwise, apply Tiered Pricing (1st tooth = X, rest = Y), if total teeth count >= bulkThreshold, apply bulkPrice
+			const firstPrice = Number(pricingPlan.firstToothPrice || 0);
+			const additionalPrice = Number(pricingPlan.additionalToothPrice || 0);
+
+			if (effectiveCount === 1) return firstPrice;
+			return firstPrice + additionalPrice * (effectiveCount - 1);
+
+		default:
+			return 0;
+	}
+};

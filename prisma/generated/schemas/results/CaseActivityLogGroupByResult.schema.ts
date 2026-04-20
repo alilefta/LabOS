@@ -11,7 +11,7 @@ export const CaseActivityLogGroupByResultSchema = z.array(z.object({
   _count: z.object({
     id: z.number(),
     caseId: z.number(),
-    case: z.number(),
+    dentalCase: z.number(),
     labId: z.number(),
     lab: z.number(),
     actorId: z.number(),

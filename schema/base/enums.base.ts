@@ -52,6 +52,7 @@ export type StaffRoleCategory = z.infer<typeof StaffRoleCategorySchema>;
 export const CaseActivityTypeSchema = z.enum([
 	"CASE_CREATED",
 	"STATUS_CHANGED",
+	"CASE_UPDATED",
 	"STAFF_ASSIGNED",
 	"STAFF_REMOVED",
 	"NOTE_ADDED",
@@ -60,4 +61,5 @@ export const CaseActivityTypeSchema = z.enum([
 	"DEADLINE_CHANGED",
 	"AI_AUDIT_COMPLETED",
 ]);
+
 export type CaseActivityType = z.infer<typeof CaseActivityTypeSchema>;

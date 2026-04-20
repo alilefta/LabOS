@@ -7,6 +7,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import type {
+	CaseActivityLogModel,
 	CaseAssetFileModel,
 	CaseCategoryModel,
 	CaseModel,
@@ -15,7 +16,6 @@ import type {
 	CaseWorkItemModel,
 	ClinicModel,
 	DentistModel,
-	LabModel,
 	LabStaffModel,
 	PatientModel,
 	ProductModel,
@@ -37,6 +37,7 @@ import {
 	normalizeDentist,
 	normalizePatient,
 	normalizeCaseCategory,
+	normalizeCaseActivity,
 } from "./normalizers";
 import { CaseWorkItemDetailsUI } from "@/schema/composed/case-work-item.details";
 import { CaseStaffAssignmentDetailsUI } from "@/schema/composed/case-staff-assignment.details";
@@ -66,6 +67,7 @@ type RawFullCase = CaseModel & {
 	caseItems: RawWorkItem[];
 	staffAssignments: RawStaffAssignment[];
 	caseAssetFiles: CaseAssetFileModel[];
+	caseActivityLogs: CaseActivityLogModel[];
 };
 
 // Drafts use a narrower shape — only what's needed to repopulate the form
@@ -116,6 +118,7 @@ export function composeCaseDTO(raw: RawFullCase): CaseDetailsUI {
 		staffAssignments: raw.staffAssignments.map(composeStaffAssignment),
 		caseAssetFiles: raw.caseAssetFiles.map(normalizeAssetFile),
 		lab: null,
+		caseActivityLogs: raw.caseActivityLogs.map(normalizeCaseActivity),
 	};
 }
 

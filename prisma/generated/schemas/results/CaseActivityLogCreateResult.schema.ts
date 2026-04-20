@@ -2,7 +2,7 @@ import * as z from 'zod';
 export const CaseActivityLogCreateResultSchema = z.object({
   id: z.string(),
   caseId: z.string(),
-  case: z.unknown(),
+  dentalCase: z.unknown(),
   labId: z.string(),
   lab: z.unknown(),
   actorId: z.string().optional(),

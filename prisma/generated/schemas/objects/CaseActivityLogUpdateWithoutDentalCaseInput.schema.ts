@@ -20,5 +20,5 @@ const makeSchema = () => z.object({
   createdAt: z.union([z.coerce.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputObjectSchema)]).optional(),
   lab: z.lazy(() => LabUpdateOneRequiredWithoutCaseActivityLogsNestedInputObjectSchema).optional()
 }).strict();
-export const CaseActivityLogUpdateWithoutCaseInputObjectSchema: z.ZodType<Prisma.CaseActivityLogUpdateWithoutCaseInput> = makeSchema() as unknown as z.ZodType<Prisma.CaseActivityLogUpdateWithoutCaseInput>;
-export const CaseActivityLogUpdateWithoutCaseInputObjectZodSchema = makeSchema();
+export const CaseActivityLogUpdateWithoutDentalCaseInputObjectSchema: z.ZodType<Prisma.CaseActivityLogUpdateWithoutDentalCaseInput> = makeSchema() as unknown as z.ZodType<Prisma.CaseActivityLogUpdateWithoutDentalCaseInput>;
+export const CaseActivityLogUpdateWithoutDentalCaseInputObjectZodSchema = makeSchema();

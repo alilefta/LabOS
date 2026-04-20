@@ -12,7 +12,7 @@ import { CaseActivityLogScalarFieldEnumSchema } from './enums/CaseActivityLogSca
 export const CaseActivityLogFindManySelectSchema: z.ZodType<Prisma.CaseActivityLogSelect> = z.object({
     id: z.boolean().optional(),
     caseId: z.boolean().optional(),
-    case: z.boolean().optional(),
+    dentalCase: z.boolean().optional(),
     labId: z.boolean().optional(),
     lab: z.boolean().optional(),
     actorId: z.boolean().optional(),
@@ -26,7 +26,7 @@ export const CaseActivityLogFindManySelectSchema: z.ZodType<Prisma.CaseActivityL
 export const CaseActivityLogFindManySelectZodSchema = z.object({
     id: z.boolean().optional(),
     caseId: z.boolean().optional(),
-    case: z.boolean().optional(),
+    dentalCase: z.boolean().optional(),
     labId: z.boolean().optional(),
     lab: z.boolean().optional(),
     actorId: z.boolean().optional(),

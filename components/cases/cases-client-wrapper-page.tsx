@@ -173,7 +173,7 @@ export default function CasesClientWrapperPage({ labId, role }: PageProps) {
 			</div>
 
 			{/* ── SCROLLABLE BODY ──────────────────────────────────────────────────── */}
-			<div className="flex-1 flex flex-col min-h-0 overflow-y-auto custom-scrollbar pb-6 pr-1">
+			<div className="flex-1 flex flex-col min-h-0 overflow-y-auto custom-scrollbar pb-6 pr-1 pt-2">
 				{/* ── ZONE B: OWNER REVENUE STRIP ─────────────────────────────────── */}
 				{isOwnerOrManager && <OwnerRevenueStrip data={revenueData ?? null} isLoading={isRevenueLoading} />}
 

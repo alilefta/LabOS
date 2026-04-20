@@ -18,7 +18,7 @@ const makeSchema = () => z.object({
   summary: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputObjectSchema)]).optional(),
   payload: z.union([NullableJsonNullValueInputSchema, jsonSchema]).optional(),
   createdAt: z.union([z.coerce.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputObjectSchema)]).optional(),
-  case: z.lazy(() => CaseUpdateOneRequiredWithoutCaseActivityLogsNestedInputObjectSchema).optional()
+  dentalCase: z.lazy(() => CaseUpdateOneRequiredWithoutCaseActivityLogsNestedInputObjectSchema).optional()
 }).strict();
 export const CaseActivityLogUpdateWithoutLabInputObjectSchema: z.ZodType<Prisma.CaseActivityLogUpdateWithoutLabInput> = makeSchema() as unknown as z.ZodType<Prisma.CaseActivityLogUpdateWithoutLabInput>;
 export const CaseActivityLogUpdateWithoutLabInputObjectZodSchema = makeSchema();

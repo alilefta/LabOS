@@ -24,7 +24,7 @@ const caseactivitylogwhereinputSchema = z.object({
   summary: z.union([z.lazy(() => StringFilterObjectSchema), z.string()]).optional(),
   payload: z.lazy(() => JsonNullableFilterObjectSchema).optional(),
   createdAt: z.union([z.lazy(() => DateTimeFilterObjectSchema), z.coerce.date()]).optional(),
-  case: z.union([z.lazy(() => CaseScalarRelationFilterObjectSchema), z.lazy(() => CaseWhereInputObjectSchema)]).optional(),
+  dentalCase: z.union([z.lazy(() => CaseScalarRelationFilterObjectSchema), z.lazy(() => CaseWhereInputObjectSchema)]).optional(),
   lab: z.union([z.lazy(() => LabScalarRelationFilterObjectSchema), z.lazy(() => LabWhereInputObjectSchema)]).optional()
 }).strict();
 export const CaseActivityLogWhereInputObjectSchema: z.ZodType<Prisma.CaseActivityLogWhereInput> = caseactivitylogwhereinputSchema as unknown as z.ZodType<Prisma.CaseActivityLogWhereInput>;

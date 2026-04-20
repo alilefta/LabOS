@@ -2,13 +2,13 @@
 
 import { DraftCaseSummaryDTO } from "@/schema/composed/case.details";
 
-import { LogisticsAndRoutingSection } from "./sections/logisitc-and-routing-section";
-import { GlobalCaseNotesSection } from "./sections/global-case-notes-section";
-import { AssetsAndFilesSection } from "./sections/assets-and-files-section";
-import { PatientAndClinicSection } from "./sections/patient-clinic-section";
+import { LogisticsAndRoutingSection } from "@/components/cases/new-case/sections/logisitc-and-routing-section";
+import { GlobalCaseNotesSection } from "@/components/cases/new-case/sections/global-case-notes-section";
+import { AssetsAndFilesSection } from "@/components/cases/new-case/sections/assets-and-files-section";
+import { PatientAndClinicSection } from "@/components/cases/new-case/sections/patient-clinic-section";
 import { PatientDraftPrompt } from "./drafts/patient-draft-prompt";
 import { DraftRecoveryBanner } from "./drafts/draft-recovery-banner";
-import { HierarchicalClinicalPicker } from "./sections/hierarchical-clinical-picker";
+import { HierarchicalClinicalPicker } from "@/components/cases/new-case/sections/hierarchical-clinical-picker";
 import { CreateCaseAssetFilesInput } from "@/schema/composed/case-asset-file.details";
 import { StaffRoleCategory } from "@/schema/base/enums.base";
 import { PatientDetails } from "@/schema/composed/patient.details";

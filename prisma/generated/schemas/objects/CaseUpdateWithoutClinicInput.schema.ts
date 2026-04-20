@@ -13,7 +13,7 @@ import { CaseWorkItemUpdateManyWithoutDentalCaseNestedInputObjectSchema as CaseW
 import { CaseCategoryUpdateOneWithoutCasesNestedInputObjectSchema as CaseCategoryUpdateOneWithoutCasesNestedInputObjectSchema } from './CaseCategoryUpdateOneWithoutCasesNestedInput.schema';
 import { DentistUpdateOneWithoutCasesNestedInputObjectSchema as DentistUpdateOneWithoutCasesNestedInputObjectSchema } from './DentistUpdateOneWithoutCasesNestedInput.schema';
 import { CaseStaffAssignmentUpdateManyWithoutCaseNestedInputObjectSchema as CaseStaffAssignmentUpdateManyWithoutCaseNestedInputObjectSchema } from './CaseStaffAssignmentUpdateManyWithoutCaseNestedInput.schema';
-import { CaseActivityLogUpdateManyWithoutCaseNestedInputObjectSchema as CaseActivityLogUpdateManyWithoutCaseNestedInputObjectSchema } from './CaseActivityLogUpdateManyWithoutCaseNestedInput.schema';
+import { CaseActivityLogUpdateManyWithoutDentalCaseNestedInputObjectSchema as CaseActivityLogUpdateManyWithoutDentalCaseNestedInputObjectSchema } from './CaseActivityLogUpdateManyWithoutDentalCaseNestedInput.schema';
 import { CaseAssetFileUpdateManyWithoutDentalCaseNestedInputObjectSchema as CaseAssetFileUpdateManyWithoutDentalCaseNestedInputObjectSchema } from './CaseAssetFileUpdateManyWithoutDentalCaseNestedInput.schema'
 
 import { DecimalJSLikeSchema, isValidDecimalInput } from '../../helpers/decimal-helpers';
@@ -39,7 +39,7 @@ const makeSchema = () => z.object({
   caseCategory: z.lazy(() => CaseCategoryUpdateOneWithoutCasesNestedInputObjectSchema).optional(),
   dentist: z.lazy(() => DentistUpdateOneWithoutCasesNestedInputObjectSchema).optional(),
   staffAssignments: z.lazy(() => CaseStaffAssignmentUpdateManyWithoutCaseNestedInputObjectSchema).optional(),
-  caseActivityLogs: z.lazy(() => CaseActivityLogUpdateManyWithoutCaseNestedInputObjectSchema).optional(),
+  caseActivityLogs: z.lazy(() => CaseActivityLogUpdateManyWithoutDentalCaseNestedInputObjectSchema).optional(),
   caseAssetFiles: z.lazy(() => CaseAssetFileUpdateManyWithoutDentalCaseNestedInputObjectSchema).optional()
 }).strict();
 export const CaseUpdateWithoutClinicInputObjectSchema: z.ZodType<Prisma.CaseUpdateWithoutClinicInput> = makeSchema() as unknown as z.ZodType<Prisma.CaseUpdateWithoutClinicInput>;

@@ -4,7 +4,7 @@ import { CaseActivityTypeSchema } from '../../enums/CaseActivityType.schema';
 export const CaseActivityLogInputSchema = z.object({
     id: z.string(),
     caseId: z.string(),
-    case: z.unknown(),
+    dentalCase: z.unknown(),
     labId: z.string(),
     lab: z.unknown(),
     actorId: z.string().optional().nullable(),

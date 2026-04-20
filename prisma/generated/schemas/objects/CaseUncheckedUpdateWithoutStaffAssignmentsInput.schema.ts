@@ -8,7 +8,7 @@ import { NullableDecimalFieldUpdateOperationsInputObjectSchema as NullableDecima
 import { NullableDateTimeFieldUpdateOperationsInputObjectSchema as NullableDateTimeFieldUpdateOperationsInputObjectSchema } from './NullableDateTimeFieldUpdateOperationsInput.schema';
 import { DateTimeFieldUpdateOperationsInputObjectSchema as DateTimeFieldUpdateOperationsInputObjectSchema } from './DateTimeFieldUpdateOperationsInput.schema';
 import { CaseWorkItemUncheckedUpdateManyWithoutDentalCaseNestedInputObjectSchema as CaseWorkItemUncheckedUpdateManyWithoutDentalCaseNestedInputObjectSchema } from './CaseWorkItemUncheckedUpdateManyWithoutDentalCaseNestedInput.schema';
-import { CaseActivityLogUncheckedUpdateManyWithoutCaseNestedInputObjectSchema as CaseActivityLogUncheckedUpdateManyWithoutCaseNestedInputObjectSchema } from './CaseActivityLogUncheckedUpdateManyWithoutCaseNestedInput.schema';
+import { CaseActivityLogUncheckedUpdateManyWithoutDentalCaseNestedInputObjectSchema as CaseActivityLogUncheckedUpdateManyWithoutDentalCaseNestedInputObjectSchema } from './CaseActivityLogUncheckedUpdateManyWithoutDentalCaseNestedInput.schema';
 import { CaseAssetFileUncheckedUpdateManyWithoutDentalCaseNestedInputObjectSchema as CaseAssetFileUncheckedUpdateManyWithoutDentalCaseNestedInputObjectSchema } from './CaseAssetFileUncheckedUpdateManyWithoutDentalCaseNestedInput.schema'
 
 import { DecimalJSLikeSchema, isValidDecimalInput } from '../../helpers/decimal-helpers';
@@ -34,7 +34,7 @@ const makeSchema = () => z.object({
   createdAt: z.union([z.coerce.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputObjectSchema)]).optional(),
   updatedAt: z.union([z.coerce.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputObjectSchema)]).optional(),
   caseItems: z.lazy(() => CaseWorkItemUncheckedUpdateManyWithoutDentalCaseNestedInputObjectSchema).optional(),
-  caseActivityLogs: z.lazy(() => CaseActivityLogUncheckedUpdateManyWithoutCaseNestedInputObjectSchema).optional(),
+  caseActivityLogs: z.lazy(() => CaseActivityLogUncheckedUpdateManyWithoutDentalCaseNestedInputObjectSchema).optional(),
   caseAssetFiles: z.lazy(() => CaseAssetFileUncheckedUpdateManyWithoutDentalCaseNestedInputObjectSchema).optional()
 }).strict();
 export const CaseUncheckedUpdateWithoutStaffAssignmentsInputObjectSchema: z.ZodType<Prisma.CaseUncheckedUpdateWithoutStaffAssignmentsInput> = makeSchema() as unknown as z.ZodType<Prisma.CaseUncheckedUpdateWithoutStaffAssignmentsInput>;

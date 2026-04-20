@@ -32,7 +32,7 @@ const getClinicIcon = (type: string) => {
 
 interface ClinicSelectorProps {
 	value: string | undefined; // CRITICAL: Receives the exact state from RHF Controller
-	onSelect: (clinicId: string, dentistId: string) => void;
+	onSelect: (clinicId: string) => void;
 	onCreateNew: () => void;
 	newCreatedClinic: ClinicDetailsUI | null;
 	fieldError: FieldError | undefined;
@@ -67,8 +67,8 @@ export const ClinicSelector = memo(({ value, onSelect, onCreateNew, newCreatedCl
 
 	// --- HANDLERS ---
 	const handleSelect = useCallback(
-		(clinicId: string, dentistId: string) => {
-			onSelect(clinicId, dentistId);
+		(clinicId: string) => {
+			onSelect(clinicId);
 			setOpen(false);
 		},
 		[onSelect],
@@ -166,9 +166,7 @@ export const ClinicSelector = memo(({ value, onSelect, onCreateNew, newCreatedCl
 											key={clinic.id}
 											value={clinic.name}
 											onSelect={() => {
-												// Safe fallback to grab a dentist ID (Required by your onSelect signature)
-												const dentistId = clinic.dentists?.find((cd) => cd.isDefault || cd.isOwner)?.id || "";
-												handleSelect(clinic.id, dentistId);
+												handleSelect(clinic.id);
 											}}
 											className="flex items-center justify-between py-3 px-4 cursor-pointer hover:bg-primary/5 dark:hover:bg-primary/10 rounded-lg my-0.5 group"
 										>

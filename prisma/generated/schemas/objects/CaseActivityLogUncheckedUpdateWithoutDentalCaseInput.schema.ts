@@ -19,5 +19,5 @@ const makeSchema = () => z.object({
   payload: z.union([NullableJsonNullValueInputSchema, jsonSchema]).optional(),
   createdAt: z.union([z.coerce.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputObjectSchema)]).optional()
 }).strict();
-export const CaseActivityLogUncheckedUpdateWithoutCaseInputObjectSchema: z.ZodType<Prisma.CaseActivityLogUncheckedUpdateWithoutCaseInput> = makeSchema() as unknown as z.ZodType<Prisma.CaseActivityLogUncheckedUpdateWithoutCaseInput>;
-export const CaseActivityLogUncheckedUpdateWithoutCaseInputObjectZodSchema = makeSchema();
+export const CaseActivityLogUncheckedUpdateWithoutDentalCaseInputObjectSchema: z.ZodType<Prisma.CaseActivityLogUncheckedUpdateWithoutDentalCaseInput> = makeSchema() as unknown as z.ZodType<Prisma.CaseActivityLogUncheckedUpdateWithoutDentalCaseInput>;
+export const CaseActivityLogUncheckedUpdateWithoutDentalCaseInputObjectZodSchema = makeSchema();

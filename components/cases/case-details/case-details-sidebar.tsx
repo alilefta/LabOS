@@ -1,10 +1,11 @@
 "use client";
 
-import { MapPin, User, Truck, Wrench, CalendarClock, Clock, Wallet, LockKeyhole } from "lucide-react";
+import { MapPin, User, Truck, Wrench, CalendarClock, Clock, Wallet, LockKeyhole, AlertCircle } from "lucide-react";
 import { format, differenceInDays, startOfDay } from "date-fns";
 import { cn } from "@/lib/utils";
 // import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { CaseDetailsUI } from "@/schema/composed/case.details";
 
 // Replace `any` with your actual Prisma Case payload type once fully wired
 interface Props {
@@ -165,7 +166,3 @@ export function CaseDetailsSidebar({ dentalCase }: Props) {
 		</div>
 	);
 }
-
-// Quick helper for the missing icon in Card 1
-import { AlertCircle } from "lucide-react";
-import { CaseDetailsUI } from "@/schema/composed/case.details";

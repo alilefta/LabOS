@@ -1,13 +1,11 @@
 "use server";
 
-import { CasePricingPlanModel } from "@/generated/prisma/models";
+import { CaseActivityLogCreateManyDentalCaseInput } from "@/generated/prisma/models";
 import { ERRORS } from "@/lib/errors";
 import { tenantPrisma } from "@/lib/prisma";
 import { actionClientWithLab } from "@/lib/safe-action";
-import { serverCaseToCaseDetailsDTOMapper, draftCaseServerToDTO, draftSummaryServerToDTO, optionalSelectiveDraftCaseServerToDTO } from "@/lib/server-only-helpers";
+import { computeCaseItemPrice, draftCaseServerToDTO, draftSummaryServerToDTO, optionalSelectiveDraftCaseServerToDTO } from "@/lib/server-only-helpers";
 
-import { JawType } from "@/schema/base/enums.base";
-import { ToothPosition } from "@/schema/base/tooth-position.base";
 import { CreateCaseInputSchema, SaveDraftCaseInputSchema } from "@/schema/composed/case.details";
 import { APIError } from "better-auth";
 import z from "zod/v3";
@@ -15,12 +13,12 @@ import z from "zod/v3";
 export const createDentalCaseAction = actionClientWithLab
 	.metadata({
 		actionName: "Create-New-Dental-Case-Action",
-		requiredLabRole: "ADMIN",
+		requiredLabRole: null,
 	})
 	.inputSchema(CreateCaseInputSchema)
 	.action(async ({ parsedInput, ctx }) => {
 		const { patientId, clinicId, dentistId, caseCategoryId, status, deadline, caseAssetFiles, caseWorkItems, staffAssignments, notes, existingDraftId } = parsedInput;
-		const { labId } = ctx;
+		const { labId, user } = ctx;
 
 		// !!!!!!!!!!!! creating a case from stored draft should be done through update not create!!!!!
 
@@ -84,12 +82,8 @@ export const createDentalCaseAction = actionClientWithLab
 
 				staffIds.length > 0
 					? prisma.labStaff.findMany({
-							where: {
-								id: { in: staffIds },
-								isActive: true,
-								labId,
-							},
-							select: { id: true, roleCategory: true },
+							where: { id: { in: staffIds }, isActive: true, labId },
+							select: { id: true, roleCategory: true, firstName: true, lastName: true },
 						})
 					: Promise.resolve([]),
 				dentistId && clinicId ? prisma.dentist.findFirst({ where: { id: dentistId, clinicId, labId }, select: { id: true } }) : Promise.resolve(null),
@@ -220,6 +214,70 @@ export const createDentalCaseAction = actionClientWithLab
 			const resolvedStatus = status === "DRAFT" ? "DRAFT" : isCaseAssigned ? "ASSIGNED" : "NEW";
 
 			// ─────────────────────────────────────────────────────────────────
+			// PRE-TRANSACTION: Build the Genesis Activity Logs
+			// ─────────────────────────────────────────────────────────────────
+			const staffMap = new Map(staffMembers.map((s) => [s.id, s]));
+
+			// We use an array of objects to map to Prisma's `createMany`
+			const genesisLogs: CaseActivityLogCreateManyDentalCaseInput[] = [
+				{
+					labId,
+					actorId: user.id, // The user performing the action
+					actorName: user.name || "System", // The user's name
+					type: "CASE_CREATED",
+					summary: "Created case prescription",
+					payload: {},
+				},
+			];
+			if (notes) {
+				genesisLogs.push({
+					labId,
+					actorId: user.id,
+					actorName: user.name || "System",
+					type: "NOTE_ADDED",
+					summary: "Added global clinical instructions",
+					payload: { note: notes },
+				});
+			}
+
+			if (staffAssignments && staffAssignments.length > 0) {
+				staffAssignments.forEach((sa) => {
+					const staffData = staffMap.get(sa.staffId);
+					if (staffData) {
+						genesisLogs.push({
+							labId,
+							actorId: user.id,
+							actorName: user.name || "System",
+							type: "STAFF_ASSIGNED",
+							summary: `Assigned ${staffData.firstName} ${staffData.lastName}`,
+							payload: {
+								staffId: sa.staffId,
+								staffName: `${staffData.firstName} ${staffData.lastName}`,
+								roleCategory: sa.roleCategory,
+							},
+						});
+					}
+				});
+			}
+
+			if (caseAssetFiles && caseAssetFiles.length > 0) {
+				caseAssetFiles.forEach((file) => {
+					genesisLogs.push({
+						labId,
+						actorId: user.id,
+						actorName: user.name || "System",
+						type: "FILE_UPLOADED",
+						summary: `Attached ${file.assetFileType}: ${file.title || "Asset"}`,
+						payload: {
+							fileId: file.documentUrl, // Fallback if no specific file ID exists yet
+							fileName: file.title || "Clinical Asset",
+							assetFileType: file.assetFileType,
+						},
+					});
+				});
+			}
+
+			// ─────────────────────────────────────────────────────────────────
 			// STEP 4: Transaction
 			// Only what must be atomic is inside the transaction.
 			// Case number increment + case creation must be a single unit —
@@ -330,7 +388,11 @@ export const createDentalCaseAction = actionClientWithLab
 												},
 											}
 										: undefined,
+								caseActivityLogs: {
+									createMany: { data: genesisLogs },
+								},
 							},
+
 							select: { id: true, caseNumber: true },
 						});
 					}
@@ -422,6 +484,9 @@ export const createDentalCaseAction = actionClientWithLab
 											},
 										}
 									: undefined,
+							caseActivityLogs: {
+								createMany: { data: genesisLogs },
+							},
 						},
 						select: { id: true, caseNumber: true },
 					});
@@ -982,41 +1047,3 @@ export const loadDraftByIdAction = actionClientWithLab
 
 		return { draft: optionalSelectiveDraftCaseServerToDTO(draft) };
 	});
-
-// ========================== Helpers =====================
-const computeCaseItemPrice = (pricingPlan: CasePricingPlanModel, selectedTeeth: ToothPosition[], jawType: JawType) => {
-	if (!pricingPlan) return 0;
-	const count = selectedTeeth.length;
-
-	// If JawType is OTHER (No charting), assume count is 1 for pricing purposes if needed,
-	// though flat rates usually apply here.
-	const effectiveCount = jawType === "OTHER" && count === 0 ? 1 : count;
-
-	// Don't charge if no teeth selected (unless it's a flat bulk rate)
-	if (effectiveCount === 0 && pricingPlan.pricingStrategy !== "BULK") return 0;
-
-	switch (pricingPlan.pricingStrategy) {
-		case "BULK":
-			return Number(pricingPlan.bulkPrice || 0);
-
-		case "PERTOOTH":
-			// Standard multiplication
-			return effectiveCount * Number(pricingPlan.toothPrice || 0);
-
-		case "CUSTOM":
-			// 1. Check if they hit the Bulk Cap interval first!
-			if (pricingPlan.teethCountToApplyBulkPrice && pricingPlan.bulkPrice && effectiveCount >= Number(pricingPlan.teethCountToApplyBulkPrice)) {
-				return Number(pricingPlan.bulkPrice);
-			}
-
-			// 2. Otherwise, apply Tiered Pricing (1st tooth = X, rest = Y), if total teeth count >= bulkThreshold, apply bulkPrice
-			const firstPrice = Number(pricingPlan.firstToothPrice || 0);
-			const additionalPrice = Number(pricingPlan.additionalToothPrice || 0);
-
-			if (effectiveCount === 1) return firstPrice;
-			return firstPrice + additionalPrice * (effectiveCount - 1);
-
-		default:
-			return 0;
-	}
-};

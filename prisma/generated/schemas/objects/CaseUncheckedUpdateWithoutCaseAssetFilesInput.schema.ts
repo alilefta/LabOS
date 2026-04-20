@@ -9,7 +9,7 @@ import { NullableDateTimeFieldUpdateOperationsInputObjectSchema as NullableDateT
 import { DateTimeFieldUpdateOperationsInputObjectSchema as DateTimeFieldUpdateOperationsInputObjectSchema } from './DateTimeFieldUpdateOperationsInput.schema';
 import { CaseWorkItemUncheckedUpdateManyWithoutDentalCaseNestedInputObjectSchema as CaseWorkItemUncheckedUpdateManyWithoutDentalCaseNestedInputObjectSchema } from './CaseWorkItemUncheckedUpdateManyWithoutDentalCaseNestedInput.schema';
 import { CaseStaffAssignmentUncheckedUpdateManyWithoutCaseNestedInputObjectSchema as CaseStaffAssignmentUncheckedUpdateManyWithoutCaseNestedInputObjectSchema } from './CaseStaffAssignmentUncheckedUpdateManyWithoutCaseNestedInput.schema';
-import { CaseActivityLogUncheckedUpdateManyWithoutCaseNestedInputObjectSchema as CaseActivityLogUncheckedUpdateManyWithoutCaseNestedInputObjectSchema } from './CaseActivityLogUncheckedUpdateManyWithoutCaseNestedInput.schema'
+import { CaseActivityLogUncheckedUpdateManyWithoutDentalCaseNestedInputObjectSchema as CaseActivityLogUncheckedUpdateManyWithoutDentalCaseNestedInputObjectSchema } from './CaseActivityLogUncheckedUpdateManyWithoutDentalCaseNestedInput.schema'
 
 import { DecimalJSLikeSchema, isValidDecimalInput } from '../../helpers/decimal-helpers';
 const makeSchema = () => z.object({
@@ -35,7 +35,7 @@ const makeSchema = () => z.object({
   updatedAt: z.union([z.coerce.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputObjectSchema)]).optional(),
   caseItems: z.lazy(() => CaseWorkItemUncheckedUpdateManyWithoutDentalCaseNestedInputObjectSchema).optional(),
   staffAssignments: z.lazy(() => CaseStaffAssignmentUncheckedUpdateManyWithoutCaseNestedInputObjectSchema).optional(),
-  caseActivityLogs: z.lazy(() => CaseActivityLogUncheckedUpdateManyWithoutCaseNestedInputObjectSchema).optional()
+  caseActivityLogs: z.lazy(() => CaseActivityLogUncheckedUpdateManyWithoutDentalCaseNestedInputObjectSchema).optional()
 }).strict();
 export const CaseUncheckedUpdateWithoutCaseAssetFilesInputObjectSchema: z.ZodType<Prisma.CaseUncheckedUpdateWithoutCaseAssetFilesInput> = makeSchema() as unknown as z.ZodType<Prisma.CaseUncheckedUpdateWithoutCaseAssetFilesInput>;
 export const CaseUncheckedUpdateWithoutCaseAssetFilesInputObjectZodSchema = makeSchema();

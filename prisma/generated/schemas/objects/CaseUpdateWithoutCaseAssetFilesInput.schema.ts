@@ -14,7 +14,7 @@ import { CaseCategoryUpdateOneWithoutCasesNestedInputObjectSchema as CaseCategor
 import { ClinicUpdateOneWithoutCasesNestedInputObjectSchema as ClinicUpdateOneWithoutCasesNestedInputObjectSchema } from './ClinicUpdateOneWithoutCasesNestedInput.schema';
 import { DentistUpdateOneWithoutCasesNestedInputObjectSchema as DentistUpdateOneWithoutCasesNestedInputObjectSchema } from './DentistUpdateOneWithoutCasesNestedInput.schema';
 import { CaseStaffAssignmentUpdateManyWithoutCaseNestedInputObjectSchema as CaseStaffAssignmentUpdateManyWithoutCaseNestedInputObjectSchema } from './CaseStaffAssignmentUpdateManyWithoutCaseNestedInput.schema';
-import { CaseActivityLogUpdateManyWithoutCaseNestedInputObjectSchema as CaseActivityLogUpdateManyWithoutCaseNestedInputObjectSchema } from './CaseActivityLogUpdateManyWithoutCaseNestedInput.schema'
+import { CaseActivityLogUpdateManyWithoutDentalCaseNestedInputObjectSchema as CaseActivityLogUpdateManyWithoutDentalCaseNestedInputObjectSchema } from './CaseActivityLogUpdateManyWithoutDentalCaseNestedInput.schema'
 
 import { DecimalJSLikeSchema, isValidDecimalInput } from '../../helpers/decimal-helpers';
 const makeSchema = () => z.object({
@@ -40,7 +40,7 @@ const makeSchema = () => z.object({
   clinic: z.lazy(() => ClinicUpdateOneWithoutCasesNestedInputObjectSchema).optional(),
   dentist: z.lazy(() => DentistUpdateOneWithoutCasesNestedInputObjectSchema).optional(),
   staffAssignments: z.lazy(() => CaseStaffAssignmentUpdateManyWithoutCaseNestedInputObjectSchema).optional(),
-  caseActivityLogs: z.lazy(() => CaseActivityLogUpdateManyWithoutCaseNestedInputObjectSchema).optional()
+  caseActivityLogs: z.lazy(() => CaseActivityLogUpdateManyWithoutDentalCaseNestedInputObjectSchema).optional()
 }).strict();
 export const CaseUpdateWithoutCaseAssetFilesInputObjectSchema: z.ZodType<Prisma.CaseUpdateWithoutCaseAssetFilesInput> = makeSchema() as unknown as z.ZodType<Prisma.CaseUpdateWithoutCaseAssetFilesInput>;
 export const CaseUpdateWithoutCaseAssetFilesInputObjectZodSchema = makeSchema();

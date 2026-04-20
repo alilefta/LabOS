@@ -26,7 +26,7 @@ import { LabStaffDetailsUI } from "@/schema/composed/lab-staff.details";
 import { StaffRoleCategory } from "@/schema/base/enums.base";
 import { useAction } from "next-safe-action/hooks";
 import { handleSafeActionError } from "@/lib/safe-action-helpers";
-import { createDentalCaseAction, getDraftByPatientAction, getRecentDraftsAction, loadDraftByIdAction, saveDraftCaseAction } from "@/actions/case";
+import { createDentalCaseAction, getDraftByPatientAction, getRecentDraftsAction, loadDraftByIdAction, saveDraftCaseAction } from "@/actions/cases/create-case";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { mapDraftToFormValues } from "@/lib/case-helpers";

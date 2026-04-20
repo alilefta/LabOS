@@ -15,7 +15,7 @@ const makeSchema = () => z.object({
   summary: SortOrderSchema.optional(),
   payload: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
   createdAt: SortOrderSchema.optional(),
-  case: z.lazy(() => CaseOrderByWithRelationInputObjectSchema).optional(),
+  dentalCase: z.lazy(() => CaseOrderByWithRelationInputObjectSchema).optional(),
   lab: z.lazy(() => LabOrderByWithRelationInputObjectSchema).optional()
 }).strict();
 export const CaseActivityLogOrderByWithRelationInputObjectSchema: z.ZodType<Prisma.CaseActivityLogOrderByWithRelationInput> = makeSchema() as unknown as z.ZodType<Prisma.CaseActivityLogOrderByWithRelationInput>;

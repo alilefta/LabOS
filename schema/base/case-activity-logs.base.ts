@@ -8,7 +8,7 @@ export const CaseActivityLogBaseSchema = z.object({
 	actorName: z.string(),
 	type: CaseActivityTypeSchema,
 	summary: z.string(),
-	payload: z.json().nullable(), // parsed at readtime!
+	payload: z.unknown().nullable(), // parsed at readtime!
 	createdAt: z.date(),
 });
 

@@ -3,7 +3,7 @@ import { Prisma } from '../../../../generated/prisma/client';
 import { CaseStatusSchema } from '../enums/CaseStatus.schema';
 import { CaseWorkItemUncheckedCreateNestedManyWithoutDentalCaseInputObjectSchema as CaseWorkItemUncheckedCreateNestedManyWithoutDentalCaseInputObjectSchema } from './CaseWorkItemUncheckedCreateNestedManyWithoutDentalCaseInput.schema';
 import { CaseStaffAssignmentUncheckedCreateNestedManyWithoutCaseInputObjectSchema as CaseStaffAssignmentUncheckedCreateNestedManyWithoutCaseInputObjectSchema } from './CaseStaffAssignmentUncheckedCreateNestedManyWithoutCaseInput.schema';
-import { CaseActivityLogUncheckedCreateNestedManyWithoutCaseInputObjectSchema as CaseActivityLogUncheckedCreateNestedManyWithoutCaseInputObjectSchema } from './CaseActivityLogUncheckedCreateNestedManyWithoutCaseInput.schema'
+import { CaseActivityLogUncheckedCreateNestedManyWithoutDentalCaseInputObjectSchema as CaseActivityLogUncheckedCreateNestedManyWithoutDentalCaseInputObjectSchema } from './CaseActivityLogUncheckedCreateNestedManyWithoutDentalCaseInput.schema'
 
 import { DecimalJSLikeSchema, isValidDecimalInput } from '../../helpers/decimal-helpers';
 const makeSchema = () => z.object({
@@ -29,7 +29,7 @@ const makeSchema = () => z.object({
   updatedAt: z.coerce.date().optional(),
   caseItems: z.lazy(() => CaseWorkItemUncheckedCreateNestedManyWithoutDentalCaseInputObjectSchema).optional(),
   staffAssignments: z.lazy(() => CaseStaffAssignmentUncheckedCreateNestedManyWithoutCaseInputObjectSchema).optional(),
-  caseActivityLogs: z.lazy(() => CaseActivityLogUncheckedCreateNestedManyWithoutCaseInputObjectSchema).optional()
+  caseActivityLogs: z.lazy(() => CaseActivityLogUncheckedCreateNestedManyWithoutDentalCaseInputObjectSchema).optional()
 }).strict();
 export const CaseUncheckedCreateWithoutCaseAssetFilesInputObjectSchema: z.ZodType<Prisma.CaseUncheckedCreateWithoutCaseAssetFilesInput> = makeSchema() as unknown as z.ZodType<Prisma.CaseUncheckedCreateWithoutCaseAssetFilesInput>;
 export const CaseUncheckedCreateWithoutCaseAssetFilesInputObjectZodSchema = makeSchema();

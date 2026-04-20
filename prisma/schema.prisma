@@ -154,6 +154,7 @@ enum ToothPosition {
 enum CaseActivityType {
   CASE_CREATED
   STATUS_CHANGED
+  CASE_UPDATED
   STAFF_ASSIGNED
   STAFF_REMOVED
   NOTE_ADDED
@@ -598,11 +599,11 @@ model CaseStaffAssignment {
 
 // new to add
 model CaseActivityLog {
-  id     String @id @default(uuid())
-  caseId String
-  case   Case   @relation(fields: [caseId], references: [id], onDelete: Cascade)
-  labId  String
-  lab    Lab    @relation(fields: [labId], references: [id], onDelete: Cascade)
+  id         String @id @default(uuid())
+  caseId     String
+  dentalCase Case   @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  labId      String
+  lab        Lab    @relation(fields: [labId], references: [id], onDelete: Cascade)
 
   actorId   String? // labUser who performed the action (null = system)
   actorName String // snapshot — don't rely on joins for display

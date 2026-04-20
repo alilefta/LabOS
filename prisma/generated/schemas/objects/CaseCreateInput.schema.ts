@@ -8,7 +8,7 @@ import { CaseCategoryCreateNestedOneWithoutCasesInputObjectSchema as CaseCategor
 import { ClinicCreateNestedOneWithoutCasesInputObjectSchema as ClinicCreateNestedOneWithoutCasesInputObjectSchema } from './ClinicCreateNestedOneWithoutCasesInput.schema';
 import { DentistCreateNestedOneWithoutCasesInputObjectSchema as DentistCreateNestedOneWithoutCasesInputObjectSchema } from './DentistCreateNestedOneWithoutCasesInput.schema';
 import { CaseStaffAssignmentCreateNestedManyWithoutCaseInputObjectSchema as CaseStaffAssignmentCreateNestedManyWithoutCaseInputObjectSchema } from './CaseStaffAssignmentCreateNestedManyWithoutCaseInput.schema';
-import { CaseActivityLogCreateNestedManyWithoutCaseInputObjectSchema as CaseActivityLogCreateNestedManyWithoutCaseInputObjectSchema } from './CaseActivityLogCreateNestedManyWithoutCaseInput.schema';
+import { CaseActivityLogCreateNestedManyWithoutDentalCaseInputObjectSchema as CaseActivityLogCreateNestedManyWithoutDentalCaseInputObjectSchema } from './CaseActivityLogCreateNestedManyWithoutDentalCaseInput.schema';
 import { CaseAssetFileCreateNestedManyWithoutDentalCaseInputObjectSchema as CaseAssetFileCreateNestedManyWithoutDentalCaseInputObjectSchema } from './CaseAssetFileCreateNestedManyWithoutDentalCaseInput.schema'
 
 import { DecimalJSLikeSchema, isValidDecimalInput } from '../../helpers/decimal-helpers';
@@ -34,7 +34,7 @@ const makeSchema = () => z.object({
   clinic: z.lazy(() => ClinicCreateNestedOneWithoutCasesInputObjectSchema).optional(),
   dentist: z.lazy(() => DentistCreateNestedOneWithoutCasesInputObjectSchema).optional(),
   staffAssignments: z.lazy(() => CaseStaffAssignmentCreateNestedManyWithoutCaseInputObjectSchema).optional(),
-  caseActivityLogs: z.lazy(() => CaseActivityLogCreateNestedManyWithoutCaseInputObjectSchema).optional(),
+  caseActivityLogs: z.lazy(() => CaseActivityLogCreateNestedManyWithoutDentalCaseInputObjectSchema).optional(),
   caseAssetFiles: z.lazy(() => CaseAssetFileCreateNestedManyWithoutDentalCaseInputObjectSchema).optional()
 }).strict();
 export const CaseCreateInputObjectSchema: z.ZodType<Prisma.CaseCreateInput> = makeSchema() as unknown as z.ZodType<Prisma.CaseCreateInput>;
