@@ -21,6 +21,7 @@ export const LabAggregateResultSchema = z.object({  _count: z.object({
     staffAssignments: z.number(),
     LabStaff: z.number(),
     nextCaseNumber: z.number(),
+    caseActivityLogs: z.number(),
     createdAt: z.number(),
     updatedAt: z.number()
   }).optional(),

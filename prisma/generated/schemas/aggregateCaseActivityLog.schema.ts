@@ -1,0 +1,12 @@
+import type { Prisma } from '../../../generated/prisma/client';
+import * as z from 'zod';
+import { CaseActivityLogOrderByWithRelationInputObjectSchema as CaseActivityLogOrderByWithRelationInputObjectSchema } from './objects/CaseActivityLogOrderByWithRelationInput.schema';
+import { CaseActivityLogWhereInputObjectSchema as CaseActivityLogWhereInputObjectSchema } from './objects/CaseActivityLogWhereInput.schema';
+import { CaseActivityLogWhereUniqueInputObjectSchema as CaseActivityLogWhereUniqueInputObjectSchema } from './objects/CaseActivityLogWhereUniqueInput.schema';
+import { CaseActivityLogCountAggregateInputObjectSchema as CaseActivityLogCountAggregateInputObjectSchema } from './objects/CaseActivityLogCountAggregateInput.schema';
+import { CaseActivityLogMinAggregateInputObjectSchema as CaseActivityLogMinAggregateInputObjectSchema } from './objects/CaseActivityLogMinAggregateInput.schema';
+import { CaseActivityLogMaxAggregateInputObjectSchema as CaseActivityLogMaxAggregateInputObjectSchema } from './objects/CaseActivityLogMaxAggregateInput.schema';
+
+export const CaseActivityLogAggregateSchema: z.ZodType<Prisma.CaseActivityLogAggregateArgs> = z.object({ orderBy: z.union([CaseActivityLogOrderByWithRelationInputObjectSchema, CaseActivityLogOrderByWithRelationInputObjectSchema.array()]).optional(), where: CaseActivityLogWhereInputObjectSchema.optional(), cursor: CaseActivityLogWhereUniqueInputObjectSchema.optional(), take: z.number().optional(), skip: z.number().optional(), _count: z.union([ z.literal(true), CaseActivityLogCountAggregateInputObjectSchema ]).optional(), _min: CaseActivityLogMinAggregateInputObjectSchema.optional(), _max: CaseActivityLogMaxAggregateInputObjectSchema.optional() }).strict() as unknown as z.ZodType<Prisma.CaseActivityLogAggregateArgs>;
+
+export const CaseActivityLogAggregateZodSchema = z.object({ orderBy: z.union([CaseActivityLogOrderByWithRelationInputObjectSchema, CaseActivityLogOrderByWithRelationInputObjectSchema.array()]).optional(), where: CaseActivityLogWhereInputObjectSchema.optional(), cursor: CaseActivityLogWhereUniqueInputObjectSchema.optional(), take: z.number().optional(), skip: z.number().optional(), _count: z.union([ z.literal(true), CaseActivityLogCountAggregateInputObjectSchema ]).optional(), _min: CaseActivityLogMinAggregateInputObjectSchema.optional(), _max: CaseActivityLogMaxAggregateInputObjectSchema.optional() }).strict();

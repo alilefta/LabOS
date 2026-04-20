@@ -30,6 +30,7 @@ export const CaseGroupByResultSchema = z.array(z.object({
     dentist: z.number(),
     notes: z.number(),
     staffAssignments: z.number(),
+    caseActivityLogs: z.number(),
     caseAssetFiles: z.number(),
     deadline: z.number(),
     createdAt: z.number(),

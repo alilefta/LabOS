@@ -22,6 +22,7 @@ export const LabFindManyResultSchema = z.object({
   staffAssignments: z.array(z.unknown()),
   LabStaff: z.array(z.unknown()),
   nextCaseNumber: z.number().int(),
+  caseActivityLogs: z.array(z.unknown()),
   createdAt: z.date(),
   updatedAt: z.date()
 })),

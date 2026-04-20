@@ -17,6 +17,7 @@ export { CasePricingPlanModelSchema } from './CasePricingPlan.pure';
 export { SelectedToothModelSchema } from './SelectedTooth.pure';
 export { LabStaffModelSchema } from './LabStaff.pure';
 export { CaseStaffAssignmentModelSchema } from './CaseStaffAssignment.pure';
+export { CaseActivityLogModelSchema } from './CaseActivityLog.pure';
 export { LabSubscriptionPlanModelSchema } from './LabSubscriptionPlan.pure';
 export { LabUserModelSchema } from './LabUser.pure';
 export { SuperUserModelSchema } from './SuperUser.pure';

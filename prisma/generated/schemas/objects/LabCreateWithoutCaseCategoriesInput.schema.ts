@@ -13,7 +13,8 @@ import { CaseAssetFileCreateNestedManyWithoutLabInputObjectSchema as CaseAssetFi
 import { PatientCreateNestedManyWithoutLabInputObjectSchema as PatientCreateNestedManyWithoutLabInputObjectSchema } from './PatientCreateNestedManyWithoutLabInput.schema';
 import { DentistCreateNestedManyWithoutLabInputObjectSchema as DentistCreateNestedManyWithoutLabInputObjectSchema } from './DentistCreateNestedManyWithoutLabInput.schema';
 import { CaseStaffAssignmentCreateNestedManyWithoutLabInputObjectSchema as CaseStaffAssignmentCreateNestedManyWithoutLabInputObjectSchema } from './CaseStaffAssignmentCreateNestedManyWithoutLabInput.schema';
-import { LabStaffCreateNestedManyWithoutLabInputObjectSchema as LabStaffCreateNestedManyWithoutLabInputObjectSchema } from './LabStaffCreateNestedManyWithoutLabInput.schema'
+import { LabStaffCreateNestedManyWithoutLabInputObjectSchema as LabStaffCreateNestedManyWithoutLabInputObjectSchema } from './LabStaffCreateNestedManyWithoutLabInput.schema';
+import { CaseActivityLogCreateNestedManyWithoutLabInputObjectSchema as CaseActivityLogCreateNestedManyWithoutLabInputObjectSchema } from './CaseActivityLogCreateNestedManyWithoutLabInput.schema'
 
 const makeSchema = () => z.object({
   id: z.string().optional(),
@@ -37,7 +38,8 @@ const makeSchema = () => z.object({
   patients: z.lazy(() => PatientCreateNestedManyWithoutLabInputObjectSchema).optional(),
   dentists: z.lazy(() => DentistCreateNestedManyWithoutLabInputObjectSchema).optional(),
   staffAssignments: z.lazy(() => CaseStaffAssignmentCreateNestedManyWithoutLabInputObjectSchema).optional(),
-  LabStaff: z.lazy(() => LabStaffCreateNestedManyWithoutLabInputObjectSchema).optional()
+  LabStaff: z.lazy(() => LabStaffCreateNestedManyWithoutLabInputObjectSchema).optional(),
+  caseActivityLogs: z.lazy(() => CaseActivityLogCreateNestedManyWithoutLabInputObjectSchema).optional()
 }).strict();
 export const LabCreateWithoutCaseCategoriesInputObjectSchema: z.ZodType<Prisma.LabCreateWithoutCaseCategoriesInput> = makeSchema() as unknown as z.ZodType<Prisma.LabCreateWithoutCaseCategoriesInput>;
 export const LabCreateWithoutCaseCategoriesInputObjectZodSchema = makeSchema();

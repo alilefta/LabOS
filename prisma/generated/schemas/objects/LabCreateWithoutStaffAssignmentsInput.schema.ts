@@ -13,7 +13,8 @@ import { CasePricingPlanCreateNestedManyWithoutLabInputObjectSchema as CasePrici
 import { CaseAssetFileCreateNestedManyWithoutLabInputObjectSchema as CaseAssetFileCreateNestedManyWithoutLabInputObjectSchema } from './CaseAssetFileCreateNestedManyWithoutLabInput.schema';
 import { PatientCreateNestedManyWithoutLabInputObjectSchema as PatientCreateNestedManyWithoutLabInputObjectSchema } from './PatientCreateNestedManyWithoutLabInput.schema';
 import { DentistCreateNestedManyWithoutLabInputObjectSchema as DentistCreateNestedManyWithoutLabInputObjectSchema } from './DentistCreateNestedManyWithoutLabInput.schema';
-import { LabStaffCreateNestedManyWithoutLabInputObjectSchema as LabStaffCreateNestedManyWithoutLabInputObjectSchema } from './LabStaffCreateNestedManyWithoutLabInput.schema'
+import { LabStaffCreateNestedManyWithoutLabInputObjectSchema as LabStaffCreateNestedManyWithoutLabInputObjectSchema } from './LabStaffCreateNestedManyWithoutLabInput.schema';
+import { CaseActivityLogCreateNestedManyWithoutLabInputObjectSchema as CaseActivityLogCreateNestedManyWithoutLabInputObjectSchema } from './CaseActivityLogCreateNestedManyWithoutLabInput.schema'
 
 const makeSchema = () => z.object({
   id: z.string().optional(),
@@ -37,7 +38,8 @@ const makeSchema = () => z.object({
   caseAssetFiles: z.lazy(() => CaseAssetFileCreateNestedManyWithoutLabInputObjectSchema).optional(),
   patients: z.lazy(() => PatientCreateNestedManyWithoutLabInputObjectSchema).optional(),
   dentists: z.lazy(() => DentistCreateNestedManyWithoutLabInputObjectSchema).optional(),
-  LabStaff: z.lazy(() => LabStaffCreateNestedManyWithoutLabInputObjectSchema).optional()
+  LabStaff: z.lazy(() => LabStaffCreateNestedManyWithoutLabInputObjectSchema).optional(),
+  caseActivityLogs: z.lazy(() => CaseActivityLogCreateNestedManyWithoutLabInputObjectSchema).optional()
 }).strict();
 export const LabCreateWithoutStaffAssignmentsInputObjectSchema: z.ZodType<Prisma.LabCreateWithoutStaffAssignmentsInput> = makeSchema() as unknown as z.ZodType<Prisma.LabCreateWithoutStaffAssignmentsInput>;
 export const LabCreateWithoutStaffAssignmentsInputObjectZodSchema = makeSchema();

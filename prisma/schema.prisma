@@ -192,7 +192,8 @@ model Lab {
   LabStaff         LabStaff[]
 
   //tracker to get instant case number instead of making count() db query each time
-  nextCaseNumber Int @default(0)
+  nextCaseNumber   Int               @default(0)
+  caseActivityLogs CaseActivityLog[]
 
   // nextInvoiceSequence Int @default(0) // We'll uncomment this in month 3!
 
@@ -296,6 +297,7 @@ model Case {
   notes String?
 
   staffAssignments CaseStaffAssignment[]
+  caseActivityLogs CaseActivityLog[]
 
   caseAssetFiles CaseAssetFile[]
 
@@ -594,25 +596,26 @@ model CaseStaffAssignment {
   @@index([staffId])
 }
 
-// model CaseActivityLog {
-//   id     String @id @default(uuid())
-//   caseId String
-//   case   Case   @relation(fields: [caseId], references: [id], onDelete: Cascade)
-//   labId  String
-//   lab    Lab    @relation(fields: [labId], references: [id], onDelete: Cascade)
+// new to add
+model CaseActivityLog {
+  id     String @id @default(uuid())
+  caseId String
+  case   Case   @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  labId  String
+  lab    Lab    @relation(fields: [labId], references: [id], onDelete: Cascade)
 
-//   actorId   String?  // labUser who performed the action (null = system)
-//   actorName String   // snapshot — don't rely on joins for display
+  actorId   String? // labUser who performed the action (null = system)
+  actorName String // snapshot — don't rely on joins for display
 
-//   type    CaseActivityType
-//   summary String           // human-readable "Status changed to Processing"
-//   payload Json?            // structured diff — old/new values
+  type    CaseActivityType
+  summary String // human-readable "Status changed to Processing"
+  payload Json? // structured diff — old/new values
 
-//   createdAt DateTime @default(now())
+  createdAt DateTime @default(now())
 
-//   @@index([caseId])
-//   @@index([labId])
-// }
+  @@index([caseId])
+  @@index([labId])
+}
 
 // model Technician {
 //   id        String  @id @default(uuid())

@@ -1,0 +1,13 @@
+import type { Prisma } from '../../../generated/prisma/client';
+import * as z from 'zod';
+import { CaseActivityLogWhereInputObjectSchema as CaseActivityLogWhereInputObjectSchema } from './objects/CaseActivityLogWhereInput.schema';
+import { CaseActivityLogOrderByWithAggregationInputObjectSchema as CaseActivityLogOrderByWithAggregationInputObjectSchema } from './objects/CaseActivityLogOrderByWithAggregationInput.schema';
+import { CaseActivityLogScalarWhereWithAggregatesInputObjectSchema as CaseActivityLogScalarWhereWithAggregatesInputObjectSchema } from './objects/CaseActivityLogScalarWhereWithAggregatesInput.schema';
+import { CaseActivityLogScalarFieldEnumSchema } from './enums/CaseActivityLogScalarFieldEnum.schema';
+import { CaseActivityLogCountAggregateInputObjectSchema as CaseActivityLogCountAggregateInputObjectSchema } from './objects/CaseActivityLogCountAggregateInput.schema';
+import { CaseActivityLogMinAggregateInputObjectSchema as CaseActivityLogMinAggregateInputObjectSchema } from './objects/CaseActivityLogMinAggregateInput.schema';
+import { CaseActivityLogMaxAggregateInputObjectSchema as CaseActivityLogMaxAggregateInputObjectSchema } from './objects/CaseActivityLogMaxAggregateInput.schema';
+
+export const CaseActivityLogGroupBySchema: z.ZodType<Prisma.CaseActivityLogGroupByArgs> = z.object({ where: CaseActivityLogWhereInputObjectSchema.optional(), orderBy: z.union([CaseActivityLogOrderByWithAggregationInputObjectSchema, CaseActivityLogOrderByWithAggregationInputObjectSchema.array()]).optional(), having: CaseActivityLogScalarWhereWithAggregatesInputObjectSchema.optional(), take: z.number().optional(), skip: z.number().optional(), by: z.array(CaseActivityLogScalarFieldEnumSchema), _count: z.union([ z.literal(true), CaseActivityLogCountAggregateInputObjectSchema ]).optional(), _min: CaseActivityLogMinAggregateInputObjectSchema.optional(), _max: CaseActivityLogMaxAggregateInputObjectSchema.optional() }).strict() as unknown as z.ZodType<Prisma.CaseActivityLogGroupByArgs>;
+
+export const CaseActivityLogGroupByZodSchema = z.object({ where: CaseActivityLogWhereInputObjectSchema.optional(), orderBy: z.union([CaseActivityLogOrderByWithAggregationInputObjectSchema, CaseActivityLogOrderByWithAggregationInputObjectSchema.array()]).optional(), having: CaseActivityLogScalarWhereWithAggregatesInputObjectSchema.optional(), take: z.number().optional(), skip: z.number().optional(), by: z.array(CaseActivityLogScalarFieldEnumSchema), _count: z.union([ z.literal(true), CaseActivityLogCountAggregateInputObjectSchema ]).optional(), _min: CaseActivityLogMinAggregateInputObjectSchema.optional(), _max: CaseActivityLogMaxAggregateInputObjectSchema.optional() }).strict();

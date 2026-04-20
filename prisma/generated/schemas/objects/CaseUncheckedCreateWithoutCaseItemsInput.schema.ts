@@ -2,6 +2,7 @@ import * as z from 'zod';
 import { Prisma } from '../../../../generated/prisma/client';
 import { CaseStatusSchema } from '../enums/CaseStatus.schema';
 import { CaseStaffAssignmentUncheckedCreateNestedManyWithoutCaseInputObjectSchema as CaseStaffAssignmentUncheckedCreateNestedManyWithoutCaseInputObjectSchema } from './CaseStaffAssignmentUncheckedCreateNestedManyWithoutCaseInput.schema';
+import { CaseActivityLogUncheckedCreateNestedManyWithoutCaseInputObjectSchema as CaseActivityLogUncheckedCreateNestedManyWithoutCaseInputObjectSchema } from './CaseActivityLogUncheckedCreateNestedManyWithoutCaseInput.schema';
 import { CaseAssetFileUncheckedCreateNestedManyWithoutDentalCaseInputObjectSchema as CaseAssetFileUncheckedCreateNestedManyWithoutDentalCaseInputObjectSchema } from './CaseAssetFileUncheckedCreateNestedManyWithoutDentalCaseInput.schema'
 
 import { DecimalJSLikeSchema, isValidDecimalInput } from '../../helpers/decimal-helpers';
@@ -27,6 +28,7 @@ const makeSchema = () => z.object({
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
   staffAssignments: z.lazy(() => CaseStaffAssignmentUncheckedCreateNestedManyWithoutCaseInputObjectSchema).optional(),
+  caseActivityLogs: z.lazy(() => CaseActivityLogUncheckedCreateNestedManyWithoutCaseInputObjectSchema).optional(),
   caseAssetFiles: z.lazy(() => CaseAssetFileUncheckedCreateNestedManyWithoutDentalCaseInputObjectSchema).optional()
 }).strict();
 export const CaseUncheckedCreateWithoutCaseItemsInputObjectSchema: z.ZodType<Prisma.CaseUncheckedCreateWithoutCaseItemsInput> = makeSchema() as unknown as z.ZodType<Prisma.CaseUncheckedCreateWithoutCaseItemsInput>;

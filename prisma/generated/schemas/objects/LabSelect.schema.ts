@@ -15,6 +15,7 @@ import { PatientFindManySchema as PatientFindManySchema } from '../findManyPatie
 import { DentistFindManySchema as DentistFindManySchema } from '../findManyDentist.schema';
 import { CaseStaffAssignmentFindManySchema as CaseStaffAssignmentFindManySchema } from '../findManyCaseStaffAssignment.schema';
 import { LabStaffFindManySchema as LabStaffFindManySchema } from '../findManyLabStaff.schema';
+import { CaseActivityLogFindManySchema as CaseActivityLogFindManySchema } from '../findManyCaseActivityLog.schema';
 import { LabCountOutputTypeArgsObjectSchema as LabCountOutputTypeArgsObjectSchema } from './LabCountOutputTypeArgs.schema'
 
 const makeSchema = () => z.object({
@@ -39,6 +40,7 @@ const makeSchema = () => z.object({
   staffAssignments: z.union([z.boolean(), z.lazy(() => CaseStaffAssignmentFindManySchema)]).optional(),
   LabStaff: z.union([z.boolean(), z.lazy(() => LabStaffFindManySchema)]).optional(),
   nextCaseNumber: z.boolean().optional(),
+  caseActivityLogs: z.union([z.boolean(), z.lazy(() => CaseActivityLogFindManySchema)]).optional(),
   createdAt: z.boolean().optional(),
   updatedAt: z.boolean().optional(),
   _count: z.union([z.boolean(), z.lazy(() => LabCountOutputTypeArgsObjectSchema)]).optional()

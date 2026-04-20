@@ -9,6 +9,7 @@ import { CaseCategoryOrderByWithRelationInputObjectSchema as CaseCategoryOrderBy
 import { ClinicOrderByWithRelationInputObjectSchema as ClinicOrderByWithRelationInputObjectSchema } from './ClinicOrderByWithRelationInput.schema';
 import { DentistOrderByWithRelationInputObjectSchema as DentistOrderByWithRelationInputObjectSchema } from './DentistOrderByWithRelationInput.schema';
 import { CaseStaffAssignmentOrderByRelationAggregateInputObjectSchema as CaseStaffAssignmentOrderByRelationAggregateInputObjectSchema } from './CaseStaffAssignmentOrderByRelationAggregateInput.schema';
+import { CaseActivityLogOrderByRelationAggregateInputObjectSchema as CaseActivityLogOrderByRelationAggregateInputObjectSchema } from './CaseActivityLogOrderByRelationAggregateInput.schema';
 import { CaseAssetFileOrderByRelationAggregateInputObjectSchema as CaseAssetFileOrderByRelationAggregateInputObjectSchema } from './CaseAssetFileOrderByRelationAggregateInput.schema'
 
 const makeSchema = () => z.object({
@@ -32,6 +33,7 @@ const makeSchema = () => z.object({
   clinic: z.lazy(() => ClinicOrderByWithRelationInputObjectSchema).optional(),
   dentist: z.lazy(() => DentistOrderByWithRelationInputObjectSchema).optional(),
   staffAssignments: z.lazy(() => CaseStaffAssignmentOrderByRelationAggregateInputObjectSchema).optional(),
+  caseActivityLogs: z.lazy(() => CaseActivityLogOrderByRelationAggregateInputObjectSchema).optional(),
   caseAssetFiles: z.lazy(() => CaseAssetFileOrderByRelationAggregateInputObjectSchema).optional()
 }).strict();
 export const CaseOrderByWithRelationInputObjectSchema: z.ZodType<Prisma.CaseOrderByWithRelationInput> = makeSchema() as unknown as z.ZodType<Prisma.CaseOrderByWithRelationInput>;

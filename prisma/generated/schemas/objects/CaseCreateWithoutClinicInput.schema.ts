@@ -7,6 +7,7 @@ import { CaseWorkItemCreateNestedManyWithoutDentalCaseInputObjectSchema as CaseW
 import { CaseCategoryCreateNestedOneWithoutCasesInputObjectSchema as CaseCategoryCreateNestedOneWithoutCasesInputObjectSchema } from './CaseCategoryCreateNestedOneWithoutCasesInput.schema';
 import { DentistCreateNestedOneWithoutCasesInputObjectSchema as DentistCreateNestedOneWithoutCasesInputObjectSchema } from './DentistCreateNestedOneWithoutCasesInput.schema';
 import { CaseStaffAssignmentCreateNestedManyWithoutCaseInputObjectSchema as CaseStaffAssignmentCreateNestedManyWithoutCaseInputObjectSchema } from './CaseStaffAssignmentCreateNestedManyWithoutCaseInput.schema';
+import { CaseActivityLogCreateNestedManyWithoutCaseInputObjectSchema as CaseActivityLogCreateNestedManyWithoutCaseInputObjectSchema } from './CaseActivityLogCreateNestedManyWithoutCaseInput.schema';
 import { CaseAssetFileCreateNestedManyWithoutDentalCaseInputObjectSchema as CaseAssetFileCreateNestedManyWithoutDentalCaseInputObjectSchema } from './CaseAssetFileCreateNestedManyWithoutDentalCaseInput.schema'
 
 import { DecimalJSLikeSchema, isValidDecimalInput } from '../../helpers/decimal-helpers';
@@ -32,6 +33,7 @@ const makeSchema = () => z.object({
   caseCategory: z.lazy(() => CaseCategoryCreateNestedOneWithoutCasesInputObjectSchema).optional(),
   dentist: z.lazy(() => DentistCreateNestedOneWithoutCasesInputObjectSchema).optional(),
   staffAssignments: z.lazy(() => CaseStaffAssignmentCreateNestedManyWithoutCaseInputObjectSchema).optional(),
+  caseActivityLogs: z.lazy(() => CaseActivityLogCreateNestedManyWithoutCaseInputObjectSchema).optional(),
   caseAssetFiles: z.lazy(() => CaseAssetFileCreateNestedManyWithoutDentalCaseInputObjectSchema).optional()
 }).strict();
 export const CaseCreateWithoutClinicInputObjectSchema: z.ZodType<Prisma.CaseCreateWithoutClinicInput> = makeSchema() as unknown as z.ZodType<Prisma.CaseCreateWithoutClinicInput>;

@@ -7,6 +7,7 @@ import { CaseCategoryArgsObjectSchema as CaseCategoryArgsObjectSchema } from './
 import { ClinicArgsObjectSchema as ClinicArgsObjectSchema } from './ClinicArgs.schema';
 import { DentistArgsObjectSchema as DentistArgsObjectSchema } from './DentistArgs.schema';
 import { CaseStaffAssignmentFindManySchema as CaseStaffAssignmentFindManySchema } from '../findManyCaseStaffAssignment.schema';
+import { CaseActivityLogFindManySchema as CaseActivityLogFindManySchema } from '../findManyCaseActivityLog.schema';
 import { CaseAssetFileFindManySchema as CaseAssetFileFindManySchema } from '../findManyCaseAssetFile.schema';
 import { CaseCountOutputTypeArgsObjectSchema as CaseCountOutputTypeArgsObjectSchema } from './CaseCountOutputTypeArgs.schema'
 
@@ -18,6 +19,7 @@ const makeSchema = () => z.object({
   clinic: z.union([z.boolean(), z.lazy(() => ClinicArgsObjectSchema)]).optional(),
   dentist: z.union([z.boolean(), z.lazy(() => DentistArgsObjectSchema)]).optional(),
   staffAssignments: z.union([z.boolean(), z.lazy(() => CaseStaffAssignmentFindManySchema)]).optional(),
+  caseActivityLogs: z.union([z.boolean(), z.lazy(() => CaseActivityLogFindManySchema)]).optional(),
   caseAssetFiles: z.union([z.boolean(), z.lazy(() => CaseAssetFileFindManySchema)]).optional(),
   _count: z.union([z.boolean(), z.lazy(() => CaseCountOutputTypeArgsObjectSchema)]).optional()
 }).strict();

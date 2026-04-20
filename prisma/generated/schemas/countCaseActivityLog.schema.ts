@@ -1,0 +1,10 @@
+import type { Prisma } from '../../../generated/prisma/client';
+import * as z from 'zod';
+import { CaseActivityLogOrderByWithRelationInputObjectSchema as CaseActivityLogOrderByWithRelationInputObjectSchema } from './objects/CaseActivityLogOrderByWithRelationInput.schema';
+import { CaseActivityLogWhereInputObjectSchema as CaseActivityLogWhereInputObjectSchema } from './objects/CaseActivityLogWhereInput.schema';
+import { CaseActivityLogWhereUniqueInputObjectSchema as CaseActivityLogWhereUniqueInputObjectSchema } from './objects/CaseActivityLogWhereUniqueInput.schema';
+import { CaseActivityLogCountAggregateInputObjectSchema as CaseActivityLogCountAggregateInputObjectSchema } from './objects/CaseActivityLogCountAggregateInput.schema';
+
+export const CaseActivityLogCountSchema: z.ZodType<Prisma.CaseActivityLogCountArgs> = z.object({ orderBy: z.union([CaseActivityLogOrderByWithRelationInputObjectSchema, CaseActivityLogOrderByWithRelationInputObjectSchema.array()]).optional(), where: CaseActivityLogWhereInputObjectSchema.optional(), cursor: CaseActivityLogWhereUniqueInputObjectSchema.optional(), take: z.number().optional(), skip: z.number().optional(), select: z.union([ z.literal(true), CaseActivityLogCountAggregateInputObjectSchema ]).optional() }).strict() as unknown as z.ZodType<Prisma.CaseActivityLogCountArgs>;
+
+export const CaseActivityLogCountZodSchema = z.object({ orderBy: z.union([CaseActivityLogOrderByWithRelationInputObjectSchema, CaseActivityLogOrderByWithRelationInputObjectSchema.array()]).optional(), where: CaseActivityLogWhereInputObjectSchema.optional(), cursor: CaseActivityLogWhereUniqueInputObjectSchema.optional(), take: z.number().optional(), skip: z.number().optional(), select: z.union([ z.literal(true), CaseActivityLogCountAggregateInputObjectSchema ]).optional() }).strict();

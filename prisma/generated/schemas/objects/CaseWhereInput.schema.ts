@@ -19,6 +19,7 @@ import { ClinicWhereInputObjectSchema as ClinicWhereInputObjectSchema } from './
 import { DentistNullableScalarRelationFilterObjectSchema as DentistNullableScalarRelationFilterObjectSchema } from './DentistNullableScalarRelationFilter.schema';
 import { DentistWhereInputObjectSchema as DentistWhereInputObjectSchema } from './DentistWhereInput.schema';
 import { CaseStaffAssignmentListRelationFilterObjectSchema as CaseStaffAssignmentListRelationFilterObjectSchema } from './CaseStaffAssignmentListRelationFilter.schema';
+import { CaseActivityLogListRelationFilterObjectSchema as CaseActivityLogListRelationFilterObjectSchema } from './CaseActivityLogListRelationFilter.schema';
 import { CaseAssetFileListRelationFilterObjectSchema as CaseAssetFileListRelationFilterObjectSchema } from './CaseAssetFileListRelationFilter.schema'
 
 import { DecimalJSLikeSchema, isValidDecimalInput } from '../../helpers/decimal-helpers';
@@ -53,6 +54,7 @@ const casewhereinputSchema = z.object({
   clinic: z.union([z.lazy(() => ClinicNullableScalarRelationFilterObjectSchema), z.lazy(() => ClinicWhereInputObjectSchema)]).optional(),
   dentist: z.union([z.lazy(() => DentistNullableScalarRelationFilterObjectSchema), z.lazy(() => DentistWhereInputObjectSchema)]).optional(),
   staffAssignments: z.lazy(() => CaseStaffAssignmentListRelationFilterObjectSchema).optional(),
+  caseActivityLogs: z.lazy(() => CaseActivityLogListRelationFilterObjectSchema).optional(),
   caseAssetFiles: z.lazy(() => CaseAssetFileListRelationFilterObjectSchema).optional()
 }).strict();
 export const CaseWhereInputObjectSchema: z.ZodType<Prisma.CaseWhereInput> = casewhereinputSchema as unknown as z.ZodType<Prisma.CaseWhereInput>;

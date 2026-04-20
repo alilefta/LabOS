@@ -17,6 +17,7 @@ export const CaseAggregateResultSchema = z.object({  _count: z.object({
     dentist: z.number(),
     notes: z.number(),
     staffAssignments: z.number(),
+    caseActivityLogs: z.number(),
     caseAssetFiles: z.number(),
     deadline: z.number(),
     createdAt: z.number(),
