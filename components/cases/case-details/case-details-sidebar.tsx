@@ -6,8 +6,9 @@ import { cn } from "@/lib/utils";
 // import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { CaseDetailsUI } from "@/schema/composed/case.details";
+import { EditDeadlinePopover } from "./quick-edits/edit-deadline-popover";
+import { EditStaffPopover } from "./quick-edits/edit-staff-popover";
 
-// Replace `any` with your actual Prisma Case payload type once fully wired
 interface Props {
 	dentalCase: CaseDetailsUI;
 }
@@ -26,25 +27,29 @@ export function CaseDetailsSidebar({ dentalCase }: Props) {
 		<div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-150">
 			{/* CARD 1: Deadline & Origin */}
 			<div className="lab-card overflow-hidden">
-				<div className={cn("p-5 border-b border-border flex items-start justify-between", isOverdue ? "bg-destructive/10" : isRush ? "bg-amber-500/10" : "bg-slate-50 dark:bg-white/[0.02]")}>
-					<div className="flex items-center gap-3">
-						<div
-							className={cn(
-								"w-10 h-10 rounded-xl flex items-center justify-center shadow-sm",
-								isOverdue ? "bg-destructive text-white" : isRush ? "bg-amber-500 text-white" : "bg-primary/10 text-primary",
-							)}
-						>
-							{isOverdue ? <AlertCircle className="w-5 h-5" /> : isRush ? <Clock className="w-5 h-5" /> : <CalendarClock className="w-5 h-5" />}
-						</div>
-						<div>
-							<h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-0.5">Target Delivery</h3>
-							<p className={cn("text-sm font-bold", isOverdue ? "text-destructive" : isRush ? "text-amber-600 dark:text-amber-500" : "text-foreground")}>
-								{dentalCase.deadline ? format(new Date(dentalCase.deadline), "EEEE, MMM do") : "Unscheduled"}
-							</p>
+				{/* Deadline */}
+				<EditDeadlinePopover caseId={dentalCase.id} currentDeadline={dentalCase.deadline}>
+					<div className={cn("p-5 border-b border-border flex items-start justify-between", isOverdue ? "bg-destructive/10" : isRush ? "bg-amber-500/10" : "bg-slate-50 dark:bg-white/2")}>
+						<div className="flex items-center gap-3">
+							<div
+								className={cn(
+									"w-10 h-10 rounded-xl flex items-center justify-center shadow-sm",
+									isOverdue ? "bg-destructive text-white" : isRush ? "bg-amber-500 text-white" : "bg-primary/10 text-primary",
+								)}
+							>
+								{isOverdue ? <AlertCircle className="w-5 h-5" /> : isRush ? <Clock className="w-5 h-5" /> : <CalendarClock className="w-5 h-5" />}
+							</div>
+							<div>
+								<h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-0.5">Target Delivery</h3>
+								<p className={cn("text-sm font-bold", isOverdue ? "text-destructive" : isRush ? "text-amber-600 dark:text-amber-500" : "text-foreground")}>
+									{dentalCase.deadline ? format(new Date(dentalCase.deadline), "EEEE, MMM do") : "Unscheduled"}
+								</p>
+							</div>
 						</div>
 					</div>
-				</div>
+				</EditDeadlinePopover>
 
+				{/* Clinic */}
 				<div className="p-6 space-y-6">
 					<div className="space-y-2">
 						<div className="flex items-center gap-2 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
@@ -76,7 +81,7 @@ export function CaseDetailsSidebar({ dentalCase }: Props) {
 
 			{/* CARD 2: Production Team & Routing */}
 			<div className="lab-card overflow-hidden">
-				<div className="px-6 py-4 border-b border-border bg-slate-50 dark:bg-white/[0.02]">
+				<div className="px-6 py-4 border-b border-border bg-slate-50 dark:bg-white/2">
 					<h3 className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest">Production Team</h3>
 				</div>
 
@@ -90,18 +95,24 @@ export function CaseDetailsSidebar({ dentalCase }: Props) {
 							<div className="flex flex-col">
 								<span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Intake Route</span>
 								{courier ? (
-									<span className="text-sm font-bold text-foreground">
-										{courier.firstName} {courier.lastName}
-									</span>
+									// WRAP THE NAME SO THEY CAN RE-ASSIGN
+									<EditStaffPopover caseId={dentalCase.id} roleCategory="COURIER" currentStaffId={courier.id}>
+										<span className="text-sm font-bold text-foreground cursor-pointer hover:text-primary transition-colors hover:underline decoration-primary/30 underline-offset-4">
+											{courier.firstName} {courier.lastName}
+										</span>
+									</EditStaffPopover>
 								) : (
 									<span className="text-sm font-medium text-slate-400 italic">Unassigned</span>
 								)}
 							</div>
 						</div>
 						{!courier && (
-							<Button variant="outline" size="sm" className="h-7 text-xs rounded-lg hidden group-hover:flex">
-								Assign
-							</Button>
+							// WRAP THE EMPTY STATE BUTTON
+							<EditStaffPopover caseId={dentalCase.id} roleCategory="COURIER" currentStaffId={null}>
+								<Button variant="outline" size="sm" className="h-7 text-xs rounded-lg hidden group-hover:flex">
+									Assign
+								</Button>
+							</EditStaffPopover>
 						)}
 					</div>
 
