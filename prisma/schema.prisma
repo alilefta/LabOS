@@ -563,7 +563,24 @@ model LabStaff {
   @@index([labId, isActive])
 }
 
-// Junction table — a case can have multiple staff with different roles
+/// CaseStaffAssignment — junction between a Case and a LabStaff member.
+///
+/// DESIGN DECISION: One LabStaff record per person per role.
+/// If the same physical person works two roles on a case (e.g. Ahmed as
+/// Technician AND Ahmed as Courier), they must exist as two separate LabStaff
+/// records — one per roleCategory. This is intentional.
+///
+/// REASON: Commission is tracked per assignment. A single person doing two
+/// jobs earns two separate commissions with potentially different rates,
+/// separate isPaid flags, and separate payout dates. Merging them into one
+/// record would require per-assignment commission splits, destroying the
+/// clean 1:1 relationship between a staff record and its commission config.
+///
+/// CONSEQUENCE: The @@unique([caseId, staffId]) constraint is correct and
+/// intentional. The same staffId cannot appear twice on the same case because
+/// each LabStaff record already encodes a single role. If a lab needs the same
+/// person in two roles, they create two LabStaff records. The UI warns on
+/// duplicate phone numbers during staff registration to make this explicit.
 model CaseStaffAssignment {
   id     String @id @default(uuid())
   caseId String
@@ -591,6 +608,7 @@ model CaseStaffAssignment {
 
   @@unique([caseId, staffId]) // one assignment per staff per case
   // new field to match the workflow
+  // NO 2 LabStaff persons for the same role for the case
   @@index([caseId, roleCategory])
   @@index([labId])
   @@index([caseId])

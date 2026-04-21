@@ -59,12 +59,12 @@ export function PulseStrip({ currentFilter, onFilterChange, stats, isLoading }: 
 			icon: Layers,
 			colorClass: "text-foreground",
 			bgClass: "bg-card border-border",
-			activeClass: "ring-2 ring-foreground bg-slate-50 dark:bg-[#121214] shadow-md",
+			activeClass: "ring-2 ring-foreground/40 bg-slate-50 dark:bg-[#121214] shadow-md",
 		},
 	];
 
 	return (
-		<div className="grid grid-cols-2 md:grid-cols-5 gap-3 sm:gap-4 mb-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+		<div className="grid grid-cols-2 md:grid-cols-5 gap-3 sm:gap-4 mb-6 animate-in fade-in slide-in-from-bottom-4 duration-500 mx-2">
 			{cards.map((card) => {
 				const isActive = currentFilter === card.id;
 

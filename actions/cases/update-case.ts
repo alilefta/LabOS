@@ -13,13 +13,22 @@
 //   - Role requirements are enforced per action via requiredLabRole metadata
 // ─────────────────────────────────────────────────────────────────────────────
 
-import z from "zod/v4";
 import { actionClientWithLab } from "@/lib/safe-action";
 import { ActionError, ERRORS } from "@/lib/errors";
 import { tenantPrisma } from "@/lib/prisma";
-import { StaffRoleCategorySchema, CommissionTypeSchema, CaseStatusSchema, AssetFileTypeSchema, CaseStatus, StaffRoleCategory, CommissionType } from "@/schema/base/enums.base";
+import { CaseStatus, StaffRoleCategory, CommissionType } from "@/schema/base/enums.base";
 import { APIError } from "better-auth";
 import { CaseActivityLogCreateManyInput } from "@/generated/prisma/models";
+import {
+	AddCaseAssetFilesSchema,
+	AssignCaseStaffSchema,
+	DeleteCaseAssetFileSchema,
+	RemoveCaseStaffSchema,
+	UpdateCaseDeadlineSchema,
+	UpdateCaseNotesSchema,
+	UpdateCaseStatusSchema,
+} from "@/schema/composed/cases/edit-schemas/case.edit.details";
+import { revalidatePath } from "next/cache";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Shared helpers
@@ -69,11 +78,6 @@ function buildLogEntry({ caseId, labId, actorId, actorName, type, summary, paylo
 // 1. updateCaseDeadlineAction
 // ─────────────────────────────────────────────────────────────────────────────
 
-const UpdateCaseDeadlineSchema = z.object({
-	caseId: z.string().min(1),
-	deadline: z.date(),
-});
-
 export const updateCaseDeadlineAction = actionClientWithLab
 	.metadata({ actionName: "Update-Case-Deadline-Action", requiredLabRole: "ADMIN" })
 	.inputSchema(UpdateCaseDeadlineSchema)
@@ -114,11 +118,6 @@ export const updateCaseDeadlineAction = actionClientWithLab
 // ─────────────────────────────────────────────────────────────────────────────
 // 2. updateCaseStatusAction
 // ─────────────────────────────────────────────────────────────────────────────
-
-const UpdateCaseStatusSchema = z.object({
-	caseId: z.string().min(1),
-	newStatus: CaseStatusSchema,
-});
 
 export const updateCaseStatusAction = actionClientWithLab
 	.metadata({ actionName: "updateCaseStatus", requiredLabRole: "STAFF" }) // all active members
@@ -171,14 +170,6 @@ export const updateCaseStatusAction = actionClientWithLab
 // ─────────────────────────────────────────────────────────────────────────────
 // 3. assignCaseStaffAction
 // ─────────────────────────────────────────────────────────────────────────────
-
-const AssignCaseStaffSchema = z.object({
-	caseId: z.string().min(1),
-	staffId: z.string().min(1),
-	roleCategory: StaffRoleCategorySchema,
-	commissionType: CommissionTypeSchema,
-	commissionValue: z.number().min(0),
-});
 
 export const assignCaseStaffAction = actionClientWithLab
 	.metadata({ actionName: "assignCaseStaff", requiredLabRole: "ADMIN" })
@@ -275,17 +266,14 @@ export const assignCaseStaffAction = actionClientWithLab
 			}),
 		]);
 
+		revalidatePath("/cases/[id]");
+
 		return { assignment };
 	});
 
 // ─────────────────────────────────────────────────────────────────────────────
 // 4. removeCaseStaffAction
 // ─────────────────────────────────────────────────────────────────────────────
-
-const RemoveCaseStaffSchema = z.object({
-	caseId: z.string().min(1),
-	staffId: z.string().min(1),
-});
 
 export const removeCaseStaffAction = actionClientWithLab
 	.metadata({ actionName: "removeCaseStaff", requiredLabRole: "ADMIN" })
@@ -373,22 +361,6 @@ export const removeCaseStaffAction = actionClientWithLab
 // 5. addCaseAssetFilesAction
 // ─────────────────────────────────────────────────────────────────────────────
 
-const AddCaseAssetFilesSchema = z.object({
-	caseId: z.string().min(1),
-	files: z
-		.array(
-			z.object({
-				title: z.string().trim().optional(),
-				description: z.string().trim().optional(),
-				documentUrl: z.string().url(),
-				assetFileType: AssetFileTypeSchema,
-				fileExtension: z.string().min(1),
-			}),
-		)
-		.min(1, "At least one file is required")
-		.max(20, "Cannot upload more than 20 files at once"),
-});
-
 export const addCaseAssetFilesAction = actionClientWithLab
 	.metadata({ actionName: "Add-Case-Asset-Files-Action", requiredLabRole: "STAFF" })
 	.inputSchema(AddCaseAssetFilesSchema)
@@ -451,11 +423,6 @@ export const addCaseAssetFilesAction = actionClientWithLab
 // ─────────────────────────────────────────────────────────────────────────────
 // 6. deleteCaseAssetFileAction
 // ─────────────────────────────────────────────────────────────────────────────
-
-const DeleteCaseAssetFileSchema = z.object({
-	caseId: z.string().min(1),
-	fileId: z.string().min(1),
-});
 
 export const deleteCaseAssetFileAction = actionClientWithLab
 	.metadata({ actionName: "Delete-Case-Asset-Files-Action", requiredLabRole: "ADMIN" })
@@ -528,11 +495,6 @@ export const deleteCaseAssetFileAction = actionClientWithLab
 // ─────────────────────────────────────────────────────────────────────────────
 // 7. updateCaseNotesAction
 // ─────────────────────────────────────────────────────────────────────────────
-
-const UpdateCaseNotesSchema = z.object({
-	caseId: z.string().min(1),
-	notes: z.string().max(2000, "Notes cannot exceed 2000 characters").nullable(),
-});
 
 export const updateCaseNotesAction = actionClientWithLab
 	.metadata({ actionName: "Update-Case-Notes-Action", requiredLabRole: "STAFF" })

@@ -165,7 +165,7 @@ export default function CasesClientWrapperPage({ labId, role }: PageProps) {
 						{hasActiveAdvancedFilters && <span className="ml-2 w-2 h-2 rounded-full bg-primary animate-pulse" />}
 					</Button>
 
-					<Button onClick={() => router.push("/cases/new")} className="h-10 rounded-xl shadow-premium bg-primary hover:bg-primary/90 text-primary-foreground font-bold px-6">
+					<Button onClick={() => router.push("/cases/new-case")} className="h-10 rounded-xl shadow-premium bg-primary hover:bg-primary/90 text-primary-foreground font-bold px-6">
 						<Plus className="w-4 h-4 mr-2" />
 						New Case
 					</Button>

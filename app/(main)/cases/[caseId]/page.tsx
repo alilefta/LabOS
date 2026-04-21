@@ -10,6 +10,7 @@ import { ClinicalRxFeed } from "@/components/cases/case-details/sections/clinica
 import { getDentalCaseById } from "@/data/cases/get-case";
 import { DigitalAssetVault } from "@/components/cases/case-details/sections/digital-asset-vault";
 import { AuditTrailLog } from "@/components/cases/case-details/sections/audit-trail-log";
+import { AdvanceStatusButton } from "@/components/cases/case-details/advance-case-status/advance-status-button";
 
 export const metadata = {
 	title: "Case Dossier | LabOS",
@@ -64,10 +65,7 @@ export default async function CaseDossierPage({ params }: { params: Promise<{ ca
 					</Button>
 
 					{/* DYNAMIC STATUS BUTTON */}
-					<Button className="flex-[2] md:flex-none rounded-xl bg-primary text-primary-foreground h-10 px-4 sm:px-6 font-bold shadow-premium hover:bg-primary/90 transition-all">
-						{dentalCase.status === "NEW" ? "Start Processing" : "Advance Status"}
-						<ArrowRight className="w-4 h-4 ml-1.5 sm:ml-2 shrink-0" />
-					</Button>
+					<AdvanceStatusButton caseId={dentalCase.id} currentStatus={dentalCase.status} />
 				</div>
 			</header>
 

@@ -1,100 +1,136 @@
 "use client";
 
-import { Sparkles, AlertCircle, CheckCircle2, Info, ChevronUp, ChevronDown } from "lucide-react";
-import { memo, useState } from "react";
+import { Sparkles, AlertCircle, CheckCircle2, Info, ChevronUp, ChevronDown, ReceiptText, ShieldCheck } from "lucide-react";
+import { memo, useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
+import { useFormContext, useWatch } from "react-hook-form";
+import { CreateCaseInput } from "@/schema/composed/case.details";
 
-export const CaseAiAuditor = memo(function CaseAiAuditor() {
-	// State to handle mobile expansion
-	const [isExpanded, setIsExpanded] = useState(false);
+export function CaseAiAuditor() {
+	const { control } = useFormContext<CreateCaseInput>();
+
+	// --- 1. WATCHERS (Subscribing to specific form state) ---
+	const caseWorkItems = useWatch({ control, name: "caseWorkItems", defaultValue: [] });
+	const caseAssetFiles = useWatch({ control, name: "caseAssetFiles", defaultValue: [] }) || [];
+	const patientId = useWatch({ control, name: "patientId" });
+	const clinicId = useWatch({ control, name: "clinicId" });
+
+	// --- 2. MATHEMATICAL ENGINE ---
+	const financialSummary = useMemo(() => {
+		// Filter out empty "ghost" rows
+		const validItems = caseWorkItems.filter((item) => item.productId && item.casePricingPlanId);
+
+		const grandTotal = validItems.reduce((sum, item) => sum + Number(item.totalPrice || 0), 0);
+		const totalTeeth = validItems.reduce((sum, item) => sum + (item.selectedTeeth?.length || 0), 0);
+
+		return {
+			totalItems: validItems.length,
+			grandTotal,
+			totalTeeth,
+		};
+	}, [caseWorkItems]);
+
+	// --- 3. CLINICAL AUDIT ENGINE ---
+	const auditLog = useMemo(() => {
+		const logs = [];
+		const hasValidItems = caseWorkItems.some((item) => item.productId && item.casePricingPlanId);
+
+		// Warning 1: No Origin Data
+		if (!patientId || !clinicId) {
+			logs.push({
+				type: "warning",
+				message: "Patient and Clinic origin data is required before submission.",
+			});
+		}
+
+		// Warning 2: No Work Items
+		if (!hasValidItems) {
+			logs.push({
+				type: "warning",
+				message: "Prescription is empty. Add at least one Manufacturing Product.",
+			});
+		}
+
+		// Intelligence 1: File Checking
+		if (hasValidItems && caseAssetFiles.length === 0) {
+			logs.push({
+				type: "info",
+				message: "No technical assets uploaded. Ensure physical impressions are mailed if digital scans are absent.",
+			});
+		}
+
+		// Success: Fully Valid
+		if (patientId && clinicId && hasValidItems) {
+			logs.push({
+				type: "success",
+				message: "Clinical prescription mapped. Financial totals calculated. Ready for production.",
+			});
+		}
+
+		return logs;
+	}, [patientId, clinicId, caseWorkItems, caseAssetFiles.length]);
 
 	return (
-		<div
-			className={cn(
-				"bg-card/95 xl:bg-card backdrop-blur-xl xl:backdrop-blur-none border-t xl:border border-border xl:rounded-2xl flex flex-col overflow-hidden transition-all duration-500 ease-in-out",
-				// On mobile, it looks like a bottom sheet. On desktop, it's a lab-card.
-				"rounded-t-3xl xl:rounded-t-2xl shadow-[0_-10px_40px_rgba(0,0,0,0.1)] dark:shadow-[0_-10px_40px_rgba(0,0,0,0.5)] xl:shadow-sm",
-			)}
-		>
-			{/* --- MOBILE HEADER / COLLAPSED VIEW --- */}
-			{/* Hidden on desktop. Visible on mobile. Acts as the toggle button. */}
-			<div className="xl:hidden flex items-center justify-between p-5 cursor-pointer hover:bg-slate-50/50 dark:hover:bg-white/2 transition-colors" onClick={() => setIsExpanded(!isExpanded)}>
-				<div className="flex items-center gap-3">
-					<div className="w-10 h-10 rounded-xl bg-ai/10 text-ai flex items-center justify-center shadow-ai-glow-light animate-ai-pulse shrink-0">
-						<Sparkles className="w-5 h-5" />
-					</div>
-					<div className="flex flex-col">
-						<span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Est. Total</span>
-						<span className="text-xl font-mono font-bold text-foreground leading-none mt-0.5">$1,240.00</span>
-					</div>
-				</div>
-				<div className="flex items-center gap-3">
-					{/* Status Indicator Bubble */}
-					<span className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-amber-600 dark:text-amber-500 bg-amber-500/10 px-2.5 py-1.5 rounded-lg border border-amber-500/20">
-						<AlertCircle className="w-3.5 h-3.5" /> 1 Alert
-					</span>
-					{isExpanded ? <ChevronDown className="w-5 h-5 text-muted-foreground" /> : <ChevronUp className="w-5 h-5 text-muted-foreground" />}
-				</div>
-			</div>
-
-			{/* --- DESKTOP HEADER --- */}
-			{/* Hidden on mobile. Static header for the sidebar. */}
-			<div className="hidden xl:flex p-6 border-b border-border bg-linear-to-br from-ai/5 to-transparent items-center gap-3">
-				<div className="w-10 h-10 rounded-xl bg-ai/10 text-ai flex items-center justify-center shadow-ai-glow-light animate-ai-pulse shrink-0">
-					<Sparkles className="w-5 h-5" />
+		<div className="lab-card flex flex-col overflow-hidden animate-in fade-in slide-in-from-right-4 duration-500 shadow-xl border-border/60">
+			{/* --- HEADER --- */}
+			<div className="p-5 border-b border-border bg-linear-to-br from-ai/10 to-transparent flex items-center gap-3">
+				<div className="w-8 h-8 rounded-xl bg-ai/10 text-ai flex items-center justify-center shadow-ai-glow-dark animate-pulse">
+					<Sparkles className="w-4 h-4" />
 				</div>
 				<div>
-					<h2 className="text-base font-bold tracking-tight text-foreground">AI Clinical Auditor</h2>
-					<p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-0.5">Real-time Validation</p>
+					<h2 className="text-sm font-bold tracking-tight text-foreground">AI Clinical Auditor</h2>
+					<p className="text-[10px] font-bold text-muted-foreground uppercase tracking-tighter">Real-time Validation</p>
 				</div>
 			</div>
 
-			{/* --- AUDIT FEED (COLLAPSIBLE ON MOBILE) --- */}
-			<div
-				className={cn(
-					"flex-col transition-all duration-500 ease-in-out overflow-y-auto custom-scrollbar xl:flex",
-					isExpanded ? "flex max-h-[50vh] border-t border-border/50" : "hidden xl:flex max-h-none",
-				)}
-			>
-				<div className="p-5 sm:p-6 space-y-4">
-					{/* Status: Missing Info */}
-					<div className="flex gap-3 p-4 rounded-xl bg-amber-500/5 border border-amber-500/20 shadow-sm">
-						<AlertCircle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
-						<p className="text-xs font-medium text-amber-700 dark:text-amber-400 leading-relaxed">
-							<span className="font-bold uppercase tracking-wider text-[10px] block mb-1">Incomplete Configuration</span>
-							No IOS scan files detected for the Upper Jaw selection.
+			{/* --- LIVE AUDIT LOG --- */}
+			<div className="p-5 space-y-3 flex-1 overflow-y-auto custom-scrollbar">
+				{auditLog.length === 0 && <p className="text-xs text-muted-foreground italic text-center py-4">Awaiting data entry...</p>}
+
+				{auditLog.map((log, i) => (
+					<div
+						key={i}
+						className={cn(
+							"flex gap-3 p-3.5 rounded-xl border animate-in slide-in-from-bottom-2",
+							log.type === "warning" ? "bg-amber-500/5 border-amber-500/20" : log.type === "info" ? "bg-ai/5 border-ai/10" : "bg-emerald-500/5 border-emerald-500/20",
+						)}
+					>
+						{log.type === "warning" && <AlertCircle className="w-4 h-4 text-amber-500 shrink-0" />}
+						{log.type === "info" && <Info className="w-4 h-4 text-ai shrink-0" />}
+						{log.type === "success" && <ShieldCheck className="w-4 h-4 text-emerald-500 shrink-0" />}
+
+						<p
+							className={cn(
+								"text-[11px] font-medium leading-relaxed",
+								log.type === "warning" ? "text-amber-700 dark:text-amber-500" : log.type === "info" ? "text-slate-600 dark:text-zinc-300" : "text-emerald-700 dark:text-emerald-500",
+							)}
+						>
+							{log.message}
 						</p>
 					</div>
+				))}
+			</div>
 
-					{/* Status: Clinical Advice */}
-					<div className="flex gap-3 p-4 rounded-xl bg-ai/5 border border-ai/20 shadow-sm">
-						<Info className="w-4 h-4 text-ai shrink-0 mt-0.5" />
-						<p className="text-xs font-medium text-slate-600 dark:text-zinc-300 leading-relaxed">
-							<span className="font-bold uppercase tracking-wider text-[10px] text-ai block mb-1">Clinical Note</span>
-							Zirconia cases for <strong className="text-foreground font-semibold">Dr. Sarah Mitchell</strong> usually require a &quot;High-Translucency&quot; finish.
-						</p>
+			{/* --- FINANCIAL RECEIPT --- */}
+			<div className="mt-auto p-5 border-t border-border bg-slate-50 dark:bg-white/[0.02]">
+				<div className="flex items-center justify-between mb-4">
+					<div className="flex items-center gap-1.5 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+						<ReceiptText className="w-3.5 h-3.5 text-primary" />
+						Live Estimate
 					</div>
-
-					{/* Status: Ready */}
-					<div className="flex gap-3 p-4 rounded-xl bg-emerald-500/5 border border-emerald-500/10 opacity-70">
-						<CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
-						<p className="text-xs font-medium text-slate-600 dark:text-zinc-400 leading-relaxed">
-							<span className="font-bold uppercase tracking-wider text-[10px] text-emerald-600 dark:text-emerald-500 block mb-1">Pricing Applied</span>
-							Strategy: <strong className="text-foreground">Bulk Discount</strong> applied (3+ Teeth).
-						</p>
+					<div className="flex gap-2">
+						<span className="px-2 py-0.5 rounded-md bg-white dark:bg-white/5 border border-border text-[9px] font-bold text-foreground">{financialSummary.totalItems} Items</span>
+						<span className="px-2 py-0.5 rounded-md bg-white dark:bg-white/5 border border-border text-[9px] font-bold text-foreground">{financialSummary.totalTeeth} Teeth</span>
 					</div>
 				</div>
 
-				{/* --- DESKTOP CASE TOTAL PREVIEW --- */}
-				{/* Hidden on mobile because the mobile header already shows the price! */}
-				<div className="hidden xl:block mt-auto p-6 border-t border-border bg-slate-50/50 dark:bg-white/2">
-					<div className="flex justify-between items-center mb-1.5">
-						<span className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest">Est. Grand Total</span>
-						<span className="text-3xl font-mono font-bold text-foreground tracking-tight">$1,240.00</span>
-					</div>
-					<p className="text-[11px] text-muted-foreground text-right font-medium">Includes material tax & shipping</p>
+				<div className="flex justify-between items-end">
+					<span className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-1">Grand Total</span>
+					<span className={cn("text-3xl font-mono font-bold transition-all duration-500", financialSummary.grandTotal > 0 ? "text-primary" : "text-muted-foreground")}>
+						${financialSummary.grandTotal.toFixed(2)}
+					</span>
 				</div>
 			</div>
 		</div>
 	);
-});
+}

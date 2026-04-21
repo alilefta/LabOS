@@ -31,7 +31,7 @@ const getClinicIcon = (type: string) => {
 };
 
 interface ClinicSelectorProps {
-	value: string | undefined; // CRITICAL: Receives the exact state from RHF Controller
+	value: string | undefined;
 	onSelect: (clinicId: string) => void;
 	onCreateNew: () => void;
 	newCreatedClinic: ClinicDetailsUI | null;
