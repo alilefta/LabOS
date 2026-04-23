@@ -2,7 +2,7 @@
 
 import { ERRORS } from "@/lib/errors";
 import { getServerSession } from "@/lib/get-session";
-import { generalPrisma, tenantPrisma } from "@/lib/prisma";
+import { tenantPrisma } from "@/lib/prisma";
 
 export async function getLabInfo() {
 	const session = await getServerSession();
@@ -22,11 +22,24 @@ export async function getLabInfo() {
 	return lab;
 }
 
-export async function getLabUserRoleByAuthUserId(authUserId: string) {
-	const labUser = await generalPrisma.labUser.findUnique({
-		where: { authUserId: authUserId },
-		select: { labId: true, role: true },
-	});
+export async function getCurrentLabUserRoleByAuthUserId() {
+	const session = await getServerSession();
+	// Use a redirect or a proper Error throw here
+	if (!session || !session.user.labId) throw new Error("UNAUTHORIZED");
 
-	return labUser;
+	const prisma = await tenantPrisma(session.user.labId);
+
+	return await prisma.labUser.findUnique({
+		where: { authUserId: session.user.id },
+		// We only need these specific fields for the permissions context
+		select: {
+			role: true,
+			labId: true,
+			labStaff: {
+				select: {
+					roleCategory: true,
+				},
+			},
+		},
+	});
 }

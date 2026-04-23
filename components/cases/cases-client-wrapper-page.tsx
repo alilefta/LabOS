@@ -19,14 +19,13 @@ import { AiCopilotSheet } from "@/components/cases/cases-table/ai-copilot-sheet"
 import { CasesFilters, DEFAULT_CASES_FILTERS, GetCasesListResult } from "@/schema/composed/case.details";
 import { getCasesListAction, getCasesPulseAction, getCasesRevenueAction } from "@/actions/cases/get-cases";
 import { handleSafeActionError } from "@/lib/safe-action-helpers";
-import { LabRole } from "@/schema/base/enums.base";
+import { usePermissions } from "@/providers/permissions-provider";
 
 interface PageProps {
 	labId: string;
-	role: LabRole;
 }
 
-export default function CasesClientWrapperPage({ labId, role }: PageProps) {
+export default function CasesClientWrapperPage({ labId }: PageProps) {
 	const router = useRouter();
 
 	// ── Filter state ────────────────────────────────────────────────────────────
@@ -36,7 +35,14 @@ export default function CasesClientWrapperPage({ labId, role }: PageProps) {
 	const [isAiSheetOpen, setIsAiSheetOpen] = useState(false);
 	const [filters, setFilters] = useState<CasesFilters>(DEFAULT_CASES_FILTERS);
 
-	const isOwnerOrManager = role === "OWNER" || role === "MANAGER";
+	const { canViewFinancials } = usePermissions();
+
+	// If they can't see financials, we strip the grandTotal column before
+	// it even hits the DataTable component.
+	const visibleColumns = useMemo(() => {
+		if (canViewFinancials) return columns;
+		return columns.filter((col) => col.id !== "grandTotal");
+	}, [canViewFinancials]);
 
 	// ── 1. Cases list — infinite scroll ─────────────────────────────────────────
 
@@ -44,22 +50,17 @@ export default function CasesClientWrapperPage({ labId, role }: PageProps) {
 		queryKey: ["cases-list", labId, debouncedSearch, filters],
 		queryFn: async ({ pageParam }: { pageParam: string | undefined }): Promise<GetCasesListResult> => {
 			const res = await getCasesListAction({
-				cursor: pageParam,
+				cursor: pageParam as string | undefined,
 				search: debouncedSearch,
 				filters,
-				take: 20,
+				take: 30,
 			});
-
 			if (res.serverError || res.validationErrors) {
-				handleSafeActionError({
-					serverError: res.serverError,
-					validationErrors: res.validationErrors,
-				});
+				handleSafeActionError({ serverError: res.serverError, validationErrors: res.validationErrors });
 			}
-
 			return res?.data ?? { cases: [], nextCursor: null, totalCount: 0 };
 		},
-		initialPageParam: undefined as string | undefined, // ← fixes the type
+		initialPageParam: undefined as string | undefined,
 		getNextPageParam: (last) => last.nextCursor ?? undefined,
 		staleTime: 20_000,
 	});
@@ -98,7 +99,7 @@ export default function CasesClientWrapperPage({ labId, role }: PageProps) {
 			return res?.data ?? null;
 		},
 		staleTime: 60_000,
-		enabled: isOwnerOrManager, // never fires for STAFF/ADMIN
+		enabled: canViewFinancials, // never fires for STAFF/ADMIN
 	});
 
 	// ── Derived state ────────────────────────────────────────────────────────────
@@ -175,7 +176,7 @@ export default function CasesClientWrapperPage({ labId, role }: PageProps) {
 			{/* ── SCROLLABLE BODY ──────────────────────────────────────────────────── */}
 			<div className="flex-1 flex flex-col min-h-0 overflow-y-auto custom-scrollbar pb-6 pr-1 pt-2">
 				{/* ── ZONE B: OWNER REVENUE STRIP ─────────────────────────────────── */}
-				{isOwnerOrManager && <OwnerRevenueStrip data={revenueData ?? null} isLoading={isRevenueLoading} />}
+				<OwnerRevenueStrip data={revenueData ?? null} isLoading={isRevenueLoading} />
 
 				{/* ── ZONE C: PULSE STRIP ─────────────────────────────────────────── */}
 				<PulseStrip
@@ -285,7 +286,7 @@ export default function CasesClientWrapperPage({ labId, role }: PageProps) {
 					{/* Virtualized table */}
 					<div className="flex-1 overflow-hidden relative">
 						<DataTable
-							columns={columns}
+							columns={visibleColumns}
 							data={flatData}
 							isLoading={isLoading}
 							onRowClick={(row) => router.push(`/cases/${row.id}`)}

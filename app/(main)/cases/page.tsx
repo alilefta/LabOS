@@ -1,16 +1,24 @@
 import { redirect } from "next/navigation";
 import { getServerSession } from "@/lib/get-session";
 import CasesClientWrapperPage from "@/components/cases/cases-client-wrapper-page";
-import { getLabUserRoleByAuthUserId } from "@/data/lab";
+import { PermissionsProvider } from "@/providers/permissions-provider";
+import { getCurrentLabUserRoleByAuthUserId } from "@/data/lab";
 
 export default async function Page() {
 	const session = await getServerSession();
-
 	if (!session) redirect("/sign-in");
 
-	const labUser = await getLabUserRoleByAuthUserId(session.user.id);
+	const user = await getCurrentLabUserRoleByAuthUserId();
+	if (!user) redirect("/onboarding");
 
-	if (!labUser) redirect("/onboarding");
-
-	return <CasesClientWrapperPage labId={labUser.labId} role={labUser.role} />;
+	return (
+		<PermissionsProvider
+			userContext={{
+				role: user.role,
+				staffCategory: user.labStaff?.roleCategory,
+			}}
+		>
+			<CasesClientWrapperPage labId={user.labId} />
+		</PermissionsProvider>
+	);
 }

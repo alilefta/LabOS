@@ -85,7 +85,11 @@ export async function getDentalCaseById(caseId: string) {
 				},
 			},
 			caseCategory: true,
-			caseActivityLogs: true,
+			caseActivityLogs: {
+				include: {
+					actor: true,
+				},
+			},
 		},
 	});
 

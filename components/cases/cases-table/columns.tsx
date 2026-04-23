@@ -2,7 +2,7 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 import { format, differenceInDays, startOfDay } from "date-fns";
-import { MoreHorizontal, Activity, PackageCheck, Truck, Clock, AlertCircle, FileCheck, User, Users, LucideIcon } from "lucide-react";
+import { MoreHorizontal, Activity, PackageCheck, Truck, Clock, AlertCircle, FileCheck, User, Users, LucideIcon, DollarSign } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -66,6 +66,21 @@ export const columns: ColumnDef<CaseListDTO>[] = [
 					<span className="text-[10px] text-muted-foreground uppercase tracking-widest truncate">
 						{clinicName || "Unknown Clinic"} {dentistName ? `• ${dentistName}` : ""}
 					</span>
+				</div>
+			);
+		},
+	},
+	{
+		accessorKey: "grandTotal",
+		id: "grandTotal", // <--- THE KEY FIX
+		header: "Grand Total",
+		cell: ({ row }) => {
+			const total = row.getValue("grandTotal") as number | null;
+			if (total === null) return <span className="text-muted-foreground">-</span>;
+			return (
+				<div className="flex items-center gap-1 font-mono font-bold text-emerald-600 dark:text-emerald-500">
+					<DollarSign className="w-3 h-3 opacity-50" />
+					{total.toLocaleString()}
 				</div>
 			);
 		},

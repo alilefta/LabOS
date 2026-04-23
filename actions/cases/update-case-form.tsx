@@ -29,11 +29,12 @@ import z from "zod/v4";
 import { actionClientWithLab } from "@/lib/safe-action";
 import { ActionError, ERRORS } from "@/lib/errors";
 import { tenantPrisma } from "@/lib/prisma";
-import { JawTypeSchema, StaffRoleCategorySchema, CommissionTypeSchema, AssetFileTypeSchema } from "@/schema/base/enums.base";
+import { JawTypeSchema, StaffRoleCategorySchema, CommissionTypeSchema } from "@/schema/base/enums.base";
 import { CaseStatus, CommissionType, StaffRoleCategory } from "@/generated/prisma/client";
 import { ToothPositionSchema } from "@/schema/base/tooth-position.base";
 import { computeCaseItemPrice } from "@/lib/server-only-helpers";
 import { CaseActivityLogCreateManyInput } from "@/generated/prisma/models";
+import { resolveActorName } from "@/data/activity-logs/build-activity-log";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Input schema
@@ -241,7 +242,7 @@ export const updateDentalCaseAction = actionClientWithLab
 		const pricingPlanIds = [...new Set(validWorkItems.map((i) => i.casePricingPlanId))];
 		const staffIds = staffAssignments.map((s) => s.staffId);
 
-		const [clinic, dentist, category, pricingPlans, staffMembers, actor] = await Promise.all([
+		const [clinic, dentist, category, pricingPlans, staffMembers, actorName] = await Promise.all([
 			clinicId
 				? prisma.clinic.findUnique({
 						where: { id: clinicId, labId },
@@ -286,10 +287,7 @@ export const updateDentalCaseAction = actionClientWithLab
 				: Promise.resolve([]),
 
 			// Actor name for activity log
-			prisma.labUser.findUnique({
-				where: { id: labUser.id },
-				select: { name: true },
-			}),
+			resolveActorName(labUser.id, labId),
 		]);
 
 		// ── STEP 3: Business rule validation ────────────────────────────────────
@@ -393,8 +391,6 @@ export const updateDentalCaseAction = actionClientWithLab
 			deadline,
 			notes,
 		});
-
-		const actorName = actor?.name ?? "Unknown";
 
 		// ── STEP 6: Transaction ──────────────────────────────────────────────────
 		// Everything that must be atomic: delete stale nested records,

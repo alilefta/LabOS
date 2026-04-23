@@ -19,22 +19,15 @@ export const createLabAndLabUser = actionClientWithSession
 
 		const { user } = ctx;
 
-		if (!user) {
-			throw ERRORS.UNAUTHORIZED;
-		}
-
-		// Additional Check if user some how have lab ID
 		if (user.labId) {
-			const authLab = await generalPrisma.lab.findUnique({
-				where: {
-					id: user.labId,
-				},
-			});
-
-			if (authLab) {
-				throw ERRORS.LAB_ALREADY_EXISTS;
-			}
+			const existing = await generalPrisma.lab.findUnique({ where: { id: user.labId } });
+			if (existing) throw ERRORS.LAB_ALREADY_EXISTS;
 		}
+
+		// Split the Better-Auth name into First/Last for LabStaff
+		const nameParts = user.name.split(" ");
+		const firstName = nameParts[0] || "Owner";
+		const lastName = nameParts.slice(1).join(" ") || "Member";
 
 		// maybe there is a lab user but the lab ID is not set to that user
 		const labUserEntity = await generalPrisma.labUser.findFirst({
@@ -64,6 +57,7 @@ export const createLabAndLabUser = actionClientWithSession
 
 		try {
 			const results = await generalPrisma.$transaction(async (tx) => {
+				// A. Create the Lab
 				const createdLab = await tx.lab.create({
 					data: {
 						title: lab.title,
@@ -71,20 +65,45 @@ export const createLabAndLabUser = actionClientWithSession
 						slug: lab.slug,
 						brandAvatarUrl: lab.brandAvatarUrl,
 					},
+					select: {
+						title: true,
+						id: true,
+					},
 				});
 
+				// B. Create the Human Resource (LabStaff)
+				// This holds the physical address and phone from the form
+				const ownerStaffRecord = await tx.labStaff.create({
+					data: {
+						labId: createdLab.id,
+						firstName,
+						lastName,
+						phoneNumber: labUser.phoneNumber,
+						avatarUrl: user.image ?? lab.brandAvatarUrl, // Use the profile photo from Google/Github
+						city: labUser.city,
+						address1: labUser.address1,
+						address2: labUser.address2,
+						zipcode: labUser.zipcode,
+						roleCategory: "MANAGER", // Owners act as Managers operationally
+						commissionType: "PERCENTAGE",
+						commissionValue: 0,
+					},
+					select: {
+						id: true,
+					},
+				});
+
+				// C. Create the System Seat (LabUser)
+				// Linked to BOTH the human record and the auth account
 				const createdLabUser = await tx.labUser.create({
 					data: {
-						name: labUser.name,
-						address1: labUser.address1,
-						secondaryEmail: labUser.secondaryEmail,
-						avatarUrl: labUser.avatarUrl ?? "",
-						city: labUser.city,
-						phoneNumber: labUser.phoneNumber,
-						zipcode: labUser.zipcode,
-						authUserId: user.id,
 						labId: createdLab.id,
-						address2: labUser.address2,
+						authUserId: user.id,
+						labStaffId: ownerStaffRecord.id, // THE LINK
+						role: "OWNER", // Permissions role
+					},
+					select: {
+						id: true,
 					},
 				});
 
@@ -100,7 +119,6 @@ export const createLabAndLabUser = actionClientWithSession
 
 			return {
 				lab: results.createdLab,
-				labUser: results.createdLabUser,
 				alreadyExists: false,
 			};
 		} catch (e) {

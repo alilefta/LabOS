@@ -35,7 +35,7 @@ export function DashboardSidebar() {
 	return (
 		<TooltipProvider delayDuration={0}>
 			{/* The wrapper handles the dynamic width transition */}
-			<div className={cn("flex flex-col h-full bg-card dark:bg-[#09090B] border-r border-border relative transition-all duration-300 ease-in-out", isCollapsed ? "w-[80px]" : "w-64")}>
+			<div className={cn("flex flex-col h-full bg-card dark:bg-[#09090B] border-r border-border relative transition-all duration-300 ease-in-out", isCollapsed ? "w-20" : "w-64")}>
 				{/* --- FLOATING COLLAPSE TOGGLE --- */}
 				<Button
 					variant="outline"
@@ -62,7 +62,7 @@ export function DashboardSidebar() {
 								</Avatar>
 								{!isCollapsed && (
 									<div className="flex flex-col items-start text-sm animate-in fade-in duration-300 min-w-0">
-										<span className="font-bold text-foreground truncate max-w-[120px]">DentaFusion</span>
+										<span className="font-bold text-foreground truncate max-w-30">DentaFusion</span>
 										<span className="text-[11px] text-muted-foreground font-medium truncate">Lab Workspace</span>
 									</div>
 								)}
@@ -214,7 +214,7 @@ export function DashboardSidebar() {
 							</Avatar>
 							{!isCollapsed && (
 								<div className="flex flex-col items-start text-sm animate-in fade-in duration-300 min-w-0">
-									<span className="font-semibold text-foreground truncate max-w-[130px]">Sarah Jenkins</span>
+									<span className="font-semibold text-foreground truncate max-w-32.5">Sarah Jenkins</span>
 									<span className="text-[11px] text-muted-foreground">Lab Admin</span>
 								</div>
 							)}

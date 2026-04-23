@@ -23,7 +23,7 @@ export const CreatePatientInputSchema = z.object({
 	name: z.string().trim().min(3, "Full name is required."),
 	description: z.string().transform(emptyToUndefinedTransformer).optional(),
 	notes: z.string().optional(),
-	age: z.number().int().optional(),
+	age: z.coerce.number<number>().int().optional(),
 	gender: PatientGenderSchema.optional(),
 });
 

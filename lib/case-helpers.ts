@@ -5,14 +5,12 @@ import { SaveDraftCaseInput } from "@/schema/composed/case.details";
 
 export function mapDraftToFormValues(draft: DraftCaseDTO): SaveDraftCaseInput {
 	return {
-		status: "NEW",
 		patientId: draft.patientId,
 		clinicId: draft.clinicId ?? undefined,
 		dentistId: draft.dentistId ?? undefined,
 		caseCategoryId: draft.caseCategoryId ?? undefined,
 		deadline: draft.deadline ?? undefined,
 		notes: draft.notes ?? undefined,
-		grandTotal: draft.grandTotal ?? undefined,
 
 		caseWorkItems: draft.caseItems.map((item) => ({
 			productId: item.productId ?? undefined,
@@ -30,19 +28,21 @@ export function mapDraftToFormValues(draft: DraftCaseDTO): SaveDraftCaseInput {
 			shadeNotes: item.shadeNotes ?? undefined,
 		})),
 
-		staffAssignments: draft.staffAssignments.map((s) => ({
-			staffId: s.staffId,
-			roleCategory: s.roleCategory,
-			commissionType: s.commissionType,
-			commissionValue: s.commissionValue, // already number
-		})),
+		staffAssignments:
+			draft?.staffAssignments?.map((s) => ({
+				staffId: s.staffId,
+				roleCategory: s.roleCategory,
+				commissionType: s.commissionType,
+				commissionValue: s.commissionValue, // already number
+			})) ?? [],
 
-		caseAssetFiles: draft.caseAssetFiles.map((f) => ({
-			title: f.title ?? undefined,
-			description: f.description ?? undefined,
-			documentUrl: f.documentUrl ?? undefined,
-			assetFileType: f.assetFileType ?? undefined,
-			fileExtension: f.fileExtension ?? undefined,
-		})),
+		caseAssetFiles:
+			draft?.caseAssetFiles?.map((f) => ({
+				title: f.title ?? undefined,
+				description: f.description ?? undefined,
+				documentUrl: f.documentUrl ?? undefined,
+				assetFileType: f.assetFileType ?? undefined,
+				fileExtension: f.fileExtension ?? undefined,
+			})) ?? [],
 	};
 }

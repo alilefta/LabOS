@@ -1,5 +1,6 @@
 "use client";
 
+import { usePermissions } from "@/providers/permissions-provider";
 import { RevenueStats } from "@/schema/composed/case.details";
 import { TrendingUp, AlertTriangle, CalendarClock, DollarSign, Loader2 } from "lucide-react";
 
@@ -9,7 +10,9 @@ interface OwnerRevenueStripProps {
 }
 
 export function OwnerRevenueStrip({ data, isLoading }: OwnerRevenueStripProps) {
+	const { canViewFinancials } = usePermissions();
 	// Only hide if we are NOT loading AND there is no data
+	if (!canViewFinancials) return null;
 	if (!isLoading && !data) return null;
 
 	const formatCurrency = (val: number) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(val);

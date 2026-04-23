@@ -102,7 +102,7 @@ export function composeStaffAssignment(raw: RawStaffAssignment): CaseStaffAssign
 	return {
 		...normalizeStaffAssignment(raw),
 		staff: raw.staff ? normalizeLabStaff(raw.staff) : null,
-		case: null,
+		dentalCase: null,
 		lab: null,
 	};
 }

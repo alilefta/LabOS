@@ -71,5 +71,5 @@ export { tenantPrisma, prisma as generalPrisma };
 if (process.env.NODE_ENV !== "production") {
 	globalThis.prismaGlobal = prisma;
 }
-
-export type TenantPrisma = ReturnType<typeof tenantPrisma>;
+export type TenantPrisma = typeof tenantPrisma;
+export type TenantPrismaRReturnType = ReturnType<typeof tenantPrisma>;

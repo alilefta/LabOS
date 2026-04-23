@@ -3,12 +3,10 @@
 import { Sparkles, AlertCircle, CheckCircle2, Info, ChevronUp, ChevronDown, ReceiptText, ShieldCheck } from "lucide-react";
 import { memo, useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
-import { useFormContext, useWatch } from "react-hook-form";
+import { Control, useFormContext, useWatch } from "react-hook-form";
 import { CreateCaseInput } from "@/schema/composed/case.details";
 
-export function CaseAiAuditor() {
-	const { control } = useFormContext<CreateCaseInput>();
-
+export function CaseAiAuditor({ control }: { control: Control<CreateCaseInput> }) {
 	// --- 1. WATCHERS (Subscribing to specific form state) ---
 	const caseWorkItems = useWatch({ control, name: "caseWorkItems", defaultValue: [] });
 	const caseAssetFiles = useWatch({ control, name: "caseAssetFiles", defaultValue: [] }) || [];

@@ -9,7 +9,6 @@ export const LabStaffBaseSchema = z.object({
 	phoneNumber: z.string(),
 	avatarUrl: z.string().nullable(),
 	isActive: z.boolean(),
-	// Address (Required for Courier routing and HR records)
 	city: z.string(),
 	address1: z.string(),
 	address2: z.string().nullable(),

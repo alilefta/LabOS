@@ -15,6 +15,7 @@ import { CaseStaffAssignmentDetailsUISchema, CreateCaseStaffAssignmentInputSchem
 import { ToothPositionSchema } from "../base/tooth-position.base";
 import { CaseStaffAssignmentBaseSchema } from "../base/case-staff-assignment.base";
 import { CaseActivityLogBaseSchema } from "../base/case-activity-logs.base";
+import { CaseActivityLogDetailsUISchema } from "./case-activity-logs.details";
 
 export const CaseDetailsSchema = CaseBaseSchema.extend({
 	caseCategory: CaseCategoryBaseSchema.nullable(),
@@ -38,7 +39,7 @@ export const CaseDetailsUISchema = CaseBaseSchema.extend({
 	patient: PatientBaseSchema.nullable(),
 	dentist: DentistBaseSchema.nullable(),
 	staffAssignments: z.array(CaseStaffAssignmentDetailsUISchema).nullable(),
-	caseActivityLogs: z.array(CaseActivityLogBaseSchema).nullable(),
+	caseActivityLogs: z.array(CaseActivityLogDetailsUISchema).nullable(),
 });
 export type CaseDetailsUI = z.infer<typeof CaseDetailsUISchema>;
 
@@ -224,8 +225,21 @@ export const DraftCaseDTOSchema = CaseBaseSchema.extend({
 			),
 		}),
 	),
-	staffAssignments: z.array(CaseStaffAssignmentBaseSchema.partial()),
-	caseAssetFiles: z.array(CaseAssetFileBaseSchema.partial()),
+	staffAssignments: z
+		.array(
+			CaseStaffAssignmentBaseSchema.omit({
+				caseId: true,
+				createdAt: true,
+				id: true,
+				labId: true,
+				isPaid: true,
+				updatedAt: true,
+				paidAt: true,
+				commissionTotal: true,
+			}),
+		)
+		.optional(),
+	caseAssetFiles: z.array(CaseAssetFileBaseSchema).optional(),
 	caseCategory: CaseCategoryBaseSchema.partial().nullable(),
 });
 

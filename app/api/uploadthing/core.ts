@@ -5,20 +5,29 @@ import { getServerSession } from "@/lib/get-session";
 
 const f = createUploadthing();
 
-const auth = async (req: Request) => {
+/**
+ * Enhanced Auth Helper
+ * @param requireLab - Set to true for operational assets, false for onboarding assets
+ */
+const handleAuth = async (requireLab: boolean = true) => {
 	const session = await getServerSession();
 
-	if (!session) throw new UploadThingError("Unauthorized");
+	// 1. Basic Auth check - Must always be logged in
+	if (!session || !session.user) throw new UploadThingError("Unauthorized");
 
 	const labId = session.user.labId;
-	if (!labId) throw new UploadThingError("No lab associated with this account");
+
+	// 2. Conditional Lab ID check
+	// If we are in onboarding, labId will be null/undefined. We allow this only if requireLab is false.
+	if (requireLab && !labId) {
+		throw new UploadThingError("Action requires an active Lab Workspace");
+	}
 
 	return {
 		userId: session.user.id,
-		labId, // ← pass it through
+		labId: labId || "onboarding_pending", // Provide a fallback metadata value
 	};
 };
-
 type UploadCompleteResults = {
 	data: {
 		metadata: {
@@ -33,9 +42,9 @@ type UploadCompleteResults = {
 const uploadComplete = ({ data, fileRouteName }: UploadCompleteResults) => {
 	const { metadata, file } = data;
 	// This code RUNS ON YOUR SERVER after upload
-	console.log(`Upload ${fileRouteName} complete for userId:`, metadata.userId);
+	// console.log(`Upload ${fileRouteName} complete for userId:`, metadata.userId);
 
-	console.log("file url", file.ufsUrl);
+	// console.log("file url", file.ufsUrl);
 
 	// !!! Whatever is returned here is sent to the clientside `onClientUploadComplete` callback
 	return { uploadedBy: metadata.userId, labId: metadata.labId };
@@ -49,7 +58,7 @@ export const labOSUploadRouter = {
 			maxFileCount: 1,
 		},
 	})
-		.middleware(({ req }) => auth(req))
+		.middleware(async () => await handleAuth(false))
 		.onUploadComplete((data) => uploadComplete({ data, fileRouteName: "Lab Logo Image" })),
 
 	userAvatarPicture: f({
@@ -59,7 +68,16 @@ export const labOSUploadRouter = {
 		},
 	})
 		// Set permissions and file types for this FileRoute
-		.middleware(async ({ req }) => auth(req))
+		.middleware(async () => await handleAuth(false))
+		.onUploadComplete(async (data) => uploadComplete({ data, fileRouteName: "User Avatar Picture" })),
+	staffUserAvatarPicture: f({
+		image: {
+			maxFileSize: "4MB",
+			maxFileCount: 1,
+		},
+	})
+		// Set permissions and file types for this FileRoute
+		.middleware(async () => await handleAuth(true))
 		.onUploadComplete(async (data) => uploadComplete({ data, fileRouteName: "User Avatar Picture" })),
 
 	categoryIconAvatar: f({
@@ -69,7 +87,7 @@ export const labOSUploadRouter = {
 		},
 	})
 		// Set permissions and file types for this FileRoute
-		.middleware(async ({ req }) => auth(req))
+		.middleware(async () => await handleAuth(true))
 		.onUploadComplete(async (data) => uploadComplete({ data, fileRouteName: "Case Category Icon Avatar" })),
 
 	genericAvatar: f({
@@ -79,7 +97,7 @@ export const labOSUploadRouter = {
 		},
 	})
 		// Set permissions and file types for this FileRoute
-		.middleware(async ({ req }) => auth(req))
+		.middleware(async () => await handleAuth(true))
 		.onUploadComplete(async (data) => uploadComplete({ data, fileRouteName: "Generic Avatar Icon" })),
 
 	caseAssetsRoute: f({
@@ -99,7 +117,7 @@ export const labOSUploadRouter = {
 		},
 	})
 		// Set permissions and file types for this FileRoute
-		.middleware(async ({ req }) => auth(req))
+		.middleware(async () => await handleAuth(true))
 		.onUploadComplete(async (data) => uploadComplete({ data, fileRouteName: "Case Assets Route" })),
 
 	// messageFile: f({

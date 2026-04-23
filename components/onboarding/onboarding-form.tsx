@@ -7,14 +7,14 @@ import { useAction } from "next-safe-action/hooks";
 import { Controller, FormProvider, useForm } from "react-hook-form";
 import { InputWithLabel } from "../ui/custom/input-with-label";
 import { Button } from "../ui/button";
-import { ArrowLeft, ArrowRight, Building, Loader2, UserCircle } from "lucide-react";
-import { useEffect, useState } from "react";
+import { ArrowLeft, ArrowRight, Building, Loader2, MapPin, UserCircle } from "lucide-react";
+import { memo, useState } from "react";
 import { LabLogoUpload } from "./lab-logo-upload";
 import { handleSafeActionError } from "@/lib/safe-action-helpers";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
-export function OnboardingForm() {
+export const OnboardingForm = memo(function OnboardingForm() {
 	const [step, setStep] = useState<1 | 2>(1);
 
 	const router = useRouter();
@@ -29,12 +29,11 @@ export function OnboardingForm() {
 				subtitle: "",
 			},
 			labUser: {
-				name: "",
 				avatarUrl: "",
 				address1: "",
 				address2: "",
 				city: "",
-				role: "ADMIN",
+				role: "OWNER",
 				phoneNumber: "",
 				secondaryEmail: "",
 				zipcode: "",
@@ -44,29 +43,33 @@ export function OnboardingForm() {
 		mode: "onBlur",
 	});
 
-	useEffect(() => {
-		if (form.formState.errors.lab) {
-			toast.error(form.formState.errors.lab.message);
-			// console.error(form.formState.errors.lab);
-		}
-		if (form.formState.errors.labUser) {
-			toast.error(form.formState.errors.labUser.message);
-			// console.error(form.formState.errors.labUser);
-		}
+	// useEffect(() => {
+	// 	if (form.formState.errors.lab) {
+	// 		toast.error(form.formState.errors.lab.message);
+	// 		// console.error(form.formState.errors.lab);
+	// 	}
+	// 	if (form.formState.errors.labUser) {
+	// 		toast.error(form.formState.errors.labUser.message);
+	// 		// console.error(form.formState.errors.labUser);
+	// 	}
 
-		// if (form.formState.errors.root) {
-		// 	toast.error(form.formState.errors.root.message);
-		// 	console.error(form.formState.errors.root);
-		// }
-	}, [form.formState.errors]);
+	// 	// if (form.formState.errors.root) {
+	// 	// 	toast.error(form.formState.errors.root.message);
+	// 	// 	console.error(form.formState.errors.root);
+	// 	// }
+	// }, [form.formState.errors]);
 
 	const { executeAsync: createLab, isExecuting: isCreatingLab } = useAction(createLabAndLabUser, {
 		onSuccess: ({ data }) => {
-			toast.message(data.alreadyExists ? "Lab already exists, redirecting to your lab." : "Lab created successfully, redirecting...");
+			if (data.alreadyExists) {
+				toast.message("You already have a lab, redirecting...");
+				router.push("/dashboard");
+				return;
+			}
+			toast.message(`Congrats '${data.lab.title}' created successfully, redirecting...`);
 			router.push("/dashboard");
 		},
 		onError: ({ error }) => {
-			console.error("onboarding-form-error:", error);
 			if (error.validationErrors) {
 				const { lab, labUser } = error.validationErrors;
 
@@ -83,9 +86,6 @@ export function OnboardingForm() {
 				}
 
 				if (labUser) {
-					if (labUser.name) {
-						form.setError("labUser.name", { message: labUser.name._errors?.join(", ") });
-					}
 					if (labUser.address1) {
 						form.setError("labUser.address1", { message: labUser.address1._errors?.join(", ") });
 					}
@@ -140,7 +140,7 @@ export function OnboardingForm() {
 		if (isStep1Valid) setStep(2);
 	};
 
-	const isFormDirty = form.formState.dirtyFields.labUser?.name && form.formState.dirtyFields.labUser?.city && form.formState.dirtyFields.labUser?.phoneNumber;
+	const isProfileDirty = form.formState.dirtyFields.labUser?.city && form.formState.dirtyFields.labUser?.phoneNumber;
 
 	const prevStep = () => setStep(1);
 	return (
@@ -226,71 +226,47 @@ export function OnboardingForm() {
 								</div>
 
 								<div className="space-y-5">
-									<div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-										<Controller
-											control={form.control}
-											name="labUser.name"
-											render={({ field, fieldState }) => (
-												<InputWithLabel field={field} fieldState={fieldState} fieldTitle="Full Name" nameInSchema="labUser.name" placeholder="Sarah Jenkins" />
-											)}
-										/>
-
-										<Controller
-											control={form.control}
-											name="labUser.phoneNumber"
-											render={({ field, fieldState }) => (
-												<InputWithLabel field={field} fieldState={fieldState} fieldTitle="Phone Number" nameInSchema="labUser.phoneNumber" placeholder="+1 (555) 000-0000" />
-											)}
-										/>
-									</div>
-
 									<Controller
 										control={form.control}
-										name="labUser.secondaryEmail"
+										name="labUser.phoneNumber"
 										render={({ field, fieldState }) => (
-											<InputWithLabel
-												field={field}
-												fieldState={fieldState}
-												fieldTitle="Busniess Email"
-												nameInSchema="labUser.secondaryEmail"
-												placeholder="mylab@mylab.com"
-												isOptional={true}
-											/>
+											<InputWithLabel field={field} fieldState={fieldState} fieldTitle="Direct Phone Number" nameInSchema="labUser.phoneNumber" placeholder="+964..." />
 										)}
 									/>
 
-									<Controller
-										control={form.control}
-										name="labUser.address1"
-										render={({ field, fieldState }) => (
-											<InputWithLabel
-												field={field}
-												fieldState={fieldState}
-												fieldTitle="Street Address"
-												nameInSchema="labUser.address1"
-												placeholder="123 Dental Way, Suite 1000"
+									<div className="pt-2 border-t border-border/50">
+										<div className="flex items-center gap-2 mb-4">
+											<MapPin className="w-4 h-4 text-primary" />
+											<span className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">Logistics Address</span>
+										</div>
+
+										<Controller
+											control={form.control}
+											name="labUser.address1"
+											render={({ field, fieldState }) => (
+												<InputWithLabel field={field} fieldState={fieldState} fieldTitle="Street Address" nameInSchema="labUser.address1" placeholder="Mansour, District 601" />
+											)}
+										/>
+
+										<div className="grid grid-cols-2 gap-4 mt-4">
+											<Controller
+												control={form.control}
+												name="labUser.city"
+												render={({ field, fieldState }) => (
+													<InputWithLabel field={field} fieldState={fieldState} fieldTitle="City" nameInSchema="labUser.city" placeholder="Baghdad" />
+												)}
 											/>
-										)}
-									/>
-
-									<div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-										<Controller
-											control={form.control}
-											name="labUser.city"
-											render={({ field, fieldState }) => (
-												<InputWithLabel field={field} fieldState={fieldState} fieldTitle="City" nameInSchema="labUser.city" placeholder="New York" />
-											)}
-										/>
-
-										<Controller
-											control={form.control}
-											name="labUser.zipcode"
-											render={({ field, fieldState }) => (
-												<InputWithLabel field={field} fieldState={fieldState} fieldTitle="Zip Code" nameInSchema="labUser.zipcode" placeholder="10001" />
-											)}
-										/>
+											<Controller
+												control={form.control}
+												name="labUser.zipcode"
+												render={({ field, fieldState }) => (
+													<InputWithLabel field={field} fieldState={fieldState} fieldTitle="Zip (Optional)" nameInSchema="labUser.zipcode" placeholder="10001" />
+												)}
+											/>
+										</div>
 									</div>
 								</div>
+
 								{form.formState.errors.root && (
 									<div className="mt-6 p-4 bg-destructive/10 border border-destructive/20 rounded-xl text-destructive text-sm font-medium flex items-center gap-3">
 										<div className="w-2 h-2 rounded-full bg-destructive animate-pulse"></div>
@@ -305,7 +281,7 @@ export function OnboardingForm() {
 
 									<Button
 										type="submit"
-										disabled={isCreatingLab || !isFormDirty}
+										disabled={isCreatingLab || !isProfileDirty}
 										form="oboarding-form"
 										className="rounded-xl h-11 px-8 shadow-premium bg-primary hover:bg-primary/90 text-primary-foreground"
 									>
@@ -325,4 +301,4 @@ export function OnboardingForm() {
 			</div>
 		</div>
 	);
-}
+});

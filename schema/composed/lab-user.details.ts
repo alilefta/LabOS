@@ -1,10 +1,10 @@
-import { LabRole } from "@/generated/prisma/enums";
 import z from "zod";
 import { LabUserBaseSchema } from "../base/lab-user.base";
 import { LabBaseSchema } from "../base/lab.base";
 import { AuthUserBaseSchema } from "../base/auth.base";
 import { LabStaffBaseSchema } from "../base/lab-staff.base";
 import { CaseActivityLogBaseSchema } from "../base/case-activity-logs.base";
+import { LabRoleSchema } from "../base/enums.base";
 
 export const LabUserDetailsSchema = LabUserBaseSchema.extend({
 	activityLogs: z.array(CaseActivityLogBaseSchema),
@@ -41,15 +41,13 @@ const optionalLogo = z
 	.pipe(z.url({ message: "Avatar must be a valid URL." }).optional());
 
 export const CreateLabUserInputSchema = z.object({
-	name: z.string({ error: "Please enter your full name." }).min(2, { message: "Name must be at least 2 characters." }),
+	// "name" removed - we get this from ctx.user (AuthUser)
 
 	avatarUrl: optionalLogo,
 	address1: z.string({ error: "Street address is required." }).min(5, { message: "Please enter a valid street address." }),
 	address2: z.string().optional(),
 	city: z.string({ error: "City is required." }).min(2, { message: "City name must be at least 2 characters." }),
-	role: z.enum(LabRole, {
-		error: "Please select a valid role.",
-	}),
+	role: LabRoleSchema,
 	phoneNumber: z.string({ error: "Phone number is required." }).min(7, { message: "Please enter a valid phone number." }),
 	secondaryEmail: optionalEmail,
 	zipcode: z.string({ error: "Zip code is required." }).min(3, { message: "Please enter a valid zip code." }),

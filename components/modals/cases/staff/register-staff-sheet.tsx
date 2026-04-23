@@ -2,7 +2,7 @@
 
 import { useForm, Controller, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { UserPlus, Loader2, Sparkles, Truck, Wrench, Briefcase, ShieldCheck, UserCog, Headset, BadgePercent, DollarSign, Wallet, Check } from "lucide-react";
+import { UserPlus, Loader2, Sparkles, Truck, Wrench, Briefcase, ShieldCheck, UserCog, Headset, BadgePercent, DollarSign, Wallet, Check, MapPin } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
@@ -56,7 +56,10 @@ export function RegisterStaffSheet({ isOpen, onClose, onStaffCreated, requiredRo
 			firstName: "",
 			lastName: "",
 			phoneNumber: "",
-			email: "",
+			city: "",
+			address1: "",
+			address2: "",
+			zipcode: "",
 			isActive: true,
 			roleCategory: "TECHNICIAN",
 			jobTitle: "",
@@ -180,7 +183,7 @@ export function RegisterStaffSheet({ isOpen, onClose, onStaffCreated, requiredRo
 							</div>
 						</section>
 
-						{/* SECTION 2: PERSONAL DETAILS */}
+						{/* SECTION 2: IDENTITY */}
 						<div className="space-y-5">
 							<div className="flex items-center gap-2 mb-2 pb-2 border-b border-border/50">
 								<UserCog className="w-4 h-4 text-primary" />
@@ -199,26 +202,50 @@ export function RegisterStaffSheet({ isOpen, onClose, onStaffCreated, requiredRo
 									render={({ field, fieldState }) => <InputWithLabel field={field} fieldState={fieldState} fieldTitle="Last Name" nameInSchema="lastName" placeholder="Ali" />}
 								/>
 							</div>
+							<Controller
+								control={form.control}
+								name="phoneNumber"
+								render={({ field, fieldState }) => (
+									<InputWithLabel field={field} fieldState={fieldState} fieldTitle="Phone Number" nameInSchema="phoneNumber" placeholder="+964 750 000 0000" />
+								)}
+							/>
+						</div>
 
+						{/* SECTION 3: ADDRESS (NEW) */}
+						<div className="space-y-5">
+							<div className="flex items-center gap-2 mb-2 pb-2 border-b border-border/50">
+								<MapPin className="w-4 h-4 text-primary" />
+								<h4 className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">Location & Logistics</h4>
+							</div>
 							<div className="grid grid-cols-2 gap-4">
 								<Controller
 									control={form.control}
-									name="phoneNumber"
-									render={({ field, fieldState }) => (
-										<InputWithLabel field={field} fieldState={fieldState} fieldTitle="Phone Number" nameInSchema="phoneNumber" placeholder="+964 750 000 0000" />
-									)}
+									name="city"
+									render={({ field, fieldState }) => <InputWithLabel field={field} fieldState={fieldState} fieldTitle="City" nameInSchema="city" placeholder="Baghdad" />}
 								/>
 								<Controller
 									control={form.control}
-									name="email"
-									render={({ field, fieldState }) => (
-										<InputWithLabel field={field} fieldState={fieldState} fieldTitle="Email Address" nameInSchema="email" placeholder="ahmed@lab.com" />
-									)}
+									name="zipcode"
+									render={({ field, fieldState }) => <InputWithLabel field={field} fieldState={fieldState} fieldTitle="Zip Code" nameInSchema="zipcode" placeholder="10001" />}
 								/>
 							</div>
+							<Controller
+								control={form.control}
+								name="address1"
+								render={({ field, fieldState }) => (
+									<InputWithLabel field={field} fieldState={fieldState} fieldTitle="Street Address" nameInSchema="address1" placeholder="Mansour, District 601" />
+								)}
+							/>
+							<Controller
+								control={form.control}
+								name="address2"
+								render={({ field, fieldState }) => (
+									<InputWithLabel field={field} fieldState={fieldState} fieldTitle="Building / Unit (Optional)" nameInSchema="address2" placeholder="Apt 4B" />
+								)}
+							/>
 						</div>
 
-						{/* SECTION 3: JOB SPECIFICS */}
+						{/* SECTION 4: JOB SPECIFICS */}
 						<div className="space-y-5">
 							<div className="flex items-center gap-2 mb-2 pb-2 border-b border-border/50">
 								<Briefcase className="w-4 h-4 text-primary" />

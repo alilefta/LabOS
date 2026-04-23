@@ -31,12 +31,13 @@ export const CreateLabStaffInputSchema = LabStaffBaseSchema.omit({
 	firstName: z.string().trim().min(2, "First name must be at least 2 characters."),
 	lastName: z.string().trim().min(2, "Last name must be at least 2 characters."),
 	phoneNumber: z.string().trim().min(7, "Please enter a valid phone number."),
-	// email: z.string().trim().email("Please enter a valid email address.").transform(emptyToUndefinedTransformer).optional(), // dropped by DB and moved to AuthUser
-	// we need address here,
-	city: z.string(),
-	address1: z.string(),
-	address2: z.string().nullable(),
-	zipcode: z.string().nullable(),
+
+	// Address Fields (Required for HR & Logistics)
+	city: z.string().trim().min(1, "City is required."),
+	address1: z.string().trim().min(1, "Street address is required."),
+	address2: z.string().trim().transform(emptyToUndefinedTransformer).optional(),
+	zipcode: z.string().trim().transform(emptyToUndefinedTransformer).optional(),
+
 	avatarUrl: z
 		.union([z.literal(""), z.string().trim().url("Please enter a valid image URL")])
 		.transform(emptyToUndefinedTransformer)
@@ -46,7 +47,7 @@ export const CreateLabStaffInputSchema = LabStaffBaseSchema.omit({
 	roleCategory: StaffRoleCategorySchema,
 	specialization: z.string().transform(emptyToUndefinedTransformer).optional(),
 	commissionType: CommissionTypeSchema,
-	commissionValue: z.coerce.number<number>().min(0, "").optional(),
+	commissionValue: z.coerce.number<number>().min(0, "Value must be positive").optional(),
 });
 
 export type CreateLabStaffInput = z.infer<typeof CreateLabStaffInputSchema>;

@@ -159,7 +159,7 @@ export const PatientSelector = memo(({ value, onCreateNew, newCreatedPatient, on
 								className="w-full justify-start text-primary hover:text-primary hover:bg-primary/10 rounded-xl text-[13px] font-bold h-10 transition-colors"
 							>
 								{isFetching ? <Loader className="mr-2 h-4 w-4 animate-spin" /> : <Plus className="mr-2 h-4 w-4" />}
-								{search.length > 0 ? `Register "${search}"` : "Register New Clinic"}
+								{search.length > 0 ? `Register "${search}"` : "Register New Patient"}
 							</Button>
 						</div>
 					</Command>

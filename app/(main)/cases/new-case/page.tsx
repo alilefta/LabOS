@@ -252,12 +252,12 @@ export default function NewCasePage() {
 					</FormProvider>
 					{/* AI AUDITOR (Right - Desktop) */}
 					<div className="hidden xl:flex w-96 shrink-0 flex-col gap-6 sticky top-0 h-fit z-20">
-						<CaseAiAuditor />
+						<CaseAiAuditor control={form.control} />
 					</div>
 
 					{/* AI AUDITOR (Floating Bottom - Mobile) */}
 					<div className="xl:hidden fixed bottom-0 left-0 right-0 z-40 bg-background/95 backdrop-blur-xl border-t border-border p-4 shadow-[0_-10px_40px_rgba(0,0,0,0.05)]">
-						<CaseAiAuditor />
+						<CaseAiAuditor control={form.control} />
 					</div>
 
 					{/* Modals */}

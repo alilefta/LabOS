@@ -18,7 +18,6 @@ import { ActionError, ERRORS } from "@/lib/errors";
 import { tenantPrisma } from "@/lib/prisma";
 import { CaseStatus, StaffRoleCategory, CommissionType } from "@/schema/base/enums.base";
 import { APIError } from "better-auth";
-import { CaseActivityLogCreateManyInput } from "@/generated/prisma/models";
 import {
 	AddCaseAssetFilesSchema,
 	AssignCaseStaffSchema,
@@ -29,6 +28,7 @@ import {
 	UpdateCaseStatusSchema,
 } from "@/schema/composed/cases/edit-schemas/case.edit.details";
 import { revalidatePath } from "next/cache";
+import { buildLogEntry, resolveActorName } from "@/data/activity-logs/build-activity-log";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Shared helpers
@@ -61,19 +61,6 @@ async function requireCase(prisma: Awaited<ReturnType<typeof tenantPrisma>>, cas
 	return dentalCase;
 }
 
-// Build a log entry object — used inside every transaction
-function buildLogEntry({ caseId, labId, actorId, actorName, type, summary, payload }: CaseActivityLogCreateManyInput) {
-	return {
-		caseId,
-		labId,
-		actorId,
-		actorName,
-		type,
-		summary,
-		payload: payload,
-	};
-}
-
 // ─────────────────────────────────────────────────────────────────────────────
 // 1. updateCaseDeadlineAction
 // ─────────────────────────────────────────────────────────────────────────────
@@ -93,6 +80,8 @@ export const updateCaseDeadlineAction = actionClientWithLab
 			throw ERRORS.CASE_ALREADY_COMPLETED;
 		}
 
+		const actorName = await resolveActorName(labUser.id, labId);
+
 		const [updatedCase] = await prisma.$transaction([
 			prisma.case.update({
 				where: { id: caseId, labId },
@@ -104,7 +93,7 @@ export const updateCaseDeadlineAction = actionClientWithLab
 					caseId,
 					labId,
 					actorId: labUser.id,
-					actorName: labUser.role, // replaced with real name below — see note
+					actorName,
 					type: "DEADLINE_CHANGED",
 					summary: `Deadline updated to ${deadline.toDateString()}`,
 					payload: { from: null, to: deadline.toISOString() },
@@ -138,12 +127,7 @@ export const updateCaseStatusAction = actionClientWithLab
 
 		// Fetch actor name for the log — labUser.role is not a name,
 		// so we pull the LabUser record for the display name
-		const actor = await prisma.labUser.findUnique({
-			where: { id: labUser.id },
-			select: { name: true },
-		});
-
-		const actorName = actor?.name ?? "Unknown";
+		const actorName = await resolveActorName(labUser.id, labId);
 
 		const [updatedCase] = await prisma.$transaction([
 			prisma.case.update({
@@ -211,11 +195,7 @@ export const assignCaseStaffAction = actionClientWithLab
 		}
 
 		// Fetch actor name for the log
-		const actor = await prisma.labUser.findUnique({
-			where: { id: labUser.id },
-			select: { name: true },
-		});
-		const actorName = actor?.name ?? "Unknown";
+		const actorName = await resolveActorName(labUser.id, labId);
 
 		// Determine next status: if assigning a technician and case is NEW → ASSIGNED
 		const shouldAutoAssign = dentalCase.status === "NEW" && (roleCategory === "TECHNICIAN" || roleCategory === "SENIOR_TECHNICIAN");
@@ -304,11 +284,7 @@ export const removeCaseStaffAction = actionClientWithLab
 		if (!assignment) throw ERRORS.NOT_FOUND;
 		if (assignment.labId !== labId) throw ERRORS.FORBIDDEN;
 
-		const actor = await prisma.labUser.findUnique({
-			where: { id: labUser.id },
-			select: { name: true },
-		});
-		const actorName = actor?.name ?? "Unknown";
+		const actorName = await resolveActorName(labUser.id, labId);
 
 		// After removal, check if any technician remains — if not, revert to NEW
 		const remainingTechCount = await prisma.caseStaffAssignment.count({
@@ -372,11 +348,8 @@ export const addCaseAssetFilesAction = actionClientWithLab
 			const prisma = await tenantPrisma(labId);
 			await requireCase(prisma, caseId, labId);
 
-			const actor = await prisma.labUser.findUnique({
-				where: { id: labUser.id },
-				select: { name: true },
-			});
-			const actorName = actor?.name ?? "Unknown";
+			const actorName = await resolveActorName(labUser.id, labId);
+
 			const [createdFiles] = await prisma.$transaction([
 				prisma.caseAssetFile.createManyAndReturn({
 					data: files.map((f) => ({
@@ -455,11 +428,7 @@ export const deleteCaseAssetFileAction = actionClientWithLab
 				throw ERRORS.FORBIDDEN;
 			}
 
-			const actor = await prisma.labUser.findUnique({
-				where: { id: labUser.id },
-				select: { name: true },
-			});
-			const actorName = actor?.name ?? "Unknown";
+			const actorName = await resolveActorName(labUser.id, labId);
 
 			await prisma.$transaction([
 				prisma.caseAssetFile.delete({
@@ -507,11 +476,7 @@ export const updateCaseNotesAction = actionClientWithLab
 			const prisma = await tenantPrisma(labId);
 			await requireCase(prisma, caseId, labId);
 
-			const actor = await prisma.labUser.findUnique({
-				where: { id: labUser.id },
-				select: { name: true },
-			});
-			const actorName = actor?.name ?? "Unknown";
+			const actorName = await resolveActorName(labUser.id, labId);
 
 			const [updatedCase] = await prisma.$transaction([
 				prisma.case.update({

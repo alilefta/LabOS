@@ -19,7 +19,7 @@ import { LabStaffBaseSchema } from "../base/lab-staff.base";
 import { CaseActivityLogBaseSchema } from "../base/case-activity-logs.base";
 
 export const LabDetailsSchema = LabBaseSchema.extend({
-	labSubscriptionPlan: LabSubscriptionPlanBaseSchema,
+	labSubscriptionPlan: LabSubscriptionPlanBaseSchema.nullable(),
 	users: z.array(LabUserBaseSchema),
 
 	clinics: z.array(ClinicBaseSchema),
@@ -37,7 +37,7 @@ export const LabDetailsSchema = LabBaseSchema.extend({
 	dentists: z.array(DentistBaseSchema),
 
 	staffAssignments: z.array(CaseStaffAssignmentBaseSchema),
-	LabStaff: z.array(LabStaffBaseSchema),
+	staff: z.array(LabStaffBaseSchema),
 	caseActivityLogs: z.array(CaseActivityLogBaseSchema),
 });
 

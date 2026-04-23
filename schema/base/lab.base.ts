@@ -3,13 +3,14 @@ import { z } from "zod";
 
 export const LabBaseSchema = z.object({
 	id: z.string(),
-	createdAt: z.date(),
-	updatedAt: z.date(),
 	title: z.string(),
 	slug: z.string().nullable(),
 	brandAvatarUrl: z.string().nullable(),
 	subtitle: z.string().nullable(),
 	nextCaseNumber: z.number().int(),
+
+	createdAt: z.date(),
+	updatedAt: z.date(),
 });
 
 export type LabBase = z.infer<typeof LabBaseSchema>;

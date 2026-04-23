@@ -1,5 +1,6 @@
 "use server";
 
+import { resolveActorName } from "@/data/activity-logs/build-activity-log";
 import { CaseActivityLogCreateManyDentalCaseInput } from "@/generated/prisma/models";
 import { ERRORS } from "@/lib/errors";
 import { tenantPrisma } from "@/lib/prisma";
@@ -18,7 +19,7 @@ export const createDentalCaseAction = actionClientWithLab
 	.inputSchema(CreateCaseInputSchema)
 	.action(async ({ parsedInput, ctx }) => {
 		const { patientId, clinicId, dentistId, caseCategoryId, status, deadline, caseAssetFiles, caseWorkItems, staffAssignments, notes, existingDraftId } = parsedInput;
-		const { labId, user } = ctx;
+		const { labId, user, labUser } = ctx;
 
 		// !!!!!!!!!!!! creating a case from stored draft should be done through update not create!!!!!
 
@@ -218,22 +219,25 @@ export const createDentalCaseAction = actionClientWithLab
 			// ─────────────────────────────────────────────────────────────────
 			const staffMap = new Map(staffMembers.map((s) => [s.id, s]));
 
+			const actorName = await resolveActorName(labUser.id, labId);
+
 			// We use an array of objects to map to Prisma's `createMany`
 			const genesisLogs: CaseActivityLogCreateManyDentalCaseInput[] = [
 				{
 					labId,
-					actorId: user.id, // The user performing the action
-					actorName: user.name || "System", // The user's name
+					actorId: labUser.id, // ✅ FIX: Use the LabUser ID, not the AuthUser ID
+					actorName,
 					type: "CASE_CREATED",
 					summary: "Created case prescription",
 					payload: {},
 				},
 			];
+
 			if (notes) {
 				genesisLogs.push({
 					labId,
-					actorId: user.id,
-					actorName: user.name || "System",
+					actorId: labUser.id, // ✅ FIX: Consistency
+					actorName,
 					type: "NOTE_ADDED",
 					summary: "Added global clinical instructions",
 					payload: { note: notes },
@@ -246,8 +250,8 @@ export const createDentalCaseAction = actionClientWithLab
 					if (staffData) {
 						genesisLogs.push({
 							labId,
-							actorId: user.id,
-							actorName: user.name || "System",
+							actorId: labUser.id,
+							actorName,
 							type: "STAFF_ASSIGNED",
 							summary: `Assigned ${staffData.firstName} ${staffData.lastName}`,
 							payload: {
@@ -264,8 +268,8 @@ export const createDentalCaseAction = actionClientWithLab
 				caseAssetFiles.forEach((file) => {
 					genesisLogs.push({
 						labId,
-						actorId: user.id,
-						actorName: user.name || "System",
+						actorId: labUser.id,
+						actorName,
 						type: "FILE_UPLOADED",
 						summary: `Attached ${file.assetFileType}: ${file.title || "Asset"}`,
 						payload: {
