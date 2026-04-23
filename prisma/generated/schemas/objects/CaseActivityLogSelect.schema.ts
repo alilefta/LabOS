@@ -1,7 +1,8 @@
 import * as z from 'zod';
 import type { Prisma } from '../../../../generated/prisma/client';
 import { CaseArgsObjectSchema as CaseArgsObjectSchema } from './CaseArgs.schema';
-import { LabArgsObjectSchema as LabArgsObjectSchema } from './LabArgs.schema'
+import { LabArgsObjectSchema as LabArgsObjectSchema } from './LabArgs.schema';
+import { LabUserArgsObjectSchema as LabUserArgsObjectSchema } from './LabUserArgs.schema'
 
 const makeSchema = () => z.object({
   id: z.boolean().optional(),
@@ -10,6 +11,7 @@ const makeSchema = () => z.object({
   labId: z.boolean().optional(),
   lab: z.union([z.boolean(), z.lazy(() => LabArgsObjectSchema)]).optional(),
   actorId: z.boolean().optional(),
+  actor: z.union([z.boolean(), z.lazy(() => LabUserArgsObjectSchema)]).optional(),
   actorName: z.boolean().optional(),
   type: z.boolean().optional(),
   summary: z.boolean().optional(),

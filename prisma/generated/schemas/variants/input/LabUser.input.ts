@@ -3,23 +3,18 @@ import { LabRoleSchema } from '../../enums/LabRole.schema';
 // prettier-ignore
 export const LabUserInputSchema = z.object({
     id: z.string(),
-    name: z.string(),
-    city: z.string(),
-    zipcode: z.string().optional().nullable(),
-    address1: z.string(),
-    address2: z.string().optional().nullable(),
-    avatarUrl: z.string(),
-    secondaryEmail: z.string().optional().nullable(),
-    phoneNumber: z.string(),
-    role: LabRoleSchema,
-    authUserId: z.string(),
-    authUser: z.unknown(),
     labId: z.string(),
     lab: z.unknown(),
+    authUserId: z.string(),
+    authUser: z.unknown(),
+    labStaffId: z.string().optional().nullable(),
+    labStaff: z.unknown().optional().nullable(),
+    role: LabRoleSchema,
     isActive: z.boolean(),
     lastTimeActive: z.date().optional().nullable(),
     createdAt: z.date(),
-    updatedAt: z.date()
+    updatedAt: z.date(),
+    activityLogs: z.array(z.unknown())
 }).strict();
 
 export type LabUserInputType = z.infer<typeof LabUserInputSchema>;

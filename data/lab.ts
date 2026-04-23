@@ -2,7 +2,7 @@
 
 import { ERRORS } from "@/lib/errors";
 import { getServerSession } from "@/lib/get-session";
-import { tenantPrisma } from "@/lib/prisma";
+import { generalPrisma, tenantPrisma } from "@/lib/prisma";
 
 export async function getLabInfo() {
 	const session = await getServerSession();
@@ -20,4 +20,13 @@ export async function getLabInfo() {
 	});
 
 	return lab;
+}
+
+export async function getLabUserRoleByAuthUserId(authUserId: string) {
+	const labUser = await generalPrisma.labUser.findUnique({
+		where: { authUserId: authUserId },
+		select: { labId: true, role: true },
+	});
+
+	return labUser;
 }

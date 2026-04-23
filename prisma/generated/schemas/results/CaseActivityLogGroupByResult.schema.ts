@@ -15,6 +15,7 @@ export const CaseActivityLogGroupByResultSchema = z.array(z.object({
     labId: z.number(),
     lab: z.number(),
     actorId: z.number(),
+    actor: z.number(),
     actorName: z.number(),
     type: z.number(),
     summary: z.number(),

@@ -6,7 +6,7 @@ import { LabBaseSchema } from "../base/lab.base";
 import { CommissionTypeSchema, StaffRoleCategorySchema } from "../base/enums.base";
 
 export const CaseStaffAssignmentDetailsSchema = CaseStaffAssignmentBaseSchema.extend({
-	case: CaseBaseSchema,
+	dentalCase: CaseBaseSchema,
 	staff: LabStaffBaseSchema,
 	lab: LabBaseSchema,
 });
@@ -14,7 +14,7 @@ export const CaseStaffAssignmentDetailsSchema = CaseStaffAssignmentBaseSchema.ex
 export type CaseStaffAssignmentDetails = z.infer<typeof CaseStaffAssignmentDetailsSchema>;
 
 export const CaseStaffAssignmentDetailsUISchema = CaseStaffAssignmentBaseSchema.extend({
-	case: CaseBaseSchema.nullable(),
+	dentalCase: CaseBaseSchema.nullable(),
 	staff: LabStaffBaseSchema.nullable(),
 	lab: LabBaseSchema.nullable(),
 });

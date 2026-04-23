@@ -6,6 +6,7 @@ export const CaseActivityLogAggregateResultSchema = z.object({  _count: z.object
     labId: z.number(),
     lab: z.number(),
     actorId: z.number(),
+    actor: z.number(),
     actorName: z.number(),
     type: z.number(),
     summary: z.number(),

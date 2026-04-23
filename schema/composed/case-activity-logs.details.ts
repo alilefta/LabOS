@@ -3,13 +3,23 @@ import { CaseActivityLogBaseSchema } from "../base/case-activity-logs.base";
 import { CaseBaseSchema } from "../base/case.base";
 import { LabBaseSchema } from "../base/lab.base";
 import { AssetFileTypeSchema, CaseStatusSchema, StaffRoleCategorySchema } from "../base/enums.base";
+import { LabUserBaseSchema } from "../base/lab-user.base";
 
 export const CaseActivityLogDetailsSchema = CaseActivityLogBaseSchema.extend({
 	dentalCase: CaseBaseSchema,
 	lab: LabBaseSchema,
+	actor: LabUserBaseSchema.nullable(),
 });
 
 export type CaseActivityLogDetails = z.infer<typeof CaseActivityLogDetailsSchema>;
+
+export const CaseActivityLogDetailsUISchema = CaseActivityLogBaseSchema.extend({
+	dentalCase: CaseBaseSchema.nullable(),
+	lab: LabBaseSchema.nullable(),
+	actor: LabUserBaseSchema.nullable(),
+});
+
+export type CaseActivityLogDetailsUI = z.infer<typeof CaseActivityLogDetailsUISchema>;
 
 // ── Per-type payload schemas ──────────────────────────────────────────────────
 // Each activity type carries a different payload shape.
@@ -76,10 +86,3 @@ export const CaseActivityPayloadSchema = z.discriminatedUnion("type", [
 ]);
 
 export type CaseActivityPayload = z.infer<typeof CaseActivityPayloadSchema>;
-
-export const CaseActivityLogDetailsUISchema = CaseActivityLogBaseSchema.extend({
-	dentalCase: CaseBaseSchema.nullable(),
-	lab: LabBaseSchema.nullable(),
-});
-
-export type CaseActivityLogDetailsUI = z.infer<typeof CaseActivityLogDetailsUISchema>;

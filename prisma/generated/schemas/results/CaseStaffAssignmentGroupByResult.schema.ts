@@ -13,7 +13,7 @@ export const CaseStaffAssignmentGroupByResultSchema = z.array(z.object({
   _count: z.object({
     id: z.number(),
     caseId: z.number(),
-    case: z.number(),
+    dentalCase: z.number(),
     staffId: z.number(),
     staff: z.number(),
     labId: z.number(),

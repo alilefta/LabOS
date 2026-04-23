@@ -1,6 +1,5 @@
 import * as z from 'zod';
 import type { Prisma } from '../../../../generated/prisma/client';
-import { LabCountOutputTypeCountUsersArgsObjectSchema as LabCountOutputTypeCountUsersArgsObjectSchema } from './LabCountOutputTypeCountUsersArgs.schema';
 import { LabCountOutputTypeCountClinicsArgsObjectSchema as LabCountOutputTypeCountClinicsArgsObjectSchema } from './LabCountOutputTypeCountClinicsArgs.schema';
 import { LabCountOutputTypeCountCasesArgsObjectSchema as LabCountOutputTypeCountCasesArgsObjectSchema } from './LabCountOutputTypeCountCasesArgs.schema';
 import { LabCountOutputTypeCountCaseCategoriesArgsObjectSchema as LabCountOutputTypeCountCaseCategoriesArgsObjectSchema } from './LabCountOutputTypeCountCaseCategoriesArgs.schema';
@@ -13,11 +12,11 @@ import { LabCountOutputTypeCountCaseAssetFilesArgsObjectSchema as LabCountOutput
 import { LabCountOutputTypeCountPatientsArgsObjectSchema as LabCountOutputTypeCountPatientsArgsObjectSchema } from './LabCountOutputTypeCountPatientsArgs.schema';
 import { LabCountOutputTypeCountDentistsArgsObjectSchema as LabCountOutputTypeCountDentistsArgsObjectSchema } from './LabCountOutputTypeCountDentistsArgs.schema';
 import { LabCountOutputTypeCountStaffAssignmentsArgsObjectSchema as LabCountOutputTypeCountStaffAssignmentsArgsObjectSchema } from './LabCountOutputTypeCountStaffAssignmentsArgs.schema';
-import { LabCountOutputTypeCountLabStaffArgsObjectSchema as LabCountOutputTypeCountLabStaffArgsObjectSchema } from './LabCountOutputTypeCountLabStaffArgs.schema';
+import { LabCountOutputTypeCountUsersArgsObjectSchema as LabCountOutputTypeCountUsersArgsObjectSchema } from './LabCountOutputTypeCountUsersArgs.schema';
+import { LabCountOutputTypeCountStaffArgsObjectSchema as LabCountOutputTypeCountStaffArgsObjectSchema } from './LabCountOutputTypeCountStaffArgs.schema';
 import { LabCountOutputTypeCountCaseActivityLogsArgsObjectSchema as LabCountOutputTypeCountCaseActivityLogsArgsObjectSchema } from './LabCountOutputTypeCountCaseActivityLogsArgs.schema'
 
 const makeSchema = () => z.object({
-  users: z.union([z.boolean(), z.lazy(() => LabCountOutputTypeCountUsersArgsObjectSchema)]).optional(),
   clinics: z.union([z.boolean(), z.lazy(() => LabCountOutputTypeCountClinicsArgsObjectSchema)]).optional(),
   cases: z.union([z.boolean(), z.lazy(() => LabCountOutputTypeCountCasesArgsObjectSchema)]).optional(),
   caseCategories: z.union([z.boolean(), z.lazy(() => LabCountOutputTypeCountCaseCategoriesArgsObjectSchema)]).optional(),
@@ -30,7 +29,8 @@ const makeSchema = () => z.object({
   patients: z.union([z.boolean(), z.lazy(() => LabCountOutputTypeCountPatientsArgsObjectSchema)]).optional(),
   dentists: z.union([z.boolean(), z.lazy(() => LabCountOutputTypeCountDentistsArgsObjectSchema)]).optional(),
   staffAssignments: z.union([z.boolean(), z.lazy(() => LabCountOutputTypeCountStaffAssignmentsArgsObjectSchema)]).optional(),
-  LabStaff: z.union([z.boolean(), z.lazy(() => LabCountOutputTypeCountLabStaffArgsObjectSchema)]).optional(),
+  users: z.union([z.boolean(), z.lazy(() => LabCountOutputTypeCountUsersArgsObjectSchema)]).optional(),
+  staff: z.union([z.boolean(), z.lazy(() => LabCountOutputTypeCountStaffArgsObjectSchema)]).optional(),
   caseActivityLogs: z.union([z.boolean(), z.lazy(() => LabCountOutputTypeCountCaseActivityLogsArgsObjectSchema)]).optional()
 }).strict();
 export const LabCountOutputTypeSelectObjectSchema: z.ZodType<Prisma.LabCountOutputTypeSelect> = makeSchema() as unknown as z.ZodType<Prisma.LabCountOutputTypeSelect>;

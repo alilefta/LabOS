@@ -9,7 +9,9 @@ import { DateTimeFilterObjectSchema as DateTimeFilterObjectSchema } from './Date
 import { CaseScalarRelationFilterObjectSchema as CaseScalarRelationFilterObjectSchema } from './CaseScalarRelationFilter.schema';
 import { CaseWhereInputObjectSchema as CaseWhereInputObjectSchema } from './CaseWhereInput.schema';
 import { LabScalarRelationFilterObjectSchema as LabScalarRelationFilterObjectSchema } from './LabScalarRelationFilter.schema';
-import { LabWhereInputObjectSchema as LabWhereInputObjectSchema } from './LabWhereInput.schema'
+import { LabWhereInputObjectSchema as LabWhereInputObjectSchema } from './LabWhereInput.schema';
+import { LabUserNullableScalarRelationFilterObjectSchema as LabUserNullableScalarRelationFilterObjectSchema } from './LabUserNullableScalarRelationFilter.schema';
+import { LabUserWhereInputObjectSchema as LabUserWhereInputObjectSchema } from './LabUserWhereInput.schema'
 
 const caseactivitylogwhereinputSchema = z.object({
   AND: z.union([z.lazy(() => CaseActivityLogWhereInputObjectSchema), z.lazy(() => CaseActivityLogWhereInputObjectSchema).array()]).optional(),
@@ -25,7 +27,8 @@ const caseactivitylogwhereinputSchema = z.object({
   payload: z.lazy(() => JsonNullableFilterObjectSchema).optional(),
   createdAt: z.union([z.lazy(() => DateTimeFilterObjectSchema), z.coerce.date()]).optional(),
   dentalCase: z.union([z.lazy(() => CaseScalarRelationFilterObjectSchema), z.lazy(() => CaseWhereInputObjectSchema)]).optional(),
-  lab: z.union([z.lazy(() => LabScalarRelationFilterObjectSchema), z.lazy(() => LabWhereInputObjectSchema)]).optional()
+  lab: z.union([z.lazy(() => LabScalarRelationFilterObjectSchema), z.lazy(() => LabWhereInputObjectSchema)]).optional(),
+  actor: z.union([z.lazy(() => LabUserNullableScalarRelationFilterObjectSchema), z.lazy(() => LabUserWhereInputObjectSchema)]).optional()
 }).strict();
 export const CaseActivityLogWhereInputObjectSchema: z.ZodType<Prisma.CaseActivityLogWhereInput> = caseactivitylogwhereinputSchema as unknown as z.ZodType<Prisma.CaseActivityLogWhereInput>;
 export const CaseActivityLogWhereInputObjectZodSchema = caseactivitylogwhereinputSchema;

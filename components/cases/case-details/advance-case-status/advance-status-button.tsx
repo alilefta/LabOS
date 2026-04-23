@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ChevronDown, Loader2, Activity, PackageCheck, Truck, AlertCircle, User, LucideIcon } from "lucide-react";
+import { ChevronDown, Loader2, Activity, PackageCheck, Truck, AlertCircle, User, LucideIcon, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 import { useAction } from "next-safe-action/hooks";
 
@@ -14,10 +14,12 @@ import { cn } from "@/lib/utils";
 import { CaseStatus } from "@/schema/base/enums.base";
 import { updateCaseStatusAction } from "@/actions/cases/update-case";
 import { handleSafeActionError } from "@/lib/safe-action-helpers";
+import { CaseStaffAssignmentDetailsUI } from "@/schema/composed/case-staff-assignment.details";
 
 interface Props {
 	caseId: string;
 	currentStatus: CaseStatus;
+	staffAssignments: CaseStaffAssignmentDetailsUI[];
 }
 
 // 1. Replicate the valid transitions on the client for UI rendering
@@ -31,7 +33,7 @@ const VALID_TRANSITIONS: Record<CaseStatus, CaseStatus[]> = {
 	FAILED: [],
 };
 
-// 2. Map Statuses to beautiful human-readable actions and icons
+// 2. Status UI Mappings
 const STATUS_UI_CONFIG: Record<CaseStatus, { label: string; icon: LucideIcon; colorClass: string }> = {
 	NEW: { label: "Submit to Floor", icon: Activity, colorClass: "text-blue-500" },
 	ASSIGNED: { label: "Mark as Assigned", icon: User, colorClass: "text-slate-500" },
@@ -58,53 +60,67 @@ const getPrimaryLabel = (currentStatus: CaseStatus) => {
 	}
 };
 
-export function AdvanceStatusButton({ caseId, currentStatus }: Props) {
+export function AdvanceStatusButton({ caseId, currentStatus, staffAssignments }: Props) {
 	const router = useRouter();
 	const allowedNext = VALID_TRANSITIONS[currentStatus] || [];
 
-	// State to intercept Destructive "FAILED" transitions
-	const [pendingFailure, setPendingFailure] = useState(false);
+	// --- INTERCEPT STATES ---
+	const [pendingTarget, setPendingTarget] = useState<CaseStatus | null>(null);
+	const [warningMessage, setWarningMessage] = useState<string | null>(null);
 
-	// Uncomment once your action is imported
 	const { executeAsync: updateStatus, isExecuting } = useAction(updateCaseStatusAction, {
 		onSuccess: () => {
 			toast.success("Case status updated.");
-			router.refresh(); // Tells Next.js to re-fetch the Server Component!
+			router.refresh();
 		},
-		onError: ({ error }) => {
-			handleSafeActionError(error);
-			// toast.error(error.serverError || "Failed to update case status.");
-		},
+		onError: ({ error }) => handleSafeActionError(error),
 	});
+	// --- WARNING LOGIC ("Warn, Don't Block") ---
+	const getAdvanceWarning = useCallback((toStatus: CaseStatus, assignments: CaseStaffAssignmentDetailsUI[]): string | null => {
+		const hasTech = assignments.some((s) => s.roleCategory === "TECHNICIAN" || s.roleCategory === "SENIOR_TECHNICIAN");
+		const hasCourier = assignments.some((s) => s.roleCategory === "COURIER");
+		const hasQC = assignments.some((s) => s.roleCategory === "QC_INSPECTOR");
 
-	const handleStatusChange = async (newStatus: CaseStatus) => {
+		// If moving to PROCESSING without a tech assigned yet
+		if (toStatus === "PROCESSING" && !hasTech) return "No technician assigned. This case will move to active production without a lead technician tracked in the system.";
+
+		// If completing a case but nobody checked QC (Optional strict rule you can disable)
+		if (toStatus === "COMPLETED" && !hasQC) return "No QC Inspector assigned. Ensure quality checks have been verified before packaging.";
+
+		// If trying to deliver without a courier
+		if (toStatus === "DELIVERED" && !hasCourier) return "No courier assigned. The case is ready for delivery, but the system doesn't know who is taking it.";
+
+		return null;
+	}, []);
+
+	// Handles the click from the dropdown menu
+	const handleTransitionClick = (newStatus: CaseStatus) => {
 		if (newStatus === "FAILED") {
-			setPendingFailure(true);
+			setWarningMessage(null);
+			setPendingTarget("FAILED"); // Triggers the RED failure modal
 			return;
 		}
 
-		await executeStatusChange(newStatus);
+		// Calculate if we need to warn them about missing staff
+		const warning = getAdvanceWarning(newStatus, staffAssignments || []);
+
+		if (warning) {
+			setWarningMessage(warning);
+			setPendingTarget(newStatus); // Triggers the AMBER warning modal
+			return;
+		}
+
+		// If no warnings and no failure, just execute immediately!
+		executeStatusChange(newStatus);
 	};
 
 	const executeStatusChange = async (newStatus: CaseStatus) => {
-		try {
-			await updateStatus({ caseId, newStatus });
-
-			// --- MOCK EXECUTION FOR NOW ---
-			toast.promise(new Promise((resolve) => setTimeout(resolve, 1000)), {
-				loading: "Updating status...",
-				success: "Case status updated.",
-				error: "Failed to update status.",
-			});
-			router.refresh();
-		} finally {
-			setPendingFailure(false);
-		}
+		setPendingTarget(null);
+		setWarningMessage(null);
+		await updateStatus({ caseId, newStatus });
 	};
 
-	// If the case is at the end of its lifecycle, hide the button
 	if (allowedNext.length === 0) return null;
-
 	return (
 		<>
 			<DropdownMenu>
@@ -129,7 +145,7 @@ export function AdvanceStatusButton({ caseId, currentStatus }: Props) {
 						return (
 							<DropdownMenuItem
 								key={status}
-								onClick={() => handleStatusChange(status)}
+								onClick={() => handleTransitionClick(status)}
 								className={cn(
 									"flex items-center gap-3 py-2.5 px-3 rounded-lg cursor-pointer font-semibold transition-colors group",
 									isDestructive ? "text-destructive hover:bg-destructive/10 focus:bg-destructive/10 focus:text-destructive" : "hover:bg-primary/5 focus:bg-primary/5",
@@ -143,26 +159,38 @@ export function AdvanceStatusButton({ caseId, currentStatus }: Props) {
 				</DropdownMenuContent>
 			</DropdownMenu>
 
-			{/* Destructive Action Guard */}
-			<AlertDialog open={pendingFailure} onOpenChange={setPendingFailure}>
+			{/* --- THE INTERCEPT MODAL (Handles both FAILED and WARNING states) --- */}
+			<AlertDialog open={pendingTarget !== null} onOpenChange={(open) => !open && setPendingTarget(null)}>
 				<AlertDialogContent className="rounded-2xl border-border shadow-premium dark:bg-[#121214]">
 					<AlertDialogHeader>
-						<div className="w-12 h-12 rounded-xl bg-destructive/10 flex items-center justify-center mb-4 border border-destructive/20">
-							<AlertCircle className="w-6 h-6 text-destructive" />
+						{/* Dynamic Icon based on whether it's a warning or a destructive action */}
+						<div
+							className={cn(
+								"w-12 h-12 rounded-xl flex items-center justify-center mb-4 border",
+								pendingTarget === "FAILED" ? "bg-destructive/10 border-destructive/20 text-destructive" : "bg-amber-500/10 border-amber-500/20 text-amber-500",
+							)}
+						>
+							{pendingTarget === "FAILED" ? <AlertCircle className="w-6 h-6" /> : <AlertTriangle className="w-6 h-6" />}
 						</div>
-						<AlertDialogTitle className="text-xl font-bold tracking-tight">Fail this case?</AlertDialogTitle>
+
+						<AlertDialogTitle className="text-xl font-bold tracking-tight">{pendingTarget === "FAILED" ? "Fail this case?" : "Missing Staff Assignments"}</AlertDialogTitle>
+
 						<AlertDialogDescription className="text-sm text-muted-foreground leading-relaxed mt-2">
-							Marking this case as <strong className="text-destructive font-mono">FAILED</strong> will halt all production workflows. This action is recorded in the Audit Trail and
-							cannot be easily undone.
+							{pendingTarget === "FAILED"
+								? "Marking this case as FAILED will halt all production workflows. This action is recorded in the Audit Trail and cannot be easily undone."
+								: warningMessage}
 						</AlertDialogDescription>
 					</AlertDialogHeader>
-					<AlertDialogFooter className="mt-6 gap-3 sm:gap-0">
+					<AlertDialogFooter className="mt-6 gap-3! sm:gap-0!">
 						<AlertDialogCancel className="rounded-xl h-10 font-semibold border-border hover:bg-secondary">Cancel</AlertDialogCancel>
 						<AlertDialogAction
-							onClick={() => executeStatusChange("FAILED")}
-							className="rounded-xl h-10 bg-destructive hover:bg-destructive/90 text-destructive-foreground font-bold shadow-sm"
+							onClick={() => pendingTarget && executeStatusChange(pendingTarget)}
+							className={cn(
+								"rounded-xl h-10 font-bold shadow-sm",
+								pendingTarget === "FAILED" ? "bg-destructive hover:bg-destructive/90 text-destructive-foreground" : "bg-amber-500 hover:bg-amber-600 text-white",
+							)}
 						>
-							Yes, Fail Case
+							{pendingTarget === "FAILED" ? "Yes, Fail Case" : "Continue Anyway"}
 						</AlertDialogAction>
 					</AlertDialogFooter>
 				</AlertDialogContent>

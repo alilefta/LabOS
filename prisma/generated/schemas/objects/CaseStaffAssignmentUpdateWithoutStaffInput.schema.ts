@@ -37,7 +37,7 @@ const makeSchema = () => z.object({
   paidAt: z.union([z.coerce.date(), z.lazy(() => NullableDateTimeFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
   createdAt: z.union([z.coerce.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputObjectSchema)]).optional(),
   updatedAt: z.union([z.coerce.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputObjectSchema)]).optional(),
-  case: z.lazy(() => CaseUpdateOneRequiredWithoutStaffAssignmentsNestedInputObjectSchema).optional(),
+  dentalCase: z.lazy(() => CaseUpdateOneRequiredWithoutStaffAssignmentsNestedInputObjectSchema).optional(),
   lab: z.lazy(() => LabUpdateOneRequiredWithoutStaffAssignmentsNestedInputObjectSchema).optional()
 }).strict();
 export const CaseStaffAssignmentUpdateWithoutStaffInputObjectSchema: z.ZodType<Prisma.CaseStaffAssignmentUpdateWithoutStaffInput> = makeSchema() as unknown as z.ZodType<Prisma.CaseStaffAssignmentUpdateWithoutStaffInput>;

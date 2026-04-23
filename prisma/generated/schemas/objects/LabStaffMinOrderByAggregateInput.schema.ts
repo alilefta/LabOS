@@ -4,13 +4,16 @@ import { SortOrderSchema } from '../enums/SortOrder.schema'
 
 const makeSchema = () => z.object({
   id: SortOrderSchema.optional(),
+  labId: SortOrderSchema.optional(),
   firstName: SortOrderSchema.optional(),
   lastName: SortOrderSchema.optional(),
-  labId: SortOrderSchema.optional(),
-  email: SortOrderSchema.optional(),
   phoneNumber: SortOrderSchema.optional(),
   avatarUrl: SortOrderSchema.optional(),
   isActive: SortOrderSchema.optional(),
+  city: SortOrderSchema.optional(),
+  address1: SortOrderSchema.optional(),
+  address2: SortOrderSchema.optional(),
+  zipcode: SortOrderSchema.optional(),
   roleCategory: SortOrderSchema.optional(),
   jobTitle: SortOrderSchema.optional(),
   specialization: SortOrderSchema.optional(),

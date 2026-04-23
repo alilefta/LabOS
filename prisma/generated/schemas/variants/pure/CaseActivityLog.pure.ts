@@ -8,6 +8,7 @@ export const CaseActivityLogModelSchema = z.object({
     labId: z.string(),
     lab: z.unknown(),
     actorId: z.string().nullable(),
+    actor: z.unknown().nullable(),
     actorName: z.string(),
     type: CaseActivityTypeSchema,
     summary: z.string(),

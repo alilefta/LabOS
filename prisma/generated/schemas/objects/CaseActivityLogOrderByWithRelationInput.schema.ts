@@ -3,7 +3,8 @@ import type { Prisma } from '../../../../generated/prisma/client';
 import { SortOrderSchema } from '../enums/SortOrder.schema';
 import { SortOrderInputObjectSchema as SortOrderInputObjectSchema } from './SortOrderInput.schema';
 import { CaseOrderByWithRelationInputObjectSchema as CaseOrderByWithRelationInputObjectSchema } from './CaseOrderByWithRelationInput.schema';
-import { LabOrderByWithRelationInputObjectSchema as LabOrderByWithRelationInputObjectSchema } from './LabOrderByWithRelationInput.schema'
+import { LabOrderByWithRelationInputObjectSchema as LabOrderByWithRelationInputObjectSchema } from './LabOrderByWithRelationInput.schema';
+import { LabUserOrderByWithRelationInputObjectSchema as LabUserOrderByWithRelationInputObjectSchema } from './LabUserOrderByWithRelationInput.schema'
 
 const makeSchema = () => z.object({
   id: SortOrderSchema.optional(),
@@ -16,7 +17,8 @@ const makeSchema = () => z.object({
   payload: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
   createdAt: SortOrderSchema.optional(),
   dentalCase: z.lazy(() => CaseOrderByWithRelationInputObjectSchema).optional(),
-  lab: z.lazy(() => LabOrderByWithRelationInputObjectSchema).optional()
+  lab: z.lazy(() => LabOrderByWithRelationInputObjectSchema).optional(),
+  actor: z.lazy(() => LabUserOrderByWithRelationInputObjectSchema).optional()
 }).strict();
 export const CaseActivityLogOrderByWithRelationInputObjectSchema: z.ZodType<Prisma.CaseActivityLogOrderByWithRelationInput> = makeSchema() as unknown as z.ZodType<Prisma.CaseActivityLogOrderByWithRelationInput>;
 export const CaseActivityLogOrderByWithRelationInputObjectZodSchema = makeSchema();

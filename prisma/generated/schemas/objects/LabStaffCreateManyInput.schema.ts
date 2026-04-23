@@ -6,13 +6,16 @@ import { CommissionTypeSchema } from '../enums/CommissionType.schema'
 import { DecimalJSLikeSchema, isValidDecimalInput } from '../../helpers/decimal-helpers';
 const makeSchema = () => z.object({
   id: z.string().optional(),
+  labId: z.string(),
   firstName: z.string(),
   lastName: z.string(),
-  labId: z.string(),
-  email: z.string().optional().nullable(),
   phoneNumber: z.string(),
   avatarUrl: z.string().optional().nullable(),
   isActive: z.boolean().optional(),
+  city: z.string().optional(),
+  address1: z.string().optional(),
+  address2: z.string().optional().nullable(),
+  zipcode: z.string().optional().nullable(),
   roleCategory: StaffRoleCategorySchema,
   jobTitle: z.string().optional().nullable(),
   specialization: z.string().optional().nullable(),

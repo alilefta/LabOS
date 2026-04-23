@@ -42,7 +42,7 @@ const makeSchema = () => z.object({
   patients: z.lazy(() => PatientUpdateManyWithoutLabNestedInputObjectSchema).optional(),
   dentists: z.lazy(() => DentistUpdateManyWithoutLabNestedInputObjectSchema).optional(),
   staffAssignments: z.lazy(() => CaseStaffAssignmentUpdateManyWithoutLabNestedInputObjectSchema).optional(),
-  LabStaff: z.lazy(() => LabStaffUpdateManyWithoutLabNestedInputObjectSchema).optional(),
+  staff: z.lazy(() => LabStaffUpdateManyWithoutLabNestedInputObjectSchema).optional(),
   caseActivityLogs: z.lazy(() => CaseActivityLogUpdateManyWithoutLabNestedInputObjectSchema).optional()
 }).strict();
 export const LabUpdateWithoutUsersInputObjectSchema: z.ZodType<Prisma.LabUpdateWithoutUsersInput> = makeSchema() as unknown as z.ZodType<Prisma.LabUpdateWithoutUsersInput>;

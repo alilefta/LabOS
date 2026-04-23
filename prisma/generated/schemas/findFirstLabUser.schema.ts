@@ -11,44 +11,36 @@ import { LabUserScalarFieldEnumSchema } from './enums/LabUserScalarFieldEnum.sch
 
 export const LabUserFindFirstSelectSchema: z.ZodType<Prisma.LabUserSelect> = z.object({
     id: z.boolean().optional(),
-    name: z.boolean().optional(),
-    city: z.boolean().optional(),
-    zipcode: z.boolean().optional(),
-    address1: z.boolean().optional(),
-    address2: z.boolean().optional(),
-    avatarUrl: z.boolean().optional(),
-    secondaryEmail: z.boolean().optional(),
-    phoneNumber: z.boolean().optional(),
-    role: z.boolean().optional(),
-    authUserId: z.boolean().optional(),
-    authUser: z.boolean().optional(),
     labId: z.boolean().optional(),
     lab: z.boolean().optional(),
+    authUserId: z.boolean().optional(),
+    authUser: z.boolean().optional(),
+    labStaffId: z.boolean().optional(),
+    labStaff: z.boolean().optional(),
+    role: z.boolean().optional(),
     isActive: z.boolean().optional(),
     lastTimeActive: z.boolean().optional(),
     createdAt: z.boolean().optional(),
-    updatedAt: z.boolean().optional()
+    updatedAt: z.boolean().optional(),
+    activityLogs: z.boolean().optional(),
+    _count: z.boolean().optional()
   }).strict() as unknown as z.ZodType<Prisma.LabUserSelect>;
 
 export const LabUserFindFirstSelectZodSchema = z.object({
     id: z.boolean().optional(),
-    name: z.boolean().optional(),
-    city: z.boolean().optional(),
-    zipcode: z.boolean().optional(),
-    address1: z.boolean().optional(),
-    address2: z.boolean().optional(),
-    avatarUrl: z.boolean().optional(),
-    secondaryEmail: z.boolean().optional(),
-    phoneNumber: z.boolean().optional(),
-    role: z.boolean().optional(),
-    authUserId: z.boolean().optional(),
-    authUser: z.boolean().optional(),
     labId: z.boolean().optional(),
     lab: z.boolean().optional(),
+    authUserId: z.boolean().optional(),
+    authUser: z.boolean().optional(),
+    labStaffId: z.boolean().optional(),
+    labStaff: z.boolean().optional(),
+    role: z.boolean().optional(),
     isActive: z.boolean().optional(),
     lastTimeActive: z.boolean().optional(),
     createdAt: z.boolean().optional(),
-    updatedAt: z.boolean().optional()
+    updatedAt: z.boolean().optional(),
+    activityLogs: z.boolean().optional(),
+    _count: z.boolean().optional()
   }).strict();
 
 export const LabUserFindFirstSchema: z.ZodType<Prisma.LabUserFindFirstArgs> = z.object({ select: LabUserFindFirstSelectSchema.optional(), include: z.lazy(() => LabUserIncludeObjectSchema.optional()), orderBy: z.union([LabUserOrderByWithRelationInputObjectSchema, LabUserOrderByWithRelationInputObjectSchema.array()]).optional(), where: LabUserWhereInputObjectSchema.optional(), cursor: LabUserWhereUniqueInputObjectSchema.optional(), take: z.number().optional(), skip: z.number().optional(), distinct: z.union([LabUserScalarFieldEnumSchema, LabUserScalarFieldEnumSchema.array()]).optional() }).strict() as unknown as z.ZodType<Prisma.LabUserFindFirstArgs>;

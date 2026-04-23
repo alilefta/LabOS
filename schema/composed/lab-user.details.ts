@@ -3,11 +3,26 @@ import z from "zod";
 import { LabUserBaseSchema } from "../base/lab-user.base";
 import { LabBaseSchema } from "../base/lab.base";
 import { AuthUserBaseSchema } from "../base/auth.base";
+import { LabStaffBaseSchema } from "../base/lab-staff.base";
+import { CaseActivityLogBaseSchema } from "../base/case-activity-logs.base";
 
 export const LabUserDetailsSchema = LabUserBaseSchema.extend({
-	lab: LabBaseSchema,
+	activityLogs: z.array(CaseActivityLogBaseSchema),
+	labStaff: LabStaffBaseSchema.nullable(),
 	authUser: AuthUserBaseSchema,
+	lab: LabBaseSchema,
 });
+
+export type LabUserDetails = z.infer<typeof LabUserDetailsSchema>;
+
+export const LabUserDetailsUISchema = LabUserBaseSchema.extend({
+	activityLogs: z.array(CaseActivityLogBaseSchema).nullable(),
+	labStaff: LabStaffBaseSchema.nullable(),
+	authUser: AuthUserBaseSchema.nullable(),
+	lab: LabBaseSchema.nullable(),
+});
+
+export type LabUserDetailsUI = z.infer<typeof LabUserDetailsUISchema>;
 
 const emptyToUndefined = (v: string) => (v === "" ? undefined : v); // used inside transform(emptyToUndefined)
 

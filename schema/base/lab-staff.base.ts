@@ -3,13 +3,17 @@ import { CommissionTypeSchema, StaffRoleCategorySchema } from "./enums.base";
 
 export const LabStaffBaseSchema = z.object({
 	id: z.string(),
+	labId: z.string(),
 	firstName: z.string(),
 	lastName: z.string(),
-	labId: z.string(),
-	email: z.string().nullable(),
 	phoneNumber: z.string(),
 	avatarUrl: z.string().nullable(),
 	isActive: z.boolean(),
+	// Address (Required for Courier routing and HR records)
+	city: z.string(),
+	address1: z.string(),
+	address2: z.string().nullable(),
+	zipcode: z.string().nullable(),
 	roleCategory: StaffRoleCategorySchema,
 	jobTitle: z.string().nullable(),
 	specialization: z.string().nullable(),

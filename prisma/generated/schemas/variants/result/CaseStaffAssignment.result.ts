@@ -5,7 +5,7 @@ import { CommissionTypeSchema } from '../../enums/CommissionType.schema';
 export const CaseStaffAssignmentResultSchema = z.object({
     id: z.string(),
     caseId: z.string(),
-    case: z.unknown(),
+    dentalCase: z.unknown(),
     staffId: z.string(),
     staff: z.unknown(),
     labId: z.string(),

@@ -10,13 +10,16 @@ import { LabStaffSumOrderByAggregateInputObjectSchema as LabStaffSumOrderByAggre
 
 const makeSchema = () => z.object({
   id: SortOrderSchema.optional(),
+  labId: SortOrderSchema.optional(),
   firstName: SortOrderSchema.optional(),
   lastName: SortOrderSchema.optional(),
-  labId: SortOrderSchema.optional(),
-  email: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
   phoneNumber: SortOrderSchema.optional(),
   avatarUrl: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
   isActive: SortOrderSchema.optional(),
+  city: SortOrderSchema.optional(),
+  address1: SortOrderSchema.optional(),
+  address2: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
+  zipcode: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
   roleCategory: SortOrderSchema.optional(),
   jobTitle: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
   specialization: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),

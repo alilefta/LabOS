@@ -6,6 +6,7 @@ export const CaseActivityLogDeleteResultSchema = z.nullable(z.object({
   labId: z.string(),
   lab: z.unknown(),
   actorId: z.string().optional(),
+  actor: z.unknown().optional(),
   actorName: z.string(),
   type: z.unknown(),
   summary: z.string(),

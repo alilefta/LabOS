@@ -1,15 +1,17 @@
 "use client";
 
-import { Stethoscope, Droplet, FileText, Layers } from "lucide-react";
+import { Droplet, FileText, Layers } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 // Assuming you have this component built and it accepts an `isLocked` prop
 import { HighFidelityDentalChart } from "@/components/modals/cases/work-items/high-fidelity-dental-chart";
 import { CaseWorkItemDetailsUI } from "@/schema/composed/case-work-item.details";
 import { SelectedToothBase } from "@/schema/base/selected-tooth.base";
+import { LabRole } from "@/schema/base/enums.base";
 
 interface Props {
 	// Using any for now, replace with your actual Prisma populated CaseWorkItem type
+	currentUserRole: LabRole;
 	workItems: CaseWorkItemDetailsUI[];
 }
 
@@ -32,7 +34,6 @@ export function ClinicalRxFeed({ workItems }: Props) {
 
 					return (
 						<div key={item.id || index} className="lab-card overflow-hidden flex flex-col">
-							{/* --- ITEM HEADER --- */}
 							{/* --- ITEM HEADER --- */}
 							<div className="p-6 sm:p-8 border-b border-border bg-slate-50/50 dark:bg-white/2 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
 								<div>

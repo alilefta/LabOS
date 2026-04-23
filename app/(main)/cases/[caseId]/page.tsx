@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import { ShieldCheck, Printer, ArrowRight, ChevronLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -11,22 +11,29 @@ import { getDentalCaseById } from "@/data/cases/get-case";
 import { DigitalAssetVault } from "@/components/cases/case-details/sections/digital-asset-vault";
 import { AuditTrailLog } from "@/components/cases/case-details/sections/audit-trail-log";
 import { AdvanceStatusButton } from "@/components/cases/case-details/advance-case-status/advance-status-button";
+import { getServerSession } from "@/lib/get-session";
+import { getLabUserRoleByAuthUserId } from "@/data/lab";
 
 export const metadata = {
 	title: "Case Dossier | LabOS",
 };
 
 export default async function CaseDossierPage({ params }: { params: Promise<{ caseId: string }> }) {
-	// 1. SERVER-SIDE DATA FETCHING
 	const { caseId } = await params;
+
+	const session = await getServerSession();
+
+	if (!session) redirect("/sign-in");
+
+	const labUser = await getLabUserRoleByAuthUserId(session.user.id);
 
 	const results = await getDentalCaseById(caseId);
 
 	if (!results.success) {
 		notFound();
 	}
-
 	const dentalCase = results.data as CaseDetailsUI;
+	if (!labUser) redirect("/onboarding");
 
 	return (
 		<div className="flex flex-col h-full animate-in fade-in duration-700 bg-background">
@@ -65,7 +72,7 @@ export default async function CaseDossierPage({ params }: { params: Promise<{ ca
 					</Button>
 
 					{/* DYNAMIC STATUS BUTTON */}
-					<AdvanceStatusButton caseId={dentalCase.id} currentStatus={dentalCase.status} />
+					<AdvanceStatusButton caseId={dentalCase.id} currentStatus={dentalCase.status} staffAssignments={dentalCase.staffAssignments ?? []} />
 				</div>
 			</header>
 
@@ -79,7 +86,7 @@ export default async function CaseDossierPage({ params }: { params: Promise<{ ca
 					<div className="flex-1 space-y-8 min-w-0">
 						<NeuralAuditorCard />
 						<ProductionPipelineStepper currentStatus={dentalCase.status} />
-						<ClinicalRxFeed workItems={dentalCase.caseItems} />
+						<ClinicalRxFeed currentUserRole={labUser.role} workItems={dentalCase.caseItems} />
 						<DigitalAssetVault assets={dentalCase.caseAssetFiles ?? []} />
 						<AuditTrailLog logs={dentalCase?.caseActivityLogs?.map((cal) => ({ ...cal, dentalCase: null, lab: null })) ?? []} />
 

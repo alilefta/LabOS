@@ -1,16 +1,15 @@
 "use client";
 
-import { MapPin, User, Truck, Wrench, CalendarClock, Clock, Wallet, LockKeyhole, AlertCircle, Microscope, ShieldCheck, Plus, X, LucideIcon } from "lucide-react";
+import { MapPin, User, Truck, Wrench, CalendarClock, Clock, Wallet, LockKeyhole, AlertCircle, Microscope, ShieldCheck, LucideIcon, CheckCircle2 } from "lucide-react";
 import { format, differenceInDays, startOfDay } from "date-fns";
 import { cn } from "@/lib/utils";
-
-import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { CaseDetailsUI } from "@/schema/composed/case.details";
 import { StaffRoleCategory } from "@/schema/base/enums.base";
 import { CaseStaffAssignmentDetailsUI } from "@/schema/composed/case-staff-assignment.details";
 import { memo } from "react";
 import { EditStaffPopover } from "./quick-edits/edit-staff-popover";
+import { EditDeadlinePopover } from "./quick-edits/edit-deadline-popover";
 
 interface Props {
 	dentalCase: CaseDetailsUI;
@@ -20,8 +19,11 @@ interface Props {
 export const CaseDetailsSidebar = memo(function CaseDetailsSidebar({ dentalCase, userRole = "MANAGER" }: Props) {
 	const today = new Date();
 	const daysUntilDeadline = dentalCase.deadline ? differenceInDays(startOfDay(dentalCase.deadline), startOfDay(today)) : 0;
-	const isRush = daysUntilDeadline <= 3 && daysUntilDeadline >= 0;
-	const isOverdue = daysUntilDeadline < 0;
+
+	// Ensure terminal cases don't trigger "Overdue" or "Rush" UI
+	const isTerminal = dentalCase.status === "COMPLETED" || dentalCase.status === "DELIVERED";
+	const isRush = !isTerminal && daysUntilDeadline <= 3 && daysUntilDeadline >= 0;
+	const isOverdue = !isTerminal && daysUntilDeadline < 0;
 
 	// Extract specific roles based on the unique constraint architecture
 	const assignments = dentalCase.staffAssignments || [];
@@ -36,29 +38,55 @@ export const CaseDetailsSidebar = memo(function CaseDetailsSidebar({ dentalCase,
 		<div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-150">
 			{/* CARD 1: Deadline & Origin */}
 			<div className="lab-card overflow-hidden">
-				<div
-					className={cn(
-						"p-5 border-b border-border flex items-start justify-between cursor-pointer group hover:bg-slate-50 dark:hover:bg-white/2 transition-colors",
-						isOverdue ? "bg-destructive/10" : isRush ? "bg-amber-500/10" : "bg-slate-50 dark:bg-white/2",
-					)}
-				>
-					<div className="flex items-center gap-3">
-						<div
-							className={cn(
-								"w-10 h-10 rounded-xl flex items-center justify-center shadow-sm transition-transform group-hover:scale-105",
-								isOverdue ? "bg-destructive text-white" : isRush ? "bg-amber-500 text-white" : "bg-primary/10 text-primary",
-							)}
-						>
-							{isOverdue ? <AlertCircle className="w-5 h-5" /> : isRush ? <Clock className="w-5 h-5" /> : <CalendarClock className="w-5 h-5" />}
-						</div>
-						<div>
-							<h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-0.5">Target Delivery</h3>
-							<p className={cn("text-sm font-bold", isOverdue ? "text-destructive" : isRush ? "text-amber-600 dark:text-amber-500" : "text-foreground")}>
-								{dentalCase.deadline ? format(new Date(dentalCase.deadline), "EEEE, MMM do") : "Unscheduled"}
-							</p>
+				{/* The Popover Wraps the top section only! */}
+				<EditDeadlinePopover status={dentalCase.status} caseId={dentalCase.id} currentDeadline={dentalCase.deadline}>
+					<div
+						className={cn("p-5 border-b border-border flex items-start justify-between", isOverdue ? "bg-destructive/10" : isRush ? "bg-amber-500/10" : "bg-slate-50 dark:bg-white/[0.02]")}
+					>
+						<div className="flex items-center gap-3">
+							<div
+								className={cn(
+									"w-10 h-10 rounded-xl flex items-center justify-center shadow-sm transition-transform group-hover:scale-105",
+									isTerminal
+										? "bg-slate-200 dark:bg-white/10 text-muted-foreground" // Grey out if finished
+										: isOverdue
+											? "bg-destructive text-white"
+											: isRush
+												? "bg-amber-500 text-white"
+												: "bg-primary/10 text-primary",
+								)}
+							>
+								{isTerminal ? (
+									<CheckCircle2 className="w-5 h-5" />
+								) : isOverdue ? (
+									<AlertCircle className="w-5 h-5" />
+								) : isRush ? (
+									<Clock className="w-5 h-5" />
+								) : (
+									<CalendarClock className="w-5 h-5" />
+								)}
+							</div>
+
+							<div>
+								<h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-0.5">Target Delivery</h3>
+								<p
+									className={cn(
+										"text-sm font-bold",
+										isTerminal
+											? "text-muted-foreground line-through decoration-muted-foreground/50" // Strikethrough if finished
+											: isOverdue
+												? "text-destructive"
+												: isRush
+													? "text-amber-600 dark:text-amber-500"
+													: "text-foreground",
+									)}
+								>
+									{dentalCase.deadline ? format(new Date(dentalCase.deadline), "EEEE, MMM do") : "Unscheduled"}
+								</p>
+							</div>
 						</div>
 					</div>
-				</div>
+				</EditDeadlinePopover>
 
 				<div className="p-6 space-y-6">
 					<div className="space-y-2">

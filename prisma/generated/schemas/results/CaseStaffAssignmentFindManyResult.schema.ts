@@ -3,7 +3,7 @@ export const CaseStaffAssignmentFindManyResultSchema = z.object({
   data: z.array(z.object({
   id: z.string(),
   caseId: z.string(),
-  case: z.unknown(),
+  dentalCase: z.unknown(),
   staffId: z.string(),
   staff: z.unknown(),
   labId: z.string(),

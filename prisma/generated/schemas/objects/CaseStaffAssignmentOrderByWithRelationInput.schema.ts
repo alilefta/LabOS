@@ -19,7 +19,7 @@ const makeSchema = () => z.object({
   paidAt: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
   createdAt: SortOrderSchema.optional(),
   updatedAt: SortOrderSchema.optional(),
-  case: z.lazy(() => CaseOrderByWithRelationInputObjectSchema).optional(),
+  dentalCase: z.lazy(() => CaseOrderByWithRelationInputObjectSchema).optional(),
   staff: z.lazy(() => LabStaffOrderByWithRelationInputObjectSchema).optional(),
   lab: z.lazy(() => LabOrderByWithRelationInputObjectSchema).optional()
 }).strict();

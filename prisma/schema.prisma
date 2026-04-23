@@ -173,12 +173,9 @@ model Lab {
   subtitle       String?
 
   labSubscriptionPlan LabSubscriptionPlan?
-  users               LabUser[]
 
   clinics          Clinic[]
   cases            Case[]
-  // technicians         Technician[]
-  // salesReps           SalesRepresentative[]
   caseCategories   CaseCategory[]
   workTypes        WorkType[]
   products         Product[]
@@ -190,7 +187,9 @@ model Lab {
   patients         Patient[]
   dentists         Dentist[]
   staffAssignments CaseStaffAssignment[]
-  LabStaff         LabStaff[]
+
+  users LabUser[] // The accounts (sarah@lab.com)
+  staff LabStaff[] // The humans (Mustafa, Ahmed)
 
   //tracker to get instant case number instead of making count() db query each time
   nextCaseNumber   Int               @default(0)
@@ -528,18 +527,26 @@ model SelectedTooth {
   @@index([caseWorkItemId])
 }
 
+/// THE HUMAN RESOURCE (Internal Operational)
+/// Managed by the Lab Admin. 
+/// This is the source of truth for "Who is physically doing the work?".
 model LabStaff {
-  id        String @id @default(uuid())
-  firstName String
-  lastName  String
-
+  id    String @id @default(uuid())
   labId String
   lab   Lab    @relation(fields: [labId], references: [id], onDelete: Cascade)
 
-  email       String?
+  // Internal Display Identity (Used for Work Tickets & Routing)
+  firstName   String
+  lastName    String
   phoneNumber String
-  avatarUrl   String?
+  avatarUrl   String? // Official ID/Badge photo
   isActive    Boolean @default(true)
+
+  // Address (Required for Courier routing and HR records)
+  city     String  @default("N/A")
+  address1 String  @default("N/A")
+  address2 String?
+  zipcode  String?
 
   // The lab defines what this person does
   // Machine-readable — used for filtering, logic, UI
@@ -553,7 +560,11 @@ model LabStaff {
   commissionType  CommissionType @default(PERCENTAGE)
   commissionValue Decimal?       @db.Decimal(10, 2) // % or fixed amount
 
-  cases CaseStaffAssignment[]
+  // THE LINK: 1:1 Optional relationship to a System Account
+  labUser LabUser? // Defined on the other side
+
+  // Operational History
+  caseAssignments CaseStaffAssignment[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -582,17 +593,18 @@ model LabStaff {
 /// person in two roles, they create two LabStaff records. The UI warns on
 /// duplicate phone numbers during staff registration to make this explicit.
 model CaseStaffAssignment {
-  id     String @id @default(uuid())
-  caseId String
-  case   Case   @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  id         String @id @default(uuid())
+  caseId     String
+  dentalCase Case   @relation(fields: [caseId], references: [id], onDelete: Cascade)
 
+  // ALWAYS points to the Human (LabStaff)
   staffId String
   staff   LabStaff @relation(fields: [staffId], references: [id], onDelete: Cascade)
 
   labId String
   lab   Lab    @relation(fields: [labId], references: [id], onDelete: Cascade)
 
-  roleCategory StaffRoleCategory // snapshot from staff at assignment time
+  roleCategory StaffRoleCategory // Snapshot at time of assignment
 
   // Commission snapshot at time of assignment
   // Don't calculate later — prices change
@@ -611,8 +623,6 @@ model CaseStaffAssignment {
   // NO 2 LabStaff persons for the same role for the case
   @@index([caseId, roleCategory])
   @@index([labId])
-  @@index([caseId])
-  @@index([staffId])
 }
 
 // new to add
@@ -623,8 +633,9 @@ model CaseActivityLog {
   labId      String
   lab        Lab    @relation(fields: [labId], references: [id], onDelete: Cascade)
 
-  actorId   String? // labUser who performed the action (null = system)
-  actorName String // snapshot — don't rely on joins for display
+  actorId   String?
+  actor     LabUser? @relation(fields: [actorId], references: [id], onDelete: SetNull)
+  actorName String // Snapshot of LabUser's derived name at time of action
 
   type    CaseActivityType
   summary String // human-readable "Status changed to Processing"
@@ -709,30 +720,44 @@ model LabSubscriptionPlan {
   //@@index([labId])  // this can be removed because @unqiue on labId automatically creates an index
 }
 
+/// THE SYSTEM SEAT (Internal Permission)
+/// Managed by the Lab Admin. 
+/// This is the source of truth for "What can this login do in the app?".
 model LabUser {
-  id        String  @id @default(uuid())
-  name      String
-  city      String
-  zipcode   String?
-  address1  String
-  address2  String?
-  avatarUrl String
-
-  secondaryEmail String?
-  phoneNumber    String
-  role           LabRole @default(OWNER)
-
-  authUserId String   @unique
-  authUser   AuthUser @relation(fields: [authUserId], references: [id], onDelete: Cascade)
-
+  id    String @id @default(uuid())
   labId String
   lab   Lab    @relation(fields: [labId], references: [id], onDelete: Cascade)
 
+  // Link to the Login Account
+  authUserId String   @unique
+  authUser   AuthUser @relation(fields: [authUserId], references: [id], onDelete: Cascade)
+
+  // THE LINK: Connects this account to a physical human in the lab.
+  // If NULL: This is a pure Admin/Accountant with no production role.
+  // If SET: This is a Tech/Courier who can now log in to see their work.
+  labStaffId String?   @unique
+  labStaff   LabStaff? @relation(fields: [labStaffId], references: [id], onDelete: SetNull)
+
+  // Removed! redundant
+  // name      String
+  // city      String
+  // zipcode   String?
+  // address1  String
+  // address2  String?
+  // avatarUrl String
+
+  // secondaryEmail String?
+  // phoneNumber    String
+
+  // Permissions & Status
+  role     LabRole @default(STAFF)
   isActive Boolean @default(true)
 
   lastTimeActive DateTime?
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
+
+  activityLogs CaseActivityLog[]
 
   @@index([labId])
 }
@@ -760,12 +785,19 @@ model SuperUser {
   updatedAt      DateTime  @updatedAt
 }
 
+// =============================================================================
+// USER & IDENTITY MODELS
+// =============================================================================
+
+/// THE PERSONAL IDENTITY (External)
+/// Managed by the user via Better-Auth. 
+/// This is the source of truth for "Login Credentials".
 model AuthUser {
   id            String       @id
-  name          String
+  name          String // Mustafa's personal name
   email         String
   emailVerified Boolean      @default(false)
-  image         String?
+  image         String? // Mustafa's personal photo
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
   role          AuthUserRole @default(LAB_USER)
@@ -773,6 +805,7 @@ model AuthUser {
   sessions      Session[]
   accounts      Account[]
 
+  // Back-link to the Lab Seat
   labUser   LabUser?
   superUser SuperUser?
 

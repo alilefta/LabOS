@@ -12,7 +12,7 @@ import { CaseStaffAssignmentScalarFieldEnumSchema } from './enums/CaseStaffAssig
 export const CaseStaffAssignmentFindFirstOrThrowSelectSchema: z.ZodType<Prisma.CaseStaffAssignmentSelect> = z.object({
     id: z.boolean().optional(),
     caseId: z.boolean().optional(),
-    case: z.boolean().optional(),
+    dentalCase: z.boolean().optional(),
     staffId: z.boolean().optional(),
     staff: z.boolean().optional(),
     labId: z.boolean().optional(),
@@ -30,7 +30,7 @@ export const CaseStaffAssignmentFindFirstOrThrowSelectSchema: z.ZodType<Prisma.C
 export const CaseStaffAssignmentFindFirstOrThrowSelectZodSchema = z.object({
     id: z.boolean().optional(),
     caseId: z.boolean().optional(),
-    case: z.boolean().optional(),
+    dentalCase: z.boolean().optional(),
     staffId: z.boolean().optional(),
     staff: z.boolean().optional(),
     labId: z.boolean().optional(),

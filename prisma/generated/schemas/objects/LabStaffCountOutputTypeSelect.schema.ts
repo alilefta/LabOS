@@ -1,9 +1,9 @@
 import * as z from 'zod';
 import type { Prisma } from '../../../../generated/prisma/client';
-import { LabStaffCountOutputTypeCountCasesArgsObjectSchema as LabStaffCountOutputTypeCountCasesArgsObjectSchema } from './LabStaffCountOutputTypeCountCasesArgs.schema'
+import { LabStaffCountOutputTypeCountCaseAssignmentsArgsObjectSchema as LabStaffCountOutputTypeCountCaseAssignmentsArgsObjectSchema } from './LabStaffCountOutputTypeCountCaseAssignmentsArgs.schema'
 
 const makeSchema = () => z.object({
-  cases: z.union([z.boolean(), z.lazy(() => LabStaffCountOutputTypeCountCasesArgsObjectSchema)]).optional()
+  caseAssignments: z.union([z.boolean(), z.lazy(() => LabStaffCountOutputTypeCountCaseAssignmentsArgsObjectSchema)]).optional()
 }).strict();
 export const LabStaffCountOutputTypeSelectObjectSchema: z.ZodType<Prisma.LabStaffCountOutputTypeSelect> = makeSchema() as unknown as z.ZodType<Prisma.LabStaffCountOutputTypeSelect>;
 export const LabStaffCountOutputTypeSelectObjectZodSchema = makeSchema();
