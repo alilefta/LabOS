@@ -1,0 +1,2 @@
+-- AlterEnum
+ALTER TYPE "CaseActivityType" ADD VALUE 'CASE_PRICING_RECALCULATED';

@@ -18,6 +18,7 @@ import type {
 	DentistModel,
 	LabModel,
 	LabStaffModel,
+	LabUserModel,
 	PatientModel,
 	ProductModel,
 	SelectedToothModel,
@@ -38,7 +39,7 @@ import { LabBase } from "@/schema/base/lab.base";
 import { WorktypeBase } from "@/schema/base/worktype.base";
 import { CaseAssetFileBase } from "@/schema/base/case-asset-file.base";
 import { CaseActivityLogBase } from "@/schema/base/case-activity-logs.base";
-import { CaseActivityPayload, CaseActivityPayloadSchema } from "@/schema/composed/case-activity-logs.details";
+import { CaseActivityLogDetailsUI, CaseActivityPayload, CaseActivityPayloadSchema } from "@/schema/composed/case-activity-logs.details";
 
 // ─── Decimal utility ──────────────────────────────────────────────────────────
 
@@ -118,10 +119,12 @@ export function parseActivityPayload(log: CaseActivityLogBase): CaseActivityPayl
 	return result.data;
 }
 
-export function normalizeCaseActivity(raw: CaseActivityLogModel): CaseActivityLogBase {
+export function normalizeCaseActivity(raw: CaseActivityLogModel & { actor: LabUserModel | null }): CaseActivityLogDetailsUI {
 	return {
 		...raw,
 		payload: parseActivityPayload(raw) as CaseActivityPayload,
+		dentalCase: null,
+		lab: null,
 	};
 }
 

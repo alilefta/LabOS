@@ -1,6 +1,6 @@
 "use client";
 
-import { Activity, FileCheck, Info, MessageSquare, Sparkles, UserPlus, FileUp, Trash2, CalendarClock, ShieldCheck } from "lucide-react";
+import { Activity, FileCheck, Info, MessageSquare, Sparkles, UserPlus, FileUp, Trash2, CalendarClock, ShieldCheck, DollarSign } from "lucide-react";
 import { formatDistanceToNow, format } from "date-fns";
 
 import { cn } from "@/lib/utils";
@@ -31,6 +31,17 @@ const parseLogData = (log: CaseActivityLogDetailsUI) => {
 		switch (type) {
 			case "CASE_CREATED":
 				icon = FileCheck;
+				colorClass = "bg-slate-100 dark:bg-white/10 text-slate-500 dark:text-zinc-400 border-border";
+				detailsText = "Case Pricing recalculated.";
+				break;
+			case "CASE_UPDATED":
+				icon = Activity;
+				colorClass = "bg-slate-100 dark:bg-white/10 text-slate-500 dark:text-zinc-400 border-border";
+				detailsText = "Case Updated";
+				break;
+
+			case "CASE_PRICING_RECALCULATED":
+				icon = DollarSign;
 				colorClass = "bg-slate-100 dark:bg-white/10 text-slate-500 dark:text-zinc-400 border-border";
 				detailsText = "Initial intake completed via LabOS portal.";
 				break;

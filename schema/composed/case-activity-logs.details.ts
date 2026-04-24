@@ -67,14 +67,61 @@ export const AiAuditCompletedPayloadSchema = z.object({
 	passed: z.boolean(),
 });
 
+export const CasePricingRecalculatedPayloadSchema = z.object({
+	previousTotal: z.number(),
+	newTotal: z.number(),
+});
+
 // Types that carry no structured payload — just a summary string is enough
 // CASE_CREATED has no payload (the case itself is the payload)
 export const EmptyPayloadSchema = z.object({});
+
+export const CaseUpdatedPayloadSchema = z.object({
+	scalarChanges: z
+		.array(
+			z
+				.object({
+					field: z.string(),
+					from: z.unknown(),
+					to: z.unknown(),
+				})
+				.optional()
+				.nullable(),
+		)
+		.optional()
+		.nullable(),
+
+	workItemsReplaced: z
+		.object({
+			previousCount: z.number().nullable(),
+			newCount: z.number(),
+			newGrandTotal: z.number(),
+		})
+		.optional()
+		.nullable(),
+
+	staffReplaced: z
+		.object({
+			previousCount: z.number().nullable(),
+			newCount: z.number(),
+		})
+		.optional()
+		.nullable(),
+
+	statusChanged: z
+		.object({
+			from: CaseStatusSchema,
+			to: CaseStatusSchema,
+		})
+		.optional()
+		.nullable(),
+});
 
 // ── Discriminated union ───────────────────────────────────────────────────────
 
 export const CaseActivityPayloadSchema = z.discriminatedUnion("type", [
 	z.object({ type: z.literal("CASE_CREATED"), payload: EmptyPayloadSchema }),
+	z.object({ type: z.literal("CASE_PRICING_RECALCULATED"), payload: CasePricingRecalculatedPayloadSchema }),
 	z.object({ type: z.literal("STATUS_CHANGED"), payload: StatusChangedPayloadSchema }),
 	z.object({ type: z.literal("STAFF_ASSIGNED"), payload: StaffAssignedPayloadSchema }),
 	z.object({ type: z.literal("STAFF_REMOVED"), payload: StaffRemovedPayloadSchema }),
@@ -83,6 +130,7 @@ export const CaseActivityPayloadSchema = z.discriminatedUnion("type", [
 	z.object({ type: z.literal("DEADLINE_CHANGED"), payload: DeadlineChangedPayloadSchema }),
 	z.object({ type: z.literal("NOTE_ADDED"), payload: NoteAddedPayloadSchema }),
 	z.object({ type: z.literal("AI_AUDIT_COMPLETED"), payload: AiAuditCompletedPayloadSchema }),
+	z.object({ type: z.literal("CASE_UPDATED"), payload: CaseUpdatedPayloadSchema }),
 ]);
 
 export type CaseActivityPayload = z.infer<typeof CaseActivityPayloadSchema>;

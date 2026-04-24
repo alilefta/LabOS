@@ -82,10 +82,8 @@ interface ChartProps {
 }
 
 export const HighFidelityDentalChart = memo(function HighFidelityDentalChart({ jawType, selectedTeeth, onToggleTooth, onSetTeeth, isLocked = false, isReadOnly = false }: ChartProps) {
-	// Power Action Handlers
-
-	// The chart is functionally disabled if it's locked OR if it's read only
 	const isDisabled = isLocked || isReadOnly;
+
 	const handleSelectArch = useCallback(() => {
 		if (!onSetTeeth || isDisabled) return;
 		const activeQuadrants = QUADRANTS.filter((q) => q.isUpper === (jawType === "UPPER"));
@@ -93,7 +91,6 @@ export const HighFidelityDentalChart = memo(function HighFidelityDentalChart({ j
 		onSetTeeth(allArchTeeth);
 	}, [onSetTeeth, isDisabled, jawType]);
 
-	// Stable callback — doesn't change between renders
 	const handleToggle = useCallback(
 		(id: ToothPosition) => {
 			if (!isDisabled) onToggleTooth(id);
@@ -108,29 +105,48 @@ export const HighFidelityDentalChart = memo(function HighFidelityDentalChart({ j
 
 	const selectedSet = useMemo(() => new Set(selectedTeeth), [selectedTeeth]);
 
-	// Filter quadrants for Read Only mode to hide the unselected jaw
 	const renderedQuadrants = useMemo(() => {
 		if (!isReadOnly) return QUADRANTS;
 		return QUADRANTS.filter((q) => q.isUpper === (jawType === "UPPER"));
 	}, [isReadOnly, jawType]);
 
+	// THE FIX: Tighter ViewBox calculations to "Zoom In" the camera
+	// Total width of teeth is 409. We use -10 X and 430 Width to give just 10px of padding.
+	const svgViewBox = useMemo(() => {
+		if (!isReadOnly) return "-10 -10 430 720"; // Full Mouth Tight View
+		if (jawType === "UPPER") return "-10 -10 430 330"; // Upper Arch Tight View
+		if (jawType === "LOWER") return "-10 380 430 330"; // Lower Arch Tight View
+		return "-10 -10 430 720";
+	}, [isReadOnly, jawType]);
+
 	return (
 		<TooltipProvider delayDuration={150}>
-			<div className="flex-1 w-full h-full flex flex-col items-center justify-center relative p-8 overflow-hidden">
+			<div
+				className={cn(
+					"w-full h-full flex flex-col items-center justify-center relative transition-colors duration-500",
+					isReadOnly ? "p-0" : "flex-1 p-8 overflow-hidden bg-slate-50 dark:bg-[#09090B]",
+				)}
+			>
 				{/* Ambient Radial Glow (Behind the teeth) */}
-				<div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-200 h-200 bg-[radial-gradient(closest-side,var(--color-primary),transparent)] opacity-[0.08] dark:opacity-10 pointer-events-none" />
+				<div
+					className={cn(
+						"absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-200 h-200 bg-[radial-gradient(closest-side,var(--color-primary),transparent)] opacity-[0.08] dark:opacity-10 pointer-events-none",
+						isReadOnly && "hidden",
+					)}
+				/>
 
 				{/* --- READ-ONLY BADGE (Corners) --- */}
 				{isReadOnly && (
-					<div className="absolute top-4 right-4 z-20 flex items-center gap-1.5 bg-background/80 backdrop-blur-xl px-2.5 py-1.5 rounded-lg border border-border shadow-sm">
+					<div className="absolute top-3 right-3 z-20 flex items-center gap-1.5 bg-background/80 backdrop-blur-xl px-2.5 py-1.5 rounded-lg border border-border shadow-sm">
 						<ShieldCheck className="w-3.5 h-3.5 text-primary" />
-						<span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Clinical View</span>
+						<span className="md:text-[10px] text-[9px] font-bold uppercase tracking-widest text-muted-foreground">Clinical View</span>
 					</div>
 				)}
+				{/* Power Actions (Buttons) */}
 				{jawType !== "OTHER" && !isReadOnly && (
 					<div
 						className={cn(
-							"absolute top-6 right-6 z-20 flex items-center gap-2 bg-background/80 backdrop-blur-xl p-1.5 rounded-2xl border border-border shadow-sm transition-opacity duration-400",
+							"absolute top-4 right-4 md:top-6 md:right-6 z-20 flex items-center gap-2 bg-background/80 backdrop-blur-xl p-1.5 rounded-2xl border border-border shadow-sm transition-opacity duration-400",
 							isLocked && "opacity-50 pointer-events-none",
 						)}
 					>
@@ -149,53 +165,44 @@ export const HighFidelityDentalChart = memo(function HighFidelityDentalChart({ j
 						</Button>
 					</div>
 				)}
-				{/* <div
-					className={cn(
-						"relative z-10 w-full max-w-112.5 mx-auto transition-transform duration-700 ease-[cubic-bezier(0.23,1,0.32,1)]",
-						jawType === "UPPER" ? "translate-y-[0%] lg:translate-y-[25%]" : jawType === "LOWER" ? "lg:-translate-y-[25%] -translate-y-[44%]" : "translate-y-0",
-					)}
-				> */}
 				<div
 					className={cn(
-						"relative z-10 w-full max-w-[450px] mx-auto transition-transform duration-700 ease-[cubic-bezier(0.23,1,0.32,1)]",
-						// If Read Only, we don't need to translate the SVG because it's the only thing rendering!
-						isReadOnly
-							? "translate-y-0 scale-110"
-							: jawType === "UPPER"
-								? "translate-y-[0%] lg:translate-y-[25%]"
-								: jawType === "LOWER"
-									? "lg:-translate-y-[25%] -translate-y-[44%]"
-									: "translate-y-0",
+						"relative z-10 w-full mx-auto flex items-center justify-center transition-transform duration-700 ease-[cubic-bezier(0.23,1,0.32,1)]",
+						// THE FIX: Tighter aspect ratios and larger max-widths so it fills the card beautifully
+						isReadOnly ? "aspect-430/330 max-w-85" : "aspect-430/720 max-w-95 lg:max-w-105",
+						!isReadOnly && jawType === "UPPER"
+							? "translate-y-[30%] lg:translate-y-[25%]"
+							: !isReadOnly && jawType === "LOWER"
+								? "lg:-translate-y-[25%] -translate-y-[22%]"
+								: "translate-y-0",
 					)}
 				>
 					<svg
-						// If Read Only, we cut the SVG viewbox in half so it perfectly fits the single arch
-						viewBox={isReadOnly && jawType === "UPPER" ? "-50 -50 509 450" : isReadOnly && jawType === "LOWER" ? "-50 300 509 450" : "-50 -50 509 794"}
-						className={cn("w-full h-auto overflow-visible drop-shadow-xl transition-all duration-500", isLocked && !isReadOnly && "grayscale-[30%] blur-[1px]")}
-						style={{ willChange: "transform" }}
+						viewBox={svgViewBox}
+						shapeRendering="geometricPrecision"
+						className={cn(
+							"w-full h-full overflow-visible drop-shadow-xl transition-all duration-500 will-change-transform",
+							isLocked && !isReadOnly && "grayscale-30 blur-[1px] opacity-30",
+							isReadOnly && "pointer-events-none",
+						)}
 					>
 						{renderedQuadrants.map((quadrant) => {
-							// Fade Logic
 							const isFaded = !isReadOnly && ((jawType === "UPPER" && !quadrant.isUpper) || (jawType === "LOWER" && quadrant.isUpper));
 
 							return (
-								// THE FIX: Reverted to pure SVG transform attribute
 								<g
 									key={quadrant.id}
 									transform={quadrant.transform}
-									className={cn("transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)]", isFaded && "opacity-15 grayscale blur-[2px] pointer-events-none")}
+									className={cn(
+										"transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)]",
+										isFaded && "opacity-15 grayscale blur-[2px] pointer-events-none",
+										isReadOnly && "pointer-events-auto",
+									)}
 								>
 									{TEETH_PATHS.map((tooth, index) => {
 										const toothEnum = quadrant.teeth[index];
 										return (
-											<ToothItem
-												key={toothEnum}
-												toothData={tooth}
-												enumId={toothEnum}
-												isSelected={selectedSet.has(toothEnum)} // O(1) — only this tooth re-renders
-												isDisabled={isDisabled}
-												onToggle={handleToggle}
-											/>
+											<ToothItem key={toothEnum} toothData={tooth} enumId={toothEnum} isSelected={selectedSet.has(toothEnum)} isDisabled={isDisabled} onToggle={handleToggle} />
 										);
 									})}
 								</g>
@@ -203,16 +210,14 @@ export const HighFidelityDentalChart = memo(function HighFidelityDentalChart({ j
 						})}
 					</svg>
 				</div>
-				{/* --- THE LOCKED GLASS OVERLAY  --- */}
-				{/* Now sits dead-center in the parent relative container, ignoring jawType translations */}
 				{isLocked && !isReadOnly && jawType !== "OTHER" && (
-					<div className="absolute inset-0 z-30 flex items-center justify-center animate-in fade-in zoom-in-95 duration-500 bg-background/10 backdrop-blur-[2px]">
-						<div className="bg-background/90 backdrop-blur-xl border border-border shadow-2xl p-6 rounded-3xl flex flex-col items-center text-center max-w-[280px]">
+					<div className="absolute inset-0 z-30 flex items-center justify-center animate-in fade-in zoom-in-95 duration-500 bg-background/10 ">
+						<div className="bg-background/90 backdrop-blur-xl border border-border shadow-2xl p-6 rounded-3xl flex flex-col items-center text-center max-w-70">
 							<div className="w-12 h-12 rounded-2xl bg-amber-500/10 flex items-center justify-center text-amber-500 mb-4 shadow-[0_0_15px_rgba(245,158,11,0.2)]">
 								<Lock className="w-6 h-6" />
 							</div>
-							<h3 className="text-base font-bold text-foreground mb-1">Charting Locked</h3>
-							<p className="text-xs text-muted-foreground font-medium leading-relaxed">Please select a Manufacturing Product and Pricing Plan from the left menu before mapping teeth.</p>
+							<h3 className="text-base font-bold text-foreground mb-1 text-balance">Mapping Locked</h3>
+							<p className="text-xs text-muted-foreground font-medium leading-relaxed">Please select a product and pricing plan to enable anatomical mapping.</p>
 						</div>
 					</div>
 				)}
@@ -241,15 +246,11 @@ const ToothItem = memo(function ToothItem({ toothData, enumId, isSelected, isDis
 				<g
 					onClick={handleClick}
 					className={cn(
-						"outline-none transition-all duration-200 transform-gpu",
+						"outline-none transition-all  duration-200 transform-gpu origin-center transform-fill",
 						isDisabled ? "cursor-default" : "cursor-pointer",
 						isSelected ? "text-primary scale-[1.03]" : "text-slate-300 dark:text-white/10",
 						!isDisabled && !isSelected && "hover:text-primary/60 hover:scale-[1.02]",
 					)}
-					style={{
-						transformBox: "fill-box",
-						transformOrigin: "center",
-					}}
 				>
 					<path
 						stroke="currentColor"

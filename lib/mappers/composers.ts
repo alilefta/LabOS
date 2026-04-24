@@ -17,6 +17,7 @@ import type {
 	ClinicModel,
 	DentistModel,
 	LabStaffModel,
+	LabUserModel,
 	PatientModel,
 	ProductModel,
 	SelectedToothModel,
@@ -48,6 +49,10 @@ import { CaseDetailsUI, DraftCaseDTO, DraftCaseSummaryDTO } from "@/schema/compo
 // These are the "contracts" between your query selects and your mappers.
 // If you change a query, TypeScript will catch the mismatch here.
 
+type RawCaseActivityLog = CaseActivityLogModel & {
+	actor: LabUserModel | null;
+};
+
 type RawWorkItem = CaseWorkItemModel & {
 	product: ProductModel | null;
 	workType: WorkTypeModel | null;
@@ -67,7 +72,7 @@ type RawFullCase = CaseModel & {
 	caseItems: RawWorkItem[];
 	staffAssignments: RawStaffAssignment[];
 	caseAssetFiles: CaseAssetFileModel[];
-	caseActivityLogs: CaseActivityLogModel[];
+	caseActivityLogs: RawCaseActivityLog[];
 };
 
 // Drafts use a narrower shape — only what's needed to repopulate the form

@@ -504,7 +504,7 @@ export const updateDentalCaseAction = actionClientWithLab
 							newCount: staffAssignments.length,
 						},
 						...(resolvedStatus !== currentStatus && {
-							statusAutoChanged: { from: currentStatus, to: resolvedStatus },
+							statusChanged: { from: currentStatus, to: resolvedStatus },
 						}),
 					} as CaseActivityLogCreateManyInput["payload"],
 				},

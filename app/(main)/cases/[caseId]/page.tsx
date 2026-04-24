@@ -2,7 +2,7 @@ import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import { ShieldCheck, Printer, ChevronLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { CaseDetailsSidebar } from "@/components/cases/case-details/case-details-sidebar";
+import { CaseDetailsSidebar } from "@/components/cases/case-details/sidebar/case-details-sidebar";
 import { CaseDetailsUI } from "@/schema/composed/case.details";
 import { ProductionPipelineStepper } from "@/components/cases/case-details/sections/production-pipeline-stepper";
 import { NeuralAuditorCard } from "@/components/cases/case-details/sections/neural-auditor-card";

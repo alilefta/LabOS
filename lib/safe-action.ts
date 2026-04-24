@@ -6,7 +6,6 @@ import { ActionError, ERRORS } from "@/lib/errors";
 import { getServerSession } from "./get-session";
 import { fallbackPayload, sanitizeInput, toPayload } from "./safe-action-helpers";
 import { generalPrisma } from "./prisma";
-import { AuthUserBaseSchema } from "@/schema/base/auth.base";
 import { AuthUser } from "./auth";
 import { LabRole, LabRoleSchema } from "@/schema/base/enums.base";
 

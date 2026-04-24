@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ChevronDown, Loader2, Activity, PackageCheck, Truck, AlertCircle, User, LucideIcon, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
@@ -15,6 +15,7 @@ import { CaseStatus } from "@/schema/base/enums.base";
 import { updateCaseStatusAction } from "@/actions/cases/update-case";
 import { handleSafeActionError } from "@/lib/safe-action-helpers";
 import { CaseStaffAssignmentDetailsUI } from "@/schema/composed/case-staff-assignment.details";
+import { getStatusTransitionWarning, VALID_TRANSITIONS } from "@/lib/permissions/cases/clinical-status-rules";
 
 interface Props {
 	caseId: string;
@@ -22,18 +23,7 @@ interface Props {
 	staffAssignments: CaseStaffAssignmentDetailsUI[];
 }
 
-// 1. Replicate the valid transitions on the client for UI rendering
-const VALID_TRANSITIONS: Record<CaseStatus, CaseStatus[]> = {
-	DRAFT: ["NEW"],
-	NEW: ["ASSIGNED", "PROCESSING", "FAILED"],
-	ASSIGNED: ["PROCESSING", "FAILED"],
-	PROCESSING: ["COMPLETED", "FAILED"],
-	COMPLETED: ["DELIVERED"],
-	DELIVERED: [],
-	FAILED: [],
-};
-
-// 2. Status UI Mappings
+// Status UI Mappings
 const STATUS_UI_CONFIG: Record<CaseStatus, { label: string; icon: LucideIcon; colorClass: string }> = {
 	NEW: { label: "Submit to Floor", icon: Activity, colorClass: "text-blue-500" },
 	ASSIGNED: { label: "Mark as Assigned", icon: User, colorClass: "text-slate-500" },
@@ -75,23 +65,23 @@ export function AdvanceStatusButton({ caseId, currentStatus, staffAssignments }:
 		},
 		onError: ({ error }) => handleSafeActionError(error),
 	});
-	// --- WARNING LOGIC ("Warn, Don't Block") ---
-	const getAdvanceWarning = useCallback((toStatus: CaseStatus, assignments: CaseStaffAssignmentDetailsUI[]): string | null => {
-		const hasTech = assignments.some((s) => s.roleCategory === "TECHNICIAN" || s.roleCategory === "SENIOR_TECHNICIAN");
-		const hasCourier = assignments.some((s) => s.roleCategory === "COURIER");
-		const hasQC = assignments.some((s) => s.roleCategory === "QC_INSPECTOR");
+	// // --- WARNING LOGIC ("Warn, Don't Block") ---
+	// const getAdvanceWarning = useCallback((toStatus: CaseStatus, assignments: CaseStaffAssignmentDetailsUI[]): string | null => {
+	// 	const hasTech = assignments.some((s) => s.roleCategory === "TECHNICIAN" || s.roleCategory === "SENIOR_TECHNICIAN");
+	// 	const hasCourier = assignments.some((s) => s.roleCategory === "COURIER");
+	// 	const hasQC = assignments.some((s) => s.roleCategory === "QC_INSPECTOR");
 
-		// If moving to PROCESSING without a tech assigned yet
-		if (toStatus === "PROCESSING" && !hasTech) return "No technician assigned. This case will move to active production without a lead technician tracked in the system.";
+	// 	// If moving to PROCESSING without a tech assigned yet
+	// 	if (toStatus === "PROCESSING" && !hasTech) return "No technician assigned. This case will move to active production without a lead technician tracked in the system.";
 
-		// If completing a case but nobody checked QC (Optional strict rule you can disable)
-		if (toStatus === "COMPLETED" && !hasQC) return "No QC Inspector assigned. Ensure quality checks have been verified before packaging.";
+	// 	// If completing a case but nobody checked QC (Optional strict rule you can disable)
+	// 	if (toStatus === "COMPLETED" && !hasQC) return "No QC Inspector assigned. Ensure quality checks have been verified before packaging.";
 
-		// If trying to deliver without a courier
-		if (toStatus === "DELIVERED" && !hasCourier) return "No courier assigned. The case is ready for delivery, but the system doesn't know who is taking it.";
+	// 	// If trying to deliver without a courier
+	// 	if (toStatus === "DELIVERED" && !hasCourier) return "No courier assigned. The case is ready for delivery, but the system doesn't know who is taking it.";
 
-		return null;
-	}, []);
+	// 	return null;
+	// }, []);
 
 	// Handles the click from the dropdown menu
 	const handleTransitionClick = (newStatus: CaseStatus) => {
@@ -102,7 +92,7 @@ export function AdvanceStatusButton({ caseId, currentStatus, staffAssignments }:
 		}
 
 		// Calculate if we need to warn them about missing staff
-		const warning = getAdvanceWarning(newStatus, staffAssignments || []);
+		const warning = getStatusTransitionWarning(newStatus, staffAssignments || []);
 
 		if (warning) {
 			setWarningMessage(warning);

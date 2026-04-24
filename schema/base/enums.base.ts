@@ -48,7 +48,7 @@ export type CommissionType = z.infer<typeof CommissionTypeSchema>;
 export const StaffRoleCategorySchema = z.enum(["TECHNICIAN", "SENIOR_TECHNICIAN", "QC_INSPECTOR", "COURIER", "SALES_REP", "ACCOUNT_MANAGER", "RECEPTIONIST", "MANAGER", "ACCOUNTANT"]);
 export type StaffRoleCategory = z.infer<typeof StaffRoleCategorySchema>;
 
-// ========== Staff Role Category ============
+// ========== Case Activity Type  ============
 export const CaseActivityTypeSchema = z.enum([
 	"CASE_CREATED",
 	"STATUS_CHANGED",
@@ -60,6 +60,7 @@ export const CaseActivityTypeSchema = z.enum([
 	"FILE_DELETED",
 	"DEADLINE_CHANGED",
 	"AI_AUDIT_COMPLETED",
+	"CASE_PRICING_RECALCULATED",
 ]);
 
 export type CaseActivityType = z.infer<typeof CaseActivityTypeSchema>;

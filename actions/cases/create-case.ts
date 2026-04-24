@@ -9,6 +9,7 @@ import { computeCaseItemPrice, draftCaseServerToDTO, draftSummaryServerToDTO, op
 
 import { CreateCaseInputSchema, SaveDraftCaseInputSchema } from "@/schema/composed/case.details";
 import { APIError } from "better-auth";
+import { revalidatePath } from "next/cache";
 import z from "zod/v3";
 
 export const createDentalCaseAction = actionClientWithLab
@@ -502,6 +503,8 @@ export const createDentalCaseAction = actionClientWithLab
 			// STEP 5: Fetch the Fully Populated DTO (READ ONLY)
 			// Happens outside the transaction, completely safe and fast!
 			// ─────────────────────────────────────────────────────────────────
+
+			revalidatePath("/cases/new-case");
 
 			return { createdCase: createdCase };
 
