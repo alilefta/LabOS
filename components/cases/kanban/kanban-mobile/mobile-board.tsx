@@ -6,7 +6,6 @@ import { CaseStatus } from "@/schema/base/enums.base";
 import { MobileCard } from "./mobile-card";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { cn } from "@/lib/utils";
 import { CaseListDTO } from "@/schema/composed/case.details";
 import { useKanbanStore } from "../use-kanban-store";
 
@@ -88,7 +87,7 @@ export function MobileKanbanTabs({ requestStatusTransition }: MobileKanbanProps)
 											<Layers className="w-6 h-6 text-muted-foreground" />
 										</div>
 										<p className="text-sm font-bold text-foreground tracking-tight">Queue is empty</p>
-										<p className="text-[11px] text-muted-foreground mt-1 max-w-[200px]">There are no cases waiting in the {tab.label} stage.</p>
+										<p className="text-[11px] text-muted-foreground mt-1 max-w-50">There are no cases waiting in the {tab.label} stage.</p>
 									</div>
 								)}
 							</TabsContent>

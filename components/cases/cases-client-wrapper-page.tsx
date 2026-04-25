@@ -24,7 +24,6 @@ import { updateCaseStatusAction } from "@/actions/cases/update-case";
 import { useAction } from "next-safe-action/hooks";
 import { CaseStatus } from "@/schema/base/enums.base";
 import { toast } from "sonner";
-import { KanbanBoard } from "./kanban/kanban-board";
 import { KanbanWrapper } from "./kanban/kanban-wrapper";
 
 interface PageProps {
@@ -234,16 +233,18 @@ export default function CasesClientWrapperPage({ labId }: PageProps) {
 
 			{/* ── SCROLLABLE WRAPPER ────────────────────────────────────────────── */}
 			<div className="flex-1 flex flex-col min-h-0 overflow-y-auto custom-scrollbar pb-6 pr-1 pt-2">
-				{/* ── ZONE B: OWNER REVENUE STRIP ─────────────────────────────────── */}
-				<OwnerRevenueStrip data={revenueData ?? null} isLoading={isRevenueLoading} />
+				<div className="shrink-0 flex flex-col gap-2">
+					{/* ── ZONE B: OWNER REVENUE STRIP ─────────────────────────────────── */}
+					<OwnerRevenueStrip data={revenueData ?? null} isLoading={isRevenueLoading} />
 
-				{/* ── ZONE C: PULSE STRIP ─────────────────────────────────────────── */}
-				<PulseStrip
-					stats={pulseData ?? null}
-					isLoading={isPulseLoading}
-					currentFilter={filters.pulseFilter}
-					onFilterChange={(newPulse) => setFilters((prev) => ({ ...prev, pulseFilter: newPulse }))}
-				/>
+					{/* ── ZONE C: PULSE STRIP ─────────────────────────────────────────── */}
+					<PulseStrip
+						stats={pulseData ?? null}
+						isLoading={isPulseLoading}
+						currentFilter={filters.pulseFilter}
+						onFilterChange={(newPulse) => setFilters((prev) => ({ ...prev, pulseFilter: newPulse }))}
+					/>
+				</div>
 
 				{/* ── ZONE D & E: UNIFIED DATABASE TOOLBAR ───────────────────────── */}
 				{/* By placing this here, it stays consistent whether you see the List or Board */}
@@ -332,7 +333,7 @@ export default function CasesClientWrapperPage({ labId }: PageProps) {
 				</div>
 
 				{/* ── ZONE F: DYNAMIC CONTENT CANVAS ───────────────────────────────── */}
-				<div className="flex-1 min-h-125">
+				<div className="flex-1 min-h-125 mt-4 lab-card flex flex-col overflow-hidden shadow-sm">
 					{view === "table" ? (
 						<div className="h-full lab-card overflow-hidden shadow-sm">
 							<DataTable

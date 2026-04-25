@@ -7,7 +7,7 @@ import { CaseCategoryBaseSchema } from "../base/case-category.base";
 import { ClinicBaseSchema } from "../base/clinic.base";
 import { CaseAssetFileBaseSchema } from "../base/case-asset-file.base";
 import { CaseWorkItemDetailsUISchema, CreateCaseWorkItemInputSchema } from "./case-work-item.details";
-import { AssetFileTypeSchema, CaseStatus, CaseStatusSchema, CommissionTypeSchema, JawTypeSchema, StaffRoleCategorySchema } from "../base/enums.base";
+import { AssetFileTypeSchema, CaseStatus, CaseStatusSchema, CommissionTypeSchema, JawTypeSchema, StaffRoleCategory, StaffRoleCategorySchema } from "../base/enums.base";
 import { DentistBaseSchema } from "../base/dentist.base";
 import { CreateCaseAssetFilesInputSchema } from "./case-asset-file.details";
 import { emptyToUndefinedTransformer } from "../base/utils.base";
@@ -19,14 +19,14 @@ import { CaseActivityLogDetailsUISchema } from "./case-activity-logs.details";
 
 export const CaseDetailsSchema = CaseBaseSchema.extend({
 	caseCategory: CaseCategoryBaseSchema.nullable(),
-	caseItems: z.array(CaseWorkItemBaseSchema),
+	caseItems: z.array(CaseWorkItemDetailsUISchema),
 	clinic: ClinicBaseSchema.nullable(),
 	caseAssetFiles: z.array(CaseAssetFileBaseSchema).nullable(),
 	lab: LabBaseSchema,
 	patient: PatientBaseSchema,
 	dentist: DentistBaseSchema.nullable(),
-	staffAssignments: z.array(CaseStaffAssignmentBaseSchema),
-	caseActivityLogs: z.array(CaseActivityLogBaseSchema),
+	staffAssignments: z.array(CaseStaffAssignmentDetailsUISchema),
+	caseActivityLogs: z.array(CaseActivityLogDetailsUISchema),
 });
 export type CaseDetails = z.infer<typeof CaseDetailsSchema>;
 
@@ -245,6 +245,36 @@ export const DraftCaseDTOSchema = CaseBaseSchema.extend({
 
 export type DraftCaseDTO = z.infer<typeof DraftCaseDTOSchema>;
 
+// ---------------------------- Update Schema ----------------------------
+
+export const UpdateCaseAssetFilesInputSchema = z.discriminatedUnion("isNew", [
+	z.object({
+		isNew: z.literal(true),
+		title: z.string().trim().min(1).optional(),
+		description: z.string().trim().optional(),
+		documentUrl: z.string().url(),
+		assetFileType: AssetFileTypeSchema,
+		fileExtension: z.string().min(1),
+	}),
+	z.object({
+		isNew: z.literal(false),
+		id: z.string().min(1), // Existing DB ID — tells server "Do not delete me"
+	}),
+]);
+
+// 2. The Master Update Schema
+export const UpdateCaseInputSchema = CreateCaseInputSchema.extend({
+	caseId: z.string().min(1),
+	// We omit patientId because it is immutable in edit mode
+	caseAssetFiles: z.array(UpdateCaseAssetFilesInputSchema).optional(),
+}).omit({ patientId: true });
+
+export type UpdateCaseInput = z.infer<typeof UpdateCaseInputSchema>;
+
+export type CaseFormModeType = "create" | "edit";
+
+// --------------------------------------------------------------
+
 // Used for Case Summary and Draft info
 export type CaseSummaryMetadata = {
 	caseNumber: string;
@@ -350,6 +380,8 @@ export type CaseListDTO = {
 		avatarUrl: string | null;
 	} | null;
 	staffCount: number; // total assignments — for "X people assigned" hint
+	// --- NEW: A lightweight array of active roles on this case ---
+	assignedRoles: StaffRoleCategory[];
 };
 
 // ─────────────────────────────────────────────────────────────────────────────

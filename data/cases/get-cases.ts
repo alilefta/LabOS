@@ -154,6 +154,7 @@ export async function getCasesList(params: GetCasesListParams): Promise<DAResult
 						take: 1,
 						orderBy: { createdAt: "asc" },
 						select: {
+							roleCategory: true,
 							staff: {
 								select: {
 									id: true,
@@ -174,21 +175,25 @@ export async function getCasesList(params: GetCasesListParams): Promise<DAResult
 
 		const hasNextPage = rawCases.length > take;
 		const page = hasNextPage ? rawCases.slice(0, -1) : rawCases;
+		const cases: CaseListDTO[] = page.map((c) => {
+			const leadTechAssignment = c.staffAssignments.find((sa) => sa.roleCategory === "TECHNICIAN" || sa.roleCategory === "SENIOR_TECHNICIAN");
 
-		const cases: CaseListDTO[] = page.map((c) => ({
-			id: c.id,
-			caseNumber: c.caseNumber,
-			status: c.status,
-			deadline: c.deadline,
-			grandTotal: c.grandTotal !== null ? Number(c.grandTotal) : null,
-			patientName: c.patient.name,
-			clinicName: c.clinic?.name ?? null,
-			dentistName: c.dentist?.name ?? null,
-			caseCategory: c.caseCategory?.name ?? null,
-			primaryProduct: c.caseItems[0]?.product?.name ?? null,
-			leadTechnician: c.staffAssignments[0]?.staff ?? null,
-			staffCount: c._count.staffAssignments,
-		}));
+			return {
+				id: c.id,
+				caseNumber: c.caseNumber,
+				status: c.status,
+				deadline: c.deadline,
+				grandTotal: c.grandTotal !== null ? Number(c.grandTotal) : null,
+				patientName: c.patient.name,
+				clinicName: c.clinic?.name ?? null,
+				dentistName: c.dentist?.name ?? null,
+				caseCategory: c.caseCategory?.name ?? null,
+				primaryProduct: c.caseItems[0]?.product?.name ?? null,
+				leadTechnician: leadTechAssignment?.staff ?? null,
+				staffCount: c._count.staffAssignments,
+				assignedRoles: c.staffAssignments.map((s) => s.roleCategory),
+			};
+		});
 
 		return daSuccess<GetCasesListResult>({
 			cases,

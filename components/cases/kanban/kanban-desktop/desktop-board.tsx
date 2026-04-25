@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
-import { DndContext, DragOverlay, closestCorners, PointerSensor, useSensor, useSensors, DragStartEvent, DragOverEvent, DragEndEvent, defaultDropAnimationSideEffects } from "@dnd-kit/core";
+import { useCallback, useMemo, useState } from "react";
+import { DndContext, DragOverlay, closestCorners, PointerSensor, useSensor, useSensors, DragStartEvent, DragEndEvent, defaultDropAnimationSideEffects } from "@dnd-kit/core";
 import { toast } from "sonner";
 
-import { CaseStatus } from "@/schema/base/enums.base";
+import { CaseStatus, CaseStatusSchema } from "@/schema/base/enums.base";
 import { VALID_TRANSITIONS } from "@/lib/permissions/cases/clinical-status-rules";
 import { useKanbanStore } from "../use-kanban-store";
 import { CaseListDTO } from "@/schema/composed/case.details";
@@ -38,7 +38,6 @@ export function DesktopKanbanBoard({ requestStatusTransition }: Props) {
 
 	// 2. DATA GROUPING (Powered by Local State)
 	const columnsData = useMemo(() => {
-		// Initialize all possible statuses to avoid TypeScript index errors
 		const cols: Record<CaseStatus, CaseListDTO[]> = {
 			NEW: [],
 			ASSIGNED: [],
@@ -49,11 +48,9 @@ export function DesktopKanbanBoard({ requestStatusTransition }: Props) {
 			DRAFT: [],
 		};
 
-		// Distribute the data
 		localCases.forEach((c) => {
-			if (cols[c.status]) {
-				cols[c.status].push(c);
-			}
+			if (c.status === "DELIVERED" || c.status === "FAILED" || c.status === "DRAFT") return;
+			if (cols[c.status]) cols[c.status].push(c);
 		});
 
 		return cols;
@@ -61,42 +58,61 @@ export function DesktopKanbanBoard({ requestStatusTransition }: Props) {
 
 	// --- DRAG HANDLERS ---
 	const handleDragStart = (event: DragStartEvent) => {
-		setIsDragging(true); // LOCK HYDRATION: Stop React Query from shifting cards under us!
+		setIsDragging(true);
 		const { active } = event;
 		setActiveCase(active.data.current as CaseListDTO);
 	};
 
-	const handleDragOver = (event: DragOverEvent) => {
-		// dnd-kit handles intersection sorting natively over Droppable column refs
-	};
+	const handleDragEnd = useCallback(
+		(event: DragEndEvent) => {
+			setIsDragging(false);
+			setActiveCase(null);
 
-	const handleDragEnd = async (event: DragEndEvent) => {
-		setIsDragging(false); // UNLOCK HYDRATION
-		setActiveCase(null);
+			const { active, over } = event;
+			if (!over) return;
 
-		const { active, over } = event;
-		if (!over) return;
+			// 1. Get the case data from the active card
+			const caseItem = active.data.current as CaseListDTO;
 
-		const caseItem = active.data.current as CaseListDTO;
-		const newStatus = (over.id || over.data.current?.status) as CaseStatus;
-		const oldStatus = caseItem.status;
+			// 2. Resolve the new status
+			// We look at data.current.status first (for drops on cards)
+			// and fallback to over.id (for drops on empty columns)
+			const rawNewStatus = over.data.current?.status || over.id;
 
-		// 1. EXIT: Dropped in the same column
-		if (oldStatus === newStatus) return;
+			// --- THE CRITICAL FIX: ZOD RUNTIME VALIDATION ---
+			// This safely checks if we have a valid Status string or a random UUID
+			const statusParse = CaseStatusSchema.safeParse(rawNewStatus);
 
-		// 2. EXIT: Invalid transition based on strict Server Rules
-		if (!VALID_TRANSITIONS[oldStatus]?.includes(newStatus)) {
-			toast.error(`Invalid move. You cannot transition a case directly from ${oldStatus} to ${newStatus}.`);
-			return;
-		}
+			if (!statusParse.success) {
+				// If parsing fails, it means we dropped on an element that isn't a status-aware
+				// drop zone (like a UI glitch). We exit silently.
+				return;
+			}
 
-		// 3. EXECUTE: Pass the responsibility UP to the wrapper!
-		// The wrapper will handle Warnings, Optimistic State, and Server Action execution.
-		requestStatusTransition(caseItem, newStatus, oldStatus);
-	};
+			const newStatus = statusParse.data; // Now typed strictly as CaseStatus
+			const oldStatus = caseItem.status;
+
+			// 3. EXIT: Dropped in the same column
+			if (oldStatus === newStatus) return;
+
+			// 4. EXIT: Invalid transition based on Server Rules
+			if (!VALID_TRANSITIONS[oldStatus]?.includes(newStatus)) {
+				toast.error(`Invalid move. You cannot transition a case directly from ${oldStatus} to ${newStatus}.`);
+				return;
+			}
+
+			// 5. EXECUTE: Pass to the wrapper
+			requestStatusTransition(caseItem, newStatus, oldStatus);
+		},
+		[requestStatusTransition, setIsDragging],
+	);
+
+	// const handleDragOver = (event: DragOverEvent) => {
+	// 	// dnd-kit handles intersection sorting natively over Droppable column refs
+	// };
 
 	return (
-		<DndContext sensors={sensors} collisionDetection={closestCorners} onDragStart={handleDragStart} onDragOver={handleDragOver} onDragEnd={handleDragEnd}>
+		<DndContext sensors={sensors} collisionDetection={closestCorners} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
 			{/* The main scrollable board track */}
 			<div className="flex h-full w-full overflow-x-auto pb-6 custom-scrollbar gap-6 px-4 items-start pt-2">
 				{COLUMNS.map((col) => (

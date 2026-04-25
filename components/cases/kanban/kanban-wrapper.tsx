@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useCallback, useState } from "react";
+import { useEffect, useCallback, useState, memo } from "react";
 import { CaseStatus } from "@/schema/base/enums.base";
 import { useKanbanStore } from "./use-kanban-store";
 import { CaseListDTO } from "@/schema/composed/case.details";
@@ -14,7 +14,7 @@ interface KanbanWrapperProps {
 	onStatusChangeAction: (caseId: string, newStatus: CaseStatus) => Promise<void>;
 }
 
-export function KanbanWrapper({ serverData, onStatusChangeAction }: KanbanWrapperProps) {
+export const KanbanWrapper = memo(function KanbanWrapper({ serverData, onStatusChangeAction }: KanbanWrapperProps) {
 	// 1. Connect to our high-performance store
 	const syncCases = useKanbanStore((state) => state.syncCases);
 	const moveCaseOptimistically = useKanbanStore((state) => state.moveCaseOptimistically);
@@ -29,46 +29,50 @@ export function KanbanWrapper({ serverData, onStatusChangeAction }: KanbanWrappe
 		syncCases(serverData);
 	}, [serverData, syncCases]);
 
+	// --- THE EXECUTION ENGINE ---
+	const executeTransition = useCallback(
+		async (caseId: string, newStatus: CaseStatus, oldStatus: CaseStatus) => {
+			setIsUpdating(true);
+
+			// Optimistic UI Update (0ms latency)
+			moveCaseOptimistically(caseId, newStatus);
+
+			try {
+				// Server Network Call
+				await onStatusChangeAction(caseId, newStatus);
+
+				// Clean up modal state if it was open
+				setPendingUpdate(null);
+				setWarningMessage(null);
+			} catch (error) {
+				// Rollback on failure
+				revertCaseMove(caseId, oldStatus);
+			} finally {
+				setIsUpdating(false);
+			}
+		},
+		[moveCaseOptimistically, onStatusChangeAction, revertCaseMove],
+	);
+
 	// --- THE GATEKEEPER ---
 	// Both Desktop and Mobile call this when the user attempts a move
-	const requestStatusTransition = useCallback((caseItem: CaseListDTO, newStatus: CaseStatus, oldStatus: CaseStatus) => {
-		// 1. Check for clinical warnings
-		// (We mock the assignments array based on the DTO data we have)
-		const mockAssignments = caseItem.leadTechnician ? [{ roleCategory: "TECHNICIAN" }] : [];
-		const warning = getStatusTransitionWarning(newStatus, mockAssignments as any);
+	const requestStatusTransition = useCallback(
+		(caseItem: CaseListDTO, newStatus: CaseStatus, oldStatus: CaseStatus) => {
+			// 1. Check for clinical warnings
+			const warning = getStatusTransitionWarning(newStatus, caseItem.assignedRoles);
 
-		if (warning) {
-			// Catch the move and open the dialog
-			setWarningMessage(warning);
-			setPendingUpdate({ case: caseItem, newStatus, oldStatus });
-			return;
-		}
+			if (warning) {
+				// Catch the move and open the dialog
+				setWarningMessage(warning);
+				setPendingUpdate({ case: caseItem, newStatus, oldStatus });
+				return;
+			}
 
-		// 2. If no warnings, execute immediately
-		executeTransition(caseItem.id, newStatus, oldStatus);
-	}, []);
-
-	// --- THE EXECUTION ENGINE ---
-	const executeTransition = async (caseId: string, newStatus: CaseStatus, oldStatus: CaseStatus) => {
-		setIsUpdating(true);
-
-		// Optimistic UI Update (0ms latency)
-		moveCaseOptimistically(caseId, newStatus);
-
-		try {
-			// Server Network Call
-			await onStatusChangeAction(caseId, newStatus);
-
-			// Clean up modal state if it was open
-			setPendingUpdate(null);
-			setWarningMessage(null);
-		} catch (error) {
-			// Rollback on failure
-			revertCaseMove(caseId, oldStatus);
-		} finally {
-			setIsUpdating(false);
-		}
-	};
+			// 2. If no warnings, execute immediately
+			executeTransition(caseItem.id, newStatus, oldStatus);
+		},
+		[executeTransition],
+	);
 
 	const handleCancelWarning = () => {
 		setPendingUpdate(null);
@@ -101,4 +105,4 @@ export function KanbanWrapper({ serverData, onStatusChangeAction }: KanbanWrappe
 			/>
 		</div>
 	);
-}
+});

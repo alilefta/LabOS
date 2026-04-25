@@ -4,8 +4,8 @@ import { CaseAiAuditor } from "@/components/cases/new-case/case-ai-auditor";
 
 import { CaseSummaryModal } from "@/components/cases/case/case-summary-modal";
 import { useCallback, useState } from "react";
-import { NewCaseHeader } from "@/components/cases/new-case/new-case-header";
-import { FormProvider, useForm } from "react-hook-form";
+import { CaseFormHeader } from "@/components/cases/new-case/new-case-header";
+import { Control, FormProvider, useForm } from "react-hook-form";
 import { CreateCaseInput, CreateCaseInputSchema, SaveDraftCaseInputSchema } from "@/schema/composed/case.details";
 import { RegisterPatientSheet } from "@/components/modals/cases/patient/create-patient-sheet";
 
@@ -224,7 +224,7 @@ export default function NewCasePage() {
 
 	return (
 		<div className="flex flex-col h-full animate-in fade-in duration-700">
-			<NewCaseHeader isSavingDraft={isExecutingSavingDraft} isSubmittingCase={isCreatingCase} onSaveDraft={handleSaveDraft} control={form.control} />
+			<CaseFormHeader mode={"create"} isSavingDraft={isExecutingSavingDraft} isSubmittingCase={isCreatingCase} onSaveDraft={handleSaveDraft} control={form.control as Control<CreateCaseInput>} />
 			<div className="flex-1 min-h-0 relative z-10">
 				<div className="flex flex-col xl:flex-row gap-8 h-full">
 					{/* FORM SECTION (Left) */}
