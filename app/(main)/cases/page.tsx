@@ -16,6 +16,7 @@ export default async function Page() {
 			userContext={{
 				role: user.role,
 				staffCategory: user.labStaff?.roleCategory,
+				staffId: user.labStaff?.id,
 			}}
 		>
 			<CasesClientWrapperPage labId={user.labId} />

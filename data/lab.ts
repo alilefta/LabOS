@@ -38,6 +38,7 @@ export async function getCurrentLabUserRoleByAuthUserId() {
 			labStaff: {
 				select: {
 					roleCategory: true,
+					id: true,
 				},
 			},
 		},

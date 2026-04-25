@@ -25,6 +25,7 @@ import { useAction } from "next-safe-action/hooks";
 import { CaseStatus } from "@/schema/base/enums.base";
 import { toast } from "sonner";
 import { KanbanBoard } from "./kanban/kanban-board";
+import { KanbanWrapper } from "./kanban/kanban-wrapper";
 
 interface PageProps {
 	labId: string;
@@ -346,7 +347,8 @@ export default function CasesClientWrapperPage({ labId }: PageProps) {
 						</div>
 					) : (
 						<div className="h-full animate-in fade-in slide-in-from-right-4 duration-500">
-							<KanbanBoard data={flatData} onStatusChange={handleStatusChange} />
+							{/* <KanbanBoard data={flatData} onStatusChange={handleStatusChange} /> */}
+							<KanbanWrapper serverData={flatData} onStatusChangeAction={handleStatusChange} />
 						</div>
 					)}
 				</div>

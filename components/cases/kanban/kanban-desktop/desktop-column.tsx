@@ -5,7 +5,7 @@ import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable"
 import { cn } from "@/lib/utils";
 import { Layers } from "lucide-react";
 import { CaseListDTO } from "@/schema/composed/case.details";
-import { KanbanCard } from "./kanban-card";
+import { DesktopKanbanCard } from "./desktop-card";
 
 interface ColumnProps {
 	id: string;
@@ -13,14 +13,10 @@ interface ColumnProps {
 	cases: CaseListDTO[];
 }
 
-export function KanbanColumn({ id, title, cases }: ColumnProps) {
-	// 1. Setup the Droppable zone for the column
+export function DesktopKanbanColumn({ id, title, cases }: ColumnProps) {
 	const { setNodeRef, isOver } = useDroppable({
 		id,
-		data: {
-			type: "Column",
-			status: id,
-		},
+		data: { type: "Column", status: id },
 	});
 
 	return (
@@ -38,7 +34,6 @@ export function KanbanColumn({ id, title, cases }: ColumnProps) {
 					<span className="px-2 py-0.5 rounded-lg bg-slate-100 dark:bg-white/5 border border-border text-[10px] font-mono font-bold text-muted-foreground shadow-sm">{cases.length}</span>
 				</div>
 
-				{/* Active Drop Indicator */}
 				{isOver && <div className="text-[10px] font-bold text-primary animate-in fade-in slide-in-from-right-2 uppercase tracking-widest">Drop Here</div>}
 			</div>
 
@@ -50,17 +45,15 @@ export function KanbanColumn({ id, title, cases }: ColumnProps) {
 					isOver ? "bg-primary/5 border-dashed border-primary/20 shadow-inner" : "bg-slate-50/50 dark:bg-white/[0.01]",
 				)}
 			>
-				{/* --- CONTENT RENDERER --- */}
 				{cases.length > 0 ? (
 					<SortableContext items={cases.map((c) => c.id)} strategy={verticalListSortingStrategy}>
 						<div className="flex flex-col gap-3">
 							{cases.map((caseItem) => (
-								<KanbanCard key={caseItem.id} caseItem={caseItem} />
+								<DesktopKanbanCard key={caseItem.id} caseItem={caseItem} />
 							))}
 						</div>
 					</SortableContext>
 				) : (
-					/* --- EMPTY STATE (Only visible when not dragging over) --- */
 					!isOver && (
 						<div className="flex-1 flex flex-col items-center justify-center text-center opacity-30 animate-in fade-in duration-500">
 							<div className="p-4 rounded-3xl bg-slate-200 dark:bg-white/5 mb-3">
@@ -72,11 +65,6 @@ export function KanbanColumn({ id, title, cases }: ColumnProps) {
 					)
 				)}
 
-				{/* 
-					UX Spacer: 
-					Ensures there is always a tiny bit of space at the bottom 
-					of a scrollable column so cards don't touch the edge. 
-				*/}
 				<div className="h-10 shrink-0 pointer-events-none" />
 			</div>
 		</div>

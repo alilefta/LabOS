@@ -15,14 +15,15 @@ export enum Resource {
 export interface UserContext {
 	role: LabRole;
 	staffCategory?: StaffRoleCategory | null;
+	staffId?: string | null;
 }
 
 export function getPermissions(user: UserContext) {
-	const { role, staffCategory } = user;
+	const { role, staffCategory, staffId } = user;
 
 	// --- HELPER GROUPS ---
 	const isOwner = role === "OWNER";
-	const isManagement = ["OWNER", "MANAGER"].includes(role);
+	const isManagement = ["OWNER", "MANAGER", "ADMIN"].includes(role);
 	const isOffice = ["OWNER", "MANAGER", "ADMIN"].includes(role);
 
 	// Operational specific checks
@@ -54,6 +55,13 @@ export function getPermissions(user: UserContext) {
 
 		// 7. Who can advance a case status?
 		canAdvanceStatus: isOffice || isManagement || !!staffCategory, // Techs can advance their own
+
+		isManagement,
+
+		// --- NEW: Pass these through so any component can access the user's raw identity ---
+		staffId: staffId || null,
+		role,
+		staffCategory: staffCategory || null,
 	};
 }
 

@@ -1,21 +1,28 @@
 "use client";
 
-import React from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { formatDistanceToNow, isBefore, startOfDay } from "date-fns";
-import { Clock, AlertCircle, User, Box } from "lucide-react";
+import { Clock, AlertCircle, User, Box, Lock } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import { CaseListDTO } from "@/schema/composed/case.details";
+import { usePermissions } from "@/providers/permissions-provider";
 
 interface CardProps {
 	caseItem: CaseListDTO;
-	isOverlay?: boolean; // If true, we style it as the floating ghost card
+	isOverlay?: boolean;
 }
 
-export function KanbanCard({ caseItem, isOverlay }: CardProps) {
+export function DesktopKanbanCard({ caseItem, isOverlay }: CardProps) {
 	const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: caseItem.id, data: { ...caseItem } });
+	const { canAdvanceStatus, isManagement, staffId } = usePermissions();
+
+	// 1. Determine if the current user is allowed to pick this card up
+	const isAssignedToMe = caseItem.leadTechnician?.id === staffId;
+
+	// Management can drag anything. Techs can only drag their own cases (if they have advance permissions).
+	const canDrag = isManagement || (canAdvanceStatus && isAssignedToMe);
 
 	const style = {
 		transform: CSS.Translate.toString(transform),
@@ -31,19 +38,21 @@ export function KanbanCard({ caseItem, isOverlay }: CardProps) {
 			ref={setNodeRef}
 			style={style}
 			{...attributes}
-			{...listeners}
+			{...(canDrag ? listeners : {})} // Only attach drag listeners if authorized!
 			className={cn(
 				"group relative bg-card border rounded-2xl p-4 transition-all select-none touch-none",
-				// Styling when the card is being dragged (the one left in the column)
-				isDragging ? "opacity-30 grayscale-[0.5]" : "opacity-100 shadow-sm hover:shadow-md hover:border-primary/30",
-				// Styling for the floating ghost card
+				!canDrag && "cursor-default", // Remove grab cursor if locked
+				isDragging ? "opacity-30 grayscale-[0.5]" : "opacity-100 shadow-sm hover:shadow-md",
+				canDrag && !isDragging && "hover:border-primary/30",
 				isOverlay && "shadow-2xl border-primary/50 cursor-grabbing rotate-2 scale-105 z-50 bg-card/95 backdrop-blur-sm",
-				// Status Borders
 				isOverdue && "border-l-4 border-l-destructive",
 				isRush && "border-l-4 border-l-amber-500",
 			)}
 		>
-			{/* Top: Case ID & AI Badge */}
+			{/* Visual Lock for unauthorized users */}
+			{!canDrag && <Lock className="absolute top-3 right-3 w-3 h-3 text-muted-foreground/30" />}
+
+			{/* Top: Case ID & Badges */}
 			<div className="flex items-center justify-between mb-3">
 				<span className="text-[10px] font-mono font-bold text-muted-foreground uppercase tracking-tighter">#{caseItem.caseNumber}</span>
 				{isOverdue && (
@@ -60,10 +69,10 @@ export function KanbanCard({ caseItem, isOverlay }: CardProps) {
 			</div>
 
 			{/* Product Badge */}
-			<div className="mb-4">
-				<div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-primary/5 border border-primary/10 text-[10px] font-bold text-primary uppercase tracking-widest">
-					<Box className="w-3 h-3" />
-					{caseItem.primaryProduct || "No Product"}
+			<div className="mb-4 pr-4">
+				<div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-primary/5 border border-primary/10 text-[10px] font-bold text-primary uppercase tracking-widest truncate max-w-full">
+					<Box className="w-3 h-3 shrink-0" />
+					<span className="truncate">{caseItem.primaryProduct || "No Product"}</span>
 				</div>
 			</div>
 

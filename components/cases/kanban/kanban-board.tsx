@@ -1,27 +1,14 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import {
-	DndContext,
-	DragOverlay,
-	closestCorners,
-	KeyboardSensor,
-	PointerSensor,
-	useSensor,
-	useSensors,
-	DragStartEvent,
-	DragOverEvent,
-	DragEndEvent,
-	defaultDropAnimationSideEffects,
-} from "@dnd-kit/core";
-import { sortableKeyboardCoordinates } from "@dnd-kit/sortable";
+import { DndContext, DragOverlay, closestCorners, PointerSensor, useSensor, useSensors, DragStartEvent, DragOverEvent, DragEndEvent, defaultDropAnimationSideEffects } from "@dnd-kit/core";
 import { CaseStatus } from "@/schema/base/enums.base";
 import { CaseListDTO } from "@/schema/composed/case.details";
-import { KanbanColumn } from "./kanban-column";
-import { KanbanCard } from "./kanban-card";
+
 import { getStatusTransitionWarning, VALID_TRANSITIONS } from "@/lib/permissions/cases/clinical-status-rules";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { AlertTriangle, Loader2 } from "lucide-react";
+import { DesktopKanbanColumn } from "./kanban-desktop/desktop-column";
 
 const COLUMNS: { id: CaseStatus; title: string }[] = [
 	{ id: "NEW", title: "Intake" },
@@ -126,13 +113,13 @@ export function KanbanBoard({ data, onStatusChange }: Props) {
 	return (
 		<DndContext sensors={sensors} collisionDetection={closestCorners} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
 			<div className="flex h-full w-full overflow-x-auto pb-6 custom-scrollbar gap-6 px-4 items-start">
-				{COLUMNS.map((col) => (
-					<KanbanColumn key={col.id} id={col.id} title={col.title} cases={columnsData[col.id]} />
-				))}
+				{/* {COLUMNS.map((col) => (
+					// <DesktopKanbanColumn key={col.id} id={col.id} title={col.title} cases={columnsData[col.id]} />
+				))} */}
 			</div>
 
 			<DragOverlay dropAnimation={{ sideEffects: defaultDropAnimationSideEffects({ styles: { active: { opacity: "0.4" } } }) }}>
-				{activeCase ? <KanbanCard caseItem={activeCase} isOverlay /> : null}
+				{/* {activeCase ? <KanbanCard caseItem={activeCase} isOverlay /> : null} */}
 			</DragOverlay>
 
 			{/* --- THE INTERCEPTOR DIALOG --- */}
