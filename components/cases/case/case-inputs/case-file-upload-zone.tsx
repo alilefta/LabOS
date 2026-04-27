@@ -2,7 +2,7 @@
 
 import { useCallback, useState } from "react";
 import { useDropzone, FileRejection } from "react-dropzone";
-import { UploadCloud, X, Loader2, Info, Box, ImageIcon, Video } from "lucide-react";
+import { UploadCloud, X, Loader2, Info } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { AssetFileType } from "@/schema/base/enums.base"; // Adjust import path
 import { ClientUploadedFileData } from "uploadthing/types";
 import { CreateCaseAssetFilesInput } from "@/schema/composed/case-asset-file.details";
+import { CaseFormModeType, UpdateCaseAssetFilesInput } from "@/schema/composed/case.details";
 
 // Internal state tracking for the UI progress (before it hits the form)
 interface UploadingFile {
@@ -35,18 +36,18 @@ const getAssetFileType = (fileName: string): AssetFileType => {
 	return "IMAGE"; // Fallback
 };
 
-const getFileIcon = (type: AssetFileType) => {
-	switch (type) {
-		case "SCANNERFILE":
-			return <Box className="w-5 h-5" />;
-		case "IMAGE":
-			return <ImageIcon className="w-5 h-5" />;
-		case "VIDEO":
-			return <Video className="w-5 h-5" />;
-	}
-};
+// const getFileIcon = (type: AssetFileType) => {
+// 	switch (type) {
+// 		case "SCANNERFILE":
+// 			return <Box className="w-5 h-5" />;
+// 		case "IMAGE":
+// 			return <ImageIcon className="w-5 h-5" />;
+// 		case "VIDEO":
+// 			return <Video className="w-5 h-5" />;
+// 	}
+// };
 
-export function CaseFileUploadZone({ onUploadFiles }: { onUploadFiles: (UploadedFiles: CreateCaseAssetFilesInput[]) => void }) {
+export function CaseFileUploadZone({ onUploadFiles, mode }: { onUploadFiles: (UploadedFiles: CreateCaseAssetFilesInput[] | UpdateCaseAssetFilesInput[]) => void; mode: CaseFormModeType }) {
 	// const { control } = useFormContext<CreateCaseInput>();
 	// const { fields, append, remove } = useFieldArray({
 	// 	control,
@@ -62,8 +63,12 @@ export function CaseFileUploadZone({ onUploadFiles }: { onUploadFiles: (Uploaded
 				labId: string;
 			}>[],
 		) => {
+			const isEdit = mode === "edit";
+
 			// Map the completed UploadThing response into the Zod Schema
 			const newAssets = assets.map((file) => ({
+				// If editing, we MUST add the isNew discriminator
+				...(isEdit && { isNew: true }),
 				title: file.name,
 				description: "",
 				documentUrl: file.ufsUrl || file.url,
@@ -75,7 +80,7 @@ export function CaseFileUploadZone({ onUploadFiles }: { onUploadFiles: (Uploaded
 			onUploadFiles(newAssets);
 			setTotalUploadedFiles(newAssets.length);
 		},
-		[onUploadFiles],
+		[onUploadFiles, mode],
 	);
 
 	// UI tracking for files currently uploading
@@ -155,7 +160,7 @@ export function CaseFileUploadZone({ onUploadFiles }: { onUploadFiles: (Uploaded
 							</TooltipTrigger>
 
 							{/* Look how clean this is now! No !important tags needed. */}
-							<TooltipContent className="max-w-[260px] p-4">
+							<TooltipContent className="max-w-65 p-4">
 								<p className="text-[10px] font-bold uppercase text-primary tracking-widest mb-1.5 flex items-center gap-1.5">
 									<Info className="w-3 h-3" /> Supported Formats
 								</p>
@@ -175,13 +180,13 @@ export function CaseFileUploadZone({ onUploadFiles }: { onUploadFiles: (Uploaded
 				{...getRootProps()}
 				className={cn(
 					"relative group border-2 border-dashed rounded-2xl p-10 transition-all duration-300 flex flex-col items-center justify-center cursor-pointer overflow-hidden",
-					isDragActive ? "border-primary bg-primary/5 scale-[1.01]" : "border-border bg-slate-50 dark:bg-white/[0.02] hover:border-primary/40 hover:bg-slate-50/80 dark:hover:bg-white/5",
+					isDragActive ? "border-primary bg-primary/5 scale-[1.01]" : "border-border bg-slate-50 dark:bg-white/2 hover:border-primary/40 hover:bg-slate-50/80 dark:hover:bg-white/5",
 				)}
 			>
 				<input {...getInputProps()} />
 
 				{/* Decorative background blur on hover */}
-				<div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-primary/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+				<div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,var(--tw-gradient-stops))] from-primary/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
 
 				<div className="w-12 h-12 rounded-xl bg-white dark:bg-[#121214] border border-border flex items-center justify-center mb-4 group-hover:scale-110 group-hover:shadow-[0_0_15px_rgba(37,99,235,0.2)] transition-all shadow-sm relative z-10">
 					<UploadCloud className={cn("w-5 h-5 transition-colors", isDragActive ? "text-primary" : "text-slate-400 dark:text-zinc-500 group-hover:text-primary")} />
@@ -206,7 +211,7 @@ export function CaseFileUploadZone({ onUploadFiles }: { onUploadFiles: (Uploaded
 
 							<div className="flex-1 min-w-0">
 								<div className="flex items-center justify-between mb-1.5">
-									<span className="text-xs font-bold text-foreground truncate max-w-[150px]">{file.name}</span>
+									<span className="text-xs font-bold text-foreground truncate max-w-37.5">{file.name}</span>
 									<span className="text-[10px] font-mono font-medium text-muted-foreground">{file.size} MB</span>
 								</div>
 								<Progress value={file.progress} className={cn("h-1.5", file.status === "error" && "bg-destructive/20 [&>div]:bg-destructive")} />

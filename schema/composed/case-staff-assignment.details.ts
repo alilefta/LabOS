@@ -21,7 +21,7 @@ export const CaseStaffAssignmentDetailsUISchema = CaseStaffAssignmentBaseSchema.
 
 export type CaseStaffAssignmentDetailsUI = z.infer<typeof CaseStaffAssignmentDetailsUISchema>;
 
-export const CreateCaseStaffAssignmentInputSchema = z.object({
+export const CreateStaffAssignmentInputSchema = z.object({
 	caseId: z.string().trim().min(2, "Case id is required."),
 	staffId: z.string().trim().min(2, "Staff id is required."),
 	commissionType: CommissionTypeSchema,
@@ -30,6 +30,14 @@ export const CreateCaseStaffAssignmentInputSchema = z.object({
 	commissionTotal: z.number(),
 	isPaid: z.boolean(),
 	paidAt: z.date().optional(),
+});
+export type CreateStaffAssignmentInput = z.infer<typeof CreateStaffAssignmentInputSchema>;
+
+export const CreateCaseStaffAssignmentInputSchema = CreateStaffAssignmentInputSchema.omit({
+	caseId: true,
+	isPaid: true,
+	commissionTotal: true,
+	paidAt: true,
 });
 export type CreateCaseStaffAssignmentInput = z.infer<typeof CreateCaseStaffAssignmentInputSchema>;
 

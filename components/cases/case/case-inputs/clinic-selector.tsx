@@ -14,6 +14,7 @@ import { getClinicsBySearchQueryAction } from "@/actions/clinic";
 import { Skeleton } from "@/components/ui/skeleton";
 import { handleSafeActionError } from "@/lib/safe-action-helpers";
 import { FieldError } from "react-hook-form";
+import { CaseFormModeType } from "@/schema/composed/case.details";
 
 type DataShape = ClinicDetailsUI[];
 // Helper to get icon based on ClinicType
@@ -36,16 +37,17 @@ interface ClinicSelectorProps {
 	onCreateNew: () => void;
 	newCreatedClinic: ClinicDetailsUI | null;
 	fieldError: FieldError | undefined;
+	mode: CaseFormModeType;
 }
-export const ClinicSelector = memo(({ value, onSelect, onCreateNew, newCreatedClinic, fieldError }: ClinicSelectorProps) => {
+export const ClinicSelector = memo(({ value, onSelect, onCreateNew, newCreatedClinic, fieldError, mode }: ClinicSelectorProps) => {
 	const [open, setOpen] = useState(false);
 	// const [selectedId, setSelectedId] = useState<string>("");
+
 	const [search, setSearch] = useState("");
 	const debouncedSearch = useDebounce({ value: search, delay: 300 });
 
 	const queryClient = useQueryClient();
 	const queryKey = useMemo(() => ["clinics", "search", debouncedSearch], [debouncedSearch]);
-
 	const { data: fetchedClinics, isFetching } = useQuery({
 		queryKey,
 		queryFn: async () => {
@@ -56,7 +58,7 @@ export const ClinicSelector = memo(({ value, onSelect, onCreateNew, newCreatedCl
 			return res.data?.clinics || [];
 		},
 		// Enable fetching if popover is open OR if we are hydrating a draft (value exists but no data)
-		enabled: open || !!value,
+		enabled: open || !!value || mode === "edit",
 		staleTime: 1000 * 60 * 5,
 	});
 

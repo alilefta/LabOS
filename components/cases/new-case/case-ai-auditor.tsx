@@ -4,9 +4,9 @@ import { Sparkles, AlertCircle, CheckCircle2, Info, ChevronUp, ChevronDown, Rece
 import { memo, useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
 import { Control, useFormContext, useWatch } from "react-hook-form";
-import { CreateCaseInput } from "@/schema/composed/case.details";
+import { CaseFormModeType, CreateCaseInput } from "@/schema/composed/case.details";
 
-export function CaseAiAuditor({ control }: { control: Control<CreateCaseInput> }) {
+export function CaseAiAuditor({ control, mode }: { control: Control<CreateCaseInput>; mode: CaseFormModeType }) {
 	// --- 1. WATCHERS (Subscribing to specific form state) ---
 	const caseWorkItems = useWatch({ control, name: "caseWorkItems", defaultValue: [] });
 	const caseAssetFiles = useWatch({ control, name: "caseAssetFiles", defaultValue: [] }) || [];

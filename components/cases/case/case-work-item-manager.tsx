@@ -4,7 +4,7 @@ import { memo, useCallback, useState } from "react";
 import { Plus, Trash2, Layers, AlertCircle, Edit2, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useFormContext, useFieldArray, useWatch } from "react-hook-form";
-import { CreateCaseInput } from "@/schema/composed/case.details";
+import { CaseFormModeType, CreateCaseInput } from "@/schema/composed/case.details";
 import { WorkItemEditorModal } from "@/components/modals/cases/work-items/work-item-editor-modal";
 import { cn } from "@/lib/utils";
 import { TeethQuadrantSummary } from "./teeth-quadrant-summary";
@@ -52,7 +52,7 @@ import { WorktypeDetailsUI } from "@/schema/composed/worktype.details";
 // 	LowerRightThirdMolar: 32,
 // };
 
-export const CaseWorkItemManager = memo(function CaseWorkItemManager({ categoryName }: { categoryName: string | null }) {
+export const CaseWorkItemManager = memo(function CaseWorkItemManager({ categoryName, mode }: { categoryName: string | null; mode: CaseFormModeType }) {
 	const { control, watch } = useFormContext<CreateCaseInput>();
 	const { fields, append, update, remove } = useFieldArray({
 		control,
@@ -73,30 +73,25 @@ export const CaseWorkItemManager = memo(function CaseWorkItemManager({ categoryN
 	// null = closed, -1 = adding new, >= 0 = editing existing
 	const [editingIndex, setEditingIndex] = useState<number | null>(null);
 
+	const isEdit = mode === "edit";
+
 	const getProductName = useCallback(
 		(id: string | null, selectedWorkTypeId: string | null) => {
-			if (!id) return "Incomplete Work Item";
-			// Example: return products.find(p => p.id === id)?.name || id;
+			if (!id || !selectedWorkTypeId) return "ID: " + id?.substring(0, 8);
 
-			if (selectedWorkTypeId) {
-				const products = queryClient.getQueryData<ProductDetailsUI[] | undefined>(["products", selectedWorkTypeId]);
-				if (products && products.length > 0) return products?.find((p) => p.id === id)?.name || `Product ${id.substring(0, 4)}...`;
-			}
-
-			return `Product ${id.substring(0, 4)}...`;
+			const cachedProducts = queryClient.getQueryData<ProductDetailsUI[]>(["products", selectedWorkTypeId]);
+			return cachedProducts?.find((p) => p.id === id)?.name || "PROD-" + id.substring(0, 6).toUpperCase();
 		},
 		[queryClient],
 	);
 
 	const getWorkTypeName = useCallback(
-		(id: string | null, selectedCategoryId: string | null, selectedJawType: JawType | null) => {
-			if (!id) return "Incomplete Work Item";
-			if (selectedCategoryId) {
-				const worktypes = queryClient.getQueryData<WorktypeDetailsUI[] | undefined>(["workTypes", selectedCategoryId, selectedJawType]);
-				if (worktypes && worktypes.length > 0) return worktypes?.find((wt) => wt.id === id)?.name || `WorkType ${id.substring(0, 4)}...`;
-			}
+		(id: string | null, catId: string | null, jaw: JawType) => {
+			if (!id || !catId) return "ID: " + id?.substring(0, 8);
 
-			return `WorkType ${id.substring(0, 4)}...`;
+			// MATCHED THE KEY: ["workTypes", categoryId, selectedJawType]
+			const cachedWorkTypes = queryClient.getQueryData<WorktypeDetailsUI[]>(["workTypes", catId, jaw]);
+			return cachedWorkTypes?.find((wt) => wt.id === id)?.name || "DEPT-" + id.substring(0, 6).toUpperCase();
 		},
 		[queryClient],
 	);
@@ -217,7 +212,11 @@ export const CaseWorkItemManager = memo(function CaseWorkItemManager({ categoryN
 									<div className="flex flex-col gap-1.5">
 										<div className="flex flex-wrap items-center gap-2">
 											<span className="text-sm font-bold text-foreground group-hover:text-primary transition-colors">
-												{getWorkTypeName(item.workTypeId ?? null, selectedCategoryId ?? null, item.jawType)} - {getProductName(item.productId ?? null, item.workTypeId ?? null)}
+												<span className="text-sm font-bold text-foreground group-hover:text-primary transition-colors">
+													{getWorkTypeName(item.workTypeId, selectedCategoryId ?? null, item.jawType)}
+													<span className="mx-2 text-muted-foreground font-normal">/</span>
+													{getProductName(item.productId, item.workTypeId)}
+												</span>
 											</span>
 											<span
 												className={cn(
@@ -280,6 +279,7 @@ export const CaseWorkItemManager = memo(function CaseWorkItemManager({ categoryN
 			{/* --- THE EDITOR SHEET --- */}
 			{selectedCategoryId && (
 				<WorkItemEditorModal
+					mode={mode} // Pass the mode down
 					isOpen={editingIndex !== null}
 					selectedCategoryId={selectedCategoryId}
 					selectedCategoryName={categoryName}

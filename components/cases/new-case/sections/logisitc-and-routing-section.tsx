@@ -2,7 +2,7 @@
 
 import { Controller, useFormContext } from "react-hook-form";
 
-import { CreateCaseInput } from "@/schema/composed/case.details";
+import { CaseFormModeType, CreateCaseInput } from "@/schema/composed/case.details";
 import { DeadlineSelector } from "../../case/case-inputs/deadline-selector";
 import { InitialStaffAssigner } from "../../case/case-inputs/initial-staff-assigner";
 import { LabStaffDetailsUI } from "@/schema/composed/lab-staff.details";
@@ -12,9 +12,10 @@ import { StaffRoleCategory } from "@/schema/base/enums.base";
 interface Props {
 	handleOpenRegisterLabStaffSheet: (requiredStaffRoles: StaffRoleCategory[]) => void;
 	newRegisteredStaffMember: LabStaffDetailsUI | null;
+	mode: CaseFormModeType;
 }
 
-export function LogisticsAndRoutingSection({ newRegisteredStaffMember, handleOpenRegisterLabStaffSheet }: Props) {
+export function LogisticsAndRoutingSection({ newRegisteredStaffMember, handleOpenRegisterLabStaffSheet, mode }: Props) {
 	const { control, setValue } = useFormContext<CreateCaseInput>();
 
 	const handleDeadlineSelect = useCallback(
@@ -44,7 +45,7 @@ export function LogisticsAndRoutingSection({ newRegisteredStaffMember, handleOpe
 
 				{/* 2. INITIAL STAFF ASSIGNMENTS (2 Columns) */}
 				<div className="lg:col-span-2">
-					<InitialStaffAssigner onOpenRegisterMemberSheet={handleOpenRegisterLabStaffSheet} newRegisteredStaffMember={newRegisteredStaffMember} />
+					<InitialStaffAssigner mode={mode} onOpenRegisterMemberSheet={handleOpenRegisterLabStaffSheet} newRegisteredStaffMember={newRegisteredStaffMember} />
 				</div>
 			</div>
 		</section>

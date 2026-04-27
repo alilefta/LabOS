@@ -13,7 +13,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 // Mocking the action - replace with your actual server action!
 import { handleSafeActionError } from "@/lib/safe-action-helpers";
 import { getDentistsByClinicAction } from "@/actions/clinics/dentists/get-dentists";
-import { CreateCaseInput } from "@/schema/composed/case.details";
+import { CaseFormModeType, CreateCaseInput, UpdateCaseInput } from "@/schema/composed/case.details";
 
 interface Dentist {
 	id: string;
@@ -27,10 +27,11 @@ interface DentistSelectorProps {
 	onSelect: (id: string | undefined) => void;
 	onCreateNew?: () => void; // Optional: To wire up a "Register Dentist" modal later
 	fieldError: FieldError | undefined;
-	control: Control<CreateCaseInput>;
+	control: Control<CreateCaseInput | UpdateCaseInput>;
+	mode: CaseFormModeType;
 }
 
-export const DentistSelector = memo(function DentistSelector({ value, control, onSelect, onCreateNew, fieldError }: DentistSelectorProps) {
+export const DentistSelector = memo(function DentistSelector({ value, control, onSelect, onCreateNew, fieldError, mode }: DentistSelectorProps) {
 	const [open, setOpen] = useState(false);
 	const [search, setSearch] = useState("");
 
@@ -47,7 +48,7 @@ export const DentistSelector = memo(function DentistSelector({ value, control, o
 			}
 			return (res.data?.dentists as Dentist[]) || [];
 		},
-		enabled: !!clinicId, // Progressive Enablement
+		enabled: !!clinicId || mode === "edit", // Progressive Enablement
 		staleTime: 1000 * 60 * 10,
 	});
 

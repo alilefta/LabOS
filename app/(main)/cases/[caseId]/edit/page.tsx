@@ -2,6 +2,7 @@ import { notFound, redirect } from "next/navigation";
 import { mapCaseToUpdateFormValues } from "@/lib/case-helpers";
 import { getDentalCaseById } from "@/data/cases/get-case";
 import { CaseDetailsUI } from "@/schema/composed/case.details";
+import { EditCaseClient } from "@/components/cases/edit-case/edit-case-client";
 
 interface Props {
 	params: Promise<{ caseId: string }>;
@@ -35,7 +36,14 @@ export default async function EditCasePage({ params }: Props) {
                 We also pass the Case Number and Patient Name as "Display Only" props
                 since they are immutable in the form.
             */}
-			<EditCaseClient initialData={initialData} caseNumber={dentalCase.caseNumber} patientName={dentalCase.patient.name} />
+			<EditCaseClient
+				initialData={initialData}
+				caseNumber={dentalCase.caseNumber}
+				patientName={dentalCase?.patient?.name ?? "Patient ..."}
+				patientId={dentalCase.patientId}
+				caseStatus={dentalCase.status}
+				caseId={dentalCase.id}
+			/>
 		</div>
 	);
 }

@@ -13,6 +13,7 @@ import { ClinicalProductConfigurator } from "@/components/cases/new-case/categor
 import { CasePricingPlanDetailsUI } from "@/schema/composed/case-pricing-plan.details";
 
 import { MetadataEditorRef, WorkItemMetadataEditor } from "@/components/cases/new-case/category-and-work-items/work-item-metadata-editor";
+import { CaseFormModeType } from "@/schema/composed/case.details";
 
 interface WorkItemEditorProps {
 	isOpen: boolean;
@@ -22,6 +23,7 @@ interface WorkItemEditorProps {
 	selectedCategoryId: string;
 	selectedClinicId: string | null;
 	selectedCategoryName: string | null;
+	mode: CaseFormModeType;
 }
 
 const parseTeethFromData = (teethData: CreateCaseWorkItemInput["selectedTeeth"]): ToothPosition[] => {
@@ -29,7 +31,7 @@ const parseTeethFromData = (teethData: CreateCaseWorkItemInput["selectedTeeth"])
 	return teethData.map((t) => (typeof t === "string" ? t : t.toothPosition));
 };
 
-export function WorkItemEditorModal({ isOpen, onClose, onSave, initialData, selectedCategoryId, selectedClinicId, selectedCategoryName }: WorkItemEditorProps) {
+export function WorkItemEditorModal({ isOpen, onClose, onSave, initialData, selectedCategoryId, selectedClinicId, selectedCategoryName, mode }: WorkItemEditorProps) {
 	const [productId, setProductId] = useState(initialData?.productId || "");
 	const [pricingPlanId, setPricingPlanId] = useState(initialData?.casePricingPlanId || "");
 	const [pricingPlanObj, setPricingPlanObj] = useState<CasePricingPlanDetailsUI | null>(null); // Lifted object
@@ -50,6 +52,19 @@ export function WorkItemEditorModal({ isOpen, onClose, onSave, initialData, sele
 		setPricingPlanObj(plan);
 		setPricingPlanId(id);
 	}, []);
+
+	const handleJawTypeChange = useCallback(
+		(newType: "UPPER" | "LOWER" | "OTHER") => {
+			if (jawType === newType) return;
+
+			setJawType(newType);
+			// If switching between arches, clear teeth to prevent invalid positions (e.g. UR1 on Lower Arch)
+			setSelectedTeeth([]);
+
+			// If switching to OTHER, we don't need a workType reset here as the Configurator handles that cascadingly
+		},
+		[jawType],
+	);
 
 	const metadataRef = useRef<MetadataEditorRef>(null);
 
@@ -136,6 +151,8 @@ export function WorkItemEditorModal({ isOpen, onClose, onSave, initialData, sele
 
 	const isComplete = missingRequirements.length === 0;
 
+	const isEdit = mode === "edit";
+
 	return (
 		<Dialog open={isOpen} onOpenChange={onClose}>
 			<DialogHeader className="sr-only">
@@ -155,8 +172,11 @@ export function WorkItemEditorModal({ isOpen, onClose, onSave, initialData, sele
 							<Layers className="w-4 h-4 sm:w-5 sm:h-5" />
 						</div>
 						<div>
-							<DialogTitle className="text-lg sm:text-xl font-bold tracking-tight">Configure Work Item</DialogTitle>
-							<p className="hidden sm:block text-xs text-muted-foreground font-medium">Select product, pricing, and map clinical positions.</p>
+							<DialogTitle className="text-lg sm:text-xl font-bold tracking-tight"> {isEdit ? "Update Work Item" : "Configure Work Item"}</DialogTitle>
+							<p className="hidden sm:block text-xs text-muted-foreground font-medium">
+								{" "}
+								{isEdit ? "Revising clinical specs for this case." : "Select product and map clinical positions."}
+							</p>
 						</div>
 					</div>
 					<DialogClose onClick={onClose} className="p-2 hover:bg-slate-100 dark:hover:bg-white/5 rounded-full transition-colors outline-none focus-visible:ring-2 focus-visible:ring-primary">
@@ -181,12 +201,7 @@ export function WorkItemEditorModal({ isOpen, onClose, onSave, initialData, sele
 										<button
 											key={type}
 											type="button"
-											onClick={() => {
-												if (jawType !== type) {
-													setJawType(type as JawType);
-													setSelectedTeeth([]);
-												}
-											}}
+											onClick={() => handleJawTypeChange(type as JawType)}
 											className={cn(
 												"flex-1 text-[11px] font-bold rounded-lg transition-all uppercase tracking-wider",
 												jawType === type ? "bg-white dark:bg-[#121214] text-primary shadow-sm ring-1 ring-border" : "text-muted-foreground hover:text-foreground",
@@ -200,6 +215,7 @@ export function WorkItemEditorModal({ isOpen, onClose, onSave, initialData, sele
 
 							{/* The New Configurator Component */}
 							<ClinicalProductConfigurator
+								mode={mode}
 								categoryId={selectedCategoryId}
 								selectedProductId={productId}
 								selectedPricingPlanId={pricingPlanId}
@@ -292,7 +308,7 @@ export function WorkItemEditorModal({ isOpen, onClose, onSave, initialData, sele
 							isComplete ? "bg-primary hover:bg-primary/90 text-white shadow-premium" : "bg-slate-100 dark:bg-white/5 text-slate-400 dark:text-zinc-500 cursor-not-allowed",
 						)}
 					>
-						<Check className="w-4 h-4" /> Save Work Item
+						<Check className="w-4 h-4" /> {isEdit ? "Update Work Item" : "Save Work Item"}
 					</Button>
 				</div>
 			</DialogContent>

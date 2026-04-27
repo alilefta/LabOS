@@ -2,15 +2,29 @@
 import { memo } from "react";
 import { CaseFileUploadZone } from "../../case/case-inputs/case-file-upload-zone";
 import { ClinicalAssetPreview } from "../../case/clinical-assets-preview";
-import { CreateCaseAssetFilesInput } from "@/schema/composed/case-asset-file.details";
 import { useFormContext } from "react-hook-form";
-import { CreateCaseInput } from "@/schema/composed/case.details";
+import { CaseFormModeType, UpdateCaseAssetFilesInput } from "@/schema/composed/case.details";
+import { AssetFileType } from "@/schema/base/enums.base";
+import { CreateCaseAssetFilesInput } from "@/schema/composed/case-asset-file.details";
+
+// Unified type that satisfies both Create and Update schemas safely
+export interface UnifiedAssetFile {
+	id?: string;
+	isNew?: boolean;
+	title?: string;
+	description?: string;
+	documentUrl: string;
+	assetFileType: AssetFileType;
+	fileExtension: string;
+}
 
 interface Props {
-	onUploadFiles: (UploadedFiles: CreateCaseAssetFilesInput[]) => void;
+	mode: CaseFormModeType;
+	onUploadFiles: (UploadedFiles: CreateCaseAssetFilesInput[] | UpdateCaseAssetFilesInput[]) => void;
 }
-export const AssetsAndFilesSection = memo(function AssetsAndFilesSection({ onUploadFiles }: Props) {
-	const { control, getValues } = useFormContext<CreateCaseInput>();
+
+export const AssetsAndFilesSection = memo(function AssetsAndFilesSection({ onUploadFiles, mode }: Props) {
+	const { control, getValues } = useFormContext<{ caseAssetFiles: UnifiedAssetFile[] }>();
 	return (
 		<section className="space-y-8">
 			<div className="flex items-center gap-3">
@@ -19,8 +33,8 @@ export const AssetsAndFilesSection = memo(function AssetsAndFilesSection({ onUpl
 			</div>
 
 			<div className="grid grid-cols-1 gap-12">
-				<CaseFileUploadZone onUploadFiles={onUploadFiles} />
-				<ClinicalAssetPreview control={control} getValues={getValues} />
+				<CaseFileUploadZone mode={mode} onUploadFiles={onUploadFiles} />
+				<ClinicalAssetPreview mode={mode} control={control} getValues={getValues} />
 			</div>
 		</section>
 	);

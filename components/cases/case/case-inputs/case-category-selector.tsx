@@ -9,7 +9,7 @@ import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { CreateCaseInput } from "@/schema/composed/case.details";
+import { CaseFormModeType, CreateCaseInput } from "@/schema/composed/case.details";
 import { getCaseCategoriesAction } from "@/actions/case-category";
 import { handleSafeActionError } from "@/lib/safe-action-helpers";
 import { CaseCategoryDetailsUI } from "@/schema/composed/case-category.details";
@@ -30,15 +30,20 @@ import { CaseCategoryDetailsUI } from "@/schema/composed/case-category.details";
 type DataShape = CaseCategoryDetailsUI[];
 
 interface Props {
+	mode: CaseFormModeType;
+
 	onCreateNew: () => void;
 	newCreatedCategory: CaseCategoryDetailsUI | null;
 	onSelect: (id: string, name: string) => void;
 }
 
-export const CaseCategorySelector = memo(function CaseCategorySelector({ onCreateNew, newCreatedCategory, onSelect }: Props) {
+export const CaseCategorySelector = memo(function CaseCategorySelector({ onCreateNew, newCreatedCategory, onSelect, mode }: Props) {
 	const [pendingCategory, setPendingCategory] = useState<string | null>(null);
 	const { watch, setValue, control } = useFormContext<CreateCaseInput>();
 	const selectedCat = watch("caseCategoryId");
+	const isEdit = mode === "edit";
+
+	console.log("Selected Case category Id", selectedCat);
 
 	const { remove } = useFieldArray({ control, name: "caseWorkItems" });
 
@@ -214,10 +219,11 @@ export const CaseCategorySelector = memo(function CaseCategorySelector({ onCreat
 						<div className="w-12 h-12 rounded-xl bg-destructive/10 flex items-center justify-center mb-4 border border-destructive/20">
 							<AlertTriangle className="w-6 h-6 text-destructive" />
 						</div>
-						<AlertDialogTitle className="text-xl font-bold tracking-tight">Change Category?</AlertDialogTitle>
+						<AlertDialogTitle className="text-xl font-bold tracking-tight">{isEdit ? "Reset Case Work Items?" : "Change Category?"}</AlertDialogTitle>
 						<AlertDialogDescription className="text-sm text-muted-foreground leading-relaxed mt-2">
-							You have already added work items and selected teeth for this case. Changing the clinical category will{" "}
-							<strong className="text-foreground">permanently remove all current items</strong> to reset the pricing logic.
+							{isEdit
+								? "You are currently revising an existing case. Changing the clinical category will wipe all existing work items, teeth mappings, and pricing snapshots for this revision."
+								: "Changing categories will permanently remove all current items to reset the pricing logic."}
 						</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter className="mt-6 gap-3 sm:gap-0">

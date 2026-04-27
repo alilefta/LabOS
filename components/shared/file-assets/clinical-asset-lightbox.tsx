@@ -8,7 +8,7 @@ import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { AssetFileType } from "@/schema/base/enums.base";
 import dynamic from "next/dynamic";
-import { CaseAssetFileDetailsUI } from "@/schema/composed/case-asset-file.details";
+import { UnifiedAssetFile } from "@/components/cases/new-case/sections/assets-and-files-section";
 
 const ScannerFilesViewer = dynamic(() => import("./scanner-files-viewer").then((m) => m.ScannerFilesViewer), {
 	ssr: false,
@@ -28,19 +28,10 @@ const getIcon = (type?: AssetFileType) => {
 	}
 };
 
-interface Asset {
-	id?: string;
-	title: string;
-	description?: string | null;
-	documentUrl?: string;
-	assetFileType: AssetFileType;
-	fileExtension: string; // Added to match your new schema
-}
-
 interface Props {
 	isOpen: boolean;
 	onClose: () => void;
-	assets: CaseAssetFileDetailsUI[];
+	assets: UnifiedAssetFile[];
 	initialIndex: number;
 }
 

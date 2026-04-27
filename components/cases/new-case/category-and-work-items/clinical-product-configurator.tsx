@@ -18,8 +18,10 @@ import { getProductsByWorkTypeAction } from "@/actions/product";
 import { getPricingPlansByProductAction } from "@/actions/pricing-plan";
 import { handleSafeActionError } from "@/lib/safe-action-helpers";
 import { JawType } from "@/schema/base/enums.base";
+import { CaseFormModeType } from "@/schema/composed/case.details";
 
 interface ClinicalProductConfiguratorProps {
+	mode: CaseFormModeType;
 	categoryId?: string | null;
 	clinicId?: string | null;
 	selectedProductId?: string | null;
@@ -43,6 +45,7 @@ export const ClinicalProductConfigurator = memo(function ClinicalProductConfigur
 	onWorkTypeSelect,
 	selectedCategoryName,
 	selectedJawType,
+	mode,
 }: ClinicalProductConfiguratorProps) {
 	// Dropdown open states
 	const [wtOpen, setWtOpen] = useState(false);
@@ -59,7 +62,7 @@ export const ClinicalProductConfigurator = memo(function ClinicalProductConfigur
 	const newCreatedPricingId = useClinicalCreationStore((state) => state.newCreatedPricingId);
 	const consumeNewlyCreated = useClinicalCreationStore((state) => state.consumeNewlyCreated);
 
-	console.log("WT ID", selectedWorkTypeId, "Product ID", selectedProductId, "Pricing Plan ID", selectedPricingPlanId);
+	// console.log("WT ID", selectedWorkTypeId, "Product ID", selectedProductId, "Pricing Plan ID", selectedPricingPlanId);
 
 	// Prevent clearing on initial mount
 	const prevJawType = useRef<JawType>(selectedJawType);
@@ -201,6 +204,7 @@ export const ClinicalProductConfigurator = memo(function ClinicalProductConfigur
 			<div className="flex flex-col gap-2">
 				<label className="text-[12px] font-bold text-slate-700 dark:text-zinc-300 uppercase tracking-wider">1. Work Type</label>
 				<SelectorDropdown
+					mode={mode} // Pass mode
 					isOpen={wtOpen}
 					setIsOpen={setWtOpen}
 					isDisabled={!categoryId}
@@ -220,6 +224,7 @@ export const ClinicalProductConfigurator = memo(function ClinicalProductConfigur
 			<div className="flex flex-col gap-2">
 				<label className="text-[12px] font-bold text-slate-700 dark:text-zinc-300 uppercase tracking-wider">2. Manufacturing Product</label>
 				<SelectorDropdown
+					mode={mode} // Pass mode
 					isOpen={prodOpen}
 					setIsOpen={setProdOpen}
 					isDisabled={!selectedWorkTypeId}
@@ -239,6 +244,7 @@ export const ClinicalProductConfigurator = memo(function ClinicalProductConfigur
 			<div className="flex flex-col gap-2">
 				<label className="text-[12px] font-bold text-slate-700 dark:text-zinc-300 uppercase tracking-wider">3. Pricing Plan</label>
 				<SelectorDropdown
+					mode={mode} // Pass mode
 					isOpen={priceOpen}
 					setIsOpen={setPriceOpen}
 					isDisabled={!selectedProductId}
@@ -261,6 +267,8 @@ export const ClinicalProductConfigurator = memo(function ClinicalProductConfigur
 // --- SUB-COMPONENT: REUSABLE SELECTOR ---
 
 type BaseSelectorProps = {
+	mode: CaseFormModeType; // Include mode
+
 	isOpen: boolean;
 	setIsOpen: (value: boolean) => void;
 	isDisabled: boolean;
@@ -272,6 +280,7 @@ type BaseSelectorProps = {
 	onCreate: () => void;
 	createLabel: string;
 	emptyText: string;
+	fallbackName?: string; // NEW PROP
 };
 
 // Unified type allowing strict casting below
@@ -281,10 +290,11 @@ type SelectorProps = BaseSelectorProps & {
 };
 
 const SelectorDropdown = memo(function SelectorDropdown(props: SelectorProps) {
-	const { isOpen, setIsOpen, isDisabled, isLoading, value, placeholder, icon: Icon, items, onSelect, onCreate, createLabel, emptyText, type } = props;
+	const { isOpen, setIsOpen, isDisabled, isLoading, value, placeholder, icon: Icon, items, onSelect, onCreate, createLabel, emptyText, type, mode, fallbackName } = props;
 
 	// Safely find the selected item
-	const selectedItem = items.find((i) => i.id === value);
+	const selectedItem = useMemo(() => items.find((i) => i.id === value), [items, value]);
+	const isLegacyItem = !selectedItem && !!value && !!fallbackName && mode === "edit";
 
 	// Helper to format pricing strategy display correctly
 	const formatPricing = (item: Partial<CasePricingPlanDetailsUI>) => {
@@ -308,14 +318,35 @@ const SelectorDropdown = memo(function SelectorDropdown(props: SelectorProps) {
 					)}
 				>
 					<div className="flex items-center gap-3 truncate min-w-0">
-						{isLoading && !selectedItem ? (
+						{isLoading && !selectedItem && !isLegacyItem ? (
 							<Loader2 className="w-4 h-4 shrink-0 animate-spin text-primary" />
 						) : (
-							<Icon className={cn("w-4 h-4 shrink-0 transition-colors", value ? "text-primary" : "text-slate-400 dark:text-zinc-500")} />
+							<Icon className={cn("w-4 h-4 shrink-0 transition-colors", value ? (isLegacyItem ? "text-amber-500" : "text-primary") : "text-slate-400")} />
 						)}
 
 						<span className={cn("text-[13px] truncate", !value && "text-muted-foreground")}>
-							{selectedItem ? <span className="font-bold text-foreground">{selectedItem.name}</span> : placeholder}
+							{selectedItem ? (
+								<span className="flex items-center gap-2">
+									<span className="font-bold text-foreground animate-in fade-in duration-300">{selectedItem.name}</span>
+									{mode === "edit" && (
+										<span className="hidden sm:inline-flex px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[8px] font-black uppercase tracking-tighter border border-emerald-500/20">
+											Current
+										</span>
+									)}
+								</span>
+							) : isLegacyItem ? (
+								// --- UX FIX: HANDLE LEGACY IDS ---
+								<span className="flex items-center gap-2">
+									<span className="font-bold text-foreground opacity-60 line-through decoration-amber-500/50">{fallbackName}</span>
+									<span className="hidden sm:inline-flex px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-600 dark:text-amber-500 text-[8px] font-black uppercase tracking-tighter border border-amber-500/20">
+										Archived
+									</span>
+								</span>
+							) : value ? (
+								<span className="font-mono text-muted-foreground animate-pulse text-[11px]">Resolving {value.substring(0, 8)}...</span>
+							) : (
+								placeholder
+							)}
 						</span>
 					</div>
 					<ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -346,7 +377,7 @@ const SelectorDropdown = memo(function SelectorDropdown(props: SelectorProps) {
 									{items.map((item) => (
 										<CommandItem
 											key={item.id}
-											value={item.id} // CRITICAL FIX: Always use the unique ID for `value`
+											value={item.name} // CRITICAL FIX: Always use the unique ID for `value`
 											keywords={[item.name]} // CRITICAL FIX: Let users search by the item's name
 											onSelect={() => {
 												onSelect(item.id);
@@ -380,7 +411,7 @@ const SelectorDropdown = memo(function SelectorDropdown(props: SelectorProps) {
 							onClick={onCreate}
 							className="w-full justify-start text-primary hover:text-primary hover:bg-primary/10 rounded-xl text-[13px] font-bold h-10 transition-colors"
 						>
-							<Plus className="mr-2 h-4 w-4" /> {createLabel}
+							<Plus className="mr-2 h-4 w-4" /> {mode === "edit" ? "Override Selection" : createLabel}
 						</Button>
 					</div>
 				</Command>

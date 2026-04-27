@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
@@ -8,12 +8,12 @@ import { useAction } from "next-safe-action/hooks";
 import { toast } from "sonner";
 
 // Schemas & Types
-import { UpdateCaseInput, UpdateCaseInputSchema } from "@/schema/composed/case.details";
+import { CreateCaseInput, UpdateCaseInput, UpdateCaseInputSchema } from "@/schema/composed/case.details";
 import { CreateCaseAssetFilesInput } from "@/schema/composed/case-asset-file.details";
 import { ClinicDetailsUI } from "@/schema/composed/clinic.details";
 import { CaseCategoryDetailsUI } from "@/schema/composed/case-category.details";
 import { LabStaffDetailsUI } from "@/schema/composed/lab-staff.details";
-import { StaffRoleCategory } from "@/schema/base/enums.base";
+import { CaseStatus, StaffRoleCategory } from "@/schema/base/enums.base";
 
 // Actions
 import { handleSafeActionError } from "@/lib/safe-action-helpers";
@@ -29,16 +29,21 @@ import { RegisterStaffSheet } from "@/components/modals/cases/staff/register-sta
 // Zustand
 import { useClinicalCreationStore } from "@/store/use-clinical-creation-store";
 import { updateDentalCaseAction } from "@/actions/cases/update-case-form";
-import { NewCaseHeader } from "../new-case/new-case-header";
-import { NewCaseFormContent } from "../new-case/new-case-form-content";
+import { CaseFormContent } from "../new-case/case-form-content";
+import { CaseAiAuditor } from "../new-case/case-ai-auditor";
+import { CaseSummaryModal } from "../case/case-summary-modal";
+import { EditCaseFormHeader } from "./edit-case-form-header";
 
 interface Props {
 	initialData: UpdateCaseInput;
 	caseNumber: string;
 	patientName: string;
+	caseStatus: CaseStatus;
+	patientId: string;
+	caseId: string;
 }
 
-export function EditCaseClient({ initialData, caseNumber, patientName }: Props) {
+export function EditCaseClient({ initialData, caseNumber, patientName, caseStatus, patientId, caseId }: Props) {
 	const router = useRouter();
 
 	// 1. STATE MANAGEMENT
@@ -61,7 +66,10 @@ export function EditCaseClient({ initialData, caseNumber, patientName }: Props) 
 	// 2. REACT HOOK FORM INITIALIZATION
 	const form = useForm<UpdateCaseInput>({
 		resolver: zodResolver(UpdateCaseInputSchema),
-		defaultValues: initialData, // HYDRATION happens here
+		defaultValues: {
+			deadline: initialData.deadline,
+		},
+		mode: "onChange",
 	});
 
 	// 3. SERVER ACTION: UPDATE CASE
@@ -73,6 +81,12 @@ export function EditCaseClient({ initialData, caseNumber, patientName }: Props) 
 		},
 		onError: ({ error }) => handleSafeActionError(error),
 	});
+
+	useEffect(() => {
+		console.log(form.formState.dirtyFields);
+	}, [form.formState.dirtyFields]);
+
+	useEffect(() => {}, []);
 
 	// --- HANDLERS ---
 	const handleOpenClinicSheet = useCallback(() => setOpenCreateNewClinicSheet(true), []);
@@ -120,23 +134,15 @@ export function EditCaseClient({ initialData, caseNumber, patientName }: Props) 
 	return (
 		<div className="flex flex-col h-full animate-in fade-in duration-700">
 			{/* THE HEADER: Switches to EDIT branding */}
-			<NewCaseHeader
-				mode="edit"
-				caseNumber={caseNumber}
-				isSaveDraftEnabled={false} // You can't "Save Draft" on an existing production case
-				isSubmittingCase={isUpdating}
-				onSaveDraft={() => {}}
-				control={form.control as any}
-				onSubmitCaseForReview={() => form.handleSubmit(handleFormValid)()}
-			/>
+			<EditCaseFormHeader caseNumber={caseNumber} isSubmittingCase={isUpdating} control={form.control} caseId={initialData.caseId} />
 
 			<div className="flex-1 min-h-0 relative z-10">
 				<div className="flex flex-col xl:flex-row gap-8 h-full">
 					{/* FORM SECTION: Reusing the exact same body! */}
 					<FormProvider {...form}>
-						<form className="flex-1 overflow-y-auto no-scrollbar pb-48 xl:pb-32" id="new-case-submission-form" onSubmit={form.handleSubmit(handleFormValid)}>
-							<NewCaseFormContent
-								mode="edit" // CRITICAL: Tells the content to lock the Patient selector
+						<form className="flex-1 overflow-y-auto no-scrollbar pb-48 xl:pb-32" id="edit-case-submission-form" onSubmit={form.handleSubmit(handleFormValid)}>
+							<CaseFormContent
+								mode={"edit"} // CRITICAL: Tells the content to lock the Patient selector
 								patientName={patientName} // Used for the read-only patient identity card
 								// Draft recovery is disabled in edit mode
 								isLoadingDrafts={false}
@@ -159,8 +165,14 @@ export function EditCaseClient({ initialData, caseNumber, patientName }: Props) 
 					</FormProvider>
 
 					{/* AI AUDITOR: Analyzes the edit in real-time */}
+					{/* AI AUDITOR (Right - Desktop) */}
 					<div className="hidden xl:flex w-96 shrink-0 flex-col gap-6 sticky top-0 h-fit z-20">
-						<CaseAiAuditor control={form.control as any} />
+						<CaseAiAuditor control={form.control as CreateCaseInput} mode="edit" />
+					</div>
+
+					{/* AI AUDITOR (Floating Bottom - Mobile) */}
+					<div className="xl:hidden fixed bottom-0 left-0 right-0 z-40 bg-background/95 backdrop-blur-xl border-t border-border p-4 shadow-[0_-10px_40px_rgba(0,0,0,0.05)]">
+						<CaseAiAuditor control={form.control as CreateCaseInput} mode="edit" />
 					</div>
 
 					{/* --- MODALS --- */}
@@ -179,7 +191,25 @@ export function EditCaseClient({ initialData, caseNumber, patientName }: Props) 
 					/>
 
 					{/* The Summary Modal shows the "Preview of Changes" before the replace-all transaction happens */}
-					<CaseSummaryModal isOpen={isSummaryOpen} onClose={() => setIsSummaryOpen(false)} onConfirm={handleFinalConfirm} data={editPayload as any} isSubmitting={isUpdating} mode="edit" />
+					<CaseSummaryModal
+						isOpen={isSummaryOpen}
+						onClose={() => setIsSummaryOpen(false)}
+						onConfirm={handleFinalConfirm}
+						data={
+							editPayload
+								? {
+										...editPayload,
+										caseId: caseId,
+										patientId: patientId, // Injected from the page props!
+										status: caseStatus,
+										caseWorkItems: editPayload.caseWorkItems,
+										staffAssignments: editPayload?.staffAssignments ?? [],
+									}
+								: null
+						}
+						isSubmitting={isUpdating}
+						mode={"edit"}
+					/>
 				</div>
 			</div>
 		</div>

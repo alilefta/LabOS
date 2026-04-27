@@ -4,7 +4,7 @@ import { Printer, ArrowRight, AlertCircle, ShieldCheck, X, LoaderCircle } from "
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription, DialogClose } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { DigitalWorkTicket } from "./digital-work-ticket"; // Ensure this also reads from `data` in the future!
-import { CreateCaseInput } from "@/schema/composed/case.details";
+import { CaseFormModeType, CaseSummaryPayload, CreateCaseInput } from "@/schema/composed/case.details";
 import { handleSafeActionError } from "@/lib/safe-action-helpers";
 import { useQuery } from "@tanstack/react-query";
 import { getDraftCaseMetadataAction } from "@/actions/shared/case-summary";
@@ -13,12 +13,13 @@ interface Props {
 	isOpen: boolean;
 	onClose: () => void;
 	onConfirm: () => void;
-	data: CreateCaseInput | null;
+	data: CaseSummaryPayload | null;
 	existingDraftId?: string;
 	isSubmitting: boolean;
+	mode: CaseFormModeType;
 }
 
-export function CaseSummaryModal({ isOpen, onClose, onConfirm, data, isSubmitting, existingDraftId }: Props) {
+export function CaseSummaryModal({ isOpen, onClose, onConfirm, data, isSubmitting, existingDraftId, mode }: Props) {
 	// Collect all pricing plan IDs from work items
 	const pricingPlanIds = data?.caseWorkItems?.filter((item) => item.casePricingPlanId).map((item) => item.casePricingPlanId) ?? [];
 

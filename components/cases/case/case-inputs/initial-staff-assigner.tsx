@@ -5,7 +5,7 @@ import { useFormContext, useWatch } from "react-hook-form";
 import { useQuery } from "@tanstack/react-query";
 import { Check, ChevronsUpDown, Loader, Loader2, LucideIcon, Truck, UserPlus, Wrench, X } from "lucide-react";
 
-import { CreateCaseInput } from "@/schema/composed/case.details";
+import { CaseFormModeType, CreateCaseInput } from "@/schema/composed/case.details";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
@@ -21,9 +21,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 interface Props {
 	onOpenRegisterMemberSheet: (requiredRoles: StaffRoleCategory[]) => void;
 	newRegisteredStaffMember: LabStaffDetailsUI | null;
+	mode: CaseFormModeType;
 }
 
-export const InitialStaffAssigner = memo(function InitialStaffAssigner({ onOpenRegisterMemberSheet, newRegisteredStaffMember }: Props) {
+export const InitialStaffAssigner = memo(function InitialStaffAssigner({ onOpenRegisterMemberSheet, newRegisteredStaffMember, mode }: Props) {
 	const { setValue, getValues, control } = useFormContext<CreateCaseInput>();
 
 	// We only watch this so the UI components re-render when an assignment is made

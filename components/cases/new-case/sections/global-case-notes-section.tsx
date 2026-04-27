@@ -1,12 +1,12 @@
 "use client";
 
 import { Controller, useFormContext } from "react-hook-form";
-import { CreateCaseInput } from "@/schema/composed/case.details";
+import { CaseFormModeType, CreateCaseInput } from "@/schema/composed/case.details";
 import { CustomFieldWithLabel } from "@/components/ui/custom/custom-field-with-label";
 import { cn } from "@/lib/utils";
 import { memo } from "react";
 
-export const GlobalCaseNotesSection = memo(function GlobalCaseNotesSection() {
+export const GlobalCaseNotesSection = memo(function GlobalCaseNotesSection({ mode }: { mode: CaseFormModeType }) {
 	const { control } = useFormContext<CreateCaseInput>();
 	return (
 		<section className="space-y-6 animate-in fade-in duration-500">
@@ -24,7 +24,7 @@ export const GlobalCaseNotesSection = memo(function GlobalCaseNotesSection() {
 							<textarea
 								{...field}
 								value={field.value || ""}
-								placeholder="Add any general instructions, patient preferences, or specific doctor requests for this entire case..."
+								placeholder={mode === "edit" ? "Update instructions for this case..." : "Add any general instructions, patient preferences..."}
 								className={cn(
 									"w-full min-h-30 p-4 bg-white dark:bg-[#121214] border border-border rounded-2xl text-sm text-foreground placeholder:text-muted-foreground outline-none transition-all resize-y shadow-sm custom-scrollbar",
 									fieldState.invalid

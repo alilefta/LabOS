@@ -6,15 +6,14 @@ import { PatientBaseSchema } from "../base/patient.base";
 import { CaseCategoryBaseSchema } from "../base/case-category.base";
 import { ClinicBaseSchema } from "../base/clinic.base";
 import { CaseAssetFileBaseSchema } from "../base/case-asset-file.base";
-import { CaseWorkItemDetailsUISchema, CreateCaseWorkItemInputSchema } from "./case-work-item.details";
+import { CaseWorkItemDetailsUISchema, CreateCaseWorkItemInput, CreateCaseWorkItemInputSchema } from "./case-work-item.details";
 import { AssetFileTypeSchema, CaseStatus, CaseStatusSchema, CommissionTypeSchema, JawTypeSchema, StaffRoleCategory, StaffRoleCategorySchema } from "../base/enums.base";
 import { DentistBaseSchema } from "../base/dentist.base";
-import { CreateCaseAssetFilesInputSchema } from "./case-asset-file.details";
+import { CreateCaseAssetFilesInput, CreateCaseAssetFilesInputSchema } from "./case-asset-file.details";
 import { emptyToUndefinedTransformer } from "../base/utils.base";
-import { CaseStaffAssignmentDetailsUISchema, CreateCaseStaffAssignmentInputSchema } from "./case-staff-assignment.details";
+import { CaseStaffAssignmentDetailsUISchema, CreateCaseStaffAssignmentInput, CreateCaseStaffAssignmentInputSchema } from "./case-staff-assignment.details";
 import { ToothPositionSchema } from "../base/tooth-position.base";
 import { CaseStaffAssignmentBaseSchema } from "../base/case-staff-assignment.base";
-import { CaseActivityLogBaseSchema } from "../base/case-activity-logs.base";
 import { CaseActivityLogDetailsUISchema } from "./case-activity-logs.details";
 
 export const CaseDetailsSchema = CaseBaseSchema.extend({
@@ -43,6 +42,8 @@ export const CaseDetailsUISchema = CaseBaseSchema.extend({
 });
 export type CaseDetailsUI = z.infer<typeof CaseDetailsUISchema>;
 
+// ------------------------ Create Case -------------------------------
+
 export const CreateCaseInputSchema = z
 	.object({
 		// draftId: z.string().optional(), // if draft was saved
@@ -58,16 +59,7 @@ export const CreateCaseInputSchema = z
 		caseAssetFiles: z.array(CreateCaseAssetFilesInputSchema).optional(),
 		notes: z.string().trim().transform(emptyToUndefinedTransformer).optional(),
 		existingDraftId: z.string().optional(),
-		staffAssignments: z
-			.array(
-				CreateCaseStaffAssignmentInputSchema.omit({
-					caseId: true,
-					commissionTotal: true,
-					isPaid: true,
-					paidAt: true,
-				}),
-			)
-			.optional(),
+		staffAssignments: z.array(CreateCaseStaffAssignmentInputSchema).optional(),
 	})
 	.superRefine((data, ctx) => {
 		if (data.status === "DRAFT") return;
@@ -126,6 +118,120 @@ export const CreateCaseInputSchema = z
 	});
 
 export type CreateCaseInput = z.infer<typeof CreateCaseInputSchema>;
+
+// ---------------------------- Update Schema ----------------------------
+
+export const UpdateCaseAssetFilesInputSchema = z.discriminatedUnion("isNew", [
+	// BRAND NEW FILES (Uploaded during this edit session)
+	z.object({
+		isNew: z.literal(true),
+		title: z.string().trim(),
+		description: z.string().trim().optional(),
+		documentUrl: z.url(),
+		assetFileType: AssetFileTypeSchema,
+		fileExtension: z.string().min(1),
+	}),
+	// EXISTING FILES (Loaded from DB, user can edit title/description)
+	z.object({
+		isNew: z.literal(false),
+		id: z.string().min(1), // Tells server "Update me, don't create me"
+		title: z.string().trim(),
+		description: z.string().trim().optional(),
+		// We pass these down purely so the UI can render the preview
+		documentUrl: z.url(),
+		assetFileType: AssetFileTypeSchema,
+		fileExtension: z.string().min(1),
+	}),
+]);
+
+export type UpdateCaseAssetFilesInput = z.infer<typeof UpdateCaseAssetFilesInputSchema>;
+
+// 2. The Master Update Schema
+// The Master Update Schema (Explicitly defined for decoupling)
+export const UpdateCaseInputSchema = z
+	.object({
+		caseId: z.string().min(1, "Case ID is required to update"),
+		// Notice patientId is omitted here because it is immutable during an edit!
+
+		caseCategoryId: z.string().trim().transform(emptyToUndefinedTransformer).optional(),
+		status: CaseStatusSchema,
+		grandTotal: z.number().min(0).optional(),
+		clinicId: z.string().trim().transform(emptyToUndefinedTransformer).optional(),
+		deadline: z.date().optional(),
+		dentistId: z.string().trim().transform(emptyToUndefinedTransformer).optional(),
+
+		caseWorkItems: z.array(CreateCaseWorkItemInputSchema),
+		caseAssetFiles: z.array(UpdateCaseAssetFilesInputSchema).optional(),
+		notes: z.string().trim().transform(emptyToUndefinedTransformer).optional(),
+
+		staffAssignments: z.array(CreateCaseStaffAssignmentInputSchema).optional(),
+	})
+	.superRefine((data, ctx) => {
+		// Unlike Create, Update is always a strict submission (No Drafts allowed here)
+
+		if (!data.deadline) {
+			ctx.addIssue({
+				code: "custom",
+				message: "A deadline is required to update this case.",
+				path: ["deadline"],
+			});
+		}
+
+		if (!data.clinicId) {
+			ctx.addIssue({
+				code: "custom",
+				message: "A clinic must be selected.",
+				path: ["clinicId"],
+			});
+		}
+
+		if (!data.caseCategoryId) {
+			ctx.addIssue({
+				code: "custom",
+				message: "A case category must be selected.",
+				path: ["caseCategoryId"],
+			});
+		}
+
+		// Filter out empty ghost rows before checking
+		const validWorkItems = (data.caseWorkItems ?? []).filter((item) => item.productId || item.casePricingPlanId);
+
+		if (validWorkItems.length === 0) {
+			ctx.addIssue({
+				code: "custom",
+				message: "At least one work item is required.",
+				path: ["caseWorkItems"],
+			});
+		}
+
+		if (data.dentistId && !data.clinicId) {
+			ctx.addIssue({
+				code: "custom",
+				message: "A clinic must be selected when a dentist is specified.",
+				path: ["clinicId"],
+			});
+		}
+	});
+
+export type UpdateCaseInput = z.infer<typeof UpdateCaseInputSchema>;
+
+export type CaseFormModeType = "create" | "edit";
+
+// ========================= Additional Fields ===================================
+// This is the inclusive shape the Modal expects.
+// It doesn't care if it came from Create or Edit, as long as it has these fields.
+export interface CaseSummaryPayload {
+	caseId?: string; // Present in Edit
+	patientId: string; // Explicitly required
+	clinicId?: string;
+	dentistId?: string;
+	deadline?: Date;
+	status: CaseStatus | string;
+	grandTotal?: number;
+	caseWorkItems: CreateCaseWorkItemInput[];
+	staffAssignments?: CreateCaseStaffAssignmentInput[];
+	notes?: string;
+}
 
 // ================== Draft Schema ==========================
 // Draft schema — much more permissive than the full case schema
@@ -244,34 +350,6 @@ export const DraftCaseDTOSchema = CaseBaseSchema.extend({
 });
 
 export type DraftCaseDTO = z.infer<typeof DraftCaseDTOSchema>;
-
-// ---------------------------- Update Schema ----------------------------
-
-export const UpdateCaseAssetFilesInputSchema = z.discriminatedUnion("isNew", [
-	z.object({
-		isNew: z.literal(true),
-		title: z.string().trim().min(1).optional(),
-		description: z.string().trim().optional(),
-		documentUrl: z.string().url(),
-		assetFileType: AssetFileTypeSchema,
-		fileExtension: z.string().min(1),
-	}),
-	z.object({
-		isNew: z.literal(false),
-		id: z.string().min(1), // Existing DB ID — tells server "Do not delete me"
-	}),
-]);
-
-// 2. The Master Update Schema
-export const UpdateCaseInputSchema = CreateCaseInputSchema.extend({
-	caseId: z.string().min(1),
-	// We omit patientId because it is immutable in edit mode
-	caseAssetFiles: z.array(UpdateCaseAssetFilesInputSchema).optional(),
-}).omit({ patientId: true });
-
-export type UpdateCaseInput = z.infer<typeof UpdateCaseInputSchema>;
-
-export type CaseFormModeType = "create" | "edit";
 
 // --------------------------------------------------------------
 

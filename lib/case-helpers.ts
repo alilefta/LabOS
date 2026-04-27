@@ -100,7 +100,7 @@ export function mapCaseToUpdateFormValues(dentalCase: CaseDetailsUI): UpdateCase
 				isNew: false as const, // CRITICAL: Tells the server to "KEEP" this file
 				id: file.id,
 				// We include metadata for the UI preview even though the Update Schema only requires the ID
-				title: file.title ?? undefined,
+				title: file.title ?? "Untitled File",
 				assetFileType: file.assetFileType,
 				documentUrl: file.documentUrl,
 				fileExtension: file.fileExtension,

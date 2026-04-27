@@ -2,13 +2,14 @@
 
 import { Controller, useFieldArray, Control, UseFormGetValues } from "react-hook-form";
 import { Box, ImageIcon, Video, Trash2, Eye, Play } from "lucide-react";
-import { CreateCaseInput } from "@/schema/composed/case.details";
+import { CaseFormModeType } from "@/schema/composed/case.details";
 import { AssetFileType } from "@/schema/base/enums.base";
 import { CustomFieldWithLabel } from "@/components/ui/custom/custom-field-with-label";
 import Image from "next/image";
 import { ClinicalAssetLightbox } from "@/components/shared/file-assets/clinical-asset-lightbox";
 import { memo, useState } from "react";
 import { cn } from "@/lib/utils";
+import { UnifiedAssetFile } from "../new-case/sections/assets-and-files-section";
 
 const getIcon = (type: AssetFileType) => {
 	switch (type) {
@@ -21,20 +22,12 @@ const getIcon = (type: AssetFileType) => {
 	}
 };
 
-interface Asset {
-	id?: string;
-	title: string;
-	description?: string | null;
-	documentUrl?: string;
-	assetFileType: AssetFileType;
-	fileExtension: string;
-}
-
 interface Props {
-	control: Control<CreateCaseInput>;
-	getValues: UseFormGetValues<CreateCaseInput>;
+	control: Control<{ caseAssetFiles: UnifiedAssetFile[] }>;
+	getValues: UseFormGetValues<{ caseAssetFiles: UnifiedAssetFile[] }>;
+	mode: CaseFormModeType;
 }
-export const ClinicalAssetPreview = memo(function ClinicalAssetPreview({ control, getValues }: Props) {
+export const ClinicalAssetPreview = memo(function ClinicalAssetPreview({ control, getValues, mode }: Props) {
 	console.log("Assets re-rendered");
 	const { fields, remove } = useFieldArray({
 		control,
@@ -43,7 +36,7 @@ export const ClinicalAssetPreview = memo(function ClinicalAssetPreview({ control
 	const isEmpty = fields.length === 0;
 	// Lightbox State
 	const [lightboxState, setLightboxState] = useState<{
-		stableAssets: Asset[]; // frozen at open time
+		stableAssets: UnifiedAssetFile[]; // frozen at open time
 		index: number;
 	} | null>(null);
 
@@ -79,6 +72,7 @@ export const ClinicalAssetPreview = memo(function ClinicalAssetPreview({ control
 					{fields.map((field, index) => {
 						const currentLiveAsset = fields[index] || field;
 						const fileType = currentLiveAsset?.assetFileType;
+						const isNewlyAdded = field.isNew === true;
 
 						const isImage = fileType === "IMAGE";
 						const isVideo = fileType === "VIDEO";
@@ -90,6 +84,19 @@ export const ClinicalAssetPreview = memo(function ClinicalAssetPreview({ control
 							>
 								{/* Visual Header / Thumbnail */}
 								<div className="h-36 bg-slate-100 dark:bg-[#09090B] border-b border-border relative flex flex-col items-center justify-center overflow-hidden">
+									{/* --- EDIT MODE BADGING --- */}
+									{mode === "edit" && (
+										<div className="absolute top-2 left-2 z-30">
+											{isNewlyAdded ? (
+												<span className="px-2 py-0.5 rounded-md bg-amber-500 text-white text-[8px] font-black uppercase tracking-widest shadow-lg">Staged for Upload</span>
+											) : (
+												<span className="px-2 py-0.5 rounded-md bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[8px] font-bold uppercase tracking-widest backdrop-blur-md">
+													Live on Cloud
+												</span>
+											)}
+										</div>
+									)}
+
 									{/* 1. IMAGE RENDERING */}
 									{/* 1. OPTIMIZED IMAGE RENDERING */}
 									{isImage && currentLiveAsset.documentUrl ? (
@@ -177,8 +184,11 @@ export const ClinicalAssetPreview = memo(function ClinicalAssetPreview({ control
 											<CustomFieldWithLabel field={inputField} fieldState={fieldState} fieldTitle="Asset Name" nameInSchema={`caseAssetFiles.${index}.title`}>
 												<input
 													{...inputField}
+													// Disable editing titles for existing files to maintain clinical audit trail
+													disabled={!isNewlyAdded && mode === "edit"}
 													className={cn(
 														"w-full h-10 px-3 bg-slate-50 dark:bg-[#121214] border border-border rounded-xl text-xs outline-none transition-all",
+														!isNewlyAdded && mode === "edit" && "opacity-50 cursor-not-allowed",
 														fieldState.invalid ? "border-destructive focus:ring-destructive/20" : "focus:ring-2 focus:ring-primary/20 focus:border-primary",
 													)}
 												/>

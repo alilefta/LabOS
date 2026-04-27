@@ -4,9 +4,9 @@ import { CaseAiAuditor } from "@/components/cases/new-case/case-ai-auditor";
 
 import { CaseSummaryModal } from "@/components/cases/case/case-summary-modal";
 import { useCallback, useState } from "react";
-import { CaseFormHeader } from "@/components/cases/new-case/new-case-header";
+import { CreateCaseFormHeader } from "@/components/cases/new-case/create-case-form-header";
 import { Control, FormProvider, useForm } from "react-hook-form";
-import { CreateCaseInput, CreateCaseInputSchema, SaveDraftCaseInputSchema } from "@/schema/composed/case.details";
+import { CreateCaseInput, CreateCaseInputSchema, SaveDraftCaseInputSchema, UpdateCaseAssetFilesInput } from "@/schema/composed/case.details";
 import { RegisterPatientSheet } from "@/components/modals/cases/patient/create-patient-sheet";
 
 import { PatientDetails } from "@/schema/composed/patient.details";
@@ -31,7 +31,7 @@ import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { mapDraftToFormValues } from "@/lib/case-helpers";
 import { useClinicalCreationStore } from "@/store/use-clinical-creation-store";
-import { NewCaseFormContent } from "@/components/cases/new-case/new-case-form-content";
+import { CaseFormContent } from "@/components/cases/new-case/case-form-content";
 
 export default function NewCasePage() {
 	// 1. Temporary State
@@ -170,7 +170,7 @@ export default function NewCasePage() {
 	}, [form, saveDraft, existingDraftId]);
 
 	const handleUploadedAssets = useCallback(
-		(files: CreateCaseAssetFilesInput[]) => {
+		(files: CreateCaseAssetFilesInput[] | UpdateCaseAssetFilesInput[]) => {
 			const current = form.getValues("caseAssetFiles") ?? [];
 			form.setValue("caseAssetFiles", [...current, ...files], { shouldValidate: true });
 		},
@@ -224,13 +224,14 @@ export default function NewCasePage() {
 
 	return (
 		<div className="flex flex-col h-full animate-in fade-in duration-700">
-			<CaseFormHeader mode={"create"} isSavingDraft={isExecutingSavingDraft} isSubmittingCase={isCreatingCase} onSaveDraft={handleSaveDraft} control={form.control as Control<CreateCaseInput>} />
+			<CreateCaseFormHeader isSavingDraft={isExecutingSavingDraft} isSubmittingCase={isCreatingCase} onSaveDraft={handleSaveDraft} control={form.control} />
 			<div className="flex-1 min-h-0 relative z-10">
 				<div className="flex flex-col xl:flex-row gap-8 h-full">
 					{/* FORM SECTION (Left) */}
 					<FormProvider {...form}>
 						<form className="flex-1 overflow-y-auto no-scrollbar pb-48 xl:pb-32 space-y-12" id="new-case-submission-form" onSubmit={form.handleSubmit(handleFormValid)}>
-							<NewCaseFormContent
+							<CaseFormContent
+								mode={"create"}
 								isLoadingDrafts={isLoadingDrafts}
 								recentDrafts={recentDrafts}
 								existingDraftId={existingDraftId}
@@ -252,12 +253,12 @@ export default function NewCasePage() {
 					</FormProvider>
 					{/* AI AUDITOR (Right - Desktop) */}
 					<div className="hidden xl:flex w-96 shrink-0 flex-col gap-6 sticky top-0 h-fit z-20">
-						<CaseAiAuditor control={form.control} />
+						<CaseAiAuditor control={form.control as Control<CreateCaseInput>} mode="create" />
 					</div>
 
 					{/* AI AUDITOR (Floating Bottom - Mobile) */}
 					<div className="xl:hidden fixed bottom-0 left-0 right-0 z-40 bg-background/95 backdrop-blur-xl border-t border-border p-4 shadow-[0_-10px_40px_rgba(0,0,0,0.05)]">
-						<CaseAiAuditor control={form.control} />
+						<CaseAiAuditor control={form.control as Control<CreateCaseInput>} mode="create" />
 					</div>
 
 					{/* Modals */}
@@ -280,46 +281,10 @@ export default function NewCasePage() {
 						existingDraftId={existingDraftId}
 						data={draftData}
 						isSubmitting={isCreatingCase}
+						mode={"create"}
 					/>
 				</div>
 			</div>
 		</div>
 	);
 }
-
-// <div className="flex-1 overflow-y-auto no-scrollbar pb-20 space-y-12">
-// 	{/* DRAFTS BANNER (Global) */}
-// 	{!isLoadingDrafts && recentDrafts.length > 0 && !existingDraftId && !patientDraftPrompt && (
-// 		<DraftRecoveryBanner drafts={recentDrafts} onResumeDraft={handleResumeDraft} />
-// 	)}
-
-// 	{/* DRAFTS PROMPT (Contextual to Patient) */}
-// 	{patientDraftPrompt && (
-// 		<PatientDraftPrompt
-// 			caseNumber={patientDraftPrompt.caseNumber}
-// 			lastSavedAt={patientDraftPrompt.lastSavedAt}
-// 			onResume={() => handleResumeDraft(patientDraftPrompt.draftId)}
-// 			onDismiss={handleDismissPatientDraft}
-// 		/>
-// 	)}
-
-// 	{/* SECTION 1: ORIGIN */}
-// 	<PatientAndClinicSection
-// 		handleOpenClinicCreationSheet={handleOpenClinicSheet}
-// 		handleOpenPatientCreationSheet={handleOpenPatientSheet}
-// 		newCreatedPatient={newPatient}
-// 		newCreatedClinic={newClinic}
-// 		onPatientSelect={handlePatientSelect}
-// 	/>
-// 	{/* SECTION 2: THE PRODUCT */}
-// 	<HierarchicalClinicalPicker newCreatedCategory={newCategory} handleOpenCreateCategorySheet={handleOpenCategorySheet} />
-
-// 	{/* SECTION 3: Assets & FILES */}
-// 	<AssetsAndFilesSection control={form.control} getValues={form.getValues} onUploadFiles={handleUploadedAssets} />
-
-// 	{/* SECTION 4: CLINICAL NOTES */}
-// 	<GlobalCaseNotesSection control={form.control} />
-
-// 	{/* SECTION 5: LOGISTICS & ROUTING */}
-// 	<LogisticsAndRoutingSection newRegisteredStaffMember={newStaffMember} handleOpenRegisterLabStaffSheet={handleOpenStaffSheet} />
-// </div>;

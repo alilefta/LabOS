@@ -35,6 +35,7 @@ import { ToothPositionSchema } from "@/schema/base/tooth-position.base";
 import { computeCaseItemPrice } from "@/lib/server-only-helpers";
 import { CaseActivityLogCreateManyInput } from "@/generated/prisma/models";
 import { resolveActorName } from "@/data/activity-logs/build-activity-log";
+import { UpdateCaseInputSchema } from "@/schema/composed/case.details";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Input schema
@@ -46,98 +47,6 @@ import { resolveActorName } from "@/data/activity-logs/build-activity-log";
 //   - superRefine enforces the same business rules as create
 
 const emptyToNull = (v: string | undefined) => (v === undefined || v.trim() === "" ? null : v.trim());
-
-const UpdateCaseWorkItemSchema = z.object({
-	productId: z.string().trim().optional(),
-	workTypeId: z.string().trim().optional(),
-	casePricingPlanId: z.string().min(1, "Pricing plan is required"),
-	jawType: JawTypeSchema.default("UPPER"),
-	totalPrice: z.number().min(0).default(0), // client value — discarded, recomputed server-side
-	selectedTeeth: z.array(z.object({ toothPosition: ToothPositionSchema })).default([]),
-	notes: z.string().trim().optional(),
-	shadeSystem: z.string().trim().optional(),
-	baseShade: z.string().trim().optional(),
-	stumpShade: z.string().trim().optional(),
-	shadeNotes: z.string().trim().optional(),
-});
-
-const UpdateCaseStaffAssignmentSchema = z.object({
-	staffId: z.string().min(1),
-	roleCategory: StaffRoleCategorySchema,
-	commissionType: CommissionTypeSchema,
-	commissionValue: z.number().min(0),
-});
-
-export const UpdateCaseInputSchema = z
-	.object({
-		caseId: z.string().min(1),
-		clinicId: z.string().trim().optional(),
-		dentistId: z.string().trim().optional(),
-		caseCategoryId: z.string().trim().optional(),
-		deadline: z.date().optional(),
-		notes: z.string().trim().optional(),
-		caseWorkItems: z.array(UpdateCaseWorkItemSchema).default([]),
-		staffAssignments: z.array(UpdateCaseStaffAssignmentSchema).default([]),
-	})
-	.superRefine((data, ctx) => {
-		// Dentist requires clinic
-		if (data.dentistId && !data.clinicId) {
-			ctx.addIssue({
-				code: "custom",
-				message: "A clinic must be selected when a dentist is specified.",
-				path: ["clinicId"],
-			});
-		}
-
-		// Deadline required for non-draft cases (update form never edits drafts)
-		if (!data.deadline) {
-			ctx.addIssue({
-				code: "custom",
-				message: "A deadline is required.",
-				path: ["deadline"],
-			});
-		}
-
-		// Clinic required
-		if (!data.clinicId?.trim()) {
-			ctx.addIssue({
-				code: "custom",
-				message: "A clinic must be selected.",
-				path: ["clinicId"],
-			});
-		}
-
-		// Category required
-		if (!data.caseCategoryId?.trim()) {
-			ctx.addIssue({
-				code: "custom",
-				message: "A case category must be selected.",
-				path: ["caseCategoryId"],
-			});
-		}
-
-		// At least one valid work item
-		const validWorkItems = data.caseWorkItems.filter((i) => i.casePricingPlanId);
-		if (validWorkItems.length === 0) {
-			ctx.addIssue({
-				code: "custom",
-				message: "At least one work item is required.",
-				path: ["caseWorkItems"],
-			});
-		}
-
-		// No duplicate staff
-		const staffIds = data.staffAssignments.map((s) => s.staffId);
-		if (new Set(staffIds).size !== staffIds.length) {
-			ctx.addIssue({
-				code: "custom",
-				message: "Duplicate staff assignments are not allowed.",
-				path: ["staffAssignments"],
-			});
-		}
-	});
-
-export type UpdateCaseInput = z.infer<typeof UpdateCaseInputSchema>;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Statuses that block editing
