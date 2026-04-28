@@ -2,7 +2,7 @@
 
 import { FileText, MapPin, User, Stethoscope, CalendarClock, Droplet, Loader2 } from "lucide-react";
 import { format, differenceInDays, startOfDay } from "date-fns";
-import { CaseSummaryMetadata, CreateCaseInput } from "@/schema/composed/case.details";
+import { CaseSummaryMetadata, CaseSummaryPayload } from "@/schema/composed/case.details";
 import { cn } from "@/lib/utils";
 
 // Universal Numbering Dictionary for visual mapping
@@ -42,7 +42,7 @@ const TOOTH_NUMBER_MAP: Record<string, { num: number; quad: string }> = {
 };
 
 interface Props {
-	data: CreateCaseInput;
+	data: CaseSummaryPayload;
 	metadata: CaseSummaryMetadata | null;
 	isLoading?: boolean;
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { FormProvider, useForm } from "react-hook-form";
+import { Control, FormProvider, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useAction } from "next-safe-action/hooks";
@@ -66,9 +66,7 @@ export function EditCaseClient({ initialData, caseNumber, patientName, caseStatu
 	// 2. REACT HOOK FORM INITIALIZATION
 	const form = useForm<UpdateCaseInput>({
 		resolver: zodResolver(UpdateCaseInputSchema),
-		defaultValues: {
-			deadline: initialData.deadline,
-		},
+		defaultValues: initialData,
 		mode: "onChange",
 	});
 
@@ -81,12 +79,6 @@ export function EditCaseClient({ initialData, caseNumber, patientName, caseStatu
 		},
 		onError: ({ error }) => handleSafeActionError(error),
 	});
-
-	useEffect(() => {
-		console.log(form.formState.dirtyFields);
-	}, [form.formState.dirtyFields]);
-
-	useEffect(() => {}, []);
 
 	// --- HANDLERS ---
 	const handleOpenClinicSheet = useCallback(() => setOpenCreateNewClinicSheet(true), []);
@@ -172,7 +164,7 @@ export function EditCaseClient({ initialData, caseNumber, patientName, caseStatu
 
 					{/* AI AUDITOR (Floating Bottom - Mobile) */}
 					<div className="xl:hidden fixed bottom-0 left-0 right-0 z-40 bg-background/95 backdrop-blur-xl border-t border-border p-4 shadow-[0_-10px_40px_rgba(0,0,0,0.05)]">
-						<CaseAiAuditor control={form.control as CreateCaseInput} mode="edit" />
+						<CaseAiAuditor control={form.control as Control<CreateCaseInput>} mode="edit" />
 					</div>
 
 					{/* --- MODALS --- */}

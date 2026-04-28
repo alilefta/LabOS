@@ -29,6 +29,16 @@ import {
 } from "@/schema/composed/cases/edit-schemas/case.edit.details";
 import { revalidatePath } from "next/cache";
 import { buildLogEntry, resolveActorName } from "@/data/activity-logs/build-activity-log";
+import z from "zod";
+import {
+	DeadlineChangedPayloadSchema,
+	FileDeletedPayloadSchema,
+	FileUploadedPayloadSchema,
+	NoteAddedPayloadSchema,
+	StaffAssignedPayloadSchema,
+	StaffRemovedPayloadSchema,
+	StatusChangedPayloadSchema,
+} from "@/schema/composed/case-activity-logs.details";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Shared helpers
@@ -96,7 +106,7 @@ export const updateCaseDeadlineAction = actionClientWithLab
 					actorName,
 					type: "DEADLINE_CHANGED",
 					summary: `Deadline updated to ${deadline.toDateString()}`,
-					payload: { from: null, to: deadline.toISOString() },
+					payload: { from: null, to: deadline.toISOString() } as z.infer<typeof DeadlineChangedPayloadSchema>,
 				}),
 			}),
 		]);
@@ -143,7 +153,7 @@ export const updateCaseStatusAction = actionClientWithLab
 					actorName,
 					type: "STATUS_CHANGED",
 					summary: `Status changed from ${currentStatus} to ${newStatus}`,
-					payload: { from: currentStatus, to: newStatus },
+					payload: { from: currentStatus, to: newStatus } as z.infer<typeof StatusChangedPayloadSchema>,
 				}),
 			}),
 		]);
@@ -241,7 +251,7 @@ export const assignCaseStaffAction = actionClientWithLab
 						staffName: `${staff.firstName} ${staff.lastName}`,
 						roleCategory,
 						...(shouldAutoAssign && { autoStatusChange: "NEW → ASSIGNED" }),
-					},
+					} as z.infer<typeof StaffAssignedPayloadSchema>,
 				}),
 			}),
 		]);
@@ -325,7 +335,7 @@ export const removeCaseStaffAction = actionClientWithLab
 						staffName: `${assignment.staff.firstName} ${assignment.staff.lastName}`,
 						roleCategory: assignment.roleCategory,
 						...(shouldRevertToNew && { autoStatusChange: "ASSIGNED → NEW" }),
-					},
+					} as z.infer<typeof StaffRemovedPayloadSchema>,
 				}),
 			}),
 		]);
@@ -379,7 +389,7 @@ export const addCaseAssetFilesAction = actionClientWithLab
 								fileName: f.title ?? f.fileExtension,
 								assetFileType: f.assetFileType,
 							})),
-						},
+						} as z.infer<typeof FileUploadedPayloadSchema>,
 					}),
 				}),
 			]);
@@ -447,7 +457,7 @@ export const deleteCaseAssetFileAction = actionClientWithLab
 							fileId,
 							fileName: file.title ?? null,
 							assetFileType: file.assetFileType,
-						},
+						} as z.infer<typeof FileDeletedPayloadSchema>,
 					}),
 				}),
 			]);
@@ -497,8 +507,8 @@ export const updateCaseNotesAction = actionClientWithLab
 							// Don't store the full note content in the payload —
 							// notes can be long and are already on the Case record.
 							// Store a truncated preview only.
-							preview: notes ? notes.slice(0, 100) + (notes.length > 100 ? "…" : "") : null,
-						},
+							note: notes ? notes.slice(0, 100) + (notes.length > 100 ? "…" : "") : null,
+						} as z.infer<typeof NoteAddedPayloadSchema>,
 					}),
 				}),
 			]);

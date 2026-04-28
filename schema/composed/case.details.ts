@@ -9,7 +9,7 @@ import { CaseAssetFileBaseSchema } from "../base/case-asset-file.base";
 import { CaseWorkItemDetailsUISchema, CreateCaseWorkItemInput, CreateCaseWorkItemInputSchema } from "./case-work-item.details";
 import { AssetFileTypeSchema, CaseStatus, CaseStatusSchema, CommissionTypeSchema, JawTypeSchema, StaffRoleCategory, StaffRoleCategorySchema } from "../base/enums.base";
 import { DentistBaseSchema } from "../base/dentist.base";
-import { CreateCaseAssetFilesInput, CreateCaseAssetFilesInputSchema } from "./case-asset-file.details";
+import { CreateCaseAssetFilesInputSchema } from "./case-asset-file.details";
 import { emptyToUndefinedTransformer } from "../base/utils.base";
 import { CaseStaffAssignmentDetailsUISchema, CreateCaseStaffAssignmentInput, CreateCaseStaffAssignmentInputSchema } from "./case-staff-assignment.details";
 import { ToothPositionSchema } from "../base/tooth-position.base";

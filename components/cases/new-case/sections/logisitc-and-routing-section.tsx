@@ -6,8 +6,8 @@ import { CaseFormModeType, CreateCaseInput } from "@/schema/composed/case.detail
 import { DeadlineSelector } from "../../case/case-inputs/deadline-selector";
 import { InitialStaffAssigner } from "../../case/case-inputs/initial-staff-assigner";
 import { LabStaffDetailsUI } from "@/schema/composed/lab-staff.details";
-import { useCallback } from "react";
 import { StaffRoleCategory } from "@/schema/base/enums.base";
+import { memo } from "react";
 
 interface Props {
 	handleOpenRegisterLabStaffSheet: (requiredStaffRoles: StaffRoleCategory[]) => void;
@@ -15,15 +15,8 @@ interface Props {
 	mode: CaseFormModeType;
 }
 
-export function LogisticsAndRoutingSection({ newRegisteredStaffMember, handleOpenRegisterLabStaffSheet, mode }: Props) {
-	const { control, setValue } = useFormContext<CreateCaseInput>();
-
-	const handleDeadlineSelect = useCallback(
-		(deadline: Date | undefined) => {
-			if (deadline) setValue("deadline", deadline, { shouldValidate: true });
-		},
-		[setValue],
-	);
+export const LogisticsAndRoutingSection = memo(function LogisticsAndRoutingSection({ newRegisteredStaffMember, handleOpenRegisterLabStaffSheet, mode }: Props) {
+	const { control } = useFormContext<CreateCaseInput>();
 
 	return (
 		<section className="space-y-6 animate-in fade-in duration-500">
@@ -36,11 +29,7 @@ export function LogisticsAndRoutingSection({ newRegisteredStaffMember, handleOpe
 				{/* 1. DEADLINE SELECTOR (1 Column) */}
 				<div className="lg:col-span-1 flex flex-col gap-2">
 					{/* We use Controller here because Date is a primitive value */}
-					<Controller
-						control={control}
-						name="deadline"
-						render={({ field, fieldState }) => <DeadlineSelector value={field.value} onChange={handleDeadlineSelect} fieldState={fieldState} />}
-					/>
+					<Controller control={control} name="deadline" render={({ field, fieldState }) => <DeadlineSelector value={field.value} onChange={field.onChange} fieldState={fieldState} />} />
 				</div>
 
 				{/* 2. INITIAL STAFF ASSIGNMENTS (2 Columns) */}
@@ -50,4 +39,4 @@ export function LogisticsAndRoutingSection({ newRegisteredStaffMember, handleOpe
 			</div>
 		</section>
 	);
-}
+});

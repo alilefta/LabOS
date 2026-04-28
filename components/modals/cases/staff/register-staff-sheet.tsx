@@ -2,7 +2,7 @@
 
 import { useForm, Controller, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { UserPlus, Loader2, Sparkles, Truck, Wrench, Briefcase, ShieldCheck, UserCog, Headset, BadgePercent, DollarSign, Wallet, Check, MapPin } from "lucide-react";
+import { UserPlus, Loader2, Sparkles, Truck, Wrench, Briefcase, ShieldCheck, UserCog, Headset, BadgePercent, DollarSign, Wallet, Check, MapPin, User } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
@@ -17,6 +17,7 @@ import { CreateLabStaffInput, CreateLabStaffInputSchema, LabStaffDetailsUI } fro
 import { useAction } from "next-safe-action/hooks";
 import { handleSafeActionError } from "@/lib/safe-action-helpers";
 import { createLabStaffAction } from "@/actions/staff";
+import { useEffect } from "react";
 
 type DataShape = LabStaffDetailsUI[];
 
@@ -40,6 +41,7 @@ interface Props {
 // Visual mapping for the Enums to make the UI look incredible
 const ROLE_OPTIONS = [
 	{ id: "TECHNICIAN", label: "Technician", icon: Wrench, desc: "Production & CAD" },
+	{ id: "SENIOR_TECHNICIAN", label: "Senior Technician", icon: User, desc: "Production & CAD" },
 	{ id: "COURIER", label: "Courier", icon: Truck, desc: "Pickup & Delivery" },
 	{ id: "SALES_REP", label: "Sales Rep", icon: Briefcase, desc: "Account Management" },
 	{ id: "QC_INSPECTOR", label: "QC Inspector", icon: ShieldCheck, desc: "Quality Assurance" },
@@ -49,6 +51,8 @@ const ROLE_OPTIONS = [
 
 export function RegisterStaffSheet({ isOpen, onClose, onStaffCreated, requiredRoles }: Props) {
 	const queryClient = useQueryClient();
+
+	const defaultRoleCat = requiredRoles && requiredRoles.length > 0 ? requiredRoles[0] : "TECHNICIAN";
 
 	const form = useForm<CreateLabStaffInput>({
 		resolver: zodResolver(CreateLabStaffInputSchema),
@@ -61,7 +65,7 @@ export function RegisterStaffSheet({ isOpen, onClose, onStaffCreated, requiredRo
 			address2: "",
 			zipcode: "",
 			isActive: true,
-			roleCategory: "TECHNICIAN",
+			roleCategory: defaultRoleCat,
 			jobTitle: "",
 			specialization: "",
 			commissionType: "PERCENTAGE",
@@ -114,6 +118,25 @@ export function RegisterStaffSheet({ isOpen, onClose, onStaffCreated, requiredRo
 		await registerStaff(data);
 	};
 
+	// --- THE FIX: DETERMINISTIC RESET ---
+	// This fires every time the sheet visibility changes.
+	// When opening (isOpen === true), it forces the form to match the current context.
+	useEffect(() => {
+		if (!isOpen) return;
+
+		// If the sheet is opened in a specific context (e.g. Courier)
+		// but the current form state is from a different context (e.g. Technician)
+		// we surgically update ONLY the role.
+		const isRoleInvalidForContext = requiredRoles && !requiredRoles.includes(selectedRole);
+
+		if (isRoleInvalidForContext) {
+			form.setValue("roleCategory", defaultRoleCat, {
+				shouldValidate: true,
+				shouldDirty: true,
+			});
+		}
+	}, [isOpen, requiredRoles, defaultRoleCat, selectedRole, form]);
+
 	return (
 		<Sheet open={isOpen} onOpenChange={onClose}>
 			<SheetContent className="lg:max-w-md! max-w-full! w-full! sm:w-[90%]! md:w-[70%]! border-l border-border bg-card dark:bg-[#09090B] p-0 flex flex-col shadow-2xl">
@@ -146,7 +169,12 @@ export function RegisterStaffSheet({ isOpen, onClose, onStaffCreated, requiredRo
 										<button
 											key={option.id}
 											type="button"
-											onClick={() => form.setValue("roleCategory", option.id as StaffRoleCategory)}
+											onClick={() =>
+												form.setValue("roleCategory", option.id as StaffRoleCategory, {
+													shouldDirty: true,
+													shouldValidate: true,
+												})
+											}
 											className={cn(
 												"relative flex flex-col items-start p-4 rounded-2xl border transition-all duration-300 text-left group",
 												isSelected

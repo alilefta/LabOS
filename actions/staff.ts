@@ -1,9 +1,9 @@
 "use server";
 
-import { LabStaffModel } from "@/generated/prisma/models";
+import { normalizeLabStaff } from "@/lib/mappers";
 import { tenantPrisma } from "@/lib/prisma";
 import { actionClientWithLab } from "@/lib/safe-action";
-import { CreateLabStaffInputSchema, GetLabStaffByRoleAndSearchQueryInputSchema, LabStaffDetailsUI } from "@/schema/composed/lab-staff.details";
+import { CreateLabStaffInputSchema, GetLabStaffByRoleAndSearchQueryInputSchema } from "@/schema/composed/lab-staff.details";
 import { SearchInputSchema } from "@/schema/composed/shared-schema";
 import { APIError } from "better-auth";
 
@@ -14,7 +14,7 @@ export const createLabStaffAction = actionClientWithLab
 	})
 	.inputSchema(CreateLabStaffInputSchema)
 	.action(async ({ parsedInput, ctx }) => {
-		const { firstName, lastName, email, phoneNumber, roleCategory, specialization, jobTitle, isActive, avatarUrl, commissionType, commissionValue } = parsedInput;
+		const { firstName, lastName, phoneNumber, roleCategory, specialization, jobTitle, isActive, avatarUrl, commissionType, commissionValue, address1, city, address2, zipcode } = parsedInput;
 		const { labId } = ctx;
 
 		try {
@@ -25,7 +25,11 @@ export const createLabStaffAction = actionClientWithLab
 					firstName,
 					lastName,
 					phoneNumber,
-					email: email ?? null,
+					address1: address1 ?? null,
+
+					address2: address2 ?? null,
+					city: city ?? null,
+					zipcode: zipcode ?? null,
 					avatarUrl: avatarUrl ?? null,
 					roleCategory,
 					specialization: specialization ?? null,
@@ -41,7 +45,7 @@ export const createLabStaffAction = actionClientWithLab
 			});
 
 			return {
-				staff: { ...staff, commissionValue: staff.commissionValue === null ? null : Number(staff.commissionValue) },
+				staff: normalizeLabStaff(staff),
 			};
 		} catch (e) {
 			if (e instanceof APIError || e instanceof Error) {
@@ -90,7 +94,7 @@ export const getActiveLabStaffBySearchQueryAction = actionClientWithLab
 			});
 
 			return {
-				staff: normalizeStaffMembers(staffMembers),
+				staff: staffMembers.map(normalizeLabStaff),
 			};
 		} catch (e) {
 			if (e instanceof APIError || e instanceof Error) {
@@ -145,7 +149,7 @@ export const getLabStaffByRoleAndSearchAction = actionClientWithLab
 			});
 
 			return {
-				staff: normalizeStaffMembers(staffMembers),
+				staff: staffMembers.map(normalizeLabStaff),
 			};
 		} catch (e) {
 			if (e instanceof APIError || e instanceof Error) {
@@ -180,7 +184,7 @@ export const getActiveLabStaffAction = actionClientWithLab
 			});
 
 			return {
-				staff: normalizeStaffMembers(staffMembers),
+				staff: staffMembers.map(normalizeLabStaff),
 			};
 		} catch (e) {
 			if (e instanceof APIError || e instanceof Error) {
@@ -190,10 +194,10 @@ export const getActiveLabStaffAction = actionClientWithLab
 		}
 	});
 
-// ========================== Helpers ===============================
-function normalizeStaffMembers(labStaff: LabStaffModel[]): LabStaffDetailsUI[] {
-	return labStaff.map((s) => ({
-		...s,
-		commissionValue: s.commissionValue === null ? null : Number(s.commissionValue),
-	}));
-}
+// // ========================== Helpers ===============================
+// function normalizeStaffMembers(labStaff: LabStaffModel[]): LabStaffDetailsUI[] {
+// 	return labStaff.map((s) => ({
+// 		...s,
+// 		commissionValue: s.commissionValue === null ? null : Number(s.commissionValue),
+// 	}));
+// }

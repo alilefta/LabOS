@@ -14,6 +14,7 @@ import { AdvanceStatusButton } from "@/components/cases/case-details/advance-cas
 import { getServerSession } from "@/lib/get-session";
 import { getCurrentLabUserRoleByAuthUserId } from "@/data/lab";
 import { PermissionsProvider } from "@/providers/permissions-provider";
+import { EditCaseButton } from "@/components/cases/case-details/edit-case-button/edit-case-button";
 
 export const metadata = {
 	title: "Case Dossier | LabOS",
@@ -72,8 +73,11 @@ export default async function CaseDossierPage({ params }: { params: Promise<{ ca
 							<span className="hidden sm:inline truncate">Work Ticket</span>
 						</Button>
 
+						{/* --- THE NEW EDIT BUTTON --- */}
+						<EditCaseButton caseId={dentalCase.id} status={dentalCase.status} />
+
 						{/* DYNAMIC STATUS BUTTON */}
-						<AdvanceStatusButton caseId={dentalCase.id} currentStatus={dentalCase.status} staffAssignments={dentalCase.staffAssignments ?? []} />
+						<AdvanceStatusButton caseId={dentalCase.id} currentStatus={dentalCase.status as any} staffAssignments={dentalCase.staffAssignments ?? []} />
 					</div>
 				</header>
 

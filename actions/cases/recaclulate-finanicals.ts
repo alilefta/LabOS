@@ -7,6 +7,7 @@ import { ERRORS } from "@/lib/errors";
 import { authorize } from "@/lib/permissions/access-control";
 import { revalidatePath } from "next/cache";
 import { buildLogEntry, resolveActorName } from "@/data/activity-logs/build-activity-log";
+import { CasePricingRecalculatedPayloadSchema } from "@/schema/composed/case-activity-logs.details";
 
 export const recalculateCaseFinancialsAction = actionClientWithLab
 	.metadata({
@@ -66,7 +67,7 @@ export const recalculateCaseFinancialsAction = actionClientWithLab
 					payload: {
 						previousTotal: Number(dentalCase.grandTotal || 0),
 						newTotal: newGrandTotal,
-					},
+					} as z.infer<typeof CasePricingRecalculatedPayloadSchema>,
 				}),
 			}),
 		]);

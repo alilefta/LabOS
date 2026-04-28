@@ -6,6 +6,7 @@ import { formatDistanceToNow, format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { CaseActivityLogDetailsUI, CaseActivityPayloadSchema } from "@/schema/composed/case-activity-logs.details";
+import { ReactNode } from "react";
 
 interface AuditTrailProps {
 	logs: CaseActivityLogDetailsUI[] | null;
@@ -22,7 +23,7 @@ const parseLogData = (log: CaseActivityLogDetailsUI) => {
 	// Default fallback config
 	let icon = Activity;
 	let colorClass = "bg-slate-100 dark:bg-white/10 text-slate-500 dark:text-zinc-400 border-border";
-	let detailsText = log.summary; // Fallback to raw summary if payload parsing fails
+	let detailsText: string | ReactNode = log.summary; // Fallback to raw summary if payload parsing fails
 
 	// 2. Switch on the exact type to assign gorgeous visuals and payload text
 	if (parsedPayload.success) {
@@ -37,7 +38,36 @@ const parseLogData = (log: CaseActivityLogDetailsUI) => {
 			case "CASE_UPDATED":
 				icon = Activity;
 				colorClass = "bg-slate-100 dark:bg-white/10 text-slate-500 dark:text-zinc-400 border-border";
-				detailsText = "Case Updated";
+				detailsText = (
+					<div className="flex flex-col gap-2 w-full">
+						{payload.scalarChanges && payload.scalarChanges.length > 0 && (
+							<div className="text-[11px] text-muted-foreground flex items-start gap-2">
+								<span className="font-bold text-foreground shrink-0 w-24">Modified Fields:</span>
+								<span className="flex-1">{payload.scalarChanges.map((sc) => sc.field).join(", ")}</span>
+							</div>
+						)}
+						{payload.staffReplaced && (
+							<div className="text-[11px] text-muted-foreground flex items-center gap-2">
+								<span className="font-bold text-foreground shrink-0 w-24">Staff Assigned:</span>
+								<span>{payload.staffReplaced.newCount} members active</span>
+							</div>
+						)}
+						{payload.caseAssetFiles && (
+							<div className="text-[11px] text-muted-foreground flex items-center gap-2">
+								<span className="font-bold text-foreground shrink-0 w-24">Assets Updated:</span>
+								<span>Now contains {payload.caseAssetFiles.newCount} files</span>
+							</div>
+						)}
+						{payload.workItemsReplaced && (
+							<div className="text-[11px] text-muted-foreground flex items-center gap-2 border-t border-border/50 pt-2 mt-1">
+								<span className="font-bold text-foreground shrink-0 w-24">Manufacturing:</span>
+								<span>
+									{payload.workItemsReplaced.newCount} units (Est. Total: ${payload.workItemsReplaced.newGrandTotal})
+								</span>
+							</div>
+						)}
+					</div>
+				);
 				break;
 
 			case "CASE_PRICING_RECALCULATED":
@@ -67,7 +97,7 @@ const parseLogData = (log: CaseActivityLogDetailsUI) => {
 			case "FILE_UPLOADED":
 				icon = FileUp;
 				colorClass = "bg-blue-500/10 text-blue-500 border-blue-500/20";
-				detailsText = `Attached ${payload.assetFileType}: ${payload.fileName}`;
+				detailsText = `Attached ${payload.files.map((f) => f.assetFileType + ": " + f.fileName)}`;
 				break;
 
 			case "FILE_DELETED":

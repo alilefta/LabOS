@@ -12,6 +12,12 @@ export const VALID_TRANSITIONS: Record<CaseStatus, CaseStatus[]> = {
 	FAILED: [],
 };
 
+export const NON_EDITABLE_STATUSES: CaseStatus[] = ["COMPLETED", "DELIVERED"];
+
+// Statuses where we re-evaluate based on staff assignments.
+// PROCESSING and beyond are left untouched — don't revert active production.
+export const RE_EVALUABLE_STATUSES: CaseStatus[] = ["NEW", "ASSIGNED"];
+
 export function getStatusTransitionWarning(toStatus: CaseStatus, assignedRoles: StaffRoleCategory[]): string | null {
 	const hasTech = assignedRoles.includes("TECHNICIAN") || assignedRoles.includes("SENIOR_TECHNICIAN");
 	const hasCourier = assignedRoles.includes("COURIER");

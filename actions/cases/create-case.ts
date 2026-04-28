@@ -20,7 +20,7 @@ export const createDentalCaseAction = actionClientWithLab
 	.inputSchema(CreateCaseInputSchema)
 	.action(async ({ parsedInput, ctx }) => {
 		const { patientId, clinicId, dentistId, caseCategoryId, status, deadline, caseAssetFiles, caseWorkItems, staffAssignments, notes, existingDraftId } = parsedInput;
-		const { labId, user, labUser } = ctx;
+		const { labId, labUser } = ctx;
 
 		// !!!!!!!!!!!! creating a case from stored draft should be done through update not create!!!!!
 

@@ -1,13 +1,14 @@
 "use client";
 
-import { Printer, ArrowRight, AlertCircle, ShieldCheck, X, LoaderCircle } from "lucide-react";
+import { Printer, ArrowRight, AlertCircle, ShieldCheck, X, LoaderCircle, History } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription, DialogClose } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { DigitalWorkTicket } from "./digital-work-ticket"; // Ensure this also reads from `data` in the future!
-import { CaseFormModeType, CaseSummaryPayload, CreateCaseInput } from "@/schema/composed/case.details";
+import { CaseFormModeType, CaseSummaryPayload } from "@/schema/composed/case.details";
 import { handleSafeActionError } from "@/lib/safe-action-helpers";
 import { useQuery } from "@tanstack/react-query";
 import { getDraftCaseMetadataAction } from "@/actions/shared/case-summary";
+import { cn } from "@/lib/utils";
 
 interface Props {
 	isOpen: boolean;
@@ -29,6 +30,8 @@ export function CaseSummaryModal({ isOpen, onClose, onConfirm, data, isSubmittin
 	const technicianId = data?.staffAssignments?.find((s) => s.roleCategory === "TECHNICIAN" || s.roleCategory === "SENIOR_TECHNICIAN" || s.roleCategory === "MANAGER")?.staffId;
 
 	const canFetch = isOpen && !!data?.patientId && !!data?.clinicId && pricingPlanIds.length > 0;
+
+	const isEdit = mode === "edit";
 
 	const { data: metadata, isFetching: isFetchingMetadata } = useQuery({
 		queryKey: ["case-summary-metadata", data?.patientId, data?.clinicId, existingDraftId, pricingPlanIds.join(","), courierId, technicianId],
@@ -60,43 +63,36 @@ export function CaseSummaryModal({ isOpen, onClose, onConfirm, data, isSubmittin
 
 	if (!data) return null;
 
-	// Dynamic Formatters
-	const formattedTotal = new Intl.NumberFormat("en-US", {
-		style: "currency",
-		currency: "USD",
-	}).format(data.grandTotal ?? 0);
-	// Safely format the date if it exists
-	const formattedDeadline = data.deadline
-		? new Intl.DateTimeFormat("en-US", {
-				weekday: "long",
-				month: "long",
-				day: "numeric",
-				year: "numeric",
-			}).format(new Date(data.deadline))
-		: "Not Specified";
+	// ── FORMATTERS ─────────────────────────────────────────────────────
+	const formattedTotal = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(data.grandTotal ?? 0);
+	const formattedDeadline = data.deadline ? new Intl.DateTimeFormat("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" }).format(new Date(data.deadline)) : "Not Specified";
+
 	return (
 		<Dialog open={isOpen} onOpenChange={onClose}>
 			<DialogHeader className="sr-only">
-				<DialogTitle>Case Review</DialogTitle>
+				<DialogTitle>{isEdit ? "Review Revisions" : "Case Review"}</DialogTitle>
 				<DialogDescription>Case Review Before Submission</DialogDescription>
 			</DialogHeader>
 			<DialogContent className="max-w-6xl! xl:max-w-7xl! p-0 overflow-hidden border-border bg-card shadow-2xl rounded-3xl lg:rounded-4xl" showCloseButton={false}>
-				{/* Modal Header */}
-				<div className="p-6 border-b border-border bg-linear-to-r from-emerald-500/5 to-transparent flex items-center justify-between">
+				{/* --- HEADER --- */}
+				<div className={cn("p-6 border-b border-border flex items-center justify-between transition-colors duration-500", isEdit ? "bg-amber-500/5" : "bg-emerald-500/5")}>
 					<div className="flex items-center gap-3">
-						<div className="w-10 h-10 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-500 shadow-sm">
-							{isFetchingMetadata ? <LoaderCircle className="w-6 h-6 animate-spin" /> : <ShieldCheck className="w-6 h-6" />}
+						<div className={cn("w-10 h-10 rounded-2xl flex items-center justify-center shadow-sm", isEdit ? "bg-amber-500/10 text-amber-600" : "bg-emerald-500/10 text-emerald-500")}>
+							{isFetchingMetadata ? <LoaderCircle className="w-6 h-6 animate-spin" /> : isEdit ? <History className="w-6 h-6" /> : <ShieldCheck className="w-6 h-6" />}
 						</div>
 						<div>
-							<DialogTitle className="text-xl font-bold tracking-tight">Final Case Review</DialogTitle>
-							<p className="text-xs text-muted-foreground font-medium">
-								AI Status: <span className="text-emerald-500 font-bold uppercase tracking-widest">{isFetchingMetadata ? "Auditing Records..." : "Ready for Production"}</span>
+							<DialogTitle className="text-xl font-bold tracking-tight">{isEdit ? "Review Case Revisions" : "Final Case Review"}</DialogTitle>
+							<p className="text-xs text-muted-foreground font-medium uppercase tracking-widest">
+								AI Status:{" "}
+								<span className={cn("font-bold", isEdit ? "text-amber-600" : "text-emerald-500")}>
+									{isFetchingMetadata ? "Validating Logic..." : isEdit ? "Revisions Verified" : "Ready for Production"}
+								</span>
 							</p>
 						</div>
 					</div>
 					<DialogClose
 						onClick={onClose}
-						className="p-2 hover:bg-slate-100 dark:hover:bg-white/5 rounded-full transition-colors outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50"
+						className="p-2 hover:bg-slate-100 dark:hover:bg-white/5 rounded-full transition-colors outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
 					>
 						<X className="w-5 h-5 text-muted-foreground" />
 					</DialogClose>
@@ -169,9 +165,15 @@ export function CaseSummaryModal({ isOpen, onClose, onConfirm, data, isSubmittin
 							)}
 						</div>
 
-						<div className="mt-auto p-4 rounded-2xl bg-amber-500/5 border border-amber-500/10 flex items-start gap-3">
-							<AlertCircle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
-							<p className="text-[10px] text-amber-600 dark:text-amber-400 font-medium leading-normal">Reminder: Case cannot be modified by the clinic once production begins.</p>
+						<div
+							className={cn("mt-auto p-4 rounded-2xl border flex items-start gap-3 transition-colors", isEdit ? "bg-amber-500/5 border-amber-500/10" : "bg-primary/5 border-primary/10")}
+						>
+							<AlertCircle className={cn("w-4 h-4 shrink-0 mt-0.5", isEdit ? "text-amber-500" : "text-primary")} />
+							<p className={cn("text-[10px] font-medium leading-normal", isEdit ? "text-amber-700 dark:text-amber-400" : "text-primary")}>
+								{isEdit
+									? "Note: Applying revisions will override existing production snapshots in the Audit Trail."
+									: "Reminder: Case details are locked for the clinic once production begins."}
+							</p>
 						</div>
 					</div>
 				</div>
@@ -180,25 +182,27 @@ export function CaseSummaryModal({ isOpen, onClose, onConfirm, data, isSubmittin
 				<DialogFooter className="p-6 border-t border-border bg-slate-50/50 dark:bg-white/1">
 					<div className="flex flex-col-reverse sm:flex-row items-center justify-between w-full gap-4">
 						<Button variant="ghost" onClick={() => window.print()} className="rounded-xl h-11 px-6 font-semibold text-muted-foreground hover:text-foreground w-full sm:w-auto">
-							<Printer className="w-4 h-4 mr-2" /> Print Work Ticket
+							<Printer className="w-4 h-4 mr-2" /> Print Preview
 						</Button>
 						<div className="flex items-center gap-3 w-full sm:w-auto">
 							<Button variant="outline" onClick={onClose} className="rounded-xl h-11 px-6 border-border font-semibold flex-1 sm:flex-none">
-								Edit Case
+								Back to Form
 							</Button>
 							<Button
 								onClick={onConfirm}
 								disabled={isSubmitting || isFetchingMetadata}
-								className="rounded-xl h-11 px-8 bg-primary text-primary-foreground shadow-premium font-bold hover:bg-primary/90 flex-2 sm:flex-none"
+								className={cn(
+									"rounded-xl h-11 px-8 shadow-premium font-bold transition-all flex-2 sm:flex-none",
+									isEdit ? "bg-amber-600 hover:bg-amber-700 text-white shadow-amber-600/20" : "bg-primary hover:bg-primary/90 text-primary-foreground shadow-primary/20",
+								)}
 							>
 								{isSubmitting ? (
-									<>
-										<LoaderCircle className="w-4 h-4 mr-2 animate-spin" /> Submitting...
-									</>
+									<LoaderCircle className="w-4 h-4 animate-spin" />
 								) : (
-									<>
-										Confirm Production <ArrowRight className="w-4 h-4 ml-2" />
-									</>
+									<div className="flex items-center gap-2">
+										<span>{isEdit ? "Apply Changes" : "Confirm Production"}</span>
+										<ArrowRight className="w-4 h-4" />
+									</div>
 								)}
 							</Button>
 						</div>

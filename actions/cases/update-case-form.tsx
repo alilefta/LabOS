@@ -4,100 +4,88 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // updateDentalCaseAction — full case edit form submission.
 //
-// Strategy:
-//   - Freely editable fields: clinic, dentist, category, deadline, notes
-//   - Work items: replace-all (delete existing → recompute → create fresh)
-//   - Staff assignments: replace-all (delete existing → create fresh)
-//   - Asset files: additive only — new files attached via separate action,
-//     deletions via deleteCaseAssetFileAction. NOT handled here.
-//   - patientId, caseNumber, status: immutable, not accepted from client
-//   - grandTotal: always server-computed from work items
+// Immutable fields (never accepted from client):
+//   - patientId, caseNumber, status (status is server-re-evaluated), grandTotal
+//
+// Editable fields:
+//   - clinicId, dentistId, caseCategoryId, deadline, notes
+//
+// Replace-all children:
+//   - caseWorkItems  → delete all → recompute → create fresh
+//   - staffAssignments → delete all → create fresh
+//
+// Additive/selective children:
+//   - caseAssetFiles → new files created, existing files title/description
+//     updated in-place, files absent from the payload are DELETED
+//
+// Status re-evaluation:
+//   - Only when current status is NEW or ASSIGNED
+//   - PROCESSING / FAILED cases keep their status — don't revert production
 //
 // Security:
 //   - labId from ctx only, never client input
-//   - caseId ownership verified against ctx.labId
-//   - All related entity IDs (clinic, dentist, category, pricing plans, staff)
-//     verified to belong to ctx.labId before use
-//   - Status gate: COMPLETED and DELIVERED cases cannot be edited
-//
-// Activity log:
-//   - Writes a single CASE_UPDATED log entry per save with a structured diff
-//     of what changed (old vs new for scalar fields, item counts for work items)
+//   - All referenced entity IDs verified against ctx.labId
+//   - COMPLETED / DELIVERED cases are locked from editing
 // ─────────────────────────────────────────────────────────────────────────────
 
-import z from "zod/v4";
-import { actionClientWithLab } from "@/lib/safe-action";
+import { revalidatePath } from "next/cache";
+import { CaseStatus, CommissionType, StaffRoleCategory } from "@/generated/prisma/client";
+import { CaseActivityLogCreateManyInput } from "@/generated/prisma/models";
+import { buildLogEntry, resolveActorName } from "@/data/activity-logs/build-activity-log";
 import { ActionError, ERRORS } from "@/lib/errors";
 import { tenantPrisma } from "@/lib/prisma";
-import { JawTypeSchema, StaffRoleCategorySchema, CommissionTypeSchema } from "@/schema/base/enums.base";
-import { CaseStatus, CommissionType, StaffRoleCategory } from "@/generated/prisma/client";
-import { ToothPositionSchema } from "@/schema/base/tooth-position.base";
+import { actionClientWithLab } from "@/lib/safe-action";
 import { computeCaseItemPrice } from "@/lib/server-only-helpers";
-import { CaseActivityLogCreateManyInput } from "@/generated/prisma/models";
-import { resolveActorName } from "@/data/activity-logs/build-activity-log";
 import { UpdateCaseInputSchema } from "@/schema/composed/case.details";
+import z from "zod";
+import { CaseUpdatedPayloadSchema } from "@/schema/composed/case-activity-logs.details";
+import { NON_EDITABLE_STATUSES, RE_EVALUABLE_STATUSES } from "@/lib/permissions/cases/clinical-status-rules";
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Input schema
-// ─────────────────────────────────────────────────────────────────────────────
-// Mirrors CreateCaseInputSchema but:
-//   - caseId is required (identifies which case to update)
-//   - patientId, status, caseNumber are absent (server-controlled)
-//   - grandTotal is absent (server-computed)
-//   - superRefine enforces the same business rules as create
-
-const emptyToNull = (v: string | undefined) => (v === undefined || v.trim() === "" ? null : v.trim());
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Statuses that block editing
+// Constants
 // ─────────────────────────────────────────────────────────────────────────────
 
-const NON_EDITABLE_STATUSES: CaseStatus[] = ["COMPLETED", "DELIVERED"];
+const TECHNICIAN_ROLES: StaffRoleCategory[] = ["TECHNICIAN", "SENIOR_TECHNICIAN"];
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Diff helper — builds a structured change log for the activity entry
+// Diff helpers
 // ─────────────────────────────────────────────────────────────────────────────
 
-type ScalarDiff = {
-	field: string;
-	from: unknown;
-	to: unknown;
-};
+type ScalarDiff = { field: string; from: unknown; to: unknown };
 
 function buildScalarDiff(
 	existing: {
 		clinicId: string | null;
 		dentistId: string | null;
 		caseCategoryId: string | null;
-		deadline: Date | null;
+		deadline: string | null;
 		notes: string | null;
 	},
 	incoming: {
-		clinicId: string | null;
-		dentistId: string | null;
-		caseCategoryId: string | null;
-		deadline: Date | undefined;
-		notes: string | undefined;
+		clinicId?: string;
+		dentistId?: string;
+		caseCategoryId?: string;
+		deadline?: string;
+		notes?: string;
 	},
 ): ScalarDiff[] {
 	const diffs: ScalarDiff[] = [];
 
-	const toStr = (v: Date | string | null | undefined) => (v instanceof Date ? v.toISOString() : (v ?? null));
+	const toStr = (v: Date | string | null | undefined): string | null => (v instanceof Date ? v.toISOString() : (v ?? null));
 
-	if (existing.clinicId !== (incoming.clinicId ?? null)) {
-		diffs.push({ field: "clinicId", from: existing.clinicId, to: incoming.clinicId ?? null });
-	}
-	if (existing.dentistId !== (incoming.dentistId ?? null)) {
-		diffs.push({ field: "dentistId", from: existing.dentistId, to: incoming.dentistId ?? null });
-	}
-	if (existing.caseCategoryId !== (incoming.caseCategoryId ?? null)) {
-		diffs.push({ field: "caseCategoryId", from: existing.caseCategoryId, to: incoming.caseCategoryId ?? null });
-	}
-	if (toStr(existing.deadline) !== toStr(incoming.deadline)) {
-		diffs.push({ field: "deadline", from: toStr(existing.deadline), to: toStr(incoming.deadline) });
-	}
-	if ((existing.notes ?? null) !== (incoming.notes?.trim() || null)) {
-		diffs.push({ field: "notes", from: existing.notes, to: incoming.notes?.trim() || null });
+	const pairs: Array<[keyof typeof existing, unknown]> = [
+		["clinicId", incoming.clinicId ?? null],
+		["dentistId", incoming.dentistId ?? null],
+		["caseCategoryId", incoming.caseCategoryId ?? null],
+		["deadline", toStr(incoming.deadline)],
+		["notes", incoming.notes?.trim() || null],
+	];
+
+	for (const [field, incomingVal] of pairs) {
+		const existingVal = field === "deadline" ? toStr(existing[field] as Date | null) : existing[field];
+		if (existingVal !== incomingVal) {
+			diffs.push({ field, from: existingVal, to: incomingVal });
+		}
 	}
 
 	return diffs;
@@ -112,18 +100,19 @@ export const updateDentalCaseAction = actionClientWithLab
 	.inputSchema(UpdateCaseInputSchema)
 	.action(async ({ ctx, parsedInput }) => {
 		const { labId, labUser } = ctx;
-		const { caseId, clinicId, dentistId, caseCategoryId, deadline, notes, caseWorkItems, staffAssignments } = parsedInput;
+		const { caseId, clinicId, dentistId, caseCategoryId, deadline, notes, caseWorkItems, caseAssetFiles, staffAssignments } = parsedInput;
 
 		const prisma = await tenantPrisma(labId);
 
 		// ── STEP 1: Fetch existing case ──────────────────────────────────────────
+		// Include current work item count and asset file IDs for accurate diffing
+		// and for determining which asset files to delete.
+
 		const existingCase = await prisma.case.findUnique({
 			where: { id: caseId, labId },
 			select: {
 				id: true,
 				labId: true,
-				patientId: true,
-				caseNumber: true,
 				status: true,
 				clinicId: true,
 				dentistId: true,
@@ -131,25 +120,43 @@ export const updateDentalCaseAction = actionClientWithLab
 				deadline: true,
 				notes: true,
 				grandTotal: true,
+				_count: {
+					select: {
+						caseItems: true,
+						staffAssignments: true,
+					},
+				},
+				// We need existing asset file IDs to determine deletions
+				caseAssetFiles: {
+					where: { labId },
+					select: { id: true },
+				},
 			},
 		});
 
 		if (!existingCase) throw ERRORS.CASE_NOT_FOUND;
-		// Belt-and-suspenders ownership check
 		if (existingCase.labId !== labId) throw ERRORS.FORBIDDEN;
 
 		// ── Status gate ──────────────────────────────────────────────────────────
+
 		if (NON_EDITABLE_STATUSES.includes(existingCase.status as CaseStatus)) {
 			throw new ActionError(`Case cannot be edited in ${existingCase.status} status`, "OPERATION_NOT_ALLOWED", 400);
 		}
 
 		// ── STEP 2: Parallel entity verification ────────────────────────────────
-		// All lookups use tenantPrisma which auto-injects labId —
-		// so any ID that doesn't belong to this lab returns null.
+		// All queries are scoped to labId — null return = not found OR wrong lab.
+		// Run everything in parallel for minimum latency.
 
-		const validWorkItems = caseWorkItems.filter((i) => i.casePricingPlanId);
+		const validWorkItems = caseWorkItems.filter((i) => i.productId && i.casePricingPlanId);
 		const pricingPlanIds = [...new Set(validWorkItems.map((i) => i.casePricingPlanId))];
-		const staffIds = staffAssignments.map((s) => s.staffId);
+		const staffIds = (staffAssignments ?? []).map((s) => s.staffId);
+
+		// Determine which existing asset files to keep vs delete.
+		// "keep" = the client sent back an existing file record (isNew: false).
+		// Anything NOT in this set gets deleted.
+		const incomingExistingFileIds = new Set((caseAssetFiles ?? []).filter((f) => !f.isNew).map((f) => (!f.isNew ? f.id : "")));
+		const existingFileIds = existingCase.caseAssetFiles.map((f) => f.id);
+		const fileIdsToDelete = existingFileIds.filter((id) => !incomingExistingFileIds.has(id));
 
 		const [clinic, dentist, category, pricingPlans, staffMembers, actorName] = await Promise.all([
 			clinicId
@@ -176,26 +183,16 @@ export const updateDentalCaseAction = actionClientWithLab
 			pricingPlanIds.length > 0
 				? prisma.casePricingPlan.findMany({
 						where: { id: { in: pricingPlanIds }, labId },
-						// select: {
-						// 	id: true,
-						// 	pricingStrategy: true,
-						// 	bulkPrice: true,
-						// 	toothPrice: true,
-						// 	firstToothPrice: true,
-						// 	additionalToothPrice: true,
-						// 	teethCountToApplyBulkPrice: true,
-						// },
 					})
 				: Promise.resolve([]),
 
 			staffIds.length > 0
 				? prisma.labStaff.findMany({
 						where: { id: { in: staffIds }, labId },
-						select: { id: true, isActive: true },
+						select: { id: true, isActive: true, roleCategory: true, firstName: true, lastName: true },
 					})
 				: Promise.resolve([]),
 
-			// Actor name for activity log
 			resolveActorName(labUser.id, labId),
 		]);
 
@@ -208,7 +205,6 @@ export const updateDentalCaseAction = actionClientWithLab
 
 		if (dentistId) {
 			if (!dentist) throw ERRORS.NOT_FOUND;
-			// Dentist must belong to the selected clinic
 			if (dentist.clinicId !== clinicId) {
 				throw new ActionError("The selected dentist does not belong to the selected clinic", "INVALID_INPUT", 400);
 			}
@@ -219,28 +215,30 @@ export const updateDentalCaseAction = actionClientWithLab
 			if (!category.isActive) throw ERRORS.OPERATION_NOT_ALLOWED;
 		}
 
-		// All pricing plan IDs must resolve within this lab
+		// All pricing plans must exist within this lab
 		const pricingPlanMap = new Map(pricingPlans.map((pp) => [pp.id, pp]));
 		for (const item of validWorkItems) {
-			if (!pricingPlanMap.has(item.casePricingPlanId)) {
-				throw ERRORS.NOT_FOUND;
-			}
+			if (!pricingPlanMap.has(item.casePricingPlanId)) throw ERRORS.NOT_FOUND;
 		}
 
 		// All staff must be active members of this lab
+		// Also enforce no duplicate staffIds in the incoming payload
 		if (staffIds.length > 0) {
+			const uniqueStaffIds = new Set(staffIds);
+			if (uniqueStaffIds.size !== staffIds.length) throw ERRORS.INVALID_INPUT;
+
 			const staffMap = new Map(staffMembers.map((s) => [s.id, s]));
-			for (const assignment of staffAssignments) {
+			for (const assignment of staffAssignments ?? []) {
 				const member = staffMap.get(assignment.staffId);
 				if (!member) throw ERRORS.NOT_MEMBER;
 				if (!member.isActive) {
-					throw new ActionError("Cannot assign an inactive staff member", "OPERATION_NOT_ALLOWED", 400);
+					throw new ActionError(`Staff member ${assignment.staffId} is inactive and cannot be assigned`, "OPERATION_NOT_ALLOWED", 400);
 				}
 			}
 		}
 
 		// ── STEP 4: Server-side price recomputation ──────────────────────────────
-		// Client-sent totalPrice is discarded. Always recompute from DB plan.
+		// Client-sent totalPrice / grandTotal are discarded entirely.
 
 		const computedWorkItems = validWorkItems.map((item) => {
 			const plan = pricingPlanMap.get(item.casePricingPlanId)!;
@@ -253,10 +251,11 @@ export const updateDentalCaseAction = actionClientWithLab
 				casePricingPlanId: plan.id,
 				jawType: item.jawType,
 
-				// Server-computed
+				// Server-computed — never trust the client value
 				totalPrice,
 
-				// Pricing snapshot — frozen at time of save
+				// Pricing snapshot — frozen at time of save so history is preserved
+				// even if the plan's rates are changed later
 				pricingStrategy: plan.pricingStrategy,
 				bulkPrice: plan.bulkPrice !== null ? Number(plan.bulkPrice) : null,
 				toothPrice: plan.toothPrice !== null ? Number(plan.toothPrice) : null,
@@ -278,149 +277,293 @@ export const updateDentalCaseAction = actionClientWithLab
 		const grandTotal = computedWorkItems.reduce((sum, i) => sum + i.totalPrice, 0);
 
 		// ── Status re-evaluation ─────────────────────────────────────────────────
-		// Only re-evaluate if the case is still in NEW or ASSIGNED.
-		// PROCESSING cases keep their status — we don't revert a case that's
-		// already in production just because staff assignments changed.
+		// Only mutate status when the case is still in an early stage.
+		// A PROCESSING case keeps PROCESSING regardless of staff changes.
 
 		const currentStatus = existingCase.status as CaseStatus;
-		const isStatusReEvaluable = currentStatus === "NEW" || currentStatus === "ASSIGNED";
-
 		let resolvedStatus = currentStatus;
-		if (isStatusReEvaluable) {
-			const hasTechnician = staffAssignments.some((s) => s.roleCategory === "TECHNICIAN" || s.roleCategory === "SENIOR_TECHNICIAN");
+
+		if (RE_EVALUABLE_STATUSES.includes(currentStatus)) {
+			const hasTechnician = (staffAssignments ?? []).some((s) => TECHNICIAN_ROLES.includes(s.roleCategory as StaffRoleCategory));
 			resolvedStatus = hasTechnician ? "ASSIGNED" : "NEW";
 		}
 
-		// ── STEP 5: Build activity log diff ─────────────────────────────────────
+		// ── STEP 5: Build activity log payload ───────────────────────────────────
 
-		const scalarDiffs = buildScalarDiff(existingCase, {
-			clinicId: clinicId ?? null,
-			dentistId: dentistId ?? null,
-			caseCategoryId: caseCategoryId ?? null,
-			deadline,
-			notes,
-		});
+		const scalarDiffs = buildScalarDiff(
+			{ ...existingCase, deadline: existingCase.deadline ? existingCase.deadline.toString() : null },
+			{
+				clinicId,
+				dentistId,
+				caseCategoryId,
+				deadline: deadline ? deadline.toString() : undefined,
+				notes,
+			},
+		);
+
+		const staffMap = new Map(staffMembers.map((s) => [s.id, s]));
 
 		// ── STEP 6: Transaction ──────────────────────────────────────────────────
-		// Everything that must be atomic: delete stale nested records,
-		// update case scalars, create fresh work items + teeth + staff,
-		// write activity log.
+		// Atomic unit:
+		//   1. Delete stale work items (cascades → SelectedTooth via schema)
+		//   2. Delete stale staff assignments
+		//   3. Delete asset files the user removed
+		//   4. Update existing asset file metadata (title/description)
+		//   5. Update case scalars + create fresh work items + staff + new asset files
+		//   6. Write CASE_UPDATED activity log entry
 
-		const updatedCase = await prisma.$transaction(async (tx) => {
-			// Delete all existing work items (cascades to SelectedTooth via schema)
-			// Delete all existing staff assignments
-			// These are separate deleteMany calls — Prisma doesn't support nested
-			// delete in an update for one-to-many relations without a connect/disconnect.
-			await Promise.all([
-				tx.caseWorkItem.deleteMany({
-					where: { dentalCaseId: caseId, labId },
-				}),
-				tx.caseStaffAssignment.deleteMany({
-					where: { caseId, labId },
-				}),
-			]);
+		const updatedCase = await prisma.$transaction(
+			async (tx) => {
+				// ── 6a. Delete stale children in parallel ──────────────────────
+				const deleteOps: Promise<unknown>[] = [tx.caseWorkItem.deleteMany({ where: { dentalCaseId: caseId, labId } }), tx.caseStaffAssignment.deleteMany({ where: { caseId, labId } })];
 
-			// Update the case with fresh scalar values and recreate nested records
-			const updated = await tx.case.update({
-				where: { id: caseId, labId },
-				data: {
-					clinicId: emptyToNull(clinicId) ?? null,
-					dentistId: emptyToNull(dentistId) ?? null,
-					caseCategoryId: emptyToNull(caseCategoryId) ?? null,
-					deadline: deadline ?? null,
-					notes: notes?.trim() || null,
-					grandTotal,
-					status: resolvedStatus,
-
-					caseItems:
-						computedWorkItems.length > 0
-							? {
-									create: computedWorkItems.map((item) => ({
-										productId: item.productId,
-										workTypeId: item.workTypeId,
-										casePricingPlanId: item.casePricingPlanId,
-										jawType: item.jawType,
-										totalPrice: item.totalPrice,
-										pricingStrategy: item.pricingStrategy,
-										bulkPrice: item.bulkPrice,
-										toothPrice: item.toothPrice,
-										firstToothPrice: item.firstToothPrice,
-										additionalToothPrice: item.additionalToothPrice,
-										teethCountToApplyBulkPrice: item.teethCountToApplyBulkPrice,
-										notes: item.notes,
-										shadeSystem: item.shadeSystem,
-										baseShade: item.baseShade,
-										stumpShade: item.stumpShade,
-										shadeNotes: item.shadeNotes,
-										labId,
-										selectedTeeth:
-											item.selectedTeeth.length > 0
-												? {
-														createMany: {
-															data: item.selectedTeeth.map((pos) => ({
-																toothPosition: pos,
-																labId,
-															})),
-														},
-													}
-												: undefined,
-									})),
-								}
-							: undefined,
-
-					staffAssignments:
-						staffAssignments.length > 0
-							? {
-									createMany: {
-										data: staffAssignments.map((s) => ({
-											staffId: s.staffId,
-											roleCategory: s.roleCategory as StaffRoleCategory,
-											commissionType: s.commissionType as CommissionType,
-											commissionValue: s.commissionValue,
-											commissionTotal: 0,
-											isPaid: false,
-											labId,
-										})),
-									},
-								}
-							: undefined,
-				},
-				select: {
-					id: true,
-					caseNumber: true,
-					status: true,
-					grandTotal: true,
-				},
-			});
-
-			// Write activity log
-			await tx.caseActivityLog.create({
-				data: {
-					caseId,
-					labId,
-					actorId: labUser.id,
-					actorName,
-					type: "CASE_UPDATED",
-					summary: scalarDiffs.length > 0 ? `Case updated — ${scalarDiffs.map((d) => d.field).join(", ")} changed` : "Case work items or staff updated",
-					payload: {
-						scalarChanges: scalarDiffs,
-						workItemsReplaced: {
-							previousCount: null, // we didn't fetch the count pre-delete — add if needed
-							newCount: computedWorkItems.length,
-							newGrandTotal: grandTotal,
-						},
-						staffReplaced: {
-							newCount: staffAssignments.length,
-						},
-						...(resolvedStatus !== currentStatus && {
-							statusChanged: { from: currentStatus, to: resolvedStatus },
+				if (fileIdsToDelete.length > 0) {
+					deleteOps.push(
+						tx.caseAssetFile.deleteMany({
+							where: { id: { in: fileIdsToDelete }, dentalCaseId: caseId, labId },
 						}),
-					} as CaseActivityLogCreateManyInput["payload"],
-				},
-			});
+					);
+				}
 
-			return updated;
-		});
+				await Promise.all(deleteOps);
+
+				// ── 6b. Update existing asset file metadata in parallel ────────
+				// Files the user kept but may have renamed/re-described.
+				const existingFileUpdates = (caseAssetFiles ?? [])
+					.filter((f) => !f.isNew)
+					.map((f) => {
+						if (f.isNew) return Promise.resolve(); // narrow type, never reached
+						return tx.caseAssetFile.update({
+							where: { id: f.id, dentalCaseId: caseId, labId },
+							data: {
+								title: f.title ?? null,
+								description: f.description ?? null,
+							},
+						});
+					});
+
+				if (existingFileUpdates.length > 0) {
+					await Promise.all(existingFileUpdates);
+				}
+
+				// ── 6c. Update case + recreate work items, staff, new files ───
+				const newAssetFiles = (caseAssetFiles ?? []).filter((f) => f.isNew);
+
+				const updated = await tx.case.update({
+					where: { id: caseId, labId },
+					data: {
+						clinicId: clinicId ?? null,
+						dentistId: dentistId ?? null,
+						caseCategoryId: caseCategoryId ?? null,
+						deadline: deadline ?? null,
+						notes: notes?.trim() || null,
+						grandTotal,
+						status: resolvedStatus,
+
+						// Replace-all: work items
+						caseItems:
+							computedWorkItems.length > 0
+								? {
+										create: computedWorkItems.map((item) => ({
+											productId: item.productId,
+											workTypeId: item.workTypeId,
+											casePricingPlanId: item.casePricingPlanId,
+											jawType: item.jawType,
+											totalPrice: item.totalPrice,
+											pricingStrategy: item.pricingStrategy,
+											bulkPrice: item.bulkPrice,
+											toothPrice: item.toothPrice,
+											firstToothPrice: item.firstToothPrice,
+											additionalToothPrice: item.additionalToothPrice,
+											teethCountToApplyBulkPrice: item.teethCountToApplyBulkPrice,
+											notes: item.notes,
+											shadeSystem: item.shadeSystem,
+											baseShade: item.baseShade,
+											stumpShade: item.stumpShade,
+											shadeNotes: item.shadeNotes,
+											labId,
+											selectedTeeth:
+												item.selectedTeeth.length > 0
+													? {
+															createMany: {
+																data: item.selectedTeeth.map((pos) => ({
+																	toothPosition: pos,
+																	labId,
+																})),
+															},
+														}
+													: undefined,
+										})),
+									}
+								: undefined,
+
+						// Replace-all: staff assignments
+						staffAssignments:
+							(staffAssignments ?? []).length > 0
+								? {
+										createMany: {
+											data: staffAssignments!.map((s) => ({
+												staffId: s.staffId,
+												roleCategory: s.roleCategory as StaffRoleCategory,
+												commissionType: s.commissionType as CommissionType,
+												commissionValue: s.commissionValue,
+												commissionTotal: 0,
+												isPaid: false,
+												labId,
+											})),
+										},
+									}
+								: undefined,
+
+						// Additive: only new files (existing ones updated in 6b)
+						caseAssetFiles:
+							newAssetFiles.length > 0
+								? {
+										createMany: {
+											data: newAssetFiles.map((f) => ({
+												title: f.isNew ? (f.title ?? null) : null,
+												description: f.isNew ? (f.description ?? null) : null,
+												documentUrl: f.documentUrl,
+												assetFileType: f.assetFileType,
+												fileExtension: f.fileExtension,
+												labId,
+											})),
+										},
+									}
+								: undefined,
+					},
+					select: {
+						id: true,
+						caseNumber: true,
+						status: true,
+						grandTotal: true,
+					},
+				});
+
+				// ── 6d. Build and write the CASE_UPDATED activity log ─────────
+
+				const activityLogs: CaseActivityLogCreateManyInput[] = [];
+				const prevStaffCount = existingCase._count?.staffAssignments ?? 0;
+				const newStaffCount = (staffAssignments ?? []).length;
+				const staffChanged = prevStaffCount > 0 || newStaffCount > 0;
+
+				const prevAssetCount = (caseAssetFiles ?? []).filter((f) => !f.isNew).length;
+				const newAssetCount = (caseAssetFiles ?? []).length;
+				const assetsChanged = prevAssetCount !== newAssetCount;
+				// Main update entry with full structured diff
+				activityLogs.push(
+					buildLogEntry({
+						caseId,
+						labId,
+						actorId: labUser.id,
+						actorName,
+						type: "CASE_UPDATED",
+						summary: scalarDiffs.length > 0 ? `Case details modified (${scalarDiffs.map((d) => d.field).join(", ")})` : "Case configuration updated",
+						payload: {
+							scalarChanges: scalarDiffs.length > 0 ? scalarDiffs : null,
+
+							workItemsReplaced: {
+								previousCount: existingCase._count?.caseItems ?? 0,
+								newCount: computedWorkItems.length,
+								newGrandTotal: grandTotal,
+							},
+
+							staffReplaced: staffChanged
+								? {
+										previousCount: prevStaffCount,
+										newCount: newStaffCount,
+									}
+								: null,
+
+							caseAssetFiles: assetsChanged
+								? {
+										previousCount: prevAssetCount,
+										newCount: newAssetCount,
+									}
+								: null,
+
+							statusChanged:
+								resolvedStatus !== currentStatus
+									? {
+											from: currentStatus,
+											to: resolvedStatus,
+										}
+									: null,
+						} as z.infer<typeof CaseUpdatedPayloadSchema>, // Now it will typecheck perfectly
+					}),
+				);
+
+				// Granular staff assignment logs — one entry per new assignment
+				// so the Audit Trail shows individual names, not just a count
+				for (const assignment of staffAssignments ?? []) {
+					const staffData = staffMap.get(assignment.staffId);
+					if (staffData) {
+						activityLogs.push(
+							buildLogEntry({
+								caseId,
+								labId,
+								actorId: labUser.id,
+								actorName,
+								type: "STAFF_ASSIGNED",
+								summary: `${staffData.firstName} ${staffData.lastName} assigned as ${assignment.roleCategory.toLowerCase().replace(/_/g, " ")}`,
+								payload: {
+									staffId: assignment.staffId,
+									staffName: `${staffData.firstName} ${staffData.lastName}`,
+									roleCategory: assignment.roleCategory,
+								},
+							}),
+						);
+					}
+				}
+
+				// New file upload logs
+				for (const file of newAssetFiles) {
+					if (file.isNew) {
+						activityLogs.push(
+							buildLogEntry({
+								caseId,
+								labId,
+								actorId: labUser.id,
+								actorName,
+								type: "FILE_UPLOADED",
+								summary: `Attached ${file.assetFileType}: ${file.title || "Asset"}`,
+								payload: {
+									fileId: file.documentUrl,
+									fileName: file.title || "Clinical Asset",
+									assetFileType: file.assetFileType,
+								},
+							}),
+						);
+					}
+				}
+
+				// Deleted file logs
+				for (const fileId of fileIdsToDelete) {
+					activityLogs.push(
+						buildLogEntry({
+							caseId,
+							labId,
+							actorId: labUser.id,
+							actorName,
+							type: "FILE_DELETED",
+							summary: "Clinical asset removed",
+							payload: { fileId, fileName: "Unknown" },
+						}),
+					);
+				}
+
+				if (activityLogs.length > 0) {
+					await tx.caseActivityLog.createMany({ data: activityLogs });
+				}
+
+				return updated;
+			},
+			{ maxWait: 5000, timeout: 15000 },
+		);
+
+		// ── STEP 7: Revalidate ───────────────────────────────────────────────────
+		revalidatePath(`/cases/${caseId}`);
+		revalidatePath("/cases");
 
 		return {
 			updatedCase: {

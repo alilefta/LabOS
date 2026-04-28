@@ -2,7 +2,7 @@ import * as z from "zod";
 import { CaseActivityLogBaseSchema } from "../base/case-activity-logs.base";
 import { CaseBaseSchema } from "../base/case.base";
 import { LabBaseSchema } from "../base/lab.base";
-import { AssetFileTypeSchema, CaseStatusSchema, StaffRoleCategorySchema } from "../base/enums.base";
+import { CaseStatusSchema, StaffRoleCategorySchema } from "../base/enums.base";
 import { LabUserBaseSchema } from "../base/lab-user.base";
 
 export const CaseActivityLogDetailsSchema = CaseActivityLogBaseSchema.extend({
@@ -34,18 +34,24 @@ export const StaffAssignedPayloadSchema = z.object({
 	staffId: z.string(),
 	staffName: z.string(),
 	roleCategory: StaffRoleCategorySchema,
+	autoStatusChange: z.string().nullable(),
 });
 
 export const StaffRemovedPayloadSchema = z.object({
 	staffId: z.string(),
 	staffName: z.string(),
 	roleCategory: StaffRoleCategorySchema,
+	autoStatusChange: z.string().nullable(),
 });
 
 export const FileUploadedPayloadSchema = z.object({
-	fileId: z.string(),
-	fileName: z.string(),
-	assetFileType: AssetFileTypeSchema,
+	count: z.number(),
+	files: z.array(
+		z.object({
+			fileName: z.string(),
+			assetFileType: z.string(),
+		}),
+	),
 });
 
 export const FileDeletedPayloadSchema = z.object({
@@ -54,8 +60,8 @@ export const FileDeletedPayloadSchema = z.object({
 });
 
 export const DeadlineChangedPayloadSchema = z.object({
-	from: z.date().nullable(),
-	to: z.date().nullable(),
+	from: z.string().nullable(),
+	to: z.string().nullable(),
 });
 
 export const NoteAddedPayloadSchema = z.object({
@@ -79,16 +85,12 @@ export const EmptyPayloadSchema = z.object({});
 export const CaseUpdatedPayloadSchema = z.object({
 	scalarChanges: z
 		.array(
-			z
-				.object({
-					field: z.string(),
-					from: z.unknown(),
-					to: z.unknown(),
-				})
-				.optional()
-				.nullable(),
+			z.object({
+				field: z.string(),
+				from: z.union([z.string(), z.number(), z.boolean(), z.null()]),
+				to: z.union([z.string(), z.number(), z.boolean(), z.null()]),
+			}),
 		)
-		.optional()
 		.nullable(),
 
 	workItemsReplaced: z
@@ -97,7 +99,13 @@ export const CaseUpdatedPayloadSchema = z.object({
 			newCount: z.number(),
 			newGrandTotal: z.number(),
 		})
-		.optional()
+		.nullable(),
+
+	caseAssetFiles: z
+		.object({
+			previousCount: z.number().nullable(),
+			newCount: z.number(),
+		})
 		.nullable(),
 
 	staffReplaced: z
@@ -105,15 +113,13 @@ export const CaseUpdatedPayloadSchema = z.object({
 			previousCount: z.number().nullable(),
 			newCount: z.number(),
 		})
-		.optional()
 		.nullable(),
 
 	statusChanged: z
 		.object({
-			from: CaseStatusSchema,
-			to: CaseStatusSchema,
+			from: CaseStatusSchema.nullable(),
+			to: CaseStatusSchema.nullable(),
 		})
-		.optional()
 		.nullable(),
 });
 
