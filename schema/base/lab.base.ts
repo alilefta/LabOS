@@ -7,8 +7,9 @@ export const LabBaseSchema = z.object({
 	slug: z.string().nullable(),
 	brandAvatarUrl: z.string().nullable(),
 	subtitle: z.string().nullable(),
-	nextCaseNumber: z.number().int(),
 
+	nextCaseNumber: z.number().int(),
+	nextInvoiceNumber: z.number().int(),
 	createdAt: z.date(),
 	updatedAt: z.date(),
 });

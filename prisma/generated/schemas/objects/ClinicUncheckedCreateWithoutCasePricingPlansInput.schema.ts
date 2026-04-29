@@ -3,7 +3,8 @@ import { Prisma } from '../../../../generated/prisma/client';
 import { ClinicStatusSchema } from '../enums/ClinicStatus.schema';
 import { ClinicTypeSchema } from '../enums/ClinicType.schema';
 import { CaseUncheckedCreateNestedManyWithoutClinicInputObjectSchema as CaseUncheckedCreateNestedManyWithoutClinicInputObjectSchema } from './CaseUncheckedCreateNestedManyWithoutClinicInput.schema';
-import { DentistUncheckedCreateNestedManyWithoutClinicInputObjectSchema as DentistUncheckedCreateNestedManyWithoutClinicInputObjectSchema } from './DentistUncheckedCreateNestedManyWithoutClinicInput.schema'
+import { DentistUncheckedCreateNestedManyWithoutClinicInputObjectSchema as DentistUncheckedCreateNestedManyWithoutClinicInputObjectSchema } from './DentistUncheckedCreateNestedManyWithoutClinicInput.schema';
+import { InvoiceUncheckedCreateNestedManyWithoutClinicInputObjectSchema as InvoiceUncheckedCreateNestedManyWithoutClinicInputObjectSchema } from './InvoiceUncheckedCreateNestedManyWithoutClinicInput.schema'
 
 import { DecimalJSLikeSchema, isValidDecimalInput } from '../../helpers/decimal-helpers';
 const makeSchema = () => z.object({
@@ -51,7 +52,8 @@ const makeSchema = () => z.object({
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
   cases: z.lazy(() => CaseUncheckedCreateNestedManyWithoutClinicInputObjectSchema).optional(),
-  dentists: z.lazy(() => DentistUncheckedCreateNestedManyWithoutClinicInputObjectSchema).optional()
+  dentists: z.lazy(() => DentistUncheckedCreateNestedManyWithoutClinicInputObjectSchema).optional(),
+  invoices: z.lazy(() => InvoiceUncheckedCreateNestedManyWithoutClinicInputObjectSchema).optional()
 }).strict();
 export const ClinicUncheckedCreateWithoutCasePricingPlansInputObjectSchema: z.ZodType<Prisma.ClinicUncheckedCreateWithoutCasePricingPlansInput> = makeSchema() as unknown as z.ZodType<Prisma.ClinicUncheckedCreateWithoutCasePricingPlansInput>;
 export const ClinicUncheckedCreateWithoutCasePricingPlansInputObjectZodSchema = makeSchema();

@@ -30,8 +30,11 @@ export const LabFindManySelectSchema: z.ZodType<Prisma.LabSelect> = z.object({
     staffAssignments: z.boolean().optional(),
     users: z.boolean().optional(),
     staff: z.boolean().optional(),
+    invoices: z.boolean().optional(),
+    invoicePayments: z.boolean().optional(),
     nextCaseNumber: z.boolean().optional(),
     caseActivityLogs: z.boolean().optional(),
+    nextInvoiceNumber: z.boolean().optional(),
     createdAt: z.boolean().optional(),
     updatedAt: z.boolean().optional(),
     _count: z.boolean().optional()
@@ -58,8 +61,11 @@ export const LabFindManySelectZodSchema = z.object({
     staffAssignments: z.boolean().optional(),
     users: z.boolean().optional(),
     staff: z.boolean().optional(),
+    invoices: z.boolean().optional(),
+    invoicePayments: z.boolean().optional(),
     nextCaseNumber: z.boolean().optional(),
     caseActivityLogs: z.boolean().optional(),
+    nextInvoiceNumber: z.boolean().optional(),
     createdAt: z.boolean().optional(),
     updatedAt: z.boolean().optional(),
     _count: z.boolean().optional()

@@ -4,7 +4,8 @@ import { ClinicStatusSchema } from '../enums/ClinicStatus.schema';
 import { ClinicTypeSchema } from '../enums/ClinicType.schema';
 import { LabCreateNestedOneWithoutClinicsInputObjectSchema as LabCreateNestedOneWithoutClinicsInputObjectSchema } from './LabCreateNestedOneWithoutClinicsInput.schema';
 import { CaseCreateNestedManyWithoutClinicInputObjectSchema as CaseCreateNestedManyWithoutClinicInputObjectSchema } from './CaseCreateNestedManyWithoutClinicInput.schema';
-import { DentistCreateNestedManyWithoutClinicInputObjectSchema as DentistCreateNestedManyWithoutClinicInputObjectSchema } from './DentistCreateNestedManyWithoutClinicInput.schema'
+import { DentistCreateNestedManyWithoutClinicInputObjectSchema as DentistCreateNestedManyWithoutClinicInputObjectSchema } from './DentistCreateNestedManyWithoutClinicInput.schema';
+import { InvoiceCreateNestedManyWithoutClinicInputObjectSchema as InvoiceCreateNestedManyWithoutClinicInputObjectSchema } from './InvoiceCreateNestedManyWithoutClinicInput.schema'
 
 import { DecimalJSLikeSchema, isValidDecimalInput } from '../../helpers/decimal-helpers';
 const makeSchema = () => z.object({
@@ -52,7 +53,8 @@ const makeSchema = () => z.object({
   updatedAt: z.coerce.date().optional(),
   lab: z.lazy(() => LabCreateNestedOneWithoutClinicsInputObjectSchema),
   cases: z.lazy(() => CaseCreateNestedManyWithoutClinicInputObjectSchema).optional(),
-  dentists: z.lazy(() => DentistCreateNestedManyWithoutClinicInputObjectSchema).optional()
+  dentists: z.lazy(() => DentistCreateNestedManyWithoutClinicInputObjectSchema).optional(),
+  invoices: z.lazy(() => InvoiceCreateNestedManyWithoutClinicInputObjectSchema).optional()
 }).strict();
 export const ClinicCreateWithoutCasePricingPlansInputObjectSchema: z.ZodType<Prisma.ClinicCreateWithoutCasePricingPlansInput> = makeSchema() as unknown as z.ZodType<Prisma.ClinicCreateWithoutCasePricingPlansInput>;
 export const ClinicCreateWithoutCasePricingPlansInputObjectZodSchema = makeSchema();

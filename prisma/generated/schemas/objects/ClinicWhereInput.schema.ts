@@ -13,7 +13,8 @@ import { LabScalarRelationFilterObjectSchema as LabScalarRelationFilterObjectSch
 import { LabWhereInputObjectSchema as LabWhereInputObjectSchema } from './LabWhereInput.schema';
 import { CaseListRelationFilterObjectSchema as CaseListRelationFilterObjectSchema } from './CaseListRelationFilter.schema';
 import { DentistListRelationFilterObjectSchema as DentistListRelationFilterObjectSchema } from './DentistListRelationFilter.schema';
-import { CasePricingPlanListRelationFilterObjectSchema as CasePricingPlanListRelationFilterObjectSchema } from './CasePricingPlanListRelationFilter.schema'
+import { CasePricingPlanListRelationFilterObjectSchema as CasePricingPlanListRelationFilterObjectSchema } from './CasePricingPlanListRelationFilter.schema';
+import { InvoiceListRelationFilterObjectSchema as InvoiceListRelationFilterObjectSchema } from './InvoiceListRelationFilter.schema'
 
 import { DecimalJSLikeSchema, isValidDecimalInput } from '../../helpers/decimal-helpers';
 const clinicwhereinputSchema = z.object({
@@ -66,7 +67,8 @@ const clinicwhereinputSchema = z.object({
   lab: z.union([z.lazy(() => LabScalarRelationFilterObjectSchema), z.lazy(() => LabWhereInputObjectSchema)]).optional(),
   cases: z.lazy(() => CaseListRelationFilterObjectSchema).optional(),
   dentists: z.lazy(() => DentistListRelationFilterObjectSchema).optional(),
-  casePricingPlans: z.lazy(() => CasePricingPlanListRelationFilterObjectSchema).optional()
+  casePricingPlans: z.lazy(() => CasePricingPlanListRelationFilterObjectSchema).optional(),
+  invoices: z.lazy(() => InvoiceListRelationFilterObjectSchema).optional()
 }).strict();
 export const ClinicWhereInputObjectSchema: z.ZodType<Prisma.ClinicWhereInput> = clinicwhereinputSchema as unknown as z.ZodType<Prisma.ClinicWhereInput>;
 export const ClinicWhereInputObjectZodSchema = clinicwhereinputSchema;

@@ -163,6 +163,30 @@ enum CaseActivityType {
   DEADLINE_CHANGED
   AI_AUDIT_COMPLETED
   CASE_PRICING_RECALCULATED
+
+  INVOICE_CREATED
+  INVOICE_SENT
+  PAYMENT_RECORDED
+}
+
+enum InvoiceStatus {
+  DRAFT
+  SENT
+  PARTIAL
+  PAID
+  OVERDUE
+  CANCELLED
+}
+
+enum PaymentMethod {
+  CASH
+  SUPER_QI
+  BANK_TRANSFER
+  STRIPE
+  PADDLE
+  ZAIN_CASH
+  ASIA_HAWALA
+  OTHER
 }
 
 model Lab {
@@ -192,11 +216,14 @@ model Lab {
   users LabUser[] // The accounts (sarah@lab.com)
   staff LabStaff[] // The humans (Mustafa, Ahmed)
 
+  invoices        Invoice[]
+  invoicePayments InvoicePayment[]
+
   //tracker to get instant case number instead of making count() db query each time
   nextCaseNumber   Int               @default(0)
   caseActivityLogs CaseActivityLog[]
 
-  // nextInvoiceSequence Int @default(0) // We'll uncomment this in month 3!
+  nextInvoiceNumber Int @default(0)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -240,6 +267,8 @@ model Clinic {
   dentists Dentist[]
 
   casePricingPlans CasePricingPlan[]
+
+  invoices Invoice[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -305,6 +334,8 @@ model Case {
   deadline  DateTime?
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
+
+  invoiceCase InvoiceCase? // null = not yet invoiced
 
   @@unique([labId, caseNumber])
   @@index([labId])
@@ -648,55 +679,76 @@ model CaseActivityLog {
   @@index([labId])
 }
 
-// model Technician {
-//   id        String  @id @default(uuid())
-//   firstName String
-//   lastName  String
-//   city      String
-//   zipcode   String?
-//   address1  String
-//   address2  String?
+model Invoice {
+  id       String @id @default(uuid())
+  labId    String
+  lab      Lab    @relation(fields: [labId], references: [id], onDelete: Cascade)
+  clinicId String
+  clinic   Clinic @relation(fields: [clinicId], references: [id], onDelete: Cascade)
 
-//   labId String
-//   lab   Lab    @relation(fields: [labId], references: [id], onDelete: Cascade)
+  invoiceNumber String // "INV-001", auto-incremented per lab, unique globally is fine
+  status        InvoiceStatus @default(DRAFT)
+  notes         String?
 
-//   email       String
-//   phoneNumber String
+  // Snapshot totals — never recompute from cases
+  subtotal       Decimal @db.Decimal(10, 2)
+  discountAmount Decimal @default(0) @db.Decimal(10, 2)
+  total          Decimal @db.Decimal(10, 2)
+  amountPaid     Decimal @default(0) @db.Decimal(10, 2)
+  amountDue      Decimal @db.Decimal(10, 2)
 
-//   avatarUrl String
+  issuedAt DateTime?
+  dueDate  DateTime?
 
-//   cases Case[]
+  // Public link for WhatsApp sharing — generated on SENT
+  publicToken         String?   @unique @default(cuid())
+  publicLinkExpiresAt DateTime?
 
-//   createdAt DateTime @default(now())
-//   updatedAt DateTime @updatedAt
+  cases    InvoiceCase[]
+  payments InvoicePayment[]
 
-//   @@index([labId])
-// }
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-// model SalesRepresentative {
-//   id        String  @id @default(uuid())
-//   firstName String
-//   lastName  String
-//   city      String
-//   zipcode   String?
-//   address1  String
-//   address2  String?
+  @@unique([labId, invoiceNumber])
+  @@index([labId])
+  @@index([clinicId])
+  @@index([labId, status])
+}
 
-//   labId String
-//   lab   Lab    @relation(fields: [labId], references: [id], onDelete: Cascade)
+// Junction — @unique on caseId prevents double-billing
+model InvoiceCase {
+  invoiceId String
+  invoice   Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  caseId    String  @unique // one case → one invoice only
+  case      Case    @relation(fields: [caseId], references: [id], onDelete: Cascade)
 
-//   email       String
-//   phoneNumber String
+  // Snapshot at invoice time — grandTotal may change later
+  caseTotal Decimal @db.Decimal(10, 2)
 
-//   avatarUrl String
+  @@id([invoiceId, caseId])
+  @@index([invoiceId])
+}
 
-//   cases Case[]
+model InvoicePayment {
+  id        String  @id @default(uuid())
+  invoiceId String
+  invoice   Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  labId     String
+  lab       Lab     @relation(fields: [labId], references: [id], onDelete: Cascade)
 
-//   createdAt DateTime @default(now())
-//   updatedAt DateTime @updatedAt
+  amount    Decimal       @db.Decimal(10, 2)
+  method    PaymentMethod
+  reference String? // SuperQI transaction ID, cash receipt number, etc.
+  notes     String?
+  paidAt    DateTime
 
-//   @@index([labId])
-// }
+  createdAt DateTime @default(now())
+
+  @@index([invoiceId])
+  @@index([labId])
+}
+
 model LabSubscriptionPlan {
   id    String @id @default(uuid())
   labId String @unique

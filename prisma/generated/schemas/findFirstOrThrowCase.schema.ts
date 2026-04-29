@@ -32,6 +32,7 @@ export const CaseFindFirstOrThrowSelectSchema: z.ZodType<Prisma.CaseSelect> = z.
     deadline: z.boolean().optional(),
     createdAt: z.boolean().optional(),
     updatedAt: z.boolean().optional(),
+    invoiceCase: z.boolean().optional(),
     _count: z.boolean().optional()
   }).strict() as unknown as z.ZodType<Prisma.CaseSelect>;
 
@@ -58,6 +59,7 @@ export const CaseFindFirstOrThrowSelectZodSchema = z.object({
     deadline: z.boolean().optional(),
     createdAt: z.boolean().optional(),
     updatedAt: z.boolean().optional(),
+    invoiceCase: z.boolean().optional(),
     _count: z.boolean().optional()
   }).strict();
 

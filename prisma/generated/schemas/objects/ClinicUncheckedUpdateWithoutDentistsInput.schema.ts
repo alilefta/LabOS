@@ -10,7 +10,8 @@ import { NullableDecimalFieldUpdateOperationsInputObjectSchema as NullableDecima
 import { DecimalFieldUpdateOperationsInputObjectSchema as DecimalFieldUpdateOperationsInputObjectSchema } from './DecimalFieldUpdateOperationsInput.schema';
 import { DateTimeFieldUpdateOperationsInputObjectSchema as DateTimeFieldUpdateOperationsInputObjectSchema } from './DateTimeFieldUpdateOperationsInput.schema';
 import { CaseUncheckedUpdateManyWithoutClinicNestedInputObjectSchema as CaseUncheckedUpdateManyWithoutClinicNestedInputObjectSchema } from './CaseUncheckedUpdateManyWithoutClinicNestedInput.schema';
-import { CasePricingPlanUncheckedUpdateManyWithoutClinicNestedInputObjectSchema as CasePricingPlanUncheckedUpdateManyWithoutClinicNestedInputObjectSchema } from './CasePricingPlanUncheckedUpdateManyWithoutClinicNestedInput.schema'
+import { CasePricingPlanUncheckedUpdateManyWithoutClinicNestedInputObjectSchema as CasePricingPlanUncheckedUpdateManyWithoutClinicNestedInputObjectSchema } from './CasePricingPlanUncheckedUpdateManyWithoutClinicNestedInput.schema';
+import { InvoiceUncheckedUpdateManyWithoutClinicNestedInputObjectSchema as InvoiceUncheckedUpdateManyWithoutClinicNestedInputObjectSchema } from './InvoiceUncheckedUpdateManyWithoutClinicNestedInput.schema'
 
 import { DecimalJSLikeSchema, isValidDecimalInput } from '../../helpers/decimal-helpers';
 const makeSchema = () => z.object({
@@ -58,7 +59,8 @@ const makeSchema = () => z.object({
   createdAt: z.union([z.coerce.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputObjectSchema)]).optional(),
   updatedAt: z.union([z.coerce.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputObjectSchema)]).optional(),
   cases: z.lazy(() => CaseUncheckedUpdateManyWithoutClinicNestedInputObjectSchema).optional(),
-  casePricingPlans: z.lazy(() => CasePricingPlanUncheckedUpdateManyWithoutClinicNestedInputObjectSchema).optional()
+  casePricingPlans: z.lazy(() => CasePricingPlanUncheckedUpdateManyWithoutClinicNestedInputObjectSchema).optional(),
+  invoices: z.lazy(() => InvoiceUncheckedUpdateManyWithoutClinicNestedInputObjectSchema).optional()
 }).strict();
 export const ClinicUncheckedUpdateWithoutDentistsInputObjectSchema: z.ZodType<Prisma.ClinicUncheckedUpdateWithoutDentistsInput> = makeSchema() as unknown as z.ZodType<Prisma.ClinicUncheckedUpdateWithoutDentistsInput>;
 export const ClinicUncheckedUpdateWithoutDentistsInputObjectZodSchema = makeSchema();

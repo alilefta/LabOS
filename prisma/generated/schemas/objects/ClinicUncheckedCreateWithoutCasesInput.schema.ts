@@ -3,7 +3,8 @@ import { Prisma } from '../../../../generated/prisma/client';
 import { ClinicStatusSchema } from '../enums/ClinicStatus.schema';
 import { ClinicTypeSchema } from '../enums/ClinicType.schema';
 import { DentistUncheckedCreateNestedManyWithoutClinicInputObjectSchema as DentistUncheckedCreateNestedManyWithoutClinicInputObjectSchema } from './DentistUncheckedCreateNestedManyWithoutClinicInput.schema';
-import { CasePricingPlanUncheckedCreateNestedManyWithoutClinicInputObjectSchema as CasePricingPlanUncheckedCreateNestedManyWithoutClinicInputObjectSchema } from './CasePricingPlanUncheckedCreateNestedManyWithoutClinicInput.schema'
+import { CasePricingPlanUncheckedCreateNestedManyWithoutClinicInputObjectSchema as CasePricingPlanUncheckedCreateNestedManyWithoutClinicInputObjectSchema } from './CasePricingPlanUncheckedCreateNestedManyWithoutClinicInput.schema';
+import { InvoiceUncheckedCreateNestedManyWithoutClinicInputObjectSchema as InvoiceUncheckedCreateNestedManyWithoutClinicInputObjectSchema } from './InvoiceUncheckedCreateNestedManyWithoutClinicInput.schema'
 
 import { DecimalJSLikeSchema, isValidDecimalInput } from '../../helpers/decimal-helpers';
 const makeSchema = () => z.object({
@@ -51,7 +52,8 @@ const makeSchema = () => z.object({
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
   dentists: z.lazy(() => DentistUncheckedCreateNestedManyWithoutClinicInputObjectSchema).optional(),
-  casePricingPlans: z.lazy(() => CasePricingPlanUncheckedCreateNestedManyWithoutClinicInputObjectSchema).optional()
+  casePricingPlans: z.lazy(() => CasePricingPlanUncheckedCreateNestedManyWithoutClinicInputObjectSchema).optional(),
+  invoices: z.lazy(() => InvoiceUncheckedCreateNestedManyWithoutClinicInputObjectSchema).optional()
 }).strict();
 export const ClinicUncheckedCreateWithoutCasesInputObjectSchema: z.ZodType<Prisma.ClinicUncheckedCreateWithoutCasesInput> = makeSchema() as unknown as z.ZodType<Prisma.ClinicUncheckedCreateWithoutCasesInput>;
 export const ClinicUncheckedCreateWithoutCasesInputObjectZodSchema = makeSchema();

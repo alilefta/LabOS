@@ -8,7 +8,8 @@ import { ClinicCreateNestedOneWithoutCasesInputObjectSchema as ClinicCreateNeste
 import { DentistCreateNestedOneWithoutCasesInputObjectSchema as DentistCreateNestedOneWithoutCasesInputObjectSchema } from './DentistCreateNestedOneWithoutCasesInput.schema';
 import { CaseStaffAssignmentCreateNestedManyWithoutDentalCaseInputObjectSchema as CaseStaffAssignmentCreateNestedManyWithoutDentalCaseInputObjectSchema } from './CaseStaffAssignmentCreateNestedManyWithoutDentalCaseInput.schema';
 import { CaseActivityLogCreateNestedManyWithoutDentalCaseInputObjectSchema as CaseActivityLogCreateNestedManyWithoutDentalCaseInputObjectSchema } from './CaseActivityLogCreateNestedManyWithoutDentalCaseInput.schema';
-import { CaseAssetFileCreateNestedManyWithoutDentalCaseInputObjectSchema as CaseAssetFileCreateNestedManyWithoutDentalCaseInputObjectSchema } from './CaseAssetFileCreateNestedManyWithoutDentalCaseInput.schema'
+import { CaseAssetFileCreateNestedManyWithoutDentalCaseInputObjectSchema as CaseAssetFileCreateNestedManyWithoutDentalCaseInputObjectSchema } from './CaseAssetFileCreateNestedManyWithoutDentalCaseInput.schema';
+import { InvoiceCaseCreateNestedOneWithoutCaseInputObjectSchema as InvoiceCaseCreateNestedOneWithoutCaseInputObjectSchema } from './InvoiceCaseCreateNestedOneWithoutCaseInput.schema'
 
 import { DecimalJSLikeSchema, isValidDecimalInput } from '../../helpers/decimal-helpers';
 const makeSchema = () => z.object({
@@ -34,7 +35,8 @@ const makeSchema = () => z.object({
   dentist: z.lazy(() => DentistCreateNestedOneWithoutCasesInputObjectSchema).optional(),
   staffAssignments: z.lazy(() => CaseStaffAssignmentCreateNestedManyWithoutDentalCaseInputObjectSchema).optional(),
   caseActivityLogs: z.lazy(() => CaseActivityLogCreateNestedManyWithoutDentalCaseInputObjectSchema).optional(),
-  caseAssetFiles: z.lazy(() => CaseAssetFileCreateNestedManyWithoutDentalCaseInputObjectSchema).optional()
+  caseAssetFiles: z.lazy(() => CaseAssetFileCreateNestedManyWithoutDentalCaseInputObjectSchema).optional(),
+  invoiceCase: z.lazy(() => InvoiceCaseCreateNestedOneWithoutCaseInputObjectSchema).optional()
 }).strict();
 export const CaseCreateWithoutLabInputObjectSchema: z.ZodType<Prisma.CaseCreateWithoutLabInput> = makeSchema() as unknown as z.ZodType<Prisma.CaseCreateWithoutLabInput>;
 export const CaseCreateWithoutLabInputObjectZodSchema = makeSchema();

@@ -21,8 +21,11 @@ export const LabInputSchema = z.object({
     staffAssignments: z.array(z.unknown()),
     users: z.array(z.unknown()),
     staff: z.array(z.unknown()),
+    invoices: z.array(z.unknown()),
+    invoicePayments: z.array(z.unknown()),
     nextCaseNumber: z.number().int(),
     caseActivityLogs: z.array(z.unknown()),
+    nextInvoiceNumber: z.number().int(),
     createdAt: z.date(),
     updatedAt: z.date()
 }).strict();

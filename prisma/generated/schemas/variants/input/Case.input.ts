@@ -23,7 +23,8 @@ export const CaseInputSchema = z.object({
     caseAssetFiles: z.array(z.unknown()),
     deadline: z.date().optional().nullable(),
     createdAt: z.date(),
-    updatedAt: z.date()
+    updatedAt: z.date(),
+    invoiceCase: z.unknown().optional().nullable()
 }).strict();
 
 export type CaseInputType = z.infer<typeof CaseInputSchema>;

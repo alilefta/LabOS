@@ -15,17 +15,19 @@ import { CaseStaffAssignmentDetailsUISchema, CreateCaseStaffAssignmentInput, Cre
 import { ToothPositionSchema } from "../base/tooth-position.base";
 import { CaseStaffAssignmentBaseSchema } from "../base/case-staff-assignment.base";
 import { CaseActivityLogDetailsUISchema } from "./case-activity-logs.details";
+import { InvoiceCaseBaseSchema } from "../base/invoice-case.base";
 
 export const CaseDetailsSchema = CaseBaseSchema.extend({
 	caseCategory: CaseCategoryBaseSchema.nullable(),
 	caseItems: z.array(CaseWorkItemDetailsUISchema),
 	clinic: ClinicBaseSchema.nullable(),
-	caseAssetFiles: z.array(CaseAssetFileBaseSchema).nullable(),
+	caseAssetFiles: z.array(CaseAssetFileBaseSchema),
 	lab: LabBaseSchema,
 	patient: PatientBaseSchema,
 	dentist: DentistBaseSchema.nullable(),
 	staffAssignments: z.array(CaseStaffAssignmentDetailsUISchema),
 	caseActivityLogs: z.array(CaseActivityLogDetailsUISchema),
+	invoiceCase: InvoiceCaseBaseSchema.nullable(),
 });
 export type CaseDetails = z.infer<typeof CaseDetailsSchema>;
 
@@ -39,6 +41,7 @@ export const CaseDetailsUISchema = CaseBaseSchema.extend({
 	dentist: DentistBaseSchema.nullable(),
 	staffAssignments: z.array(CaseStaffAssignmentDetailsUISchema).nullable(),
 	caseActivityLogs: z.array(CaseActivityLogDetailsUISchema).nullable(),
+	invoiceCase: InvoiceCaseBaseSchema.nullable(),
 });
 export type CaseDetailsUI = z.infer<typeof CaseDetailsUISchema>;
 

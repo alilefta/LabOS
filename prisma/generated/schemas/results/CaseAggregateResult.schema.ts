@@ -21,7 +21,8 @@ export const CaseAggregateResultSchema = z.object({  _count: z.object({
     caseAssetFiles: z.number(),
     deadline: z.number(),
     createdAt: z.number(),
-    updatedAt: z.number()
+    updatedAt: z.number(),
+    invoiceCase: z.number()
   }).optional(),
   _sum: z.object({
     grandTotal: z.number().nullable()

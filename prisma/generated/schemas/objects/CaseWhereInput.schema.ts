@@ -20,7 +20,9 @@ import { DentistNullableScalarRelationFilterObjectSchema as DentistNullableScala
 import { DentistWhereInputObjectSchema as DentistWhereInputObjectSchema } from './DentistWhereInput.schema';
 import { CaseStaffAssignmentListRelationFilterObjectSchema as CaseStaffAssignmentListRelationFilterObjectSchema } from './CaseStaffAssignmentListRelationFilter.schema';
 import { CaseActivityLogListRelationFilterObjectSchema as CaseActivityLogListRelationFilterObjectSchema } from './CaseActivityLogListRelationFilter.schema';
-import { CaseAssetFileListRelationFilterObjectSchema as CaseAssetFileListRelationFilterObjectSchema } from './CaseAssetFileListRelationFilter.schema'
+import { CaseAssetFileListRelationFilterObjectSchema as CaseAssetFileListRelationFilterObjectSchema } from './CaseAssetFileListRelationFilter.schema';
+import { InvoiceCaseNullableScalarRelationFilterObjectSchema as InvoiceCaseNullableScalarRelationFilterObjectSchema } from './InvoiceCaseNullableScalarRelationFilter.schema';
+import { InvoiceCaseWhereInputObjectSchema as InvoiceCaseWhereInputObjectSchema } from './InvoiceCaseWhereInput.schema'
 
 import { DecimalJSLikeSchema, isValidDecimalInput } from '../../helpers/decimal-helpers';
 const casewhereinputSchema = z.object({
@@ -55,7 +57,8 @@ const casewhereinputSchema = z.object({
   dentist: z.union([z.lazy(() => DentistNullableScalarRelationFilterObjectSchema), z.lazy(() => DentistWhereInputObjectSchema)]).optional(),
   staffAssignments: z.lazy(() => CaseStaffAssignmentListRelationFilterObjectSchema).optional(),
   caseActivityLogs: z.lazy(() => CaseActivityLogListRelationFilterObjectSchema).optional(),
-  caseAssetFiles: z.lazy(() => CaseAssetFileListRelationFilterObjectSchema).optional()
+  caseAssetFiles: z.lazy(() => CaseAssetFileListRelationFilterObjectSchema).optional(),
+  invoiceCase: z.union([z.lazy(() => InvoiceCaseNullableScalarRelationFilterObjectSchema), z.lazy(() => InvoiceCaseWhereInputObjectSchema)]).optional()
 }).strict();
 export const CaseWhereInputObjectSchema: z.ZodType<Prisma.CaseWhereInput> = casewhereinputSchema as unknown as z.ZodType<Prisma.CaseWhereInput>;
 export const CaseWhereInputObjectZodSchema = casewhereinputSchema;

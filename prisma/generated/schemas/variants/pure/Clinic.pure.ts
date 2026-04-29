@@ -27,6 +27,7 @@ export const ClinicModelSchema = z.object({
     cases: z.array(z.unknown()),
     dentists: z.array(z.unknown()),
     casePricingPlans: z.array(z.unknown()),
+    invoices: z.array(z.unknown()),
     createdAt: z.date(),
     updatedAt: z.date()
 }).strict();

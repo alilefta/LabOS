@@ -15,6 +15,8 @@ import { DentistFindManySchema as DentistFindManySchema } from '../findManyDenti
 import { CaseStaffAssignmentFindManySchema as CaseStaffAssignmentFindManySchema } from '../findManyCaseStaffAssignment.schema';
 import { LabUserFindManySchema as LabUserFindManySchema } from '../findManyLabUser.schema';
 import { LabStaffFindManySchema as LabStaffFindManySchema } from '../findManyLabStaff.schema';
+import { InvoiceFindManySchema as InvoiceFindManySchema } from '../findManyInvoice.schema';
+import { InvoicePaymentFindManySchema as InvoicePaymentFindManySchema } from '../findManyInvoicePayment.schema';
 import { CaseActivityLogFindManySchema as CaseActivityLogFindManySchema } from '../findManyCaseActivityLog.schema';
 import { LabCountOutputTypeArgsObjectSchema as LabCountOutputTypeArgsObjectSchema } from './LabCountOutputTypeArgs.schema'
 
@@ -34,6 +36,8 @@ const makeSchema = () => z.object({
   staffAssignments: z.union([z.boolean(), z.lazy(() => CaseStaffAssignmentFindManySchema)]).optional(),
   users: z.union([z.boolean(), z.lazy(() => LabUserFindManySchema)]).optional(),
   staff: z.union([z.boolean(), z.lazy(() => LabStaffFindManySchema)]).optional(),
+  invoices: z.union([z.boolean(), z.lazy(() => InvoiceFindManySchema)]).optional(),
+  invoicePayments: z.union([z.boolean(), z.lazy(() => InvoicePaymentFindManySchema)]).optional(),
   caseActivityLogs: z.union([z.boolean(), z.lazy(() => CaseActivityLogFindManySchema)]).optional(),
   _count: z.union([z.boolean(), z.lazy(() => LabCountOutputTypeArgsObjectSchema)]).optional()
 }).strict();

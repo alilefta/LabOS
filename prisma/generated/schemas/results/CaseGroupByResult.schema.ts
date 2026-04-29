@@ -34,7 +34,8 @@ export const CaseGroupByResultSchema = z.array(z.object({
     caseAssetFiles: z.number(),
     deadline: z.number(),
     createdAt: z.number(),
-    updatedAt: z.number()
+    updatedAt: z.number(),
+    invoiceCase: z.number()
   }).optional(),
   _sum: z.object({
     grandTotal: z.number().nullable()

@@ -61,6 +61,18 @@ export const CaseActivityTypeSchema = z.enum([
 	"DEADLINE_CHANGED",
 	"AI_AUDIT_COMPLETED",
 	"CASE_PRICING_RECALCULATED",
+	"INVOICE_CREATED",
+	"INVOICE_SENT",
+	"PAYMENT_RECORDED",
 ]);
 
 export type CaseActivityType = z.infer<typeof CaseActivityTypeSchema>;
+
+// ========== Invoice Status  ============
+export const InvoiceStatusSchema = z.enum(["DRAFT", "SENT", "PARTIAL", "PAID", "OVERDUE", "CANCELLED"]);
+export type InvoiceStatus = z.infer<typeof InvoiceStatusSchema>;
+
+// ========== Payment Methods  ============
+
+export const PaymentMethodSchema = z.enum(["CASH", "SUPER_QI", "BANK_TRANSFER", "STRIPE", "PADDLE", "ZAIN_CASH", "ASIA_HAWALA", "OTHER"]);
+export type PaymentMethod = z.infer<typeof PaymentMethodSchema>;

@@ -1,0 +1,71 @@
+import * as z from 'zod';
+import { Prisma } from '../../../../generated/prisma/client';
+import { StringFieldUpdateOperationsInputObjectSchema as StringFieldUpdateOperationsInputObjectSchema } from './StringFieldUpdateOperationsInput.schema';
+import { InvoiceStatusSchema } from '../enums/InvoiceStatus.schema';
+import { EnumInvoiceStatusFieldUpdateOperationsInputObjectSchema as EnumInvoiceStatusFieldUpdateOperationsInputObjectSchema } from './EnumInvoiceStatusFieldUpdateOperationsInput.schema';
+import { NullableStringFieldUpdateOperationsInputObjectSchema as NullableStringFieldUpdateOperationsInputObjectSchema } from './NullableStringFieldUpdateOperationsInput.schema';
+import { DecimalFieldUpdateOperationsInputObjectSchema as DecimalFieldUpdateOperationsInputObjectSchema } from './DecimalFieldUpdateOperationsInput.schema';
+import { NullableDateTimeFieldUpdateOperationsInputObjectSchema as NullableDateTimeFieldUpdateOperationsInputObjectSchema } from './NullableDateTimeFieldUpdateOperationsInput.schema';
+import { DateTimeFieldUpdateOperationsInputObjectSchema as DateTimeFieldUpdateOperationsInputObjectSchema } from './DateTimeFieldUpdateOperationsInput.schema';
+import { ClinicUpdateOneRequiredWithoutInvoicesNestedInputObjectSchema as ClinicUpdateOneRequiredWithoutInvoicesNestedInputObjectSchema } from './ClinicUpdateOneRequiredWithoutInvoicesNestedInput.schema';
+import { InvoiceCaseUpdateManyWithoutInvoiceNestedInputObjectSchema as InvoiceCaseUpdateManyWithoutInvoiceNestedInputObjectSchema } from './InvoiceCaseUpdateManyWithoutInvoiceNestedInput.schema';
+import { InvoicePaymentUpdateManyWithoutInvoiceNestedInputObjectSchema as InvoicePaymentUpdateManyWithoutInvoiceNestedInputObjectSchema } from './InvoicePaymentUpdateManyWithoutInvoiceNestedInput.schema'
+
+import { DecimalJSLikeSchema, isValidDecimalInput } from '../../helpers/decimal-helpers';
+const makeSchema = () => z.object({
+  id: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputObjectSchema)]).optional(),
+  invoiceNumber: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputObjectSchema)]).optional(),
+  status: z.union([InvoiceStatusSchema, z.lazy(() => EnumInvoiceStatusFieldUpdateOperationsInputObjectSchema)]).optional(),
+  notes: z.union([z.string(), z.lazy(() => NullableStringFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
+  subtotal: z.union([z.union([
+  z.number(),
+  z.string(),
+  z.instanceof(Prisma.Decimal),
+  DecimalJSLikeSchema,
+]).refine((v) => isValidDecimalInput(v), {
+  message: "Field 'subtotal' must be a Decimal",
+}), z.lazy(() => DecimalFieldUpdateOperationsInputObjectSchema)]).optional(),
+  discountAmount: z.union([z.union([
+  z.number(),
+  z.string(),
+  z.instanceof(Prisma.Decimal),
+  DecimalJSLikeSchema,
+]).refine((v) => isValidDecimalInput(v), {
+  message: "Field 'discountAmount' must be a Decimal",
+}), z.lazy(() => DecimalFieldUpdateOperationsInputObjectSchema)]).optional(),
+  total: z.union([z.union([
+  z.number(),
+  z.string(),
+  z.instanceof(Prisma.Decimal),
+  DecimalJSLikeSchema,
+]).refine((v) => isValidDecimalInput(v), {
+  message: "Field 'total' must be a Decimal",
+}), z.lazy(() => DecimalFieldUpdateOperationsInputObjectSchema)]).optional(),
+  amountPaid: z.union([z.union([
+  z.number(),
+  z.string(),
+  z.instanceof(Prisma.Decimal),
+  DecimalJSLikeSchema,
+]).refine((v) => isValidDecimalInput(v), {
+  message: "Field 'amountPaid' must be a Decimal",
+}), z.lazy(() => DecimalFieldUpdateOperationsInputObjectSchema)]).optional(),
+  amountDue: z.union([z.union([
+  z.number(),
+  z.string(),
+  z.instanceof(Prisma.Decimal),
+  DecimalJSLikeSchema,
+]).refine((v) => isValidDecimalInput(v), {
+  message: "Field 'amountDue' must be a Decimal",
+}), z.lazy(() => DecimalFieldUpdateOperationsInputObjectSchema)]).optional(),
+  issuedAt: z.union([z.coerce.date(), z.lazy(() => NullableDateTimeFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
+  dueDate: z.union([z.coerce.date(), z.lazy(() => NullableDateTimeFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
+  publicToken: z.union([z.string(), z.lazy(() => NullableStringFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
+  publicLinkExpiresAt: z.union([z.coerce.date(), z.lazy(() => NullableDateTimeFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
+  createdAt: z.union([z.coerce.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputObjectSchema)]).optional(),
+  updatedAt: z.union([z.coerce.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputObjectSchema)]).optional(),
+  clinic: z.lazy(() => ClinicUpdateOneRequiredWithoutInvoicesNestedInputObjectSchema).optional(),
+  cases: z.lazy(() => InvoiceCaseUpdateManyWithoutInvoiceNestedInputObjectSchema).optional(),
+  payments: z.lazy(() => InvoicePaymentUpdateManyWithoutInvoiceNestedInputObjectSchema).optional()
+}).strict();
+export const InvoiceUpdateWithoutLabInputObjectSchema: z.ZodType<Prisma.InvoiceUpdateWithoutLabInput> = makeSchema() as unknown as z.ZodType<Prisma.InvoiceUpdateWithoutLabInput>;
+export const InvoiceUpdateWithoutLabInputObjectZodSchema = makeSchema();

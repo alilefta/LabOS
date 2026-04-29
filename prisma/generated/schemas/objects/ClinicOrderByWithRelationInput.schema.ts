@@ -5,7 +5,8 @@ import { SortOrderInputObjectSchema as SortOrderInputObjectSchema } from './Sort
 import { LabOrderByWithRelationInputObjectSchema as LabOrderByWithRelationInputObjectSchema } from './LabOrderByWithRelationInput.schema';
 import { CaseOrderByRelationAggregateInputObjectSchema as CaseOrderByRelationAggregateInputObjectSchema } from './CaseOrderByRelationAggregateInput.schema';
 import { DentistOrderByRelationAggregateInputObjectSchema as DentistOrderByRelationAggregateInputObjectSchema } from './DentistOrderByRelationAggregateInput.schema';
-import { CasePricingPlanOrderByRelationAggregateInputObjectSchema as CasePricingPlanOrderByRelationAggregateInputObjectSchema } from './CasePricingPlanOrderByRelationAggregateInput.schema'
+import { CasePricingPlanOrderByRelationAggregateInputObjectSchema as CasePricingPlanOrderByRelationAggregateInputObjectSchema } from './CasePricingPlanOrderByRelationAggregateInput.schema';
+import { InvoiceOrderByRelationAggregateInputObjectSchema as InvoiceOrderByRelationAggregateInputObjectSchema } from './InvoiceOrderByRelationAggregateInput.schema'
 
 const makeSchema = () => z.object({
   id: SortOrderSchema.optional(),
@@ -33,7 +34,8 @@ const makeSchema = () => z.object({
   lab: z.lazy(() => LabOrderByWithRelationInputObjectSchema).optional(),
   cases: z.lazy(() => CaseOrderByRelationAggregateInputObjectSchema).optional(),
   dentists: z.lazy(() => DentistOrderByRelationAggregateInputObjectSchema).optional(),
-  casePricingPlans: z.lazy(() => CasePricingPlanOrderByRelationAggregateInputObjectSchema).optional()
+  casePricingPlans: z.lazy(() => CasePricingPlanOrderByRelationAggregateInputObjectSchema).optional(),
+  invoices: z.lazy(() => InvoiceOrderByRelationAggregateInputObjectSchema).optional()
 }).strict();
 export const ClinicOrderByWithRelationInputObjectSchema: z.ZodType<Prisma.ClinicOrderByWithRelationInput> = makeSchema() as unknown as z.ZodType<Prisma.ClinicOrderByWithRelationInput>;
 export const ClinicOrderByWithRelationInputObjectZodSchema = makeSchema();

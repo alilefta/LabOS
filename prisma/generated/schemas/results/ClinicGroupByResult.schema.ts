@@ -45,6 +45,7 @@ export const ClinicGroupByResultSchema = z.array(z.object({
     cases: z.number(),
     dentists: z.number(),
     casePricingPlans: z.number(),
+    invoices: z.number(),
     createdAt: z.number(),
     updatedAt: z.number()
   }).optional(),

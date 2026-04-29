@@ -4,6 +4,7 @@ import { ClinicStatusSchema, ClinicTypeSchema } from "./enums.base";
 export const ClinicBaseSchema = z.object({
 	id: z.string(),
 	labId: z.string(),
+
 	name: z.string(),
 	description: z.string().nullable(),
 	website: z.string().nullable(),
@@ -22,6 +23,7 @@ export const ClinicBaseSchema = z.object({
 	discount: z.number().nullable(),
 	creditLimit: z.number().nullable(),
 	currentBalance: z.number(),
+
 	createdAt: z.date(),
 	updatedAt: z.date(),
 });

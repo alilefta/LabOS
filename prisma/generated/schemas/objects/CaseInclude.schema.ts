@@ -9,6 +9,7 @@ import { DentistArgsObjectSchema as DentistArgsObjectSchema } from './DentistArg
 import { CaseStaffAssignmentFindManySchema as CaseStaffAssignmentFindManySchema } from '../findManyCaseStaffAssignment.schema';
 import { CaseActivityLogFindManySchema as CaseActivityLogFindManySchema } from '../findManyCaseActivityLog.schema';
 import { CaseAssetFileFindManySchema as CaseAssetFileFindManySchema } from '../findManyCaseAssetFile.schema';
+import { InvoiceCaseArgsObjectSchema as InvoiceCaseArgsObjectSchema } from './InvoiceCaseArgs.schema';
 import { CaseCountOutputTypeArgsObjectSchema as CaseCountOutputTypeArgsObjectSchema } from './CaseCountOutputTypeArgs.schema'
 
 const makeSchema = () => z.object({
@@ -21,6 +22,7 @@ const makeSchema = () => z.object({
   staffAssignments: z.union([z.boolean(), z.lazy(() => CaseStaffAssignmentFindManySchema)]).optional(),
   caseActivityLogs: z.union([z.boolean(), z.lazy(() => CaseActivityLogFindManySchema)]).optional(),
   caseAssetFiles: z.union([z.boolean(), z.lazy(() => CaseAssetFileFindManySchema)]).optional(),
+  invoiceCase: z.union([z.boolean(), z.lazy(() => InvoiceCaseArgsObjectSchema)]).optional(),
   _count: z.union([z.boolean(), z.lazy(() => CaseCountOutputTypeArgsObjectSchema)]).optional()
 }).strict();
 export const CaseIncludeObjectSchema: z.ZodType<Prisma.CaseInclude> = makeSchema() as unknown as z.ZodType<Prisma.CaseInclude>;

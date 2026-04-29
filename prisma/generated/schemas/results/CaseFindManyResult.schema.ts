@@ -22,7 +22,8 @@ export const CaseFindManyResultSchema = z.object({
   caseAssetFiles: z.array(z.unknown()),
   deadline: z.date().optional(),
   createdAt: z.date(),
-  updatedAt: z.date()
+  updatedAt: z.date(),
+  invoiceCase: z.unknown().optional()
 })),
   pagination: z.object({
   page: z.number().int().min(1),

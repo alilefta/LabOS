@@ -23,7 +23,8 @@ export const CaseModelSchema = z.object({
     caseAssetFiles: z.array(z.unknown()),
     deadline: z.date().nullable(),
     createdAt: z.date(),
-    updatedAt: z.date()
+    updatedAt: z.date(),
+    invoiceCase: z.unknown().nullable()
 }).strict();
 
 export type CasePureType = z.infer<typeof CaseModelSchema>;

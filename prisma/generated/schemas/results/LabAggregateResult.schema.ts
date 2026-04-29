@@ -20,16 +20,21 @@ export const LabAggregateResultSchema = z.object({  _count: z.object({
     staffAssignments: z.number(),
     users: z.number(),
     staff: z.number(),
+    invoices: z.number(),
+    invoicePayments: z.number(),
     nextCaseNumber: z.number(),
     caseActivityLogs: z.number(),
+    nextInvoiceNumber: z.number(),
     createdAt: z.number(),
     updatedAt: z.number()
   }).optional(),
   _sum: z.object({
-    nextCaseNumber: z.number().nullable()
+    nextCaseNumber: z.number().nullable(),
+    nextInvoiceNumber: z.number().nullable()
   }).nullable().optional(),
   _avg: z.object({
-    nextCaseNumber: z.number().nullable()
+    nextCaseNumber: z.number().nullable(),
+    nextInvoiceNumber: z.number().nullable()
   }).nullable().optional(),
   _min: z.object({
     id: z.string().nullable(),
@@ -38,6 +43,7 @@ export const LabAggregateResultSchema = z.object({  _count: z.object({
     brandAvatarUrl: z.string().nullable(),
     subtitle: z.string().nullable(),
     nextCaseNumber: z.number().int().nullable(),
+    nextInvoiceNumber: z.number().int().nullable(),
     createdAt: z.date().nullable(),
     updatedAt: z.date().nullable()
   }).nullable().optional(),
@@ -48,6 +54,7 @@ export const LabAggregateResultSchema = z.object({  _count: z.object({
     brandAvatarUrl: z.string().nullable(),
     subtitle: z.string().nullable(),
     nextCaseNumber: z.number().int().nullable(),
+    nextInvoiceNumber: z.number().int().nullable(),
     createdAt: z.date().nullable(),
     updatedAt: z.date().nullable()
   }).nullable().optional()});

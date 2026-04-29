@@ -17,6 +17,8 @@ import { DentistBaseSchema } from "../base/dentist.base";
 import { CaseStaffAssignmentBaseSchema } from "../base/case-staff-assignment.base";
 import { LabStaffBaseSchema } from "../base/lab-staff.base";
 import { CaseActivityLogBaseSchema } from "../base/case-activity-logs.base";
+import { InvoiceBaseSchema } from "../base/invoice.base";
+import { InvoicePaymentBaseSchema } from "../base/invoice-payment.base";
 
 export const LabDetailsSchema = LabBaseSchema.extend({
 	labSubscriptionPlan: LabSubscriptionPlanBaseSchema.nullable(),
@@ -39,6 +41,9 @@ export const LabDetailsSchema = LabBaseSchema.extend({
 	staffAssignments: z.array(CaseStaffAssignmentBaseSchema),
 	staff: z.array(LabStaffBaseSchema),
 	caseActivityLogs: z.array(CaseActivityLogBaseSchema),
+
+	invoices: z.array(InvoiceBaseSchema),
+	invoicePayments: z.array(InvoicePaymentBaseSchema),
 });
 
 export const CreateLabAndLabUserInputSchema = z.object({

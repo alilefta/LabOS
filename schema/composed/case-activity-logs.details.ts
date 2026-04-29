@@ -2,7 +2,7 @@ import * as z from "zod";
 import { CaseActivityLogBaseSchema } from "../base/case-activity-logs.base";
 import { CaseBaseSchema } from "../base/case.base";
 import { LabBaseSchema } from "../base/lab.base";
-import { CaseStatusSchema, StaffRoleCategorySchema } from "../base/enums.base";
+import { CaseStatusSchema, InvoiceStatusSchema, PaymentMethodSchema, StaffRoleCategorySchema } from "../base/enums.base";
 import { LabUserBaseSchema } from "../base/lab-user.base";
 
 export const CaseActivityLogDetailsSchema = CaseActivityLogBaseSchema.extend({
@@ -123,6 +123,31 @@ export const CaseUpdatedPayloadSchema = z.object({
 		.nullable(),
 });
 
+export const InvoiceCreatedPayloadSchema = z.object({
+	invoiceId: z.string(),
+	invoiceNumber: z.string(),
+	caseCount: z.number(),
+	subtotal: z.number(),
+	total: z.number(),
+});
+
+export const InvoiceSentPayloadSchema = z.object({
+	invoiceId: z.string(),
+	invoiceNumber: z.string(),
+	publicToken: z.string(),
+});
+
+export const PaymentRecordedPayloadSchema = z.object({
+	invoiceId: z.string(),
+	invoiceNumber: z.string(),
+	amount: z.number(),
+	method: PaymentMethodSchema, // add import below
+	reference: z.string().nullable(),
+	previousAmountPaid: z.number(),
+	newAmountPaid: z.number(),
+	newStatus: InvoiceStatusSchema, // add import below
+});
+
 // ── Discriminated union ───────────────────────────────────────────────────────
 
 export const CaseActivityPayloadSchema = z.discriminatedUnion("type", [
@@ -137,6 +162,9 @@ export const CaseActivityPayloadSchema = z.discriminatedUnion("type", [
 	z.object({ type: z.literal("NOTE_ADDED"), payload: NoteAddedPayloadSchema }),
 	z.object({ type: z.literal("AI_AUDIT_COMPLETED"), payload: AiAuditCompletedPayloadSchema }),
 	z.object({ type: z.literal("CASE_UPDATED"), payload: CaseUpdatedPayloadSchema }),
+	z.object({ type: z.literal("INVOICE_CREATED"), payload: InvoiceCreatedPayloadSchema }),
+	z.object({ type: z.literal("INVOICE_SENT"), payload: InvoiceSentPayloadSchema }),
+	z.object({ type: z.literal("PAYMENT_RECORDED"), payload: PaymentRecordedPayloadSchema }),
 ]);
 
 export type CaseActivityPayload = z.infer<typeof CaseActivityPayloadSchema>;

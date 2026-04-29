@@ -34,6 +34,7 @@ export const ClinicFindManySelectSchema: z.ZodType<Prisma.ClinicSelect> = z.obje
     cases: z.boolean().optional(),
     dentists: z.boolean().optional(),
     casePricingPlans: z.boolean().optional(),
+    invoices: z.boolean().optional(),
     createdAt: z.boolean().optional(),
     updatedAt: z.boolean().optional(),
     _count: z.boolean().optional()
@@ -64,6 +65,7 @@ export const ClinicFindManySelectZodSchema = z.object({
     cases: z.boolean().optional(),
     dentists: z.boolean().optional(),
     casePricingPlans: z.boolean().optional(),
+    invoices: z.boolean().optional(),
     createdAt: z.boolean().optional(),
     updatedAt: z.boolean().optional(),
     _count: z.boolean().optional()

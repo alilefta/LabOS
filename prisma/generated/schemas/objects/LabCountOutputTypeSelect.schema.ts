@@ -14,6 +14,8 @@ import { LabCountOutputTypeCountDentistsArgsObjectSchema as LabCountOutputTypeCo
 import { LabCountOutputTypeCountStaffAssignmentsArgsObjectSchema as LabCountOutputTypeCountStaffAssignmentsArgsObjectSchema } from './LabCountOutputTypeCountStaffAssignmentsArgs.schema';
 import { LabCountOutputTypeCountUsersArgsObjectSchema as LabCountOutputTypeCountUsersArgsObjectSchema } from './LabCountOutputTypeCountUsersArgs.schema';
 import { LabCountOutputTypeCountStaffArgsObjectSchema as LabCountOutputTypeCountStaffArgsObjectSchema } from './LabCountOutputTypeCountStaffArgs.schema';
+import { LabCountOutputTypeCountInvoicesArgsObjectSchema as LabCountOutputTypeCountInvoicesArgsObjectSchema } from './LabCountOutputTypeCountInvoicesArgs.schema';
+import { LabCountOutputTypeCountInvoicePaymentsArgsObjectSchema as LabCountOutputTypeCountInvoicePaymentsArgsObjectSchema } from './LabCountOutputTypeCountInvoicePaymentsArgs.schema';
 import { LabCountOutputTypeCountCaseActivityLogsArgsObjectSchema as LabCountOutputTypeCountCaseActivityLogsArgsObjectSchema } from './LabCountOutputTypeCountCaseActivityLogsArgs.schema'
 
 const makeSchema = () => z.object({
@@ -31,6 +33,8 @@ const makeSchema = () => z.object({
   staffAssignments: z.union([z.boolean(), z.lazy(() => LabCountOutputTypeCountStaffAssignmentsArgsObjectSchema)]).optional(),
   users: z.union([z.boolean(), z.lazy(() => LabCountOutputTypeCountUsersArgsObjectSchema)]).optional(),
   staff: z.union([z.boolean(), z.lazy(() => LabCountOutputTypeCountStaffArgsObjectSchema)]).optional(),
+  invoices: z.union([z.boolean(), z.lazy(() => LabCountOutputTypeCountInvoicesArgsObjectSchema)]).optional(),
+  invoicePayments: z.union([z.boolean(), z.lazy(() => LabCountOutputTypeCountInvoicePaymentsArgsObjectSchema)]).optional(),
   caseActivityLogs: z.union([z.boolean(), z.lazy(() => LabCountOutputTypeCountCaseActivityLogsArgsObjectSchema)]).optional()
 }).strict();
 export const LabCountOutputTypeSelectObjectSchema: z.ZodType<Prisma.LabCountOutputTypeSelect> = makeSchema() as unknown as z.ZodType<Prisma.LabCountOutputTypeSelect>;

@@ -7,12 +7,14 @@ import { DentistBaseSchema } from "../base/dentist.base";
 import { ClinicStatusSchema, ClinicTypeSchema } from "../base/enums.base";
 import { CreatePrimaryDentistInputSchema } from "./dentist.details";
 import { emptyToUndefinedTransformer } from "../base/utils.base";
+import { InvoiceBaseSchema } from "../base/invoice.base";
 
 export const ClinicDetailsSchema = ClinicBaseSchema.extend({
 	lab: LabBaseSchema,
 	cases: z.array(CaseBaseSchema),
 	dentists: z.array(DentistBaseSchema),
 	casePricingPlans: z.array(CasePricingPlanBaseSchema),
+	invoices: z.array(InvoiceBaseSchema),
 });
 
 export type ClinicDetails = z.infer<typeof ClinicDetailsSchema>;
@@ -22,6 +24,7 @@ export const ClinicDetailsUISchema = ClinicBaseSchema.extend({
 	cases: z.array(CaseBaseSchema).optional(),
 	dentists: z.array(DentistBaseSchema).optional(),
 	casePricingPlans: z.array(CasePricingPlanBaseSchema).optional(),
+	invoices: z.array(InvoiceBaseSchema).optional(),
 });
 
 export type ClinicDetailsUI = z.infer<typeof ClinicDetailsUISchema>;

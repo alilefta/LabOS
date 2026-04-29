@@ -4,7 +4,8 @@ import { ClinicStatusSchema } from '../enums/ClinicStatus.schema';
 import { ClinicTypeSchema } from '../enums/ClinicType.schema';
 import { CaseUncheckedCreateNestedManyWithoutClinicInputObjectSchema as CaseUncheckedCreateNestedManyWithoutClinicInputObjectSchema } from './CaseUncheckedCreateNestedManyWithoutClinicInput.schema';
 import { DentistUncheckedCreateNestedManyWithoutClinicInputObjectSchema as DentistUncheckedCreateNestedManyWithoutClinicInputObjectSchema } from './DentistUncheckedCreateNestedManyWithoutClinicInput.schema';
-import { CasePricingPlanUncheckedCreateNestedManyWithoutClinicInputObjectSchema as CasePricingPlanUncheckedCreateNestedManyWithoutClinicInputObjectSchema } from './CasePricingPlanUncheckedCreateNestedManyWithoutClinicInput.schema'
+import { CasePricingPlanUncheckedCreateNestedManyWithoutClinicInputObjectSchema as CasePricingPlanUncheckedCreateNestedManyWithoutClinicInputObjectSchema } from './CasePricingPlanUncheckedCreateNestedManyWithoutClinicInput.schema';
+import { InvoiceUncheckedCreateNestedManyWithoutClinicInputObjectSchema as InvoiceUncheckedCreateNestedManyWithoutClinicInputObjectSchema } from './InvoiceUncheckedCreateNestedManyWithoutClinicInput.schema'
 
 import { DecimalJSLikeSchema, isValidDecimalInput } from '../../helpers/decimal-helpers';
 const makeSchema = () => z.object({
@@ -52,7 +53,8 @@ const makeSchema = () => z.object({
   createdAt: z.coerce.date().optional(),
   cases: z.lazy(() => CaseUncheckedCreateNestedManyWithoutClinicInputObjectSchema).optional(),
   dentists: z.lazy(() => DentistUncheckedCreateNestedManyWithoutClinicInputObjectSchema).optional(),
-  casePricingPlans: z.lazy(() => CasePricingPlanUncheckedCreateNestedManyWithoutClinicInputObjectSchema).optional()
+  casePricingPlans: z.lazy(() => CasePricingPlanUncheckedCreateNestedManyWithoutClinicInputObjectSchema).optional(),
+  invoices: z.lazy(() => InvoiceUncheckedCreateNestedManyWithoutClinicInputObjectSchema).optional()
 }).strict();
 export const ClinicUncheckedCreateInputObjectSchema: z.ZodType<Prisma.ClinicUncheckedCreateInput> = makeSchema() as unknown as z.ZodType<Prisma.ClinicUncheckedCreateInput>;
 export const ClinicUncheckedCreateInputObjectZodSchema = makeSchema();
