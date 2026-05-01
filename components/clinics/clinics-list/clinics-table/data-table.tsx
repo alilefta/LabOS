@@ -2,26 +2,23 @@
 
 import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table";
 import { useVirtualizer } from "@tanstack/react-virtual";
-import { Inbox, Loader2 } from "lucide-react";
-
+import { Building2, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useEffect, useRef } from "react";
+import { ClinicListDTO } from "@/schema/composed/clinic.details";
+import { memo, useEffect, useRef } from "react";
 
-interface DataTableProps<TData, TValue> {
-	columns: ColumnDef<TData, TValue>[];
-	data: TData[];
+interface DataTableProps {
+	columns: ColumnDef<ClinicListDTO>[];
+	data: ClinicListDTO[];
 	isLoading?: boolean;
-	onRowClick?: (row: TData) => void;
-
-	// Optional: Infinite Scroll Triggers (For Step 3!)
+	onRowClick?: (row: ClinicListDTO) => void;
 	fetchNextPage?: () => void;
 	isFetchingNextPage?: boolean;
 	hasNextPage?: boolean;
 }
 
-export function DataTable<TData, TValue>({ columns, data, isLoading, onRowClick, fetchNextPage, isFetchingNextPage, hasNextPage }: DataTableProps<TData, TValue>) {
-	// 1. Initialize TanStack Table
+export const DataTable = memo(function DataTable({ columns, data, isLoading, onRowClick, fetchNextPage, isFetchingNextPage, hasNextPage }: DataTableProps) {
 	const table = useReactTable({
 		data,
 		columns,
@@ -29,71 +26,58 @@ export function DataTable<TData, TValue>({ columns, data, isLoading, onRowClick,
 	});
 
 	const { rows } = table.getRowModel();
-
-	// 2. Initialize the Scroll Container Ref for Virtualization
 	const tableContainerRef = useRef<HTMLDivElement>(null);
 
-	// 3. Initialize TanStack Virtualizer
 	const rowVirtualizer = useVirtualizer({
-		count: hasNextPage ? rows.length + 1 : rows.length, // Add 1 extra row for the loading spinner if more pages exist
+		count: hasNextPage ? rows.length + 1 : rows.length,
 		getScrollElement: () => tableContainerRef.current,
-		// Estimate row height (72px is roughly the height of our padded rows)
-		estimateSize: () => 72,
-		overscan: 10, // Render 10 items off-screen for smooth scrolling
+		estimateSize: () => 76,
+		overscan: 10,
 	});
 
-	// 4. Infinite Scroll Trigger Effect
 	const virtualItems = rowVirtualizer.getVirtualItems();
+
 	useEffect(() => {
 		const [lastItem] = [...virtualItems].reverse();
 		if (!lastItem) return;
 
-		// If the last rendered item is the "loading" row and we aren't already fetching, grab the next page!
 		if (lastItem.index >= rows.length - 1 && hasNextPage && !isFetchingNextPage && fetchNextPage) {
 			fetchNextPage();
 		}
 	}, [hasNextPage, fetchNextPage, rows.length, isFetchingNextPage, virtualItems]);
 
-	// 5. Calculate Virtual Padding (The magic that makes the scrollbar accurate without rendering rows)
 	const paddingTop = virtualItems.length > 0 ? virtualItems?.[0]?.start || 0 : 0;
 	const paddingBottom = virtualItems.length > 0 ? rowVirtualizer.getTotalSize() - (virtualItems?.[virtualItems.length - 1]?.end || 0) : 0;
 
 	return (
 		<div ref={tableContainerRef} className="flex-1 h-full w-full overflow-auto custom-scrollbar bg-slate-50/50 dark:bg-white/2 relative">
 			<table className="w-full text-left border-collapse whitespace-nowrap">
-				{/* --- STICKY FROSTED HEADER --- */}
 				<thead className="sticky top-0 z-20 bg-slate-50/90 dark:bg-[#09090B]/90 backdrop-blur-xl border-b border-border shadow-sm shadow-black/5">
 					{table.getHeaderGroups().map((headerGroup) => (
 						<tr key={headerGroup.id}>
-							{headerGroup.headers.map((header) => {
-								return (
-									<th key={header.id} className="px-6 py-4 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
-										{header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
-									</th>
-								);
-							})}
+							{headerGroup.headers.map((header) => (
+								<th key={header.id} className="px-6 py-4 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+									{header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
+								</th>
+							))}
 						</tr>
 					))}
 				</thead>
 
-				{/* --- VIRTUALIZED BODY --- */}
 				<tbody className="divide-y divide-border/50">
-					{/* Top Padding */}
 					{paddingTop > 0 && (
 						<tr>
 							<td style={{ height: `${paddingTop}px` }} />
 						</tr>
 					)}
 
-					{/* Visible Rows */}
 					{virtualItems.map((virtualRow) => {
 						const isLoaderRow = virtualRow.index > rows.length - 1;
 						const row = rows[virtualRow.index];
 
-						// If this is the extra row added for infinite scrolling
 						if (isLoaderRow) {
 							return (
-								<tr key={`loader-${virtualRow.index}`} className="h-18">
+								<tr key={`loader-${virtualRow.index}`} className="h-[76px]">
 									<td colSpan={columns.length} className="px-6 py-4 text-center">
 										<Loader2 className="w-5 h-5 animate-spin text-primary mx-auto" />
 									</td>
@@ -101,11 +85,10 @@ export function DataTable<TData, TValue>({ columns, data, isLoading, onRowClick,
 							);
 						}
 
-						// Actual Data Row
 						return (
 							<tr
 								key={row.id}
-								onClick={() => onRowClick && onRowClick(row.original)}
+								onClick={() => onRowClick?.(row.original)}
 								className={cn("group transition-colors duration-200 bg-background", onRowClick ? "cursor-pointer hover:bg-slate-50 dark:hover:bg-white/2" : "hover:bg-transparent")}
 							>
 								{row.getVisibleCells().map((cell) => (
@@ -117,29 +100,28 @@ export function DataTable<TData, TValue>({ columns, data, isLoading, onRowClick,
 						);
 					})}
 
-					{/* Bottom Padding */}
 					{paddingBottom > 0 && (
 						<tr>
 							<td style={{ height: `${paddingBottom}px` }} />
 						</tr>
 					)}
 
-					{/* Empty State */}
+					{/* EMPTY STATE */}
 					{!isLoading && data.length === 0 && (
 						<tr>
 							<td colSpan={columns.length}>
 								<div className="flex flex-col items-center justify-center p-16 text-center animate-in fade-in zoom-in-95">
 									<div className="w-16 h-16 rounded-2xl bg-slate-100 dark:bg-white/5 flex items-center justify-center mb-4 border border-border">
-										<Inbox className="w-8 h-8 text-slate-400 dark:text-zinc-500" />
+										<Building2 className="w-8 h-8 text-slate-400 dark:text-zinc-500" />
 									</div>
-									<h3 className="text-lg font-bold text-foreground">No cases found</h3>
-									<p className="text-xs text-muted-foreground mt-1 max-w-sm">Adjust your filters or use the AI Copilot to query different clinical parameters.</p>
+									<h3 className="text-lg font-bold text-foreground">No clinic partners found</h3>
+									<p className="text-xs text-muted-foreground mt-1 max-w-sm">Adjust your filters or register a new clinic to begin production.</p>
 								</div>
 							</td>
 						</tr>
 					)}
 
-					{/* Initial Loading Skeletons */}
+					{/* SKELETON LOADERS */}
 					{isLoading && data.length === 0 && (
 						<>
 							{Array.from({ length: 8 }).map((_, i) => (
@@ -157,4 +139,4 @@ export function DataTable<TData, TValue>({ columns, data, isLoading, onRowClick,
 			</table>
 		</div>
 	);
-}
+});

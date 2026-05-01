@@ -11,27 +11,6 @@ import { cn } from "@/lib/utils";
 import { CaseStatus } from "@/schema/base/enums.base"; // Assuming this is where your enum lives
 import { CaseListDTO } from "@/schema/composed/case.details";
 
-// --- TYPES (Matching your updated backend DTO exactly) ---
-// export type CaseListDTO = {
-// 	id: string;
-// 	caseNumber: string;
-// 	status: CaseStatus;
-// 	deadline: Date | null;
-// 	grandTotal: number | null;
-// 	patientName: string;
-// 	clinicName: string | null;
-// 	dentistName: string | null;
-// 	caseCategory: string | null;
-// 	primaryProduct: string | null;
-// 	leadTechnician: {
-// 		id: string;
-// 		firstName: string;
-// 		lastName: string;
-// 		avatarUrl: string | null;
-// 	} | null;
-// 	staffCount: number;
-// };
-
 // --- STATUS BADGE CONFIGURATION (Fixed for Prisma Enum) ---
 const STATUS_CONFIG: Record<CaseStatus, { label: string; icon: LucideIcon; colorClass: string }> = {
 	NEW: { label: "Intake", icon: FileCheck, colorClass: "bg-blue-500/10 text-blue-600 border-blue-500/20" },

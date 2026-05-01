@@ -322,7 +322,7 @@ export const computeCaseItemPrice = (pricingPlan: CasePricingPlanModel, selected
 				return Number(pricingPlan.bulkPrice);
 			}
 
-			// 2. Otherwise, apply Tiered Pricing (1st tooth = X, rest = Y), if total teeth count >= bulkThreshold, apply bulkPrice
+			// 2. Otherwise, apply Tiered Pricing (1st tooth = X, rest = Y), if there is a bulkThreshold, then total teeth count >= bulkThreshold, apply bulkPrice if exists
 			const firstPrice = Number(pricingPlan.firstToothPrice || 0);
 			const additionalPrice = Number(pricingPlan.additionalToothPrice || 0);
 

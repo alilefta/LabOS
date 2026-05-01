@@ -16,6 +16,9 @@ import type {
 	CaseWorkItemModel,
 	ClinicModel,
 	DentistModel,
+	InvoiceCaseModel,
+	InvoiceModel,
+	InvoicePaymentModel,
 	LabModel,
 	LabStaffModel,
 	LabUserModel,
@@ -40,6 +43,9 @@ import { WorktypeBase } from "@/schema/base/worktype.base";
 import { CaseAssetFileBase } from "@/schema/base/case-asset-file.base";
 import { CaseActivityLogBase } from "@/schema/base/case-activity-logs.base";
 import { CaseActivityLogDetailsUI, CaseActivityPayload, CaseActivityPayloadSchema } from "@/schema/composed/case-activity-logs.details";
+import { InvoiceCaseBase } from "@/schema/base/invoice-case.base";
+import { InvoiceBase } from "@/schema/base/invoice.base";
+import { InvoicePaymentBase } from "@/schema/base/invoice-payment.base";
 
 // ─── Decimal utility ──────────────────────────────────────────────────────────
 
@@ -125,6 +131,31 @@ export function normalizeCaseActivity(raw: CaseActivityLogModel & { actor: LabUs
 		payload: parseActivityPayload(raw) as CaseActivityPayload,
 		dentalCase: null,
 		lab: null,
+	};
+}
+
+export function normalizeInvoiceCase(raw: InvoiceCaseModel): InvoiceCaseBase {
+	return {
+		...raw,
+		caseTotal: dStrict(raw.caseTotal),
+	};
+}
+
+export function normalizeInvoicePayment(raw: InvoicePaymentModel): InvoicePaymentBase {
+	return {
+		...raw,
+		amount: dStrict(raw.amount),
+	};
+}
+
+export function normalizeInvoice(raw: InvoiceModel): InvoiceBase {
+	return {
+		...raw,
+		subtotal: dStrict(raw.subtotal),
+		discountAmount: dStrict(raw.discountAmount),
+		total: dStrict(raw.total),
+		amountPaid: dStrict(raw.amountPaid),
+		amountDue: dStrict(raw.amountDue),
 	};
 }
 

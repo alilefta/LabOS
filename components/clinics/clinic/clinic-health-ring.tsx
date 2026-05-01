@@ -2,9 +2,16 @@
 
 import { Sparkles } from "lucide-react";
 
-export function ClinicHealthRing() {
-	// Mock scores out of 100
-	const scores = { volume: 85, quality: 62, logic: 94 };
+interface ClinicHealthRingProps {
+	scores: {
+		volume: number;
+		quality: number;
+		logic: number;
+	};
+}
+
+export function ClinicHealthRing({ scores }: ClinicHealthRingProps) {
+	// Calculate the average health score
 	const avg = Math.round((scores.volume + scores.quality + scores.logic) / 3);
 
 	return (
@@ -27,7 +34,7 @@ export function ClinicHealthRing() {
 						strokeWidth="8"
 						fill="transparent"
 						strokeDasharray={540}
-						strokeDashoffset={540 - (540 * scores.volume) / 100}
+						strokeDashoffset={540 - (540 * Math.max(0, Math.min(scores.volume, 100))) / 100}
 						strokeLinecap="round"
 						className="transition-all duration-1000 ease-out"
 					/>
@@ -42,7 +49,7 @@ export function ClinicHealthRing() {
 						strokeWidth="8"
 						fill="transparent"
 						strokeDasharray={440}
-						strokeDashoffset={440 - (440 * scores.quality) / 100}
+						strokeDashoffset={440 - (440 * Math.max(0, Math.min(scores.quality, 100))) / 100}
 						strokeLinecap="round"
 						className="transition-all duration-1000 delay-200 ease-out"
 					/>
@@ -57,7 +64,7 @@ export function ClinicHealthRing() {
 						strokeWidth="8"
 						fill="transparent"
 						strokeDasharray={340}
-						strokeDashoffset={340 - (340 * scores.logic) / 100}
+						strokeDashoffset={340 - (340 * Math.max(0, Math.min(scores.logic, 100))) / 100}
 						strokeLinecap="round"
 						className="transition-all duration-1000 delay-500 ease-out"
 					/>

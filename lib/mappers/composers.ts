@@ -16,6 +16,9 @@ import type {
 	CaseWorkItemModel,
 	ClinicModel,
 	DentistModel,
+	InvoiceCaseModel,
+	InvoiceModel,
+	InvoicePaymentModel,
 	LabStaffModel,
 	LabUserModel,
 	PatientModel,
@@ -39,10 +42,12 @@ import {
 	normalizePatient,
 	normalizeCaseCategory,
 	normalizeCaseActivity,
+	normalizeInvoiceCase,
 } from "./normalizers";
 import { CaseWorkItemDetailsUI } from "@/schema/composed/case-work-item.details";
 import { CaseStaffAssignmentDetailsUI } from "@/schema/composed/case-staff-assignment.details";
 import { CaseDetailsUI, DraftCaseDTO, DraftCaseSummaryDTO } from "@/schema/composed/case.details";
+import { ClinicListDTO, ClinicQuickOverviewDTO } from "@/schema/composed/clinic.details";
 
 // ─── Input shapes ─────────────────────────────────────────────────────────────
 // Declare exactly what each composer needs from Prisma.
@@ -73,6 +78,7 @@ type RawFullCase = CaseModel & {
 	staffAssignments: RawStaffAssignment[];
 	caseAssetFiles: CaseAssetFileModel[];
 	caseActivityLogs: RawCaseActivityLog[];
+	invoiceCase: InvoiceCaseModel | null;
 };
 
 // Drafts use a narrower shape — only what's needed to repopulate the form
@@ -124,6 +130,7 @@ export function composeCaseDTO(raw: RawFullCase): CaseDetailsUI {
 		caseAssetFiles: raw.caseAssetFiles.map(normalizeAssetFile),
 		lab: null,
 		caseActivityLogs: raw.caseActivityLogs.map(normalizeCaseActivity),
+		invoiceCase: raw.invoiceCase ? normalizeInvoiceCase(raw.invoiceCase) : null,
 	};
 }
 
@@ -159,5 +166,94 @@ export function composeDraftSummaryDTO(raw: { id: string; caseNumber: string; up
 		lastSavedAt: raw.updatedAt,
 		patientName: raw.patient.name,
 		clinicName: raw.clinic?.name ?? null,
+	};
+}
+
+export function composeClinicQuickOverviewDTO(
+	raw: Pick<ClinicModel, "id" | "name" | "city" | "creditLimit" | "phoneNumber" | "email" | "currentBalance" | "type" | "status" | "address1" | "createdAt"> & {
+		dentists: Pick<DentistModel, "id" | "name" | "isDefault">[];
+		cases: (Pick<CaseModel, "id" | "caseNumber" | "deadline" | "status" | "patientId"> & {
+			caseItems: (Pick<CaseWorkItemModel, "jawType"> & {
+				product: Pick<ProductModel, "name"> | null;
+			})[];
+			patient: Pick<PatientModel, "name">;
+			caseCategory: Pick<CaseCategoryModel, "name"> | null;
+		})[];
+		invoices: {
+			payments: Pick<InvoicePaymentModel, "id" | "amount" | "paidAt" | "method">[];
+		}[];
+	},
+	uninvoicedCount: number,
+): ClinicQuickOverviewDTO {
+	// Flatten the payments from all invoices into a single sorted array
+	const allPayments = raw.invoices
+		.flatMap((inv) => inv.payments)
+		.sort((a, b) => b.paidAt.getTime() - a.paidAt.getTime())
+		.slice(0, 3);
+	return {
+		id: raw.id,
+		name: raw.name,
+		type: raw.type,
+		status: raw.status,
+		city: raw.city,
+		address1: raw.address1,
+		phoneNumber: raw.phoneNumber,
+		email: raw.email,
+		createdAt: raw.createdAt,
+		currentBalance: Number(raw.currentBalance),
+		creditLimit: Number(raw.creditLimit),
+		uninvoicedCasesCount: uninvoicedCount,
+		dentists: raw.dentists,
+		recentCases: raw.cases.map((c) => ({
+			id: c.id,
+			caseNumber: c.caseNumber,
+			status: c.status,
+			caseItems: c.caseItems.map((ci) => ({
+				productName: ci?.product?.name ?? "No product",
+				jawType: ci.jawType,
+			})),
+			patientName: c.patient.name,
+			patientId: c.patientId,
+			deadline: c.deadline,
+			categoryName: c.caseCategory?.name ?? "No category",
+		})),
+		recentPayments: allPayments.map((p) => ({
+			id: p.id,
+			amount: Number(p.amount),
+			paidAt: p.paidAt,
+			method: p.method,
+		})),
+	};
+}
+
+export function composeClinicListDTO(
+	raw: Pick<ClinicModel, "id" | "name" | "type" | "city" | "status" | "phoneNumber" | "email" | "currentBalance" | "creditLimit"> & {
+		remakeRate?: number | undefined;
+		dentists: Pick<DentistModel, "id" | "name" | "isOwner">[];
+		_count: {
+			cases: number;
+			dentists: number;
+		};
+	},
+	uninvoicedCount: number,
+	score: number,
+	trendBuckets: number[],
+): ClinicListDTO {
+	return {
+		id: raw.id,
+		name: raw.name,
+		type: raw.type,
+		city: raw.city,
+		status: raw.status,
+		phoneNumber: raw.phoneNumber,
+		currentBalance: Number(raw.currentBalance),
+		creditLimit: raw.creditLimit ? Number(raw.creditLimit) : null,
+		uninvoicedCasesCount: uninvoicedCount,
+		ownerDentist: raw.dentists[0] ?? null,
+		totalDentists: raw._count.dentists,
+		activeCases: raw._count.cases,
+		// Analytics
+		healthScore: Math.max(score, 0),
+		trendData: trendBuckets,
 	};
 }

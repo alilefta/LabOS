@@ -1,10 +1,10 @@
 import { redirect } from "next/navigation";
 import { getServerSession } from "@/lib/get-session";
-import CasesClientWrapperPage from "@/components/cases/cases-client-wrapper-page";
 import { PermissionsProvider } from "@/providers/permissions-provider";
 import { getCurrentLabUserRoleByAuthUserId } from "@/data/lab";
+import { ClinicsClientWrapper } from "@/components/clinics/clinics-list/clinics-client-wrapper-page";
 
-export default async function CasesPage() {
+export default async function ClinicsListPage() {
 	const session = await getServerSession();
 	if (!session) redirect("/sign-in");
 
@@ -19,7 +19,7 @@ export default async function CasesPage() {
 				staffId: user.labStaff?.id,
 			}}
 		>
-			<CasesClientWrapperPage labId={user.labId} />
+			<ClinicsClientWrapper labId={user.labId} />
 		</PermissionsProvider>
 	);
 }
