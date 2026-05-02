@@ -38,7 +38,7 @@ export default async function CaseDossierPage({ params }: { params: Promise<{ ca
 
 	return (
 		<PermissionsProvider userContext={labUser}>
-			<div className="flex flex-col h-full animate-in fade-in duration-700 bg-background">
+			<div className="flex flex-col h-full animate-in fade-in duration-700 bg-background relative">
 				{/* --- STICKY COMMAND HEADER --- */}
 				<header className="shrink-0 flex flex-col md:flex-row md:items-center justify-between gap-4 sm:gap-6 sticky top-0 z-30 bg-background/80 backdrop-blur-xl pt-4 pb-4 px-4 sm:px-8 border-b border-border shadow-sm">
 					<div className="flex items-start sm:items-center gap-3 sm:gap-4">
@@ -77,7 +77,7 @@ export default async function CaseDossierPage({ params }: { params: Promise<{ ca
 						<EditCaseButton caseId={dentalCase.id} status={dentalCase.status} />
 
 						{/* DYNAMIC STATUS BUTTON */}
-						<AdvanceStatusButton caseId={dentalCase.id} currentStatus={dentalCase.status as any} staffAssignments={dentalCase.staffAssignments ?? []} />
+						<AdvanceStatusButton caseId={dentalCase.id} currentStatus={dentalCase.status} staffAssignments={dentalCase.staffAssignments ?? []} />
 					</div>
 				</header>
 
@@ -104,7 +104,7 @@ export default async function CaseDossierPage({ params }: { params: Promise<{ ca
 						{/* RIGHT PANE: LOGISTICS & META (30%) */}
 						<aside className="w-full xl:w-100 shrink-0">
 							{/* Wrapping in sticky so it stays visible while scrolling the long clinical feed */}
-							<div className="sticky top-8 space-y-6 flex flex-col">
+							<div className="sticky top-0 space-y-6 flex flex-col">
 								<CaseDetailsSidebar dentalCase={dentalCase} />
 							</div>
 						</aside>

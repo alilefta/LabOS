@@ -33,7 +33,7 @@ export function ClinicInvoiceHistory() {
 	return (
 		<div className="lab-card flex-1 flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-700 delay-150">
 			{/* TOOLBAR */}
-			<div className="p-4 sm:p-5 border-b border-border bg-slate-50/50 dark:bg-white/[0.02] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+			<div className="p-4 sm:p-5 border-b border-border bg-slate-50/50 dark:bg-white/2 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
 				<div className="flex items-center gap-3">
 					<div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary shadow-sm">
 						<Receipt className="w-4 h-4" />
@@ -71,14 +71,14 @@ export function ClinicInvoiceHistory() {
 							<th className="h-10 px-6 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Due Date</th>
 							<th className="h-10 px-6 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Status</th>
 							<th className="h-10 px-6 text-[10px] font-bold text-muted-foreground uppercase tracking-widest text-right">Amount</th>
-							<th className="h-10 px-6 w-10"></th> {/* Action column */}
+							<th className="h-10 px-6 w-10">Actions</th> {/* Action column */}
 						</tr>
 					</thead>
 					<tbody className="divide-y divide-border">
 						{INVOICES.map((row) => {
 							const ui = getStatusUI(row.status);
 							return (
-								<tr key={row.id} className="group hover:bg-slate-50 dark:hover:bg-white/[0.02] transition-colors">
+								<tr key={row.id} className="group hover:bg-slate-50 dark:hover:bg-white/2 transition-colors">
 									<td className="p-4 px-6">
 										<span className="font-mono font-bold text-foreground">{row.id}</span>
 									</td>

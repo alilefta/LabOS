@@ -36,6 +36,50 @@ const optionalEmail = z
 	.optional()
 	.pipe(z.email({ message: "Please enter a valid email address." }).optional());
 
+// ========================= Create Clinic Schema For Register Quick Clinic Sheet
+export const CreateQuickClinicInputSchema = z.object({
+	name: z.string().trim().min(2, "Clinic name must be at least 2 characters."),
+
+	description: z.string().trim().transform(emptyToUndefinedTransformer).optional(),
+
+	website: z.string().trim().transform(emptyToUndefinedTransformer).optional().pipe(z.string().url("Please enter a valid website URL.").optional()),
+
+	notes: z.string().trim().transform(emptyToUndefinedTransformer).optional(),
+
+	status: ClinicStatusSchema,
+
+	type: ClinicTypeSchema,
+
+	city: z.string().trim().min(2, "City is required."),
+
+	zipcode: z.string().trim().transform(emptyToUndefinedTransformer).optional(),
+
+	address1: z.string().trim().min(3, "Address is required."),
+
+	address2: z.string().trim().transform(emptyToUndefinedTransformer).optional(),
+
+	email: z.string().trim().email("Please enter a valid email address."),
+
+	phoneNumber: z.string().trim().min(7, "Please enter a valid phone number."),
+
+	billingEmail: optionalEmail,
+
+	billingPhoneNumber: z.string().trim().transform(emptyToUndefinedTransformer).optional(),
+
+	taxNumber: z.string().trim().transform(emptyToUndefinedTransformer).optional(),
+
+	discount: z.number().min(0, "Discount cannot be negative.").max(100, "Discount cannot exceed 100%.").optional(),
+
+	creditLimit: z.number().min(0, "Credit limit cannot be negative.").optional(),
+
+	currentBalance: z.number().min(0, "Current balance cannot be negative."),
+	primaryDentist: CreatePrimaryDentistInputSchema,
+});
+
+export type CreateQuickClinicInput = z.infer<typeof CreateQuickClinicInputSchema>;
+
+// ============================= Create Complete Clinic Form Page Schema =======================
+// ========================= Create Clinic Schema For Register Quick Clinic Sheet
 export const CreateClinicInputSchema = z.object({
 	name: z.string().trim().min(2, "Clinic name must be at least 2 characters."),
 

@@ -104,9 +104,9 @@ export function ClinicsClientWrapper({ labId }: PageProps) {
 	};
 
 	return (
-		<div className="flex flex-col h-[calc(100vh-8rem)] animate-in fade-in duration-700 overflow-hidden">
+		<div className="flex flex-col h-[calc(100vh-8rem)] animate-in fade-in duration-700 overflow-hidden relative ">
 			{/* ── ZONE A: GLOBAL HEADER ─────────────────────────────────────────── */}
-			<div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6 shrink-0">
+			<div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6 shrink-0 pt-4 pb-4 px-4 sm:px-8 border-b border-border shadow-sm">
 				<div>
 					<h1 className="text-3xl font-bold tracking-tight text-foreground">Clinic Partners</h1>
 					<p className="text-sm text-muted-foreground mt-1">
@@ -142,7 +142,7 @@ export function ClinicsClientWrapper({ labId }: PageProps) {
 			</div>
 
 			{/* ── SCROLLABLE WRAPPER ────────────────────────────────────────────── */}
-			<div className="flex-1 flex flex-col min-h-0 overflow-y-auto custom-scrollbar pb-6 pr-1 pt-2">
+			<div className="flex-1 flex flex-col min-h-0 overflow-y-auto custom-scrollbar pb-6 pr-1 pt-2 px-4 sm:px-8">
 				<div className="shrink-0 flex flex-col gap-2">
 					{/* ── ZONE B: OWNER REVENUE STRIP ─────────────────────────────────── */}
 					<ClinicOwnerRevenueStrip data={revenueData ?? null} isLoading={isRevenueLoading} />

@@ -124,12 +124,12 @@ export function EditCaseClient({ initialData, caseNumber, patientName, caseStatu
 	);
 
 	return (
-		<div className="flex flex-col h-full animate-in fade-in duration-700">
+		<div className="flex flex-col h-full animate-in fade-in duration-700 bg-background relative">
 			{/* THE HEADER: Switches to EDIT branding */}
 			<EditCaseFormHeader caseNumber={caseNumber} isSubmittingCase={isUpdating} control={form.control} caseId={initialData.caseId} />
 
-			<div className="flex-1 min-h-0 relative z-10">
-				<div className="flex flex-col xl:flex-row gap-8 h-full">
+			<div className="flex-1 min-h-0 relative z-10 px-4 sm:px-8">
+				<div className="flex flex-col xl:flex-row gap-8 h-full pt-4">
 					{/* FORM SECTION: Reusing the exact same body! */}
 					<FormProvider {...form}>
 						<form className="flex-1 overflow-y-auto no-scrollbar pb-48 xl:pb-32" id="edit-case-submission-form" onSubmit={form.handleSubmit(handleFormValid)}>

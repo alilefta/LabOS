@@ -27,7 +27,7 @@ export function ClinicVitalsHeader({ clinic }: { clinic: ClinicDetailsUI }) {
 			<div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
 				{/* LEFT: Identity & Status */}
 				<div className="flex items-start gap-4">
-					<Link href="/clinics" className="mt-1">
+					<Link href="/clinics">
 						<Button variant="outline" size="icon" className="rounded-xl border-border bg-white dark:bg-white/5 hover:bg-slate-50 dark:hover:bg-white/10 shadow-sm h-10 w-10">
 							<ChevronLeft className="w-5 h-5 text-muted-foreground" />
 						</Button>

@@ -223,13 +223,13 @@ export default function NewCasePage() {
 	}, []);
 
 	return (
-		<div className="flex flex-col h-full animate-in fade-in duration-700">
+		<div className="flex flex-col h-full animate-in fade-in duration-700 relative">
 			<CreateCaseFormHeader isSavingDraft={isExecutingSavingDraft} isSubmittingCase={isCreatingCase} onSaveDraft={handleSaveDraft} control={form.control} />
-			<div className="flex-1 min-h-0 relative z-10">
+			<div className="flex-1 min-h-0 relative z-10 px-4 sm:px-8">
 				<div className="flex flex-col xl:flex-row gap-8 h-full">
 					{/* FORM SECTION (Left) */}
 					<FormProvider {...form}>
-						<form className="flex-1 overflow-y-auto no-scrollbar pb-48 xl:pb-32 space-y-12" id="new-case-submission-form" onSubmit={form.handleSubmit(handleFormValid)}>
+						<form className="flex-1 overflow-y-auto no-scrollbar pb-80 xl:pb-32 space-y-12" id="new-case-submission-form" onSubmit={form.handleSubmit(handleFormValid)}>
 							<CaseFormContent
 								mode={"create"}
 								isLoadingDrafts={isLoadingDrafts}

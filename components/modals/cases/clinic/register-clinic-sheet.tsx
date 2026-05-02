@@ -9,7 +9,7 @@ import { InputWithLabel } from "@/components/ui/custom/input-with-label";
 import { toast } from "sonner";
 import { useAction } from "next-safe-action/hooks";
 import { useQueryClient } from "@tanstack/react-query";
-import { ClinicDetailsUI, CreateClinicInput, CreateClinicInputSchema } from "@/schema/composed/clinic.details";
+import { ClinicDetailsUI, CreateQuickClinicInput, CreateQuickClinicInputSchema } from "@/schema/composed/clinic.details";
 import { createClinicAction } from "@/actions/clinic";
 import { handleSafeActionError } from "@/lib/safe-action-helpers";
 import { cn } from "@/lib/utils";
@@ -31,8 +31,8 @@ const CLINIC_TYPE_OPTIONS = [
 ];
 
 export function RegisterClinicSheet({ isOpen, onClose, onClinicCreated }: Props) {
-	const form = useForm<CreateClinicInput>({
-		resolver: zodResolver(CreateClinicInputSchema),
+	const form = useForm<CreateQuickClinicInput>({
+		resolver: zodResolver(CreateQuickClinicInputSchema),
 		defaultValues: {
 			name: "",
 			type: "CLINIC",
@@ -98,7 +98,7 @@ export function RegisterClinicSheet({ isOpen, onClose, onClinicCreated }: Props)
 		onError: ({ error }) => handleSafeActionError(error),
 	});
 
-	const onSubmit = async (data: CreateClinicInput) => {
+	const onSubmit = async (data: CreateQuickClinicInput) => {
 		await registerClinic(data);
 	};
 

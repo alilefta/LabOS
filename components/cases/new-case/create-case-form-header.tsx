@@ -37,7 +37,7 @@ export function CreateCaseFormHeader({ control, isSavingDraft, isSubmittingCase,
 	}, [patientId, clinicId, caseCategoryId, deadline, caseWorkItems]);
 
 	return (
-		<header className="shrink-0 flex flex-col md:flex-row md:items-center justify-between gap-4 sm:gap-6 mb-6 sm:mb-8 sticky top-0 z-20 bg-background/80 backdrop-blur-xl pt-4 pb-4 border-b border-border">
+		<header className="shrink-0 flex flex-col md:flex-row md:items-center justify-between gap-4 sm:gap-6 mb-6 sm:mb-8 sticky top-0 z-20 bg-background/80 backdrop-blur-xl pt-4 pb-4 border-b border-border px-4 sm:px-8 shadow-sm">
 			{/* LEFT: Title & Context */}
 			<div className="flex items-start sm:items-center gap-3 sm:gap-4">
 				<Link href="/cases" className="shrink-0 mt-0.5 sm:mt-0">

@@ -20,12 +20,17 @@ export default async function MainLayout({ children }: MainLayoutProps) {
 				{/* Sticky Top Header */}
 				<DashboardTopHeader />
 
-				{/* Scrollable Dashboard Canvas */}
-				<main className="flex-1 overflow-y-auto p-4 sm:p-8 relative">
-					<div className="absolute top-0 left-1/2 -translate-x-1/2 w-200 h-100 bg-primary/5 rounded-full blur-[120px] pointer-events-none -z-10 dark:block hidden"></div>
+				{/* 
+					CRITICAL FIX: 
+					This wrapper is pure overflow-hidden. The individual pages (children)
+					are responsible for their own scrolling and padding!
+				*/}
+				<main className="flex-1 overflow-hidden relative">
+					{/* Ambient Glow */}
+					<div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-primary/5 rounded-full blur-[120px] pointer-events-none -z-10 dark:block hidden"></div>
 
 					<QueryProvider>
-						<div className="w-full max-w-450 mx-auto h-full">{children}</div>
+						<div className="w-full h-full">{children}</div>
 					</QueryProvider>
 				</main>
 			</div>

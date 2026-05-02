@@ -10,9 +10,9 @@ export const metadata = {
 
 export default function ClinicsPage() {
 	return (
-		<div className="flex flex-col h-[calc(100vh-8rem)] animate-in fade-in slide-in-from-bottom-4 duration-700">
+		<div className="flex flex-col h-[calc(100vh-8rem)] animate-in fade-in slide-in-from-bottom-4 duration-700   relative">
 			{/* Page Header Area */}
-			<div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">
+			<div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6 pt-4 pb-4 px-4 sm:px-8 border-b border-border shadow-sm">
 				<div>
 					<h1 className="text-3xl font-bold tracking-tight text-foreground">Clinic Partners</h1>
 					<p className="text-muted-foreground mt-1">
@@ -32,7 +32,7 @@ export default function ClinicsPage() {
 			</div>
 
 			{/* THE PARTNER COMMAND CENTER LAYOUT */}
-			<div className="flex-1 flex flex-col xl:flex-row gap-6 min-h-0">
+			<div className="flex-1 flex flex-col xl:flex-row gap-6 min-h-0 px-4 sm:px-8">
 				{/* LEFT PANE: 70% Width (Performance Table) */}
 				<div className="flex-1 flex flex-col min-w-0">
 					<ClinicsPerformanceTable />
