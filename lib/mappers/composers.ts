@@ -48,6 +48,7 @@ import { CaseWorkItemDetailsUI } from "@/schema/composed/case-work-item.details"
 import { CaseStaffAssignmentDetailsUI } from "@/schema/composed/case-staff-assignment.details";
 import { CaseDetailsUI, DraftCaseDTO, DraftCaseSummaryDTO } from "@/schema/composed/case.details";
 import { ClinicListDTO, ClinicQuickOverviewDTO } from "@/schema/composed/clinic.details";
+import { ClinicBase } from "@/schema/base/clinic.base";
 
 // ─── Input shapes ─────────────────────────────────────────────────────────────
 // Declare exactly what each composer needs from Prisma.
@@ -256,4 +257,8 @@ export function composeClinicListDTO(
 		healthScore: Math.max(score, 0),
 		trendData: trendBuckets,
 	};
+}
+
+export function composeClinicBase(raw: ClinicModel): ClinicBase {
+	return normalizeClinic(raw);
 }

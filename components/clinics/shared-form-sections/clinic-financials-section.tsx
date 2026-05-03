@@ -6,11 +6,11 @@ import { ReceiptText, DollarSign, Percent, ShieldCheck } from "lucide-react";
 import { InputWithLabel } from "@/components/ui/custom/input-with-label";
 import { CustomFieldWithLabel } from "@/components/ui/custom/custom-field-with-label";
 import { Switch } from "@/components/ui/switch";
-import { CreateClinicInput } from "@/schema/composed/clinic.details";
+import { CreateCompleteClinicInput, UpdateClinicInput } from "@/schema/composed/clinic.details";
 import { cn } from "@/lib/utils";
 
 export function ClinicFinancialsSection() {
-	const { control, setValue } = useFormContext<CreateClinicInput>();
+	const { control, setValue } = useFormContext<CreateCompleteClinicInput | UpdateClinicInput>();
 
 	// Local UI state for the billing toggle
 	const [isBillingSame, setIsBillingSame] = useState(true);

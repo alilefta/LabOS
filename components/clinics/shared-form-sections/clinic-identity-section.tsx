@@ -4,9 +4,9 @@ import { memo } from "react";
 import { useFormContext, Controller, useWatch } from "react-hook-form";
 import { UserCircle, Briefcase, Building2, GraduationCap, Check } from "lucide-react";
 import { InputWithLabel } from "@/components/ui/custom/input-with-label";
-import { CreateClinicInput } from "@/schema/composed/clinic.details";
 import { ClinicType } from "@/schema/base/enums.base";
 import { cn } from "@/lib/utils";
+import { CreateCompleteClinicInput, UpdateClinicInput } from "@/schema/composed/clinic.details";
 
 const CLINIC_TYPE_OPTIONS = [
 	{ id: "SOLO", label: "Solo Practice", icon: UserCircle, desc: "Single Practitioner" },
@@ -16,7 +16,7 @@ const CLINIC_TYPE_OPTIONS = [
 ];
 
 export const ClinicIdentitySection = memo(function ClinicIdentitySection() {
-	const { control, setValue } = useFormContext<CreateClinicInput>();
+	const { control, setValue } = useFormContext<CreateCompleteClinicInput | UpdateClinicInput>();
 
 	const clinicType = useWatch({
 		control,
@@ -44,7 +44,7 @@ export const ClinicIdentitySection = memo(function ClinicIdentitySection() {
 					auto-fit + minmax(200px, 1fr) ensures the cards NEVER shrink below 200px. 
 					They will perfectly wrap to 3, 2, or 1 columns depending on the exact container width.
 				*/}
-				<div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-4 sm:gap-5">
+				<div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-4 sm:gap-5 mx-2">
 					{CLINIC_TYPE_OPTIONS.map((option) => {
 						const isSelected = clinicType === option.id;
 						return (
@@ -55,12 +55,12 @@ export const ClinicIdentitySection = memo(function ClinicIdentitySection() {
 								className={cn(
 									"relative flex flex-col p-6 rounded-2xl border text-left transition-all duration-500 ease-out group h-full outline-none focus-visible:ring-2 focus-visible:ring-primary/50 overflow-hidden",
 									isSelected
-										? "bg-primary/[0.03] border-primary/60 shadow-[0_8px_30px_-6px_rgba(37,99,235,0.2)] dark:shadow-[0_8px_30px_-6px_rgba(37,99,235,0.15)] ring-1 ring-primary/20 scale-[1.02]"
-										: "bg-card border-border hover:border-primary/40 hover:bg-slate-50/50 dark:hover:bg-white/[0.02] hover:shadow-md",
+										? "bg-primary/3 border-primary/60 shadow-[0_8px_30px_-6px_rgba(37,99,235,0.2)] dark:shadow-[0_8px_30px_-6px_rgba(37,99,235,0.15)] ring-1 ring-primary/20 scale-[1.02]"
+										: "bg-card border-border hover:border-primary/40 hover:bg-slate-50/50 dark:hover:bg-white/2 hover:shadow-md",
 								)}
 							>
 								{/* Premium Hover Gradient (Only visible on hover/selected) */}
-								<div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+								<div className="absolute inset-0 bg-linear-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
 
 								{/* Top Row: Icon & Animated Checkmark */}
 								<div className="flex items-start justify-between w-full mb-6 relative z-10">
@@ -82,7 +82,7 @@ export const ClinicIdentitySection = memo(function ClinicIdentitySection() {
 											isSelected ? "bg-primary text-primary-foreground scale-100 opacity-100" : "bg-transparent scale-50 opacity-0",
 										)}
 									>
-										<Check className="w-3.5 h-3.5 stroke-[3]" />
+										<Check className="w-3.5 h-3.5 stroke-3" />
 									</div>
 								</div>
 

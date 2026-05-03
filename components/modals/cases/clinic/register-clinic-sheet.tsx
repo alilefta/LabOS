@@ -10,7 +10,7 @@ import { toast } from "sonner";
 import { useAction } from "next-safe-action/hooks";
 import { useQueryClient } from "@tanstack/react-query";
 import { ClinicDetailsUI, CreateQuickClinicInput, CreateQuickClinicInputSchema } from "@/schema/composed/clinic.details";
-import { createClinicAction } from "@/actions/clinic";
+import { createQuickClinicAction } from "@/actions/clinics/create-clinic";
 import { handleSafeActionError } from "@/lib/safe-action-helpers";
 import { cn } from "@/lib/utils";
 import { ClinicType } from "@/schema/base/enums.base";
@@ -70,7 +70,7 @@ export function RegisterClinicSheet({ isOpen, onClose, onClinicCreated }: Props)
 
 	const queryClient = useQueryClient();
 
-	const { executeAsync: registerClinic, isExecuting } = useAction(createClinicAction, {
+	const { executeAsync: registerClinic, isExecuting } = useAction(createQuickClinicAction, {
 		onSuccess: ({ data }) => {
 			toast.success("Clinic partner registered!");
 

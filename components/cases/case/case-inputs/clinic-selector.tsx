@@ -10,7 +10,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import useDebounce from "@/hooks/useDebounce";
 import { CommandEmpty } from "cmdk";
 import { ClinicDetailsUI } from "@/schema/composed/clinic.details";
-import { getClinicsBySearchQueryAction } from "@/actions/clinic";
+import { getClinicsBySearchQueryAction } from "@/actions/clinics/get-clinics";
 import { Skeleton } from "@/components/ui/skeleton";
 import { handleSafeActionError } from "@/lib/safe-action-helpers";
 import { FieldError } from "react-hook-form";

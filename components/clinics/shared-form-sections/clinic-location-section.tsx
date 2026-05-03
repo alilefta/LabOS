@@ -4,7 +4,7 @@ import { memo, useCallback, useState } from "react";
 import { useFormContext, Controller, useWatch } from "react-hook-form";
 import { MapPin, Truck, CheckCircle2, Loader2, Info } from "lucide-react";
 import { InputWithLabel } from "@/components/ui/custom/input-with-label";
-import { CreateClinicInput } from "@/schema/composed/clinic.details";
+import { CreateCompleteClinicInput, UpdateClinicInput } from "@/schema/composed/clinic.details";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -12,7 +12,7 @@ import { cn } from "@/lib/utils";
 const MOCK_COURIER_ROUTES = ["North Zone", "South Zone", "East Route A", "Metro Express"];
 
 export const ClinicLocationSection = memo(function ClinicLocationSection() {
-	const { control, setValue, watch } = useFormContext<CreateClinicInput>();
+	const { control, setValue, watch } = useFormContext<CreateCompleteClinicInput | UpdateClinicInput>();
 	const [isVerifying, setIsVerifying] = useState(false);
 	const [courierRoute, setCourierRoute] = useState<string | null>(null);
 
@@ -53,7 +53,7 @@ export const ClinicLocationSection = memo(function ClinicLocationSection() {
 					)}
 				/>
 
-				<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+				<div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start justify-start">
 					<Controller
 						control={control}
 						name="city"

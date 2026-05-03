@@ -5,13 +5,13 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Control, useWatch } from "react-hook-form";
 import { cn } from "@/lib/utils";
-import { CreateClinicInput } from "@/schema/composed/clinic.details";
+import { CreateCompleteClinicInput } from "@/schema/composed/clinic.details";
 import { useMemo } from "react";
 
 interface Props {
 	isSubmitting: boolean;
 	onSaveDraft?: () => void;
-	control: Control<CreateClinicInput>;
+	control: Control<CreateCompleteClinicInput>;
 }
 
 export function NewClinicHeader({ isSubmitting, onSaveDraft, control }: Props) {

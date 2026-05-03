@@ -5,6 +5,7 @@ import { composeClinicListDTO } from "@/lib/mappers/composers";
 import { tenantPrisma } from "@/lib/prisma";
 import { actionClientWithLab } from "@/lib/safe-action";
 import { ClinicListDTO, ClinicPulseStats, ClinicRevenueStats, GetClinicsListInputSchema, GetClinicsListResult } from "@/schema/composed/clinic.details";
+import { SearchInputSchema } from "@/schema/composed/shared-schema";
 import { APIError } from "better-auth";
 import { differenceInWeeks, startOfDay, subDays } from "date-fns";
 
@@ -291,6 +292,53 @@ export const getClinicsRevenueAction = actionClientWithLab
 			if (e instanceof APIError || e instanceof Error) {
 				console.error("[Create-New-Dental-Case-Action] Error", e.message);
 			}
+			throw e;
+		}
+	});
+
+export const getClinicsBySearchQueryAction = actionClientWithLab
+	.metadata({
+		actionName: "Get-Clinics-By-Search-Query-Action",
+		requiredLabRole: "ADMIN",
+	})
+	.inputSchema(SearchInputSchema)
+	.action(async ({ parsedInput, ctx }) => {
+		const { searchQuery, limit } = parsedInput;
+		const { labId } = ctx;
+
+		try {
+			const clinics = await (
+				await tenantPrisma(labId)
+			).clinic.findMany({
+				where: {
+					labId: labId,
+					name: {
+						startsWith: searchQuery,
+					},
+				},
+				orderBy: {
+					createdAt: "desc",
+				},
+				take: limit,
+				include: {
+					lab: true,
+					dentists: true,
+				},
+			});
+
+			return {
+				clinics: clinics.map((c) => ({
+					...c,
+					currentBalance: c.currentBalance === null ? null : Number(c.currentBalance),
+					discount: c.discount === null ? null : Number(c.discount),
+					creditLimit: c.creditLimit === null ? null : Number(c.creditLimit),
+				})),
+			};
+		} catch (e) {
+			if (e instanceof APIError || e instanceof Error) {
+				console.error("[Get-Clinics-By-Search-Query-Action] Error", e.message);
+			}
+			console.error(e);
 			throw e;
 		}
 	});

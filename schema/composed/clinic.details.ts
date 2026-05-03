@@ -68,58 +68,97 @@ export const CreateQuickClinicInputSchema = z.object({
 
 	taxNumber: z.string().trim().transform(emptyToUndefinedTransformer).optional(),
 
-	discount: z.number().min(0, "Discount cannot be negative.").max(100, "Discount cannot exceed 100%.").optional(),
+	discount: z.coerce.number<number>().min(0, "Discount cannot be negative.").max(100, "Discount cannot exceed 100%.").optional(),
 
-	creditLimit: z.number().min(0, "Credit limit cannot be negative.").optional(),
+	creditLimit: z.coerce.number<number>().min(0, "Credit limit cannot be negative.").optional(),
 
-	currentBalance: z.number().min(0, "Current balance cannot be negative."),
+	currentBalance: z.coerce.number<number>().min(0, "Current balance cannot be negative."),
 	primaryDentist: CreatePrimaryDentistInputSchema,
 });
 
 export type CreateQuickClinicInput = z.infer<typeof CreateQuickClinicInputSchema>;
 
 // ============================= Create Complete Clinic Form Page Schema =======================
-// ========================= Create Clinic Schema For Register Quick Clinic Sheet
-export const CreateClinicInputSchema = z.object({
+
+const CreateAdditionalDentistInputSchema = z.object({
+	name: z.string().trim().min(2, "Dentist name must be at least 2 characters."),
+	email: optionalEmail,
+	phoneNumber: z.string().trim().transform(emptyToUndefinedTransformer).optional(),
+	isOwner: z.boolean().default(false).optional(),
+	isDefault: z.boolean().default(false).optional(),
+	notes: z.string().trim().transform(emptyToUndefinedTransformer).optional(),
+});
+
+export const CreateCompleteClinicInputSchema = z
+	.object({
+		name: z.string().trim().min(2, "Clinic name must be at least 2 characters."),
+		description: z.string().trim().transform(emptyToUndefinedTransformer).optional(),
+		website: z.string().trim().transform(emptyToUndefinedTransformer).optional().pipe(z.string().url("Please enter a valid website URL.").optional()),
+		notes: z.string().trim().transform(emptyToUndefinedTransformer).optional(),
+		status: ClinicStatusSchema,
+		type: ClinicTypeSchema,
+
+		city: z.string().trim().min(2, "City is required."),
+		zipcode: z.string().trim().transform(emptyToUndefinedTransformer).optional(),
+		address1: z.string().trim().min(3, "Address is required."),
+		address2: z.string().trim().transform(emptyToUndefinedTransformer).optional(),
+
+		email: z.string().trim().email("Please enter a valid email address."),
+		phoneNumber: z.string().trim().min(7, "Please enter a valid phone number."),
+		billingEmail: optionalEmail,
+		billingPhoneNumber: z.string().trim().transform(emptyToUndefinedTransformer).optional(),
+		taxNumber: z.string().trim().transform(emptyToUndefinedTransformer).optional(),
+
+		discount: z.coerce.number<number>().min(0, "Discount cannot be negative.").max(100, "Discount cannot exceed 100%.").optional(),
+		creditLimit: z.coerce.number<number>().min(0, "Credit limit cannot be negative.").optional(),
+		currentBalance: z.coerce.number<number>().min(0),
+
+		primaryDentist: CreatePrimaryDentistInputSchema,
+		additionalDentists: z.array(CreateAdditionalDentistInputSchema).max(20).default([]).optional(),
+	})
+	.superRefine((data, ctx) => {
+		// SOLO clinics shouldn't have additional dentists —
+		// the primary dentist IS the clinic (owner = the solo practitioner)
+		if (data.type === "SOLO" && data.additionalDentists && data.additionalDentists.length > 0) {
+			ctx.addIssue({
+				code: "custom",
+				message: "A solo clinic can only have one dentist.",
+				path: ["additionalDentists"],
+			});
+		}
+	});
+
+export type CreateCompleteClinicInput = z.infer<typeof CreateCompleteClinicInputSchema>;
+
+// ======================================== Update Clinics ==================================
+
+export const UpdateClinicInputSchema = z.object({
+	clinicId: z.string().min(1),
+
 	name: z.string().trim().min(2, "Clinic name must be at least 2 characters."),
-
 	description: z.string().trim().transform(emptyToUndefinedTransformer).optional(),
-
 	website: z.string().trim().transform(emptyToUndefinedTransformer).optional().pipe(z.string().url("Please enter a valid website URL.").optional()),
-
 	notes: z.string().trim().transform(emptyToUndefinedTransformer).optional(),
 
 	status: ClinicStatusSchema,
-
 	type: ClinicTypeSchema,
 
 	city: z.string().trim().min(2, "City is required."),
-
 	zipcode: z.string().trim().transform(emptyToUndefinedTransformer).optional(),
-
 	address1: z.string().trim().min(3, "Address is required."),
-
 	address2: z.string().trim().transform(emptyToUndefinedTransformer).optional(),
 
 	email: z.string().trim().email("Please enter a valid email address."),
-
 	phoneNumber: z.string().trim().min(7, "Please enter a valid phone number."),
-
 	billingEmail: optionalEmail,
-
 	billingPhoneNumber: z.string().trim().transform(emptyToUndefinedTransformer).optional(),
-
 	taxNumber: z.string().trim().transform(emptyToUndefinedTransformer).optional(),
 
-	discount: z.number().min(0, "Discount cannot be negative.").max(100, "Discount cannot exceed 100%.").optional(),
-
-	creditLimit: z.number().min(0, "Credit limit cannot be negative.").optional(),
-
-	currentBalance: z.number().min(0, "Current balance cannot be negative."),
-	primaryDentist: CreatePrimaryDentistInputSchema,
+	discount: z.coerce.number<number>().min(0).max(100).optional(),
+	creditLimit: z.coerce.number<number>().min(0).optional(),
 });
 
-export type CreateClinicInput = z.infer<typeof CreateClinicInputSchema>;
+export type UpdateClinicInput = z.infer<typeof UpdateClinicInputSchema>;
 
 // ======================================== Get Clinics =====================================
 // ─────────────────────────────────────────────────────────────────────────────

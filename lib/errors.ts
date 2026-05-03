@@ -113,6 +113,7 @@ export const ERROR_CODES = {
 
 	// Clinics & Dentists
 	CLINIC_INACTIVE: "CLINIC_IS_INACTIVE",
+	CLINIC_DOWNGRADE_BLOCKED: "CLINIC_DOWNGRADE_BLOCKED",
 
 	// Files & Uploads
 	FILE_NOT_FOUND: "FILE_NOT_FOUND",
@@ -197,6 +198,7 @@ export const ERRORS = {
 
 	// Clinics
 	CLINIC_IS_INACTIVE: new ActionError("Selected Clinic is inactive or suspended.", ERROR_CODES.CLINIC_INACTIVE, STATUS_CODES.FORBIDDEN),
+	CLINIC_DOWNGRADE_BLOCKED: new ActionError("Cannot switch to Solo: remove all cases from non-primary dentists first.", ERROR_CODES.CLINIC_DOWNGRADE_BLOCKED, STATUS_CODES.CONFLICT),
 
 	// Files & Uploads
 	FILE_NOT_FOUND: new ActionError("File not found", ERROR_CODES.FILE_NOT_FOUND, STATUS_CODES.NOT_FOUND),

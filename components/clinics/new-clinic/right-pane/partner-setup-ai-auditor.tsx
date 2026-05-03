@@ -2,11 +2,11 @@
 
 import { Control, useWatch } from "react-hook-form";
 import { BrainCircuit, AlertTriangle, Info, ShieldAlert, CheckCircle2 } from "lucide-react";
-import { CreateClinicInput } from "@/schema/composed/clinic.details";
+import { CreateCompleteClinicInput } from "@/schema/composed/clinic.details";
 import { cn } from "@/lib/utils";
 
 interface Props {
-	control: Control<CreateClinicInput>;
+	control: Control<CreateCompleteClinicInput>;
 }
 export function PartnerSetupAiAuditor({ control }: Props) {
 	// Watch key fields for business logic

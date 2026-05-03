@@ -8,26 +8,26 @@ import { useAction } from "next-safe-action/hooks";
 import { toast } from "sonner";
 
 // Schemas & Actions
-import { CreateClinicInput, CreateClinicInputSchema } from "@/schema/composed/clinic.details";
-import { createClinicAction } from "@/actions/clinic";
 import { handleSafeActionError } from "@/lib/safe-action-helpers";
 
 // Layout Components
-import { NewClinicHeader } from "@/components/clinics/new-clinic/new-clinic-header";
-import { ClinicIdentitySection } from "@/components/clinics/new-clinic/sections/clinic-identity-section";
-import { ClinicLocationSection } from "@/components/clinics/new-clinic/sections/clinic-location-section";
-import { LeadDoctorSection } from "@/components/clinics/new-clinic/sections/lead-doctor-section";
-import { ClinicFinancialsSection } from "@/components/clinics/new-clinic/sections/clinic-financials-section";
+import { NewClinicHeader } from "@/components/clinics/shared-form-sections/new-clinic-header";
+import { ClinicIdentitySection } from "@/components/clinics/shared-form-sections/clinic-identity-section";
+import { ClinicLocationSection } from "@/components/clinics/shared-form-sections/clinic-location-section";
+import { PractitionerRosterSection } from "@/components/clinics/new-clinic/sections/practitioners-roaster-section";
+import { ClinicFinancialsSection } from "@/components/clinics/shared-form-sections/clinic-financials-section";
 
 // Right Pane Components
 import { LivePartnerDossier } from "@/components/clinics/new-clinic/right-pane/live-partner-dossier";
 import { PartnerSetupAiAuditor } from "@/components/clinics/new-clinic/right-pane/partner-setup-ai-auditor";
+import { CreateCompleteClinicInput, CreateCompleteClinicInputSchema } from "@/schema/composed/clinic.details";
+import { createCompleteClinicAction } from "@/actions/clinics/create-clinic";
 
 export default function NewClinicPage() {
 	const router = useRouter();
 
-	const form = useForm<CreateClinicInput>({
-		resolver: zodResolver(CreateClinicInputSchema),
+	const form = useForm<CreateCompleteClinicInput>({
+		resolver: zodResolver(CreateCompleteClinicInputSchema),
 		defaultValues: {
 			name: "",
 			type: "CLINIC",
@@ -44,6 +44,10 @@ export default function NewClinicPage() {
 			creditLimit: undefined,
 			notes: "",
 			description: "",
+			additionalDentists: [],
+			website: "",
+			currentBalance: 0,
+			status: "ACTIVE",
 			primaryDentist: {
 				name: "",
 				email: "",
@@ -55,7 +59,7 @@ export default function NewClinicPage() {
 		mode: "onBlur",
 	});
 
-	const { executeAsync: createClinic, isExecuting } = useAction(createClinicAction, {
+	const { executeAsync: createClinic, isExecuting } = useAction(createCompleteClinicAction, {
 		onSuccess: ({ data }) => {
 			toast.success(`Partner activated: ${data.clinic.name}`);
 			router.push(`/clinics/${data.clinic.id}`);
@@ -66,7 +70,7 @@ export default function NewClinicPage() {
 	});
 
 	const onSubmit = useCallback(
-		async (data: CreateClinicInput) => {
+		async (data: CreateCompleteClinicInput) => {
 			await createClinic(data);
 		},
 		[createClinic],
@@ -96,7 +100,7 @@ export default function NewClinicPage() {
 						<form id="new-clinic-onboarding-form" onSubmit={form.handleSubmit(onSubmit)} className="flex-1 overflow-y-auto custom-scrollbar pr-2 pb-64 xl:pb-32 space-y-12">
 							<ClinicIdentitySection />
 							<ClinicLocationSection />
-							<LeadDoctorSection />
+							<PractitionerRosterSection />
 							<ClinicFinancialsSection />
 						</form>
 					</FormProvider>

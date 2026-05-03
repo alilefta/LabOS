@@ -90,6 +90,7 @@ export async function getDentalCaseById(caseId: string) {
 					actor: true,
 				},
 			},
+			invoiceCase: true,
 		},
 	});
 
