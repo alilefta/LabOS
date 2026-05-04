@@ -43,11 +43,6 @@ export function ProductionQualityHeatmap() {
 			{/* --- RESPONSIVE GRID CONTAINER --- */}
 			{/* The container handles horizontal scrolling on mobile. */}
 			<div className="flex-1 flex flex-col justify-end w-full overflow-x-auto custom-scrollbar pb-4">
-				{/* 
-					THE MAGIC FIX: 
-					`min-w-[600px]` protects it on mobile (forces scroll).
-					`w-full` lets it expand dynamically on 2K monitors.
-				*/}
 				<div className="grid grid-flow-col grid-rows-7 gap-1 sm:gap-1.5 xl:gap-2 w-full min-w-[600px]">
 					<TooltipProvider delayDuration={50}>
 						{days.map((day) => (

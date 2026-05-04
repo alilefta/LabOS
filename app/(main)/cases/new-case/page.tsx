@@ -223,41 +223,44 @@ export default function NewCasePage() {
 	}, []);
 
 	return (
-		<div className="flex flex-col h-full animate-in fade-in duration-700 relative">
+		<div className="flex flex-col h-full animate-in fade-in duration-700 bg-background relative">
 			<CreateCaseFormHeader isSavingDraft={isExecutingSavingDraft} isSubmittingCase={isCreatingCase} onSaveDraft={handleSaveDraft} control={form.control} />
-			<div className="flex-1 min-h-0 relative z-10 px-4 sm:px-8">
-				<div className="flex flex-col xl:flex-row gap-8 h-full">
+
+			<div className="flex-1 min-h-0 relative w-full">
+				<div className="flex flex-col xl:flex-row gap-8 h-full max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
 					{/* FORM SECTION (Left) */}
-					<FormProvider {...form}>
-						<form className="flex-1 overflow-y-auto no-scrollbar pb-80 xl:pb-32 space-y-12" id="new-case-submission-form" onSubmit={form.handleSubmit(handleFormValid)}>
-							<CaseFormContent
-								mode={"create"}
-								isLoadingDrafts={isLoadingDrafts}
-								recentDrafts={recentDrafts}
-								existingDraftId={existingDraftId}
-								patientDraftPrompt={patientDraftPrompt}
-								onResumeDraft={handleResumeDraft}
-								onDismissPatientDraft={handleDismissPatientDraft}
-								onOpenClinicSheet={handleOpenClinicSheet}
-								onOpenPatientSheet={handleOpenPatientSheet}
-								onOpenCategorySheet={handleOpenCategorySheet}
-								onOpenStaffSheet={handleOpenStaffSheet}
-								newPatient={newPatient}
-								newClinic={newClinic}
-								newCategory={newCategory}
-								newStaffMember={newStaffMember}
-								onPatientSelect={handlePatientSelect}
-								onUploadAssets={handleUploadedAssets}
-							/>
-						</form>
-					</FormProvider>
+					<div className="flex-1 h-full overflow-y-auto custom-scrollbar pt-6 lg:pt-8">
+						<FormProvider {...form}>
+							<form className="space-y-12 pr-2" id="new-case-submission-form" onSubmit={form.handleSubmit(handleFormValid)}>
+								<CaseFormContent
+									mode={"create"}
+									isLoadingDrafts={isLoadingDrafts}
+									recentDrafts={recentDrafts}
+									existingDraftId={existingDraftId}
+									patientDraftPrompt={patientDraftPrompt}
+									onResumeDraft={handleResumeDraft}
+									onDismissPatientDraft={handleDismissPatientDraft}
+									onOpenClinicSheet={handleOpenClinicSheet}
+									onOpenPatientSheet={handleOpenPatientSheet}
+									onOpenCategorySheet={handleOpenCategorySheet}
+									onOpenStaffSheet={handleOpenStaffSheet}
+									newPatient={newPatient}
+									newClinic={newClinic}
+									newCategory={newCategory}
+									newStaffMember={newStaffMember}
+									onPatientSelect={handlePatientSelect}
+									onUploadAssets={handleUploadedAssets}
+								/>
+							</form>
+						</FormProvider>
+					</div>
 					{/* AI AUDITOR (Right - Desktop) */}
-					<div className="hidden xl:flex w-96 shrink-0 flex-col gap-6 sticky top-0 h-fit z-20">
+					<div className="hidden xl:flex w-96 shrink-0 flex-col gap-6 h-full overflow-y-auto custom-scrollbar pt-6 lg:pt-8 pb-12">
 						<CaseAiAuditor control={form.control as Control<CreateCaseInput>} mode="create" />
 					</div>
 
 					{/* AI AUDITOR (Floating Bottom - Mobile) */}
-					<div className="xl:hidden fixed bottom-0 left-0 right-0 z-40 bg-background/95 backdrop-blur-xl border-t border-border p-4 shadow-[0_-10px_40px_rgba(0,0,0,0.05)]">
+					<div className="xl:hidden sticky bottom-0 z-40 bg-background/95 backdrop-blur-xl border-t border-border p-4 shadow-[0_-10px_40px_rgba(0,0,0,0.05)] mt-auto -mx-4 sm:-mx-6 lg:-mx-8">
 						<CaseAiAuditor control={form.control as Control<CreateCaseInput>} mode="create" />
 					</div>
 

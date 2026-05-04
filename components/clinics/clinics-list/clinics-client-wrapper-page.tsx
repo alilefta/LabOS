@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { Filter, Search, Plus, Sparkles, X } from "lucide-react";
@@ -11,15 +11,10 @@ import useDebounce from "@/hooks/useDebounce";
 
 import { ClinicOwnerRevenueStrip } from "@/components/clinics/clinics-list/owner-strip/clinic-owner-revenue-strip";
 
-// TODO: Build these next!
-// import { ClinicFiltersSheet } from "@/components/clinics/clinics-table/clinic-filters-sheet";
-// import { ClinicCopilotSheet } from "@/components/clinics/clinics-table/clinic-copilot-sheet";
-
-import { ClinicPulseStats, ClinicsFilters, DEFAULT_CLINICS_FILTERS, GetClinicsListResult } from "@/schema/composed/clinic.details";
-import { getClinicsListAction, getClinicsPulseAction, getClinicsRevenueAction } from "@/actions/clinics/get-clinics";
+import { ClinicsFilters, DEFAULT_CLINICS_FILTERS, GetClinicsListResult } from "@/schema/composed/clinic.details";
+import { getClinicsListAction, getClinicsRevenueAction } from "@/actions/clinics/get-clinics";
 import { handleSafeActionError } from "@/lib/safe-action-helpers";
 import { usePermissions } from "@/providers/permissions-provider";
-import { toast } from "sonner";
 import { ClinicPulseStrip } from "./pulse-strip/clinics-pulse-strip";
 import { DataTable } from "./clinics-table/data-table";
 import { columns } from "./clinics-table/columns";

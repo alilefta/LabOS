@@ -77,7 +77,7 @@ export const CaseFormContent = memo(function CaseFormContent({
 	const isEdit = mode === "edit";
 
 	return (
-		<div className="flex-1 overflow-y-auto no-scrollbar pb-20 space-y-12">
+		<div className="space-y-12">
 			{/* ── DRAFT RECOVERY UI (Only visible in CREATE mode) ────────────────── */}
 			{!isEdit && (
 				<>

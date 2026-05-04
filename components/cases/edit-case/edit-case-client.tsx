@@ -128,43 +128,43 @@ export function EditCaseClient({ initialData, caseNumber, patientName, caseStatu
 			{/* THE HEADER: Switches to EDIT branding */}
 			<EditCaseFormHeader caseNumber={caseNumber} isSubmittingCase={isUpdating} control={form.control} caseId={initialData.caseId} />
 
-			<div className="flex-1 min-h-0 relative z-10 px-4 sm:px-8">
-				<div className="flex flex-col xl:flex-row gap-8 h-full pt-4">
+			<div className="flex-1 min-h-0 relative w-full">
+				<div className="flex flex-col xl:flex-row gap-8 h-full max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
 					{/* FORM SECTION: Reusing the exact same body! */}
-					<FormProvider {...form}>
-						<form className="flex-1 overflow-y-auto no-scrollbar pb-48 xl:pb-32" id="edit-case-submission-form" onSubmit={form.handleSubmit(handleFormValid)}>
-							<CaseFormContent
-								mode={"edit"} // CRITICAL: Tells the content to lock the Patient selector
-								patientName={patientName} // Used for the read-only patient identity card
-								// Draft recovery is disabled in edit mode
-								isLoadingDrafts={false}
-								recentDrafts={[]}
-								patientDraftPrompt={null}
-								onResumeDraft={() => {}}
-								onDismissPatientDraft={() => {}}
-								onOpenClinicSheet={handleOpenClinicSheet}
-								onOpenPatientSheet={() => {}} // Disabled in edit mode
-								onOpenCategorySheet={handleOpenCategorySheet}
-								onOpenStaffSheet={handleOpenStaffSheet}
-								newPatient={null}
-								newClinic={newClinic}
-								newCategory={newCategory}
-								newStaffMember={newStaffMember}
-								onPatientSelect={() => {}} // Patient is immutable
-								onUploadAssets={handleUploadedAssets}
-							/>
-						</form>
-					</FormProvider>
-
-					{/* AI AUDITOR: Analyzes the edit in real-time */}
+					<div className="flex-1 h-full overflow-y-auto custom-scrollbar pt-6 lg:pt-8">
+						<FormProvider {...form}>
+							<form className="space-y-12 pr-2" id="edit-case-submission-form" onSubmit={form.handleSubmit(handleFormValid)}>
+								<CaseFormContent
+									mode={"edit"} // CRITICAL: Tells the content to lock the Patient selector
+									patientName={patientName} // Used for the read-only patient identity card
+									// Draft recovery is disabled in edit mode
+									isLoadingDrafts={false}
+									recentDrafts={[]}
+									patientDraftPrompt={null}
+									onResumeDraft={() => {}}
+									onDismissPatientDraft={() => {}}
+									onOpenClinicSheet={handleOpenClinicSheet}
+									onOpenPatientSheet={() => {}} // Disabled in edit mode
+									onOpenCategorySheet={handleOpenCategorySheet}
+									onOpenStaffSheet={handleOpenStaffSheet}
+									newPatient={null}
+									newClinic={newClinic}
+									newCategory={newCategory}
+									newStaffMember={newStaffMember}
+									onPatientSelect={() => {}} // Patient is immutable
+									onUploadAssets={handleUploadedAssets}
+								/>
+							</form>
+						</FormProvider>
+					</div>
 					{/* AI AUDITOR (Right - Desktop) */}
-					<div className="hidden xl:flex w-96 shrink-0 flex-col gap-6 sticky top-0 h-fit z-20">
-						<CaseAiAuditor control={form.control as CreateCaseInput} mode="edit" />
+					<div className="hidden xl:flex w-96 shrink-0 flex-col gap-6 h-full overflow-y-auto custom-scrollbar pt-6 lg:pt-8 pb-12">
+						<CaseAiAuditor control={form.control as unknown as Control<CreateCaseInput>} mode="edit" />
 					</div>
 
 					{/* AI AUDITOR (Floating Bottom - Mobile) */}
-					<div className="xl:hidden fixed bottom-0 left-0 right-0 z-40 bg-background/95 backdrop-blur-xl border-t border-border p-4 shadow-[0_-10px_40px_rgba(0,0,0,0.05)]">
-						<CaseAiAuditor control={form.control as Control<CreateCaseInput>} mode="edit" />
+					<div className="xl:hidden sticky bottom-0 z-40 bg-background/95 backdrop-blur-xl border-t border-border p-4 shadow-[0_-10px_40px_rgba(0,0,0,0.05)] mt-auto -mx-4 sm:-mx-6 lg:-mx-8">
+						<CaseAiAuditor control={form.control as unknown as Control<CreateCaseInput>} mode="edit" />
 					</div>
 
 					{/* --- MODALS --- */}

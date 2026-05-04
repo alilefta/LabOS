@@ -6,6 +6,7 @@ import { z } from "zod";
 import { ERRORS } from "@/lib/errors";
 import { composeClinicQuickOverviewDTO } from "@/lib/mappers/composers";
 import { APIError } from "better-auth";
+import { normalizeClinic } from "@/lib/mappers";
 
 export const getClinicQuickOverviewAction = actionClientWithLab
 	.metadata({
@@ -96,6 +97,57 @@ export const getClinicQuickOverviewAction = actionClientWithLab
 
 			// payments is calculated inside the composer
 			return composeClinicQuickOverviewDTO(clinic, uninvoicedCount);
+		} catch (e) {
+			if (e instanceof APIError || e instanceof Error) {
+				console.error("[Create-New-Dental-Case-Action] Error", e.message);
+			}
+			throw e;
+		}
+	});
+
+export const getClinicDetailsAction = actionClientWithLab
+	.metadata({
+		actionName: "Get-Clinic-Details-Action",
+		requiredLabRole: "STAFF",
+	})
+	.inputSchema(z.object({ clinicId: z.string().min(1) }))
+	.action(async ({ ctx, parsedInput }) => {
+		const { labId } = ctx;
+		const { clinicId } = parsedInput;
+		try {
+			const prisma = await tenantPrisma(labId);
+
+			const clinic = await prisma.clinic.findUnique({
+				where: { id: clinicId, labId },
+				select: {
+					id: true,
+					name: true,
+					type: true,
+					status: true,
+					city: true,
+					address1: true,
+					address2: true,
+					zipcode: true,
+					email: true,
+					phoneNumber: true,
+					billingEmail: true,
+					billingPhoneNumber: true,
+					taxNumber: true,
+					website: true,
+					description: true,
+					notes: true,
+					currentBalance: true,
+					creditLimit: true,
+					discount: true,
+					createdAt: true,
+					updatedAt: true,
+					labId: true,
+				},
+			});
+
+			if (!clinic) throw ERRORS.CLIENT_NOT_FOUND;
+
+			return { clinic: normalizeClinic(clinic) };
 		} catch (e) {
 			if (e instanceof APIError || e instanceof Error) {
 				console.error("[Create-New-Dental-Case-Action] Error", e.message);
