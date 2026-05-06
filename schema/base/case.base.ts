@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { CaseStatusSchema } from "./enums.base";
+import { CaseStatusSchema, FaultPartySchema } from "./enums.base";
 
 export const CaseBaseSchema = z.object({
 	id: z.string(),
@@ -10,11 +10,20 @@ export const CaseBaseSchema = z.object({
 	status: CaseStatusSchema,
 	grandTotal: z.number().nullable(),
 	clinicId: z.string().nullable(),
+
 	dentistId: z.string().nullable(),
 	notes: z.string().nullable(),
+
 	deadline: z.date().nullable(),
 	createdAt: z.date(),
 	updatedAt: z.date(),
+	isRemake: z.boolean(),
+	originalCaseId: z.string().nullable(),
+
+	failureReason: z.string().nullable(),
+	failureFault: FaultPartySchema.nullable(),
+	completedAt: z.date().nullable(),
+	deliveredAt: z.date().nullable(),
 });
 
 export type CaseBase = z.infer<typeof CaseBaseSchema>;

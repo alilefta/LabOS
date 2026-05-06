@@ -142,7 +142,7 @@ export const updateCaseStatusAction = actionClientWithLab
 		const [updatedCase] = await prisma.$transaction([
 			prisma.case.update({
 				where: { id: caseId, labId },
-				data: { status: newStatus },
+				data: { status: newStatus, completedAt: newStatus === "COMPLETED" ? new Date() : null, deliveredAt: newStatus === "DELIVERED" ? new Date() : null },
 				select: { id: true, caseNumber: true, status: true },
 			}),
 			prisma.caseActivityLog.create({

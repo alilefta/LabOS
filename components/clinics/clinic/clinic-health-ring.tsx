@@ -1,6 +1,7 @@
 "use client";
 
 import { Sparkles } from "lucide-react";
+import { memo } from "react";
 
 interface ClinicHealthRingProps {
 	scores: {
@@ -10,7 +11,7 @@ interface ClinicHealthRingProps {
 	};
 }
 
-export function ClinicHealthRing({ scores }: ClinicHealthRingProps) {
+export const ClinicHealthRing = memo(function ClinicHealthRing({ scores }: ClinicHealthRingProps) {
 	// Calculate the average health score
 	const avg = Math.round((scores.volume + scores.quality + scores.logic) / 3);
 
@@ -100,4 +101,4 @@ export function ClinicHealthRing({ scores }: ClinicHealthRingProps) {
 			</div>
 		</div>
 	);
-}
+});

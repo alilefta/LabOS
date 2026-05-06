@@ -107,10 +107,6 @@ export function DesktopKanbanBoard({ requestStatusTransition }: Props) {
 		[requestStatusTransition, setIsDragging],
 	);
 
-	// const handleDragOver = (event: DragOverEvent) => {
-	// 	// dnd-kit handles intersection sorting natively over Droppable column refs
-	// };
-
 	return (
 		<DndContext sensors={sensors} collisionDetection={closestCorners} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
 			{/* The main scrollable board track */}

@@ -1,5 +1,6 @@
 import * as z from 'zod';
 import { CaseStatusSchema } from '../../enums/CaseStatus.schema';
+import { FaultPartySchema } from '../../enums/FaultParty.schema';
 // prettier-ignore
 export const CaseModelSchema = z.object({
     id: z.string(),
@@ -24,7 +25,15 @@ export const CaseModelSchema = z.object({
     deadline: z.date().nullable(),
     createdAt: z.date(),
     updatedAt: z.date(),
-    invoiceCase: z.unknown().nullable()
+    invoiceCase: z.unknown().nullable(),
+    isRemake: z.boolean(),
+    originalCaseId: z.string().nullable(),
+    originalCase: z.unknown().nullable(),
+    remakes: z.array(z.unknown()),
+    failureReason: z.string().nullable(),
+    failureFault: FaultPartySchema.nullable(),
+    completedAt: z.date().nullable(),
+    deliveredAt: z.date().nullable()
 }).strict();
 
 export type CasePureType = z.infer<typeof CaseModelSchema>;

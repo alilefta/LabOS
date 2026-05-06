@@ -28,6 +28,8 @@ export const CaseDetailsSchema = CaseBaseSchema.extend({
 	staffAssignments: z.array(CaseStaffAssignmentDetailsUISchema),
 	caseActivityLogs: z.array(CaseActivityLogDetailsUISchema),
 	invoiceCase: InvoiceCaseBaseSchema.nullable(),
+	originalCase: CaseBaseSchema.nullable(),
+	remakes: z.array(CaseBaseSchema),
 });
 export type CaseDetails = z.infer<typeof CaseDetailsSchema>;
 
@@ -42,6 +44,8 @@ export const CaseDetailsUISchema = CaseBaseSchema.extend({
 	staffAssignments: z.array(CaseStaffAssignmentDetailsUISchema).nullable(),
 	caseActivityLogs: z.array(CaseActivityLogDetailsUISchema).nullable(),
 	invoiceCase: InvoiceCaseBaseSchema.nullable(),
+	originalCase: CaseBaseSchema.nullable(),
+	remakes: z.array(CaseBaseSchema).nullable(),
 });
 export type CaseDetailsUI = z.infer<typeof CaseDetailsUISchema>;
 

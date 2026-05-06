@@ -15,7 +15,13 @@ const makeSchema = () => z.object({
   notes: z.literal(true).optional(),
   deadline: z.literal(true).optional(),
   createdAt: z.literal(true).optional(),
-  updatedAt: z.literal(true).optional()
+  updatedAt: z.literal(true).optional(),
+  isRemake: z.literal(true).optional(),
+  originalCaseId: z.literal(true).optional(),
+  failureReason: z.literal(true).optional(),
+  failureFault: z.literal(true).optional(),
+  completedAt: z.literal(true).optional(),
+  deliveredAt: z.literal(true).optional()
 }).strict();
 export const CaseMinAggregateInputObjectSchema: z.ZodType<Prisma.CaseMinAggregateInputType> = makeSchema() as unknown as z.ZodType<Prisma.CaseMinAggregateInputType>;
 export const CaseMinAggregateInputObjectZodSchema = makeSchema();

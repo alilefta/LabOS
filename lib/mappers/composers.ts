@@ -80,6 +80,8 @@ type RawFullCase = CaseModel & {
 	caseAssetFiles: CaseAssetFileModel[];
 	caseActivityLogs: RawCaseActivityLog[];
 	invoiceCase: InvoiceCaseModel | null;
+	originalCase: CaseModel | null;
+	remakes: CaseModel[] | null;
 };
 
 // Drafts use a narrower shape — only what's needed to repopulate the form
@@ -132,6 +134,8 @@ export function composeCaseDTO(raw: RawFullCase): CaseDetailsUI {
 		lab: null,
 		caseActivityLogs: raw.caseActivityLogs.map(normalizeCaseActivity),
 		invoiceCase: raw.invoiceCase ? normalizeInvoiceCase(raw.invoiceCase) : null,
+		originalCase: raw.originalCase ? normalizeCase(raw.originalCase) : null,
+		remakes: raw.remakes ? raw.remakes.map(normalizeCase) : null,
 	};
 }
 

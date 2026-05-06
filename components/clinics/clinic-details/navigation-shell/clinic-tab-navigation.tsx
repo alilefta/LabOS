@@ -17,7 +17,7 @@ const TABS = [
 
 export function ClinicTabNavigation({ activeTab, clinicId }: Props) {
 	return (
-		<div className="w-full max-w-[1600px] mx-auto px-6 lg:px-8 mt-2">
+		<div className="w-full max-w-400 mx-auto px-6 lg:px-8 mt-2">
 			{/* The ml-14 perfectly aligns the tabs with the text of the header above, bypassing the back button */}
 			<div className="flex items-center gap-8 overflow-x-auto no-scrollbar ml-14 border-b border-border/50">
 				{TABS.map((tab) => {
@@ -36,7 +36,7 @@ export function ClinicTabNavigation({ activeTab, clinicId }: Props) {
 
 							{/* Animated Bottom Border Indicator */}
 							{isActive && (
-								<div className="absolute bottom-0 left-0 right-0 h-[2px] bg-primary rounded-t-full shadow-[0_-2px_10px_var(--color-primary)] animate-in slide-in-from-bottom-1" />
+								<div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-t-full shadow-[0_-2px_10px_var(--color-primary)] animate-in slide-in-from-bottom-1" />
 							)}
 						</Link>
 					);

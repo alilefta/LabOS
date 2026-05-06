@@ -1,6 +1,7 @@
 import * as z from 'zod';
 import { Prisma } from '../../../../generated/prisma/client';
-import { CaseStatusSchema } from '../enums/CaseStatus.schema'
+import { CaseStatusSchema } from '../enums/CaseStatus.schema';
+import { FaultPartySchema } from '../enums/FaultParty.schema'
 
 import { DecimalJSLikeSchema, isValidDecimalInput } from '../../helpers/decimal-helpers';
 const makeSchema = () => z.object({
@@ -23,7 +24,13 @@ const makeSchema = () => z.object({
   notes: z.string().optional().nullable(),
   deadline: z.coerce.date().optional().nullable(),
   createdAt: z.coerce.date().optional(),
-  updatedAt: z.coerce.date().optional()
+  updatedAt: z.coerce.date().optional(),
+  isRemake: z.boolean().optional(),
+  originalCaseId: z.string().optional().nullable(),
+  failureReason: z.string().optional().nullable(),
+  failureFault: FaultPartySchema.optional().nullable(),
+  completedAt: z.coerce.date().optional().nullable(),
+  deliveredAt: z.coerce.date().optional().nullable()
 }).strict();
 export const CaseCreateManyInputObjectSchema: z.ZodType<Prisma.CaseCreateManyInput> = makeSchema() as unknown as z.ZodType<Prisma.CaseCreateManyInput>;
 export const CaseCreateManyInputObjectZodSchema = makeSchema();

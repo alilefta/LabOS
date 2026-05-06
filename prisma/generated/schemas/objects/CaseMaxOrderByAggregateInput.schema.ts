@@ -15,7 +15,13 @@ const makeSchema = () => z.object({
   notes: SortOrderSchema.optional(),
   deadline: SortOrderSchema.optional(),
   createdAt: SortOrderSchema.optional(),
-  updatedAt: SortOrderSchema.optional()
+  updatedAt: SortOrderSchema.optional(),
+  isRemake: SortOrderSchema.optional(),
+  originalCaseId: SortOrderSchema.optional(),
+  failureReason: SortOrderSchema.optional(),
+  failureFault: SortOrderSchema.optional(),
+  completedAt: SortOrderSchema.optional(),
+  deliveredAt: SortOrderSchema.optional()
 }).strict();
 export const CaseMaxOrderByAggregateInputObjectSchema: z.ZodType<Prisma.CaseMaxOrderByAggregateInput> = makeSchema() as unknown as z.ZodType<Prisma.CaseMaxOrderByAggregateInput>;
 export const CaseMaxOrderByAggregateInputObjectZodSchema = makeSchema();

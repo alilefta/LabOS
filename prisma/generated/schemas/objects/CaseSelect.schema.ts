@@ -10,6 +10,8 @@ import { CaseStaffAssignmentFindManySchema as CaseStaffAssignmentFindManySchema 
 import { CaseActivityLogFindManySchema as CaseActivityLogFindManySchema } from '../findManyCaseActivityLog.schema';
 import { CaseAssetFileFindManySchema as CaseAssetFileFindManySchema } from '../findManyCaseAssetFile.schema';
 import { InvoiceCaseArgsObjectSchema as InvoiceCaseArgsObjectSchema } from './InvoiceCaseArgs.schema';
+import { CaseArgsObjectSchema as CaseArgsObjectSchema } from './CaseArgs.schema';
+import { CaseFindManySchema as CaseFindManySchema } from '../findManyCase.schema';
 import { CaseCountOutputTypeArgsObjectSchema as CaseCountOutputTypeArgsObjectSchema } from './CaseCountOutputTypeArgs.schema'
 
 const makeSchema = () => z.object({
@@ -36,6 +38,14 @@ const makeSchema = () => z.object({
   createdAt: z.boolean().optional(),
   updatedAt: z.boolean().optional(),
   invoiceCase: z.union([z.boolean(), z.lazy(() => InvoiceCaseArgsObjectSchema)]).optional(),
+  isRemake: z.boolean().optional(),
+  originalCaseId: z.boolean().optional(),
+  originalCase: z.union([z.boolean(), z.lazy(() => CaseArgsObjectSchema)]).optional(),
+  remakes: z.union([z.boolean(), z.lazy(() => CaseFindManySchema)]).optional(),
+  failureReason: z.boolean().optional(),
+  failureFault: z.boolean().optional(),
+  completedAt: z.boolean().optional(),
+  deliveredAt: z.boolean().optional(),
   _count: z.union([z.boolean(), z.lazy(() => CaseCountOutputTypeArgsObjectSchema)]).optional()
 }).strict();
 export const CaseSelectObjectSchema: z.ZodType<Prisma.CaseSelect> = makeSchema() as unknown as z.ZodType<Prisma.CaseSelect>;

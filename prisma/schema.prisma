@@ -189,6 +189,11 @@ enum PaymentMethod {
   OTHER
 }
 
+enum FaultParty {
+  LAB // Our fault (eating the cost)
+  CLINIC // Doctor's fault (billable remake)
+}
+
 model Lab {
   id String @id @default(uuid())
 
@@ -336,6 +341,20 @@ model Case {
   updatedAt DateTime  @updatedAt
 
   invoiceCase InvoiceCase? // null = not yet invoiced
+
+  // new fields
+  isRemake Boolean @default(false)
+
+  // Self-relation: Which case did this one replace?
+  originalCaseId String?
+  originalCase   Case?   @relation("CaseRemakes", fields: [originalCaseId], references: [id], onDelete: SetNull)
+  remakes        Case[]  @relation("CaseRemakes")
+
+  failureReason String? // e.g., "Margin Distortion", "Wrong Shade", "Fractured during milling"
+  failureFault  FaultParty? // Who caused the remake?
+
+  completedAt DateTime? // Timestamp when status hits COMPLETED (Milling/QC finished)
+  deliveredAt DateTime? // Timestamp when status hits DELIVERED (Courier dropped it off)
 
   @@unique([labId, caseNumber])
   @@index([labId])

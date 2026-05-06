@@ -1,11 +1,13 @@
 import * as z from 'zod';
 import { Prisma } from '../../../../generated/prisma/client';
 import { CaseStatusSchema } from '../enums/CaseStatus.schema';
+import { FaultPartySchema } from '../enums/FaultParty.schema';
 import { CaseWorkItemUncheckedCreateNestedManyWithoutDentalCaseInputObjectSchema as CaseWorkItemUncheckedCreateNestedManyWithoutDentalCaseInputObjectSchema } from './CaseWorkItemUncheckedCreateNestedManyWithoutDentalCaseInput.schema';
 import { CaseStaffAssignmentUncheckedCreateNestedManyWithoutDentalCaseInputObjectSchema as CaseStaffAssignmentUncheckedCreateNestedManyWithoutDentalCaseInputObjectSchema } from './CaseStaffAssignmentUncheckedCreateNestedManyWithoutDentalCaseInput.schema';
 import { CaseActivityLogUncheckedCreateNestedManyWithoutDentalCaseInputObjectSchema as CaseActivityLogUncheckedCreateNestedManyWithoutDentalCaseInputObjectSchema } from './CaseActivityLogUncheckedCreateNestedManyWithoutDentalCaseInput.schema';
 import { CaseAssetFileUncheckedCreateNestedManyWithoutDentalCaseInputObjectSchema as CaseAssetFileUncheckedCreateNestedManyWithoutDentalCaseInputObjectSchema } from './CaseAssetFileUncheckedCreateNestedManyWithoutDentalCaseInput.schema';
-import { InvoiceCaseUncheckedCreateNestedOneWithoutCaseInputObjectSchema as InvoiceCaseUncheckedCreateNestedOneWithoutCaseInputObjectSchema } from './InvoiceCaseUncheckedCreateNestedOneWithoutCaseInput.schema'
+import { InvoiceCaseUncheckedCreateNestedOneWithoutCaseInputObjectSchema as InvoiceCaseUncheckedCreateNestedOneWithoutCaseInputObjectSchema } from './InvoiceCaseUncheckedCreateNestedOneWithoutCaseInput.schema';
+import { CaseUncheckedCreateNestedManyWithoutOriginalCaseInputObjectSchema as CaseUncheckedCreateNestedManyWithoutOriginalCaseInputObjectSchema } from './CaseUncheckedCreateNestedManyWithoutOriginalCaseInput.schema'
 
 import { DecimalJSLikeSchema, isValidDecimalInput } from '../../helpers/decimal-helpers';
 const makeSchema = () => z.object({
@@ -28,11 +30,18 @@ const makeSchema = () => z.object({
   notes: z.string().optional().nullable(),
   deadline: z.coerce.date().optional().nullable(),
   createdAt: z.coerce.date().optional(),
+  isRemake: z.boolean().optional(),
+  originalCaseId: z.string().optional().nullable(),
+  failureReason: z.string().optional().nullable(),
+  failureFault: FaultPartySchema.optional().nullable(),
+  completedAt: z.coerce.date().optional().nullable(),
+  deliveredAt: z.coerce.date().optional().nullable(),
   caseItems: z.lazy(() => CaseWorkItemUncheckedCreateNestedManyWithoutDentalCaseInputObjectSchema).optional(),
   staffAssignments: z.lazy(() => CaseStaffAssignmentUncheckedCreateNestedManyWithoutDentalCaseInputObjectSchema).optional(),
   caseActivityLogs: z.lazy(() => CaseActivityLogUncheckedCreateNestedManyWithoutDentalCaseInputObjectSchema).optional(),
   caseAssetFiles: z.lazy(() => CaseAssetFileUncheckedCreateNestedManyWithoutDentalCaseInputObjectSchema).optional(),
-  invoiceCase: z.lazy(() => InvoiceCaseUncheckedCreateNestedOneWithoutCaseInputObjectSchema).optional()
+  invoiceCase: z.lazy(() => InvoiceCaseUncheckedCreateNestedOneWithoutCaseInputObjectSchema).optional(),
+  remakes: z.lazy(() => CaseUncheckedCreateNestedManyWithoutOriginalCaseInputObjectSchema).optional()
 }).strict();
 export const CaseUncheckedCreateInputObjectSchema: z.ZodType<Prisma.CaseUncheckedCreateInput> = makeSchema() as unknown as z.ZodType<Prisma.CaseUncheckedCreateInput>;
 export const CaseUncheckedCreateInputObjectZodSchema = makeSchema();

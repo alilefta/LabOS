@@ -1,6 +1,7 @@
 import * as z from 'zod';
 import { Prisma } from '../../../../generated/prisma/client';
 import { CaseStatusSchema } from '../enums/CaseStatus.schema';
+import { FaultPartySchema } from '../enums/FaultParty.schema';
 import { PatientCreateNestedOneWithoutCasesInputObjectSchema as PatientCreateNestedOneWithoutCasesInputObjectSchema } from './PatientCreateNestedOneWithoutCasesInput.schema';
 import { CaseWorkItemCreateNestedManyWithoutDentalCaseInputObjectSchema as CaseWorkItemCreateNestedManyWithoutDentalCaseInputObjectSchema } from './CaseWorkItemCreateNestedManyWithoutDentalCaseInput.schema';
 import { CaseCategoryCreateNestedOneWithoutCasesInputObjectSchema as CaseCategoryCreateNestedOneWithoutCasesInputObjectSchema } from './CaseCategoryCreateNestedOneWithoutCasesInput.schema';
@@ -9,7 +10,9 @@ import { DentistCreateNestedOneWithoutCasesInputObjectSchema as DentistCreateNes
 import { CaseStaffAssignmentCreateNestedManyWithoutDentalCaseInputObjectSchema as CaseStaffAssignmentCreateNestedManyWithoutDentalCaseInputObjectSchema } from './CaseStaffAssignmentCreateNestedManyWithoutDentalCaseInput.schema';
 import { CaseActivityLogCreateNestedManyWithoutDentalCaseInputObjectSchema as CaseActivityLogCreateNestedManyWithoutDentalCaseInputObjectSchema } from './CaseActivityLogCreateNestedManyWithoutDentalCaseInput.schema';
 import { CaseAssetFileCreateNestedManyWithoutDentalCaseInputObjectSchema as CaseAssetFileCreateNestedManyWithoutDentalCaseInputObjectSchema } from './CaseAssetFileCreateNestedManyWithoutDentalCaseInput.schema';
-import { InvoiceCaseCreateNestedOneWithoutCaseInputObjectSchema as InvoiceCaseCreateNestedOneWithoutCaseInputObjectSchema } from './InvoiceCaseCreateNestedOneWithoutCaseInput.schema'
+import { InvoiceCaseCreateNestedOneWithoutCaseInputObjectSchema as InvoiceCaseCreateNestedOneWithoutCaseInputObjectSchema } from './InvoiceCaseCreateNestedOneWithoutCaseInput.schema';
+import { CaseCreateNestedOneWithoutRemakesInputObjectSchema as CaseCreateNestedOneWithoutRemakesInputObjectSchema } from './CaseCreateNestedOneWithoutRemakesInput.schema';
+import { CaseCreateNestedManyWithoutOriginalCaseInputObjectSchema as CaseCreateNestedManyWithoutOriginalCaseInputObjectSchema } from './CaseCreateNestedManyWithoutOriginalCaseInput.schema'
 
 import { DecimalJSLikeSchema, isValidDecimalInput } from '../../helpers/decimal-helpers';
 const makeSchema = () => z.object({
@@ -28,6 +31,11 @@ const makeSchema = () => z.object({
   deadline: z.coerce.date().optional().nullable(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
+  isRemake: z.boolean().optional(),
+  failureReason: z.string().optional().nullable(),
+  failureFault: FaultPartySchema.optional().nullable(),
+  completedAt: z.coerce.date().optional().nullable(),
+  deliveredAt: z.coerce.date().optional().nullable(),
   patient: z.lazy(() => PatientCreateNestedOneWithoutCasesInputObjectSchema),
   caseItems: z.lazy(() => CaseWorkItemCreateNestedManyWithoutDentalCaseInputObjectSchema).optional(),
   caseCategory: z.lazy(() => CaseCategoryCreateNestedOneWithoutCasesInputObjectSchema).optional(),
@@ -36,7 +44,9 @@ const makeSchema = () => z.object({
   staffAssignments: z.lazy(() => CaseStaffAssignmentCreateNestedManyWithoutDentalCaseInputObjectSchema).optional(),
   caseActivityLogs: z.lazy(() => CaseActivityLogCreateNestedManyWithoutDentalCaseInputObjectSchema).optional(),
   caseAssetFiles: z.lazy(() => CaseAssetFileCreateNestedManyWithoutDentalCaseInputObjectSchema).optional(),
-  invoiceCase: z.lazy(() => InvoiceCaseCreateNestedOneWithoutCaseInputObjectSchema).optional()
+  invoiceCase: z.lazy(() => InvoiceCaseCreateNestedOneWithoutCaseInputObjectSchema).optional(),
+  originalCase: z.lazy(() => CaseCreateNestedOneWithoutRemakesInputObjectSchema).optional(),
+  remakes: z.lazy(() => CaseCreateNestedManyWithoutOriginalCaseInputObjectSchema).optional()
 }).strict();
 export const CaseCreateWithoutLabInputObjectSchema: z.ZodType<Prisma.CaseCreateWithoutLabInput> = makeSchema() as unknown as z.ZodType<Prisma.CaseCreateWithoutLabInput>;
 export const CaseCreateWithoutLabInputObjectZodSchema = makeSchema();

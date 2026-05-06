@@ -6,7 +6,10 @@ import { EnumCaseStatusWithAggregatesFilterObjectSchema as EnumCaseStatusWithAgg
 import { CaseStatusSchema } from '../enums/CaseStatus.schema';
 import { DecimalNullableWithAggregatesFilterObjectSchema as DecimalNullableWithAggregatesFilterObjectSchema } from './DecimalNullableWithAggregatesFilter.schema';
 import { DateTimeNullableWithAggregatesFilterObjectSchema as DateTimeNullableWithAggregatesFilterObjectSchema } from './DateTimeNullableWithAggregatesFilter.schema';
-import { DateTimeWithAggregatesFilterObjectSchema as DateTimeWithAggregatesFilterObjectSchema } from './DateTimeWithAggregatesFilter.schema'
+import { DateTimeWithAggregatesFilterObjectSchema as DateTimeWithAggregatesFilterObjectSchema } from './DateTimeWithAggregatesFilter.schema';
+import { BoolWithAggregatesFilterObjectSchema as BoolWithAggregatesFilterObjectSchema } from './BoolWithAggregatesFilter.schema';
+import { EnumFaultPartyNullableWithAggregatesFilterObjectSchema as EnumFaultPartyNullableWithAggregatesFilterObjectSchema } from './EnumFaultPartyNullableWithAggregatesFilter.schema';
+import { FaultPartySchema } from '../enums/FaultParty.schema'
 
 import { DecimalJSLikeSchema, isValidDecimalInput } from '../../helpers/decimal-helpers';
 const casescalarwherewithaggregatesinputSchema = z.object({
@@ -32,7 +35,13 @@ const casescalarwherewithaggregatesinputSchema = z.object({
   notes: z.union([z.lazy(() => StringNullableWithAggregatesFilterObjectSchema), z.string()]).optional().nullable(),
   deadline: z.union([z.lazy(() => DateTimeNullableWithAggregatesFilterObjectSchema), z.coerce.date()]).optional().nullable(),
   createdAt: z.union([z.lazy(() => DateTimeWithAggregatesFilterObjectSchema), z.coerce.date()]).optional(),
-  updatedAt: z.union([z.lazy(() => DateTimeWithAggregatesFilterObjectSchema), z.coerce.date()]).optional()
+  updatedAt: z.union([z.lazy(() => DateTimeWithAggregatesFilterObjectSchema), z.coerce.date()]).optional(),
+  isRemake: z.union([z.lazy(() => BoolWithAggregatesFilterObjectSchema), z.boolean()]).optional(),
+  originalCaseId: z.union([z.lazy(() => StringNullableWithAggregatesFilterObjectSchema), z.string()]).optional().nullable(),
+  failureReason: z.union([z.lazy(() => StringNullableWithAggregatesFilterObjectSchema), z.string()]).optional().nullable(),
+  failureFault: z.union([z.lazy(() => EnumFaultPartyNullableWithAggregatesFilterObjectSchema), FaultPartySchema]).optional().nullable(),
+  completedAt: z.union([z.lazy(() => DateTimeNullableWithAggregatesFilterObjectSchema), z.coerce.date()]).optional().nullable(),
+  deliveredAt: z.union([z.lazy(() => DateTimeNullableWithAggregatesFilterObjectSchema), z.coerce.date()]).optional().nullable()
 }).strict();
 export const CaseScalarWhereWithAggregatesInputObjectSchema: z.ZodType<Prisma.CaseScalarWhereWithAggregatesInput> = casescalarwherewithaggregatesinputSchema as unknown as z.ZodType<Prisma.CaseScalarWhereWithAggregatesInput>;
 export const CaseScalarWhereWithAggregatesInputObjectZodSchema = casescalarwherewithaggregatesinputSchema;

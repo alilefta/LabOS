@@ -4,6 +4,7 @@ import { DollarSign, TrendingDown, AlertCircle, Receipt } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { memo } from "react";
 
 interface ClinicFinancialVitalsProps {
 	balance: number;
@@ -11,7 +12,7 @@ interface ClinicFinancialVitalsProps {
 	discount: number | null;
 }
 
-export function ClinicFinancialVitalsCard({ balance, limit, discount }: ClinicFinancialVitalsProps) {
+export const ClinicFinancialVitalsCard = memo(function ClinicFinancialVitalsCard({ balance, limit, discount }: ClinicFinancialVitalsProps) {
 	const formatMoney = (val: number) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(val);
 
 	const percentageUsed = limit ? Math.min((balance / limit) * 100, 100) : 0;
@@ -19,7 +20,7 @@ export function ClinicFinancialVitalsCard({ balance, limit, discount }: ClinicFi
 	const isCritical = percentageUsed >= 100;
 
 	return (
-		<div className="lab-card p-6 flex flex-col border-border relative overflow-hidden group min-h-[320px]">
+		<div className="lab-card p-6 flex flex-col border-border relative overflow-hidden group min-h-80">
 			{/* Ambient Financial Glow (Behind the content) */}
 			<div
 				className={cn(
@@ -100,4 +101,4 @@ export function ClinicFinancialVitalsCard({ balance, limit, discount }: ClinicFi
 			)}
 		</div>
 	);
-}
+});

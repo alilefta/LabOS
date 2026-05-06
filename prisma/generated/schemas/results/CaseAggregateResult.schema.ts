@@ -22,7 +22,15 @@ export const CaseAggregateResultSchema = z.object({  _count: z.object({
     deadline: z.number(),
     createdAt: z.number(),
     updatedAt: z.number(),
-    invoiceCase: z.number()
+    invoiceCase: z.number(),
+    isRemake: z.number(),
+    originalCaseId: z.number(),
+    originalCase: z.number(),
+    remakes: z.number(),
+    failureReason: z.number(),
+    failureFault: z.number(),
+    completedAt: z.number(),
+    deliveredAt: z.number()
   }).optional(),
   _sum: z.object({
     grandTotal: z.number().nullable()
@@ -42,7 +50,11 @@ export const CaseAggregateResultSchema = z.object({  _count: z.object({
     notes: z.string().nullable(),
     deadline: z.date().nullable(),
     createdAt: z.date().nullable(),
-    updatedAt: z.date().nullable()
+    updatedAt: z.date().nullable(),
+    originalCaseId: z.string().nullable(),
+    failureReason: z.string().nullable(),
+    completedAt: z.date().nullable(),
+    deliveredAt: z.date().nullable()
   }).nullable().optional(),
   _max: z.object({
     id: z.string().nullable(),
@@ -56,5 +68,9 @@ export const CaseAggregateResultSchema = z.object({  _count: z.object({
     notes: z.string().nullable(),
     deadline: z.date().nullable(),
     createdAt: z.date().nullable(),
-    updatedAt: z.date().nullable()
+    updatedAt: z.date().nullable(),
+    originalCaseId: z.string().nullable(),
+    failureReason: z.string().nullable(),
+    completedAt: z.date().nullable(),
+    deliveredAt: z.date().nullable()
   }).nullable().optional()});

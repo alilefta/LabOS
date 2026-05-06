@@ -348,7 +348,6 @@ export default function CasesClientWrapperPage({ labId }: PageProps) {
 						</div>
 					) : (
 						<div className="h-full animate-in fade-in slide-in-from-right-4 duration-500">
-							{/* <KanbanBoard data={flatData} onStatusChange={handleStatusChange} /> */}
 							<KanbanWrapper serverData={flatData} onStatusChangeAction={handleStatusChange} />
 						</div>
 					)}

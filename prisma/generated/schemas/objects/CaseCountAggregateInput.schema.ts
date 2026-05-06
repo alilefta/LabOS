@@ -16,6 +16,12 @@ const makeSchema = () => z.object({
   deadline: z.literal(true).optional(),
   createdAt: z.literal(true).optional(),
   updatedAt: z.literal(true).optional(),
+  isRemake: z.literal(true).optional(),
+  originalCaseId: z.literal(true).optional(),
+  failureReason: z.literal(true).optional(),
+  failureFault: z.literal(true).optional(),
+  completedAt: z.literal(true).optional(),
+  deliveredAt: z.literal(true).optional(),
   _all: z.literal(true).optional()
 }).strict();
 export const CaseCountAggregateInputObjectSchema: z.ZodType<Prisma.CaseCountAggregateInputType> = makeSchema() as unknown as z.ZodType<Prisma.CaseCountAggregateInputType>;

@@ -1,6 +1,7 @@
 import * as z from 'zod';
 import { Prisma } from '../../../../generated/prisma/client';
 import { CaseStatusSchema } from '../enums/CaseStatus.schema';
+import { FaultPartySchema } from '../enums/FaultParty.schema';
 import { PatientCreateNestedOneWithoutCasesInputObjectSchema as PatientCreateNestedOneWithoutCasesInputObjectSchema } from './PatientCreateNestedOneWithoutCasesInput.schema';
 import { LabCreateNestedOneWithoutCasesInputObjectSchema as LabCreateNestedOneWithoutCasesInputObjectSchema } from './LabCreateNestedOneWithoutCasesInput.schema';
 import { CaseWorkItemCreateNestedManyWithoutDentalCaseInputObjectSchema as CaseWorkItemCreateNestedManyWithoutDentalCaseInputObjectSchema } from './CaseWorkItemCreateNestedManyWithoutDentalCaseInput.schema';
@@ -9,7 +10,9 @@ import { ClinicCreateNestedOneWithoutCasesInputObjectSchema as ClinicCreateNeste
 import { DentistCreateNestedOneWithoutCasesInputObjectSchema as DentistCreateNestedOneWithoutCasesInputObjectSchema } from './DentistCreateNestedOneWithoutCasesInput.schema';
 import { CaseStaffAssignmentCreateNestedManyWithoutDentalCaseInputObjectSchema as CaseStaffAssignmentCreateNestedManyWithoutDentalCaseInputObjectSchema } from './CaseStaffAssignmentCreateNestedManyWithoutDentalCaseInput.schema';
 import { CaseAssetFileCreateNestedManyWithoutDentalCaseInputObjectSchema as CaseAssetFileCreateNestedManyWithoutDentalCaseInputObjectSchema } from './CaseAssetFileCreateNestedManyWithoutDentalCaseInput.schema';
-import { InvoiceCaseCreateNestedOneWithoutCaseInputObjectSchema as InvoiceCaseCreateNestedOneWithoutCaseInputObjectSchema } from './InvoiceCaseCreateNestedOneWithoutCaseInput.schema'
+import { InvoiceCaseCreateNestedOneWithoutCaseInputObjectSchema as InvoiceCaseCreateNestedOneWithoutCaseInputObjectSchema } from './InvoiceCaseCreateNestedOneWithoutCaseInput.schema';
+import { CaseCreateNestedOneWithoutRemakesInputObjectSchema as CaseCreateNestedOneWithoutRemakesInputObjectSchema } from './CaseCreateNestedOneWithoutRemakesInput.schema';
+import { CaseCreateNestedManyWithoutOriginalCaseInputObjectSchema as CaseCreateNestedManyWithoutOriginalCaseInputObjectSchema } from './CaseCreateNestedManyWithoutOriginalCaseInput.schema'
 
 import { DecimalJSLikeSchema, isValidDecimalInput } from '../../helpers/decimal-helpers';
 const makeSchema = () => z.object({
@@ -28,6 +31,11 @@ const makeSchema = () => z.object({
   deadline: z.coerce.date().optional().nullable(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
+  isRemake: z.boolean().optional(),
+  failureReason: z.string().optional().nullable(),
+  failureFault: FaultPartySchema.optional().nullable(),
+  completedAt: z.coerce.date().optional().nullable(),
+  deliveredAt: z.coerce.date().optional().nullable(),
   patient: z.lazy(() => PatientCreateNestedOneWithoutCasesInputObjectSchema),
   lab: z.lazy(() => LabCreateNestedOneWithoutCasesInputObjectSchema),
   caseItems: z.lazy(() => CaseWorkItemCreateNestedManyWithoutDentalCaseInputObjectSchema).optional(),
@@ -36,7 +44,9 @@ const makeSchema = () => z.object({
   dentist: z.lazy(() => DentistCreateNestedOneWithoutCasesInputObjectSchema).optional(),
   staffAssignments: z.lazy(() => CaseStaffAssignmentCreateNestedManyWithoutDentalCaseInputObjectSchema).optional(),
   caseAssetFiles: z.lazy(() => CaseAssetFileCreateNestedManyWithoutDentalCaseInputObjectSchema).optional(),
-  invoiceCase: z.lazy(() => InvoiceCaseCreateNestedOneWithoutCaseInputObjectSchema).optional()
+  invoiceCase: z.lazy(() => InvoiceCaseCreateNestedOneWithoutCaseInputObjectSchema).optional(),
+  originalCase: z.lazy(() => CaseCreateNestedOneWithoutRemakesInputObjectSchema).optional(),
+  remakes: z.lazy(() => CaseCreateNestedManyWithoutOriginalCaseInputObjectSchema).optional()
 }).strict();
 export const CaseCreateWithoutCaseActivityLogsInputObjectSchema: z.ZodType<Prisma.CaseCreateWithoutCaseActivityLogsInput> = makeSchema() as unknown as z.ZodType<Prisma.CaseCreateWithoutCaseActivityLogsInput>;
 export const CaseCreateWithoutCaseActivityLogsInputObjectZodSchema = makeSchema();

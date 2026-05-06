@@ -22,5 +22,13 @@ export const CaseCreateResultSchema = z.object({
   deadline: z.date().optional(),
   createdAt: z.date(),
   updatedAt: z.date(),
-  invoiceCase: z.unknown().optional()
+  invoiceCase: z.unknown().optional(),
+  isRemake: z.boolean(),
+  originalCaseId: z.string().optional(),
+  originalCase: z.unknown().optional(),
+  remakes: z.array(z.unknown()),
+  failureReason: z.string().optional(),
+  failureFault: z.unknown().optional(),
+  completedAt: z.date().optional(),
+  deliveredAt: z.date().optional()
 });

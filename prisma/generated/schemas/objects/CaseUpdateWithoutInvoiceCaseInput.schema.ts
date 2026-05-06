@@ -7,6 +7,9 @@ import { NullableDecimalFieldUpdateOperationsInputObjectSchema as NullableDecima
 import { NullableStringFieldUpdateOperationsInputObjectSchema as NullableStringFieldUpdateOperationsInputObjectSchema } from './NullableStringFieldUpdateOperationsInput.schema';
 import { NullableDateTimeFieldUpdateOperationsInputObjectSchema as NullableDateTimeFieldUpdateOperationsInputObjectSchema } from './NullableDateTimeFieldUpdateOperationsInput.schema';
 import { DateTimeFieldUpdateOperationsInputObjectSchema as DateTimeFieldUpdateOperationsInputObjectSchema } from './DateTimeFieldUpdateOperationsInput.schema';
+import { BoolFieldUpdateOperationsInputObjectSchema as BoolFieldUpdateOperationsInputObjectSchema } from './BoolFieldUpdateOperationsInput.schema';
+import { FaultPartySchema } from '../enums/FaultParty.schema';
+import { NullableEnumFaultPartyFieldUpdateOperationsInputObjectSchema as NullableEnumFaultPartyFieldUpdateOperationsInputObjectSchema } from './NullableEnumFaultPartyFieldUpdateOperationsInput.schema';
 import { PatientUpdateOneRequiredWithoutCasesNestedInputObjectSchema as PatientUpdateOneRequiredWithoutCasesNestedInputObjectSchema } from './PatientUpdateOneRequiredWithoutCasesNestedInput.schema';
 import { LabUpdateOneRequiredWithoutCasesNestedInputObjectSchema as LabUpdateOneRequiredWithoutCasesNestedInputObjectSchema } from './LabUpdateOneRequiredWithoutCasesNestedInput.schema';
 import { CaseWorkItemUpdateManyWithoutDentalCaseNestedInputObjectSchema as CaseWorkItemUpdateManyWithoutDentalCaseNestedInputObjectSchema } from './CaseWorkItemUpdateManyWithoutDentalCaseNestedInput.schema';
@@ -15,7 +18,9 @@ import { ClinicUpdateOneWithoutCasesNestedInputObjectSchema as ClinicUpdateOneWi
 import { DentistUpdateOneWithoutCasesNestedInputObjectSchema as DentistUpdateOneWithoutCasesNestedInputObjectSchema } from './DentistUpdateOneWithoutCasesNestedInput.schema';
 import { CaseStaffAssignmentUpdateManyWithoutDentalCaseNestedInputObjectSchema as CaseStaffAssignmentUpdateManyWithoutDentalCaseNestedInputObjectSchema } from './CaseStaffAssignmentUpdateManyWithoutDentalCaseNestedInput.schema';
 import { CaseActivityLogUpdateManyWithoutDentalCaseNestedInputObjectSchema as CaseActivityLogUpdateManyWithoutDentalCaseNestedInputObjectSchema } from './CaseActivityLogUpdateManyWithoutDentalCaseNestedInput.schema';
-import { CaseAssetFileUpdateManyWithoutDentalCaseNestedInputObjectSchema as CaseAssetFileUpdateManyWithoutDentalCaseNestedInputObjectSchema } from './CaseAssetFileUpdateManyWithoutDentalCaseNestedInput.schema'
+import { CaseAssetFileUpdateManyWithoutDentalCaseNestedInputObjectSchema as CaseAssetFileUpdateManyWithoutDentalCaseNestedInputObjectSchema } from './CaseAssetFileUpdateManyWithoutDentalCaseNestedInput.schema';
+import { CaseUpdateOneWithoutRemakesNestedInputObjectSchema as CaseUpdateOneWithoutRemakesNestedInputObjectSchema } from './CaseUpdateOneWithoutRemakesNestedInput.schema';
+import { CaseUpdateManyWithoutOriginalCaseNestedInputObjectSchema as CaseUpdateManyWithoutOriginalCaseNestedInputObjectSchema } from './CaseUpdateManyWithoutOriginalCaseNestedInput.schema'
 
 import { DecimalJSLikeSchema, isValidDecimalInput } from '../../helpers/decimal-helpers';
 const makeSchema = () => z.object({
@@ -34,6 +39,11 @@ const makeSchema = () => z.object({
   deadline: z.union([z.coerce.date(), z.lazy(() => NullableDateTimeFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
   createdAt: z.union([z.coerce.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputObjectSchema)]).optional(),
   updatedAt: z.union([z.coerce.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputObjectSchema)]).optional(),
+  isRemake: z.union([z.boolean(), z.lazy(() => BoolFieldUpdateOperationsInputObjectSchema)]).optional(),
+  failureReason: z.union([z.string(), z.lazy(() => NullableStringFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
+  failureFault: z.union([FaultPartySchema, z.lazy(() => NullableEnumFaultPartyFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
+  completedAt: z.union([z.coerce.date(), z.lazy(() => NullableDateTimeFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
+  deliveredAt: z.union([z.coerce.date(), z.lazy(() => NullableDateTimeFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
   patient: z.lazy(() => PatientUpdateOneRequiredWithoutCasesNestedInputObjectSchema).optional(),
   lab: z.lazy(() => LabUpdateOneRequiredWithoutCasesNestedInputObjectSchema).optional(),
   caseItems: z.lazy(() => CaseWorkItemUpdateManyWithoutDentalCaseNestedInputObjectSchema).optional(),
@@ -42,7 +52,9 @@ const makeSchema = () => z.object({
   dentist: z.lazy(() => DentistUpdateOneWithoutCasesNestedInputObjectSchema).optional(),
   staffAssignments: z.lazy(() => CaseStaffAssignmentUpdateManyWithoutDentalCaseNestedInputObjectSchema).optional(),
   caseActivityLogs: z.lazy(() => CaseActivityLogUpdateManyWithoutDentalCaseNestedInputObjectSchema).optional(),
-  caseAssetFiles: z.lazy(() => CaseAssetFileUpdateManyWithoutDentalCaseNestedInputObjectSchema).optional()
+  caseAssetFiles: z.lazy(() => CaseAssetFileUpdateManyWithoutDentalCaseNestedInputObjectSchema).optional(),
+  originalCase: z.lazy(() => CaseUpdateOneWithoutRemakesNestedInputObjectSchema).optional(),
+  remakes: z.lazy(() => CaseUpdateManyWithoutOriginalCaseNestedInputObjectSchema).optional()
 }).strict();
 export const CaseUpdateWithoutInvoiceCaseInputObjectSchema: z.ZodType<Prisma.CaseUpdateWithoutInvoiceCaseInput> = makeSchema() as unknown as z.ZodType<Prisma.CaseUpdateWithoutInvoiceCaseInput>;
 export const CaseUpdateWithoutInvoiceCaseInputObjectZodSchema = makeSchema();

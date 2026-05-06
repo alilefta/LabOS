@@ -7,6 +7,9 @@ import { CaseStatusSchema } from '../enums/CaseStatus.schema';
 import { DecimalNullableFilterObjectSchema as DecimalNullableFilterObjectSchema } from './DecimalNullableFilter.schema';
 import { DateTimeNullableFilterObjectSchema as DateTimeNullableFilterObjectSchema } from './DateTimeNullableFilter.schema';
 import { DateTimeFilterObjectSchema as DateTimeFilterObjectSchema } from './DateTimeFilter.schema';
+import { BoolFilterObjectSchema as BoolFilterObjectSchema } from './BoolFilter.schema';
+import { EnumFaultPartyNullableFilterObjectSchema as EnumFaultPartyNullableFilterObjectSchema } from './EnumFaultPartyNullableFilter.schema';
+import { FaultPartySchema } from '../enums/FaultParty.schema';
 import { PatientScalarRelationFilterObjectSchema as PatientScalarRelationFilterObjectSchema } from './PatientScalarRelationFilter.schema';
 import { PatientWhereInputObjectSchema as PatientWhereInputObjectSchema } from './PatientWhereInput.schema';
 import { LabScalarRelationFilterObjectSchema as LabScalarRelationFilterObjectSchema } from './LabScalarRelationFilter.schema';
@@ -22,7 +25,9 @@ import { CaseStaffAssignmentListRelationFilterObjectSchema as CaseStaffAssignmen
 import { CaseActivityLogListRelationFilterObjectSchema as CaseActivityLogListRelationFilterObjectSchema } from './CaseActivityLogListRelationFilter.schema';
 import { CaseAssetFileListRelationFilterObjectSchema as CaseAssetFileListRelationFilterObjectSchema } from './CaseAssetFileListRelationFilter.schema';
 import { InvoiceCaseNullableScalarRelationFilterObjectSchema as InvoiceCaseNullableScalarRelationFilterObjectSchema } from './InvoiceCaseNullableScalarRelationFilter.schema';
-import { InvoiceCaseWhereInputObjectSchema as InvoiceCaseWhereInputObjectSchema } from './InvoiceCaseWhereInput.schema'
+import { InvoiceCaseWhereInputObjectSchema as InvoiceCaseWhereInputObjectSchema } from './InvoiceCaseWhereInput.schema';
+import { CaseNullableScalarRelationFilterObjectSchema as CaseNullableScalarRelationFilterObjectSchema } from './CaseNullableScalarRelationFilter.schema';
+import { CaseListRelationFilterObjectSchema as CaseListRelationFilterObjectSchema } from './CaseListRelationFilter.schema'
 
 import { DecimalJSLikeSchema, isValidDecimalInput } from '../../helpers/decimal-helpers';
 const casewhereinputSchema = z.object({
@@ -49,6 +54,12 @@ const casewhereinputSchema = z.object({
   deadline: z.union([z.lazy(() => DateTimeNullableFilterObjectSchema), z.coerce.date()]).optional().nullable(),
   createdAt: z.union([z.lazy(() => DateTimeFilterObjectSchema), z.coerce.date()]).optional(),
   updatedAt: z.union([z.lazy(() => DateTimeFilterObjectSchema), z.coerce.date()]).optional(),
+  isRemake: z.union([z.lazy(() => BoolFilterObjectSchema), z.boolean()]).optional(),
+  originalCaseId: z.union([z.lazy(() => StringNullableFilterObjectSchema), z.string()]).optional().nullable(),
+  failureReason: z.union([z.lazy(() => StringNullableFilterObjectSchema), z.string()]).optional().nullable(),
+  failureFault: z.union([z.lazy(() => EnumFaultPartyNullableFilterObjectSchema), FaultPartySchema]).optional().nullable(),
+  completedAt: z.union([z.lazy(() => DateTimeNullableFilterObjectSchema), z.coerce.date()]).optional().nullable(),
+  deliveredAt: z.union([z.lazy(() => DateTimeNullableFilterObjectSchema), z.coerce.date()]).optional().nullable(),
   patient: z.union([z.lazy(() => PatientScalarRelationFilterObjectSchema), z.lazy(() => PatientWhereInputObjectSchema)]).optional(),
   lab: z.union([z.lazy(() => LabScalarRelationFilterObjectSchema), z.lazy(() => LabWhereInputObjectSchema)]).optional(),
   caseItems: z.lazy(() => CaseWorkItemListRelationFilterObjectSchema).optional(),
@@ -58,7 +69,9 @@ const casewhereinputSchema = z.object({
   staffAssignments: z.lazy(() => CaseStaffAssignmentListRelationFilterObjectSchema).optional(),
   caseActivityLogs: z.lazy(() => CaseActivityLogListRelationFilterObjectSchema).optional(),
   caseAssetFiles: z.lazy(() => CaseAssetFileListRelationFilterObjectSchema).optional(),
-  invoiceCase: z.union([z.lazy(() => InvoiceCaseNullableScalarRelationFilterObjectSchema), z.lazy(() => InvoiceCaseWhereInputObjectSchema)]).optional()
+  invoiceCase: z.union([z.lazy(() => InvoiceCaseNullableScalarRelationFilterObjectSchema), z.lazy(() => InvoiceCaseWhereInputObjectSchema)]).optional(),
+  originalCase: z.union([z.lazy(() => CaseNullableScalarRelationFilterObjectSchema), z.lazy(() => CaseWhereInputObjectSchema)]).optional(),
+  remakes: z.lazy(() => CaseListRelationFilterObjectSchema).optional()
 }).strict();
 export const CaseWhereInputObjectSchema: z.ZodType<Prisma.CaseWhereInput> = casewhereinputSchema as unknown as z.ZodType<Prisma.CaseWhereInput>;
 export const CaseWhereInputObjectZodSchema = casewhereinputSchema;

@@ -10,6 +10,8 @@ import { CaseStaffAssignmentFindManySchema as CaseStaffAssignmentFindManySchema 
 import { CaseActivityLogFindManySchema as CaseActivityLogFindManySchema } from '../findManyCaseActivityLog.schema';
 import { CaseAssetFileFindManySchema as CaseAssetFileFindManySchema } from '../findManyCaseAssetFile.schema';
 import { InvoiceCaseArgsObjectSchema as InvoiceCaseArgsObjectSchema } from './InvoiceCaseArgs.schema';
+import { CaseArgsObjectSchema as CaseArgsObjectSchema } from './CaseArgs.schema';
+import { CaseFindManySchema as CaseFindManySchema } from '../findManyCase.schema';
 import { CaseCountOutputTypeArgsObjectSchema as CaseCountOutputTypeArgsObjectSchema } from './CaseCountOutputTypeArgs.schema'
 
 const makeSchema = () => z.object({
@@ -23,6 +25,8 @@ const makeSchema = () => z.object({
   caseActivityLogs: z.union([z.boolean(), z.lazy(() => CaseActivityLogFindManySchema)]).optional(),
   caseAssetFiles: z.union([z.boolean(), z.lazy(() => CaseAssetFileFindManySchema)]).optional(),
   invoiceCase: z.union([z.boolean(), z.lazy(() => InvoiceCaseArgsObjectSchema)]).optional(),
+  originalCase: z.union([z.boolean(), z.lazy(() => CaseArgsObjectSchema)]).optional(),
+  remakes: z.union([z.boolean(), z.lazy(() => CaseFindManySchema)]).optional(),
   _count: z.union([z.boolean(), z.lazy(() => CaseCountOutputTypeArgsObjectSchema)]).optional()
 }).strict();
 export const CaseIncludeObjectSchema: z.ZodType<Prisma.CaseInclude> = makeSchema() as unknown as z.ZodType<Prisma.CaseInclude>;

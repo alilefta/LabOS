@@ -33,6 +33,14 @@ export const CaseFindManySelectSchema: z.ZodType<Prisma.CaseSelect> = z.object({
     createdAt: z.boolean().optional(),
     updatedAt: z.boolean().optional(),
     invoiceCase: z.boolean().optional(),
+    isRemake: z.boolean().optional(),
+    originalCaseId: z.boolean().optional(),
+    originalCase: z.boolean().optional(),
+    remakes: z.boolean().optional(),
+    failureReason: z.boolean().optional(),
+    failureFault: z.boolean().optional(),
+    completedAt: z.boolean().optional(),
+    deliveredAt: z.boolean().optional(),
     _count: z.boolean().optional()
   }).strict() as unknown as z.ZodType<Prisma.CaseSelect>;
 
@@ -60,6 +68,14 @@ export const CaseFindManySelectZodSchema = z.object({
     createdAt: z.boolean().optional(),
     updatedAt: z.boolean().optional(),
     invoiceCase: z.boolean().optional(),
+    isRemake: z.boolean().optional(),
+    originalCaseId: z.boolean().optional(),
+    originalCase: z.boolean().optional(),
+    remakes: z.boolean().optional(),
+    failureReason: z.boolean().optional(),
+    failureFault: z.boolean().optional(),
+    completedAt: z.boolean().optional(),
+    deliveredAt: z.boolean().optional(),
     _count: z.boolean().optional()
   }).strict();
 
