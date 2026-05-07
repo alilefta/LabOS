@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { ClinicTerminalShell } from "@/components/clinics/clinic-details/navigation-shell/clinic-terminal-shell";
 import { ClinicVitalsHeader } from "@/components/clinics/clinic-details/navigation-shell/clinic-vitals-header";
 import { ClinicTabNavigation } from "@/components/clinics/clinic-details/navigation-shell/clinic-tab-navigation";
@@ -12,7 +12,9 @@ import { ClinicDashboardTimeFramePeriodSchema } from "@/schema/composed/clinics/
 import { TimeFrameFilter } from "@/components/clinics/clinic-details/overview-tab/time-frame-filter";
 import { ClinicOverviewTab } from "@/components/clinics/clinic-details/overview-tab/clinic-overview-tab";
 import z from "zod";
-import { ClinicKanbanWrapper } from "@/components/clinics/clinic-details/cases-tab/clinic-active-cases-board";
+import { ClinicActiveCasesKanbanWrapper } from "@/components/clinics/clinic-details/cases-tab/kanban/clinic-active-cases-kanban-wrapper";
+import { PermissionsProvider } from "@/providers/permissions-provider";
+import { getCurrentLabUserRoleByAuthUserId } from "@/data/lab";
 
 // // Define your allowed periods to prevent malformed URLs from breaking the DB query
 // type TimePeriod = typeof ALLOWED_PERIODS[number];
@@ -26,6 +28,9 @@ export default async function ClinicDetailPage({
 }) {
 	const { clinicId } = await params;
 	const { tab, period } = await searchParams;
+
+	const user = await getCurrentLabUserRoleByAuthUserId();
+	if (!user) redirect("/onboarding");
 
 	const results = await getClinicDetailsById(clinicId);
 	if (!results.success) notFound();
@@ -71,7 +76,15 @@ export default async function ClinicDetailPage({
 					)}
 					{activeTab === "pipeline" && (
 						<div className="flex flex-col gap-6 w-full h-full min-h-0">
-							<ClinicKanbanWrapper />
+							<PermissionsProvider
+								userContext={{
+									role: user.role,
+									staffCategory: user.labStaff?.roleCategory,
+									staffId: user.labStaff?.id,
+								}}
+							>
+								<ClinicActiveCasesKanbanWrapper clinicId={clinic.id} />
+							</PermissionsProvider>
 							<ClinicHistoricalDataTable />
 						</div>
 					)}

@@ -9,6 +9,7 @@ import { APIError } from "better-auth";
 import { normalizeClinic } from "@/lib/mappers";
 import { differenceInDays, startOfDay } from "date-fns";
 import { CaseStatus } from "@/schema/base/enums.base";
+import { ClinicActiveCaseDTO } from "@/schema/composed/clinics/clinic-cases.dtos";
 
 export const getClinicQuickOverviewAction = actionClientWithLab
 	.metadata({
@@ -177,27 +178,30 @@ export const getClinicActivePipelineAction = actionClientWithLab
 			const prisma = await tenantPrisma(labId);
 
 			// 1. Fetch all cases in "Active" statuses
-			const activeCasesRaw = await prisma.case.findMany({
+			const raw = await prisma.case.findMany({
 				where: {
 					clinicId,
 					labId,
-					status: { in: ["NEW", "ASSIGNED", "PROCESSING"] },
+					status: { in: ["NEW", "ASSIGNED", "PROCESSING", "COMPLETED"] },
 				},
-				include: {
-					patient: {
-						select: { name: true },
-					},
+				orderBy: [{ deadline: "asc" }, { createdAt: "asc" }],
+				select: {
+					id: true,
+					caseNumber: true,
+					status: true,
+					deadline: true,
+					isRemake: true,
+					patient: { select: { name: true } },
 					caseItems: {
 						select: {
 							product: { select: { name: true } },
 						},
 					},
 					staffAssignments: {
-						// We only care about production staff for the Kanban UI
 						where: {
-							roleCategory: { in: ["TECHNICIAN", "SENIOR_TECHNICIAN", "MANAGER", "QC_INSPECTOR"] },
+							roleCategory: { in: ["TECHNICIAN", "SENIOR_TECHNICIAN"] },
 						},
-						include: {
+						select: {
 							staff: {
 								select: {
 									firstName: true,
@@ -209,32 +213,27 @@ export const getClinicActivePipelineAction = actionClientWithLab
 						},
 					},
 				},
-				orderBy: {
-					deadline: "asc", // Show most urgent cases at the top of columns
-				},
 			});
 
 			// 2. Transform into DTO with UX helper flags (like isRush)
 			const today = startOfDay(new Date());
 
-			const cases = activeCasesRaw.map((c) => {
+			const cases: ClinicActiveCaseDTO[] = raw.map((c) => {
 				const daysUntilDeadline = c.deadline ? differenceInDays(startOfDay(c.deadline), today) : null;
 
 				return {
 					id: c.id,
 					caseNumber: c.caseNumber,
-					status: c.status as CaseStatus,
+					status: c.status as ClinicActiveCaseDTO["status"],
 					patientName: c.patient.name,
-					// Flatten products into an array of strings
-					products: c.caseItems.map((item) => item.product?.name ?? "Unknown Product"),
-					// Find the primary technician assigned (if any)
-					leadTech: c.staffAssignments[0]?.staff
-						? {
-								name: `${c.staffAssignments[0].staff.firstName} ${c.staffAssignments[0].staff.lastName}`,
-								avatar: c.staffAssignments[0].staff.avatarUrl,
-								title: c.staffAssignments[0].staff.jobTitle,
-							}
-						: null,
+					products: c.caseItems.map((ci) => ci.product?.name).filter((n): n is string => n != null),
+					assignedTechs: c.staffAssignments
+						.filter((sa) => sa.staff != null)
+						.map((sa) => ({
+							name: `${sa.staff!.firstName} ${sa.staff!.lastName}`,
+							avatar: sa.staff!.avatarUrl,
+							jobTitle: sa.staff!.jobTitle,
+						})),
 					deadline: c.deadline,
 					isRush: daysUntilDeadline !== null && daysUntilDeadline <= 3,
 					isRemake: c.isRemake,
@@ -246,6 +245,7 @@ export const getClinicActivePipelineAction = actionClientWithLab
 				NEW: cases.filter((c) => c.status === "NEW"),
 				ASSIGNED: cases.filter((c) => c.status === "ASSIGNED"),
 				PROCESSING: cases.filter((c) => c.status === "PROCESSING"),
+				COMPLETED: cases.filter((c) => c.status === "COMPLETED"),
 			};
 
 			return {

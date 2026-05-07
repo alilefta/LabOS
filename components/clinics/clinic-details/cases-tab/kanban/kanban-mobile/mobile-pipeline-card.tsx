@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { memo, useMemo, useState } from "react";
 import { formatDistanceToNow, isBefore, startOfDay } from "date-fns";
 import { AlertCircle, User, Box, Lock, ArrowRight, Activity, PackageCheck, Truck, LucideIcon, RotateCcw } from "lucide-react";
 
@@ -26,12 +26,15 @@ interface MobilePipelineCardProps {
 	requestStatusTransition: (caseItem: ClinicActiveCaseDTO, newStatus: CaseStatus, oldStatus: CaseStatus) => void;
 }
 
-export function MobilePipelineCard({ caseItem, requestStatusTransition }: MobilePipelineCardProps) {
+export const MobilePipelineCard = memo(function MobilePipelineCard({ caseItem, requestStatusTransition }: MobilePipelineCardProps) {
 	const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 	const { canAdvanceStatus, isManagement, staffId } = usePermissions();
 
-	// 1. Gating: Can this specific user move this specific card?
-	const isAssignedToMe = caseItem.leadTech?.name.includes(staffId || "---");
+	// --- 1. MULTI-TECH PERMISSION LOGIC ---
+	const isAssignedToMe = useMemo(() => {
+		return caseItem.assignedTechs.some((tech) => tech.name.includes(staffId || "---"));
+	}, [caseItem.assignedTechs, staffId]);
+
 	const canMove = isManagement || (canAdvanceStatus && isAssignedToMe);
 
 	// 2. Workflow: What are the valid next steps?
@@ -92,24 +95,26 @@ export function MobilePipelineCard({ caseItem, requestStatusTransition }: Mobile
 
 			{/* FOOTER: STAFF & ACTIONS */}
 			<div className="flex items-center justify-between pt-4 border-t border-border/50">
-				<div className="flex items-center gap-3">
-					{caseItem.leadTech ? (
-						<div className="flex items-center gap-2">
-							<Avatar className="h-8 w-8 border border-border shadow-sm">
-								{caseItem.leadTech.avatar && <AvatarImage src={caseItem.leadTech.avatar} />}
-								<AvatarFallback className="text-[10px] font-black bg-primary/10 text-primary">{caseItem.leadTech.name[0]}</AvatarFallback>
-							</Avatar>
-							<div className="flex flex-col">
-								<span className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground/60 leading-none mb-1">Assigned</span>
-								<span className="text-xs font-bold text-foreground truncate max-w-[80px]">{caseItem.leadTech.name.split(" ")[0]}</span>
-							</div>
-						</div>
+				<div className="flex items-center -space-x-2 overflow-hidden">
+					{caseItem.assignedTechs.length > 0 ? (
+						<>
+							{caseItem.assignedTechs.slice(0, 2).map((tech, i) => (
+								<Avatar key={i} className="h-8 w-8 border-2 border-card shadow-sm ring-1 ring-border">
+									{tech.avatar && <AvatarImage src={tech.avatar} />}
+									<AvatarFallback className="text-[10px] font-black bg-primary/10 text-primary">{tech.name[0]}</AvatarFallback>
+								</Avatar>
+							))}
+							{caseItem.assignedTechs.length > 2 && (
+								<div className="h-8 w-8 rounded-full border-2 border-card bg-slate-100 dark:bg-white/5 ring-1 ring-border flex items-center justify-center text-[10px] font-black text-muted-foreground z-10">
+									+{caseItem.assignedTechs.length - 2}
+								</div>
+							)}
+						</>
 					) : (
 						<div className="flex items-center gap-2 text-slate-400 italic">
 							<div className="w-8 h-8 rounded-full bg-slate-50 dark:bg-white/5 border border-dashed border-border flex items-center justify-center">
 								<User className="w-4 h-4 opacity-30" />
 							</div>
-							<span className="text-[10px] font-bold uppercase tracking-widest opacity-60">Unassigned</span>
 						</div>
 					)}
 				</div>
@@ -175,4 +180,4 @@ export function MobilePipelineCard({ caseItem, requestStatusTransition }: Mobile
 			</div>
 		</div>
 	);
-}
+});

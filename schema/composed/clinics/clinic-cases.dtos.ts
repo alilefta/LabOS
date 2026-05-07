@@ -10,11 +10,11 @@ export interface ClinicActiveCaseDTO {
 	status: CaseStatus;
 	patientName: string;
 	products: string[];
-	leadTech: {
+	assignedTechs: {
 		name: string;
 		avatar: string | null;
-		title: string | null;
-	} | null;
+		jobTitle: string | null;
+	}[];
 	deadline: Date | null;
 	isRush: boolean;
 	isRemake: boolean;

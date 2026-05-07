@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Layers, Inbox, Clock, Wrench, LucideIcon } from "lucide-react";
+import { Layers, Inbox, Clock, Wrench, LucideIcon, PackageCheck } from "lucide-react";
 import { CaseStatus } from "@/schema/base/enums.base";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -15,6 +15,7 @@ const TABS: { id: CaseStatus; label: string; icon: LucideIcon }[] = [
 	{ id: "NEW", label: "Intake", icon: Inbox },
 	{ id: "ASSIGNED", label: "Queue", icon: Clock },
 	{ id: "PROCESSING", label: "Prod", icon: Wrench },
+	{ id: "COMPLETED", label: "Verify", icon: PackageCheck },
 ];
 
 interface MobilePipelineTabsProps {
@@ -34,6 +35,7 @@ export function MobilePipelineTabs({ requestStatusTransition }: MobilePipelineTa
 			NEW: [],
 			ASSIGNED: [],
 			PROCESSING: [],
+			COMPLETED: [],
 		};
 
 		localCases.forEach((c) => {

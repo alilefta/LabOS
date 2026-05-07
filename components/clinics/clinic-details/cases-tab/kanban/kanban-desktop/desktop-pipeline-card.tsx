@@ -11,6 +11,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import { usePermissions } from "@/providers/permissions-provider";
 import { ClinicActiveCaseDTO } from "@/schema/composed/clinics/clinic-cases.dtos";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface CardProps {
 	caseItem: ClinicActiveCaseDTO;
@@ -26,22 +27,20 @@ export const DesktopPipelineCard = memo(function DesktopPipelineCard({ caseItem,
 	// Use our existing permission layer to gate-keep movements
 	const { canAdvanceStatus, isManagement, staffId } = usePermissions();
 
-	// --- 1. DYNAMIC METADATA (Performance Optimized) ---
+	// --- MULTI-TECH PERMISSION LOGIC ---
 	const { canDrag, isOverdue, timeLabel } = useMemo(() => {
 		const today = startOfDay(new Date());
 		const deadlineDate = caseItem.deadline ? startOfDay(new Date(caseItem.deadline)) : null;
-
 		const overdue = deadlineDate ? isBefore(deadlineDate, today) : false;
 
-		// Logic: Managers can move anything. Technicians can move cases assigned to them.
-		const isAssignedToMe = caseItem.leadTech?.name.includes(staffId || "---"); // Simplified matching
+		const isAssignedToMe = caseItem.assignedTechs.some((tech) => tech.name.includes(staffId || "---"));
 
 		return {
 			canDrag: isManagement || (canAdvanceStatus && isAssignedToMe),
 			isOverdue: overdue,
 			timeLabel: caseItem.deadline ? formatDistanceToNow(new Date(caseItem.deadline), { addSuffix: true }) : "Unscheduled",
 		};
-	}, [caseItem.deadline, caseItem.leadTech, staffId, isManagement, canAdvanceStatus]);
+	}, [caseItem.deadline, caseItem.assignedTechs, staffId, isManagement, canAdvanceStatus]);
 
 	const style = {
 		transform: CSS.Translate.toString(transform),
@@ -62,7 +61,7 @@ export const DesktopPipelineCard = memo(function DesktopPipelineCard({ caseItem,
 				canDrag && !isDragging && "hover:border-primary/30 active:scale-[0.98]",
 
 				// "Awwwards" Drag Overlay Effect
-				isOverlay && "shadow-2xl border-primary/50 cursor-grabbing rotate-2 scale-105 z-[100] bg-card/95 backdrop-blur-sm",
+				isOverlay && "shadow-2xl border-primary/50 cursor-grabbing rotate-2 scale-105 z-100 bg-card/95 backdrop-blur-sm",
 
 				// Priority Borders
 				isOverdue && "border-l-4 border-l-destructive",
@@ -103,7 +102,7 @@ export const DesktopPipelineCard = memo(function DesktopPipelineCard({ caseItem,
 				{/* Middle: Patient Identity */}
 				<div className="space-y-1 mb-4">
 					<h4 className="text-sm font-bold text-foreground truncate group-hover:text-primary transition-colors">{caseItem.patientName}</h4>
-					<p className="text-[10px] text-muted-foreground font-bold uppercase tracking-[0.1em]">Patient Record</p>
+					<p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">Patient Record</p>
 				</div>
 
 				{/* Product Tags: Shows up to 2 items then a count */}
@@ -111,7 +110,7 @@ export const DesktopPipelineCard = memo(function DesktopPipelineCard({ caseItem,
 					{caseItem.products.slice(0, 2).map((prod, i) => (
 						<div
 							key={i}
-							className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-primary/5 border border-primary/10 text-[9px] font-bold text-primary uppercase tracking-widest truncate max-w-[140px]"
+							className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-primary/5 border border-primary/10 text-[9px] font-bold text-primary uppercase tracking-widest truncate max-w-35"
 						>
 							<Box className="w-2.5 h-2.5 shrink-0" />
 							<span className="truncate">{prod}</span>
@@ -123,6 +122,7 @@ export const DesktopPipelineCard = memo(function DesktopPipelineCard({ caseItem,
 				</div>
 
 				{/* Footer: Timeline & Assigned Human */}
+				{/* Footer: Timeline & STAFF AVATAR STACK */}
 				<div className="flex items-center justify-between pt-3 border-t border-border/50">
 					<div
 						className={cn(
@@ -135,23 +135,48 @@ export const DesktopPipelineCard = memo(function DesktopPipelineCard({ caseItem,
 					</div>
 
 					<div className="pointer-events-auto relative z-30">
-						{caseItem.leadTech ? (
-							<div className="flex items-center gap-2 group/tech">
-								<Avatar className="h-6 w-6 border border-border shadow-inner group-hover/tech:border-primary/50 transition-colors">
-									{caseItem.leadTech.avatar && <AvatarImage src={caseItem.leadTech.avatar} />}
-									<AvatarFallback className="text-[8px] font-bold bg-primary/10 text-primary">{caseItem.leadTech.name[0]}</AvatarFallback>
-								</Avatar>
-							</div>
-						) : (
-							<div className="w-6 h-6 rounded-full bg-slate-100 dark:bg-white/5 border border-dashed border-border flex items-center justify-center text-slate-400" title="Unassigned">
-								<User className="w-3 h-3" />
-							</div>
-						)}
+						<TooltipProvider delayDuration={200}>
+							<Tooltip>
+								<TooltipTrigger asChild>
+									<div className="flex items-center -space-x-2 cursor-help">
+										{caseItem.assignedTechs.length > 0 ? (
+											<>
+												{caseItem.assignedTechs.slice(0, 3).map((tech, i) => (
+													<Avatar key={i} className="h-6 w-6 border-2 border-card shadow-sm ring-1 ring-border">
+														{tech.avatar && <AvatarImage src={tech.avatar} />}
+														<AvatarFallback className="text-[8px] font-black bg-primary/10 text-primary">{tech.name[0]}</AvatarFallback>
+													</Avatar>
+												))}
+												{caseItem.assignedTechs.length > 3 && (
+													<div className="h-6 w-6 rounded-full border-2 border-card bg-slate-100 dark:bg-white/5 ring-1 ring-border flex items-center justify-center text-[8px] font-black text-muted-foreground">
+														+{caseItem.assignedTechs.length - 3}
+													</div>
+												)}
+											</>
+										) : (
+											<div className="w-6 h-6 rounded-full bg-slate-50 dark:bg-white/5 border border-dashed border-border flex items-center justify-center text-slate-400">
+												<User className="w-3 h-3 opacity-30" />
+											</div>
+										)}
+									</div>
+								</TooltipTrigger>
+								<TooltipContent className="glass-ai-panel border-border shadow-2xl p-3 z-110">
+									<p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2 border-b border-border pb-1">Assigned Technicians</p>
+									<div className="space-y-2">
+										{caseItem.assignedTechs.map((tech, i) => (
+											<div key={i} className="flex items-center gap-2">
+												<div className="w-1.5 h-1.5 rounded-full bg-primary" />
+												<span className="text-xs font-bold text-foreground">{tech.name}</span>
+												<span className="text-[9px] text-muted-foreground uppercase">({tech.jobTitle || "Technician"})</span>
+											</div>
+										))}
+									</div>
+								</TooltipContent>
+							</Tooltip>
+						</TooltipProvider>
 					</div>
 				</div>
 			</div>
 		</div>
 	);
 });
-
-DesktopPipelineCard.displayName = "DesktopPipelineCard";

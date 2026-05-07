@@ -41,10 +41,11 @@ export const DesktopPipelineColumn = memo(function DesktopPipelineColumn({ id, t
 		rangeExtractor: (range) => {
 			return defaultRangeExtractor(range);
 		},
+		paddingEnd: 24,
 	});
 
 	return (
-		<div className="flex flex-col w-[320px] shrink-0 h-full select-none">
+		<div className="flex flex-col flex-1 min-w-[280px] max-w-[450px] h-full min-h-[400px] select-none transition-all duration-300">
 			{/* --- COLUMN HEADER --- */}
 			<div className="flex items-center justify-between mb-4 px-2 shrink-0">
 				<div className="flex items-center gap-2">
@@ -71,9 +72,8 @@ export const DesktopPipelineColumn = memo(function DesktopPipelineColumn({ id, t
 				ref={setNodeRef}
 				className={cn(
 					"flex-1 rounded-[28px] transition-all duration-300 flex flex-col p-2 overflow-hidden border-2 border-transparent relative",
-					isOver ? "bg-primary/[0.03] border-dashed border-primary/20 shadow-inner" : "bg-slate-50/50 dark:bg-white/[0.02]",
+					isOver ? "bg-primary/3 border-dashed border-primary/20 shadow-inner" : "bg-slate-50/50 dark:bg-white/2",
 				)}
-				// Performance Optimization: Promotes this container to its own rendering layer
 				style={{ contain: "layout style" }}
 			>
 				{/* --- VIRTUALIZED SCROLL CONTAINER --- */}
@@ -116,7 +116,7 @@ export const DesktopPipelineColumn = memo(function DesktopPipelineColumn({ id, t
 					) : (
 						/* --- EMPTY STATE (Visual Relief) --- */
 						!isOver && (
-							<div className="h-full w-full flex flex-col items-center justify-center text-center opacity-30 animate-in fade-in duration-700">
+							<div className="h-full w-full flex flex-col items-center justify-center text-center opacity-30 animate-in fade-in duration-700 py-4">
 								<div className="p-5 rounded-3xl bg-slate-200 dark:bg-white/5 mb-3 border border-border/50">
 									<Layers className="w-8 h-8 text-muted-foreground" />
 								</div>
@@ -130,5 +130,3 @@ export const DesktopPipelineColumn = memo(function DesktopPipelineColumn({ id, t
 		</div>
 	);
 });
-
-DesktopPipelineColumn.displayName = "DesktopPipelineColumn";

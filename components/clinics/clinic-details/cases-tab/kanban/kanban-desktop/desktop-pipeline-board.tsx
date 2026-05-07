@@ -16,6 +16,7 @@ const COLUMNS: { id: CaseStatus; title: string }[] = [
 	{ id: "NEW", title: "Intake / New" },
 	{ id: "ASSIGNED", title: "Lab Queue" },
 	{ id: "PROCESSING", title: "In Production" },
+	{ id: "COMPLETED", title: "Verification & Dispatch" },
 ];
 
 interface Props {
@@ -46,6 +47,7 @@ export function DesktopPipelineBoard({ requestStatusTransition }: Props) {
 			NEW: [],
 			ASSIGNED: [],
 			PROCESSING: [],
+			COMPLETED: [],
 		};
 
 		localCases.forEach((c) => {
@@ -106,8 +108,13 @@ export function DesktopPipelineBoard({ requestStatusTransition }: Props) {
 
 	return (
 		<DndContext sensors={sensors} collisionDetection={closestCorners} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-			{/* THE MAIN BOARD TRACK */}
-			<div className="flex h-full w-full overflow-x-auto pb-6 custom-scrollbar gap-6 items-start pt-2 px-1">
+			{/* 
+            THE FIX: 
+            1. Removed `items-start`, allowing columns to stretch to 100% height automatically.
+            2. Added `min-w-max` to the inner div if you want to force horizontal scroll on small screens, 
+               OR keep `w-full` to allow them to divide the space.
+        */}
+			<div className="flex  h-full w-full overflow-x-auto pb-6 custom-scrollbar gap-4 lg:gap-6 pt-2 px-1 items-start ">
 				{COLUMNS.map((col) => (
 					<DesktopPipelineColumn key={col.id} id={col.id} title={col.title} cases={columnsData[col.id]} />
 				))}
