@@ -27,8 +27,12 @@ export default async function MainLayout({ children }: MainLayoutProps) {
 				*/}
 				<main className="flex-1 overflow-hidden relative">
 					{/* Ambient Glow */}
-					<div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-primary/5 rounded-full blur-[120px] pointer-events-none -z-10 dark:block hidden"></div>
-
+					<div
+						className="absolute top-0 inset-x-0 h-125 pointer-events-none -z-10"
+						style={{
+							background: "radial-gradient(ellipse at top, rgba(var(--glow-primary-rgb), 0.06) 0%, transparent 70%)",
+						}}
+					/>
 					<QueryProvider>
 						<div className="w-full h-full">{children}</div>
 					</QueryProvider>

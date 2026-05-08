@@ -16,6 +16,7 @@ import { ToothPositionSchema } from "../base/tooth-position.base";
 import { CaseStaffAssignmentBaseSchema } from "../base/case-staff-assignment.base";
 import { CaseActivityLogDetailsUISchema } from "./case-activity-logs.details";
 import { InvoiceCaseBaseSchema } from "../base/invoice-case.base";
+import { CasesFiltersSchema } from "./cases/cases-filters";
 
 export const CaseDetailsSchema = CaseBaseSchema.extend({
 	caseCategory: CaseCategoryBaseSchema.nullable(),
@@ -398,47 +399,47 @@ export type CaseSummaryMetadata = {
 export const PulseFilterSchema = z.enum(["overdue", "due_today", "unassigned", "processing", "all"]);
 export type PulseFilter = z.infer<typeof PulseFilterSchema>;
 
-export const DateFilterFieldSchema = z.enum(["createdAt", "deadline"]);
+// export const DateFilterFieldSchema = z.enum(["createdAt", "deadline"]);
 
-export type DateFilterField = z.infer<typeof DateFilterFieldSchema>;
+// export type DateFilterField = z.infer<typeof DateFilterFieldSchema>;
 
-export const DatePresetSchema = z.enum(["this_month", "last_month", "last_3_months", "last_6_months", "custom"]);
-export type DatePreset = z.infer<typeof DatePresetSchema>;
+// export const DatePresetSchema = z.enum(["this_month", "last_month", "last_3_months", "last_6_months", "custom"]);
+// export type DatePreset = z.infer<typeof DatePresetSchema>;
 
-export const DateRangeFilterSchema = z.object({
-	field: DateFilterFieldSchema,
-	preset: DatePresetSchema,
-	from: z.date().nullable(), // only used when preset === "custom"
-	to: z.date().nullable(), // only used when preset === "custom"
-});
+// export const DateRangeFilterSchema = z.object({
+// 	field: DateFilterFieldSchema,
+// 	preset: DatePresetSchema,
+// 	from: z.date().nullable(), // only used when preset === "custom"
+// 	to: z.date().nullable(), // only used when preset === "custom"
+// });
 
-export type DateRangeFilter = z.infer<typeof DateRangeFilterSchema>;
+// export type DateRangeFilter = z.infer<typeof DateRangeFilterSchema>;
 
-export const CasesFiltersSchema = z.object({
-	pulseFilter: PulseFilterSchema,
-	statuses: z.array(CaseStatusSchema),
-	clinicId: z.string().nullable(),
-	staffId: z.string().nullable(),
-	categoryId: z.string().nullable(),
-	isRushOnly: z.boolean(),
-	dateRange: DateRangeFilterSchema.nullable(),
-});
+// export const CasesFiltersSchema = z.object({
+// 	pulseFilter: PulseFilterSchema,
+// 	statuses: z.array(CaseStatusSchema),
+// 	clinicId: z.string().nullable(),
+// 	staffId: z.string().nullable(),
+// 	categoryId: z.string().nullable(),
+// 	isRushOnly: z.boolean(),
+// 	dateRange: DateRangeFilterSchema.nullable(),
+// });
 
-export type CasesFilters = z.infer<typeof CasesFiltersSchema>;
+// export type CasesFilters = z.infer<typeof CasesFiltersSchema>;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Shared types
 // ─────────────────────────────────────────────────────────────────────────────
 
-export const DEFAULT_CASES_FILTERS: CasesFilters = {
-	pulseFilter: "all",
-	statuses: [],
-	clinicId: null,
-	staffId: null,
-	categoryId: null,
-	isRushOnly: false,
-	dateRange: null,
-};
+// export const DEFAULT_CASES_FILTERS: CasesFilters = {
+// 	pulseFilter: "all",
+// 	statuses: [],
+// 	clinicId: null,
+// 	staffId: null,
+// 	categoryId: null,
+// 	isRushOnly: false,
+// 	dateRange: null,
+// };
 
 // ─────────────────────────────────────────────────────────────────────────────
 // CaseListDTO

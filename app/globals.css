@@ -151,6 +151,10 @@
 	/* Dynamic Shadows */
 	--shadow-premium: 0 4px 40px rgba(0, 0, 0, 0.03); /* Zendenta style soft drop shadow */
 	--shadow-ai-glow: 0 8px 30px rgba(139, 92, 246, 0.15);
+
+	--glow-primary-rgb: 37, 99, 235;
+	--glow-amber-rgb: 245, 158, 11;
+	--glow-destructive-rgb: 239, 68, 68;
 }
 
 .dark {
@@ -205,6 +209,10 @@
 	/* Dynamic Shadows (Replacing drop shadows with Apple-style inner light lips) */
 	--shadow-premium: inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
 	--shadow-ai-glow: 0 0 30px rgba(129, 140, 248, 0.2);
+
+	--glow-primary-rgb: 59, 130, 246;
+	--glow-amber-rgb: 251, 191, 36;
+	--glow-destructive-rgb: 248, 113, 113;
 }
 
 @layer base {

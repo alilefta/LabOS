@@ -12,11 +12,12 @@ import useDebounce from "@/hooks/useDebounce";
 import { OwnerRevenueStrip } from "@/components/cases/owner-strip/owner-strip";
 import { PulseStrip } from "@/components/cases/pulse-strip/pulse-strip";
 
-import { DataTable } from "@/components/cases/cases-table/data-table";
+import { DataTable } from "@/components/shared/tables/data-table";
 import { columns } from "@/components/cases/cases-table/columns";
-import { AdvancedFiltersSheet } from "@/components/cases/cases-table/advanced-filters-sheet";
+import { AdvancedFiltersSheet } from "@/components/modals/shared/advanced-filters-sheet";
 import { AiCopilotSheet } from "@/components/cases/cases-table/ai-copilot-sheet";
-import { CasesFilters, DEFAULT_CASES_FILTERS, GetCasesListResult } from "@/schema/composed/case.details";
+import { GetCasesListResult } from "@/schema/composed/case.details";
+
 import { getCasesListAction, getCasesPulseAction, getCasesRevenueAction } from "@/actions/cases/get-cases";
 import { handleSafeActionError } from "@/lib/safe-action-helpers";
 import { usePermissions } from "@/providers/permissions-provider";
@@ -25,6 +26,7 @@ import { useAction } from "next-safe-action/hooks";
 import { CaseStatus } from "@/schema/base/enums.base";
 import { toast } from "sonner";
 import { KanbanWrapper } from "./kanban/kanban-wrapper";
+import { CasesFilters, DEFAULT_CASES_FILTERS } from "@/schema/composed/cases/cases-filters";
 
 interface PageProps {
 	labId: string;
@@ -158,6 +160,9 @@ export default function CasesClientWrapperPage({ labId }: PageProps) {
 		}
 	};
 
+	const handleClearFilters = useCallback(() => {
+		setFilters(DEFAULT_CASES_FILTERS);
+	}, []);
 	// ── Date range label helper — used in the filter tag ────────────────────────
 	const dateRangeLabel = (): string => {
 		if (!filters.dateRange) return "";
@@ -358,9 +363,10 @@ export default function CasesClientWrapperPage({ labId }: PageProps) {
 			<AdvancedFiltersSheet
 				isOpen={isFilterOpen}
 				onClose={() => setIsFilterOpen(false)}
+				mode={"GLOBAL"}
 				currentFilters={filters}
 				onApplyFilters={setFilters}
-				onClearFilters={() => setFilters(DEFAULT_CASES_FILTERS)}
+				onClearFilters={handleClearFilters}
 			/>
 			<AiCopilotSheet isOpen={isAiSheetOpen} onClose={() => setIsAiSheetOpen(false)} onActionClick={handleAIPromptClick} />
 		</div>

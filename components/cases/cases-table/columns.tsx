@@ -2,7 +2,7 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 import { format, differenceInDays, startOfDay } from "date-fns";
-import { MoreHorizontal, Activity, PackageCheck, Truck, Clock, AlertCircle, FileCheck, User, Users, LucideIcon, DollarSign } from "lucide-react";
+import { MoreHorizontal, Activity, PackageCheck, Truck, Clock, AlertCircle, FileCheck, User, Users, LucideIcon, DollarSign, ArrowUpRight } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -10,6 +10,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import { CaseStatus } from "@/schema/base/enums.base"; // Assuming this is where your enum lives
 import { CaseListDTO } from "@/schema/composed/case.details";
+import Link from "next/link";
 
 // --- STATUS BADGE CONFIGURATION (Fixed for Prisma Enum) ---
 const STATUS_CONFIG: Record<CaseStatus, { label: string; icon: LucideIcon; colorClass: string }> = {
@@ -40,7 +41,7 @@ export const columns: ColumnDef<CaseListDTO>[] = [
 			const dentistName = row.original.dentistName;
 
 			return (
-				<div className="flex flex-col gap-0.5 max-w-[200px]">
+				<div className="flex flex-col gap-0.5 max-w-50">
 					<span className="font-bold text-sm text-foreground truncate">{patientName}</span>
 					<span className="text-[10px] text-muted-foreground uppercase tracking-widest truncate">
 						{clinicName || "Unknown Clinic"} {dentistName ? `• ${dentistName}` : ""}
@@ -72,7 +73,7 @@ export const columns: ColumnDef<CaseListDTO>[] = [
 			const category = row.original.caseCategory;
 
 			return (
-				<div className="flex flex-col gap-0.5 max-w-[180px]">
+				<div className="flex flex-col gap-0.5 max-w-45">
 					<span className="text-xs font-bold text-foreground truncate">{product || "No items mapped"}</span>
 					<span className="text-[10px] text-primary/80 dark:text-primary/60 font-medium uppercase tracking-widest truncate">{category || "Uncategorized"}</span>
 				</div>
@@ -165,7 +166,7 @@ export const columns: ColumnDef<CaseListDTO>[] = [
 							{tech.lastName[0]}
 						</AvatarFallback>
 					</Avatar>
-					<div className="flex flex-col max-w-[120px]">
+					<div className="flex flex-col max-w-30">
 						<span className="text-xs font-semibold text-foreground truncate">
 							{tech.firstName} {tech.lastName}
 						</span>
@@ -182,7 +183,7 @@ export const columns: ColumnDef<CaseListDTO>[] = [
 	{
 		id: "actions",
 		cell: ({ row }) => {
-			// const caseId = row.original.id;
+			const caseId = row.original.id;
 
 			return (
 				<div className="text-right">
@@ -195,7 +196,11 @@ export const columns: ColumnDef<CaseListDTO>[] = [
 						</DropdownMenuTrigger>
 						<DropdownMenuContent align="end" className="w-48 rounded-xl border-border shadow-premium dark:bg-[#121214]">
 							<DropdownMenuLabel className="text-xs text-muted-foreground uppercase tracking-widest">Actions</DropdownMenuLabel>
-							<DropdownMenuItem className="cursor-pointer font-medium py-2 hover:bg-primary/5">View Dossier</DropdownMenuItem>
+							<DropdownMenuItem className="cursor-pointer font-medium py-2 hover:bg-primary/5">
+								<Link href={`/cases/${caseId}`}>
+									View Full Case <ArrowUpRight />
+								</Link>
+							</DropdownMenuItem>
 							<DropdownMenuItem className="cursor-pointer font-medium py-2 hover:bg-primary/5">Assign Technician</DropdownMenuItem>
 							<DropdownMenuSeparator className="bg-border" />
 							<DropdownMenuItem className="cursor-pointer font-medium py-2 text-primary focus:text-primary focus:bg-primary/10">Print Work Ticket</DropdownMenuItem>

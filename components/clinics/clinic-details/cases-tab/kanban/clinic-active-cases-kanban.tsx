@@ -54,6 +54,7 @@ export const ClinicActiveCasesKanban = memo(function ClinicActiveCasesKanban({ s
 				setWarningMessage(null);
 			} catch (error) {
 				// Step D: Failure - Physical rollback of the card to its original stage
+				console.error("[Clinic Active Cases Kanban Error]:", error);
 				revertCaseMove(caseId, oldStatus);
 			} finally {
 				setIsUpdating(false);

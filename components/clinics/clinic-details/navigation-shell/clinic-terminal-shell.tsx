@@ -1,6 +1,5 @@
 "use client";
 
-import { cn } from "@/lib/utils";
 import { ReactNode } from "react";
 
 interface Props {
@@ -16,17 +15,16 @@ export function ClinicTerminalShell({ children, status, balance, limit }: Props)
 	const utilization = limit ? balance / limit : 0;
 	const isWarning = utilization > 0.85 && !isSuspended;
 
-	return (
-		<div className="flex flex-col h-full bg-background relative overflow-hidden transition-colors duration-1000">
-			{/* Ambient Lighting Engine */}
-			<div
-				className={cn(
-					"absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] rounded-full blur-[150px] pointer-events-none transition-colors duration-1000",
-					isSuspended ? "bg-destructive/10 dark:bg-destructive/15" : isWarning ? "bg-amber-500/10 dark:bg-amber-500/15" : "bg-primary/5 dark:bg-primary/10",
-				)}
-			/>
+	const glowVar = isSuspended ? "--glow-destructive-rgb" : isWarning ? "--glow-amber-rgb" : "--glow-primary-rgb";
 
-			{/* The actual content (Header + Tabs + Body) */}
+	return (
+		<div className="flex flex-col h-full bg-background relative overflow-hidden">
+			<div
+				className="absolute top-0 inset-x-0 h-150 pointer-events-none transition-[background] duration-1000 ease-in-out"
+				style={{
+					background: `radial-gradient(ellipse at top, rgba(var(${glowVar}), 0.15) 0%, transparent 60%)`,
+				}}
+			/>
 			<div className="relative z-10 flex flex-col h-full">{children}</div>
 		</div>
 	);

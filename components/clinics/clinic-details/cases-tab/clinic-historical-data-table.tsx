@@ -1,132 +1,200 @@
 "use client";
 
-import { useState } from "react";
-import { Search, Filter, ArrowUpDown, History, ShieldAlert, CheckCircle2, PackageCheck } from "lucide-react";
+import { memo, useCallback, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { Search, Filter, History, Download, X } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
+import useDebounce from "@/hooks/useDebounce";
 
-// MOCK DATA: Filtered by COMPLETED, DELIVERED, FAILED
-const HISTORICAL_CASES = [
-	{ id: "LAB-4301", patient: "Robert Fox", status: "DELIVERED", date: "2026-03-14", items: 2, total: 320.0, dentist: "Dr. Sarah M." },
-	{ id: "LAB-4288", patient: "Alice Zhang", status: "DELIVERED", date: "2026-03-10", items: 1, total: 140.0, dentist: "Dr. Sarah M." },
-	{ id: "LAB-4250", patient: "Johnathan Sterling", status: "COMPLETED", date: "2026-03-08", items: 3, total: 850.0, dentist: "Dr. John S." },
-	{ id: "LAB-4202", patient: "William K.", status: "FAILED", date: "2026-02-28", items: 1, total: 0.0, dentist: "Dr. Sarah M.", failReason: "Margin Distortion" },
-	{ id: "LAB-4199", patient: "Samantha B.", status: "DELIVERED", date: "2026-02-25", items: 1, total: 210.0, dentist: "Dr. John S." },
-];
+import { DataTable } from "@/components/shared/tables/data-table";
+import { AdvancedFiltersSheet } from "@/components/modals/shared/advanced-filters-sheet";
+import { GetClinicHistoricalCasesResult } from "@/schema/composed/clinics/clinic-cases.dtos";
+import { handleSafeActionError } from "@/lib/safe-action-helpers";
+import { usePermissions } from "@/providers/permissions-provider";
+import { getClinicHistoricalCasesAction } from "@/actions/clinics/get-clinic";
+import { clinicHistoricalColumns } from "./historical-cases-table/clinic-historical-columns";
+import { CasesFilters, DEFAULT_CASES_FILTERS } from "@/schema/composed/cases/cases-filters";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
-export function ClinicHistoricalDataTable() {
-	const [search, setSearch] = useState("");
+interface Props {
+	clinicId: string;
+}
 
-	const getStatusUI = (status: string) => {
-		switch (status) {
-			case "DELIVERED":
-				return { icon: PackageCheck, color: "text-blue-500", bg: "bg-blue-500/10 border-blue-500/20" };
-			case "COMPLETED":
-				return { icon: CheckCircle2, color: "text-emerald-500", bg: "bg-emerald-500/10 border-emerald-500/20" };
-			case "FAILED":
-				return { icon: ShieldAlert, color: "text-rose-500", bg: "bg-rose-500/10 border-rose-500/20" };
-			default:
-				return { icon: History, color: "text-slate-500", bg: "bg-slate-100 border-border" };
-		}
-	};
+export const ClinicHistoricalDataTable = memo(function ClinicHistoricalDataTable({ clinicId }: Props) {
+	const router = useRouter();
+	const { canViewFinancials } = usePermissions();
+
+	const [searchInput, setSearchInput] = useState("");
+	const debouncedSearch = useDebounce({ value: searchInput, delay: 400 });
+
+	const [isFilterOpen, setIsFilterOpen] = useState(false);
+	const [filters, setFilters] = useState<CasesFilters>(DEFAULT_CASES_FILTERS);
+
+	// ── DATA FETCHING ──────────────────────────────────────────────────
+	const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useInfiniteQuery({
+		queryKey: ["clinic-history", clinicId, debouncedSearch, filters],
+		queryFn: async ({ pageParam }): Promise<GetClinicHistoricalCasesResult> => {
+			const res = await getClinicHistoricalCasesAction({
+				clinicId,
+				cursor: pageParam as string | undefined,
+				search: debouncedSearch,
+				filters,
+				take: 20,
+			});
+
+			if (res.serverError || res.validationErrors) {
+				handleSafeActionError({ serverError: res.serverError, validationErrors: res.validationErrors });
+			}
+			return res?.data ?? { cases: [], nextCursor: null, totalCount: 0 };
+		},
+		initialPageParam: undefined as string | undefined,
+		getNextPageParam: (last) => last.nextCursor ?? undefined,
+		staleTime: 1000 * 60 * 2,
+	});
+
+	const handleClearFilters = useCallback(() => {
+		setFilters(DEFAULT_CASES_FILTERS);
+		setSearchInput("");
+	}, []);
+
+	// ── DERIVED DATA & PERMISSIONS ─────────────────────────────────────
+	const flatData = useMemo(() => data?.pages.flatMap((page) => page.cases) ?? [], [data]);
+	const totalCount = data?.pages[0]?.totalCount ?? 0;
+
+	const visibleColumns = useMemo(() => {
+		if (canViewFinancials) return clinicHistoricalColumns;
+		return clinicHistoricalColumns.filter((col) => col.id !== "grandTotal");
+	}, [canViewFinancials]);
+
+	const hasActiveAdvancedFilters = useMemo(() => {
+		return filters.statuses.length > 0 || !!filters.categoryId || !!filters.staffId || !!filters.dateRange;
+	}, [filters]);
 
 	return (
-		<div className="lab-card flex-1 flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-700">
-			{/* TOOLBAR */}
-			<div className="p-4 sm:p-5 border-b border-border bg-slate-50/50 dark:bg-white/[0.02] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-				<div className="flex items-center gap-3">
-					<div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
-						<History className="w-4 h-4" />
+		<div className="lab-card flex-1 flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-700 h-full">
+			{/* --- ZONE A & B: COMMAND STRIP --- */}
+			<div className="p-4 sm:p-5 border-b border-border bg-slate-50/50 dark:bg-white/2 flex flex-col gap-5">
+				<div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+					{/* Zone A: Vitals */}
+					<div className="flex items-center gap-3">
+						<div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center text-primary shadow-sm border border-primary/20">
+							<History className="w-5 h-5" />
+						</div>
+						<div>
+							<h3 className="text-sm font-bold text-foreground">Clinical History</h3>
+							<p className="text-[10px] text-muted-foreground uppercase tracking-widest font-black">{totalCount} Resolved Cases</p>
+						</div>
 					</div>
-					<h3 className="text-sm font-bold text-foreground">Historical Record</h3>
+
+					{/* Zone B: Global Controls */}
+					<div className="flex items-center gap-2 sm:gap-3">
+						{/* Remake Toggle: High Contrast for Business Intelligence */}
+						<div
+							className={cn(
+								"flex items-center gap-3 px-3 py-1.5 rounded-xl border transition-all duration-300",
+								filters.isRemakeOnly ? "bg-amber-500/5 border-amber-500/30 ring-1 ring-amber-500/20" : "bg-background border-border",
+							)}
+						>
+							<span className={cn("text-[10px] font-black uppercase tracking-wider", filters.isRemakeOnly ? "text-amber-600 dark:text-amber-500" : "text-muted-foreground")}>
+								Remakes Only
+							</span>
+							<Switch checked={filters.isRemakeOnly} onCheckedChange={(val) => setFilters((prev) => ({ ...prev, isRemakeOnly: val }))} className="data-[state=checked]:bg-amber-500" />
+						</div>
+
+						<Button
+							variant="outline"
+							size="sm"
+							onClick={() => setIsFilterOpen(true)}
+							className={cn("h-9 rounded-xl border-border bg-background transition-all font-bold text-xs", hasActiveAdvancedFilters && "border-primary/50 bg-primary/5 text-primary")}
+						>
+							<Filter className="w-3.5 h-3.5 mr-2" />
+							Filter
+							{hasActiveAdvancedFilters && <div className="ml-2 w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />}
+						</Button>
+
+						<Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl hover:bg-slate-100 dark:hover:bg-white/5 border border-transparent hover:border-border">
+							<Download className="w-4 h-4 text-muted-foreground" />
+						</Button>
+					</div>
 				</div>
 
-				<div className="flex items-center gap-3 w-full sm:w-auto">
-					<div className="relative w-full sm:w-64">
-						<Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+				{/* Search & Active Pills */}
+				<div className="flex flex-col gap-3">
+					<div className="relative group flex-1">
+						<Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
 						<input
 							type="text"
-							placeholder="Search patient or ID..."
-							value={search}
-							onChange={(e) => setSearch(e.target.value)}
-							className="w-full h-9 pl-9 pr-4 bg-white dark:bg-[#121214] border border-border rounded-lg text-xs focus:ring-1 focus:ring-primary outline-none shadow-sm transition-all"
+							value={searchInput}
+							onChange={(e) => setSearchInput(e.target.value)}
+							placeholder="Search historical records by patient, case ID, or product..."
+							className="w-full h-11 pl-10 pr-4 bg-white dark:bg-[#121214] border border-border rounded-2xl text-sm focus:outline-none focus:border-primary focus:ring-[3px] focus:ring-primary/20 transition-all shadow-sm"
 						/>
 					</div>
-					<Button variant="outline" size="sm" className="h-9 rounded-lg border-border hidden sm:flex">
-						<Filter className="w-4 h-4 mr-2" /> Filter
-					</Button>
+
+					{/* Zone C: Active Filter Pills (Elevated Design) */}
+					{(hasActiveAdvancedFilters || debouncedSearch) && (
+						<div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1 animate-in slide-in-from-top-1 duration-300">
+							<span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mr-1 shrink-0 ml-1">Active View:</span>
+
+							{filters.statuses.map((s) => (
+								<FilterChip key={s} label={s} onRemove={() => setFilters((prev) => ({ ...prev, statuses: prev.statuses.filter((st) => st !== s) }))} />
+							))}
+
+							{debouncedSearch && <FilterChip label={`"${debouncedSearch}"`} variant="ai" onRemove={() => setSearchInput("")} />}
+
+							<button onClick={handleClearFilters} className="text-[10px] font-black uppercase text-rose-500 hover:text-rose-600 transition-colors ml-2 tracking-tighter">
+								Reset All
+							</button>
+						</div>
+					)}
 				</div>
 			</div>
 
-			{/* TABLE CONTAINER (Ready for TanStack Virtualization) */}
-			<div className="flex-1 overflow-auto custom-scrollbar relative">
-				<table className="w-full text-left text-sm whitespace-nowrap">
-					<thead className="sticky top-0 z-10 bg-slate-50/95 dark:bg-[#09090B]/95 backdrop-blur-sm border-b border-border">
-						<tr>
-							<th className="h-10 px-6 text-[10px] font-bold text-muted-foreground uppercase tracking-widest cursor-pointer hover:text-foreground transition-colors group">
-								Case ID <ArrowUpDown className="inline w-3 h-3 ml-1 opacity-0 group-hover:opacity-100" />
-							</th>
-							<th className="h-10 px-6 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Date</th>
-							<th className="h-10 px-6 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Patient & Prescriber</th>
-							<th className="h-10 px-6 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Items</th>
-							<th className="h-10 px-6 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Status</th>
-							<th className="h-10 px-6 text-[10px] font-bold text-muted-foreground uppercase tracking-widest text-right">Total</th>
-						</tr>
-					</thead>
-					<tbody className="divide-y divide-border">
-						{HISTORICAL_CASES.map((row) => {
-							const ui = getStatusUI(row.status);
-							return (
-								<tr key={row.id} className="group hover:bg-slate-50 dark:hover:bg-white/[0.02] transition-colors cursor-pointer">
-									<td className="p-4 px-6">
-										<span className="font-mono font-bold text-primary group-hover:underline underline-offset-4">{row.id}</span>
-									</td>
-
-									<td className="p-4 px-6">
-										<span className="font-mono text-xs text-muted-foreground">{row.date}</span>
-									</td>
-
-									<td className="p-4 px-6">
-										<div className="flex flex-col">
-											<span className="font-bold text-foreground">{row.patient}</span>
-											<span className="text-[10px] text-muted-foreground mt-0.5">{row.dentist}</span>
-										</div>
-									</td>
-
-									<td className="p-4 px-6">
-										<span className="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-white/5 border border-border text-[10px] font-bold text-muted-foreground">
-											{row.items} {row.items === 1 ? "Unit" : "Units"}
-										</span>
-									</td>
-
-									<td className="p-4 px-6">
-										<div className="flex items-center gap-2">
-											<div className={cn("px-2 py-1 rounded-md border flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-widest", ui.bg, ui.color)}>
-												<ui.icon className="w-3 h-3" />
-												{row.status}
-											</div>
-											{row.failReason && <span className="text-[10px] text-rose-500 font-medium italic hidden lg:block">- {row.failReason}</span>}
-										</div>
-									</td>
-
-									<td className="p-4 px-6 text-right">
-										<span className="font-mono font-bold text-foreground">${row.total.toFixed(2)}</span>
-									</td>
-								</tr>
-							);
-						})}
-					</tbody>
-				</table>
-
-				{/* Empty State Fallback */}
-				{HISTORICAL_CASES.length === 0 && (
-					<div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center animate-in fade-in">
-						<History className="w-10 h-10 text-slate-300 dark:text-zinc-700 mb-4" />
-						<h4 className="text-sm font-bold text-foreground">No Historical Records</h4>
-						<p className="text-xs text-muted-foreground mt-1 max-w-sm">This clinic has no completed or delivered cases in the database yet.</p>
-					</div>
-				)}
+			{/* --- DATA TABLE ZONE --- */}
+			<div className="flex-1 min-h-0 bg-card">
+				<TooltipProvider delayDuration={100}>
+					<DataTable
+						columns={visibleColumns}
+						data={flatData}
+						isLoading={isLoading}
+						onRowClick={(row) => router.push(`/cases/${row.id}`)}
+						fetchNextPage={fetchNextPage}
+						hasNextPage={hasNextPage}
+						isFetchingNextPage={isFetchingNextPage}
+					/>
+				</TooltipProvider>
 			</div>
+
+			{/* --- FILTER OVERLAY --- */}
+			<AdvancedFiltersSheet
+				mode="CLINIC_HISTORY"
+				isOpen={isFilterOpen}
+				onClose={() => setIsFilterOpen(false)}
+				currentFilters={filters}
+				onApplyFilters={(f) => setFilters(f)}
+				onClearFilters={handleClearFilters}
+			/>
 		</div>
 	);
-}
+});
+
+// --- SUB-COMPONENT: FILTER CHIP ---
+const FilterChip = memo(function FilterChip({ label, onRemove, variant = "default" }: { label: string; onRemove: () => void; variant?: "default" | "ai" }) {
+	return (
+		<div
+			className={cn(
+				"flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-[10px] font-bold uppercase tracking-wider shadow-sm",
+				variant === "ai" ? "bg-ai/5 border-ai/20 text-ai" : "bg-background border-border text-foreground",
+			)}
+		>
+			{label}
+			<button title="dismiss filter" onClick={onRemove} className="hover:text-rose-500 transition-colors">
+				<X className="w-3 h-3" />
+			</button>
+		</div>
+	);
+});

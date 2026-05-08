@@ -114,10 +114,14 @@ export function DesktopPipelineBoard({ requestStatusTransition }: Props) {
             2. Added `min-w-max` to the inner div if you want to force horizontal scroll on small screens, 
                OR keep `w-full` to allow them to divide the space.
         */}
-			<div className="flex  h-full w-full overflow-x-auto pb-6 custom-scrollbar gap-4 lg:gap-6 pt-2 px-1 items-start ">
-				{COLUMNS.map((col) => (
-					<DesktopPipelineColumn key={col.id} id={col.id} title={col.title} cases={columnsData[col.id]} />
-				))}
+			{/* 1. The Scrollable Wrapper */}
+			<div className="h-full w-full overflow-x-auto pb-6 custom-scrollbar">
+				{/* 2. The CSS Grid (4 perfectly equal columns, with a safety minimum width for tablets) */}
+				<div className="grid grid-cols-4 gap-4 lg:gap-6 pt-2 px-1 h-full min-w-[1100px]">
+					{COLUMNS.map((col) => (
+						<DesktopPipelineColumn key={col.id} id={col.id} title={col.title} cases={columnsData[col.id]} />
+					))}
+				</div>
 			</div>
 
 			{/* THE FLOATING PORTAL OVERLAY */}

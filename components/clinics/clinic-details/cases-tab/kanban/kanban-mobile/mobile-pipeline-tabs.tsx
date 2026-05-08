@@ -46,12 +46,16 @@ export function MobilePipelineTabs({ requestStatusTransition }: MobilePipelineTa
 		return cols;
 	}, [localCases]);
 
+	// Find the icon for the currently active empty state
+	const ActiveIcon = TABS.find((t) => t.id === activeTab)?.icon || Layers;
+
 	return (
 		<div className="flex flex-col h-full w-full bg-background animate-in fade-in duration-500">
 			<Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col h-full w-full">
 				{/* --- STICKY MOBILE TAB BAR --- */}
-				<div className="px-4 pb-4 pt-2 shrink-0 bg-background/80 backdrop-blur-md sticky top-0 z-20 border-b border-border/50">
-					<TabsList className="w-full h-12 bg-slate-100 dark:bg-[#121214] p-1 rounded-2xl border border-border shadow-inner grid grid-cols-3">
+				{/* Added z-30 to ensure it sits above the scrolling cards, and backdrop-blur for iOS polish */}
+				<div className="px-4 pb-4 pt-2 shrink-0 bg-background/90 backdrop-blur-xl sticky top-0 z-30 border-b border-border/50 shadow-sm">
+					<TabsList className="w-full h-14 bg-slate-100/80 dark:bg-[#121214]/80  rounded-2xl border border-border/50 shadow-inner grid grid-cols-4 gap-1">
 						{TABS.map((tab) => {
 							const count = columnsData[tab.id]?.length || 0;
 							const isActive = activeTab === tab.id;
@@ -61,16 +65,20 @@ export function MobilePipelineTabs({ requestStatusTransition }: MobilePipelineTa
 									key={tab.id}
 									value={tab.id}
 									className={cn(
-										"rounded-xl text-[10px] font-bold transition-all flex items-center justify-center gap-1.5",
-										"data-[state=active]:bg-white dark:data-[state=active]:bg-[#1e1e21] data-[state=active]:text-primary data-[state=active]:shadow-sm",
+										"rounded-[14px] text-[10px] font-bold transition-all flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-1.5 h-full",
+										"data-[state=active]:bg-white dark:data-[state=active]:bg-[#1e1e21] data-[state=active]:text-primary data-[state=active]:shadow-sm border border-transparent data-[state=active]:border-border/50",
 									)}
 								>
-									<tab.icon className={cn("w-3.5 h-3.5", isActive ? "text-primary" : "text-muted-foreground")} />
-									{tab.label}
+									<div className="flex items-center gap-1.5">
+										<tab.icon className={cn("w-3.5 h-3.5 sm:w-4 sm:h-4", isActive ? "text-primary" : "text-muted-foreground")} />
+										<span className="hidden sm:inline-block">{tab.label}</span>
+									</div>
+
+									{/* Mobile shows count under icon, tablet shows next to text */}
 									{count > 0 && (
 										<span
 											className={cn(
-												"ml-1 flex items-center justify-center min-w-[18px] h-4 px-1 rounded-full text-[9px] font-black font-mono",
+												"flex items-center justify-center min-w-4 h-4 px-1 rounded-full text-[9px] font-black font-mono leading-none",
 												isActive ? "bg-primary text-white" : "bg-slate-200 dark:bg-white/10 text-muted-foreground",
 											)}
 										>
@@ -84,24 +92,23 @@ export function MobilePipelineTabs({ requestStatusTransition }: MobilePipelineTa
 				</div>
 
 				{/* --- SCROLLABLE TAB CONTENTS --- */}
-				<div className="flex-1 overflow-y-auto custom-scrollbar px-4 pt-4 pb-24">
+				<div className="flex-1 overflow-y-auto custom-scrollbar px-4 pt-6 pb-32">
 					{TABS.map((tab) => {
 						const casesInColumn = columnsData[tab.id] || [];
 
 						return (
-							<TabsContent key={tab.id} value={tab.id} className="m-0 focus-visible:outline-none flex flex-col gap-4 animate-in slide-in-from-right-4 duration-300">
-								{/* Card List */}
+							<TabsContent key={tab.id} value={tab.id} className="m-0 focus-visible:outline-none flex flex-col gap-4 animate-in fade-in slide-in-from-right-4 duration-300">
 								{casesInColumn.length > 0 ? (
 									casesInColumn.map((caseItem) => <MobilePipelineCard key={caseItem.id} caseItem={caseItem} requestStatusTransition={requestStatusTransition} />)
 								) : (
 									/* --- EMPTY STATE --- */
-									<div className="py-24 flex flex-col items-center justify-center text-center opacity-40">
-										<div className="w-16 h-16 rounded-[2rem] bg-slate-200 dark:bg-white/5 flex items-center justify-center mb-4 border border-border/50">
-											<Layers className="w-8 h-8 text-muted-foreground" />
+									<div className="py-24 flex flex-col items-center justify-center text-center opacity-50">
+										<div className="w-20 h-20 rounded-4xl bg-slate-50 dark:bg-white/2 flex items-center justify-center mb-5 border-2 border-dashed border-border shadow-sm">
+											<ActiveIcon className="w-8 h-8 text-muted-foreground" />
 										</div>
-										<p className="text-sm font-bold text-foreground tracking-tight uppercase">Stage is Clear</p>
-										<p className="text-[11px] text-muted-foreground mt-1 max-w-[200px] leading-relaxed">
-											There are currently no active cases for this clinic in the {tab.label} stage.
+										<p className="text-sm font-bold text-foreground tracking-tight uppercase">Queue is Clear</p>
+										<p className="text-[11px] text-muted-foreground mt-1 max-w-50 leading-relaxed">
+											There are currently no active cases for this clinic in the <span className="font-bold text-foreground">{tab.label}</span> stage.
 										</p>
 									</div>
 								)}

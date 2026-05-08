@@ -84,8 +84,8 @@ export default async function ClinicDetailPage({
 								}}
 							>
 								<ClinicActiveCasesKanbanWrapper clinicId={clinic.id} />
+								<ClinicHistoricalDataTable clinicId={clinic.id} />
 							</PermissionsProvider>
-							<ClinicHistoricalDataTable />
 						</div>
 					)}
 					{activeTab === "roster" && <DentistRosterGrid />}

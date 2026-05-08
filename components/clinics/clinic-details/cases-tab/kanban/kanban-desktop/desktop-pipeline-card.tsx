@@ -135,45 +135,43 @@ export const DesktopPipelineCard = memo(function DesktopPipelineCard({ caseItem,
 					</div>
 
 					<div className="pointer-events-auto relative z-30">
-						<TooltipProvider delayDuration={200}>
-							<Tooltip>
-								<TooltipTrigger asChild>
-									<div className="flex items-center -space-x-2 cursor-help">
-										{caseItem.assignedTechs.length > 0 ? (
-											<>
-												{caseItem.assignedTechs.slice(0, 3).map((tech, i) => (
-													<Avatar key={i} className="h-6 w-6 border-2 border-card shadow-sm ring-1 ring-border">
-														{tech.avatar && <AvatarImage src={tech.avatar} />}
-														<AvatarFallback className="text-[8px] font-black bg-primary/10 text-primary">{tech.name[0]}</AvatarFallback>
-													</Avatar>
-												))}
-												{caseItem.assignedTechs.length > 3 && (
-													<div className="h-6 w-6 rounded-full border-2 border-card bg-slate-100 dark:bg-white/5 ring-1 ring-border flex items-center justify-center text-[8px] font-black text-muted-foreground">
-														+{caseItem.assignedTechs.length - 3}
-													</div>
-												)}
-											</>
-										) : (
-											<div className="w-6 h-6 rounded-full bg-slate-50 dark:bg-white/5 border border-dashed border-border flex items-center justify-center text-slate-400">
-												<User className="w-3 h-3 opacity-30" />
-											</div>
-										)}
-									</div>
-								</TooltipTrigger>
-								<TooltipContent className="glass-ai-panel border-border shadow-2xl p-3 z-110">
-									<p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2 border-b border-border pb-1">Assigned Technicians</p>
-									<div className="space-y-2">
-										{caseItem.assignedTechs.map((tech, i) => (
-											<div key={i} className="flex items-center gap-2">
-												<div className="w-1.5 h-1.5 rounded-full bg-primary" />
-												<span className="text-xs font-bold text-foreground">{tech.name}</span>
-												<span className="text-[9px] text-muted-foreground uppercase">({tech.jobTitle || "Technician"})</span>
-											</div>
-										))}
-									</div>
-								</TooltipContent>
-							</Tooltip>
-						</TooltipProvider>
+						<Tooltip>
+							<TooltipTrigger asChild>
+								<div className="flex items-center -space-x-2 cursor-help">
+									{caseItem.assignedTechs.length > 0 ? (
+										<>
+											{caseItem.assignedTechs.slice(0, 3).map((tech, i) => (
+												<Avatar key={i} className="h-6 w-6 border-2 border-card shadow-sm ring-1 ring-border">
+													{tech.avatar && <AvatarImage src={tech.avatar} />}
+													<AvatarFallback className="text-[8px] font-black bg-primary/10 text-primary">{tech.name[0]}</AvatarFallback>
+												</Avatar>
+											))}
+											{caseItem.assignedTechs.length > 3 && (
+												<div className="h-6 w-6 rounded-full border-2 border-card bg-slate-100 dark:bg-white/5 ring-1 ring-border flex items-center justify-center text-[8px] font-black text-muted-foreground">
+													+{caseItem.assignedTechs.length - 3}
+												</div>
+											)}
+										</>
+									) : (
+										<div className="w-6 h-6 rounded-full bg-slate-50 dark:bg-white/5 border border-dashed border-border flex items-center justify-center text-slate-400">
+											<User className="w-3 h-3 opacity-30" />
+										</div>
+									)}
+								</div>
+							</TooltipTrigger>
+							<TooltipContent className="glass-ai-panel border-border shadow-2xl p-3 z-110">
+								<p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2 border-b border-border pb-1">Assigned Technicians</p>
+								<div className="space-y-2">
+									{caseItem.assignedTechs.map((tech, i) => (
+										<div key={i} className="flex items-center gap-2">
+											<div className="w-1.5 h-1.5 rounded-full bg-primary" />
+											<span className="text-xs font-bold text-foreground">{tech.name}</span>
+											<span className="text-[9px] text-muted-foreground uppercase">({tech.jobTitle || "Technician"})</span>
+										</div>
+									))}
+								</div>
+							</TooltipContent>
+						</Tooltip>
 					</div>
 				</div>
 			</div>

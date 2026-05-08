@@ -7,9 +7,11 @@ import { ERRORS } from "@/lib/errors";
 import { composeClinicQuickOverviewDTO } from "@/lib/mappers/composers";
 import { APIError } from "better-auth";
 import { normalizeClinic } from "@/lib/mappers";
-import { differenceInDays, startOfDay } from "date-fns";
-import { CaseStatus } from "@/schema/base/enums.base";
+import { startOfMonth, subMonths, startOfDay, endOfDay, differenceInDays } from "date-fns";
 import { ClinicActiveCaseDTO } from "@/schema/composed/clinics/clinic-cases.dtos";
+import { GetClinicHistoricalCasesInputSchema, GetClinicHistoricalCasesResult, ClinicHistoricalCaseDTO, ClinicHistoricalWorkItemDTO } from "@/schema/composed/clinics/clinic-cases.dtos";
+import { Prisma } from "@/generated/prisma/client";
+import { DatePreset } from "@/schema/composed/cases/cases-filters";
 
 export const getClinicQuickOverviewAction = actionClientWithLab
 	.metadata({
@@ -259,4 +261,150 @@ export const getClinicActivePipelineAction = actionClientWithLab
 			}
 			throw e;
 		}
+	});
+
+// =============== Get Clinic Historical Cases Action ======================
+
+// ── Date preset resolver ──────────────────────────────────────────────────────
+function resolveDatePreset(preset: DatePreset, from: Date | null, to: Date | null): { gte: Date; lte: Date } | null {
+	const now = new Date();
+
+	switch (preset) {
+		case "this_month":
+			return { gte: startOfMonth(now), lte: endOfDay(now) };
+		case "last_month": {
+			const start = startOfMonth(subMonths(now, 1));
+			const end = endOfDay(new Date(now.getFullYear(), now.getMonth(), 0));
+			return { gte: start, lte: end };
+		}
+		case "last_3_months":
+			return { gte: startOfDay(subMonths(now, 3)), lte: endOfDay(now) };
+		case "last_6_months":
+			return { gte: startOfDay(subMonths(now, 6)), lte: endOfDay(now) };
+		case "custom":
+			if (!from || !to) return null;
+			return { gte: startOfDay(from), lte: endOfDay(to) };
+	}
+}
+
+export const getClinicHistoricalCasesAction = actionClientWithLab
+	.metadata({
+		actionName: "Get-Clinic-Historical-Cases-Action",
+		requiredLabRole: "STAFF",
+	})
+	.inputSchema(GetClinicHistoricalCasesInputSchema)
+	.action(async ({ ctx, parsedInput }) => {
+		const { labId } = ctx;
+		const { clinicId, cursor, take, search, filters } = parsedInput;
+
+		const prisma = await tenantPrisma(labId);
+
+		const clinic = await prisma.clinic.findUnique({
+			where: { id: clinicId, labId },
+			select: { id: true },
+		});
+		if (!clinic) throw ERRORS.CLIENT_NOT_FOUND;
+
+		// ── Where clause ─────────────────────────────────────────────────────────
+		const where: Prisma.CaseWhereInput = {
+			clinicId,
+			labId,
+
+			// Default to all historical statuses if none specified
+			status: {
+				in: filters.statuses.length > 0 ? filters.statuses : ["COMPLETED", "DELIVERED", "FAILED"],
+			},
+
+			// Remake-only filter
+			...(filters.isRemakeOnly && { isRemake: true }),
+
+			// Category filter
+			...(filters.categoryId && { caseCategoryId: filters.categoryId }),
+
+			// Staff filter — any role
+			...(filters.staffId && {
+				staffAssignments: { some: { staffId: filters.staffId } },
+			}),
+
+			// Search across case number and patient name
+			...(search?.trim() && {
+				OR: [{ caseNumber: { contains: search.trim(), mode: "insensitive" } }, { patient: { name: { contains: search.trim(), mode: "insensitive" } } }],
+			}),
+
+			// Date range filter
+			...(filters.dateRange &&
+				(() => {
+					const range = resolveDatePreset(filters.dateRange!.preset, filters.dateRange!.from, filters.dateRange!.to);
+					if (!range) return {};
+					return { [filters.dateRange!.field]: range };
+				})()),
+		};
+
+		// ── Query ─────────────────────────────────────────────────────────────────
+		const [rawCases, totalCount] = await Promise.all([
+			prisma.case.findMany({
+				where,
+				take: take + 1,
+				...(cursor && { cursor: { id: cursor }, skip: 1 }),
+				orderBy: [{ deliveredAt: "desc" }, { completedAt: "desc" }, { updatedAt: "desc" }],
+				select: {
+					id: true,
+					caseNumber: true,
+					status: true,
+					grandTotal: true,
+					isRemake: true,
+					failureReason: true,
+					completedAt: true,
+					deliveredAt: true,
+					updatedAt: true,
+					patient: { select: { name: true } },
+					dentist: { select: { name: true } },
+					caseItems: {
+						select: {
+							id: true,
+							jawType: true,
+							product: { select: { name: true } },
+							workType: { select: { name: true } },
+							selectedTeeth: { select: { id: true } },
+						},
+					},
+				},
+			}),
+			prisma.case.count({ where }),
+		]);
+
+		const hasNextPage = rawCases.length > take;
+		const page = hasNextPage ? rawCases.slice(0, -1) : rawCases;
+
+		const cases: ClinicHistoricalCaseDTO[] = page.map((c) => {
+			// Resolve resolvedDate based on status
+			const resolvedDate = c.status === "DELIVERED" && c.deliveredAt ? c.deliveredAt : c.status === "COMPLETED" && c.completedAt ? c.completedAt : c.updatedAt;
+
+			const workItems: ClinicHistoricalWorkItemDTO[] = c.caseItems.map((ci) => ({
+				id: ci.id,
+				productName: ci.product?.name ?? "No product",
+				workTypeName: ci.workType?.name ?? "No work type",
+				jawType: ci.jawType,
+				teethCount: ci.selectedTeeth.length,
+			}));
+
+			return {
+				id: c.id,
+				caseNumber: c.caseNumber,
+				status: c.status,
+				resolvedDate,
+				patientName: c.patient.name,
+				dentistName: c.dentist?.name ?? null,
+				grandTotal: c.grandTotal !== null ? Number(c.grandTotal) : null,
+				isRemake: c.isRemake,
+				failureReason: c.failureReason,
+				workItems,
+			};
+		});
+
+		return {
+			cases,
+			nextCursor: hasNextPage ? page[page.length - 1].id : null,
+			totalCount,
+		} as GetClinicHistoricalCasesResult;
 	});
