@@ -197,8 +197,8 @@ export const columns: ColumnDef<CaseListDTO>[] = [
 						<DropdownMenuContent align="end" className="w-48 rounded-xl border-border shadow-premium dark:bg-[#121214]">
 							<DropdownMenuLabel className="text-xs text-muted-foreground uppercase tracking-widest">Actions</DropdownMenuLabel>
 							<DropdownMenuItem className="cursor-pointer font-medium py-2 hover:bg-primary/5">
-								<Link href={`/cases/${caseId}`}>
-									View Full Case <ArrowUpRight />
+								<Link href={`/cases/${caseId}`} className="flex items-center gap-1.5 group">
+									View Full Case <ArrowUpRight className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform duration-75" />
 								</Link>
 							</DropdownMenuItem>
 							<DropdownMenuItem className="cursor-pointer font-medium py-2 hover:bg-primary/5">Assign Technician</DropdownMenuItem>

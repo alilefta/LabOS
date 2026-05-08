@@ -1,7 +1,23 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { MoreHorizontal, Building2, UserCircle, Hospital, GraduationCap, Phone, CheckCircle2, AlertTriangle, FileText, PauseCircle, LucideIcon, Wallet, TrendingUp, TrendingDown } from "lucide-react";
+import {
+	MoreHorizontal,
+	Building2,
+	UserCircle,
+	Hospital,
+	GraduationCap,
+	Phone,
+	CheckCircle2,
+	AlertTriangle,
+	FileText,
+	PauseCircle,
+	LucideIcon,
+	Wallet,
+	TrendingUp,
+	TrendingDown,
+	ArrowUpRight,
+} from "lucide-react";
 import { LineChart, Line, ResponsiveContainer } from "recharts";
 
 import { Button } from "@/components/ui/button";
@@ -11,6 +27,7 @@ import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 import { ClinicListDTO } from "@/schema/composed/clinic.details";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 // --- FORMATTERS ---
 const formatCurrency = (val: number) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(val);
@@ -219,7 +236,11 @@ export const columns: ColumnDef<ClinicListDTO>[] = [
 						<DropdownMenuContent align="end" className="w-48 rounded-xl border-border shadow-premium dark:bg-[#121214]">
 							<DropdownMenuLabel className="text-[10px] text-muted-foreground uppercase tracking-widest">Management</DropdownMenuLabel>
 							<DropdownMenuItem className="cursor-pointer font-medium py-2 hover:bg-primary/5">Quick View</DropdownMenuItem>
-							<DropdownMenuItem className="cursor-pointer font-medium py-2 hover:bg-primary/5">Full Clinic View</DropdownMenuItem>
+							<DropdownMenuItem className="cursor-pointer font-medium py-2 hover:bg-primary/5">
+								<Link href={`/clinics/${clinic.id}`} className="flex items-center gap-1.5 group">
+									Full Clinic View <ArrowUpRight className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform duration-75" />
+								</Link>
+							</DropdownMenuItem>
 							<DropdownMenuItem className="cursor-pointer font-medium py-2 hover:bg-primary/5 text-primary">New Case</DropdownMenuItem>
 							<DropdownMenuSeparator className="bg-border" />
 							{clinic.uninvoicedCasesCount > 0 ? (
