@@ -23,7 +23,7 @@ export function ClinicVitalsHeader({ clinic }: { clinic: ClinicDetailsUI }) {
 	const isSuspended = clinic.status === "SUSPENDED";
 
 	return (
-		<div className="px-6 lg:px-8 w-full max-w-[1600px] mx-auto">
+		<div className="px-6 lg:px-8 w-full max-w-400 mx-auto">
 			<div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
 				{/* LEFT: Identity & Status */}
 				<div className="flex items-start gap-4">
@@ -74,7 +74,9 @@ export function ClinicVitalsHeader({ clinic }: { clinic: ClinicDetailsUI }) {
 						<Download className="w-4 h-4 mr-2 text-muted-foreground" /> Statement
 					</Button>
 					<Button className="rounded-xl bg-primary text-primary-foreground h-10 px-6 shadow-premium font-bold hover:bg-primary/90">
-						<Edit3 className="w-4 h-4 mr-2" /> Edit Profile
+						<Link href={`/clinics/${clinic.id}/edit`} className="flex gap-1.2">
+							<Edit3 className="w-4 h-4 mr-2" /> Edit Profile
+						</Link>
 					</Button>
 					<Button variant="ghost" size="icon" className="rounded-xl border border-transparent hover:border-border h-10 w-10">
 						<MoreVertical className="w-4 h-4" />

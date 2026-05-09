@@ -12,6 +12,10 @@ export const DentistAggregateResultSchema = z.object({  _count: z.object({
     isDefault: z.number(),
     notes: z.number(),
     cases: z.number(),
+    isActive: z.number(),
+    avatarUrl: z.number(),
+    specialty: z.number(),
+    licenseNumber: z.number(),
     createdAt: z.number(),
     updatedAt: z.number()
   }).optional(),
@@ -23,6 +27,9 @@ export const DentistAggregateResultSchema = z.object({  _count: z.object({
     email: z.string().nullable(),
     phoneNumber: z.string().nullable(),
     notes: z.string().nullable(),
+    avatarUrl: z.string().nullable(),
+    specialty: z.string().nullable(),
+    licenseNumber: z.string().nullable(),
     createdAt: z.date().nullable(),
     updatedAt: z.date().nullable()
   }).nullable().optional(),
@@ -34,6 +41,9 @@ export const DentistAggregateResultSchema = z.object({  _count: z.object({
     email: z.string().nullable(),
     phoneNumber: z.string().nullable(),
     notes: z.string().nullable(),
+    avatarUrl: z.string().nullable(),
+    specialty: z.string().nullable(),
+    licenseNumber: z.string().nullable(),
     createdAt: z.date().nullable(),
     updatedAt: z.date().nullable()
   }).nullable().optional()});

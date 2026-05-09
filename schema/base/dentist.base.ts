@@ -3,12 +3,17 @@ export const DentistBaseSchema = z.object({
 	id: z.string(),
 	clinicId: z.string(),
 	labId: z.string(),
+
 	name: z.string(),
 	email: z.string().nullable(),
 	phoneNumber: z.string().nullable(),
 	isOwner: z.boolean(),
 	isDefault: z.boolean(),
 	notes: z.string().nullable(),
+	isActive: z.boolean(),
+	avatarUrl: z.string().nullable(),
+	specialty: z.string().nullable(),
+	licenseNumber: z.string().nullable(),
 	createdAt: z.date(),
 	updatedAt: z.date(),
 });

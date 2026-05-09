@@ -12,6 +12,10 @@ const makeSchema = () => z.object({
   isOwner: SortOrderSchema.optional(),
   isDefault: SortOrderSchema.optional(),
   notes: SortOrderSchema.optional(),
+  isActive: SortOrderSchema.optional(),
+  avatarUrl: SortOrderSchema.optional(),
+  specialty: SortOrderSchema.optional(),
+  licenseNumber: SortOrderSchema.optional(),
   createdAt: SortOrderSchema.optional(),
   updatedAt: SortOrderSchema.optional()
 }).strict();

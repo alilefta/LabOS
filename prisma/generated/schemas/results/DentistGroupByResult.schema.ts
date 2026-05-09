@@ -9,6 +9,10 @@ export const DentistGroupByResultSchema = z.array(z.object({
   isOwner: z.boolean(),
   isDefault: z.boolean(),
   notes: z.string(),
+  isActive: z.boolean(),
+  avatarUrl: z.string(),
+  specialty: z.string(),
+  licenseNumber: z.string(),
   createdAt: z.date(),
   updatedAt: z.date(),
   _count: z.object({
@@ -24,6 +28,10 @@ export const DentistGroupByResultSchema = z.array(z.object({
     isDefault: z.number(),
     notes: z.number(),
     cases: z.number(),
+    isActive: z.number(),
+    avatarUrl: z.number(),
+    specialty: z.number(),
+    licenseNumber: z.number(),
     createdAt: z.number(),
     updatedAt: z.number()
   }).optional(),
@@ -35,6 +43,9 @@ export const DentistGroupByResultSchema = z.array(z.object({
     email: z.string().nullable(),
     phoneNumber: z.string().nullable(),
     notes: z.string().nullable(),
+    avatarUrl: z.string().nullable(),
+    specialty: z.string().nullable(),
+    licenseNumber: z.string().nullable(),
     createdAt: z.date().nullable(),
     updatedAt: z.date().nullable()
   }).nullable().optional(),
@@ -46,6 +57,9 @@ export const DentistGroupByResultSchema = z.array(z.object({
     email: z.string().nullable(),
     phoneNumber: z.string().nullable(),
     notes: z.string().nullable(),
+    avatarUrl: z.string().nullable(),
+    specialty: z.string().nullable(),
+    licenseNumber: z.string().nullable(),
     createdAt: z.date().nullable(),
     updatedAt: z.date().nullable()
   }).nullable().optional()

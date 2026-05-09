@@ -1,23 +1,7 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import {
-	MoreHorizontal,
-	Building2,
-	UserCircle,
-	Hospital,
-	GraduationCap,
-	Phone,
-	CheckCircle2,
-	AlertTriangle,
-	FileText,
-	PauseCircle,
-	LucideIcon,
-	Wallet,
-	TrendingUp,
-	TrendingDown,
-	ArrowUpRight,
-} from "lucide-react";
+import { MoreHorizontal, Building2, UserCircle, Hospital, GraduationCap, Phone, FileText, Wallet, TrendingUp, TrendingDown, ArrowUpRight } from "lucide-react";
 import { LineChart, Line, ResponsiveContainer } from "recharts";
 
 import { Button } from "@/components/ui/button";
@@ -26,7 +10,6 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 import { ClinicListDTO } from "@/schema/composed/clinic.details";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 // --- FORMATTERS ---
@@ -209,7 +192,7 @@ export const columns: ColumnDef<ClinicListDTO>[] = [
 			const isHighRisk = exposurePercent >= 80;
 
 			return (
-				<div className="flex flex-col gap-1.5 w-[140px]">
+				<div className="flex flex-col gap-1.5 w-35">
 					<div className="flex items-center justify-between">
 						<span className={cn("font-mono font-bold text-sm", isHighRisk ? "text-amber-600 dark:text-amber-500" : "text-foreground")}>{formatCurrency(balance)}</span>
 						<span className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest opacity-60">/ {formatCurrency(limit)}</span>

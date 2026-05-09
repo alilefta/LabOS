@@ -152,9 +152,14 @@
 	--shadow-premium: 0 4px 40px rgba(0, 0, 0, 0.03); /* Zendenta style soft drop shadow */
 	--shadow-ai-glow: 0 8px 30px rgba(139, 92, 246, 0.15);
 
+	/* Used for creating ambient glow instead of using blur for best performance gain */
 	--glow-primary-rgb: 37, 99, 235;
 	--glow-amber-rgb: 245, 158, 11;
 	--glow-destructive-rgb: 239, 68, 68;
+
+	/* NEW GLOWS */
+	--glow-emerald-rgb: 16, 185, 129; /* Emerald 500 */
+	--glow-ai-rgb: 139, 92, 246; /* Violet 500 */
 }
 
 .dark {
@@ -213,6 +218,10 @@
 	--glow-primary-rgb: 59, 130, 246;
 	--glow-amber-rgb: 251, 191, 36;
 	--glow-destructive-rgb: 248, 113, 113;
+
+	/* NEW GLOWS */
+	--glow-emerald-rgb: 52, 211, 153; /* Emerald 400 */
+	--glow-ai-rgb: 129, 140, 248; /* Indigo 400 */
 }
 
 @layer base {

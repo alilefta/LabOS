@@ -298,11 +298,20 @@ model Dentist {
 
   cases Case[]
 
+  isActive Boolean @default(true) // instead of hard remove, we deactivate
+
+  // --- NEW FIELDS TO ADD ---
+  avatarUrl     String? // Allows the lab to upload a real photo instead of relying on Dicebear
+  specialty     String? // e.g., "Prosthodontist", "Oral Surgeon", "General"
+  licenseNumber String? // CRITICAL: Medical/Dental work tickets often legally require the prescribing doctor's license/NPI number.
+  // -------------------------
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([clinicId])
   @@index([labId])
+  @@index([clinicId, isActive]) // New index to speed up filtering active vs inactive
 }
 
 model Case {

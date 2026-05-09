@@ -18,6 +18,10 @@ const dentistscalarwhereinputSchema = z.object({
   isOwner: z.union([z.lazy(() => BoolFilterObjectSchema), z.boolean()]).optional(),
   isDefault: z.union([z.lazy(() => BoolFilterObjectSchema), z.boolean()]).optional(),
   notes: z.union([z.lazy(() => StringNullableFilterObjectSchema), z.string()]).optional().nullable(),
+  isActive: z.union([z.lazy(() => BoolFilterObjectSchema), z.boolean()]).optional(),
+  avatarUrl: z.union([z.lazy(() => StringNullableFilterObjectSchema), z.string()]).optional().nullable(),
+  specialty: z.union([z.lazy(() => StringNullableFilterObjectSchema), z.string()]).optional().nullable(),
+  licenseNumber: z.union([z.lazy(() => StringNullableFilterObjectSchema), z.string()]).optional().nullable(),
   createdAt: z.union([z.lazy(() => DateTimeFilterObjectSchema), z.coerce.date()]).optional(),
   updatedAt: z.union([z.lazy(() => DateTimeFilterObjectSchema), z.coerce.date()]).optional()
 }).strict();

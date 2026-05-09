@@ -156,17 +156,15 @@ export const ClinicHistoricalDataTable = memo(function ClinicHistoricalDataTable
 
 			{/* --- DATA TABLE ZONE --- */}
 			<div className="flex-1 min-h-0 bg-card">
-				<TooltipProvider delayDuration={100}>
-					<DataTable
-						columns={visibleColumns}
-						data={flatData}
-						isLoading={isLoading}
-						onRowClick={(row) => router.push(`/cases/${row.id}`)}
-						fetchNextPage={fetchNextPage}
-						hasNextPage={hasNextPage}
-						isFetchingNextPage={isFetchingNextPage}
-					/>
-				</TooltipProvider>
+				<DataTable
+					columns={visibleColumns}
+					data={flatData}
+					isLoading={isLoading}
+					onRowClick={(row) => router.push(`/cases/${row.id}`)}
+					fetchNextPage={fetchNextPage}
+					hasNextPage={hasNextPage}
+					isFetchingNextPage={isFetchingNextPage}
+				/>
 			</div>
 
 			{/* --- FILTER OVERLAY --- */}

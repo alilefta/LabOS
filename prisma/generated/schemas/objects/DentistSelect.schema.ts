@@ -18,6 +18,10 @@ const makeSchema = () => z.object({
   isDefault: z.boolean().optional(),
   notes: z.boolean().optional(),
   cases: z.union([z.boolean(), z.lazy(() => CaseFindManySchema)]).optional(),
+  isActive: z.boolean().optional(),
+  avatarUrl: z.boolean().optional(),
+  specialty: z.boolean().optional(),
+  licenseNumber: z.boolean().optional(),
   createdAt: z.boolean().optional(),
   updatedAt: z.boolean().optional(),
   _count: z.union([z.boolean(), z.lazy(() => DentistCountOutputTypeArgsObjectSchema)]).optional()

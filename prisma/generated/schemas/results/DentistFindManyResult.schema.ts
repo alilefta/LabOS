@@ -13,6 +13,10 @@ export const DentistFindManyResultSchema = z.object({
   isDefault: z.boolean(),
   notes: z.string().optional(),
   cases: z.array(z.unknown()),
+  isActive: z.boolean(),
+  avatarUrl: z.string().optional(),
+  specialty: z.string().optional(),
+  licenseNumber: z.string().optional(),
   createdAt: z.date(),
   updatedAt: z.date()
 })),

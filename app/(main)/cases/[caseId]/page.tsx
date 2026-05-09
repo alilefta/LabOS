@@ -39,7 +39,7 @@ export default async function CaseDossierPage({ params }: { params: Promise<{ ca
 		<PermissionsProvider userContext={labUser}>
 			<div className="flex flex-col h-full animate-in fade-in duration-700 bg-background relative overflow-hidden">
 				{/* --- STICKY COMMAND HEADER --- */}
-				<header className="shrink-0 sticky top-0 z-30 bg-background/80 backdrop-blur-xl border-b border-border">
+				<header className="shrink-0 sticky top-0 z-30 bg-background/80  border-b border-border">
 					<div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pt-4 pb-4 px-4 sm:px-6 lg:px-8 max-w-400 mx-auto w-full">
 						{/* LEFT: Identity */}
 						<div className="flex items-start sm:items-center gap-3 sm:gap-4">

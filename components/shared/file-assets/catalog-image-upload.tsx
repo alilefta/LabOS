@@ -19,7 +19,7 @@ interface Props<S extends FieldValues> {
 /**
  *
  * @param nameInSchema - The path to the image URL field in the form schema (e.g., "product.imageUrl")
- * @param label - The titile for the success message (e.g., "Product Catalog)
+ * @param label - The title for the success message (e.g., "Product Catalog)
  * @returns
  */
 export function CatalogImageUpload<S extends FieldValues>({ nameInSchema, label }: Props<S>) {
@@ -76,8 +76,8 @@ export function CatalogImageUpload<S extends FieldValues>({ nameInSchema, label 
 	};
 
 	// Safely check for errors on the imageUrl field
-	const hasError = !!formState.errors?.imageUrl;
-
+	const hasError = !!formState.errors?.[nameInSchema as string];
+	const errorMessage = formState.errors?.[nameInSchema as string]?.message as string;
 	return (
 		<div className="flex flex-col items-center gap-4 w-full mb-6">
 			<div
@@ -85,7 +85,7 @@ export function CatalogImageUpload<S extends FieldValues>({ nameInSchema, label 
 				className={cn(
 					"group relative flex flex-col items-center justify-center w-28 h-28 rounded-2xl border-2 border-dashed transition-all duration-300 cursor-pointer overflow-hidden shadow-sm",
 					// Drag state
-					isDragActive ? "border-primary bg-primary/5 scale-105" : "border-border bg-slate-50 dark:bg-white/[0.02] hover:border-primary/50 hover:bg-slate-100 dark:hover:bg-white/5",
+					isDragActive ? "border-primary bg-primary/5 scale-105" : "border-border bg-slate-50 dark:bg-white/2 hover:border-primary/50 hover:bg-slate-100 dark:hover:bg-white/5",
 					// Preview state
 					preview && "border-solid border-border shadow-md",
 					// Error state
@@ -130,7 +130,7 @@ export function CatalogImageUpload<S extends FieldValues>({ nameInSchema, label 
 			{hasError && (
 				<div className="text-[12px] font-medium text-destructive mt-1 flex items-center gap-1.5">
 					<div className="w-1.5 h-1.5 rounded-full bg-destructive animate-pulse"></div>
-					{formState.errors.imageUrl?.message as string}
+					{errorMessage as string}
 				</div>
 			)}
 		</div>

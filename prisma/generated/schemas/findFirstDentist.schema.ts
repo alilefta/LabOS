@@ -22,6 +22,10 @@ export const DentistFindFirstSelectSchema: z.ZodType<Prisma.DentistSelect> = z.o
     isDefault: z.boolean().optional(),
     notes: z.boolean().optional(),
     cases: z.boolean().optional(),
+    isActive: z.boolean().optional(),
+    avatarUrl: z.boolean().optional(),
+    specialty: z.boolean().optional(),
+    licenseNumber: z.boolean().optional(),
     createdAt: z.boolean().optional(),
     updatedAt: z.boolean().optional(),
     _count: z.boolean().optional()
@@ -40,6 +44,10 @@ export const DentistFindFirstSelectZodSchema = z.object({
     isDefault: z.boolean().optional(),
     notes: z.boolean().optional(),
     cases: z.boolean().optional(),
+    isActive: z.boolean().optional(),
+    avatarUrl: z.boolean().optional(),
+    specialty: z.boolean().optional(),
+    licenseNumber: z.boolean().optional(),
     createdAt: z.boolean().optional(),
     updatedAt: z.boolean().optional(),
     _count: z.boolean().optional()

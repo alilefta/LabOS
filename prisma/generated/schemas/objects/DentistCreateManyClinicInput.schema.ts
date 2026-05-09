@@ -11,6 +11,10 @@ const makeSchema = () => z.object({
   isOwner: z.boolean().optional(),
   isDefault: z.boolean().optional(),
   notes: z.string().optional().nullable(),
+  isActive: z.boolean().optional(),
+  avatarUrl: z.string().optional().nullable(),
+  specialty: z.string().optional().nullable(),
+  licenseNumber: z.string().optional().nullable(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional()
 }).strict();

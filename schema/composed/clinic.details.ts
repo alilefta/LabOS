@@ -8,6 +8,7 @@ import { ClinicStatusSchema, ClinicTypeSchema, JawTypeSchema, PaymentMethodSchem
 import { CreatePrimaryDentistInputSchema } from "./dentist.details";
 import { emptyToUndefinedTransformer } from "../base/utils.base";
 import { InvoiceBaseSchema } from "../base/invoice.base";
+import { sanitizeDentistName } from "@/lib/formatters/names-formatters";
 
 export const ClinicDetailsSchema = ClinicBaseSchema.extend({
 	lab: LabBaseSchema,
@@ -81,12 +82,20 @@ export type CreateQuickClinicInput = z.infer<typeof CreateQuickClinicInputSchema
 // ============================= Create Complete Clinic Form Page Schema =======================
 
 const CreateAdditionalDentistInputSchema = z.object({
-	name: z.string().trim().min(2, "Dentist name must be at least 2 characters."),
+	name: z
+		.string()
+		.trim()
+		.min(2, "Dentist name must be at least 2 characters.")
+		.transform((val) => sanitizeDentistName(val)),
 	email: optionalEmail,
 	phoneNumber: z.string().trim().transform(emptyToUndefinedTransformer).optional(),
 	isOwner: z.boolean().default(false).optional(),
 	isDefault: z.boolean().default(false).optional(),
 	notes: z.string().trim().transform(emptyToUndefinedTransformer).optional(),
+
+	// --- NEW COMPLIANCE FIELDS ---
+	speciality: z.string().trim().optional(),
+	licenseNumber: z.string().trim().optional(),
 });
 
 export const CreateCompleteClinicInputSchema = z
