@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode } from "react";
+import { memo, ReactNode } from "react";
 
 interface Props {
 	children: ReactNode;
@@ -9,7 +9,7 @@ interface Props {
 	limit: number | null;
 }
 
-export function ClinicTerminalShell({ children, status, balance, limit }: Props) {
+export const ClinicTerminalShell = memo(function ClinicTerminalShell({ children, status, balance, limit }: Props) {
 	// Determine the "Ambient Threat Level"
 	const isSuspended = status === "SUSPENDED";
 	const utilization = limit ? balance / limit : 0;
@@ -28,4 +28,4 @@ export function ClinicTerminalShell({ children, status, balance, limit }: Props)
 			<div className="relative z-10 flex flex-col h-full">{children}</div>
 		</div>
 	);
-}
+});

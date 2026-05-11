@@ -2,6 +2,7 @@ import { DashboardSidebar } from "@/components/dashboard/dashboard-sidebar";
 import { DashboardTopHeader } from "@/components/dashboard/dashboard-top-header";
 import { QueryProvider } from "@/providers/query-provider";
 import { ReactNode } from "react";
+import { NuqsAdapter } from "nuqs/adapters/next/app";
 
 interface MainLayoutProps {
 	children: ReactNode;
@@ -34,7 +35,9 @@ export default async function MainLayout({ children }: MainLayoutProps) {
 						}}
 					/>
 					<QueryProvider>
-						<div className="w-full h-full">{children}</div>
+						<div className="w-full h-full">
+							<NuqsAdapter>{children}</NuqsAdapter>
+						</div>
 					</QueryProvider>
 				</main>
 			</div>

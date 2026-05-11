@@ -22,6 +22,7 @@ import { memo, useEffect } from "react";
 import { updateDentistAction } from "@/actions/dentists/update-dentist";
 import { getDentistByIdAction } from "@/actions/dentists/get-dentist";
 import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
 
 interface Props {
 	isOpen: boolean;
@@ -42,7 +43,7 @@ export const DentistEditorSheet = memo(function DentistEditorSheet({ isOpen, onC
 			return res.data?.dentist as DentistBase;
 		},
 		enabled: isOpen && isEdit,
-		staleTime: 0,
+		staleTime: Infinity,
 	});
 
 	const form = useForm<CreateDentistInput>({
@@ -61,23 +62,26 @@ export const DentistEditorSheet = memo(function DentistEditorSheet({ isOpen, onC
 		},
 		mode: "onBlur",
 	});
-
 	useEffect(() => {
 		if (isOpen && isEdit && initialData) {
 			form.reset({
-				...initialData,
-				// FIX: Map 'specialty' from DB to 'speciality' in Zod (or fix schema names)
+				clinicId,
+				name: initialData.name || "",
 				speciality: initialData.specialty || "",
 				email: initialData.email || "",
 				phoneNumber: initialData.phoneNumber || "",
 				notes: initialData.notes || "",
 				avatarUrl: initialData.avatarUrl || "",
 				licenseNumber: initialData.licenseNumber || "",
+				isOwner: initialData.isOwner || false,
+				isDefault: initialData.isDefault || false,
 			});
-		} else if (isOpen && !isEdit) {
+		}
+
+		if (!isOpen) {
 			form.reset();
 		}
-	}, [isOpen, isEdit, initialData, form]);
+	}, [isOpen, isEdit, initialData]); // form intentionally omitted
 
 	const { executeAsync: createDentist, isExecuting: isCreating } = useAction(createDentistAction, {
 		onSuccess: () => {
@@ -106,6 +110,7 @@ export const DentistEditorSheet = memo(function DentistEditorSheet({ isOpen, onC
 	};
 
 	const isProcessing = isCreating || isUpdating;
+	console.log("Sheet render:", { isOpen, isEdit, isFetchingDetails, hasInitialData: !!initialData });
 
 	return (
 		<Sheet
@@ -132,25 +137,27 @@ export const DentistEditorSheet = memo(function DentistEditorSheet({ isOpen, onC
 				</SheetHeader>
 
 				{/* --- FORM BODY --- */}
-				<div className="flex-1 overflow-y-auto p-8 space-y-10 custom-scrollbar">
-					<FormProvider {...form}>
-						<form id="dentist-editor-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-							{isFetchingDetails ? (
-								<div className="space-y-8 animate-pulse">
-									<div className="flex flex-col items-center gap-4">
-										<Skeleton className="w-28 h-28 rounded-2xl" />
-										<Skeleton className="h-4 w-32" />
-									</div>
-									<div className="space-y-4">
-										<Skeleton className="h-10 w-full rounded-xl" />
-										<div className="grid grid-cols-2 gap-4">
-											<Skeleton className="h-10 w-full rounded-xl" />
-											<Skeleton className="h-10 w-full rounded-xl" />
-										</div>
-									</div>
-									<Skeleton className="h-32 w-full rounded-xl" />
+				<div className="flex-1 overflow-y-auto p-8 custom-scrollbar relative">
+					{/* 1. The Skeleton Layer (Overlay) */}
+					{isFetchingDetails && (
+						<div className="absolute inset-0 z-50 bg-card dark:bg-[#09090B] p-8 space-y-8">
+							<div className="flex flex-col items-center gap-4">
+								<Skeleton className="w-28 h-28 rounded-3xl" />
+								<Skeleton className="h-4 w-32" />
+							</div>
+							<div className="space-y-4">
+								<Skeleton className="h-10 w-full rounded-xl" />
+								<div className="grid grid-cols-2 gap-4">
+									<Skeleton className="h-10 w-full rounded-xl" />
+									<Skeleton className="h-10 w-full rounded-xl" />
 								</div>
-							) : (
+							</div>
+							<Skeleton className="h-32 w-full rounded-xl" />
+						</div>
+					)}
+					<div className={cn("transition-opacity duration-500", isFetchingDetails ? "opacity-0 pointer-events-none" : "opacity-100")}>
+						<FormProvider {...form}>
+							<form id="dentist-editor-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
 								<div className="animate-in fade-in slide-in-from-top-2 duration-500 space-y-8">
 									{/* --- SECTION 1: IDENTITY & PHOTO --- */}
 									<div className="space-y-6">
@@ -276,9 +283,9 @@ export const DentistEditorSheet = memo(function DentistEditorSheet({ isOpen, onC
 										/>
 									</div>
 								</div>
-							)}
-						</form>
-					</FormProvider>
+							</form>
+						</FormProvider>
+					</div>
 				</div>
 
 				{/* --- DYNAMIC FOOTER --- */}

@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useCallback, useMemo, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import { Stethoscope, Plus, Search, UserCircle, Star, Users, Loader2, UserLock, Briefcase, Hospital, GraduationCap, Check, AlertTriangle } from "lucide-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 
@@ -21,6 +21,7 @@ import { updateClinicTypeAction } from "@/actions/clinics/update-clinic";
 import { ClinicType } from "@/schema/base/enums.base";
 import { Dialog, DialogContent, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { DentistEditorSheet } from "@/components/modals/dentists/dentist-editor-sheet";
+import { useQueryState, parseAsString } from "nuqs";
 
 // Import your specific server action
 
@@ -40,10 +41,13 @@ export const DentistRosterGrid = memo(function DentistRosterGrid({ clinicId, cur
 	const [roleFilter, setRoleFilter] = useState<RoleFilter>("ALL");
 
 	// Sheet & Dialog Control
-	const [isSheetOpen, setIsSheetOpen] = useState(false);
-	const [editingId, setEditingId] = useState<string | null>(null);
+	// const [isSheetOpen, setIsSheetOpen] = useState(false);
+	// const [editingId, setEditingId] = useState<string | null>(null);
+
 	const [isTypeConflictDialogOpen, setIsTypeConflictDialogOpen] = useState(false);
 	const [selectedNewType, setSelectedNewType] = useState<ClinicType>("CLINIC");
+	const [editingId, setEditingId] = useQueryState("dentistId", parseAsString);
+	const isSheetOpen = !!editingId;
 
 	// --- 2. DATA FETCHING ---
 	const {
@@ -63,6 +67,10 @@ export const DentistRosterGrid = memo(function DentistRosterGrid({ clinicId, cur
 		staleTime: 1000 * 60 * 5,
 	});
 
+	useEffect(() => {
+		console.log("DentistRosterGrid MOUNTED");
+		return () => console.log("DentistRosterGrid UNMOUNTED");
+	}, []);
 	// --- 3. ACTIONS ---
 	const { executeAsync: executeToggleStatus } = useAction(toggleDentistActiveStatusAction, {
 		onSuccess: () => queryClient.invalidateQueries({ queryKey: ["clinic-dentists", clinicId] }),
@@ -77,7 +85,7 @@ export const DentistRosterGrid = memo(function DentistRosterGrid({ clinicId, cur
 	const { executeAsync: executeTypeConversion, isExecuting: isConverting } = useAction(updateClinicTypeAction, {
 		onSuccess: () => {
 			setIsTypeConflictDialogOpen(false);
-			setIsSheetOpen(true); // Handshake: Proceed to registration
+			setEditingId("new");
 			queryClient.invalidateQueries({ queryKey: ["clinic-detail", clinicId] });
 		},
 		onError: ({ error }) => handleSafeActionError(error),
@@ -86,19 +94,19 @@ export const DentistRosterGrid = memo(function DentistRosterGrid({ clinicId, cur
 	// --- 4. CALLBACK HANDLERS (Memoized) ---
 	const handleAddDoctorClick = useCallback(() => {
 		if (currentClinicType === "SOLO") setIsTypeConflictDialogOpen(true);
-		else setIsSheetOpen(true);
-	}, [currentClinicType]);
+		else setEditingId("new");
+	}, [currentClinicType, setEditingId]);
 
-	const handleEditDentist = useCallback((id: string) => {
-		setEditingId(id);
-		setIsSheetOpen(true);
-	}, []);
+	const handleEditDentist = useCallback(
+		(id: string) => {
+			setEditingId(id);
+		},
+		[setEditingId],
+	);
 
 	const handleCloseSheet = useCallback(() => {
-		setIsSheetOpen(false);
-		// Delay clearing the ID so the sheet doesn't "empty" during the close animation
-		setTimeout(() => setEditingId(null), 300);
-	}, []);
+		setEditingId(null);
+	}, [setEditingId]);
 
 	const handleToggleStatus = useCallback(
 		async (dentistId: string, currentStatus: boolean) => {
@@ -138,6 +146,7 @@ export const DentistRosterGrid = memo(function DentistRosterGrid({ clinicId, cur
 			return matchesSearch && matchesRole;
 		});
 	}, [dentists, debouncedSearch, roleFilter]);
+	console.log("Grid render:", { isSheetOpen, editingId });
 
 	return (
 		<div className="flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500 w-full min-h-0">
@@ -199,7 +208,6 @@ export const DentistRosterGrid = memo(function DentistRosterGrid({ clinicId, cur
 					</Button>
 				</div>
 			</div>
-
 			{/* --- GRID ZONE --- */}
 			<div className="flex-1 overflow-y-auto custom-scrollbar pb-6 pr-2">
 				<div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
@@ -261,7 +269,6 @@ export const DentistRosterGrid = memo(function DentistRosterGrid({ clinicId, cur
 					</div>
 				)}
 			</div>
-
 			{/* --- CONVERSION DIALOG --- */}
 			<Dialog open={isTypeConflictDialogOpen} onOpenChange={setIsTypeConflictDialogOpen}>
 				<DialogContent className="sm:max-w-125 p-0 overflow-hidden border-border bg-card shadow-2xl rounded-4xl">
@@ -317,9 +324,8 @@ export const DentistRosterGrid = memo(function DentistRosterGrid({ clinicId, cur
 					</DialogFooter>
 				</DialogContent>
 			</Dialog>
-
 			{/* --- UNIFIED EDITOR SHEET --- */}
-			<DentistEditorSheet isOpen={isSheetOpen} onClose={handleCloseSheet} clinicId={clinicId} dentistIdToEdit={editingId} />
+			<DentistEditorSheet isOpen={isSheetOpen} onClose={handleCloseSheet} clinicId={clinicId} dentistIdToEdit={editingId === "new" ? null : editingId} />
 		</div>
 	);
 });
