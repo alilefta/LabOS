@@ -1,14 +1,9 @@
 "use server";
 
-import { CasePricingPlanModel } from "@/generated/prisma/models";
+import { normalizePricingPlan } from "@/lib/mappers";
 import { tenantPrisma } from "@/lib/prisma";
 import { actionClientWithLab } from "@/lib/safe-action";
-import {
-	CasePricingPlanDetailsUI,
-	CreateCaseItemPricingPlanInputSchema,
-	GetPricingPlansByClinicIdInputSchema,
-	GetPricingPlansByProductIdInputSchema,
-} from "@/schema/composed/case-pricing-plan.details";
+import { CreateCaseItemPricingPlanInputSchema, GetPricingPlansByClinicIdInputSchema, GetPricingPlansByProductIdInputSchema } from "@/schema/composed/case-pricing-plan.details";
 import { SearchInputSchema } from "@/schema/composed/shared-schema";
 import { APIError } from "better-auth";
 
@@ -39,13 +34,10 @@ export const createPricingPlanAction = actionClientWithLab
 					teethCountToApplyBulkPrice: teethCountToApplyBulkPrice ?? null,
 					isDefault,
 				},
-				include: {
-					lab: true,
-				},
 			});
 
 			return {
-				pricingPlan: pricingPlansNormalizer(pricingPlan) as CasePricingPlanDetailsUI,
+				pricingPlan: normalizePricingPlan(pricingPlan),
 			};
 		} catch (e) {
 			if (e instanceof APIError || e instanceof Error) {
@@ -79,13 +71,10 @@ export const getPricingPlanBySearchQueryAction = actionClientWithLab
 					createdAt: "desc",
 				},
 				take: limit,
-				include: {
-					lab: true,
-				},
 			});
 
 			return {
-				pricings: pricingPlansNormalizer(pricings),
+				pricings: pricings.map(normalizePricingPlan),
 			};
 		} catch (e) {
 			if (e instanceof APIError || e instanceof Error) {
@@ -124,7 +113,7 @@ export const getPricingPlansByProductAction = actionClientWithLab
 			});
 
 			return {
-				pricings: pricingPlansNormalizer(pricings),
+				pricings: pricings.map(normalizePricingPlan),
 			};
 		} catch (e) {
 			if (e instanceof APIError || e instanceof Error) {
@@ -163,7 +152,7 @@ export const getPricingPlansByClinicAction = actionClientWithLab
 			});
 
 			return {
-				pricings: pricingPlansNormalizer(pricings),
+				pricings: pricings.map(normalizePricingPlan),
 			};
 		} catch (e) {
 			if (e instanceof APIError || e instanceof Error) {
@@ -173,24 +162,24 @@ export const getPricingPlansByClinicAction = actionClientWithLab
 		}
 	});
 
-function pricingPlansNormalizer(pricingPlan: CasePricingPlanModel[] | CasePricingPlanModel): CasePricingPlanDetailsUI[] | CasePricingPlanDetailsUI {
-	if (Array.isArray(pricingPlan)) {
-		return pricingPlan.map((p) => ({
-			...p,
-			additionalToothPrice: p.additionalToothPrice === null ? null : Number(p.additionalToothPrice),
-			bulkPrice: p.bulkPrice === null ? null : Number(p.bulkPrice),
-			firstToothPrice: p.firstToothPrice === null ? null : Number(p.firstToothPrice),
-			teethCountToApplyBulkPrice: p.teethCountToApplyBulkPrice === null ? null : Number(p.teethCountToApplyBulkPrice),
-			toothPrice: p.toothPrice === null ? null : Number(p.toothPrice),
-		}));
-	} else {
-		return {
-			...pricingPlan,
-			additionalToothPrice: pricingPlan.additionalToothPrice === null ? null : Number(pricingPlan.additionalToothPrice),
-			bulkPrice: pricingPlan.bulkPrice === null ? null : Number(pricingPlan.bulkPrice),
-			firstToothPrice: pricingPlan.firstToothPrice === null ? null : Number(pricingPlan.firstToothPrice),
-			teethCountToApplyBulkPrice: pricingPlan.teethCountToApplyBulkPrice === null ? null : Number(pricingPlan.teethCountToApplyBulkPrice),
-			toothPrice: pricingPlan.toothPrice === null ? null : Number(pricingPlan.toothPrice),
-		};
-	}
-}
+// function pricingPlansNormalizer(pricingPlan: CasePricingPlanModel[] | CasePricingPlanModel): CasePricingPlanDetailsUI[] | CasePricingPlanDetailsUI {
+// 	if (Array.isArray(pricingPlan)) {
+// 		return pricingPlan.map((p) => ({
+// 			...p,
+// 			additionalToothPrice: p.additionalToothPrice === null ? null : Number(p.additionalToothPrice),
+// 			bulkPrice: p.bulkPrice === null ? null : Number(p.bulkPrice),
+// 			firstToothPrice: p.firstToothPrice === null ? null : Number(p.firstToothPrice),
+// 			teethCountToApplyBulkPrice: p.teethCountToApplyBulkPrice === null ? null : Number(p.teethCountToApplyBulkPrice),
+// 			toothPrice: p.toothPrice === null ? null : Number(p.toothPrice),
+// 		}));
+// 	} else {
+// 		return {
+// 			...pricingPlan,
+// 			additionalToothPrice: pricingPlan.additionalToothPrice === null ? null : Number(pricingPlan.additionalToothPrice),
+// 			bulkPrice: pricingPlan.bulkPrice === null ? null : Number(pricingPlan.bulkPrice),
+// 			firstToothPrice: pricingPlan.firstToothPrice === null ? null : Number(pricingPlan.firstToothPrice),
+// 			teethCountToApplyBulkPrice: pricingPlan.teethCountToApplyBulkPrice === null ? null : Number(pricingPlan.teethCountToApplyBulkPrice),
+// 			toothPrice: pricingPlan.toothPrice === null ? null : Number(pricingPlan.toothPrice),
+// 		};
+// 	}
+// }

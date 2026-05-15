@@ -11,8 +11,8 @@ import { CreateCaseAssetFilesInput } from "@/schema/composed/case-asset-file.det
 export interface UnifiedAssetFile {
 	id?: string;
 	isNew?: boolean;
-	title?: string;
-	description?: string;
+	title: string | null;
+	description: string | null;
 	documentUrl: string;
 	assetFileType: AssetFileType;
 	fileExtension: string;

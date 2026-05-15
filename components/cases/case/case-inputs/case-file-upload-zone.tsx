@@ -5,7 +5,7 @@ import { useDropzone, FileRejection } from "react-dropzone";
 import { UploadCloud, X, Loader2, Info } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useUploadThing } from "@/utils/uploadThing";
 import { toast } from "sonner";
 import { AssetFileType } from "@/schema/base/enums.base"; // Adjust import path
@@ -151,26 +151,24 @@ export function CaseFileUploadZone({ onUploadFiles, mode }: { onUploadFiles: (Up
 			<div className="flex items-center justify-between">
 				<div className="flex items-center gap-2">
 					<h3 className="text-[13px] font-bold text-slate-700 dark:text-zinc-300">Case Attachments</h3>
-					<TooltipProvider delayDuration={200}>
-						<Tooltip>
-							<TooltipTrigger asChild>
-								<div className="w-5 h-5 rounded-full bg-slate-100 dark:bg-white/10 flex items-center justify-center cursor-help transition-colors hover:bg-slate-200 dark:hover:bg-white/20">
-									<Info className="w-3 h-3 text-muted-foreground" />
-								</div>
-							</TooltipTrigger>
+					<Tooltip>
+						<TooltipTrigger asChild>
+							<div className="w-5 h-5 rounded-full bg-slate-100 dark:bg-white/10 flex items-center justify-center cursor-help transition-colors hover:bg-slate-200 dark:hover:bg-white/20">
+								<Info className="w-3 h-3 text-muted-foreground" />
+							</div>
+						</TooltipTrigger>
 
-							{/* Look how clean this is now! No !important tags needed. */}
-							<TooltipContent className="max-w-65 p-4">
-								<p className="text-[10px] font-bold uppercase text-primary tracking-widest mb-1.5 flex items-center gap-1.5">
-									<Info className="w-3 h-3" /> Supported Formats
-								</p>
-								<p className="text-xs text-muted-foreground font-medium leading-relaxed">
-									3D Scans <strong className="text-foreground font-mono bg-slate-100 dark:bg-white/5 px-1 py-0.5 rounded">.stl, .obj, .dcm</strong> and clinical photography. Max
-									100MB per file.
-								</p>
-							</TooltipContent>
-						</Tooltip>
-					</TooltipProvider>
+						{/* Look how clean this is now! No !important tags needed. */}
+						<TooltipContent className="max-w-65 p-4">
+							<p className="text-[10px] font-bold uppercase text-primary tracking-widest mb-1.5 flex items-center gap-1.5">
+								<Info className="w-3 h-3" /> Supported Formats
+							</p>
+							<p className="text-xs text-muted-foreground font-medium leading-relaxed">
+								3D Scans <strong className="text-foreground font-mono bg-slate-100 dark:bg-white/5 px-1 py-0.5 rounded">.stl, .obj, .dcm</strong> and clinical photography. Max 100MB
+								per file.
+							</p>
+						</TooltipContent>
+					</Tooltip>
 				</div>
 				<span className="text-[11px] font-mono font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-md">{totalUploadedFiles} Secured</span>
 			</div>

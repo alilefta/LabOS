@@ -1,7 +1,7 @@
 "use client";
 
 import { Info } from "lucide-react";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { memo } from "react";
 
@@ -48,11 +48,9 @@ export const ProductionQualityHeatmap = memo(function ProductionQualityHeatmap({
 			{/* --- RESPONSIVE GRID CONTAINER --- */}
 			<div className="flex-1 flex flex-col justify-end w-full overflow-x-auto custom-scrollbar pb-4">
 				<div className="grid grid-flow-col grid-rows-7 lg:grid-rows-4  gap-1 sm:gap-1.5 xl:gap-2 w-full min-w-175 p-2">
-					<TooltipProvider delayDuration={50}>
-						{heatmapData.map((day) => (
-							<HeatmapItem key={day.date} day={day} color={getColor(day.count)} />
-						))}
-					</TooltipProvider>
+					{heatmapData.map((day) => (
+						<HeatmapItem key={day.date} day={day} color={getColor(day.count)} />
+					))}
 				</div>
 			</div>
 

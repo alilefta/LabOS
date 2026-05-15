@@ -14,15 +14,16 @@ import { InputWithLabel } from "@/components/ui/custom/input-with-label";
 
 import { useClinicalCreationStore } from "@/store/use-clinical-creation-store";
 
-import { CasePricingPlanDetailsUI, CreateCaseItemPricingPlanInput, CreateCaseItemPricingPlanInputSchema } from "@/schema/composed/case-pricing-plan.details";
+import { CreateCaseItemPricingPlanInput, CreateCaseItemPricingPlanInputSchema } from "@/schema/composed/case-pricing-plan.details";
 import { createPricingPlanAction } from "@/actions/pricing-plan";
 import { useAction } from "next-safe-action/hooks";
 import { handleSafeActionError } from "@/lib/safe-action-helpers";
 import { WorkTypeBlueprintHierarchy } from "../work-type/worktype-blueprint-hierarchy";
 import { useQueryClient } from "@tanstack/react-query";
 import { PricingStrategy } from "@/schema/base/enums.base";
+import { CasePricingPlanBase } from "@/schema/base/case-pricing-plan.base";
 
-type QueryDataShape = CasePricingPlanDetailsUI[];
+type QueryDataShape = CasePricingPlanBase[];
 
 export const CreatePricingPlanSheet = memo(function CreatePricingPlanSheet() {
 	const isPricingSheetOpen = useClinicalCreationStore((state) => state.isPricingSheetOpen);

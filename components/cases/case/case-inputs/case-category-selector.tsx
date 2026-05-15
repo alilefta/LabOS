@@ -7,7 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 import Image from "next/image";
 
 import { cn } from "@/lib/utils";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { CaseFormModeType, CreateCaseInput } from "@/schema/composed/case.details";
 import { getCaseCategoriesAction } from "@/actions/case-category";
@@ -31,7 +31,6 @@ type DataShape = CaseCategoryDetailsUI[];
 
 interface Props {
 	mode: CaseFormModeType;
-
 	onCreateNew: () => void;
 	newCreatedCategory: CaseCategoryDetailsUI | null;
 	onSelect: (id: string, name: string) => void;
@@ -42,8 +41,6 @@ export const CaseCategorySelector = memo(function CaseCategorySelector({ onCreat
 	const { watch, setValue, control } = useFormContext<CreateCaseInput>();
 	const selectedCat = watch("caseCategoryId");
 	const isEdit = mode === "edit";
-
-	console.log("Selected Case category Id", selectedCat);
 
 	const { remove } = useFieldArray({ control, name: "caseWorkItems" });
 
@@ -120,16 +117,14 @@ export const CaseCategorySelector = memo(function CaseCategorySelector({ onCreat
 			<div className="flex items-center gap-2">
 				<div className="w-6 h-6 rounded-md bg-primary/10 text-primary flex items-center justify-center font-bold text-xs">1</div>
 				<h3 className="text-[15px] font-bold text-foreground tracking-tight">Select Clinical Category</h3>
-				<TooltipProvider>
-					<Tooltip delayDuration={300}>
-						<TooltipTrigger asChild>
-							<div className="w-5 h-5 rounded-full bg-slate-100 dark:bg-white/10 flex items-center justify-center cursor-help transition-colors hover:bg-slate-200 dark:hover:bg-white/20">
-								<Info className="w-3 h-3 text-muted-foreground" />
-							</div>
-						</TooltipTrigger>
-						<TooltipContent className="max-w-50">Categories filter the available materials and pricing logic for this case.</TooltipContent>
-					</Tooltip>
-				</TooltipProvider>
+				<Tooltip delayDuration={300}>
+					<TooltipTrigger asChild>
+						<div className="w-5 h-5 rounded-full bg-slate-100 dark:bg-white/10 flex items-center justify-center cursor-help transition-colors hover:bg-slate-200 dark:hover:bg-white/20">
+							<Info className="w-3 h-3 text-muted-foreground" />
+						</div>
+					</TooltipTrigger>
+					<TooltipContent className="max-w-50">Categories filter the available materials and pricing logic for this case.</TooltipContent>
+				</Tooltip>
 			</div>
 
 			<div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 px-2">

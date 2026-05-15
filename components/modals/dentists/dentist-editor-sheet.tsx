@@ -10,7 +10,7 @@ import { CustomFieldWithLabel } from "@/components/ui/custom/custom-field-with-l
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { useAction } from "next-safe-action/hooks";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { handleSafeActionError } from "@/lib/safe-action-helpers";
 
 // Types & Actions
@@ -20,7 +20,6 @@ import { createDentistAction } from "@/actions/dentists/create-dentist";
 import { DentistBase } from "@/schema/base/dentist.base";
 import { memo, useEffect } from "react";
 import { updateDentistAction } from "@/actions/dentists/update-dentist";
-import { getDentistByIdAction } from "@/actions/dentists/get-dentist";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 
@@ -29,22 +28,13 @@ interface Props {
 	onClose: () => void;
 	clinicId: string;
 	dentistIdToEdit: string | null;
+	initialData?: DentistBase | null;
+	isFetchingEditData?: boolean;
+	isEdit: boolean;
 }
 
-export const DentistEditorSheet = memo(function DentistEditorSheet({ isOpen, onClose, clinicId, dentistIdToEdit }: Props) {
+export const DentistEditorSheet = memo(function DentistEditorSheet({ isOpen, onClose, clinicId, dentistIdToEdit, initialData, isFetchingEditData, isEdit }: Props) {
 	const queryClient = useQueryClient();
-	const isEdit = !!dentistIdToEdit;
-
-	const { data: initialData, isFetching: isFetchingDetails } = useQuery({
-		queryKey: ["dentist-details", dentistIdToEdit],
-		queryFn: async () => {
-			if (!dentistIdToEdit) return null;
-			const res = await getDentistByIdAction({ clinicId, dentistId: dentistIdToEdit });
-			return res.data?.dentist as DentistBase;
-		},
-		enabled: isOpen && isEdit,
-		staleTime: Infinity,
-	});
 
 	const form = useForm<CreateDentistInput>({
 		resolver: zodResolver(CreateDentistInputSchema),
@@ -102,15 +92,15 @@ export const DentistEditorSheet = memo(function DentistEditorSheet({ isOpen, onC
 	});
 
 	const onSubmit = async (data: CreateDentistInput) => {
-		if (isEdit && dentistIdToEdit) {
-			await updateDentist({ ...data, dentistId: dentistIdToEdit } as UpdateDentistInput);
+		if (isEdit && initialData) {
+			await updateDentist({ ...data, dentistId: initialData.id } as UpdateDentistInput);
 		} else {
 			await createDentist(data);
 		}
 	};
 
 	const isProcessing = isCreating || isUpdating;
-	console.log("Sheet render:", { isOpen, isEdit, isFetchingDetails, hasInitialData: !!initialData });
+	console.log("Sheet render:", { isOpen, isEdit, isFetchingEditData, hasInitialData: !!initialData });
 
 	return (
 		<Sheet
@@ -139,7 +129,7 @@ export const DentistEditorSheet = memo(function DentistEditorSheet({ isOpen, onC
 				{/* --- FORM BODY --- */}
 				<div className="flex-1 overflow-y-auto p-8 custom-scrollbar relative">
 					{/* 1. The Skeleton Layer (Overlay) */}
-					{isFetchingDetails && (
+					{isFetchingEditData && (
 						<div className="absolute inset-0 z-50 bg-card dark:bg-[#09090B] p-8 space-y-8">
 							<div className="flex flex-col items-center gap-4">
 								<Skeleton className="w-28 h-28 rounded-3xl" />
@@ -155,7 +145,7 @@ export const DentistEditorSheet = memo(function DentistEditorSheet({ isOpen, onC
 							<Skeleton className="h-32 w-full rounded-xl" />
 						</div>
 					)}
-					<div className={cn("transition-opacity duration-500", isFetchingDetails ? "opacity-0 pointer-events-none" : "opacity-100")}>
+					<div className={cn("transition-opacity duration-500", isFetchingEditData ? "opacity-0 pointer-events-none" : "opacity-100")}>
 						<FormProvider {...form}>
 							<form id="dentist-editor-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
 								<div className="animate-in fade-in slide-in-from-top-2 duration-500 space-y-8">

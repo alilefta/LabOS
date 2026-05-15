@@ -13,7 +13,8 @@
 import { CaseStatus } from "@/generated/prisma/client";
 import { DAResult, daSuccess, toDAError } from "@/lib/data-access-errors";
 import { tenantPrisma } from "@/lib/prisma";
-import { CaseListDTO, CasesFilters, DateRangeFilter, PulseFilter, PulseStats, RevenueStats } from "@/schema/composed/case.details";
+import { CaseListDTO, PulseFilter, PulseStats, RevenueStats } from "@/schema/composed/case.details";
+import { CasesFilters, DateRangeFilter } from "@/schema/composed/cases/cases-filters";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // CaseListDTO

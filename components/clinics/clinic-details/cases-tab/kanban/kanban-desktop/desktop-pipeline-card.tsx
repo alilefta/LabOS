@@ -11,7 +11,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import { usePermissions } from "@/providers/permissions-provider";
 import { ClinicActiveCaseDTO } from "@/schema/composed/clinics/clinic-cases.dtos";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface CardProps {
 	caseItem: ClinicActiveCaseDTO;

@@ -8,6 +8,7 @@ import { fallbackPayload, sanitizeInput, toPayload } from "./safe-action-helpers
 import { generalPrisma } from "./prisma";
 import { AuthUser } from "./auth";
 import { LabRole, LabRoleSchema } from "@/schema/base/enums.base";
+import { cache } from "react";
 
 // ----------------------------------------
 // Base Client
@@ -132,20 +133,27 @@ export const requireLabMiddleware = createMiddleware<{
 	}
 
 	// 2. Verify lab actually exists in DB — don't trust session alone
-	const lab = await generalPrisma.lab.findUnique({
-		where: { id: user.labId },
-		select: { id: true, title: true, slug: true },
+	const getVerifiedLab = cache(async (labId: string) => {
+		return generalPrisma.lab.findUnique({
+			where: { id: labId },
+			select: { id: true, title: true, slug: true },
+		});
 	});
+
+	const lab = await getVerifiedLab(user.labId);
 
 	if (!lab) {
 		throw ERRORS.LAB_NOT_FOUND;
 	}
 
 	// 3. Verify LabUser record exists and belongs to this lab
-	const labUser = await generalPrisma.labUser.findUnique({
-		where: { authUserId: user.id },
-		select: { id: true, labId: true, role: true, isActive: true },
+	const getVerifiedLabUser = cache(async (userId: string) => {
+		return generalPrisma.labUser.findUnique({
+			where: { authUserId: userId },
+			select: { id: true, labId: true, role: true, isActive: true },
+		});
 	});
+	const labUser = await getVerifiedLabUser(user.id);
 
 	if (!labUser) {
 		throw ERRORS.NOT_MEMBER;

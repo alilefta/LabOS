@@ -15,7 +15,6 @@ import { getServerSession } from "@/lib/get-session";
 import { getCurrentLabUserRoleByAuthUserId } from "@/data/lab";
 import { PermissionsProvider } from "@/providers/permissions-provider";
 import { EditCaseButton } from "@/components/cases/case-details/edit-case-button/edit-case-button";
-import { cn } from "@/lib/utils";
 
 export const metadata = {
 	title: "Case Dossier | LabOS",
@@ -23,7 +22,7 @@ export const metadata = {
 
 export default async function CaseDossierPage({ params }: { params: Promise<{ caseId: string }> }) {
 	const { caseId } = await params;
-
+	console.log("Case Details page re-rendered");
 	const session = await getServerSession();
 	if (!session) redirect("/sign-in");
 

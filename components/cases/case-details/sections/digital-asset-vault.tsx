@@ -1,12 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { Box, ImageIcon, Video, Download, Eye, Layers, FileCode2, ExternalLink, Play } from "lucide-react";
-import Image from "next/image";
+import { Box, ImageIcon, Video, Download, Eye, Layers, FileCode2, Play } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ClinicalAssetLightbox } from "@/components/shared/file-assets/clinical-asset-lightbox";
-import { AssetFileType } from "@/schema/base/enums.base";
 import { CaseAssetFileDetailsUI } from "@/schema/composed/case-asset-file.details";
 
 interface Props {
@@ -55,8 +53,8 @@ export function DigitalAssetVault({ assets }: Props) {
 							key={asset.id}
 							onClick={() => setLightboxIndex(index)}
 							className={cn(
-								"group relative aspect-square rounded-[24px] border transition-all duration-300 cursor-pointer overflow-hidden shadow-sm",
-								is3D ? "border-primary/20 bg-primary/[0.02] hover:border-primary/50" : "border-border bg-card hover:border-ai/50",
+								"group relative aspect-square rounded-3xl border transition-all duration-300 cursor-pointer overflow-hidden shadow-sm",
+								is3D ? "border-primary/20 bg-primary/2 hover:border-primary/50" : "border-border bg-card hover:border-ai/50",
 							)}
 						>
 							{/* 1. Thumbnail Render */}
@@ -70,9 +68,9 @@ export function DigitalAssetVault({ assets }: Props) {
 									</div>
 								) : (
 									/* 3D Model Placeholder */
-									<div className="w-full h-full bg-gradient-to-br from-slate-100 to-slate-200 dark:from-[#121214] dark:to-[#09090B] flex items-center justify-center relative overflow-hidden">
+									<div className="w-full h-full bg-linear-to-br from-slate-100 to-slate-200 dark:from-[#121214] dark:to-[#09090B] flex items-center justify-center relative overflow-hidden">
 										{/* Subtle technical grid background for 3D files */}
-										<div className="absolute inset-0 opacity-[0.03] dark:opacity-[0.05] bg-[size:10px_10px] bg-[linear-gradient(to_right,#808080_1px,transparent_1px),linear-gradient(to_bottom,#808080_1px,transparent_1px)]" />
+										<div className="absolute inset-0 opacity-[0.03] dark:opacity-[0.05] bg-size-[10px_10px] bg-[linear-gradient(to_right,#808080_1px,transparent_1px),linear-gradient(to_bottom,#808080_1px,transparent_1px)]" />
 										<Box className="w-10 h-10 text-primary opacity-40 group-hover:scale-110 group-hover:opacity-100 transition-all duration-500" />
 									</div>
 								)}

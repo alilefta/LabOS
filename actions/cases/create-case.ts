@@ -1037,14 +1037,7 @@ export const loadDraftByIdAction = actionClientWithLab
 						workType: { select: { id: true, name: true } },
 					},
 				},
-				staffAssignments: {
-					select: {
-						staffId: true,
-						roleCategory: true,
-						commissionType: true,
-						commissionValue: true,
-					},
-				},
+				staffAssignments: true,
 				caseAssetFiles: true,
 			},
 		});

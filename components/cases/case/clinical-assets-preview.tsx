@@ -184,6 +184,7 @@ export const ClinicalAssetPreview = memo(function ClinicalAssetPreview({ control
 											<CustomFieldWithLabel field={inputField} fieldState={fieldState} fieldTitle="Asset Name" nameInSchema={`caseAssetFiles.${index}.title`}>
 												<input
 													{...inputField}
+													value={inputField.value ?? undefined}
 													// Disable editing titles for existing files to maintain clinical audit trail
 													disabled={!isNewlyAdded && mode === "edit"}
 													className={cn(

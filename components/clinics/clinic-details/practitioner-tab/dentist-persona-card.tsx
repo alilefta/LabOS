@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { DentistPersonaDTO } from "@/schema/composed/clinics/clinic-dentists.dtos";
 import { sanitizeDentistName } from "@/lib/formatters/names-formatters";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -43,6 +43,8 @@ export const DentistPersonaCard = memo(function DentistPersonaCard({ dentist, cl
 	const formatCurrency = (val: number) => {
 		return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(val);
 	};
+
+	console.log("DentistPersonaCard - rendered");
 
 	// --- GPU-ACCELERATED GLOW LOGIC ---
 	let glowVar = null;
@@ -112,7 +114,13 @@ export const DentistPersonaCard = memo(function DentistPersonaCard({ dentist, cl
 					</DropdownMenuTrigger>
 					<DropdownMenuContent align="end" className="w-56 rounded-xl border-border shadow-premium dark:bg-[#121214]">
 						<DropdownMenuLabel className="text-[10px] text-muted-foreground uppercase tracking-wider">Management</DropdownMenuLabel>
-						<DropdownMenuItem className="cursor-pointer font-medium py-2.5" onClick={() => onEdit(dentist.id)}>
+						<DropdownMenuItem
+							className="cursor-pointer font-medium py-2.5"
+							onClick={() => {
+								console.log("Edit dentist button clicked", { id: dentist.id });
+								onEdit(dentist.id);
+							}}
+						>
 							<Edit2 className="w-4 h-4 mr-2" /> Edit Profile
 						</DropdownMenuItem>
 						{dentist.isActive && !dentist.isDefault && (
@@ -197,19 +205,17 @@ export const DentistPersonaCard = memo(function DentistPersonaCard({ dentist, cl
 							<Layers className="w-3.5 h-3.5" /> Top Rx
 						</span>
 						{dentist.metrics.topRx ? (
-							<TooltipProvider delayDuration={150}>
-								<Tooltip>
-									<TooltipTrigger asChild>
-										<button className="text-xs font-bold text-foreground text-right leading-tight max-w-35 truncate cursor-help border-b border-dashed border-foreground/30 hover:border-foreground transition-colors">
-											{dentist.metrics.topRx}
-										</button>
-									</TooltipTrigger>
-									<TooltipContent className="glass-ai-panel border-border shadow-xl z-50">
-										<p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1">Most Prescribed Product</p>
-										<p className="text-xs font-bold text-foreground">{dentist.metrics.topRx}</p>
-									</TooltipContent>
-								</Tooltip>
-							</TooltipProvider>
+							<Tooltip>
+								<TooltipTrigger asChild>
+									<button className="text-xs font-bold text-foreground text-right leading-tight max-w-35 truncate cursor-help border-b border-dashed border-foreground/30 hover:border-foreground transition-colors">
+										{dentist.metrics.topRx}
+									</button>
+								</TooltipTrigger>
+								<TooltipContent className="glass-ai-panel border-border shadow-xl z-50">
+									<p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1">Most Prescribed Product</p>
+									<p className="text-xs font-bold text-foreground">{dentist.metrics.topRx}</p>
+								</TooltipContent>
+							</Tooltip>
 						) : (
 							<span className="text-xs font-medium text-muted-foreground italic">No Data</span>
 						)}

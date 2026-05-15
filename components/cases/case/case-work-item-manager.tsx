@@ -9,7 +9,7 @@ import { WorkItemEditorModal } from "@/components/modals/cases/work-items/work-i
 import { cn } from "@/lib/utils";
 import { TeethQuadrantSummary } from "./teeth-quadrant-summary";
 import { CreateCaseWorkItemInput } from "@/schema/composed/case-work-item.details";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useQueryClient } from "@tanstack/react-query";
 import { ProductDetailsUI } from "@/schema/composed/product.details";
 import { JawType } from "@/schema/base/enums.base";
@@ -140,16 +140,14 @@ export const CaseWorkItemManager = memo(function CaseWorkItemManager({ categoryN
 				<div className="flex items-center gap-2">
 					<div className="w-6 h-6 rounded-md bg-primary/10 text-primary flex items-center justify-center font-bold text-xs">2</div>
 					<h3 className="text-[15px] font-bold text-foreground tracking-tight">Select Case Items</h3>
-					<TooltipProvider>
-						<Tooltip delayDuration={300}>
-							<TooltipTrigger asChild>
-								<div className="w-5 h-5 rounded-full bg-slate-100 dark:bg-white/10 flex items-center justify-center cursor-help transition-colors hover:bg-slate-200 dark:hover:bg-white/20">
-									<Info className="w-3 h-3 text-muted-foreground" />
-								</div>
-							</TooltipTrigger>
-							<TooltipContent className="max-w-50">Case items represent the elements or jaws of the case.</TooltipContent>
-						</Tooltip>
-					</TooltipProvider>
+					<Tooltip delayDuration={300}>
+						<TooltipTrigger asChild>
+							<div className="w-5 h-5 rounded-full bg-slate-100 dark:bg-white/10 flex items-center justify-center cursor-help transition-colors hover:bg-slate-200 dark:hover:bg-white/20">
+								<Info className="w-3 h-3 text-muted-foreground" />
+							</div>
+						</TooltipTrigger>
+						<TooltipContent className="max-w-50">Case items represent the elements or jaws of the case.</TooltipContent>
+					</Tooltip>
 				</div>
 				<Button
 					type="button"

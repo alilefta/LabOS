@@ -92,7 +92,10 @@ export function AdvanceStatusButton({ caseId, currentStatus, staffAssignments }:
 		}
 
 		// Calculate if we need to warn them about missing staff
-		const warning = getStatusTransitionWarning(newStatus, staffAssignments || []);
+		const warning = getStatusTransitionWarning(
+			newStatus,
+			staffAssignments.map((s) => s.roleCategory),
+		);
 
 		if (warning) {
 			setWarningMessage(warning);

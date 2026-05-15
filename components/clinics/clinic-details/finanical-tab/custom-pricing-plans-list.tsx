@@ -37,7 +37,7 @@ const CUSTOM_PRICING_PLANS = [
 	},
 ];
 
-export function CustomPricingPlanList() {
+export function CustomPricingPlanList({ clinicId }: { clinicId: string }) {
 	const formatMoney = (val: number) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(val);
 
 	return (

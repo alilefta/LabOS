@@ -106,7 +106,7 @@ export function EditStaffPopover({ caseId, roleCategory, currentStaffId, childre
 			{/* CRITICAL FIX: Removed the wrapper div completely. We use purely asChild so your flex layouts in the Sidebar remain 100% untouched! */}
 			<PopoverTrigger asChild>{children}</PopoverTrigger>
 
-			<PopoverContent className="p-0 rounded-2xl border-border shadow-premium overflow-hidden w-[280px]" align="end">
+			<PopoverContent className="p-0 rounded-2xl border-border shadow-premium overflow-hidden w-70" align="end">
 				<Command className="dark:bg-[#121214]">
 					<CommandInput placeholder="Search team members..." className="py-2.5 text-[13px]" />
 

@@ -1,5 +1,5 @@
 // Used by server components only!
-
+"use server";
 import { ERRORS } from "@/lib/errors";
 import { getServerSession } from "@/lib/get-session";
 import { tenantPrisma } from "@/lib/prisma";

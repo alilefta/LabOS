@@ -20,6 +20,8 @@ export const DateRangeFilterSchema = z.object({
 	to: z.date().nullable(),
 });
 
+export type DateRangeFilter = z.infer<typeof DateRangeFilterSchema>;
+
 export const PulseFilterSchema = z.enum(["overdue", "due_today", "unassigned", "processing", "all"]);
 export type PulseFilter = z.infer<typeof PulseFilterSchema>;
 

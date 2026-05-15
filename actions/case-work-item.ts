@@ -7,6 +7,7 @@ import { APIError } from "better-auth";
 import z from "zod/v3";
 import { ERRORS } from "@/lib/errors";
 import { caseWorkItemServerToFrontDTO } from "@/lib/server-only-helpers";
+import { composeWorkItem, normalizeWorkItem } from "@/lib/mappers";
 
 export const getCaseWorkItemByCase = actionClientWithLab
 	.metadata({
@@ -41,13 +42,10 @@ export const getCaseWorkItemByCase = actionClientWithLab
 							}
 						: undefined,
 				},
-				include: {
-					lab: true,
-				},
 			});
 
 			return {
-				caseWorkItems: caseWorkItemServerToFrontDTO(caseWorkItems),
+				caseWorkItems: caseWorkItems.map(normalizeWorkItem),
 			};
 		} catch (e) {
 			if (e instanceof APIError || e instanceof Error) {

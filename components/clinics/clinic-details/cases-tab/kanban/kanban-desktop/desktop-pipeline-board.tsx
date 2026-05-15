@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { memo, useCallback, useMemo, useState } from "react";
 import { DndContext, DragOverlay, closestCorners, PointerSensor, useSensor, useSensors, DragStartEvent, DragEndEvent, defaultDropAnimationSideEffects } from "@dnd-kit/core";
 import { toast } from "sonner";
 
@@ -23,7 +23,7 @@ interface Props {
 	requestStatusTransition: (caseItem: ClinicActiveCaseDTO, newStatus: CaseStatus, oldStatus: CaseStatus) => void;
 }
 
-export function DesktopPipelineBoard({ requestStatusTransition }: Props) {
+export const DesktopPipelineBoard = memo(function DesktopPipelineBoard({ requestStatusTransition }: Props) {
 	// 1. ZUSTAND STORE CONNECTIONS
 	const localCases = useClinicPipelineStore((state) => state.localCases);
 	const setIsDragging = useClinicPipelineStore((state) => state.setIsDragging);
@@ -141,4 +141,4 @@ export function DesktopPipelineBoard({ requestStatusTransition }: Props) {
 			</DragOverlay>
 		</DndContext>
 	);
-}
+});

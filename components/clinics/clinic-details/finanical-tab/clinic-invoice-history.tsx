@@ -14,7 +14,7 @@ const INVOICES = [
 	{ id: "INV-2601-009", date: "Jan 01, 2026", due: "Jan 15, 2026", amount: 5120.75, status: "PAID" },
 ];
 
-export function ClinicInvoiceHistory() {
+export function ClinicInvoiceHistory({ clinicId }: { clinicId: string }) {
 	const [search, setSearch] = useState("");
 
 	const getStatusUI = (status: string) => {
@@ -71,7 +71,7 @@ export function ClinicInvoiceHistory() {
 							<th className="h-10 px-6 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Due Date</th>
 							<th className="h-10 px-6 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Status</th>
 							<th className="h-10 px-6 text-[10px] font-bold text-muted-foreground uppercase tracking-widest text-right">Amount</th>
-							<th className="h-10 px-6 w-10">Actions</th> {/* Action column */}
+							<th className="h-10 px-6 w-10">Actions</th>
 						</tr>
 					</thead>
 					<tbody className="divide-y divide-border">

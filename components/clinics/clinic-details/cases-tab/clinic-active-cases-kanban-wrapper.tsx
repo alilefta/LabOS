@@ -8,9 +8,8 @@ import { CaseStatus } from "@/schema/base/enums.base";
 import { handleSafeActionError } from "@/lib/safe-action-helpers";
 import { Skeleton } from "@/components/ui/skeleton";
 import { updateCaseStatusAction } from "@/actions/cases/update-case";
-import { ClinicActiveCasesKanban } from "./clinic-active-cases-kanban";
+import { ClinicActiveCasesKanban } from "./kanban/clinic-active-cases-kanban";
 import { getClinicActivePipelineAction } from "@/actions/clinics/get-clinic";
-import { TooltipProvider } from "@/components/ui/tooltip";
 
 interface Props {
 	clinicId: string;
@@ -86,26 +85,24 @@ export const ClinicActiveCasesKanbanWrapper = memo(function ClinicActiveCasesKan
 	}
 
 	return (
-		<TooltipProvider delayDuration={200}>
-			<div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 flex flex-col h-full min-h-0">
-				{/* Context Header */}
-				<div className="flex items-center justify-between shrink-0">
-					<div>
-						<h3 className="text-sm font-bold text-foreground tracking-tight">Active Production Pipeline</h3>
-						<p className="text-[11px] text-muted-foreground mt-1 font-medium">
-							Currently manufacturing <span className="font-bold text-foreground">{flatCases.length}</span> active cases for this partner.
-						</p>
-					</div>
+		<div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 flex flex-col h-full min-h-0">
+			{/* Context Header */}
+			<div className="flex items-center justify-between shrink-0">
+				<div>
+					<h3 className="text-sm font-bold text-foreground tracking-tight">Active Production Pipeline</h3>
+					<p className="text-[11px] text-muted-foreground mt-1 font-medium">
+						Currently manufacturing <span className="font-bold text-foreground">{flatCases.length}</span> active cases for this partner.
+					</p>
 				</div>
+			</div>
 
-				{/* 
+			{/* 
                 THE KANBAN WRAPPER 
                 We pass the flat array and the mutation handler down.
             */}
-				<div className="flex-1 min-h-0 relative w-full">
-					<ClinicActiveCasesKanban clinicId={clinicId} serverData={flatCases} onStatusChangeAction={handleStatusChange} />
-				</div>
+			<div className="flex-1 min-h-0 relative w-full">
+				<ClinicActiveCasesKanban clinicId={clinicId} serverData={flatCases} onStatusChangeAction={handleStatusChange} />
 			</div>
-		</TooltipProvider>
+		</div>
 	);
 });

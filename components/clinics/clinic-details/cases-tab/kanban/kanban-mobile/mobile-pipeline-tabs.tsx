@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { memo, useMemo, useState } from "react";
 import { Layers, Inbox, Clock, Wrench, LucideIcon, PackageCheck } from "lucide-react";
 import { CaseStatus } from "@/schema/base/enums.base";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -22,7 +22,7 @@ interface MobilePipelineTabsProps {
 	requestStatusTransition: (caseItem: ClinicActiveCaseDTO, newStatus: CaseStatus, oldStatus: CaseStatus) => void;
 }
 
-export function MobilePipelineTabs({ requestStatusTransition }: MobilePipelineTabsProps) {
+export const MobilePipelineTabs = memo(function MobilePipelineTabs({ requestStatusTransition }: MobilePipelineTabsProps) {
 	// 1. ZUSTAND STORE CONNECTION
 	const localCases = useClinicPipelineStore((state) => state.localCases);
 
@@ -119,4 +119,4 @@ export function MobilePipelineTabs({ requestStatusTransition }: MobilePipelineTa
 			</Tabs>
 		</div>
 	);
-}
+});

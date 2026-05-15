@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { ToothPosition } from "@/schema/base/tooth-position.base";
 import { teethPaths as TEETH_PATHS } from "@/lib/odontogram-data";
 import { CheckSquare, Eraser, Lock, ShieldCheck } from "lucide-react";
@@ -120,109 +120,101 @@ export const HighFidelityDentalChart = memo(function HighFidelityDentalChart({ j
 	}, [isReadOnly, jawType]);
 
 	return (
-		<TooltipProvider delayDuration={150}>
+		<div
+			className={cn(
+				"w-full h-full flex flex-col items-center justify-center relative transition-colors duration-500",
+				isReadOnly ? "p-0" : "flex-1 p-8 overflow-hidden bg-slate-50 dark:bg-[#09090B]",
+			)}
+		>
+			{/* Ambient Radial Glow (Behind the teeth) */}
 			<div
 				className={cn(
-					"w-full h-full flex flex-col items-center justify-center relative transition-colors duration-500",
-					isReadOnly ? "p-0" : "flex-1 p-8 overflow-hidden bg-slate-50 dark:bg-[#09090B]",
+					"absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-200 h-200 bg-[radial-gradient(closest-side,var(--color-primary),transparent)] opacity-[0.08] dark:opacity-10 pointer-events-none",
+					isReadOnly && "hidden",
 				)}
-			>
-				{/* Ambient Radial Glow (Behind the teeth) */}
-				<div
-					className={cn(
-						"absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-200 h-200 bg-[radial-gradient(closest-side,var(--color-primary),transparent)] opacity-[0.08] dark:opacity-10 pointer-events-none",
-						isReadOnly && "hidden",
-					)}
-				/>
+			/>
 
-				{/* --- READ-ONLY BADGE (Corners) --- */}
-				{isReadOnly && (
-					<div className="absolute top-3 right-3 z-20 flex items-center gap-1.5 bg-background/80 backdrop-blur-xl px-2.5 py-1.5 rounded-lg border border-border shadow-sm">
-						<ShieldCheck className="w-3.5 h-3.5 text-primary" />
-						<span className="md:text-[10px] text-[9px] font-bold uppercase tracking-widest text-muted-foreground">Clinical View</span>
-					</div>
-				)}
-				{/* Power Actions (Buttons) */}
-				{jawType !== "OTHER" && !isReadOnly && (
-					<div
-						className={cn(
-							"absolute top-4 right-4 md:top-6 md:right-6 z-20 flex items-center gap-2 bg-background/80 backdrop-blur-xl p-1.5 rounded-2xl border border-border shadow-sm transition-opacity duration-400",
-							isLocked && "opacity-50 pointer-events-none",
-						)}
-					>
-						<Button size="sm" variant="ghost" onClick={handleSelectArch} disabled={isLocked} className="h-8 rounded-xl text-[11px] font-bold text-primary hover:bg-primary/10">
-							<CheckSquare className="w-3.5 h-3.5 mr-1.5" /> Select Full Arch
-						</Button>
-						<div className="w-px h-4 bg-border" />
-						<Button
-							size="sm"
-							variant="ghost"
-							onClick={handleClearArch}
-							disabled={isLocked || selectedTeeth.length === 0}
-							className="h-8 rounded-xl text-[11px] font-bold text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-						>
-							<Eraser className="w-3.5 h-3.5 mr-1.5" /> Clear
-						</Button>
-					</div>
-				)}
+			{/* --- READ-ONLY BADGE (Corners) --- */}
+			{isReadOnly && (
+				<div className="absolute top-3 right-3 z-20 flex items-center gap-1.5 bg-background/80 backdrop-blur-xl px-2.5 py-1.5 rounded-lg border border-border shadow-sm">
+					<ShieldCheck className="w-3.5 h-3.5 text-primary" />
+					<span className="md:text-[10px] text-[9px] font-bold uppercase tracking-widest text-muted-foreground">Clinical View</span>
+				</div>
+			)}
+			{/* Power Actions (Buttons) */}
+			{jawType !== "OTHER" && !isReadOnly && (
 				<div
 					className={cn(
-						"relative z-10 w-full mx-auto flex items-center justify-center transition-transform duration-700 ease-[cubic-bezier(0.23,1,0.32,1)]",
-						// THE FIX: Tighter aspect ratios and larger max-widths so it fills the card beautifully
-						isReadOnly ? "aspect-430/330 max-w-85" : "aspect-430/720 max-w-95 lg:max-w-105",
-						!isReadOnly && jawType === "UPPER"
-							? "translate-y-[30%] lg:translate-y-[25%]"
-							: !isReadOnly && jawType === "LOWER"
-								? "lg:-translate-y-[25%] -translate-y-[22%]"
-								: "translate-y-0",
+						"absolute top-4 right-4 md:top-6 md:right-6 z-20 flex items-center gap-2 bg-background/80 backdrop-blur-xl p-1.5 rounded-2xl border border-border shadow-sm transition-opacity duration-400",
+						isLocked && "opacity-50 pointer-events-none",
 					)}
 				>
-					<svg
-						viewBox={svgViewBox}
-						shapeRendering="geometricPrecision"
-						className={cn(
-							"w-full h-full overflow-visible drop-shadow-xl transition-all duration-500 will-change-transform",
-							isLocked && !isReadOnly && "grayscale-30 blur-[1px] opacity-30",
-							isReadOnly && "pointer-events-none",
-						)}
+					<Button size="sm" variant="ghost" onClick={handleSelectArch} disabled={isLocked} className="h-8 rounded-xl text-[11px] font-bold text-primary hover:bg-primary/10">
+						<CheckSquare className="w-3.5 h-3.5 mr-1.5" /> Select Full Arch
+					</Button>
+					<div className="w-px h-4 bg-border" />
+					<Button
+						size="sm"
+						variant="ghost"
+						onClick={handleClearArch}
+						disabled={isLocked || selectedTeeth.length === 0}
+						className="h-8 rounded-xl text-[11px] font-bold text-muted-foreground hover:text-destructive hover:bg-destructive/10"
 					>
-						{renderedQuadrants.map((quadrant) => {
-							const isFaded = !isReadOnly && ((jawType === "UPPER" && !quadrant.isUpper) || (jawType === "LOWER" && quadrant.isUpper));
-
-							return (
-								<g
-									key={quadrant.id}
-									transform={quadrant.transform}
-									className={cn(
-										"transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)]",
-										isFaded && "opacity-15 grayscale blur-[2px] pointer-events-none",
-										isReadOnly && "pointer-events-auto",
-									)}
-								>
-									{TEETH_PATHS.map((tooth, index) => {
-										const toothEnum = quadrant.teeth[index];
-										return (
-											<ToothItem key={toothEnum} toothData={tooth} enumId={toothEnum} isSelected={selectedSet.has(toothEnum)} isDisabled={isDisabled} onToggle={handleToggle} />
-										);
-									})}
-								</g>
-							);
-						})}
-					</svg>
+						<Eraser className="w-3.5 h-3.5 mr-1.5" /> Clear
+					</Button>
 				</div>
-				{isLocked && !isReadOnly && jawType !== "OTHER" && (
-					<div className="absolute inset-0 z-30 flex items-center justify-center animate-in fade-in zoom-in-95 duration-500 bg-background/10 ">
-						<div className="bg-background/90 backdrop-blur-xl border border-border shadow-2xl p-6 rounded-3xl flex flex-col items-center text-center max-w-70">
-							<div className="w-12 h-12 rounded-2xl bg-amber-500/10 flex items-center justify-center text-amber-500 mb-4 shadow-[0_0_15px_rgba(245,158,11,0.2)]">
-								<Lock className="w-6 h-6" />
-							</div>
-							<h3 className="text-base font-bold text-foreground mb-1 text-balance">Mapping Locked</h3>
-							<p className="text-xs text-muted-foreground font-medium leading-relaxed">Please select a product and pricing plan to enable anatomical mapping.</p>
-						</div>
-					</div>
+			)}
+			<div
+				className={cn(
+					"relative z-10 w-full mx-auto flex items-center justify-center transition-transform duration-700 ease-[cubic-bezier(0.23,1,0.32,1)]",
+					// THE FIX: Tighter aspect ratios and larger max-widths so it fills the card beautifully
+					isReadOnly ? "aspect-430/330 max-w-85" : "aspect-430/720 max-w-95 lg:max-w-105",
+					!isReadOnly && jawType === "UPPER" ? "translate-y-[30%] lg:translate-y-[25%]" : !isReadOnly && jawType === "LOWER" ? "lg:-translate-y-[25%] -translate-y-[22%]" : "translate-y-0",
 				)}
+			>
+				<svg
+					viewBox={svgViewBox}
+					shapeRendering="geometricPrecision"
+					className={cn(
+						"w-full h-full overflow-visible drop-shadow-xl transition-all duration-500 will-change-transform",
+						isLocked && !isReadOnly && "grayscale-30 blur-[1px] opacity-30",
+						isReadOnly && "pointer-events-none",
+					)}
+				>
+					{renderedQuadrants.map((quadrant) => {
+						const isFaded = !isReadOnly && ((jawType === "UPPER" && !quadrant.isUpper) || (jawType === "LOWER" && quadrant.isUpper));
+
+						return (
+							<g
+								key={quadrant.id}
+								transform={quadrant.transform}
+								className={cn(
+									"transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)]",
+									isFaded && "opacity-15 grayscale blur-[2px] pointer-events-none",
+									isReadOnly && "pointer-events-auto",
+								)}
+							>
+								{TEETH_PATHS.map((tooth, index) => {
+									const toothEnum = quadrant.teeth[index];
+									return <ToothItem key={toothEnum} toothData={tooth} enumId={toothEnum} isSelected={selectedSet.has(toothEnum)} isDisabled={isDisabled} onToggle={handleToggle} />;
+								})}
+							</g>
+						);
+					})}
+				</svg>
 			</div>
-		</TooltipProvider>
+			{isLocked && !isReadOnly && jawType !== "OTHER" && (
+				<div className="absolute inset-0 z-30 flex items-center justify-center animate-in fade-in zoom-in-95 duration-500 bg-background/10 ">
+					<div className="bg-background/90 backdrop-blur-xl border border-border shadow-2xl p-6 rounded-3xl flex flex-col items-center text-center max-w-70">
+						<div className="w-12 h-12 rounded-2xl bg-amber-500/10 flex items-center justify-center text-amber-500 mb-4 shadow-[0_0_15px_rgba(245,158,11,0.2)]">
+							<Lock className="w-6 h-6" />
+						</div>
+						<h3 className="text-base font-bold text-foreground mb-1 text-balance">Mapping Locked</h3>
+						<p className="text-xs text-muted-foreground font-medium leading-relaxed">Please select a product and pricing plan to enable anatomical mapping.</p>
+					</div>
+				</div>
+			)}
+		</div>
 	);
 });
 

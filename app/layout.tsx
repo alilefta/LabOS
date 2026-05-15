@@ -8,6 +8,13 @@ import { ThemeProvider } from "@/providers/theme-provider";
 import { NextSSRPlugin } from "@uploadthing/react/next-ssr-plugin";
 import { extractRouterConfig } from "uploadthing/server";
 import { labOSUploadRouter } from "@/app/api/uploadthing/core";
+import { connection } from "next/server";
+import { Suspense } from "react";
+
+async function UTSSR() {
+	await connection();
+	return <NextSSRPlugin routerConfig={extractRouterConfig(labOSUploadRouter)} />;
+}
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -30,7 +37,9 @@ export default function RootLayout({
 		<html lang="en" className={cn("font-sans", inter.variable)} suppressHydrationWarning>
 			<body className={` ${jetBrainMono.variable} ${inter.variable} antialiased`}>
 				<ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-					<NextSSRPlugin routerConfig={extractRouterConfig(labOSUploadRouter)} />
+					<Suspense fallback={<p>Waiting for SSR Plugin</p>}>
+						<UTSSR />
+					</Suspense>
 					{children}
 					<Toaster />
 				</ThemeProvider>

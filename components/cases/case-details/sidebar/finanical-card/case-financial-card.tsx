@@ -3,7 +3,7 @@
 import { Wallet, LockKeyhole, Info, Receipt, Percent, Calculator, Loader2 } from "lucide-react";
 import { CaseDetailsUI } from "@/schema/composed/case.details";
 import { usePermissions } from "@/providers/permissions-provider";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { memo } from "react";
 import { useAction } from "next-safe-action/hooks";
 import { recalculateCaseFinancialsAction } from "@/actions/cases/recaclulate-finanicals";
@@ -64,16 +64,14 @@ export const CaseFinancialCard = memo(function CaseFinancialCard({ dentalCase }:
 					<Wallet className="w-3.5 h-3.5" /> Financial Summary
 				</h3>
 				{canViewDetailedFinancials && (
-					<TooltipProvider>
-						<Tooltip>
-							<TooltipTrigger>
-								<Info className="w-3.5 h-3.5 text-emerald-500 opacity-50" />
-							</TooltipTrigger>
-							<TooltipContent className="glass-ai-panel p-2 text-[10px] max-w-48">
-								This summary reflects the clinic-specific discount rates and work item totals calculated at intake.
-							</TooltipContent>
-						</Tooltip>
-					</TooltipProvider>
+					<Tooltip>
+						<TooltipTrigger>
+							<Info className="w-3.5 h-3.5 text-emerald-500 opacity-50" />
+						</TooltipTrigger>
+						<TooltipContent className="glass-ai-panel p-2 text-[10px] max-w-48">
+							This summary reflects the clinic-specific discount rates and work item totals calculated at intake.
+						</TooltipContent>
+					</Tooltip>
 				)}
 			</div>
 

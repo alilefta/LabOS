@@ -91,6 +91,8 @@ export async function getDentalCaseById(caseId: string) {
 				},
 			},
 			invoiceCase: true,
+			remakes: true,
+			originalCase: true,
 		},
 	});
 

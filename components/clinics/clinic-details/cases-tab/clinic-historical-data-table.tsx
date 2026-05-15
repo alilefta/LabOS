@@ -18,7 +18,6 @@ import { usePermissions } from "@/providers/permissions-provider";
 import { getClinicHistoricalCasesAction } from "@/actions/clinics/get-clinic";
 import { clinicHistoricalColumns } from "./historical-cases-table/clinic-historical-columns";
 import { CasesFilters, DEFAULT_CASES_FILTERS } from "@/schema/composed/cases/cases-filters";
-import { TooltipProvider } from "@/components/ui/tooltip";
 
 interface Props {
 	clinicId: string;

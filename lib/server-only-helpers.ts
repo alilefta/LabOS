@@ -73,21 +73,21 @@ type CaseStaffAssignmentWithStaffMember = CaseStaffAssignmentModel & {
 	staff: LabStaffModel | null;
 };
 
-export function staffAssignmentServerToFrontDTO(caseStaffAssignments: CaseStaffAssignmentWithStaffMember[]): CaseStaffAssignmentDetailsUI[] {
-	return caseStaffAssignments.map((csa) => ({
-		...csa,
-		commissionTotal: Number(csa.commissionTotal),
-		commissionValue: Number(csa.commissionValue),
-		staff: csa.staff
-			? {
-					...csa.staff,
-					commissionValue: csa.staff.commissionValue ? Number(csa.staff.commissionValue) : null,
-				}
-			: null,
-		case: null,
-		lab: null,
-	}));
-}
+// export function staffAssignmentServerToFrontDTO(caseStaffAssignments: CaseStaffAssignmentWithStaffMember[]): CaseStaffAssignmentDetailsUI[] {
+// 	return caseStaffAssignments.map((csa) => ({
+// 		...csa,
+// 		commissionTotal: Number(csa.commissionTotal),
+// 		commissionValue: Number(csa.commissionValue),
+// 		staff: csa.staff
+// 			? {
+// 					...csa.staff,
+// 					commissionValue: csa.staff.commissionValue ? Number(csa.staff.commissionValue) : null,
+// 				}
+// 			: null,
+// 		case: null,
+// 		lab: null,
+// 	}));
+// }
 
 export function clinicNormalizer(clinic: ClinicModel): ClinicDetailsUI {
 	return {
@@ -126,65 +126,6 @@ function pricingPlansNormalizer(pricingPlan: CasePricingPlanModel[] | CasePricin
 	}
 }
 
-// export function caseServerToFrontDTO(
-// 	dentalCase: CaseModel & {
-// 		caseItems: CaseWorkItemModel[];
-// 		staffAssignments: CaseStaffAssignmentWithStaffMember[];
-// 	},
-// ): CaseDetailsUI | null {
-// 	return {
-// 		...dentalCase,
-// 		grandTotal: dentalCase.grandTotal ? Number(dentalCase.grandTotal) : null,
-// 		caseItems: caseWorkItemServerToFrontDTO(dentalCase.caseItems),
-// 		staffAssignments: staffAssignmentServerToFrontDTO(dentalCase.staffAssignments),
-// 		clinic: null,
-// 	};
-// }
-
-// type ProductWithWorkType = ProductModel & {
-// 	workType: WorkTypeModel | undefined;
-// };
-
-export function serverCaseToCaseDetailsDTOMapper(
-	dentalCase:
-		| (CaseModel & {
-				caseItems: CaseItemsWithDetails[];
-				staffAssignments: CaseStaffAssignmentWithStaffMember[] | null;
-				caseCategory: CaseCategoryModel | null;
-				clinic: ClinicModel | null;
-				caseAssetFiles: CaseAssetFileModel[] | null;
-				lab: LabModel | null;
-				patient: PatientModel | null;
-				dentist: DentistModel | null;
-		  })
-		| null,
-): CaseDetailsUI | null {
-	if (!dentalCase) return null;
-
-	return {
-		...dentalCase,
-		grandTotal: dentalCase.grandTotal ? Number(dentalCase.grandTotal) : null,
-		staffAssignments: dentalCase.staffAssignments ? staffAssignmentServerToFrontDTO(dentalCase.staffAssignments) : null,
-		caseItems: dentalCase.caseItems.map((cwi) => ({
-			...cwi,
-			casePricingPlan: cwi.casePricingPlan ? (pricingPlansNormalizer(cwi.casePricingPlan) as CasePricingPlanBase) : null,
-			additionalToothPrice: cwi.additionalToothPrice === null ? null : Number(cwi.additionalToothPrice),
-			bulkPrice: cwi.bulkPrice === null ? null : Number(cwi.bulkPrice),
-			firstToothPrice: cwi.firstToothPrice === null ? null : Number(cwi.firstToothPrice),
-			teethCountToApplyBulkPrice: cwi.teethCountToApplyBulkPrice === null ? null : Number(cwi.teethCountToApplyBulkPrice),
-			toothPrice: cwi.toothPrice === null ? null : Number(cwi.toothPrice),
-			totalPrice: Number(cwi.totalPrice),
-			product: cwi.product,
-			workType: cwi.workType,
-			Lab: null,
-			dentalCase: null,
-			selectedTeeth: cwi.selectedTeeth,
-		})),
-
-		clinic: dentalCase.clinic ? clinicNormalizer(dentalCase.clinic) : null,
-	};
-}
-
 // ── Draft normalizers ──────────────────────────────────────────────────────
 
 type DraftCaseRaw = CaseModel & {
@@ -193,12 +134,13 @@ type DraftCaseRaw = CaseModel & {
 	caseItems: (CaseWorkItemModel & {
 		selectedTeeth: Pick<SelectedToothModel, "toothPosition">[];
 	})[];
-	staffAssignments: Partial<CaseStaffAssignmentModel>[];
-	caseAssetFiles: Partial<CaseAssetFileModel>[];
+	staffAssignments: CaseStaffAssignmentModel[];
+	caseAssetFiles: CaseAssetFileModel[];
 };
 
 export function draftCaseServerToDTO(raw: DraftCaseRaw): DraftCaseDTO {
 	return {
+		...raw,
 		// CaseBase fields — normalize Decimals
 		id: raw.id,
 		patientId: raw.patientId,
@@ -235,6 +177,7 @@ export function draftCaseServerToDTO(raw: DraftCaseRaw): DraftCaseDTO {
 				...s,
 				commissionValue: Number(s.commissionValue),
 				commissionTotal: Number(s.commissionTotal),
+				roleCategory: s.roleCategory,
 			})),
 
 		caseAssetFiles: raw.caseAssetFiles.filter((caf) => caf !== undefined),
@@ -243,6 +186,7 @@ export function draftCaseServerToDTO(raw: DraftCaseRaw): DraftCaseDTO {
 
 export function optionalSelectiveDraftCaseServerToDTO(raw: DraftCaseRaw): DraftCaseDTO {
 	return {
+		...raw,
 		// CaseBase fields — normalize Decimals
 		id: raw.id,
 		patientId: raw.patientId,

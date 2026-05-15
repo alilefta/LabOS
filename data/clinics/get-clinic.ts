@@ -1,3 +1,4 @@
+import { ClinicSelectScalar } from "@/generated/prisma/models";
 import { daError, daSuccess } from "@/lib/data-access-errors";
 import { ERRORS } from "@/lib/errors";
 import { getServerSession } from "@/lib/get-session";
@@ -84,6 +85,40 @@ export async function getClinicById(clinicId: string) {
 			id: clinicId,
 			labId: labId,
 		},
+	});
+
+	if (!clinic) {
+		return daError(ERRORS.NOT_FOUND.toJSON());
+	}
+
+	return daSuccess<ClinicBase | null>(composeClinicBase(clinic));
+}
+
+export async function getClinicSelectiveFieldById(clinicId: string, fields: ClinicSelectScalar) {
+	const session = await getServerSession();
+
+	if (!session) {
+		return daError(ERRORS.UNAUTHORIZED.toJSON());
+	}
+
+	const labId = session.user.labId;
+
+	if (!labId) {
+		return daError(ERRORS.LAB_NOT_FOUND.toJSON());
+	}
+
+	if (!clinicId) {
+		return daError(ERRORS.NOT_FOUND.toJSON());
+	}
+
+	const prisma = await tenantPrisma(labId);
+
+	const clinic = await prisma.clinic.findUnique({
+		where: {
+			id: clinicId,
+			labId: labId,
+		},
+		select: fields,
 	});
 
 	if (!clinic) {
