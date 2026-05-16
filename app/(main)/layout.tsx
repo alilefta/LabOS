@@ -1,12 +1,10 @@
-import { DashboardSidebar } from "@/components/dashboard/dashboard-sidebar";
-import { DashboardTopHeader } from "@/components/dashboard/dashboard-top-header";
 import { QueryProvider } from "@/providers/query-provider";
-import { ReactNode, Suspense } from "react";
-import { NuqsAdapter } from "nuqs/adapters/next/app";
+import { ReactNode } from "react";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { PermissionsProvider } from "@/providers/permissions-provider";
 import { getCurrentLabUserRoleByAuthUserId } from "@/data/lab";
 import { redirect } from "next/navigation";
+import { DashboardClientShell } from "@/components/dashboard/dashboard-client-shell";
 
 interface MainLayoutProps {
 	children: ReactNode;
@@ -16,41 +14,12 @@ export default async function MainLayout({ children }: MainLayoutProps) {
 	const labUser = await getCurrentLabUserRoleByAuthUserId();
 	if (!labUser) redirect("/onboarding");
 	return (
-		<TooltipProvider delayDuration={100}>
-			<div className="flex h-screen w-full overflow-hidden bg-background selection:bg-primary/30">
-				{/* Desktop Sidebar (Hidden on Mobile) */}
-				<div className="hidden lg:block shrink-0 border-r border-border bg-card dark:bg-[#09090B] z-20">
-					<DashboardSidebar />
-				</div>
-
-				{/* Main Content Area */}
-				<div className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
-					{/* Sticky Top Header */}
-					<DashboardTopHeader />
-
-					{/* 
-					CRITICAL FIX: 
-					This wrapper is pure overflow-hidden. The individual pages (children)
-					are responsible for their own scrolling and padding!
-				*/}
-					<main className="flex-1 overflow-hidden relative">
-						{/* Ambient Glow */}
-						<div
-							className="absolute top-0 inset-x-0 h-125 pointer-events-none -z-10"
-							style={{
-								background: "radial-gradient(ellipse at top, rgba(var(--glow-primary-rgb), 0.06) 0%, transparent 70%)",
-							}}
-						/>
-						<QueryProvider>
-							<PermissionsProvider userContext={labUser}>
-								<Suspense fallback={<p>Loading dashboard main content</p>}>
-									<div className="w-full h-full">{children}</div>
-								</Suspense>
-							</PermissionsProvider>
-						</QueryProvider>
-					</main>
-				</div>
-			</div>
-		</TooltipProvider>
+		<QueryProvider>
+			<PermissionsProvider userContext={labUser}>
+				<TooltipProvider delayDuration={100}>
+					<DashboardClientShell>{children}</DashboardClientShell>
+				</TooltipProvider>
+			</PermissionsProvider>
+		</QueryProvider>
 	);
 }

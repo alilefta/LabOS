@@ -18,12 +18,10 @@ export default async function ClinicDetailPage({ params, searchParams }: { param
 	const parsedTabTitle = ClinicDashboardTabsSchema.safeParse(tab);
 	const activeTab = parsedTabTitle.success ? parsedTabTitle.data : "overview";
 
-	console.log("Clinic Details Page - Re-rendered");
-
 	const parsedPeriod = ClinicDashboardTimeFramePeriodSchema.safeParse(period);
 	const activePeriod = parsedPeriod.success ? parsedPeriod.data : "90d";
 
-	console.log("Page rendered, searchParams:", await searchParams);
+	console.log("Clinic Page rendered, searchParams:", await searchParams);
 
 	return (
 		<ClinicTerminalShell>

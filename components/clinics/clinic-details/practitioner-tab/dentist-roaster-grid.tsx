@@ -20,9 +20,6 @@ import { setDentistAsDefaultAction, toggleDentistActiveStatusAction } from "@/ac
 import { updateClinicTypeAction } from "@/actions/clinics/update-clinic";
 import { ClinicType } from "@/schema/base/enums.base";
 import { Dialog, DialogContent, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-
-// Import your specific server action
-
 interface Props {
 	clinicId: string;
 	currentClinicType: ClinicType;
@@ -38,16 +35,8 @@ export const DentistRosterGrid = memo(function DentistRosterGrid({ clinicId, cur
 	const [searchInput, setSearchInput] = useState("");
 	const debouncedSearch = useDebounce({ value: searchInput, delay: 300 });
 	const [roleFilter, setRoleFilter] = useState<RoleFilter>("ALL");
-
-	// Sheet & Dialog Control
-	// const [isSheetOpen, setIsSheetOpen] = useState(false);
-	// const [editingId, setEditingId] = useState<string | null>(null);
-
 	const [isTypeConflictDialogOpen, setIsTypeConflictDialogOpen] = useState(false);
 	const [selectedNewType, setSelectedNewType] = useState<ClinicType>("CLINIC");
-	// d for dentistId
-	// const [editingId, setEditingId] = useQueryState("dId", parseAsString);
-	// const isSheetOpen = !!editingId;
 
 	// --- 2. DATA FETCHING ---
 	const {
@@ -67,10 +56,6 @@ export const DentistRosterGrid = memo(function DentistRosterGrid({ clinicId, cur
 		staleTime: 1000 * 60 * 5,
 	});
 
-	useEffect(() => {
-		console.log("DentistRosterGrid MOUNTED");
-		return () => console.log("DentistRosterGrid UNMOUNTED");
-	}, []);
 	// --- 3. ACTIONS ---
 	const { executeAsync: executeToggleStatus } = useAction(toggleDentistActiveStatusAction, {
 		onSuccess: () => queryClient.invalidateQueries({ queryKey: ["clinic-dentists", clinicId] }),
@@ -142,7 +127,6 @@ export const DentistRosterGrid = memo(function DentistRosterGrid({ clinicId, cur
 			return matchesSearch && matchesRole;
 		});
 	}, [dentists, debouncedSearch, roleFilter]);
-	console.log("Grid render:", { editingId: "managed by shell" });
 
 	return (
 		<div className="flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500 w-full min-h-0">

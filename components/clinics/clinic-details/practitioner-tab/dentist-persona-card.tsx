@@ -268,5 +268,3 @@ export const DentistPersonaCard = memo(function DentistPersonaCard({ dentist, cl
 		</div>
 	);
 });
-
-DentistPersonaCard.displayName = "DentistPersonaCard";

@@ -1,10 +1,11 @@
 import { getClinicSelectiveFieldById } from "@/data/clinics/get-clinic";
 import { DentistRosterShell } from "./dentist-roaster-shell";
 import { ClinicType } from "@/schema/base/enums.base";
-import { dehydrate, HydrationBoundary, QueryClient } from "@tanstack/react-query";
+import { dehydrate, QueryClient } from "@tanstack/react-query";
 import { getClinicDentistPersonasAction } from "@/actions/clinics/dentists/get-dentists";
 import { handleSafeActionError } from "@/lib/safe-action-helpers";
 import { DentistPersonaDTO } from "@/schema/composed/clinics/clinic-dentists.dtos";
+import { QueryHydrationBoundary } from "@/providers/query-hydration-boundary";
 
 export async function ClinicRosterTab({ clinicId }: { clinicId: string }) {
 	const results = await getClinicSelectiveFieldById(clinicId, { type: true });
@@ -25,8 +26,8 @@ export async function ClinicRosterTab({ clinicId }: { clinicId: string }) {
 	});
 
 	return (
-		<HydrationBoundary state={dehydrate(queryClient)}>
+		<QueryHydrationBoundary state={dehydrate(queryClient)}>
 			<DentistRosterShell currentClinicType={type} clinicId={clinicId} />
-		</HydrationBoundary>
+		</QueryHydrationBoundary>
 	);
 }

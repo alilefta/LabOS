@@ -10,7 +10,7 @@ import { CustomFieldWithLabel } from "@/components/ui/custom/custom-field-with-l
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { useAction } from "next-safe-action/hooks";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { handleSafeActionError } from "@/lib/safe-action-helpers";
 
 // Types & Actions
@@ -18,7 +18,7 @@ import { CreateDentistInput, CreateDentistInputSchema, UpdateDentistInput } from
 import { CatalogImageUpload } from "@/components/shared/file-assets/catalog-image-upload";
 import { createDentistAction } from "@/actions/dentists/create-dentist";
 import { DentistBase } from "@/schema/base/dentist.base";
-import { memo, useEffect } from "react";
+import { memo, use, useEffect } from "react";
 import { updateDentistAction } from "@/actions/dentists/update-dentist";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
@@ -33,7 +33,7 @@ interface Props {
 	isEdit: boolean;
 }
 
-export const DentistEditorSheet = memo(function DentistEditorSheet({ isOpen, onClose, clinicId, dentistIdToEdit, initialData, isFetchingEditData, isEdit }: Props) {
+export const DentistEditorSheet = memo(function DentistEditorSheet({ isOpen, onClose, clinicId, dentistIdToEdit, isEdit }: Props) {
 	const queryClient = useQueryClient();
 
 	const form = useForm<CreateDentistInput>({
@@ -52,6 +52,23 @@ export const DentistEditorSheet = memo(function DentistEditorSheet({ isOpen, onC
 		},
 		mode: "onBlur",
 	});
+	// fetch edit data
+	const { data: initialData, isFetching: isFetchingEditData } = useQuery({
+		queryKey: ["dentist-details", dentistIdToEdit ? dentistIdToEdit : ""],
+		queryFn: async () => {
+			if (!dentistIdToEdit) return null;
+			// const res = await getDentistByIdAction({ clinicId, dentistId: dentistIdToEdit });
+			// return res.data?.dentist as DentistBase;
+
+			const res = await fetch(`/api/dentists/${dentistIdToEdit}?clinicId=${clinicId}`);
+			if (!res.ok) return null;
+			const data = await res.json();
+			return data.dentist as DentistBase;
+		},
+		enabled: !!dentistIdToEdit && dentistIdToEdit !== "new",
+		staleTime: Infinity,
+	});
+
 	useEffect(() => {
 		if (isOpen && isEdit && initialData) {
 			form.reset({
@@ -297,3 +314,16 @@ export const DentistEditorSheet = memo(function DentistEditorSheet({ isOpen, onC
 		</Sheet>
 	);
 });
+
+// const useFetchDentistData = ({ dentistId, clinicId }: { dentistId?: string | null; clinicId: string }) => {
+// 	if (dentistId) {
+// 		const res =  use(getDentistByIdAction({ clinicId, dentistId }));
+// 		if(res.serverError || res.validationErrors){
+// 			handleSafeActionError({serverError: res.serverError, validationErrors: res.validationErrors})
+// 		}
+// 		return res?.data?.dentist as DentistBase
+
+// 	} else {
+// 		return null;
+// 	}
+// };

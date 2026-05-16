@@ -4,8 +4,9 @@ import { TimeFrameFilter } from "./time-frame-filter";
 import { ClinicDashboardTimeFramePeriod } from "@/schema/composed/clinics/helpers";
 import { ClinicBase } from "@/schema/base/clinic.base";
 import { getClinicOverviewAnalyticsAction } from "@/actions/clinics/analytics";
-import { dehydrate, HydrationBoundary, QueryClient } from "@tanstack/react-query";
+import { dehydrate, QueryClient } from "@tanstack/react-query";
 import { handleSafeActionError } from "@/lib/safe-action-helpers";
+import { QueryHydrationBoundary } from "@/providers/query-hydration-boundary";
 interface Props {
 	clinicId: string;
 	activePeriod: ClinicDashboardTimeFramePeriod;
@@ -37,9 +38,9 @@ export async function ClinicOverviewTab({ clinicId, activePeriod }: Props) {
 				<h2 className="text-lg font-bold tracking-tight text-foreground">Business Intelligence</h2>
 				<TimeFrameFilter clinicId={id} activePeriod={activePeriod} />
 			</div>
-			<HydrationBoundary state={dehydrate(queryClient)}>
+			<QueryHydrationBoundary state={dehydrate(queryClient)}>
 				<ClinicOverviewTabContent clinicId={id} clinicName={name} period={activePeriod} creditLimit={creditLimit} currentBalance={currentBalance} discount={discount} />
-			</HydrationBoundary>
+			</QueryHydrationBoundary>
 		</div>
 	);
 }
