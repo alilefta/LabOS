@@ -2,7 +2,7 @@
 
 import { memo, useCallback, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useInfiniteQuery } from "@tanstack/react-query";
+import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
 import { Search, Filter, History, Download, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -34,7 +34,7 @@ export const ClinicHistoricalDataTable = memo(function ClinicHistoricalDataTable
 	const [filters, setFilters] = useState<CasesFilters>(DEFAULT_CASES_FILTERS);
 
 	// ── DATA FETCHING ──────────────────────────────────────────────────
-	const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useInfiniteQuery({
+	const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useSuspenseInfiniteQuery({
 		queryKey: ["clinic-history", clinicId, debouncedSearch, filters],
 		queryFn: async ({ pageParam }): Promise<GetClinicHistoricalCasesResult> => {
 			const res = await getClinicHistoricalCasesAction({

@@ -1,7 +1,7 @@
 "use client";
 
 import { memo, useCallback, useMemo } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { useAction } from "next-safe-action/hooks";
 import { toast } from "sonner";
 import { CaseStatus } from "@/schema/base/enums.base";
@@ -19,7 +19,7 @@ export const ClinicActiveCasesKanbanWrapper = memo(function ClinicActiveCasesKan
 	// ── 1. FETCH ACTIVE PIPELINE ──────────────────────────────────────────
 	// Unlike the global cases page, we don't need infinite scroll here.
 	// Active cases for a single clinic rarely exceed 50 at one time. A flat query is optimal.
-	const { data, isLoading, refetch } = useQuery({
+	const { data, isLoading, refetch } = useSuspenseQuery({
 		queryKey: ["clinic-active-pipeline", clinicId],
 		queryFn: async () => {
 			const res = await getClinicActivePipelineAction({ clinicId });

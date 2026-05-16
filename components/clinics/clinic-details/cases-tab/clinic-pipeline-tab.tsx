@@ -1,5 +1,5 @@
 import dynamic from "next/dynamic";
-import { dehydrate, QueryClient } from "@tanstack/react-query";
+import { dehydrate } from "@tanstack/react-query";
 import { ClinicActiveCasesKanbanSkeleton } from "./clinic-active-cases-kanban-wrapper-skeleton";
 import { ClinicHistoricalDataTableSkeleton } from "./clinic-historical-data-table-skeleton";
 import { getClinicActivePipelineAction, getClinicHistoricalCasesAction } from "@/actions/clinics/get-clinic";
@@ -7,6 +7,7 @@ import { handleSafeActionError } from "@/lib/safe-action-helpers";
 import { DEFAULT_CASES_FILTERS } from "@/schema/composed/cases/cases-filters";
 import { GetClinicHistoricalCasesResult } from "@/schema/composed/clinics/clinic-cases.dtos";
 import { QueryHydrationBoundary } from "@/providers/query-hydration-boundary";
+import { getQueryClient } from "@/providers/get-query-client";
 
 const ClinicActiveCasesKanbanWrapper = dynamic(() => import("./clinic-active-cases-kanban-wrapper").then((m) => m.ClinicActiveCasesKanbanWrapper), {
 	loading: () => <ClinicActiveCasesKanbanSkeleton />,
@@ -17,10 +18,7 @@ const ClinicHistoricalDataTable = dynamic(() => import("./clinic-historical-data
 });
 
 export async function ClinicPipelineTab({ clinicId }: { clinicId: string }) {
-	const queryClient = new QueryClient();
-
-	// Prefetch on server — populates the cache before client mounts
-
+	const queryClient = getQueryClient();
 	await queryClient.prefetchQuery({
 		queryKey: ["clinic-active-pipeline", clinicId],
 		queryFn: async () => {

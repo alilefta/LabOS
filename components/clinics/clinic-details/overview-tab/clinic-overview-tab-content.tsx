@@ -1,6 +1,6 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 
 // Components
 import { ClinicHealthRing } from "@/components/clinics/clinic/clinic-health-ring";
@@ -29,7 +29,7 @@ interface Props {
 
 export const ClinicOverviewTabContent = memo(function ClinicOverviewTabContent({ clinicId, period, clinicName, currentBalance, creditLimit, discount }: Props) {
 	// 1. Fetch ALL overview data in one network request
-	const { data, isLoading, isError, refetch, isRefetching } = useQuery({
+	const { data, isError, refetch, isRefetching } = useSuspenseQuery({
 		queryKey: ["clinic-overview", clinicId, period],
 		queryFn: async () => {
 			const res = await getClinicOverviewAnalyticsAction({ clinicId, period });
@@ -43,20 +43,21 @@ export const ClinicOverviewTabContent = memo(function ClinicOverviewTabContent({
 		staleTime: 1000 * 60 * 5, // Cache for 5 minutes
 	});
 
-	// 2. High-End Skeleton Loading State
-	if (isLoading) {
-		return (
-			<div className="flex flex-col gap-6 animate-in fade-in duration-500">
-				<div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-					<Skeleton className="h-80 rounded-4xl bg-slate-100 dark:bg-white/5" />
-					<Skeleton className="h-80 rounded-4xl bg-slate-100 dark:bg-white/5" />
-					<Skeleton className="h-80 rounded-4xl bg-slate-100 dark:bg-white/5" />
-				</div>
-				<Skeleton className="h-75 w-full rounded-4xl bg-slate-100 dark:bg-white/5" />
-				<Skeleton className="h-50 w-full rounded-4xl bg-slate-100 dark:bg-white/5" />
-			</div>
-		);
-	}
+	// // 2. High-End Skeleton Loading State
+	// moved for a seperate component that is passed as a fallback around it's suspense boundary
+	// if (isLoading) {
+	// 	return (
+	// 		<div className="flex flex-col gap-6 animate-in fade-in duration-500">
+	// 			<div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+	// 				<Skeleton className="h-80 rounded-4xl bg-slate-100 dark:bg-white/5" />
+	// 				<Skeleton className="h-80 rounded-4xl bg-slate-100 dark:bg-white/5" />
+	// 				<Skeleton className="h-80 rounded-4xl bg-slate-100 dark:bg-white/5" />
+	// 			</div>
+	// 			<Skeleton className="h-75 w-full rounded-4xl bg-slate-100 dark:bg-white/5" />
+	// 			<Skeleton className="h-50 w-full rounded-4xl bg-slate-100 dark:bg-white/5" />
+	// 		</div>
+	// 	);
+	// }
 
 	// Safety fallback if data fails to load
 	// 3. The "Awwwards-Level" Network Failure UI

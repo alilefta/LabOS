@@ -1,8 +1,8 @@
 "use client";
 
-import { memo, useCallback, useEffect, useMemo, useState } from "react";
+import { memo, useCallback, useMemo, useState } from "react";
 import { Stethoscope, Plus, Search, UserCircle, Star, Users, Loader2, UserLock, Briefcase, Hospital, GraduationCap, Check, AlertTriangle } from "lucide-react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -43,7 +43,7 @@ export const DentistRosterGrid = memo(function DentistRosterGrid({ clinicId, cur
 		data: dentists = [],
 		isLoading,
 		isFetching,
-	} = useQuery({
+	} = useSuspenseQuery({
 		queryKey: ["clinic-dentists", clinicId],
 		queryFn: async () => {
 			const res = await getClinicDentistPersonasAction({ clinicId });

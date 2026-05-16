@@ -4,7 +4,6 @@ import dynamic from "next/dynamic";
 import type { ReactNode } from "react";
 
 const DashboardSidebar = dynamic(() => import("./dashboard-sidebar").then((m) => m.DashboardSidebar), { ssr: false });
-
 const DashboardTopHeader = dynamic(() => import("./dashboard-top-header").then((m) => m.DashboardTopHeader), { ssr: false });
 
 export function DashboardClientShell({ children }: { children: ReactNode }) {

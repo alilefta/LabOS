@@ -18,7 +18,7 @@ import { CreateDentistInput, CreateDentistInputSchema, UpdateDentistInput } from
 import { CatalogImageUpload } from "@/components/shared/file-assets/catalog-image-upload";
 import { createDentistAction } from "@/actions/dentists/create-dentist";
 import { DentistBase } from "@/schema/base/dentist.base";
-import { memo, use, useEffect } from "react";
+import { memo, useEffect } from "react";
 import { updateDentistAction } from "@/actions/dentists/update-dentist";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
