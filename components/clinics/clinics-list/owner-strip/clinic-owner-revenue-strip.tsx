@@ -2,18 +2,29 @@
 
 import { usePermissions } from "@/providers/permissions-provider";
 import { Landmark, AlertTriangle, FileSignature, DollarSign, Loader2 } from "lucide-react";
-
-// Assuming you place the type in your schema file
-import { ClinicRevenueStats } from "@/schema/composed/clinic.details";
 import { memo } from "react";
+import { handleSafeActionError } from "@/lib/safe-action-helpers";
+import { getClinicsRevenueAction } from "@/actions/clinics/get-clinics";
+import { useQuery } from "@tanstack/react-query";
 
 interface ClinicOwnerRevenueStripProps {
-	data: ClinicRevenueStats | null;
-	isLoading: boolean;
+	labId: string;
 }
 
-export const ClinicOwnerRevenueStrip = memo(function ClinicOwnerRevenueStrip({ data, isLoading }: ClinicOwnerRevenueStripProps) {
+export const ClinicOwnerRevenueStrip = memo(function ClinicOwnerRevenueStrip({ labId }: ClinicOwnerRevenueStripProps) {
 	const { canViewFinancials } = usePermissions();
+
+	// ──  Revenue strip — owner/manager only ───────────────────────────────────
+	const { data, isLoading } = useQuery({
+		queryKey: ["clinics-revenue", labId],
+		queryFn: async () => {
+			const res = await getClinicsRevenueAction();
+			if (res.serverError || res.validationErrors) handleSafeActionError({ serverError: res.serverError, validationErrors: res.validationErrors });
+			return res?.data ?? null;
+		},
+		staleTime: 60_000,
+		enabled: canViewFinancials,
+	});
 
 	// Security Gate: Only hide if we are NOT loading AND there is no data
 	if (!canViewFinancials) return null;

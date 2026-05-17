@@ -11,7 +11,7 @@ interface PulseStripProps {
 	isLoading: boolean;
 }
 
-export function PulseStrip({ currentFilter, onFilterChange, stats, isLoading }: PulseStripProps) {
+export function CasePulseStrip({ currentFilter, onFilterChange, stats, isLoading }: PulseStripProps) {
 	// Only hide if we are NOT loading AND there is no data
 	if (!isLoading && !stats) return null;
 
@@ -64,7 +64,7 @@ export function PulseStrip({ currentFilter, onFilterChange, stats, isLoading }: 
 	];
 
 	return (
-		<div className="grid grid-cols-2 md:grid-cols-5 gap-3 sm:gap-4 mb-6 animate-in fade-in slide-in-from-bottom-4 duration-500 mx-2">
+		<div className="grid grid-cols-2 md:grid-cols-5 gap-3 sm:gap-4 mb-6 ml-1 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-150">
 			{cards.map((card) => {
 				const isActive = currentFilter === card.id;
 

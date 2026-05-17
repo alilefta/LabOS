@@ -2,9 +2,11 @@
 
 import dynamic from "next/dynamic";
 import type { ReactNode } from "react";
+import { DashboardSidebarSkeleton } from "./dashboard-sidebar-skeleton";
+import { DashboardTopHeaderSkeleton } from "./dashboard-top-header-skeleton";
 
-const DashboardSidebar = dynamic(() => import("./dashboard-sidebar").then((m) => m.DashboardSidebar), { ssr: false });
-const DashboardTopHeader = dynamic(() => import("./dashboard-top-header").then((m) => m.DashboardTopHeader), { ssr: false });
+const DashboardSidebar = dynamic(() => import("./dashboard-sidebar").then((m) => m.DashboardSidebar), { ssr: false, loading: () => <DashboardSidebarSkeleton /> });
+const DashboardTopHeader = dynamic(() => import("./dashboard-top-header").then((m) => m.DashboardTopHeader), { ssr: false, loading: () => <DashboardTopHeaderSkeleton /> });
 
 export function DashboardClientShell({ children }: { children: ReactNode }) {
 	return (

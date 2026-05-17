@@ -6,12 +6,37 @@ import { ClinicDashboardTabsSchema, ClinicDashboardTimeFramePeriodSchema } from 
 import { ClinicTabRouter } from "@/components/clinics/clinic-details/clinic-tab-router";
 import { ClinicDetailsSkeleton } from "@/components/clinics/clinic-details/clinic-details-skeleton";
 import { ClinicHeaderSectionSkeleton } from "@/components/clinics/clinic-details/navigation-shell/clinic-header-section-skeleton";
+import { Metadata } from "next";
+import { getClinicDetailsById } from "@/data/clinics/get-clinic";
+import { ClinicBase } from "@/schema/base/clinic.base";
 
-export const metadata = {
-	title: "Clinic Details | LabOS",
-};
+interface PageProps {
+	params: Promise<{ clinicId: string }>;
+	searchParams: Promise<{ tab?: string; period?: string }>;
+}
 
-export default async function ClinicDetailPage({ params, searchParams }: { params: Promise<{ clinicId: string }>; searchParams: Promise<{ tab?: string; period?: string }> }) {
+// Dynamically generate metadata
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+	const id = (await params).clinicId;
+
+	// You can fetch data here; Next.js automatically memoizes fetch requests
+	// const product = await fetch(`https://example.com{id}`).then((res) => res.json())
+
+	const results = await getClinicDetailsById(id);
+
+	if (!results.success)
+		return {
+			title: `Clinic ${id} | LabOS`,
+		};
+
+	const { name } = results.data as ClinicBase;
+
+	return {
+		title: `Clinic ${name} | LabOS`,
+	};
+}
+
+export default async function ClinicDetailPage({ params, searchParams }: PageProps) {
 	const { clinicId } = await params;
 	const { period, tab } = await searchParams;
 
@@ -26,7 +51,7 @@ export default async function ClinicDetailPage({ params, searchParams }: { param
 	return (
 		<ClinicTerminalShell>
 			{/* --- STICKY HEADER & TABS --- */}
-			<div className="sticky top-0 z-30 bg-background/80 backdrop-blur-xl border-b border-border pt-6 flex flex-col gap-4 shadow-sm">
+			<div className="sticky top-0 z-30 bg-background/80  border-b border-border pt-6 flex flex-col gap-4 shadow-sm">
 				<Suspense fallback={<ClinicHeaderSectionSkeleton />}>
 					<ClinicHeaderSection clinicId={clinicId} />
 				</Suspense>

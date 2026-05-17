@@ -33,7 +33,7 @@ export async function ClinicTabRouter({ clinicId, activePeriod, activeTab }: Pro
 	}
 
 	return (
-		<div className="w-full max-w-400 mx-auto p-4 sm:p-6 lg:p-8">
+		<div className="w-full max-w-500 mx-auto p-4 sm:p-6 lg:p-8">
 			<Suspense>{tab}</Suspense>
 		</div>
 	);

@@ -1,8 +1,13 @@
 import { redirect } from "next/navigation";
 import { getServerSession } from "@/lib/get-session";
-import { PermissionsProvider } from "@/providers/permissions-provider";
 import { getCurrentLabUserRoleByAuthUserId } from "@/data/lab";
 import { ClinicsClientWrapper } from "@/components/clinics/clinics-list/clinics-client-wrapper-page";
+import { getQueryClient } from "@/providers/get-query-client";
+import { ClinicPulseStats, DEFAULT_CLINICS_FILTERS, GetClinicsListResult } from "@/schema/composed/clinic.details";
+import { getClinicsListAction, getClinicsPulseAction, getClinicsRevenueAction } from "@/actions/clinics/get-clinics";
+import { handleSafeActionError } from "@/lib/safe-action-helpers";
+import { QueryHydrationBoundary } from "@/providers/query-hydration-boundary";
+import { dehydrate } from "@tanstack/react-query";
 
 export default async function ClinicsListPage() {
 	const session = await getServerSession();
@@ -11,15 +16,49 @@ export default async function ClinicsListPage() {
 	const user = await getCurrentLabUserRoleByAuthUserId();
 	if (!user) redirect("/onboarding");
 
+	const queryClient = getQueryClient();
+
+	await queryClient.prefetchInfiniteQuery({
+		queryKey: ["clinics-list", user.labId, "", DEFAULT_CLINICS_FILTERS],
+		queryFn: async ({ pageParam }: { pageParam: string | undefined }): Promise<GetClinicsListResult> => {
+			const res = await getClinicsListAction({
+				cursor: pageParam as string | undefined,
+				search: "",
+				filters: DEFAULT_CLINICS_FILTERS,
+				take: 30,
+			});
+			if (res.serverError || res.validationErrors) {
+				handleSafeActionError({ serverError: res.serverError, validationErrors: res.validationErrors });
+			}
+			return res?.data ?? { clinics: [], nextCursor: null, totalCount: 0 };
+		},
+		initialPageParam: undefined as string | undefined,
+	});
+
+	await queryClient.prefetchQuery({
+		queryKey: ["clinics-revenue", user.labId],
+		queryFn: async () => {
+			const res = await getClinicsRevenueAction();
+			if (res.serverError || res.validationErrors) handleSafeActionError({ serverError: res.serverError, validationErrors: res.validationErrors });
+			return res?.data ?? null;
+		},
+		staleTime: 60_000,
+	});
+
+	await queryClient.prefetchQuery({
+		queryKey: ["clinics-pulse"],
+		queryFn: async () => {
+			const res = await getClinicsPulseAction();
+			if (res.serverError || res.validationErrors) {
+				handleSafeActionError({ serverError: res.serverError, validationErrors: res.validationErrors });
+			}
+			return (res?.data as ClinicPulseStats) || { all: 0, credit_risk: 0, uninvoiced: 0, suspended: 0, dormant: 0 };
+		},
+	});
+
 	return (
-		<PermissionsProvider
-			userContext={{
-				role: user.role,
-				staffCategory: user.labStaff?.roleCategory,
-				staffId: user.labStaff?.id,
-			}}
-		>
+		<QueryHydrationBoundary state={dehydrate(queryClient)}>
 			<ClinicsClientWrapper labId={user.labId} />
-		</PermissionsProvider>
+		</QueryHydrationBoundary>
 	);
 }

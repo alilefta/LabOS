@@ -1,6 +1,6 @@
 "use client";
 
-import { Bell, Menu, Plus, Search } from "lucide-react";
+import { Bell, Plus, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DashboardMobileNav } from "./dashboard-mobile-nav";
 import Link from "next/link";

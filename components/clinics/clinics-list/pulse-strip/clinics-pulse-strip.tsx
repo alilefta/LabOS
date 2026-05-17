@@ -24,7 +24,7 @@ export function ClinicPulseStrip({ currentFilter, onFilterChange }: ClinicPulseS
 			}
 			return (res?.data as ClinicPulseStats) || { all: 0, credit_risk: 0, uninvoiced: 0, suspended: 0, dormant: 0 };
 		},
-		refetchInterval: 1000 * 60, // Auto-refresh every 60s
+		refetchInterval: 1000 * 60 * 60, // Auto-refresh every 1 hour
 	});
 
 	const cards = [

@@ -3,14 +3,14 @@
 import { useCallback, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
-import { Filter, Search, Plus, Sparkles, X, List, LayoutGrid } from "lucide-react";
+import { Filter, Search, Plus, Sparkles, X, List, LayoutGrid, FolderOpen } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import useDebounce from "@/hooks/useDebounce";
 
 import { OwnerRevenueStrip } from "@/components/cases/owner-strip/owner-strip";
-import { PulseStrip } from "@/components/cases/pulse-strip/pulse-strip";
+import { CasePulseStrip } from "@/components/cases/pulse-strip/case-pulse-strip";
 
 import { DataTable } from "@/components/shared/tables/data-table";
 import { columns } from "@/components/cases/cases-table/columns";
@@ -27,6 +27,7 @@ import { CaseStatus } from "@/schema/base/enums.base";
 import { toast } from "sonner";
 import { KanbanWrapper } from "./kanban/kanban-wrapper";
 import { CasesFilters, DEFAULT_CASES_FILTERS } from "@/schema/composed/cases/cases-filters";
+import { AmbientBlueBgGlow } from "../ui/ui-utils/ambient-blue-bg-glow";
 
 interface PageProps {
 	labId: string;
@@ -177,185 +178,196 @@ export default function CasesClientWrapperPage({ labId }: PageProps) {
 		return `${field}: ${presetLabels[filters.dateRange.preset]}`;
 	};
 	return (
-		<div className="flex flex-col h-[calc(100vh-8rem)] animate-in fade-in duration-700 overflow-hidden">
+		<div className="flex flex-col h-full animate-in fade-in duration-700 bg-background overflow-hidden relative">
 			{/* ── ZONE A: GLOBAL HEADER ─────────────────────────────────────────── */}
-			<div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6 shrink-0 pt-4 pb-4 px-4 sm:px-8 border-b border-border shadow-sm">
-				<div>
-					<h1 className="text-3xl font-bold tracking-tight text-foreground">Cases</h1>
-					<p className="text-sm text-muted-foreground mt-1">
-						Production floor — <span className="font-mono font-bold text-foreground">{totalCount.toLocaleString()}</span> active cases
-					</p>
-				</div>
-
-				<div className="flex items-center gap-3">
-					{/* THE VIEW SWITCHER (Segmented Control style) */}
-					<div className="flex bg-slate-100 dark:bg-white/5 p-1 rounded-xl border border-border shadow-inner">
-						<button
-							onClick={() => setView("table")}
-							className={cn(
-								"flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold transition-all",
-								view === "table" ? "bg-white dark:bg-[#121214] text-primary shadow-sm ring-1 ring-border" : "text-muted-foreground hover:text-foreground",
-							)}
-						>
-							<List className="w-3.5 h-3.5" /> List
-						</button>
-						<button
-							onClick={() => setView("board")}
-							className={cn(
-								"flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold transition-all",
-								view === "board" ? "bg-white dark:bg-[#121214] text-primary shadow-sm ring-1 ring-border" : "text-muted-foreground hover:text-foreground",
-							)}
-						>
-							<LayoutGrid className="w-3.5 h-3.5" /> Board
-						</button>
+			<header className="shrink-0 sticky top-0 z-30 bg-background/80 backdrop-blur-xl border-b border-border shadow-sm">
+				<div className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-4 px-4 sm:px-6 lg:px-8 max-w-500 mx-auto w-full">
+					<div>
+						<h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground flex items-center gap-3">
+							<FolderOpen className="w-6 h-6 text-primary opacity-80" />
+							Cases
+						</h1>
+						<p className="text-xs sm:text-sm text-muted-foreground mt-0.5 font-medium">
+							Production floor — <span className="font-mono font-bold text-foreground">{totalCount.toLocaleString()}</span> active cases
+						</p>
 					</div>
 
-					<Button
-						onClick={() => setIsAiSheetOpen(true)}
-						variant="outline"
-						className="h-10 rounded-xl border-ai/30 bg-ai/5 hover:bg-ai/10 text-ai font-semibold shadow-sm transition-all hidden sm:flex"
-					>
-						<Sparkles className="w-4 h-4 mr-2" /> Ask AI
-					</Button>
+					<div className="flex items-center gap-2 sm:gap-3">
+						{/* THE VIEW SWITCHER (Segmented Control style) */}
+						<div className="flex bg-slate-100 dark:bg-white/5 p-1 rounded-xl border border-border shadow-inner">
+							<button
+								onClick={() => setView("table")}
+								className={cn(
+									"flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold transition-all",
+									view === "table" ? "bg-white dark:bg-[#121214] text-primary shadow-sm ring-1 ring-border" : "text-muted-foreground hover:text-foreground",
+								)}
+							>
+								<List className="w-3.5 h-3.5" /> List
+							</button>
+							<button
+								onClick={() => setView("board")}
+								className={cn(
+									"flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold transition-all",
+									view === "board" ? "bg-white dark:bg-[#121214] text-primary shadow-sm ring-1 ring-border" : "text-muted-foreground hover:text-foreground",
+								)}
+							>
+								<LayoutGrid className="w-3.5 h-3.5" /> Board
+							</button>
+						</div>
 
-					<Button
-						onClick={() => setIsFilterOpen(true)}
-						variant="outline"
-						className={cn(
-							"h-10 rounded-xl border-border bg-white dark:bg-white/5 hover:bg-slate-50 dark:hover:bg-white/10 text-foreground font-semibold shadow-sm",
-							hasActiveAdvancedFilters && "border-primary/50 text-primary bg-primary/5 hover:bg-primary/10",
-						)}
-					>
-						<Filter className="w-4 h-4 mr-2 text-muted-foreground" /> Filters
-						{hasActiveAdvancedFilters && <span className="ml-2 w-2 h-2 rounded-full bg-primary animate-pulse" />}
-					</Button>
+						<Button
+							onClick={() => setIsAiSheetOpen(true)}
+							variant="outline"
+							className="h-10! rounded-xl border-ai/30 bg-ai/5 hover:bg-ai/10 text-ai font-semibold shadow-sm transition-all hidden sm:flex"
+						>
+							<Sparkles className="w-3.5 h-3.5 mr-2" /> Ask AI
+						</Button>
 
-					<Button onClick={() => router.push("/cases/new-case")} className="h-10 rounded-xl shadow-premium bg-primary hover:bg-primary/90 text-primary-foreground font-bold px-6">
-						<Plus className="w-4 h-4 mr-2" /> New Case
-					</Button>
+						<Button
+							onClick={() => setIsFilterOpen(true)}
+							variant="outline"
+							className={cn(
+								"h-10 rounded-xl border-border bg-white dark:bg-white/5 hover:bg-slate-50 dark:hover:bg-white/10 text-foreground font-semibold shadow-sm",
+								hasActiveAdvancedFilters && "border-primary/50 text-primary bg-primary/5 hover:bg-primary/10",
+							)}
+						>
+							<Filter className="w-3.5 h-3.5 mr-2 text-muted-foreground" /> Filters
+							{hasActiveAdvancedFilters && <span className="ml-2 w-2 h-2 rounded-full bg-primary animate-pulse" />}
+						</Button>
+
+						<Button onClick={() => router.push("/cases/new-case")} className="h-10 rounded-xl shadow-premium bg-primary hover:bg-primary/90 text-primary-foreground font-bold px-6">
+							<Plus className="w-4 h-4 mr-2" /> New Case
+						</Button>
+					</div>
 				</div>
-			</div>
+			</header>
 
 			{/* ── SCROLLABLE WRAPPER ────────────────────────────────────────────── */}
-			<div className="flex-1 flex flex-col min-h-0 overflow-y-auto custom-scrollbar pb-6 pr-1 pt-2 px-4 sm:px-8">
-				<div className="shrink-0 flex flex-col gap-2">
-					{/* ── ZONE B: OWNER REVENUE STRIP ─────────────────────────────────── */}
-					<OwnerRevenueStrip data={revenueData ?? null} isLoading={isRevenueLoading} />
+			<div className="flex-1 overflow-y-auto custom-scrollbar relative z-10 w-full">
+				{/* Ambient Glow background Restricted to scroll area */}
+				<AmbientBlueBgGlow />
+				<div className="w-full max-w-500 mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
+					<div className="shrink-0 flex flex-col gap-2">
+						{/* ── ZONE B: OWNER REVENUE STRIP ─────────────────────────────────── */}
+						<OwnerRevenueStrip data={revenueData ?? null} isLoading={isRevenueLoading} />
 
-					{/* ── ZONE C: PULSE STRIP ─────────────────────────────────────────── */}
-					<PulseStrip
-						stats={pulseData ?? null}
-						isLoading={isPulseLoading}
-						currentFilter={filters.pulseFilter}
-						onFilterChange={(newPulse) => setFilters((prev) => ({ ...prev, pulseFilter: newPulse }))}
-					/>
-				</div>
+						{/* ── ZONE C: PULSE STRIP ─────────────────────────────────────────── */}
+						<CasePulseStrip
+							stats={pulseData ?? null}
+							isLoading={isPulseLoading}
+							currentFilter={filters.pulseFilter}
+							onFilterChange={(newPulse) => setFilters((prev) => ({ ...prev, pulseFilter: newPulse }))}
+						/>
+					</div>
 
-				{/* ── ZONE D & E: UNIFIED DATABASE TOOLBAR ───────────────────────── */}
-				{/* By placing this here, it stays consistent whether you see the List or Board */}
-				<div className="flex flex-col gap-4 mb-4 mt-2 shrink-0">
-					<div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-						{/* Search Bar (Zone D) */}
-						<div className="relative w-full sm:max-w-md group">
-							<Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
-							<input
-								type="text"
-								value={searchInput}
-								onChange={(e) => setSearchInput(e.target.value)}
-								placeholder="Search by case ID, patient, clinic..."
-								className="w-full h-11 pl-10 pr-4 bg-white dark:bg-[#121214] border border-border rounded-2xl text-sm focus:outline-none focus:border-primary focus:ring-[3px] focus:ring-primary/20 transition-all shadow-sm"
-							/>
-						</div>
+					{/* ── ZONE D & E: UNIFIED DATABASE TOOLBAR ───────────────────────── */}
+					{/* By placing this here, it stays consistent whether you see the List or Board */}
+					<div className="flex flex-col gap-4 mb-4 mt-2 shrink-0">
+						<div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+							{/* Search Bar (Zone D) */}
+							<div className="relative w-full sm:max-w-md group">
+								<Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
+								<input
+									type="text"
+									value={searchInput}
+									onChange={(e) => setSearchInput(e.target.value)}
+									placeholder="Search by case ID, patient, clinic..."
+									className="w-full h-11 pl-10 pr-4 bg-white dark:bg-[#121214] border border-border rounded-2xl text-sm focus:outline-none focus:border-primary focus:ring-[3px] focus:ring-primary/20 transition-all shadow-sm"
+								/>
+							</div>
 
-						{/* Active Filter Tags (Zone E) */}
-						<div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
-							{(hasActiveAdvancedFilters || debouncedSearch) && <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mr-1 shrink-0 ml-2">Active:</span>}
+							{/* Active Filter Tags (Zone E) */}
+							<div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
+								{(hasActiveAdvancedFilters || debouncedSearch) && (
+									<span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mr-1 shrink-0 ml-2">Active:</span>
+								)}
 
-							{filters.statuses.map((status) => (
-								<span
-									key={status}
-									className="px-2.5 py-1.5 bg-white dark:bg-[#121214] border border-border rounded-lg text-[11px] font-bold text-foreground flex items-center gap-2 shadow-sm animate-in zoom-in-95 shrink-0"
-								>
-									{status}
-									<button
-										title="dismiss filter"
-										onClick={() => setFilters((prev) => ({ ...prev, statuses: prev.statuses.filter((s) => s !== status) }))}
-										className="text-muted-foreground hover:text-destructive transition-colors"
+								{filters.statuses.map((status) => (
+									<span
+										key={status}
+										className="px-2.5 py-1.5 bg-white dark:bg-[#121214] border border-border rounded-lg text-[11px] font-bold text-foreground flex items-center gap-2 shadow-sm animate-in zoom-in-95 shrink-0"
 									>
-										<X className="w-3.5 h-3.5" />
-									</button>
-								</span>
-							))}
+										{status}
+										<button
+											title="dismiss filter"
+											onClick={() => setFilters((prev) => ({ ...prev, statuses: prev.statuses.filter((s) => s !== status) }))}
+											className="text-muted-foreground hover:text-destructive transition-colors"
+										>
+											<X className="w-3.5 h-3.5" />
+										</button>
+									</span>
+								))}
 
-							{filters.dateRange && (
-								<span className="px-2.5 py-1.5 bg-white dark:bg-[#121214] border border-border rounded-lg text-[11px] font-bold text-foreground flex items-center gap-2 shadow-sm animate-in zoom-in-95 shrink-0">
-									{dateRangeLabel()}
+								{filters.dateRange && (
+									<span className="px-2.5 py-1.5 bg-white dark:bg-[#121214] border border-border rounded-lg text-[11px] font-bold text-foreground flex items-center gap-2 shadow-sm animate-in zoom-in-95 shrink-0">
+										{dateRangeLabel()}
+										<button
+											title="dismiss filter"
+											onClick={() => setFilters((prev) => ({ ...prev, dateRange: null }))}
+											className="text-muted-foreground hover:text-destructive transition-colors"
+										>
+											<X className="w-3.5 h-3.5" />
+										</button>
+									</span>
+								)}
+
+								{filters.isRushOnly && (
+									<span className="px-2.5 py-1.5 bg-amber-500/10 border border-amber-500/20 rounded-lg text-[11px] font-bold text-amber-600 dark:text-amber-500 flex items-center gap-2 shadow-sm animate-in zoom-in-95 shrink-0">
+										Rush Only{" "}
+										<button
+											title="dismiss filter"
+											onClick={() => setFilters((prev) => ({ ...prev, isRushOnly: false }))}
+											className="text-amber-600/70 hover:text-destructive transition-colors"
+										>
+											<X className="w-3.5 h-3.5" />
+										</button>
+									</span>
+								)}
+
+								{debouncedSearch && (
+									<span className="px-2.5 py-1.5 bg-ai/5 border border-ai/20 rounded-lg text-[11px] font-bold text-ai flex items-center gap-2 shadow-sm animate-in zoom-in-95 shrink-0">
+										&quot;{debouncedSearch}&quot;{" "}
+										<button title="dismiss filter" onClick={() => setSearchInput("")} className="text-ai/70 hover:text-destructive transition-colors">
+											<X className="w-3.5 h-3.5" />
+										</button>
+									</span>
+								)}
+
+								{(hasActiveAdvancedFilters || debouncedSearch) && (
 									<button
-										title="dismiss filter"
-										onClick={() => setFilters((prev) => ({ ...prev, dateRange: null }))}
-										className="text-muted-foreground hover:text-destructive transition-colors"
+										onClick={() => {
+											setFilters(DEFAULT_CASES_FILTERS);
+											setSearchInput("");
+										}}
+										className="text-[11px] text-muted-foreground hover:text-destructive transition-colors shrink-0 ml-2 font-bold uppercase tracking-tighter"
 									>
-										<X className="w-3.5 h-3.5" />
+										Clear all
 									</button>
-								</span>
-							)}
-
-							{filters.isRushOnly && (
-								<span className="px-2.5 py-1.5 bg-amber-500/10 border border-amber-500/20 rounded-lg text-[11px] font-bold text-amber-600 dark:text-amber-500 flex items-center gap-2 shadow-sm animate-in zoom-in-95 shrink-0">
-									Rush Only{" "}
-									<button
-										title="dismiss filter"
-										onClick={() => setFilters((prev) => ({ ...prev, isRushOnly: false }))}
-										className="text-amber-600/70 hover:text-destructive transition-colors"
-									>
-										<X className="w-3.5 h-3.5" />
-									</button>
-								</span>
-							)}
-
-							{debouncedSearch && (
-								<span className="px-2.5 py-1.5 bg-ai/5 border border-ai/20 rounded-lg text-[11px] font-bold text-ai flex items-center gap-2 shadow-sm animate-in zoom-in-95 shrink-0">
-									&quot;{debouncedSearch}&quot;{" "}
-									<button title="dismiss filter" onClick={() => setSearchInput("")} className="text-ai/70 hover:text-destructive transition-colors">
-										<X className="w-3.5 h-3.5" />
-									</button>
-								</span>
-							)}
-
-							{(hasActiveAdvancedFilters || debouncedSearch) && (
-								<button
-									onClick={() => {
-										setFilters(DEFAULT_CASES_FILTERS);
-										setSearchInput("");
-									}}
-									className="text-[11px] text-muted-foreground hover:text-destructive transition-colors shrink-0 ml-2 font-bold uppercase tracking-tighter"
-								>
-									Clear all
-								</button>
-							)}
+								)}
+							</div>
 						</div>
 					</div>
-				</div>
 
-				{/* ── ZONE F: DYNAMIC CONTENT CANVAS ───────────────────────────────── */}
-				<div className="flex-1 min-h-125 mt-4 lab-card flex flex-col overflow-hidden shadow-sm">
-					{view === "table" ? (
-						<div className="h-full lab-card overflow-hidden shadow-sm">
-							<DataTable
-								columns={visibleColumns}
-								data={flatData}
-								isLoading={isLoading}
-								onRowClick={(row) => router.push(`/cases/${row.id}`)}
-								fetchNextPage={fetchNextPage}
-								hasNextPage={hasNextPage}
-								isFetchingNextPage={isFetchingNextPage}
-							/>
-						</div>
-					) : (
-						<div className="h-full animate-in fade-in slide-in-from-right-4 duration-500">
-							<KanbanWrapper serverData={flatData} onStatusChangeAction={handleStatusChange} />
-						</div>
-					)}
+					{/* ── ZONE F: DYNAMIC CONTENT CANVAS ───────────────────────────────── */}
+					<div className="flex-1 min-h-125 mt-4 lab-card flex flex-col overflow-hidden shadow-sm">
+						{view === "table" ? (
+							<div className="h-full lab-card overflow-hidden shadow-sm">
+								<DataTable
+									columns={visibleColumns}
+									data={flatData}
+									isLoading={isLoading}
+									onRowClick={(row) => router.push(`/cases/${row.id}`)}
+									fetchNextPage={fetchNextPage}
+									hasNextPage={hasNextPage}
+									isFetchingNextPage={isFetchingNextPage}
+								/>
+							</div>
+						) : (
+							<div className="h-full animate-in fade-in slide-in-from-right-4 duration-500">
+								<KanbanWrapper serverData={flatData} onStatusChangeAction={handleStatusChange} />
+							</div>
+						)}
+					</div>
 				</div>
 			</div>
 

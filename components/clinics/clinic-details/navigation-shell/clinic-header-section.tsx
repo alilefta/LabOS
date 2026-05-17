@@ -30,7 +30,7 @@ export async function ClinicHeaderSection({ clinicId }: Props) {
 
 	const isSuspended = status === "SUSPENDED";
 	return (
-		<div className="px-6 lg:px-8 w-full max-w-400 mx-auto">
+		<div className="px-6 lg:px-8 w-full max-w-500 mx-auto">
 			<div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
 				{/* LEFT: Identity & Status */}
 				<div className="flex items-start gap-4">
