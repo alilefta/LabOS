@@ -20,7 +20,6 @@ export const CaseFinancialCard = memo(function CaseFinancialCard({ dentalCase }:
 
 	const queryClient = useQueryClient();
 
-	// --- NEW: Action Hook ---
 	const { execute, isExecuting } = useAction(recalculateCaseFinancialsAction, {
 		onSuccess: () => {
 			toast.success("Financials updated based on current data.");

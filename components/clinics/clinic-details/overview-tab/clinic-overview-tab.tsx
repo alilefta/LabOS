@@ -5,11 +5,11 @@ import { ClinicDashboardTimeFramePeriod } from "@/schema/composed/clinics/helper
 import { ClinicBase } from "@/schema/base/clinic.base";
 import { getClinicOverviewAnalyticsAction } from "@/actions/clinics/analytics";
 import { dehydrate } from "@tanstack/react-query";
-import { handleSafeActionError } from "@/lib/safe-action-helpers";
 import { QueryHydrationBoundary } from "@/providers/query-hydration-boundary";
 import { getQueryClient } from "@/providers/get-query-client";
 import { Suspense } from "react";
 import { ClinicOverviewTabSkeleton } from "./clinic-overview-tab-skeleton";
+import { notFound } from "next/navigation";
 interface Props {
 	clinicId: string;
 	activePeriod: ClinicDashboardTimeFramePeriod;
@@ -18,7 +18,10 @@ export async function ClinicOverviewTab({ clinicId, activePeriod }: Props) {
 	const results = await getClinicSelectiveFieldById(clinicId, { id: true, name: true, creditLimit: true, currentBalance: true, discount: true });
 	const queryClient = getQueryClient();
 
-	if (!results.success) return null;
+	if (!results.success || !results.data) {
+		notFound();
+	}
+
 	const { id, name, creditLimit, currentBalance, discount } = results.data as ClinicBase;
 
 	// const analyticsData = await getClinicOverviewAnalyticsAction({ clinicId, period: activePeriod });
@@ -34,10 +37,6 @@ export async function ClinicOverviewTab({ clinicId, activePeriod }: Props) {
 		queryFn: async () => {
 			const res = await getClinicOverviewAnalyticsAction({ clinicId, period: activePeriod });
 
-			if (res?.serverError || res?.validationErrors) {
-				handleSafeActionError({ serverError: res.serverError, validationErrors: res.validationErrors });
-				return null;
-			}
 			return res?.data ?? null;
 		},
 	});

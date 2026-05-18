@@ -1,6 +1,4 @@
-import { notFound, redirect } from "next/navigation";
-import { getServerSession } from "@/lib/get-session";
-import { getCurrentLabUserRoleByAuthUserId } from "@/data/lab";
+import { notFound } from "next/navigation";
 import { mapClinicToUpdateFormValues } from "@/lib/mappers/clinics/clinic-helpers";
 import { getClinicById } from "@/data/clinics/get-clinic";
 import { ClinicBase } from "@/schema/base/clinic.base";
@@ -12,13 +10,6 @@ interface Props {
 
 export default async function EditClinicPage({ params }: Props) {
 	const { clinicId } = await params;
-
-	// 1. Session & Auth Guards
-	const session = await getServerSession();
-	if (!session) redirect("/sign-in");
-
-	const labUser = await getCurrentLabUserRoleByAuthUserId();
-	if (!labUser) redirect("/onboarding");
 
 	// 2. Fetch the absolute source of truth
 	const result = await getClinicById(clinicId);

@@ -1,18 +1,13 @@
 import { redirect } from "next/navigation";
-import { getServerSession } from "@/lib/get-session";
 import { getCurrentLabUserRoleByAuthUserId } from "@/data/lab";
 import { ClinicsClientWrapper } from "@/components/clinics/clinics-list/clinics-client-wrapper-page";
 import { getQueryClient } from "@/providers/get-query-client";
 import { ClinicPulseStats, DEFAULT_CLINICS_FILTERS, GetClinicsListResult } from "@/schema/composed/clinic.details";
 import { getClinicsListAction, getClinicsPulseAction, getClinicsRevenueAction } from "@/actions/clinics/get-clinics";
-import { handleSafeActionError } from "@/lib/safe-action-helpers";
 import { QueryHydrationBoundary } from "@/providers/query-hydration-boundary";
 import { dehydrate } from "@tanstack/react-query";
 
 export default async function ClinicsListPage() {
-	const session = await getServerSession();
-	if (!session) redirect("/sign-in");
-
 	const user = await getCurrentLabUserRoleByAuthUserId();
 	if (!user) redirect("/onboarding");
 
@@ -27,9 +22,7 @@ export default async function ClinicsListPage() {
 				filters: DEFAULT_CLINICS_FILTERS,
 				take: 30,
 			});
-			if (res.serverError || res.validationErrors) {
-				handleSafeActionError({ serverError: res.serverError, validationErrors: res.validationErrors });
-			}
+
 			return res?.data ?? { clinics: [], nextCursor: null, totalCount: 0 };
 		},
 		initialPageParam: undefined as string | undefined,
@@ -39,7 +32,6 @@ export default async function ClinicsListPage() {
 		queryKey: ["clinics-revenue", user.labId],
 		queryFn: async () => {
 			const res = await getClinicsRevenueAction();
-			if (res.serverError || res.validationErrors) handleSafeActionError({ serverError: res.serverError, validationErrors: res.validationErrors });
 			return res?.data ?? null;
 		},
 		staleTime: 60_000,
@@ -49,9 +41,6 @@ export default async function ClinicsListPage() {
 		queryKey: ["clinics-pulse"],
 		queryFn: async () => {
 			const res = await getClinicsPulseAction();
-			if (res.serverError || res.validationErrors) {
-				handleSafeActionError({ serverError: res.serverError, validationErrors: res.validationErrors });
-			}
 			return (res?.data as ClinicPulseStats) || { all: 0, credit_risk: 0, uninvoiced: 0, suspended: 0, dormant: 0 };
 		},
 	});

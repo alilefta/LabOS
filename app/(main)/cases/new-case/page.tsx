@@ -225,9 +225,9 @@ export default function NewCasePage() {
 	return (
 		<div className="flex flex-col h-full animate-in fade-in duration-700 bg-background relative">
 			<CreateCaseFormHeader isSavingDraft={isExecutingSavingDraft} isSubmittingCase={isCreatingCase} onSaveDraft={handleSaveDraft} control={form.control} />
-
+			{/* MAIN WORKSPACE */}
 			<div className="flex-1 min-h-0 relative w-full">
-				<div className="flex flex-col xl:flex-row gap-8 h-full max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
+				<div className="flex flex-col xl:flex-row gap-8 h-full max-w-500 mx-auto px-4 sm:px-6 lg:px-8">
 					{/* FORM SECTION (Left) */}
 					<div className="flex-1 h-full overflow-y-auto custom-scrollbar pt-6 lg:pt-8">
 						<FormProvider {...form}>

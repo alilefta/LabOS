@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ChevronLeft, Edit3, MoreVertical, Download, Mail, Phone, Building2, UserCircle, Hospital, GraduationCap, AlertTriangle } from "lucide-react";
+import { ChevronLeft, Edit3, Download, Mail, Phone, Building2, UserCircle, Hospital, GraduationCap, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { getClinicDetailsById } from "@/data/clinics/get-clinic";
@@ -80,14 +80,14 @@ export async function ClinicHeaderSection({ clinicId }: Props) {
 					<Button variant="outline" className="rounded-xl border-border h-10 px-4 font-semibold shadow-sm bg-white dark:bg-white/5">
 						<Download className="w-4 h-4 mr-2 text-muted-foreground" /> Statement
 					</Button>
-					<Button className="rounded-xl bg-primary text-primary-foreground h-10 px-6 shadow-premium font-bold hover:bg-primary/90">
-						<Link href={`/clinics/${id}/edit`} className="flex gap-1.2">
+					<Button asChild className="rounded-xl bg-primary text-primary-foreground h-10 px-6 shadow-premium font-bold hover:bg-primary/90">
+						<Link href={`/clinics/${id}/edit`}>
 							<Edit3 className="w-4 h-4 mr-2" /> Edit Profile
 						</Link>
 					</Button>
-					<Button variant="ghost" size="icon" className="rounded-xl border border-transparent hover:border-border h-10 w-10">
+					{/* <Button variant="ghost" size="icon" className="rounded-xl border border-transparent hover:border-border h-10 w-10">
 						<MoreVertical className="w-4 h-4" />
-					</Button>
+					</Button> */}
 				</div>
 			</div>
 

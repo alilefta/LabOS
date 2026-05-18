@@ -174,8 +174,8 @@ export function AdvanceStatusButton({ caseId, currentStatus, staffAssignments }:
 								: warningMessage}
 						</AlertDialogDescription>
 					</AlertDialogHeader>
-					<AlertDialogFooter className="mt-6 gap-3! sm:gap-0!">
-						<AlertDialogCancel className="rounded-xl h-10 font-semibold border-border hover:bg-secondary">Cancel</AlertDialogCancel>
+					<AlertDialogFooter className="mt-6 gap-3! sm:gap-2!">
+						<AlertDialogCancel className="rounded-xl h-10! font-semibold border-border hover:bg-secondary">Cancel</AlertDialogCancel>
 						<AlertDialogAction
 							onClick={() => pendingTarget && executeStatusChange(pendingTarget)}
 							className={cn(

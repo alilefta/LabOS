@@ -2,7 +2,7 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 import { format, differenceInDays, startOfDay } from "date-fns";
-import { MoreHorizontal, Activity, PackageCheck, Truck, Clock, AlertCircle, FileCheck, User, Users, LucideIcon, DollarSign, ArrowUpRight } from "lucide-react";
+import { MoreHorizontal, Activity, PackageCheck, Truck, Clock, AlertCircle, FileCheck, User, Users, LucideIcon, DollarSign, ArrowUpRight, Edit3 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -186,7 +186,8 @@ export const columns: ColumnDef<CaseListDTO>[] = [
 			const caseId = row.original.id;
 
 			return (
-				<div className="text-right">
+				// 1. CRITICAL FIX: Stop clicks from bubbling up to the <tr onClick>
+				<div className="text-right" onClick={(e) => e.stopPropagation()}>
 					<DropdownMenu>
 						<DropdownMenuTrigger asChild>
 							<Button variant="ghost" className="h-8 w-8 p-0 hover:bg-slate-100 dark:hover:bg-white/10 rounded-lg">
@@ -196,13 +197,22 @@ export const columns: ColumnDef<CaseListDTO>[] = [
 						</DropdownMenuTrigger>
 						<DropdownMenuContent align="end" className="w-48 rounded-xl border-border shadow-premium dark:bg-[#121214]">
 							<DropdownMenuLabel className="text-xs text-muted-foreground uppercase tracking-widest">Actions</DropdownMenuLabel>
-							<DropdownMenuItem className="cursor-pointer font-medium py-2 hover:bg-primary/5">
-								<Link href={`/cases/${caseId}`} className="flex items-center gap-1.5 group">
-									View Full Case <ArrowUpRight className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform duration-75" />
+
+							{/* 2. CRITICAL FIX: Use asChild when wrapping a Link in a DropdownMenuItem */}
+							<DropdownMenuItem asChild className="cursor-pointer font-medium py-2 hover:bg-primary/5">
+								<Link href={`/cases/${caseId}`} className="flex items-center gap-1.5 group w-full">
+									View Full Case <ArrowUpRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform duration-75" />
 								</Link>
 							</DropdownMenuItem>
-							<DropdownMenuItem className="cursor-pointer font-medium py-2 hover:bg-primary/5">Assign Technician</DropdownMenuItem>
+
+							<DropdownMenuItem asChild className="cursor-pointer font-medium py-2 hover:bg-primary/5">
+								<Link href={`/cases/${caseId}/edit`} className="flex items-center gap-1.5 group w-full">
+									Edit Case <Edit3 className="w-3.5 h-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform duration-75" />
+								</Link>
+							</DropdownMenuItem>
+
 							<DropdownMenuSeparator className="bg-border" />
+
 							<DropdownMenuItem className="cursor-pointer font-medium py-2 text-primary focus:text-primary focus:bg-primary/10">Print Work Ticket</DropdownMenuItem>
 						</DropdownMenuContent>
 					</DropdownMenu>

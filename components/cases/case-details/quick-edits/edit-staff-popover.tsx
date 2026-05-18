@@ -28,7 +28,7 @@ export function EditStaffPopover({ caseId, roleCategory, currentStaffId, childre
 
 	// --- FETCH STAFF ONLY WHEN POPOVER IS OPEN ---
 	const { data: staffList = [], isLoading } = useQuery({
-		queryKey: ["labStaff", "active", roleCategory],
+		queryKey: ["labStaff", "active"],
 		queryFn: async () => {
 			const res = await getActiveLabStaffAction();
 
@@ -38,6 +38,7 @@ export function EditStaffPopover({ caseId, roleCategory, currentStaffId, childre
 
 			return (res.data?.staff || []) as LabStaffDetailsUI[];
 		},
+
 		enabled: open,
 	});
 

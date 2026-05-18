@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { X, ExternalLink, Plus, FileText, Loader2, CreditCard, Sparkles } from "lucide-react";
+import { X, ExternalLink, Plus, FileText, CreditCard, Sparkles } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetClose, SheetDescription } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -11,6 +11,7 @@ import { handleSafeActionError } from "@/lib/safe-action-helpers";
 import { getClinicQuickOverviewAction } from "@/actions/clinics/get-clinic";
 import { ClinicDossierContent } from "./clinic-dossier-content";
 import { ClinicQuickOverviewDTO } from "@/schema/composed/clinic.details";
+import Link from "next/link";
 
 interface Props {
 	clinicId: string | null;
@@ -74,11 +75,13 @@ export function ClinicQuickViewSheet({ clinicId, isOpen, onClose }: Props) {
 						{/* --- STICKY FOOTER --- */}
 						<div className="p-5 border-t border-border bg-slate-50/80 dark:bg-[#09090B]/80 backdrop-blur-xl shrink-0 z-20">
 							<div className="flex flex-col gap-2">
-								<Button
-									onClick={() => router.push(`/clinics/${clinic.id}`)}
-									className="w-full h-12 rounded-2xl bg-primary text-primary-foreground font-bold shadow-premium hover:bg-primary/90 transition-all group"
-								>
-									Manage Full Hub <ExternalLink className="w-4 h-4 ml-2 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+								<Button asChild>
+									<Link
+										className="w-full h-12 rounded-2xl bg-primary text-primary-foreground font-bold shadow-premium hover:bg-primary/90 transition-all group"
+										href={`/cases/${clinic.id}`}
+									>
+										Manage Full Hub <ExternalLink className="w-4 h-4 ml-2 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+									</Link>
 								</Button>
 								<div className="grid grid-cols-2 gap-2">
 									<Button

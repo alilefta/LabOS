@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { Control, FormProvider, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
@@ -129,7 +129,7 @@ export function EditCaseClient({ initialData, caseNumber, patientName, caseStatu
 			<EditCaseFormHeader caseNumber={caseNumber} isSubmittingCase={isUpdating} control={form.control} caseId={initialData.caseId} />
 
 			<div className="flex-1 min-h-0 relative w-full">
-				<div className="flex flex-col xl:flex-row gap-8 h-full max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
+				<div className="flex flex-col xl:flex-row gap-8 h-full max-w-500 mx-auto px-4 sm:px-6 lg:px-8">
 					{/* FORM SECTION: Reusing the exact same body! */}
 					<div className="flex-1 h-full overflow-y-auto custom-scrollbar pt-6 lg:pt-8">
 						<FormProvider {...form}>

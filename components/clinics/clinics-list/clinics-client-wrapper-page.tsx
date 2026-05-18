@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { Filter, Search, Plus, Sparkles, X, Users2 } from "lucide-react";
@@ -19,9 +19,12 @@ import { ClinicPulseStrip } from "./pulse-strip/clinics-pulse-strip";
 import { DataTable } from "./clinics-table/data-table";
 import { columns } from "./clinics-table/columns";
 import { ClinicFiltersSheet } from "./clinic-filter-sheet";
-import { ClinicCopilotSheet } from "./clinic-ai-copilot-sheet";
 import { ClinicQuickViewSheet } from "./clinic-quick-view-sheet";
 import { AmbientBlueBgGlow } from "@/components/ui/ui-utils/ambient-blue-bg-glow";
+import { parseAsString, useQueryState } from "nuqs";
+import dynamic from "next/dynamic";
+
+const ClinicCopilotSheet = dynamic(() => import("./clinic-ai-copilot-sheet").then((cm) => cm.ClinicCopilotSheet), { ssr: false });
 
 interface PageProps {
 	labId: string;
@@ -29,19 +32,23 @@ interface PageProps {
 
 export function ClinicsClientWrapper({ labId }: PageProps) {
 	const router = useRouter();
+	// 1. URL STATE (Single Source of Truth)
+	// We pass options so that setting this doesn't reload the server component
 
+	const [quickView, setQuickView] = useQueryState("quick", parseAsString.withOptions({ shallow: true, history: "push" }));
 	// ── Filter state ────────────────────────────────────────────────────────────
 	const [searchInput, setSearchInput] = useState("");
 	const debouncedSearch = useDebounce({ value: searchInput, delay: 400 });
 
 	const [isFilterOpen, setIsFilterOpen] = useState(false);
 	const [isAiSheetOpen, setIsAiSheetOpen] = useState(false);
-
-	const [quickViewClinicId, setQuickViewClinicId] = useState<string | null>(null);
-
+	// const [quickViewClinicId, setQuickViewClinicId] = useState<string | null>(null);
 	const [filters, setFilters] = useState<ClinicsFilters>(DEFAULT_CLINICS_FILTERS);
-
 	const { canViewFinancials } = usePermissions();
+
+	// useEffect(() => {
+	// 	setQuickViewClinicId(quickView);
+	// }, [quickView]);
 
 	// Strip financial columns for standard technicians
 	const visibleColumns = useMemo(() => {
@@ -87,6 +94,10 @@ export function ClinicsClientWrapper({ labId }: PageProps) {
 		}
 	};
 
+	const handleCloseQuickView = useCallback(() => {
+		setQuickView(null);
+	}, [setQuickView]);
+
 	return (
 		<div className="flex flex-col h-full animate-in fade-in duration-700 bg-background overflow-hidden relative">
 			{/* ── ZONE A: STICKY GLOBAL HEADER ───────────────────────────────── */}
@@ -123,7 +134,10 @@ export function ClinicsClientWrapper({ labId }: PageProps) {
 							{hasActiveAdvancedFilters && <div className="ml-2 w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />}
 						</Button>
 
-						<Button onClick={() => router.push("/clinics/new")} className="h-10 rounded-xl shadow-premium bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-xs px-5">
+						<Button
+							onClick={() => router.push("/clinics/new-clinic")}
+							className="h-10 rounded-xl shadow-premium bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-xs px-5"
+						>
 							<Plus className="w-4 h-4 mr-1.5" /> New Clinic
 						</Button>
 					</div>
@@ -242,7 +256,7 @@ export function ClinicsClientWrapper({ labId }: PageProps) {
 							columns={visibleColumns}
 							data={flatData}
 							isLoading={isLoading}
-							onRowClick={(row) => setQuickViewClinicId(row.id)}
+							onRowClick={(row) => setQuickView(row.id)}
 							fetchNextPage={fetchNextPage}
 							hasNextPage={hasNextPage}
 							isFetchingNextPage={isFetchingNextPage}
@@ -261,7 +275,7 @@ export function ClinicsClientWrapper({ labId }: PageProps) {
 			/>
 			<ClinicCopilotSheet isOpen={isAiSheetOpen} onClose={() => setIsAiSheetOpen(false)} onActionClick={handleAIPromptClick} />
 
-			<ClinicQuickViewSheet clinicId={quickViewClinicId} isOpen={!!quickViewClinicId} onClose={() => setQuickViewClinicId(null)} />
+			<ClinicQuickViewSheet clinicId={quickView} isOpen={!!quickView} onClose={handleCloseQuickView} />
 		</div>
 	);
 }

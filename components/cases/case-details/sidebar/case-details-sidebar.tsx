@@ -1,7 +1,4 @@
-"use client";
-
 import { CaseDetailsUI } from "@/schema/composed/case.details";
-import { memo } from "react";
 import { ProductionTeamCard } from "./team-card/production-team-card";
 import { CaseFinancialCard } from "./finanical-card/case-financial-card";
 import { DeadlineAndOriginCard } from "./deadline-and-origin-card/deadline-and-origin-card";
@@ -11,7 +8,7 @@ interface Props {
 	userRole?: string;
 }
 
-export const CaseDetailsSidebar = memo(function CaseDetailsSidebar({ dentalCase }: Props) {
+export function CaseDetailsSidebar({ dentalCase }: Props) {
 	return (
 		<div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-150">
 			{/* CARD 1: Deadline & Origin */}
@@ -22,4 +19,4 @@ export const CaseDetailsSidebar = memo(function CaseDetailsSidebar({ dentalCase 
 			<CaseFinancialCard dentalCase={dentalCase} />
 		</div>
 	);
-});
+}

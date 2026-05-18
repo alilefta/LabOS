@@ -1,8 +1,9 @@
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import { mapCaseToUpdateFormValues } from "@/lib/case-helpers";
 import { getDentalCaseById } from "@/data/cases/get-case";
 import { CaseDetailsUI } from "@/schema/composed/case.details";
 import { EditCaseClient } from "@/components/cases/edit-case/edit-case-client";
+import { LockedCaseRedirect } from "@/components/cases/edit-case/locked-case-redirect";
 
 interface Props {
 	params: Promise<{ caseId: string }>;
@@ -21,21 +22,17 @@ export default async function EditCasePage({ params }: Props) {
 	const dentalCase = result.data as CaseDetailsUI;
 
 	// 2. SECURITY GUARD: Status Lockout
-	// You cannot use the "General Edit" form for terminal cases.
-	if (["COMPLETED", "DELIVERED", "FAILED"].includes(dentalCase.status)) {
-		redirect(`/cases/${caseId}?error=locked`);
+	const isTerminal = ["COMPLETED", "DELIVERED", "FAILED"].includes(dentalCase.status);
+
+	if (isTerminal) {
+		return <LockedCaseRedirect caseId={caseId} caseNumber={dentalCase.caseNumber} status={dentalCase.status} />;
 	}
 
-	// 3. Transform data for the form
+	// 3. Transform data for the form (Only runs if the case is editable)
 	const initialData = mapCaseToUpdateFormValues(dentalCase);
 
 	return (
-		<div className="flex flex-col h-full">
-			{/* 
-                We pass the pre-mapped initialData to the client.
-                We also pass the Case Number and Patient Name as "Display Only" props
-                since they are immutable in the form.
-            */}
+		<div className="flex flex-col h-full bg-background relative overflow-hidden">
 			<EditCaseClient
 				initialData={initialData}
 				caseNumber={dentalCase.caseNumber}

@@ -9,6 +9,8 @@ import { ClinicHeaderSectionSkeleton } from "@/components/clinics/clinic-details
 import { Metadata } from "next";
 import { getClinicDetailsById } from "@/data/clinics/get-clinic";
 import { ClinicBase } from "@/schema/base/clinic.base";
+import z from "zod";
+import { notFound, redirect } from "next/navigation";
 
 interface PageProps {
 	params: Promise<{ clinicId: string }>;
@@ -17,17 +19,15 @@ interface PageProps {
 
 // Dynamically generate metadata
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-	const id = (await params).clinicId;
+	const { clinicId } = await params;
 
-	// You can fetch data here; Next.js automatically memoizes fetch requests
-	// const product = await fetch(`https://example.com{id}`).then((res) => res.json())
+	// 1. Zod Validation for Metadata
+	const isUuid = z.uuid().safeParse(clinicId).success;
+	if (!isUuid) return { title: "Invalid Clinic | LabOS" };
 
-	const results = await getClinicDetailsById(id);
+	const results = await getClinicDetailsById(clinicId);
 
-	if (!results.success)
-		return {
-			title: `Clinic ${id} | LabOS`,
-		};
+	if (!results.success) return { title: `Clinic Not Found | LabOS` };
 
 	const { name } = results.data as ClinicBase;
 
@@ -40,13 +40,22 @@ export default async function ClinicDetailPage({ params, searchParams }: PagePro
 	const { clinicId } = await params;
 	const { period, tab } = await searchParams;
 
+	const parsedId = z.uuid().safeParse(clinicId);
+
+	if (!parsedId.success) {
+		// If the router accidentally passed "new-clinic" to the dynamic route, gracefully catch and redirect it.
+		if (clinicId === "new-clinic" || clinicId === "new") {
+			redirect("/clinics/new-clinic");
+		}
+		// Otherwise, it's just garbage data (e.g., /clinics/123)
+		notFound();
+	}
+
 	const parsedTabTitle = ClinicDashboardTabsSchema.safeParse(tab);
 	const activeTab = parsedTabTitle.success ? parsedTabTitle.data : "overview";
 
 	const parsedPeriod = ClinicDashboardTimeFramePeriodSchema.safeParse(period);
 	const activePeriod = parsedPeriod.success ? parsedPeriod.data : "90d";
-
-	console.log("Clinic Page rendered, searchParams:", await searchParams);
 
 	return (
 		<ClinicTerminalShell>

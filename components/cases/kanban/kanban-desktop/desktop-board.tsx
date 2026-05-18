@@ -109,11 +109,12 @@ export function DesktopKanbanBoard({ requestStatusTransition }: Props) {
 
 	return (
 		<DndContext sensors={sensors} collisionDetection={closestCorners} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-			{/* The main scrollable board track */}
-			<div className="flex h-full w-full overflow-x-auto pb-6 custom-scrollbar gap-6 px-4 items-start pt-2">
-				{COLUMNS.map((col) => (
-					<DesktopKanbanColumn key={col.id} id={col.id} title={col.title} cases={columnsData[col.id]} />
-				))}
+			<div className="h-full w-full overflow-x-auto pb-6 custom-scrollbar">
+				<div className="grid grid-cols-4 gap-4 lg:gap-6 pt-4 px-4  h-full min-w-275">
+					{COLUMNS.map((col) => (
+						<DesktopKanbanColumn key={col.id} id={col.id} title={col.title} cases={columnsData[col.id]} />
+					))}
+				</div>
 			</div>
 
 			{/* The floating card tied to your cursor */}

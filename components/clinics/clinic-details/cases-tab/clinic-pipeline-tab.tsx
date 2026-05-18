@@ -3,7 +3,6 @@ import { dehydrate } from "@tanstack/react-query";
 import { ClinicActiveCasesKanbanSkeleton } from "./clinic-active-cases-kanban-wrapper-skeleton";
 import { ClinicHistoricalDataTableSkeleton } from "./clinic-historical-data-table-skeleton";
 import { getClinicActivePipelineAction, getClinicHistoricalCasesAction } from "@/actions/clinics/get-clinic";
-import { handleSafeActionError } from "@/lib/safe-action-helpers";
 import { DEFAULT_CASES_FILTERS } from "@/schema/composed/cases/cases-filters";
 import { GetClinicHistoricalCasesResult } from "@/schema/composed/clinics/clinic-cases.dtos";
 import { QueryHydrationBoundary } from "@/providers/query-hydration-boundary";
@@ -23,10 +22,6 @@ export async function ClinicPipelineTab({ clinicId }: { clinicId: string }) {
 		queryKey: ["clinic-active-pipeline", clinicId],
 		queryFn: async () => {
 			const res = await getClinicActivePipelineAction({ clinicId });
-			if (res?.serverError || res?.validationErrors) {
-				handleSafeActionError({ serverError: res.serverError, validationErrors: res.validationErrors });
-				return null;
-			}
 			return res?.data ?? null;
 		},
 	});
@@ -41,10 +36,6 @@ export async function ClinicPipelineTab({ clinicId }: { clinicId: string }) {
 				filters: DEFAULT_CASES_FILTERS,
 				take: 20,
 			});
-
-			if (res.serverError || res.validationErrors) {
-				handleSafeActionError({ serverError: res.serverError, validationErrors: res.validationErrors });
-			}
 			return res?.data ?? { cases: [], nextCursor: null, totalCount: 0 };
 		},
 		initialPageParam: undefined as string | undefined,

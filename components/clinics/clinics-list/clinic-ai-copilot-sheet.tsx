@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { memo, useState } from "react";
 import { Sparkles, MessageSquareText, FileSearch, ArrowRight, Send, TrendingUp, DollarSign } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
@@ -12,7 +12,7 @@ interface Props {
 	onActionClick: (intent: string) => void;
 }
 
-export function ClinicCopilotSheet({ isOpen, onClose, onActionClick }: Props) {
+export const ClinicCopilotSheet = memo(function ClinicCopilotSheet({ isOpen, onClose, onActionClick }: Props) {
 	const [prompt, setPrompt] = useState("");
 
 	const handleSubmit = (e: React.FormEvent) => {
@@ -125,4 +125,4 @@ export function ClinicCopilotSheet({ isOpen, onClose, onActionClick }: Props) {
 			</SheetContent>
 		</Sheet>
 	);
-}
+});

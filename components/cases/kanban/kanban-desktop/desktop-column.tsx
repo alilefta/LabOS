@@ -43,7 +43,7 @@ export const DesktopKanbanColumn = memo(function DesktopKanbanColumn({ id, title
 	});
 
 	return (
-		<div className="flex flex-col w-[320px] shrink-0 h-full select-none">
+		<div className="flex flex-col h-full select-none transition-all duration-300 ">
 			{/* --- COLUMN HEADER --- */}
 			<div className="flex items-center justify-between mb-4 px-2 shrink-0">
 				<div className="flex items-center gap-2">

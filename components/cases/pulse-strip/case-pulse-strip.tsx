@@ -3,17 +3,40 @@
 import { AlertCircle, Clock, UserMinus, Activity, Layers, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { PulseFilter, PulseStats } from "@/schema/composed/case.details";
+import { useQuery } from "@tanstack/react-query";
+import { getCasesPulseAction } from "@/actions/cases/get-cases";
+import { handleSafeActionError } from "@/lib/safe-action-helpers";
 
 interface PulseStripProps {
 	currentFilter: PulseFilter;
 	onFilterChange: (filter: PulseFilter) => void;
-	stats: PulseStats | null;
-	isLoading: boolean;
+	labId: string;
 }
 
-export function CasePulseStrip({ currentFilter, onFilterChange, stats, isLoading }: PulseStripProps) {
+export function CasePulseStrip({ currentFilter, onFilterChange, labId }: PulseStripProps) {
 	// Only hide if we are NOT loading AND there is no data
-	if (!isLoading && !stats) return null;
+
+	// ── 2. Pulse strip counts ────────────────────────────────────────────────────
+	// Separate query — short stale time so the strip stays fresh as cases move
+	// through statuses. Does not depend on table filters intentionally:
+	// pulse counts always reflect the full lab state, not the current table view.
+	const { data: stats, isLoading } = useQuery({
+		queryKey: ["cases-pulse", labId],
+		queryFn: async () => {
+			const res = await getCasesPulseAction();
+			if (res.serverError || res.validationErrors) {
+				handleSafeActionError({
+					serverError: res.serverError,
+					validationErrors: res.validationErrors,
+				});
+			}
+			return res?.data ?? null;
+		},
+		staleTime: 30_000,
+		refetchInterval: 60_000, // auto-refresh every 60s
+	});
+
+	if (!stats) return null;
 
 	const cards = [
 		{

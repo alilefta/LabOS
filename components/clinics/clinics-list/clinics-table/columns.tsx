@@ -1,7 +1,7 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { MoreHorizontal, Building2, UserCircle, Hospital, GraduationCap, Phone, FileText, Wallet, TrendingUp, TrendingDown, ArrowUpRight } from "lucide-react";
+import { MoreHorizontal, Building2, UserCircle, Hospital, GraduationCap, Phone, FileText, Wallet, TrendingUp, TrendingDown, ArrowUpRight, Loader2 } from "lucide-react";
 import { LineChart, Line, ResponsiveContainer } from "recharts";
 
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,8 @@ import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 import { ClinicListDTO } from "@/schema/composed/clinic.details";
 import Link from "next/link";
+import { useTransition } from "react";
+import { parseAsString, useQueryState } from "nuqs";
 
 // --- FORMATTERS ---
 const formatCurrency = (val: number) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(val);
@@ -207,38 +209,60 @@ export const columns: ColumnDef<ClinicListDTO>[] = [
 		cell: ({ row }) => {
 			const clinic = row.original;
 
-			return (
-				<div className="text-right">
-					<DropdownMenu>
-						<DropdownMenuTrigger asChild>
-							<Button variant="ghost" className="h-8 w-8 p-0 hover:bg-slate-100 dark:hover:bg-white/10 rounded-lg transition-colors">
-								<span className="sr-only">Open menu</span>
-								<MoreHorizontal className="h-4 w-4 text-muted-foreground" />
-							</Button>
-						</DropdownMenuTrigger>
-						<DropdownMenuContent align="end" className="w-48 rounded-xl border-border shadow-premium dark:bg-[#121214]">
-							<DropdownMenuLabel className="text-[10px] text-muted-foreground uppercase tracking-widest">Management</DropdownMenuLabel>
-							<DropdownMenuItem className="cursor-pointer font-medium py-2 hover:bg-primary/5">Quick View</DropdownMenuItem>
-							<DropdownMenuItem className="cursor-pointer font-medium py-2 hover:bg-primary/5">
-								<Link href={`/clinics/${clinic.id}`} className="flex items-center gap-1.5 group">
-									Full Clinic View <ArrowUpRight className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform duration-75" />
-								</Link>
-							</DropdownMenuItem>
-							<DropdownMenuItem className="cursor-pointer font-medium py-2 hover:bg-primary/5 text-primary">New Case</DropdownMenuItem>
-							<DropdownMenuSeparator className="bg-border" />
-							{clinic.uninvoicedCasesCount > 0 ? (
-								<DropdownMenuItem className="cursor-pointer font-bold py-2 text-emerald-600 focus:text-emerald-600 focus:bg-emerald-500/10">
-									<FileText className="w-4 h-4 mr-2" /> Generate Invoice
-								</DropdownMenuItem>
-							) : (
-								<DropdownMenuItem className="cursor-pointer font-medium py-2 hover:bg-emerald-500/5">
-									<Wallet className="w-4 h-4 mr-2 text-emerald-500" /> Record Payment
-								</DropdownMenuItem>
-							)}
-						</DropdownMenuContent>
-					</DropdownMenu>
-				</div>
-			);
+			return <ActionCell id={clinic.id} uninvoicedCasesCount={clinic.uninvoicedCasesCount} />;
 		},
 	},
 ];
+
+function ActionCell({ id, uninvoicedCasesCount }: { id: string; uninvoicedCasesCount: number }) {
+	const [isPending, startTransition] = useTransition();
+	const [_, setQuickView] = useQueryState("quick", parseAsString.withOptions({ startTransition, shallow: true, history: "push" }));
+
+	return (
+		<div className="text-right" onClick={(e) => e.stopPropagation()}>
+			<DropdownMenu>
+				<DropdownMenuTrigger asChild>
+					<Button variant="ghost" className="h-8 w-8 p-0 hover:bg-slate-100 dark:hover:bg-white/10 rounded-lg transition-colors">
+						<span className="sr-only">Open menu</span>
+						{isPending ? <Loader2 className="h-4 w-4 text-muted-foreground animate-spin" /> : <MoreHorizontal className="h-4 w-4 text-muted-foreground" />}
+					</Button>
+				</DropdownMenuTrigger>
+				<DropdownMenuContent align="end" className="w-48 rounded-xl border-border shadow-premium dark:bg-[#121214]">
+					<DropdownMenuLabel className="text-[10px] text-muted-foreground uppercase tracking-widest">Management</DropdownMenuLabel>
+					<DropdownMenuItem
+						className="cursor-pointer font-medium py-2 hover:bg-primary/5"
+						onClick={() => {
+							startTransition(async () => {
+								await setQuickView(id);
+							});
+						}}
+					>
+						{/* <Link
+							href={`/clinics?quick=${id}`}
+							scroll={false} // <-- CRITICAL FIX: Prevents layout jump!
+							className="flex items-center gap-1.5 group"
+						> */}
+						Quick View <ArrowUpRight className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform duration-75" />
+						{/* </Link> */}
+					</DropdownMenuItem>
+					<DropdownMenuItem className="cursor-pointer font-medium py-2 hover:bg-primary/5" asChild>
+						<Link href={`/clinics/${id}`} className="flex items-center gap-1.5 group">
+							Full Clinic View <ArrowUpRight className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform duration-75" />
+						</Link>
+					</DropdownMenuItem>
+					<DropdownMenuItem className="cursor-pointer font-medium py-2 hover:bg-primary/5 text-primary">New Case</DropdownMenuItem>
+					<DropdownMenuSeparator className="bg-border" />
+					{uninvoicedCasesCount > 0 ? (
+						<DropdownMenuItem className="cursor-pointer font-bold py-2 text-emerald-600 focus:text-emerald-600 focus:bg-emerald-500/10">
+							<FileText className="w-4 h-4 mr-2" /> Generate Invoice
+						</DropdownMenuItem>
+					) : (
+						<DropdownMenuItem className="cursor-pointer font-medium py-2 hover:bg-emerald-500/5">
+							<Wallet className="w-4 h-4 mr-2 text-emerald-500" /> Record Payment
+						</DropdownMenuItem>
+					)}
+				</DropdownMenuContent>
+			</DropdownMenu>
+		</div>
+	);
+}

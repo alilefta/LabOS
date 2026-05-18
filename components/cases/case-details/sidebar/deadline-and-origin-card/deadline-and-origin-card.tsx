@@ -1,5 +1,4 @@
 import { CaseDetailsUI } from "@/schema/composed/case.details";
-import { memo } from "react";
 import { MapPin, User, CalendarClock, Clock, AlertCircle, CheckCircle2 } from "lucide-react";
 import { format, differenceInDays, startOfDay } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -7,7 +6,7 @@ import { EditDeadlinePopover } from "../../quick-edits/edit-deadline-popover";
 interface DeadlineAndOriginCardProps {
 	dentalCase: CaseDetailsUI;
 }
-export const DeadlineAndOriginCard = memo(function DeadlineAndOriginCard({ dentalCase }: DeadlineAndOriginCardProps) {
+export function DeadlineAndOriginCard({ dentalCase }: DeadlineAndOriginCardProps) {
 	const today = new Date();
 	const daysUntilDeadline = dentalCase.deadline ? differenceInDays(startOfDay(dentalCase.deadline), startOfDay(today)) : 0;
 
@@ -51,7 +50,7 @@ export const DeadlineAndOriginCard = memo(function DeadlineAndOriginCard({ denta
 								className={cn(
 									"text-sm font-bold",
 									isTerminal
-										? "text-muted-foreground line-through decoration-muted-foreground/50" // Strikethrough if finished
+										? "text-muted-foreground line-through decoration-muted-foreground/50"
 										: isOverdue
 											? "text-destructive"
 											: isRush
@@ -92,4 +91,4 @@ export const DeadlineAndOriginCard = memo(function DeadlineAndOriginCard({ denta
 			</div>
 		</div>
 	);
-});
+}

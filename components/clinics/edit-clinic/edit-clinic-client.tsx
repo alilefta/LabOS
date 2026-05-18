@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { FormProvider, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -41,7 +41,7 @@ export function EditClinicClient({ initialData, clinicId, clinicName, currentBal
 
 	// 2. SERVER ACTION
 	const { executeAsync: updateClinic, isExecuting } = useAction(updateClinicAction, {
-		onSuccess: ({ data }) => {
+		onSuccess: () => {
 			toast.success(`Modifications saved for ${clinicName}`);
 			router.push(`/clinics/${clinicId}`);
 			router.refresh();
@@ -69,7 +69,7 @@ export function EditClinicClient({ initialData, clinicId, clinicName, currentBal
 		<div className="flex flex-col h-full animate-in fade-in duration-700 bg-background relative">
 			{/* --- THE EDIT HEADER --- */}
 			<header className="shrink-0 sticky top-0 z-30 bg-background/80 backdrop-blur-xl border-b border-border">
-				<div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pt-4 pb-4 px-4 sm:px-6 lg:px-8 max-w-400 mx-auto w-full">
+				<div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pt-4 pb-4 px-4 sm:px-6 lg:px-8 max-w-500 mx-auto w-full">
 					<div className="flex items-start sm:items-center gap-3 sm:gap-4">
 						<Link href={`/clinics/${clinicId}`} className="shrink-0 mt-0.5 sm:mt-0">
 							<Button
@@ -107,7 +107,7 @@ export function EditClinicClient({ initialData, clinicId, clinicName, currentBal
 
 			{/* MAIN WORKSPACE */}
 			<div className="flex-1 min-h-0 relative z-10 w-full">
-				<div className="flex flex-col xl:flex-row gap-8 h-full max-w-400 mx-auto px-4 sm:px-6 lg:px-8">
+				<div className="flex flex-col xl:flex-row gap-8 h-full max-w-500 mx-auto px-4 sm:px-6 lg:px-8">
 					{/* LEFT PANE: The Form */}
 					<div className="flex-1 h-full overflow-y-auto custom-scrollbar pt-6 lg:pt-8">
 						<FormProvider {...form}>

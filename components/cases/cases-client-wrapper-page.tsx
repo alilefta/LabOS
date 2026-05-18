@@ -2,7 +2,7 @@
 
 import { useCallback, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { Filter, Search, Plus, Sparkles, X, List, LayoutGrid, FolderOpen } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -15,23 +15,27 @@ import { CasePulseStrip } from "@/components/cases/pulse-strip/case-pulse-strip"
 import { DataTable } from "@/components/shared/tables/data-table";
 import { columns } from "@/components/cases/cases-table/columns";
 import { AdvancedFiltersSheet } from "@/components/modals/shared/advanced-filters-sheet";
-import { AiCopilotSheet } from "@/components/cases/cases-table/ai-copilot-sheet";
 import { GetCasesListResult } from "@/schema/composed/case.details";
 
-import { getCasesListAction, getCasesPulseAction, getCasesRevenueAction } from "@/actions/cases/get-cases";
+import { getCasesListAction } from "@/actions/cases/get-cases";
 import { handleSafeActionError } from "@/lib/safe-action-helpers";
 import { usePermissions } from "@/providers/permissions-provider";
 import { updateCaseStatusAction } from "@/actions/cases/update-case";
 import { useAction } from "next-safe-action/hooks";
 import { CaseStatus } from "@/schema/base/enums.base";
 import { toast } from "sonner";
-import { KanbanWrapper } from "./kanban/kanban-wrapper";
 import { CasesFilters, DEFAULT_CASES_FILTERS } from "@/schema/composed/cases/cases-filters";
 import { AmbientBlueBgGlow } from "../ui/ui-utils/ambient-blue-bg-glow";
+import dynamic from "next/dynamic";
 
 interface PageProps {
 	labId: string;
 }
+
+const KanbanWrapper = dynamic(() => import("./kanban/kanban-wrapper").then((cm) => cm.KanbanWrapper), { ssr: false });
+const AiCopilotSheet = dynamic(() => import("./cases-table/ai-copilot-sheet").then((cm) => cm.AiCopilotSheet), {
+	ssr: false,
+});
 
 export default function CasesClientWrapperPage({ labId }: PageProps) {
 	const router = useRouter();
@@ -82,43 +86,6 @@ export default function CasesClientWrapperPage({ labId }: PageProps) {
 		initialPageParam: undefined as string | undefined,
 		getNextPageParam: (last) => last.nextCursor ?? undefined,
 		staleTime: 20_000,
-	});
-
-	// ── 2. Pulse strip counts ────────────────────────────────────────────────────
-	// Separate query — short stale time so the strip stays fresh as cases move
-	// through statuses. Does not depend on table filters intentionally:
-	// pulse counts always reflect the full lab state, not the current table view.
-	const { data: pulseData, isLoading: isPulseLoading } = useQuery({
-		queryKey: ["cases-pulse", labId],
-		queryFn: async () => {
-			const res = await getCasesPulseAction();
-			if (res.serverError || res.validationErrors) {
-				handleSafeActionError({
-					serverError: res.serverError,
-					validationErrors: res.validationErrors,
-				});
-			}
-			return res?.data ?? null;
-		},
-		staleTime: 30_000,
-		refetchInterval: 60_000, // auto-refresh every 60s
-	});
-
-	// ── 3. Revenue strip — owner/manager only ───────────────────────────────────
-	const { data: revenueData, isLoading: isRevenueLoading } = useQuery({
-		queryKey: ["cases-revenue", labId],
-		queryFn: async () => {
-			const res = await getCasesRevenueAction();
-			if (res.serverError || res.validationErrors) {
-				handleSafeActionError({
-					serverError: res.serverError,
-					validationErrors: res.validationErrors,
-				});
-			}
-			return res?.data ?? null;
-		},
-		staleTime: 60_000,
-		enabled: canViewFinancials, // never fires for STAFF/ADMIN
 	});
 
 	// ── 4. KANBAN STATUS MUTATION ────────────────────────────────────────────
@@ -249,15 +216,10 @@ export default function CasesClientWrapperPage({ labId }: PageProps) {
 				<div className="w-full max-w-500 mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
 					<div className="shrink-0 flex flex-col gap-2">
 						{/* ── ZONE B: OWNER REVENUE STRIP ─────────────────────────────────── */}
-						<OwnerRevenueStrip data={revenueData ?? null} isLoading={isRevenueLoading} />
+						<OwnerRevenueStrip labId={labId} />
 
 						{/* ── ZONE C: PULSE STRIP ─────────────────────────────────────────── */}
-						<CasePulseStrip
-							stats={pulseData ?? null}
-							isLoading={isPulseLoading}
-							currentFilter={filters.pulseFilter}
-							onFilterChange={(newPulse) => setFilters((prev) => ({ ...prev, pulseFilter: newPulse }))}
-						/>
+						<CasePulseStrip labId={labId} currentFilter={filters.pulseFilter} onFilterChange={(newPulse) => setFilters((prev) => ({ ...prev, pulseFilter: newPulse }))} />
 					</div>
 
 					{/* ── ZONE D & E: UNIFIED DATABASE TOOLBAR ───────────────────────── */}

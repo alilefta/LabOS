@@ -3,12 +3,9 @@ import { DentistRosterShell } from "./dentist-roaster-shell";
 import { ClinicType } from "@/schema/base/enums.base";
 import { dehydrate } from "@tanstack/react-query";
 import { getClinicDentistPersonasAction } from "@/actions/clinics/dentists/get-dentists";
-import { handleSafeActionError } from "@/lib/safe-action-helpers";
-import { DentistPersonaDTO } from "@/schema/composed/clinics/clinic-dentists.dtos";
 import { QueryHydrationBoundary } from "@/providers/query-hydration-boundary";
 import { getQueryClient } from "@/providers/get-query-client";
-import { getClinicDentistPersonas } from "@/data/dentists/get-dentist";
-import { toast } from "sonner";
+import { DentistPersonaDTO } from "@/schema/composed/clinics/clinic-dentists.dtos";
 
 export async function ClinicRosterTab({ clinicId }: { clinicId: string }) {
 	const results = await getClinicSelectiveFieldById(clinicId, { type: true });
@@ -21,10 +18,7 @@ export async function ClinicRosterTab({ clinicId }: { clinicId: string }) {
 		queryKey: ["clinic-dentists", clinicId],
 		queryFn: async () => {
 			const res = await getClinicDentistPersonasAction({ clinicId });
-			if (res?.serverError || res?.validationErrors) {
-				handleSafeActionError({ serverError: res.serverError, validationErrors: res.validationErrors });
-				return [];
-			}
+
 			return (res?.data?.personas as DentistPersonaDTO[]) ?? [];
 		},
 	});

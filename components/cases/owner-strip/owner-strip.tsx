@@ -1,27 +1,42 @@
 "use client";
 
+import { getCasesRevenueAction } from "@/actions/cases/get-cases";
+import { AmbientBgGlow } from "@/components/ui/ui-utils/animated-ambient-bg-glow";
+import { handleSafeActionError } from "@/lib/safe-action-helpers";
 import { usePermissions } from "@/providers/permissions-provider";
-import { RevenueStats } from "@/schema/composed/case.details";
+import { useQuery } from "@tanstack/react-query";
 import { TrendingUp, AlertTriangle, CalendarClock, DollarSign, Loader2 } from "lucide-react";
 
 interface OwnerRevenueStripProps {
-	data: RevenueStats | null;
-	isLoading: boolean;
+	labId: string;
 }
 
-export function OwnerRevenueStrip({ data, isLoading }: OwnerRevenueStripProps) {
+export function OwnerRevenueStrip({ labId }: OwnerRevenueStripProps) {
 	const { canViewFinancials } = usePermissions();
-	// Only hide if we are NOT loading AND there is no data
-	if (!canViewFinancials) return null;
-	if (!isLoading && !data) return null;
+
+	// ── 3. Revenue strip — owner/manager only ───────────────────────────────────
+	const { data, isLoading } = useQuery({
+		queryKey: ["cases-revenue", labId],
+		queryFn: async () => {
+			const res = await getCasesRevenueAction();
+			if (res.serverError || res.validationErrors) {
+				handleSafeActionError({
+					serverError: res.serverError,
+					validationErrors: res.validationErrors,
+				});
+			}
+			return res?.data ?? null;
+		},
+		staleTime: 60_000,
+		enabled: canViewFinancials, // never fires for STAFF/ADMIN
+	});
 
 	const formatCurrency = (val: number) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(val);
 
 	return (
 		<div className="flex flex-col md:flex-row items-stretch md:items-center justify-between p-5 mb-6 rounded-3xl bg-linear-to-r from-emerald-950 via-[#09090B] to-[#09090B] border border-emerald-500/20 shadow-sm animate-in fade-in slide-in-from-top-4 duration-500 overflow-hidden relative">
 			{/* Ambient background glow */}
-			<div className="absolute top-0 left-0 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl -ml-20 -mt-20 pointer-events-none"></div>
-
+			<AmbientBgGlow variant="emerald" />
 			<div className="flex items-center gap-4 mb-5 md:mb-0 relative z-10">
 				<div className="w-12 h-12 rounded-2xl bg-emerald-500/20 flex items-center justify-center text-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.15)] shrink-0 border border-emerald-500/20">
 					<TrendingUp className="w-6 h-6" />

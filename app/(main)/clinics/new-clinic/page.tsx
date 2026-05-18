@@ -82,7 +82,6 @@ export default function NewClinicPage() {
 			toast.error("A Clinic Name is required to save a draft.");
 			return;
 		}
-		console.log("Saving Draft:", currentData);
 		toast.success("Onboarding draft saved.");
 	}, [form]);
 
@@ -92,18 +91,20 @@ export default function NewClinicPage() {
 			<NewClinicHeader control={form.control} isSubmitting={isExecuting} onSaveDraft={handleSaveDraft} />
 
 			{/* MAIN WORKSPACE */}
-			<div className="flex-1 min-h-0 relative z-10 px-4 sm:px-8">
-				<div className="flex flex-col xl:flex-row gap-8 h-full  mx-auto pt-4">
-					{/* LEFT PANE: The Form (Internal Scroll) */}
-					<FormProvider {...form}>
-						{/* overflow-y-auto is applied here. Padding is inside so the scrollbar hits the edge. */}
-						<form id="new-clinic-onboarding-form" onSubmit={form.handleSubmit(onSubmit)} className="flex-1 overflow-y-auto custom-scrollbar pr-2 pb-64 xl:pb-32 space-y-12">
-							<ClinicIdentitySection />
-							<ClinicLocationSection />
-							<PractitionerRosterSection />
-							<ClinicFinancialsSection />
-						</form>
-					</FormProvider>
+			<div className="flex-1 min-h-0 relative w-full">
+				<div className="flex flex-col xl:flex-row gap-8 h-full max-w-500 mx-auto px-4 sm:px-6 lg:px-8">
+					<div className="flex-1 h-full overflow-y-auto custom-scrollbar pt-6 lg:pt-8">
+						{/* LEFT PANE: The Form (Internal Scroll) */}
+						<FormProvider {...form}>
+							{/* overflow-y-auto is applied here. Padding is inside so the scrollbar hits the edge. */}
+							<form id="new-clinic-onboarding-form" onSubmit={form.handleSubmit(onSubmit)} className="flex-1 overflow-y-auto custom-scrollbar pr-2 pb-64 xl:pb-32 space-y-12">
+								<ClinicIdentitySection />
+								<ClinicLocationSection />
+								<PractitionerRosterSection />
+								<ClinicFinancialsSection />
+							</form>
+						</FormProvider>
+					</div>
 
 					{/* RIGHT PANE: Live Feedback & AI (Desktop) */}
 					{/* Removed overflow-y-auto here, it should just be sticky. If it gets too tall, we can wrap its contents. */}

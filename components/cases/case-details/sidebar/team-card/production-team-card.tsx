@@ -2,58 +2,96 @@ import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { EditStaffPopover } from "../../quick-edits/edit-staff-popover";
 import { StaffRoleCategory } from "@/schema/base/enums.base";
 import { CaseStaffAssignmentDetailsUI } from "@/schema/composed/case-staff-assignment.details";
-import { memo } from "react";
 import { cn } from "@/lib/utils";
 import { Truck, Wrench, Microscope, ShieldCheck, LucideIcon } from "lucide-react";
 import { CaseDetailsUI } from "@/schema/composed/case.details";
+import { getQueryClient } from "@/providers/get-query-client";
+import { getActiveLabStaffAction } from "@/actions/staff";
+import { QueryHydrationBoundary } from "@/providers/query-hydration-boundary";
+import { dehydrate } from "@tanstack/react-query";
 
 interface ProductionTeamCardProps {
 	dentalCase: CaseDetailsUI;
 }
 
-export const ProductionTeamCard = memo(function ProductionTeamCard({ dentalCase }: ProductionTeamCardProps) {
+export async function ProductionTeamCard({ dentalCase }: ProductionTeamCardProps) {
 	const assignments = dentalCase.staffAssignments || [];
 	const seniorTech = assignments.find((s) => s.roleCategory === "SENIOR_TECHNICIAN");
 	const leadTech = assignments.find((s) => s.roleCategory === "TECHNICIAN");
 	const qcInspector = assignments.find((s) => s.roleCategory === "QC_INSPECTOR");
 	const courier = assignments.find((s) => s.roleCategory === "COURIER");
+
+	// 1. ONE query client for the whole sidebar
+	const queryClient = getQueryClient();
+
+	// 2. ONE database fetch for ALL staff
+	await queryClient.prefetchQuery({
+		queryKey: ["labStaff", "active"], // Removed roleEnum from key
+		queryFn: async () => {
+			const res = await getActiveLabStaffAction();
+			return res.data?.staff || [];
+		},
+	});
 	return (
-		<div className="lab-card overflow-hidden">
-			<div className="px-6 py-4 border-b border-border bg-slate-50 dark:bg-white/2">
-				<h3 className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest">Production Team & Routing</h3>
-			</div>
-
-			<div className="p-5 space-y-6">
-				{/* Section A: Technical Production */}
-				<div className="space-y-3">
-					<h4 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2 px-1">Manufacturing & Quality</h4>
-
-					<TeamSlot caseId={dentalCase.id} roleLabel="Supervising Tech" roleEnum="SENIOR_TECHNICIAN" assignment={seniorTech} icon={ShieldCheck} colorClass="bg-ai/10 text-ai border-ai/20" />
-
-					<TeamSlot caseId={dentalCase.id} roleLabel="Lead Technician" roleEnum="TECHNICIAN" assignment={leadTech} icon={Wrench} colorClass="bg-primary/10 text-primary border-primary/20" />
-
-					<TeamSlot
-						caseId={dentalCase.id}
-						roleLabel="QC Inspector"
-						roleEnum="QC_INSPECTOR"
-						assignment={qcInspector}
-						icon={Microscope}
-						colorClass="bg-emerald-500/10 text-emerald-500 border-emerald-500/20"
-					/>
+		<QueryHydrationBoundary state={dehydrate(queryClient)}>
+			<div className="lab-card overflow-hidden">
+				<div className="px-6 py-4 border-b border-border bg-slate-50 dark:bg-white/2">
+					<h3 className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest">Production Team & Routing</h3>
 				</div>
 
-				<div className="h-px w-full bg-border border-dashed" />
+				<div className="p-5 space-y-6">
+					{/* Section A: Technical Production */}
+					<div className="space-y-3">
+						<h4 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2 px-1">Manufacturing & Quality</h4>
 
-				{/* Section B: Delivery & Logistics */}
-				<div className="space-y-3">
-					<h4 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2 px-1">Logistics</h4>
+						<TeamSlot
+							caseId={dentalCase.id}
+							roleLabel="Supervising Tech"
+							roleEnum="SENIOR_TECHNICIAN"
+							assignment={seniorTech}
+							icon={ShieldCheck}
+							colorClass="bg-ai/10 text-ai border-ai/20"
+						/>
 
-					<TeamSlot caseId={dentalCase.id} roleLabel="Route Courier" roleEnum="COURIER" assignment={courier} icon={Truck} colorClass="bg-amber-500/10 text-amber-500 border-amber-500/20" />
+						<TeamSlot
+							caseId={dentalCase.id}
+							roleLabel="Lead Technician"
+							roleEnum="TECHNICIAN"
+							assignment={leadTech}
+							icon={Wrench}
+							colorClass="bg-primary/10 text-primary border-primary/20"
+						/>
+
+						<TeamSlot
+							caseId={dentalCase.id}
+							roleLabel="QC Inspector"
+							roleEnum="QC_INSPECTOR"
+							assignment={qcInspector}
+							icon={Microscope}
+							colorClass="bg-emerald-500/10 text-emerald-500 border-emerald-500/20"
+						/>
+					</div>
+
+					<div className="h-px w-full bg-border border-dashed" />
+
+					{/* Section B: Delivery & Logistics */}
+					<div className="space-y-3">
+						<h4 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2 px-1">Logistics</h4>
+
+						<TeamSlot
+							caseId={dentalCase.id}
+							roleLabel="Route Courier"
+							roleEnum="COURIER"
+							assignment={courier}
+							icon={Truck}
+							colorClass="bg-amber-500/10 text-amber-500 border-amber-500/20"
+						/>
+					</div>
 				</div>
 			</div>
-		</div>
+		</QueryHydrationBoundary>
 	);
-});
+}
 
 // --- HELPER COMPONENT: ROLE SLOT ---
 // Renders a predictable, fixed row for a specific job requirement
@@ -66,7 +104,7 @@ interface TeamSlotProps {
 	caseId: string;
 }
 
-export const TeamSlot = memo(function TeamSlot({ roleLabel, roleEnum, assignment, icon: Icon, colorClass, caseId }: TeamSlotProps) {
+export function TeamSlot({ roleLabel, roleEnum, assignment, icon: Icon, colorClass, caseId }: TeamSlotProps) {
 	const isAssigned = !!assignment;
 	const staff = assignment?.staff;
 
@@ -112,4 +150,4 @@ export const TeamSlot = memo(function TeamSlot({ roleLabel, roleEnum, assignment
 			</button>
 		</EditStaffPopover>
 	);
-});
+}

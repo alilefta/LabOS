@@ -6,6 +6,7 @@ import { memo } from "react";
 import { handleSafeActionError } from "@/lib/safe-action-helpers";
 import { getClinicsRevenueAction } from "@/actions/clinics/get-clinics";
 import { useQuery } from "@tanstack/react-query";
+import { AmbientBgGlow } from "@/components/ui/ui-utils/animated-ambient-bg-glow";
 
 interface ClinicOwnerRevenueStripProps {
 	labId: string;
@@ -35,7 +36,7 @@ export const ClinicOwnerRevenueStrip = memo(function ClinicOwnerRevenueStrip({ l
 	return (
 		<div className="flex flex-col md:flex-row items-stretch md:items-center justify-between p-5 mb-6 rounded-3xl bg-linear-to-r from-emerald-950 via-[#09090B] to-[#09090B] border border-emerald-500/20 shadow-sm animate-in fade-in slide-in-from-top-4 duration-500 overflow-hidden relative">
 			{/* Ambient background glow */}
-			<div className="absolute top-0 left-0 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl -ml-20 -mt-20 pointer-events-none"></div>
+			<AmbientBgGlow variant="emerald" />
 
 			<div className="flex items-center gap-4 mb-5 md:mb-0 relative z-10">
 				<div className="w-12 h-12 rounded-2xl bg-emerald-500/20 flex items-center justify-center text-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.15)] shrink-0 border border-emerald-500/20">

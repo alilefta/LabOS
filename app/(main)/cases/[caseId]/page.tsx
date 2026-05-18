@@ -11,10 +11,11 @@ import { getDentalCaseById } from "@/data/cases/get-case";
 import { DigitalAssetVault } from "@/components/cases/case-details/sections/digital-asset-vault";
 import { AuditTrailLog } from "@/components/cases/case-details/sections/audit-trail-log";
 import { AdvanceStatusButton } from "@/components/cases/case-details/advance-case-status/advance-status-button";
-import { getServerSession } from "@/lib/get-session";
 import { getCurrentLabUserRoleByAuthUserId } from "@/data/lab";
 import { EditCaseButton } from "@/components/cases/case-details/edit-case-button/edit-case-button";
 import { Metadata } from "next";
+import { AmbientBgGlow } from "@/components/ui/ui-utils/animated-ambient-bg-glow";
+import z from "zod";
 
 interface PageProps {
 	params: Promise<{ caseId: string }>;
@@ -22,27 +23,35 @@ interface PageProps {
 
 // Dynamically generate metadata
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-	const id = (await params).caseId;
+	const { caseId } = await params;
 
-	const results = await getDentalCaseById(id);
+	// 1. Zod Validation for Metadata
+	const isUuid = z.uuid().safeParse(caseId).success;
+	if (!isUuid) return { title: "Invalid Case | LabOS" };
 
-	if (!results.success)
-		return {
-			title: `Case ${id} | LabOS`,
-		};
+	const results = await getDentalCaseById(caseId);
+
+	if (!results.success) return { title: `Dental Case Not Found | LabOS` };
 
 	const { patient } = results.data as CaseDetailsUI;
 
 	return {
-		title: `Case ${patient?.name ?? "N/A"} Dossier | LabOS`,
+		title: `Dental Case ${patient?.name ?? "N/A"} Dossier | LabOS`,
 	};
 }
 
 export default async function CaseDossierPage({ params }: { params: Promise<{ caseId: string }> }) {
 	const { caseId } = await params;
-	console.log("Case Details page re-rendered");
-	const session = await getServerSession();
-	if (!session) redirect("/sign-in");
+	const parsedId = z.uuid().safeParse(caseId);
+
+	if (!parsedId.success) {
+		// If the router accidentally passed "new-clinic" to the dynamic route, gracefully catch and redirect it.
+		if (caseId === "new-case" || caseId === "new") {
+			redirect("/cases/new-case");
+		}
+		// Otherwise, it's just garbage data (e.g., /clinics/123)
+		notFound();
+	}
 
 	const labUser = await getCurrentLabUserRoleByAuthUserId();
 	if (!labUser) redirect("/onboarding");
@@ -104,13 +113,7 @@ export default async function CaseDossierPage({ params }: { params: Promise<{ ca
 			{/* --- MAIN WORKSPACE --- */}
 			{/* Independent scroll pane for the content */}
 			<div className="flex-1 overflow-y-auto custom-scrollbar relative z-10 w-full">
-				{/* Ambient Glow: Restricted to the scrollable area */}
-				<div
-					className="absolute top-0 inset-x-0 h-125 pointer-events-none -z-10"
-					style={{
-						background: "radial-gradient(ellipse at top, rgba(var(--glow-primary-rgb), 0.06) 0%, transparent 70%)",
-					}}
-				/>
+				<AmbientBgGlow variant="primary" />
 				<div className="w-full max-w-500 mx-auto flex flex-col xl:flex-row gap-8 p-4 sm:p-6 lg:p-8">
 					{/* LEFT PANE: CLINICAL FEED (70%) */}
 					<div className="flex-1 space-y-8 min-w-0">
