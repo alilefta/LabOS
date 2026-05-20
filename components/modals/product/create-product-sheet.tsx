@@ -42,9 +42,6 @@ export const CreateProductSheet = memo(function CreateProductSheet() {
 		},
 		mode: "onBlur",
 	});
-
-	console.log("Create-Product-Sheet Rendered, WT ID:", activeWorkTypeId);
-
 	const { executeAsync: createProduct, isExecuting } = useAction(createProductAction, {
 		onSuccess: ({ data }) => {
 			toast.success("Product created successfully");

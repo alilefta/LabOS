@@ -15,13 +15,13 @@ import { InputWithLabel } from "@/components/ui/custom/input-with-label";
 import { useClinicalCreationStore } from "@/store/use-clinical-creation-store";
 
 import { CreateCaseItemPricingPlanInput, CreateCaseItemPricingPlanInputSchema } from "@/schema/composed/case-pricing-plan.details";
-import { createPricingPlanAction } from "@/actions/pricing-plan";
 import { useAction } from "next-safe-action/hooks";
 import { handleSafeActionError } from "@/lib/safe-action-helpers";
 import { WorkTypeBlueprintHierarchy } from "../work-type/worktype-blueprint-hierarchy";
 import { useQueryClient } from "@tanstack/react-query";
 import { PricingStrategy } from "@/schema/base/enums.base";
 import { CasePricingPlanBase } from "@/schema/base/case-pricing-plan.base";
+import { createPricingPlanAction } from "@/actions/case-item-pricing-plans/create-plan";
 
 type QueryDataShape = CasePricingPlanBase[];
 
@@ -137,14 +137,8 @@ export const CreatePricingPlanSheet = memo(function CreatePricingPlanSheet() {
 			// If it's a custom deal for a clinic, it usually shouldn't be the "Global Default"
 			isDefault: pricingScope === "GENERAL" ? data.isDefault : false,
 		};
-
-		console.log("Submitting Payload:", payload);
 		await createPlan(payload);
 	};
-
-	useEffect(() => {
-		console.log("Form Errors for Create-Pricing-Plans-sheet", form.formState.errors);
-	}, [form.formState.errors]);
 
 	return (
 		<Sheet open={isPricingSheetOpen} onOpenChange={(open) => !open && closeAllSheets()}>
@@ -411,7 +405,7 @@ export const CreatePricingPlanSheet = memo(function CreatePricingPlanSheet() {
 						type="submit"
 						disabled={isExecuting || !form.formState.isDirty}
 						form="create-pricing-form"
-						className="rounded-xl flex items-center justify-center gap-2 h-11 bg-primary shadow-premium font-bold hover:bg-primary/90 transition-all text-primary-foreground"
+						className="rounded-xl flex items-center justify-center gap-2 h-11! flex-1 bg-primary shadow-premium font-bold hover:bg-primary/90 transition-all text-primary-foreground"
 					>
 						{isExecuting ? <Loader2 className="animate-spin w-4 h-4" /> : "Save Pricing Plan"}
 					</Button>

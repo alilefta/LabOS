@@ -5,13 +5,14 @@
 import { QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { getQueryClient } from "./get-query-client";
+import { useState } from "react";
 
 // ============ newer implementation ================
 // that consider the server components usage of queryClient! without having to re create new QueryClient() each time which is anti-pattern for server components
 // The reason is, server components can't use useQueryClient().
 
 export function QueryProvider({ children }: { children: React.ReactNode }) {
-	const queryClient = getQueryClient();
+	const [queryClient] = useState(() => getQueryClient());
 	return (
 		<QueryClientProvider client={queryClient}>
 			{children} <ReactQueryDevtools initialIsOpen={false} position="left" />

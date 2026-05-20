@@ -78,7 +78,7 @@ export function ClinicQuickViewSheet({ clinicId, isOpen, onClose }: Props) {
 								<Button asChild>
 									<Link
 										className="w-full h-12 rounded-2xl bg-primary text-primary-foreground font-bold shadow-premium hover:bg-primary/90 transition-all group"
-										href={`/cases/${clinic.id}`}
+										href={`/clinics/${clinic.id}`}
 									>
 										Manage Full Hub <ExternalLink className="w-4 h-4 ml-2 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
 									</Link>

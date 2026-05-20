@@ -2,7 +2,7 @@
 
 import { memo, useCallback, useMemo, useState } from "react";
 import { Stethoscope, Plus, Search, UserCircle, Star, Users, Loader2, UserLock, Briefcase, Hospital, GraduationCap, Check, AlertTriangle } from "lucide-react";
-import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
+import { useQueryClient, useQuery, useSuspenseQuery } from "@tanstack/react-query";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";

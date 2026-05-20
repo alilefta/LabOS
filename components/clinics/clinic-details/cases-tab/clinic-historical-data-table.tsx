@@ -1,9 +1,9 @@
 "use client";
 
-import { memo, useCallback, useMemo, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
-import { Search, Filter, History, Download, X } from "lucide-react";
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { Search, Filter, History, Download } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -11,13 +11,17 @@ import { cn } from "@/lib/utils";
 import useDebounce from "@/hooks/useDebounce";
 
 import { DataTable } from "@/components/shared/tables/data-table";
-import { AdvancedFiltersSheet } from "@/components/modals/shared/advanced-filters-sheet";
 import { GetClinicHistoricalCasesResult } from "@/schema/composed/clinics/clinic-cases.dtos";
 import { handleSafeActionError } from "@/lib/safe-action-helpers";
 import { usePermissions } from "@/providers/permissions-provider";
 import { getClinicHistoricalCasesAction } from "@/actions/clinics/get-clinic";
 import { clinicHistoricalColumns } from "./historical-cases-table/clinic-historical-columns";
 import { CasesFilters, DEFAULT_CASES_FILTERS } from "@/schema/composed/cases/cases-filters";
+import dynamic from "next/dynamic";
+import { FilterChip } from "@/components/shared/filters/filter-chip";
+
+const preloadAdvancedFiltersSheet = () => import("../../../modals/cases/filters/advanced-filters-sheet");
+const AdvancedFiltersSheet = dynamic(() => import("../../../modals/cases/filters/advanced-filters-sheet").then((m) => m.AdvancedFiltersSheet), { ssr: false });
 
 interface Props {
 	clinicId: string;
@@ -34,7 +38,7 @@ export const ClinicHistoricalDataTable = memo(function ClinicHistoricalDataTable
 	const [filters, setFilters] = useState<CasesFilters>(DEFAULT_CASES_FILTERS);
 
 	// ── DATA FETCHING ──────────────────────────────────────────────────
-	const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useSuspenseInfiniteQuery({
+	const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useInfiniteQuery({
 		queryKey: ["clinic-history", clinicId, debouncedSearch, filters],
 		queryFn: async ({ pageParam }): Promise<GetClinicHistoricalCasesResult> => {
 			const res = await getClinicHistoricalCasesAction({
@@ -58,6 +62,10 @@ export const ClinicHistoricalDataTable = memo(function ClinicHistoricalDataTable
 	const handleClearFilters = useCallback(() => {
 		setFilters(DEFAULT_CASES_FILTERS);
 		setSearchInput("");
+	}, []);
+
+	useEffect(() => {
+		preloadAdvancedFiltersSheet();
 	}, []);
 
 	// ── DERIVED DATA & PERMISSIONS ─────────────────────────────────────
@@ -170,28 +178,11 @@ export const ClinicHistoricalDataTable = memo(function ClinicHistoricalDataTable
 			<AdvancedFiltersSheet
 				mode="CLINIC_HISTORY"
 				isOpen={isFilterOpen}
-				onClose={() => setIsFilterOpen(false)}
 				currentFilters={filters}
+				onClose={() => setIsFilterOpen(false)}
 				onApplyFilters={(f) => setFilters(f)}
 				onClearFilters={handleClearFilters}
 			/>
-		</div>
-	);
-});
-
-// --- SUB-COMPONENT: FILTER CHIP ---
-const FilterChip = memo(function FilterChip({ label, onRemove, variant = "default" }: { label: string; onRemove: () => void; variant?: "default" | "ai" }) {
-	return (
-		<div
-			className={cn(
-				"flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-[10px] font-bold uppercase tracking-wider shadow-sm",
-				variant === "ai" ? "bg-ai/5 border-ai/20 text-ai" : "bg-background border-border text-foreground",
-			)}
-		>
-			{label}
-			<button title="dismiss filter" onClick={onRemove} className="hover:text-rose-500 transition-colors">
-				<X className="w-3 h-3" />
-			</button>
 		</div>
 	);
 });

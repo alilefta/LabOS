@@ -15,7 +15,7 @@ import { CasePricingPlanDetailsUI } from "@/schema/composed/case-pricing-plan.de
 import { useClinicalCreationStore } from "@/store/use-clinical-creation-store";
 import { getWorkTypesByCategoryAction } from "@/actions/work-type";
 import { getProductsByWorkTypeAction } from "@/actions/product";
-import { getPricingPlansByProductAction } from "@/actions/pricing-plan";
+import { getPricingPlansByProductAction } from "@/actions/case-item-pricing-plans/pricing-plan";
 import { handleSafeActionError } from "@/lib/safe-action-helpers";
 import { JawType } from "@/schema/base/enums.base";
 import { CaseFormModeType } from "@/schema/composed/case.details";

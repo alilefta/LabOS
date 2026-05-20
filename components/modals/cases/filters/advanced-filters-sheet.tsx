@@ -8,7 +8,8 @@ import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
 
 import { CaseStatus } from "@/schema/base/enums.base";
-import { CaseDateFilterField, CaseFilterMode, CasesFilters, DatePreset, DEFAULT_CASES_FILTERS } from "@/schema/composed/cases/cases-filters";
+import { CaseDateFilterField, CaseFilterMode, CasesFilters, DEFAULT_CASES_FILTERS } from "@/schema/composed/cases/cases-filters";
+import { DatePreset } from "@/schema/composed/shared/date-preset";
 
 interface Props {
 	isOpen: boolean;

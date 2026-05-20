@@ -87,6 +87,12 @@ export const CreateCaseItemPricingPlanInputSchema = z
 
 export type CreateCaseItemPricingPlanInput = z.infer<typeof CreateCaseItemPricingPlanInputSchema>;
 
+export const UpdateCaseItemPricingPlanInputSchema = CreateCaseItemPricingPlanInputSchema.extend({
+	planId: z.uuid(),
+});
+
+export type UpdateCaseItemPricingPlanInput = z.infer<typeof UpdateCaseItemPricingPlanInputSchema>;
+
 export const GetPricingPlansByProductIdInputSchema = z.object({
 	productId: z.string().trim().min(1),
 	limit: z.number().default(10),

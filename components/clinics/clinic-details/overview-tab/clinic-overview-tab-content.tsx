@@ -1,13 +1,12 @@
 "use client";
 
-import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 
 // Components
 import { ClinicHealthRing } from "@/components/clinics/clinic/clinic-health-ring";
 import { ClinicFinancialVitalsCard } from "@/components/clinics/clinic-details/overview-tab/clinic-financial-vitals-card";
 import { ProductionQualityHeatmap } from "@/components/clinics/clinic/production-quality-heatmap";
 import { AiRelationshipAuditor } from "@/components/clinics/clinic-details/overview-tab/ai-relationship-auditor";
-import { Skeleton } from "@/components/ui/skeleton";
 
 // Your grouped server action
 import { handleSafeActionError } from "@/lib/safe-action-helpers";
@@ -29,7 +28,7 @@ interface Props {
 
 export const ClinicOverviewTabContent = memo(function ClinicOverviewTabContent({ clinicId, period, clinicName, currentBalance, creditLimit, discount }: Props) {
 	// 1. Fetch ALL overview data in one network request
-	const { data, isError, refetch, isRefetching } = useSuspenseQuery({
+	const { data, isError, refetch, isRefetching } = useQuery({
 		queryKey: ["clinic-overview", clinicId, period],
 		queryFn: async () => {
 			const res = await getClinicOverviewAnalyticsAction({ clinicId, period });

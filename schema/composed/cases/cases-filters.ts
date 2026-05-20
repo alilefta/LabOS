@@ -1,5 +1,6 @@
-import { CaseStatusSchema } from "@/schema/base/enums.base";
 import z from "zod";
+import { CaseStatusSchema } from "@/schema/base/enums.base";
+import { DatePresetSchema } from "../shared/date-preset";
 
 export const CaseFilterModeSchema = z.enum(["GLOBAL", "CLINIC_HISTORY", "STAFF_DASHBOARD"]);
 export type CaseFilterMode = z.infer<typeof CaseFilterModeSchema>;
@@ -9,9 +10,6 @@ export type CaseFilterMode = z.infer<typeof CaseFilterModeSchema>;
 // which ones are selectable in the dropdown.
 export const CaseDateFilterFieldSchema = z.enum(["createdAt", "deadline", "deliveredAt"]);
 export type CaseDateFilterField = z.infer<typeof CaseDateFilterFieldSchema>;
-
-export const DatePresetSchema = z.enum(["this_month", "last_month", "last_3_months", "last_6_months", "custom"]);
-export type DatePreset = z.infer<typeof DatePresetSchema>;
 
 export const DateRangeFilterSchema = z.object({
 	field: CaseDateFilterFieldSchema,

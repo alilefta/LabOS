@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { Filter, Search, Plus, Sparkles, X, List, LayoutGrid, FolderOpen } from "lucide-react";
@@ -14,7 +14,6 @@ import { CasePulseStrip } from "@/components/cases/pulse-strip/case-pulse-strip"
 
 import { DataTable } from "@/components/shared/tables/data-table";
 import { columns } from "@/components/cases/cases-table/columns";
-import { AdvancedFiltersSheet } from "@/components/modals/shared/advanced-filters-sheet";
 import { GetCasesListResult } from "@/schema/composed/case.details";
 
 import { getCasesListAction } from "@/actions/cases/get-cases";
@@ -36,6 +35,9 @@ const KanbanWrapper = dynamic(() => import("./kanban/kanban-wrapper").then((cm) 
 const AiCopilotSheet = dynamic(() => import("./cases-table/ai-copilot-sheet").then((cm) => cm.AiCopilotSheet), {
 	ssr: false,
 });
+
+const preloadAdvancedFiltersSheet = () => import("../modals/cases/filters/advanced-filters-sheet");
+const AdvancedFiltersSheet = dynamic(() => import("../modals/cases/filters/advanced-filters-sheet").then((cm) => cm.AdvancedFiltersSheet), { ssr: false });
 
 export default function CasesClientWrapperPage({ labId }: PageProps) {
 	const router = useRouter();
@@ -109,6 +111,10 @@ export default function CasesClientWrapperPage({ labId }: PageProps) {
 		},
 		[updateStatus],
 	);
+
+	useEffect(() => {
+		preloadAdvancedFiltersSheet();
+	}, []);
 
 	// ── Derived state ────────────────────────────────────────────────────────────
 	const flatData = useMemo(() => data?.pages.flatMap((page) => page.cases) ?? [], [data]);

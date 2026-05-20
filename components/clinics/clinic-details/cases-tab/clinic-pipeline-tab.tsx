@@ -24,6 +24,7 @@ export async function ClinicPipelineTab({ clinicId }: { clinicId: string }) {
 			const res = await getClinicActivePipelineAction({ clinicId });
 			return res?.data ?? null;
 		},
+		staleTime: 60 * 1000 * 5,
 	});
 
 	await queryClient.prefetchInfiniteQuery({
@@ -39,6 +40,7 @@ export async function ClinicPipelineTab({ clinicId }: { clinicId: string }) {
 			return res?.data ?? { cases: [], nextCursor: null, totalCount: 0 };
 		},
 		initialPageParam: undefined as string | undefined,
+		staleTime: 60 * 1000 * 5,
 	});
 
 	return (
