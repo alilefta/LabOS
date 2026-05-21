@@ -102,6 +102,7 @@ export function CustomPricingPlanList({ clinicId }: { clinicId: string }) {
 					{!isLoading && (
 						<button
 							onClick={handleCreateNew}
+							type="button"
 							className="lab-card p-6 min-h-80 flex flex-col items-center justify-center text-center border-dashed hover:border-emerald-500/40 hover:bg-emerald-500/5 transition-all duration-300 group cursor-pointer"
 						>
 							<div className="w-14 h-14 rounded-full bg-slate-100 dark:bg-white/5 border border-border flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300 shadow-sm">

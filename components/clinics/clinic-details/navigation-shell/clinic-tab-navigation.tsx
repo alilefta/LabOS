@@ -17,7 +17,7 @@ export function ClinicTabNavigation({ activeTab, clinicId }: Props) {
 	return (
 		<div className="w-full max-w-500 mx-auto px-6 lg:px-8 mt-2">
 			{/* The ml-14 perfectly aligns the tabs with the text of the header above, bypassing the back button */}
-			<div className="flex items-center gap-8 overflow-x-auto no-scrollbar ml-14 border-b border-border/50">
+			<div className="flex items-center gap-8 overflow-x-auto no-scrollbar md:ml-14 border-b border-border/50">
 				{TABS.map((tab) => {
 					const isActive = activeTab === tab.id;
 					return (

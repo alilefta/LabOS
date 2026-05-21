@@ -76,7 +76,7 @@ export const ClinicalMixDonut = memo(function ClinicalMixDonut({ categories, wor
 
 			{/* --- CHART --- */}
 			<div className="flex-1 w-full relative min-h-45">
-				<ResponsiveContainer width="100%" height="100%">
+				<ResponsiveContainer width="100%" height={200} minWidth={0}>
 					<PieChart>
 						<Pie data={activeData} cx="50%" cy="50%" innerRadius={65} outerRadius={85} paddingAngle={3} dataKey="value" stroke="none" animationDuration={800}>
 							{activeData.map((_, index) => (
