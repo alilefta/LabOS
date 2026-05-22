@@ -12,6 +12,8 @@ export const InvoiceInputSchema = z.object({
     notes: z.string().optional().nullable(),
     subtotal: z.number(),
     discountAmount: z.number(),
+    appliedDiscountPercentage: z.number().optional().nullable(),
+    discountReason: z.string().optional().nullable(),
     total: z.number(),
     amountPaid: z.number(),
     amountDue: z.number(),

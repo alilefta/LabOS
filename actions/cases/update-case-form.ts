@@ -131,11 +131,17 @@ export const updateDentalCaseAction = actionClientWithLab
 					where: { labId },
 					select: { id: true },
 				},
+				invoiceCase: { select: { invoiceId: true } },
 			},
 		});
 
 		if (!existingCase) throw ERRORS.CASE_NOT_FOUND;
 		if (existingCase.labId !== labId) throw ERRORS.FORBIDDEN;
+
+		// The Immutability Guard:
+		if (existingCase.invoiceCase) {
+			throw ERRORS.CASE_ALREADY_INVOICED;
+		}
 
 		// ── Status gate ──────────────────────────────────────────────────────────
 

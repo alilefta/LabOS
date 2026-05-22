@@ -1,5 +1,6 @@
 "use server";
 
+import { ERRORS } from "@/lib/errors";
 import { normalizePricingPlan } from "@/lib/mappers";
 import { tenantPrisma } from "@/lib/prisma";
 import { actionClientWithLab } from "@/lib/safe-action";
@@ -17,9 +18,24 @@ export const createPricingPlanAction = actionClientWithLab
 		const { labId } = ctx;
 
 		try {
-			const pricingPlan = await (
-				await tenantPrisma(labId)
-			).casePricingPlan.create({
+			const prisma = await tenantPrisma(labId);
+
+			// ── Ownership verification ────────────────────────────────────────────────
+			const product = await prisma.product.findUnique({
+				where: { id: productId, labId },
+				select: { id: true },
+			});
+			if (!product) throw ERRORS.NOT_FOUND;
+
+			if (clinicId) {
+				const clinic = await prisma.clinic.findUnique({
+					where: { id: clinicId, labId },
+					select: { id: true },
+				});
+				if (!clinic) throw ERRORS.CLIENT_NOT_FOUND;
+			}
+
+			const pricingPlan = await prisma.casePricingPlan.create({
 				data: {
 					name,
 					labId: labId,

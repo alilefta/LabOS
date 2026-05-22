@@ -17,6 +17,8 @@ const makeSchema = () => z.object({
   notes: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
   subtotal: SortOrderSchema.optional(),
   discountAmount: SortOrderSchema.optional(),
+  appliedDiscountPercentage: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
+  discountReason: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
   total: SortOrderSchema.optional(),
   amountPaid: SortOrderSchema.optional(),
   amountDue: SortOrderSchema.optional(),

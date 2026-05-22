@@ -10,6 +10,8 @@ export const InvoiceUpsertResultSchema = z.object({
   notes: z.string().optional(),
   subtotal: z.number(),
   discountAmount: z.number(),
+  appliedDiscountPercentage: z.number().optional(),
+  discountReason: z.string().optional(),
   total: z.number(),
   amountPaid: z.number(),
   amountDue: z.number(),

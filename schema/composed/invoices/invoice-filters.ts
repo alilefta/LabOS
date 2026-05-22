@@ -7,6 +7,9 @@ import { DatePresetSchema } from "@/schema/composed/shared/date-preset";
 export const InvoiceDateFilterFieldSchema = z.enum(["createdAt", "issuedAt", "dueDate"]);
 export type InvoiceDateFilterField = z.infer<typeof InvoiceDateFilterFieldSchema>;
 
+export const InvoicePulseFilterSchema = z.enum(["all", "outstanding", "overdue", "collected"]);
+export type InvoicePulseFilter = z.infer<typeof InvoicePulseFilterSchema>;
+
 export const InvoiceDateRangeFilterSchema = z.object({
 	field: InvoiceDateFilterFieldSchema,
 	preset: DatePresetSchema,
@@ -29,6 +32,8 @@ export const InvoiceFiltersSchema = z.object({
 
 	// Boolean Flags (Quick Filters)
 	isUnpaidOnly: z.boolean().default(false),
+
+	pulseFilter: InvoicePulseFilterSchema,
 });
 
 export type InvoiceFilters = z.infer<typeof InvoiceFiltersSchema>;
@@ -39,4 +44,12 @@ export const DEFAULT_INVOICE_FILTERS: InvoiceFilters = {
 	clinicId: null,
 	isUnpaidOnly: false,
 	dateRange: null,
+	pulseFilter: "all",
 };
+
+// export const DEFAULT_INVOICES_FILTERS: InvoicesFilters = {
+// 	pulseFilter: "all",
+// 	statuses: [],
+// 	clinicId: null,
+// 	dateRange: null,
+// };

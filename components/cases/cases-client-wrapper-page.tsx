@@ -13,7 +13,7 @@ import { OwnerRevenueStrip } from "@/components/cases/owner-strip/owner-strip";
 import { CasePulseStrip } from "@/components/cases/pulse-strip/case-pulse-strip";
 
 import { DataTable } from "@/components/shared/tables/data-table";
-import { columns } from "@/components/cases/cases-table/columns";
+import { columns } from "@/components/cases/cases-page/columns";
 import { GetCasesListResult } from "@/schema/composed/case.details";
 
 import { getCasesListAction } from "@/actions/cases/get-cases";
@@ -32,7 +32,7 @@ interface PageProps {
 }
 
 const KanbanWrapper = dynamic(() => import("./kanban/kanban-wrapper").then((cm) => cm.KanbanWrapper), { ssr: false });
-const AiCopilotSheet = dynamic(() => import("./cases-table/ai-copilot-sheet").then((cm) => cm.AiCopilotSheet), {
+const AiCopilotSheet = dynamic(() => import("./cases-page/ai-copilot-sheet").then((cm) => cm.AiCopilotSheet), {
 	ssr: false,
 });
 

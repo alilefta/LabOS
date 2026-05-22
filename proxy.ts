@@ -22,7 +22,7 @@ export default async function proxy(request: NextRequest) {
 	const onboardingRoute = "/onboarding";
 	const dashboardRoute = "/dashboard";
 
-	const protectedRoutes = ["/clinics", "/settings", "/cases", "/technicians"];
+	const protectedRoutes = ["/clinics", "/settings", "/cases", "/invoices"];
 
 	// allow public routes immediately
 	if (publicRoutes.includes(pathname)) {

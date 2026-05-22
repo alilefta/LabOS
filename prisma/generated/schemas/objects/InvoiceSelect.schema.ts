@@ -17,6 +17,8 @@ const makeSchema = () => z.object({
   notes: z.boolean().optional(),
   subtotal: z.boolean().optional(),
   discountAmount: z.boolean().optional(),
+  appliedDiscountPercentage: z.boolean().optional(),
+  discountReason: z.boolean().optional(),
   total: z.boolean().optional(),
   amountPaid: z.boolean().optional(),
   amountDue: z.boolean().optional(),

@@ -26,6 +26,15 @@ const makeSchema = () => z.object({
 ]).refine((v) => isValidDecimalInput(v), {
   message: "Field 'discountAmount' must be a Decimal",
 }).optional(),
+  appliedDiscountPercentage: z.union([
+  z.number(),
+  z.string(),
+  z.instanceof(Prisma.Decimal),
+  DecimalJSLikeSchema,
+]).refine((v) => isValidDecimalInput(v), {
+  message: "Field 'appliedDiscountPercentage' must be a Decimal",
+}).optional().nullable(),
+  discountReason: z.string().optional().nullable(),
   total: z.union([
   z.number(),
   z.string(),

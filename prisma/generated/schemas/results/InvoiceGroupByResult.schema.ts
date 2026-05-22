@@ -7,6 +7,8 @@ export const InvoiceGroupByResultSchema = z.array(z.object({
   notes: z.string(),
   subtotal: z.number(),
   discountAmount: z.number(),
+  appliedDiscountPercentage: z.number(),
+  discountReason: z.string(),
   total: z.number(),
   amountPaid: z.number(),
   amountDue: z.number(),
@@ -27,6 +29,8 @@ export const InvoiceGroupByResultSchema = z.array(z.object({
     notes: z.number(),
     subtotal: z.number(),
     discountAmount: z.number(),
+    appliedDiscountPercentage: z.number(),
+    discountReason: z.number(),
     total: z.number(),
     amountPaid: z.number(),
     amountDue: z.number(),
@@ -42,6 +46,7 @@ export const InvoiceGroupByResultSchema = z.array(z.object({
   _sum: z.object({
     subtotal: z.number().nullable(),
     discountAmount: z.number().nullable(),
+    appliedDiscountPercentage: z.number().nullable(),
     total: z.number().nullable(),
     amountPaid: z.number().nullable(),
     amountDue: z.number().nullable()
@@ -49,6 +54,7 @@ export const InvoiceGroupByResultSchema = z.array(z.object({
   _avg: z.object({
     subtotal: z.number().nullable(),
     discountAmount: z.number().nullable(),
+    appliedDiscountPercentage: z.number().nullable(),
     total: z.number().nullable(),
     amountPaid: z.number().nullable(),
     amountDue: z.number().nullable()
@@ -61,6 +67,8 @@ export const InvoiceGroupByResultSchema = z.array(z.object({
     notes: z.string().nullable(),
     subtotal: z.number().nullable(),
     discountAmount: z.number().nullable(),
+    appliedDiscountPercentage: z.number().nullable(),
+    discountReason: z.string().nullable(),
     total: z.number().nullable(),
     amountPaid: z.number().nullable(),
     amountDue: z.number().nullable(),
@@ -79,6 +87,8 @@ export const InvoiceGroupByResultSchema = z.array(z.object({
     notes: z.string().nullable(),
     subtotal: z.number().nullable(),
     discountAmount: z.number().nullable(),
+    appliedDiscountPercentage: z.number().nullable(),
+    discountReason: z.string().nullable(),
     total: z.number().nullable(),
     amountPaid: z.number().nullable(),
     amountDue: z.number().nullable(),

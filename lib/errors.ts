@@ -218,4 +218,6 @@ export const ERRORS = {
 	DATABASE_ERROR: new ActionError("A database error occurred", ERROR_CODES.DATABASE_ERROR, STATUS_CODES.INTERNAL_SERVER_ERROR),
 	DUPLICATE_ENTRY: new ActionError("A record with this value already exists", ERROR_CODES.DUPLICATE_ENTRY, STATUS_CODES.CONFLICT),
 	RECORD_IN_USE: new ActionError("This record is in use and cannot be deleted", ERROR_CODES.RECORD_IN_USE, STATUS_CODES.CONFLICT),
+
+	CASE_ALREADY_INVOICED: new ActionError("This case has already been invoiced and is permanently locked from editing. Please issue a credit note instead.", ERROR_CODES.OPERATION_NOT_ALLOWED, 400),
 } as const;
