@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import { cn } from "@/lib/utils";
 import { ClinicActiveCaseDTO } from "@/schema/composed/clinics/clinic-cases.dtos";
-import { useClinicPipelineStore } from "../../use-clinic-pipeline-store";
+import { useClinicPipelineStore } from "../../../../../../store/clinics/clinic-details/use-clinic-pipeline-store";
 import { MobilePipelineCard } from "./mobile-pipeline-card";
 
 // Shorter labels for mobile real-estate

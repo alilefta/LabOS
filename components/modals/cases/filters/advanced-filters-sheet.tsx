@@ -10,6 +10,8 @@ import { cn } from "@/lib/utils";
 import { CaseStatus } from "@/schema/base/enums.base";
 import { CaseDateFilterField, CaseFilterMode, CasesFilters, DEFAULT_CASES_FILTERS } from "@/schema/composed/cases/cases-filters";
 import { DatePreset } from "@/schema/composed/shared/date-preset";
+import { ClinicFilterSelector } from "@/components/shared/filters/clinic-filter-selector";
+import { StaffFilterSelector } from "@/components/shared/filters/staff-filter-selector";
 
 interface Props {
 	isOpen: boolean;
@@ -326,22 +328,14 @@ export const AdvancedFiltersSheet = memo(function AdvancedFiltersSheet({ isOpen,
 							<Box className="w-4 h-4 text-primary/70" /> Filter Extensions
 						</h3>
 
-						{showClinicSelector && (
-							<div className="flex flex-col gap-2">
-								<label className="text-[11px] font-bold text-muted-foreground ml-1">Origin Clinic</label>
-								<Button variant="outline" className="w-full justify-start h-12 rounded-xl text-muted-foreground border-border bg-slate-50 dark:bg-white/2 shadow-sm">
-									<Building2 className="w-4 h-4 mr-2" /> Select partner...
-								</Button>
-							</div>
-						)}
+						{showClinicSelector && <ClinicFilterSelector value={localFilters.clinicId} onSelect={(id) => setLocalFilters((prev) => ({ ...prev, clinicId: id }))} label={"Origin Clinic"} />}
 
 						{showStaffSelector && (
-							<div className="flex flex-col gap-2">
-								<label className="text-[11px] font-bold text-muted-foreground ml-1">Assigned Technician</label>
-								<Button variant="outline" className="w-full justify-start h-12 rounded-xl text-muted-foreground border-border bg-slate-50 dark:bg-white/2 shadow-sm">
-									<UserCog className="w-4 h-4 mr-2" /> Select member...
-								</Button>
-							</div>
+							<StaffFilterSelector
+								value={localFilters.staffId}
+								onSelect={(id) => setLocalFilters((prev) => ({ ...prev, staffId: id }))}
+								variant={mode === "CLINIC_HISTORY" ? "emerald" : "default"} // <-- UX MAGIC HERE
+							/>
 						)}
 
 						{/* Rush Toggle (Standard across modes) */}

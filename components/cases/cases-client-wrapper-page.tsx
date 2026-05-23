@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { Filter, Search, Plus, Sparkles, X, List, LayoutGrid, FolderOpen } from "lucide-react";
+import { Filter, Search, Plus, X, List, LayoutGrid, FolderOpen } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -26,13 +26,15 @@ import { toast } from "sonner";
 import { CasesFilters, DEFAULT_CASES_FILTERS } from "@/schema/composed/cases/cases-filters";
 import { AmbientBlueBgGlow } from "../ui/ui-utils/ambient-blue-bg-glow";
 import dynamic from "next/dynamic";
+import { useCopilotStore } from "@/store/ai-copilot/use-copilot-store";
+import { AskAiButton } from "../copilot/ask-ai-button";
 
 interface PageProps {
 	labId: string;
 }
 
 const KanbanWrapper = dynamic(() => import("./kanban/kanban-wrapper").then((cm) => cm.KanbanWrapper), { ssr: false });
-const AiCopilotSheet = dynamic(() => import("./cases-page/ai-copilot-sheet").then((cm) => cm.AiCopilotSheet), {
+const GlobalAiCopilotSheet = dynamic(() => import("../modals/shared/global-ai-copilot-sheet").then((cm) => cm.GlobalAiCopilotSheet), {
 	ssr: false,
 });
 
@@ -48,8 +50,12 @@ export default function CasesClientWrapperPage({ labId }: PageProps) {
 	const [searchInput, setSearchInput] = useState("");
 	const debouncedSearch = useDebounce({ value: searchInput, delay: 400 });
 	const [isFilterOpen, setIsFilterOpen] = useState(false);
-	const [isAiSheetOpen, setIsAiSheetOpen] = useState(false);
+	// const [isAiSheetOpen, setIsAiSheetOpen] = useState(false);
 	const [filters, setFilters] = useState<CasesFilters>(DEFAULT_CASES_FILTERS);
+
+	const isCopilotOpen = useCopilotStore((s) => s.isOpen);
+	const copilotMode = useCopilotStore((s) => s.mode);
+	const closeCopilot = useCopilotStore((s) => s.closeCopilot);
 
 	// ── VIEW SWITCHER LOGIC ──────────────────────────────────────────────────
 	const view = searchParams.get("view") || "table";
@@ -124,7 +130,7 @@ export default function CasesClientWrapperPage({ labId }: PageProps) {
 
 	// ── AI copilot handler ───────────────────────────────────────────────────────
 	const handleAIPromptClick = (intent: string) => {
-		setIsAiSheetOpen(false);
+		closeCopilot();
 		if (intent === "processing") {
 			setFilters((prev) => ({ ...prev, pulseFilter: "processing", statuses: [] }));
 			setSearchInput("");
@@ -188,13 +194,14 @@ export default function CasesClientWrapperPage({ labId }: PageProps) {
 							</button>
 						</div>
 
-						<Button
+						<AskAiButton mode="CASES" />
+						{/* <Button
 							onClick={() => setIsAiSheetOpen(true)}
 							variant="outline"
 							className="h-10! rounded-xl border-ai/30 bg-ai/5 hover:bg-ai/10 text-ai font-semibold shadow-sm transition-all hidden sm:flex"
 						>
 							<Sparkles className="w-3.5 h-3.5 mr-2" /> Ask AI
-						</Button>
+						</Button> */}
 
 						<Button
 							onClick={() => setIsFilterOpen(true)}
@@ -214,7 +221,6 @@ export default function CasesClientWrapperPage({ labId }: PageProps) {
 					</div>
 				</div>
 			</header>
-
 			{/* ── SCROLLABLE WRAPPER ────────────────────────────────────────────── */}
 			<div className="flex-1 overflow-y-auto custom-scrollbar relative z-10 w-full">
 				{/* Ambient Glow background Restricted to scroll area */}
@@ -338,7 +344,6 @@ export default function CasesClientWrapperPage({ labId }: PageProps) {
 					</div>
 				</div>
 			</div>
-
 			{/* ── OVERLAYS ──────────────────────────────────────────────────────── */}
 			<AdvancedFiltersSheet
 				isOpen={isFilterOpen}
@@ -348,7 +353,8 @@ export default function CasesClientWrapperPage({ labId }: PageProps) {
 				onApplyFilters={setFilters}
 				onClearFilters={handleClearFilters}
 			/>
-			<AiCopilotSheet isOpen={isAiSheetOpen} onClose={() => setIsAiSheetOpen(false)} onActionClick={handleAIPromptClick} />
+			{/* use global-ai-copilot instead */}
+			<GlobalAiCopilotSheet isOpen={isCopilotOpen} mode={copilotMode} onClose={closeCopilot} onActionClick={handleAIPromptClick} />
 		</div>
 	);
 }

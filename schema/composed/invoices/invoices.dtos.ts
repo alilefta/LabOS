@@ -1,4 +1,4 @@
-import { InvoiceStatus } from "@/schema/base/enums.base";
+import { InvoiceStatus, PaymentMethodSchema } from "@/schema/base/enums.base";
 import z from "zod";
 import { InvoiceFiltersSchema } from "./invoice-filters";
 
@@ -52,4 +52,34 @@ export interface ArVitalsDTO {
 
 	collectedLast30Days: number;
 	collectedGrowthPercent: number; // vs previous 30 days
+}
+
+export const RecordPaymentInputSchema = z.object({
+	invoiceId: z.uuid(),
+	amount: z.number().min(0.01, "Amount must be greater than zero."),
+	method: PaymentMethodSchema,
+	reference: z.string().trim().optional(),
+	notes: z.string().trim().optional(),
+	paidAt: z.date(),
+});
+
+export type RecordPaymentInput = z.infer<typeof RecordPaymentInputSchema>;
+
+export type RiskClinicDTO = {
+	id: string;
+	name: string;
+	city: string;
+	currentBalance: number;
+	creditLimit: number;
+	overdueInvoiceCount: number;
+	phoneNumber: string;
+};
+
+export interface UninvoicedClinicsSummary {
+	clinics: {
+		id: string;
+		name: string;
+		unbilledCount: number;
+	}[];
+	totalUnbilledCases: number;
 }

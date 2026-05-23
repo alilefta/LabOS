@@ -2,7 +2,7 @@
 
 import { useEffect, useCallback, useState, memo } from "react";
 import { CaseStatus } from "@/schema/base/enums.base";
-import { useClinicPipelineStore } from "../use-clinic-pipeline-store";
+import { useClinicPipelineStore } from "../../../../../store/clinics/clinic-details/use-clinic-pipeline-store";
 import { getStatusTransitionWarning } from "@/lib/permissions/cases/clinical-status-rules";
 import { ClinicActiveCaseDTO } from "@/schema/composed/clinics/clinic-cases.dtos";
 import { MobilePipelineTabs } from "./kanban-mobile/mobile-pipeline-tabs";

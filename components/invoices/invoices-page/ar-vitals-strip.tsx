@@ -7,19 +7,21 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { getArVitalsAction } from "@/actions/invoices/get-ar-vitals.invoices"; // Server action to fetch the vitals
 import { handleSafeActionError } from "@/lib/safe-action-helpers";
 import { InvoicePulseFilter } from "@/schema/composed/invoices/invoice-filters";
+import { GlobalTimeFramePeriod } from "@/schema/composed/shared/date-preset";
 
 interface Props {
 	labId: string;
 	currentFilter: InvoicePulseFilter;
 	onFilterChange: (filter: InvoicePulseFilter) => void;
+	period: GlobalTimeFramePeriod;
 }
 
-export function ArVitalsStrip({ labId, currentFilter, onFilterChange }: Props) {
+export function ArVitalsStrip({ labId, currentFilter, onFilterChange, period }: Props) {
 	// --- FETCH DATA ---
 	const { data: vitals, isLoading } = useQuery({
-		queryKey: ["ar-vitals", labId],
+		queryKey: ["ar-vitals", labId, period],
 		queryFn: async () => {
-			const res = await getArVitalsAction(); // Needs to be defined in your actions
+			const res = await getArVitalsAction({ period }); // Needs to be defined in your actions
 			if (res?.serverError || res?.validationErrors) {
 				handleSafeActionError({ serverError: res.serverError, validationErrors: res.validationErrors });
 			}
@@ -43,9 +45,30 @@ export function ArVitalsStrip({ labId, currentFilter, onFilterChange }: Props) {
 	const isGrowthPositive = vitals.collectedGrowthPercent >= 0;
 	const hasOverdue = vitals.totalOverdue > 0;
 
+	// 4. UX COGNITIVE CONTINUITY: Dynamic Card Titles [4]
+	const getCollectedLabel = () => {
+		switch (period) {
+			case "30d":
+				return "30-Day Collected";
+			case "90d":
+				return "90-Day Collected";
+			case "ytd":
+				return "YTD Collected";
+			case "all":
+				return "Lifetime Collected";
+			default:
+				return "Collected";
+		}
+	};
+
+	const getCollectedSubtext = () => {
+		if (period === "all") return "Total cash received in lab history.";
+		return `Cash received vs previous ${period === "ytd" ? "year" : period}.`;
+	};
+
 	return (
 		<div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-in slide-in-from-bottom-2 duration-500">
-			{/* --- CARD 1: OUTSTANDING (Clickable) --- */}
+			{/* --- CARD 1: OUTSTANDING --- */}
 			<button
 				onClick={() => onFilterChange(currentFilter === "outstanding" ? "all" : "outstanding")}
 				className={cn(
@@ -75,15 +98,15 @@ export function ArVitalsStrip({ labId, currentFilter, onFilterChange }: Props) {
 				</div>
 			</button>
 
-			{/* --- CARD 2: OVERDUE (Clickable) --- */}
+			{/* --- CARD 2: OVERDUE --- */}
 			<button
 				onClick={() => onFilterChange(currentFilter === "overdue" ? "all" : "overdue")}
 				className={cn(
 					"lab-card p-6 flex flex-col relative overflow-hidden group transition-all text-left outline-none",
 					currentFilter === "overdue"
-						? "ring-2 ring-rose-500 border-rose-500 shadow-md scale-[1.02] bg-rose-500/[0.02]"
+						? "ring-2 ring-rose-500 border-rose-500 shadow-md scale-[1.02] bg-rose-500/2"
 						: hasOverdue
-							? "border-rose-500/30 bg-rose-500/[0.02] hover:border-rose-500/60 cursor-pointer"
+							? "border-rose-500/30 bg-rose-500/2 hover:border-rose-500/60 cursor-pointer"
 							: "border-border cursor-pointer hover:border-rose-500/40",
 				)}
 			>
@@ -129,12 +152,12 @@ export function ArVitalsStrip({ labId, currentFilter, onFilterChange }: Props) {
 				</div>
 			</button>
 
-			{/* --- CARD 3: COLLECTED (Clickable) --- */}
+			{/* --- CARD 3: DYNAMIC COLLECTED --- */}
 			<button
 				onClick={() => onFilterChange(currentFilter === "collected" ? "all" : "collected")}
 				className={cn(
 					"lab-card p-6 flex flex-col relative overflow-hidden group transition-all text-left outline-none",
-					currentFilter === "collected" ? "ring-2 ring-emerald-500 border-emerald-500 shadow-md scale-[1.02] bg-emerald-500/[0.02]" : "hover:border-emerald-500/40 cursor-pointer",
+					currentFilter === "collected" ? "ring-2 ring-emerald-500 border-emerald-500 shadow-md scale-[1.02] bg-emerald-500/2" : "hover:border-emerald-500/40 cursor-pointer",
 				)}
 			>
 				<div className="absolute -top-12 -right-12 w-32 h-32 bg-emerald-500/5 rounded-full blur-2xl pointer-events-none group-hover:bg-emerald-500/10 transition-colors" />
@@ -146,7 +169,7 @@ export function ArVitalsStrip({ labId, currentFilter, onFilterChange }: Props) {
 							currentFilter === "collected" ? "text-emerald-600 dark:text-emerald-500" : "text-muted-foreground",
 						)}
 					>
-						<ArrowDownToLine className="w-4 h-4 text-emerald-500/70" /> 30-Day Collected
+						<ArrowDownToLine className="w-4 h-4 text-emerald-500/70" /> {getCollectedLabel()} {/* <-- DYNAMIC LABEL */}
 					</h3>
 
 					<span
@@ -173,7 +196,7 @@ export function ArVitalsStrip({ labId, currentFilter, onFilterChange }: Props) {
 					>
 						{formatMoney(vitals.collectedLast30Days)}
 					</p>
-					<p className="text-[11px] text-muted-foreground font-medium mt-1">Cash received in the last 30 days.</p>
+					<p className="text-[11px] text-muted-foreground font-medium mt-1">{getCollectedSubtext()}</p> {/* <-- DYNAMIC SUBTEXT */}
 				</div>
 			</button>
 		</div>

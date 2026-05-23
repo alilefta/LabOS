@@ -46,10 +46,3 @@ export const DEFAULT_INVOICE_FILTERS: InvoiceFilters = {
 	dateRange: null,
 	pulseFilter: "all",
 };
-
-// export const DEFAULT_INVOICES_FILTERS: InvoicesFilters = {
-// 	pulseFilter: "all",
-// 	statuses: [],
-// 	clinicId: null,
-// 	dateRange: null,
-// };

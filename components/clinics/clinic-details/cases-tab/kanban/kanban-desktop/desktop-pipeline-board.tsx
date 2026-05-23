@@ -6,7 +6,7 @@ import { toast } from "sonner";
 
 import { CaseStatus, CaseStatusSchema } from "@/schema/base/enums.base";
 import { VALID_TRANSITIONS } from "@/lib/permissions/cases/clinical-status-rules";
-import { useClinicPipelineStore } from "@/components/clinics/clinic-details/cases-tab/use-clinic-pipeline-store";
+import { useClinicPipelineStore } from "@/store/clinics/clinic-details/use-clinic-pipeline-store";
 import { DesktopPipelineColumn } from "./desktop-pipeline-column";
 import { DesktopPipelineCard } from "./desktop-pipeline-card";
 import { ClinicActiveCaseDTO } from "@/schema/composed/clinics/clinic-cases.dtos";

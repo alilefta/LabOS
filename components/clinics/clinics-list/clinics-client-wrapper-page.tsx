@@ -3,7 +3,7 @@
 import { useCallback, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { Filter, Search, Plus, Sparkles, X, Users2 } from "lucide-react";
+import { Filter, Search, Plus, X, Users2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -23,9 +23,13 @@ import { ClinicQuickViewSheet } from "./clinic-quick-view-sheet";
 import { AmbientBlueBgGlow } from "@/components/ui/ui-utils/ambient-blue-bg-glow";
 import { parseAsString, useQueryState } from "nuqs";
 import dynamic from "next/dynamic";
+import { useCopilotStore } from "@/store/ai-copilot/use-copilot-store";
+import { AskAiButton } from "@/components/copilot/ask-ai-button";
 
-const ClinicCopilotSheet = dynamic(() => import("./clinic-ai-copilot-sheet").then((cm) => cm.ClinicCopilotSheet), { ssr: false });
-
+// const ClinicCopilotSheet = dynamic(() => import("./clinic-ai-copilot-sheet").then((cm) => cm.ClinicCopilotSheet), { ssr: false });
+const GlobalAiCopilotSheet = dynamic(() => import("../../modals/shared/global-ai-copilot-sheet").then((cm) => cm.GlobalAiCopilotSheet), {
+	ssr: false,
+});
 interface PageProps {
 	labId: string;
 }
@@ -41,14 +45,13 @@ export function ClinicsClientWrapper({ labId }: PageProps) {
 	const debouncedSearch = useDebounce({ value: searchInput, delay: 400 });
 
 	const [isFilterOpen, setIsFilterOpen] = useState(false);
-	const [isAiSheetOpen, setIsAiSheetOpen] = useState(false);
-	// const [quickViewClinicId, setQuickViewClinicId] = useState<string | null>(null);
+
+	const isCopilotOpen = useCopilotStore((s) => s.isOpen);
+	const copilotMode = useCopilotStore((s) => s.mode);
+	const closeCopilot = useCopilotStore((s) => s.closeCopilot);
+
 	const [filters, setFilters] = useState<ClinicsFilters>(DEFAULT_CLINICS_FILTERS);
 	const { canViewFinancials } = usePermissions();
-
-	// useEffect(() => {
-	// 	setQuickViewClinicId(quickView);
-	// }, [quickView]);
 
 	// Strip financial columns for standard technicians
 	const visibleColumns = useMemo(() => {
@@ -84,7 +87,7 @@ export function ClinicsClientWrapper({ labId }: PageProps) {
 
 	// ── AI copilot handler ───────────────────────────────────────────────────────
 	const handleAIPromptClick = (intent: string) => {
-		setIsAiSheetOpen(false);
+		closeCopilot();
 		if (intent === "debt") {
 			setFilters((prev) => ({ ...prev, pulseFilter: "credit_risk", statuses: [] }));
 			setSearchInput("");
@@ -114,14 +117,7 @@ export function ClinicsClientWrapper({ labId }: PageProps) {
 					</div>
 
 					<div className="flex items-center gap-2 sm:gap-3">
-						<Button
-							onClick={() => setIsAiSheetOpen(true)}
-							variant="outline"
-							className="h-10 rounded-xl border-ai/30 bg-ai/5 hover:bg-ai/10 text-ai text-xs font-bold transition-all hidden sm:flex"
-						>
-							<Sparkles className="w-3.5 h-3.5 mr-2" /> Ask AI
-						</Button>
-
+						<AskAiButton mode={"CLINICS"} />
 						<Button
 							onClick={() => setIsFilterOpen(true)}
 							variant="outline"
@@ -133,7 +129,6 @@ export function ClinicsClientWrapper({ labId }: PageProps) {
 							<Filter className="w-3.5 h-3.5 mr-2 text-muted-foreground" /> Filters
 							{hasActiveAdvancedFilters && <div className="ml-2 w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />}
 						</Button>
-
 						<Button
 							onClick={() => router.push("/clinics/new-clinic")}
 							className="h-10 rounded-xl shadow-premium bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-xs px-5"
@@ -273,7 +268,7 @@ export function ClinicsClientWrapper({ labId }: PageProps) {
 				onApplyFilters={setFilters}
 				onClearFilters={() => setFilters(DEFAULT_CLINICS_FILTERS)}
 			/>
-			<ClinicCopilotSheet isOpen={isAiSheetOpen} onClose={() => setIsAiSheetOpen(false)} onActionClick={handleAIPromptClick} />
+			<GlobalAiCopilotSheet isOpen={isCopilotOpen} mode={copilotMode} onClose={closeCopilot} onActionClick={handleAIPromptClick} />
 
 			<ClinicQuickViewSheet clinicId={quickView} isOpen={!!quickView} onClose={handleCloseQuickView} />
 		</div>

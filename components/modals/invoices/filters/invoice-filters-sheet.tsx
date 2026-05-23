@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 import { InvoiceFilters, DEFAULT_INVOICE_FILTERS, InvoiceDateFilterField } from "@/schema/composed/invoices/invoice-filters";
 import { InvoiceStatus } from "@/schema/base/enums.base"; // Adjust to your actual path
 import { DatePreset } from "@/schema/composed/shared/date-preset";
+import { ClinicFilterSelector } from "@/components/shared/filters/clinic-filter-selector";
 
 interface Props {
 	isOpen: boolean;
@@ -296,19 +297,11 @@ export const InvoiceFiltersSheet = memo(function InvoiceFiltersSheet({ isOpen, o
 
 					{/* 4. EXTENSIONS (Clinic Selector for Global Mode) */}
 					{showClinicSelector && (
-						<div className="space-y-6 pt-8 border-t border-border/50">
+						<div className="gap-y-2 flex flex-col pt-8 border-t border-border/50">
 							<h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 flex items-center gap-2 mb-1">
 								<Building2 className="w-4 h-4 text-emerald-500/70" /> Filter Extensions
 							</h3>
-							<div className="flex flex-col gap-2">
-								<label className="text-[11px] font-bold text-muted-foreground ml-1">Billed Clinic</label>
-								<Button
-									variant="outline"
-									className="w-full justify-start h-12 rounded-xl text-muted-foreground border-border bg-slate-50 dark:bg-white/2 shadow-sm hover:border-emerald-500/50 hover:text-foreground"
-								>
-									<Building2 className="w-4 h-4 mr-2" /> Select clinic partner...
-								</Button>
-							</div>
+							<ClinicFilterSelector value={localFilters.clinicId} onSelect={(id) => setLocalFilters((prev) => ({ ...prev, clinicId: id }))} label={"Billed Clinic"} />
 						</div>
 					)}
 				</div>

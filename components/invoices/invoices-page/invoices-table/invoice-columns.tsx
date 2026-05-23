@@ -20,6 +20,7 @@ import { Progress } from "@/components/ui/progress";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { InvoiceStatus } from "@/schema/base/enums.base";
 import { InvoiceListDTO } from "@/schema/composed/invoices/invoices.dtos";
+import { useInvoiceUiStore } from "@/store/invoices/use-invoice-ui-store";
 
 // --- STATUS UI DICTIONARY ---
 const INVOICE_STATUS_UI: Record<InvoiceStatus, { label: string; icon: LucideIcon; color: string }> = {
@@ -118,65 +119,64 @@ export const invoiceColumns: ColumnDef<InvoiceListDTO>[] = [
 	{
 		id: "actions",
 		cell: ({ row }) => {
-			// Business Rule: Can only pay if it's not a draft, not cancelled, and owes money.
-			const canPay = row.original.amountDue > 0 && row.original.status !== "DRAFT" && row.original.status !== "CANCELLED";
-			const hasPublicLink = !!row.original.publicToken && row.original.status !== "DRAFT";
-
-			return (
-				<TooltipProvider delayDuration={150}>
-					<div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity">
-						{/* WhatsApp / Copy Link Action */}
-						{hasPublicLink && (
-							<Tooltip>
-								<TooltipTrigger asChild>
-									<Button
-										variant="ghost"
-										size="icon"
-										onClick={(e) => {
-											e.stopPropagation();
-											// Handle copy to clipboard or open WhatsApp URL logic here
-										}}
-										className="w-8 h-8 rounded-lg text-emerald-600 hover:bg-emerald-500/10 hover:text-emerald-700 transition-colors"
-									>
-										<MessageCircle className="w-4 h-4" />
-									</Button>
-								</TooltipTrigger>
-								<TooltipContent className="glass-ai-panel border-border shadow-xl text-[10px] font-bold">Copy Sharing Link</TooltipContent>
-							</Tooltip>
-						)}
-
-						{/* Download PDF Action */}
-						<Tooltip>
-							<TooltipTrigger asChild>
-								<Button
-									variant="ghost"
-									size="icon"
-									onClick={(e) => e.stopPropagation()}
-									className="w-8 h-8 rounded-lg text-slate-400 hover:text-primary hover:bg-primary/10 transition-colors"
-								>
-									<DownloadCloud className="w-4 h-4" />
-								</Button>
-							</TooltipTrigger>
-							<TooltipContent className="glass-ai-panel border-border shadow-xl text-[10px] font-bold">Download PDF</TooltipContent>
-						</Tooltip>
-
-						{/* 1-Click Record Payment Action */}
-						{canPay && (
-							<Button
-								size="sm"
-								onClick={(e) => {
-									e.stopPropagation();
-									// Trigger your "RecordPaymentSheet" via Zustand store here
-									// e.g. openRecordPaymentSheet(row.original.id)
-								}}
-								className="h-8 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[10px] px-3 ml-2 shadow-sm transition-all shadow-emerald-500/20"
-							>
-								<CreditCard className="w-3.5 h-3.5 mr-1.5" /> Pay
-							</Button>
-						)}
-					</div>
-				</TooltipProvider>
-			);
+			const invoice = row.original;
+			return <ActionsColumn invoice={invoice} />;
 		},
 	},
 ];
+
+function ActionsColumn({ invoice }: { invoice: InvoiceListDTO }) {
+	// Business Rule: Can only pay if it's not a draft, not cancelled, and owes money.
+	const canPay = invoice.amountDue > 0 && invoice.status !== "DRAFT" && invoice.status !== "CANCELLED";
+	const hasPublicLink = !!invoice.publicToken && invoice.status !== "DRAFT";
+	const openPaymentSheet = useInvoiceUiStore((state) => state.openPaymentSheet);
+
+	return (
+		<div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity">
+			{/* WhatsApp / Copy Link Action */}
+			{hasPublicLink && (
+				<Tooltip>
+					<TooltipTrigger asChild>
+						<Button
+							variant="ghost"
+							size="icon"
+							onClick={(e) => {
+								e.stopPropagation();
+								// Handle copy to clipboard or open WhatsApp URL logic here
+							}}
+							className="w-8 h-8 rounded-lg text-emerald-600 hover:bg-emerald-500/10 hover:text-emerald-700 transition-colors"
+						>
+							<MessageCircle className="w-4 h-4" />
+						</Button>
+					</TooltipTrigger>
+					<TooltipContent className="glass-ai-panel border-border shadow-xl text-[10px] font-bold">Copy Sharing Link</TooltipContent>
+				</Tooltip>
+			)}
+
+			{/* Download PDF Action */}
+			<Tooltip>
+				<TooltipTrigger asChild>
+					<Button variant="ghost" size="icon" onClick={(e) => e.stopPropagation()} className="w-8 h-8 rounded-lg text-slate-400 hover:text-primary hover:bg-primary/10 transition-colors">
+						<DownloadCloud className="w-4 h-4" />
+					</Button>
+				</TooltipTrigger>
+				<TooltipContent className="glass-ai-panel border-border shadow-xl text-[10px] font-bold">Download PDF</TooltipContent>
+			</Tooltip>
+
+			{/* 1-Click Record Payment Action */}
+			{canPay && (
+				<Button
+					size="sm"
+					onClick={(e) => {
+						e.stopPropagation();
+						// Trigger your "RecordPaymentSheet" via Zustand store here
+						openPaymentSheet(invoice);
+					}}
+					className="h-8 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[10px] px-3 ml-2 shadow-sm transition-all shadow-emerald-500/20"
+				>
+					<CreditCard className="w-3.5 h-3.5 mr-1.5" /> Pay
+				</Button>
+			)}
+		</div>
+	);
+}

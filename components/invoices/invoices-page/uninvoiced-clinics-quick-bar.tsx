@@ -1,21 +1,12 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Receipt, ArrowRight, Sparkles, Building2, ChevronRight } from "lucide-react";
+import { Receipt, Sparkles, Building2, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-
-export interface UninvoicedSummary {
-	totalUnbilledCases: number;
-	clinics: {
-		id: string;
-		name: string;
-		unbilledCount: number;
-	}[];
-}
+import { UninvoicedClinicsSummary } from "@/schema/composed/invoices/invoices.dtos";
 
 interface Props {
-	summary: UninvoicedSummary;
+	summary: UninvoicedClinicsSummary;
 }
 
 export function UninvoicedClinicsQuickBar({ summary }: Props) {
@@ -57,7 +48,7 @@ export function UninvoicedClinicsQuickBar({ summary }: Props) {
 							className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white dark:bg-[#121214] border border-border hover:border-emerald-500/50 hover:shadow-md transition-all group/btn shrink-0"
 						>
 							<Building2 className="w-3.5 h-3.5 text-muted-foreground group-hover/btn:text-emerald-500 transition-colors" />
-							<span className="text-xs font-bold text-foreground truncate max-w-[120px]">{clinic.name}</span>
+							<span className="text-xs font-bold text-foreground truncate max-w-30">{clinic.name}</span>
 							<span className="text-[10px] font-mono font-bold text-emerald-600 dark:text-emerald-500 bg-emerald-500/10 px-1.5 py-0.5 rounded">{clinic.unbilledCount}</span>
 						</button>
 					))}

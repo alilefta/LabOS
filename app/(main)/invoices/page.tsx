@@ -1,85 +1,67 @@
-import { Suspense } from "react";
 import { redirect } from "next/navigation";
-import { Plus, Receipt, Sparkles, Layers, FileDown } from "lucide-react";
+import { Plus, Receipt, FileDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import { getServerSession } from "@/lib/get-session";
 import { getCurrentLabUserRoleByAuthUserId } from "@/data/lab";
 import { tenantPrisma } from "@/lib/prisma";
 import { AmbientBgGlow } from "@/components/ui/ui-utils/animated-ambient-bg-glow";
 import { UninvoicedClinicsQuickBar } from "@/components/invoices/invoices-page/uninvoiced-clinics-quick-bar";
 import { InvoicesDashboardClient } from "@/components/invoices/invoices-page/invoices-dashboard-client";
-
-// --- PREFETCH DATA LOGIC ---
-async function getUninvoicedClinicsSummary(labId: string) {
-	const prisma = await tenantPrisma(labId);
-
-	// Fetch clinics that have COMPLETED or DELIVERED cases with NO invoice attached
-	const clinicsWithPendingCases = await prisma.clinic.findMany({
-		where: {
-			labId,
-			cases: {
-				some: {
-					status: { in: ["COMPLETED", "DELIVERED"] },
-					invoiceCase: null, // Uninvoiced!
-				},
-			},
-		},
-		select: {
-			id: true,
-			name: true,
-			_count: {
-				select: {
-					cases: {
-						where: {
-							status: { in: ["COMPLETED", "DELIVERED"] },
-							invoiceCase: null,
-						},
-					},
-				},
-			},
-		},
-		orderBy: {
-			cases: { _count: "desc" },
-		},
-		take: 5, // Top 5 clinics with the most unbilled cases
-	});
-
-	// Calculate global unbilled totals
-	const totalUnbilledCases = await prisma.case.count({
-		where: {
-			labId,
-			status: { in: ["COMPLETED", "DELIVERED"] },
-			invoiceCase: null,
-		},
-	});
-
-	return {
-		clinics: clinicsWithPendingCases.map((c) => ({
-			id: c.id,
-			name: c.name,
-			unbilledCount: c._count.cases,
-		})),
-		totalUnbilledCases,
-	};
-}
+import { AskAiButton } from "@/components/copilot/ask-ai-button";
+import { GlobalTimeFramePeriod, GlobalTimeFramePeriodSchema } from "@/schema/composed/shared/date-preset";
+import { TimeFrameFilter } from "@/components/shared/filters/time-frame-filter";
+import { RiskRadarQuickBar } from "@/components/invoices/invoices-page/risk-radar-quick-bar";
+import { getQueryClient } from "@/providers/get-query-client";
+import { QueryHydrationBoundary } from "@/providers/query-hydration-boundary";
+import { dehydrate } from "@tanstack/react-query";
+import { getInvoicesListAction } from "@/actions/invoices/get-invoices";
+import { GetInvoicesListResult, RiskClinicDTO, UninvoicedClinicsSummary } from "@/schema/composed/invoices/invoices.dtos";
+import { DEFAULT_INVOICE_FILTERS } from "@/schema/composed/invoices/invoice-filters";
+import { getArRiskClinicsAction } from "@/actions/invoices/get-risk-clinics";
+import { getUninvoicedClinicsSummary } from "@/data/invoices/get-invoices";
 
 export const metadata = {
 	title: "Accounts Receivable | LabOS",
 };
 
-export default async function InvoicesDashboardPage() {
+export default async function InvoicesDashboardPage({ searchParams }: { searchParams: Promise<{ period?: string }> }) {
+	const queryClient = getQueryClient();
 	const session = await getServerSession();
 	if (!session) redirect("/sign-in");
-
-	const labUser = await getCurrentLabUserRoleByAuthUserId();
-	if (!labUser) redirect("/onboarding");
 
 	const labId = session.user.labId;
 	if (!labId) redirect("/onboarding");
 
+	const { period } = await searchParams;
+	const parsedPeriod = GlobalTimeFramePeriodSchema.safeParse(period);
+	const activePeriod = (parsedPeriod.success ? parsedPeriod.data : "30d") as GlobalTimeFramePeriod;
+
 	// 1. Fetch High-Priority Actionable Data on the Server
-	const pendingBillingSummary = await getUninvoicedClinicsSummary(labId);
+	const res = await getUninvoicedClinicsSummary();
+
+	const pendingBillingSummary = res.success ? res.data : ({ clinics: [], totalUnbilledCases: 0 } as UninvoicedClinicsSummary);
+	await queryClient.prefetchInfiniteQuery({
+		queryKey: ["invoices-list", labId, "", DEFAULT_INVOICE_FILTERS],
+		queryFn: async ({ pageParam }): Promise<GetInvoicesListResult> => {
+			const res = await getInvoicesListAction({
+				cursor: pageParam as string | undefined,
+				search: "",
+				filters: DEFAULT_INVOICE_FILTERS,
+				take: 30,
+			});
+
+			return res?.data ?? { invoices: [], nextCursor: null, totalCount: 0, totalAmountDue: 0 };
+		},
+		initialPageParam: undefined as string | undefined,
+	});
+
+	await queryClient.prefetchQuery({
+		queryKey: ["ar-risk-radar", labId],
+		queryFn: async () => {
+			const res = await getArRiskClinicsAction(); // Get clinics exceeding limit OR with overdue invoices
+			return (res?.data?.clinics as RiskClinicDTO[]) || [];
+		},
+	});
 
 	return (
 		<div className="flex flex-col h-full animate-in fade-in duration-700 bg-background relative">
@@ -95,6 +77,10 @@ export default async function InvoicesDashboardPage() {
 					</div>
 
 					<div className="flex items-center gap-2 sm:gap-3 w-full md:w-auto mt-1 md:mt-0">
+						<TimeFrameFilter activePeriod={activePeriod} />
+
+						<AskAiButton mode="INVOICES" />
+
 						<Button
 							variant="outline"
 							className="h-10 rounded-xl border-border bg-white dark:bg-white/5 hover:bg-slate-50 dark:hover:bg-white/10 text-foreground font-semibold shadow-sm transition-all"
@@ -118,8 +104,15 @@ export default async function InvoicesDashboardPage() {
 						{/* 1. UNINVOICED CASES (PREFETCHED) */}
 						{pendingBillingSummary.totalUnbilledCases > 0 && <UninvoicedClinicsQuickBar summary={pendingBillingSummary} />}
 
-						{/* 2. THE CLIENT WRAPPER (Handles Vitals + Table + Filters) */}
-						<InvoicesDashboardClient labId={labId} />
+						{/* 2. THE RISK RADAR (DANGER CONTEXT - CLIENT DRIVEN) */}
+						<QueryHydrationBoundary state={dehydrate(queryClient)}>
+							<RiskRadarQuickBar labId={labId} />
+						</QueryHydrationBoundary>
+
+						{/* 3. THE CLIENT WRAPPER (Handles Vitals + Table + Filters) */}
+						<QueryHydrationBoundary state={dehydrate(queryClient)}>
+							<InvoicesDashboardClient labId={labId} period={activePeriod} />
+						</QueryHydrationBoundary>
 					</div>
 				</div>
 			</div>

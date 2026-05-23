@@ -48,7 +48,7 @@ export function InvoicesDataTable({ labId, filters, setFilters, onOpenFilters }:
 		},
 		initialPageParam: undefined as string | undefined,
 		getNextPageParam: (last) => last.nextCursor ?? undefined,
-		staleTime: 20_000,
+		staleTime: 30 * 1000 * 5,
 	});
 
 	// ── 3. DERIVED DATA ──────────────────────────────────────────────
@@ -74,7 +74,7 @@ export function InvoicesDataTable({ labId, filters, setFilters, onOpenFilters }:
 						<FileQuestion className="w-8 h-8 text-slate-400 dark:text-zinc-500" />
 					</div>
 					<h3 className="text-lg font-bold text-foreground">No invoices found</h3>
-					<p className="text-xs text-muted-foreground mt-1 max-w-sm">No results match "{debouncedSearch}". Check for typos or clear your search.</p>
+					<p className="text-xs text-muted-foreground mt-1 max-w-sm">No results match &quot;{debouncedSearch}&quot;. Check for typos or clear your search.</p>
 				</div>
 			);
 		}
@@ -100,7 +100,7 @@ export function InvoicesDataTable({ labId, filters, setFilters, onOpenFilters }:
 						<Wallet className="w-8 h-8 text-primary" />
 					</div>
 					<h3 className="text-lg font-bold text-foreground">Ledger Balanced</h3>
-					<p className="text-xs text-muted-foreground mt-1 max-w-sm">There are no outstanding invoices in the system. The lab's A/R is fully settled.</p>
+					<p className="text-xs text-muted-foreground mt-1 max-w-sm">There are no outstanding invoices in the system. The lab&apos;s A/R is fully settled.</p>
 				</div>
 			);
 		}
@@ -118,9 +118,9 @@ export function InvoicesDataTable({ labId, filters, setFilters, onOpenFilters }:
 	};
 
 	return (
-		<div className="lab-card flex-1 flex flex-col overflow-hidden shadow-md min-h-[600px] transition-all duration-300">
+		<div className="lab-card flex-1 flex flex-col overflow-hidden shadow-md min-h-150 transition-all duration-300">
 			{/* --- THE COMMAND STRIP --- */}
-			<div className="p-4 sm:p-5 border-b border-border bg-slate-50/50 dark:bg-white/[0.02] flex flex-col gap-4 z-10 relative">
+			<div className="p-4 sm:p-5 border-b border-border bg-slate-50/50 dark:bg-white/2 flex flex-col gap-4 z-10 relative">
 				<div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
 					<div className="relative w-full sm:max-w-md group">
 						<Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
