@@ -8,8 +8,8 @@ const emptyToUndefined = (val: string | null | undefined) => (val?.trim() === ""
 // ── 1. METADATA FORM SCHEMA (Left Pane) ──────────────────────────────────
 export const InvoiceMetadataSchema = z
 	.object({
-		billingTerms: z.enum(["RECEIPT", "NET15", "NET30"]),
-
+		billingTerms: z.enum(["RECEIPT", "NET15", "NET30", "CUSTOM"]),
+		customDueDate: z.date().optional(), // Added field for the custom date
 		// Coerce handles parsing HTML string inputs into strict numbers
 		discountPercentage: z.coerce.number<number>().min(0, "Discount cannot be negative.").max(100, "Discount cannot exceed 100%."),
 
@@ -25,6 +25,15 @@ export const InvoiceMetadataSchema = z
 				code: "custom",
 				message: "Please specify why this discount is being applied.",
 				path: ["discountReason"],
+			});
+		}
+
+		// Ensure they actually pick a date if they select CUSTOM
+		if (data.billingTerms === "CUSTOM" && !data.customDueDate) {
+			ctx.addIssue({
+				code: "custom",
+				message: "A specific due date is required for custom terms.",
+				path: ["customDueDate"],
 			});
 		}
 	});

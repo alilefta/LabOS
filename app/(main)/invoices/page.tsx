@@ -2,8 +2,6 @@ import { redirect } from "next/navigation";
 import { Plus, Receipt, FileDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getServerSession } from "@/lib/get-session";
-import { getCurrentLabUserRoleByAuthUserId } from "@/data/lab";
-import { tenantPrisma } from "@/lib/prisma";
 import { AmbientBgGlow } from "@/components/ui/ui-utils/animated-ambient-bg-glow";
 import { UninvoicedClinicsQuickBar } from "@/components/invoices/invoices-page/uninvoiced-clinics-quick-bar";
 import { InvoicesDashboardClient } from "@/components/invoices/invoices-page/invoices-dashboard-client";

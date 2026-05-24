@@ -39,7 +39,6 @@ export default async function NewInvoicePage({ searchParams }: { searchParams: P
 
 	return (
 		<div className="flex flex-col h-full bg-background relative">
-			{/* Pass secure, flat data directly to client */}
 			<NewInvoiceClient initialClinicId={clinicId} onboardingData={onboardingData} labId={labId} />
 		</div>
 	);

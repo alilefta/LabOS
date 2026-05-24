@@ -44,7 +44,7 @@ export function UninvoicedClinicsQuickBar({ summary }: Props) {
 					{summary.clinics.map((clinic) => (
 						<button
 							key={clinic.id}
-							onClick={() => router.push(`/invoices/new?clinicId=${clinic.id}`)}
+							onClick={() => router.push(`/invoices/new-invoice?clinicId=${clinic.id}`)}
 							className="flex items-center gap-2 px-3 py-2 rounded-xl bg-white dark:bg-[#121214] border border-border hover:border-emerald-500/50 hover:shadow-md transition-all group/btn shrink-0"
 						>
 							<Building2 className="w-3.5 h-3.5 text-muted-foreground group-hover/btn:text-emerald-500 transition-colors" />
@@ -57,7 +57,7 @@ export function UninvoicedClinicsQuickBar({ summary }: Props) {
 				{/* Global Generator Action */}
 				<div className="flex items-center gap-2 shrink-0 border-t sm:border-t-0 sm:border-l border-emerald-500/20 pt-4 sm:pt-0 sm:pl-4 mt-2 sm:mt-0">
 					<Button
-						onClick={() => router.push("/invoices/new")}
+						onClick={() => router.push("/invoices/new-invoice")}
 						className="w-full sm:w-auto rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 shadow-premium font-bold h-10 px-6 transition-all"
 					>
 						<Receipt className="w-4 h-4 mr-2" />
