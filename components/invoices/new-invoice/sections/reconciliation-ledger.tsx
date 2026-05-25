@@ -5,7 +5,7 @@ import { format } from "date-fns";
 import { Check, Building2, ChevronLeft, CheckCircle2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { UnbilledCaseDTO } from "@/schema/composed/invoices/new.invoice.dtos";
 
 interface Props {
@@ -111,102 +111,100 @@ export function ReconciliationLedger({ cases, selectedIds, totals, onToggle, onT
 			</div>
 
 			{/* --- THE SCROLLABLE CASES LIST --- */}
-			<TooltipProvider delayDuration={200}>
-				<div className="flex-1 overflow-y-auto custom-scrollbar space-y-3 pr-2 min-h-0 relative z-10 pb-4">
-					{cases.map((c) => {
-						const isChecked = selectedIds.has(c.id);
-						const firstItem = c.workItems[0];
-						const extraCount = c.workItems.length - 1;
+			<div className="flex-1 overflow-y-auto custom-scrollbar space-y-3 pr-2 min-h-0 relative z-10 pb-4">
+				{cases.map((c) => {
+					const isChecked = selectedIds.has(c.id);
+					const firstItem = c.workItems[0];
+					const extraCount = c.workItems.length - 1;
 
-						return (
-							<button
-								key={c.id}
-								type="button"
-								onClick={() => onToggle(c.id)}
-								className={cn(
-									"w-full text-left p-4 bg-card border rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 group transition-all duration-200 cursor-pointer shadow-sm outline-none focus-visible:ring-2 focus-visible:ring-emerald-500",
-									isChecked ? "border-emerald-500/50 bg-emerald-500/[0.02] shadow-[0_4px_15px_rgba(16,185,129,0.05)]" : "border-border hover:border-emerald-500/40",
-								)}
-							>
-								<div className="flex items-start gap-4">
-									<div
-										className={cn(
-											"w-5 h-5 mt-0.5 rounded flex items-center justify-center transition-all shrink-0 shadow-sm",
-											isChecked
-												? "bg-emerald-600 border-emerald-600 text-white scale-105"
-												: "border border-slate-300 dark:border-white/10 bg-white dark:bg-[#121214] group-hover:border-emerald-500/50",
-										)}
-									>
-										{isChecked && <Check className="w-3.5 h-3.5 stroke-[3]" />}
+					return (
+						<button
+							key={c.id}
+							type="button"
+							onClick={() => onToggle(c.id)}
+							className={cn(
+								"w-full text-left p-4 bg-card border rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 group transition-all duration-200 cursor-pointer shadow-sm outline-none focus-visible:ring-2 focus-visible:ring-emerald-500",
+								isChecked ? "border-emerald-500/50 bg-emerald-500/[0.02] shadow-[0_4px_15px_rgba(16,185,129,0.05)]" : "border-border hover:border-emerald-500/40",
+							)}
+						>
+							<div className="flex items-start gap-4">
+								<div
+									className={cn(
+										"w-5 h-5 mt-0.5 rounded flex items-center justify-center transition-all shrink-0 shadow-sm",
+										isChecked
+											? "bg-emerald-600 border-emerald-600 text-white scale-105"
+											: "border border-slate-300 dark:border-white/10 bg-white dark:bg-[#121214] group-hover:border-emerald-500/50",
+									)}
+								>
+									{isChecked && <Check className="w-3.5 h-3.5 stroke-[3]" />}
+								</div>
+
+								<div>
+									<div className="flex items-center gap-2 mb-1">
+										<span className="font-mono font-bold text-sm text-foreground">#{c.caseNumber}</span>
+										<span className="text-[10px] text-muted-foreground font-medium">{format(new Date(c.createdAt), "MMM dd, yyyy")}</span>
 									</div>
+									<p className="text-sm font-semibold text-foreground">{c.patientName}</p>
+								</div>
+							</div>
 
-									<div>
-										<div className="flex items-center gap-2 mb-1">
-											<span className="font-mono font-bold text-sm text-foreground">#{c.caseNumber}</span>
-											<span className="text-[10px] text-muted-foreground font-medium">{format(new Date(c.createdAt), "MMM dd, yyyy")}</span>
+							<div className="flex items-center justify-between sm:justify-end gap-6 w-full sm:w-auto pl-9 sm:pl-0 border-t border-border/50 pt-3 sm:border-0 sm:pt-0 mt-2 sm:mt-0">
+								<div className="flex items-center gap-2">
+									{firstItem && (
+										<div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-slate-50 dark:bg-white/[0.02] border border-border transition-colors group-hover:border-border/80">
+											<span
+												className={cn(
+													"text-[9px] font-black px-1 rounded uppercase tracking-tighter",
+													firstItem.jawType === "UPPER"
+														? "text-blue-500 bg-blue-500/10"
+														: firstItem.jawType === "LOWER"
+															? "text-rose-500 bg-rose-500/10"
+															: "text-slate-500 bg-slate-500/10",
+												)}
+											>
+												{firstItem.jawType}
+											</span>
+											<span className="text-xs font-semibold text-foreground truncate max-w-[120px]">{firstItem.productName}</span>
+											<span className="text-[10px] font-mono font-bold text-muted-foreground">({firstItem.teethCount}U)</span>
 										</div>
-										<p className="text-sm font-semibold text-foreground">{c.patientName}</p>
-									</div>
-								</div>
+									)}
 
-								<div className="flex items-center justify-between sm:justify-end gap-6 w-full sm:w-auto pl-9 sm:pl-0 border-t border-border/50 pt-3 sm:border-0 sm:pt-0 mt-2 sm:mt-0">
-									<div className="flex items-center gap-2">
-										{firstItem && (
-											<div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-slate-50 dark:bg-white/[0.02] border border-border transition-colors group-hover:border-border/80">
-												<span
-													className={cn(
-														"text-[9px] font-black px-1 rounded uppercase tracking-tighter",
-														firstItem.jawType === "UPPER"
-															? "text-blue-500 bg-blue-500/10"
-															: firstItem.jawType === "LOWER"
-																? "text-rose-500 bg-rose-500/10"
-																: "text-slate-500 bg-slate-500/10",
-													)}
+									{extraCount > 0 && (
+										<Tooltip>
+											<TooltipTrigger asChild>
+												<div
+													onClick={(e) => e.stopPropagation()}
+													className="h-6 px-2 rounded-md border border-dashed border-border flex items-center justify-center text-[10px] font-bold text-muted-foreground hover:border-emerald-500 hover:text-emerald-600 cursor-help transition-colors bg-white dark:bg-[#121214]"
 												>
-													{firstItem.jawType}
-												</span>
-												<span className="text-xs font-semibold text-foreground truncate max-w-[120px]">{firstItem.productName}</span>
-												<span className="text-[10px] font-mono font-bold text-muted-foreground">({firstItem.teethCount}U)</span>
-											</div>
-										)}
-
-										{extraCount > 0 && (
-											<Tooltip>
-												<TooltipTrigger asChild>
-													<div
-														onClick={(e) => e.stopPropagation()}
-														className="h-6 px-2 rounded-md border border-dashed border-border flex items-center justify-center text-[10px] font-bold text-muted-foreground hover:border-emerald-500 hover:text-emerald-600 cursor-help transition-colors bg-white dark:bg-[#121214]"
-													>
-														+{extraCount} more
-													</div>
-												</TooltipTrigger>
-												<TooltipContent className="bg-card p-3 border-border shadow-2xl z-50 rounded-xl">
-													<div className="space-y-2">
-														<p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground border-b border-border pb-1">Additional Items</p>
-														{c.workItems.slice(1).map((item, i) => (
-															<div key={i} className="flex items-center gap-3 text-xs font-medium">
-																<span className="font-mono text-emerald-500 w-10 text-[10px]">{item.jawType}</span>
-																<span className="text-foreground truncate max-w-[120px]">{item.productName}</span>
-																<span className="text-muted-foreground font-mono">({item.teethCount}U)</span>
-															</div>
-														))}
-													</div>
-												</TooltipContent>
-											</Tooltip>
-										)}
-									</div>
-
-									<div className="text-right min-w-[80px] shrink-0">
-										<span className={cn("text-lg font-mono font-bold transition-colors", isChecked ? "text-emerald-600 dark:text-emerald-500" : "text-foreground")}>
-											{formatMoney(c.grandTotal || 0)}
-										</span>
-									</div>
+													+{extraCount} more
+												</div>
+											</TooltipTrigger>
+											<TooltipContent className="bg-card p-3 border-border shadow-2xl z-50 rounded-xl">
+												<div className="space-y-2">
+													<p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground border-b border-border pb-1">Additional Items</p>
+													{c.workItems.slice(1).map((item, i) => (
+														<div key={i} className="flex items-center gap-3 text-xs font-medium">
+															<span className="font-mono text-emerald-500 w-10 text-[10px]">{item.jawType}</span>
+															<span className="text-foreground truncate max-w-[120px]">{item.productName}</span>
+															<span className="text-muted-foreground font-mono">({item.teethCount}U)</span>
+														</div>
+													))}
+												</div>
+											</TooltipContent>
+										</Tooltip>
+									)}
 								</div>
-							</button>
-						);
-					})}
-				</div>
-			</TooltipProvider>
+
+								<div className="text-right min-w-[80px] shrink-0">
+									<span className={cn("text-lg font-mono font-bold transition-colors", isChecked ? "text-emerald-600 dark:text-emerald-500" : "text-foreground")}>
+										{formatMoney(c.grandTotal || 0)}
+									</span>
+								</div>
+							</div>
+						</button>
+					);
+				})}
+			</div>
 
 			{/* --- THE STICKY LIVE RECEIPT FOOTER --- */}
 			{cases.length > 0 && (

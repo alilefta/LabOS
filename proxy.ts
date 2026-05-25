@@ -17,7 +17,7 @@ export default async function proxy(request: NextRequest) {
 	// });
 
 	// route groups
-	const publicRoutes = ["/", "/pricing", "/about", "/contact"];
+	const publicRoutes = ["/", "/pricing", "/about", "/contact", "/statement"];
 	const authRoutes = ["/sign-in", "/sign-up"];
 	const onboardingRoute = "/onboarding";
 	const dashboardRoute = "/dashboard";

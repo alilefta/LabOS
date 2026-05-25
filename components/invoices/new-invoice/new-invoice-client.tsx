@@ -19,6 +19,7 @@ import { handleSafeActionError } from "@/lib/safe-action-helpers";
 import { createInvoiceAction } from "@/actions/invoices/create-invoice";
 import { useRouter } from "next/navigation";
 import { useAction } from "next-safe-action/hooks";
+import { InvoiceSuccessShareModal } from "@/components/modals/invoice-generation/invoice-success-share-modal";
 
 interface Props {
 	labId: string;
@@ -35,6 +36,14 @@ export function NewInvoiceClient({ labId, initialClinicId, onboardingData }: Pro
 	const [selectedClinicId, setSelectedClinicId] = useState<string | undefined>(initialClinicId);
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [pendingPayload, setPendingPayload] = useState<CreateInvoiceInput | null>(null);
+
+	const [successPayload, setSuccessPayload] = useState<{
+		id: string;
+		invoiceNumber: string;
+		publicToken: string | null;
+		clinicName: string;
+		amountDue: number;
+	} | null>(null);
 
 	const [deselectedCaseIds, setDeselectedCaseIds] = useState<Set<string>>(new Set());
 
@@ -132,19 +141,46 @@ export function NewInvoiceClient({ labId, initialClinicId, onboardingData }: Pro
 		[form],
 	);
 
-	// ── 6. SERVER ACTION: EXECUTE INVOICE ───────────────────────────────
+	// // ── 6. SERVER ACTION: EXECUTE INVOICE ───────────────────────────────
+	// const { executeAsync: executeCreateInvoice, isExecuting: isCreatingInvoice } = useAction(createInvoiceAction, {
+	// 	onSuccess: ({ data }) => {
+	// 		setIsModalOpen(false); // Close modal on success
+	// 		toast.success(`Invoice ${data.invoice.invoiceNumber} successfully generated.`);
+	// 		// Route user to the Financial Dossier for this specific invoice
+	// 		router.push(`/invoices/${data.invoice.id}`);
+	// 	},
+	// 	onError: ({ error }) => {
+	// 		// Keep modal open so they can see the error and try again if needed
+	// 		handleSafeActionError(error);
+	// 	},
+	// });
+
+	// 2. UPDATE THE SERVER ACTION HOOK
 	const { executeAsync: executeCreateInvoice, isExecuting: isCreatingInvoice } = useAction(createInvoiceAction, {
 		onSuccess: ({ data }) => {
-			setIsModalOpen(false); // Close modal on success
-			toast.success(`Invoice ${data.invoice.invoiceNumber} successfully generated.`);
-			// Route user to the Financial Dossier for this specific invoice
-			router.push(`/invoices/${data.invoice.id}`);
+			// INSTEAD of immediate redirect: Trigger the Success Handshake Modal!
+			setSuccessPayload({
+				id: data.invoice.id,
+				invoiceNumber: data.invoice.invoiceNumber,
+				publicToken: data.invoice.publicToken, // Securely returned from Server Action
+				clinicName: onboardingData.selectedClinicName || "Selected Clinic",
+				amountDue: calculatedTotals.grandTotal,
+			});
+
+			form.reset(); // Safely clear the left pane metadata
 		},
-		onError: ({ error }) => {
-			// Keep modal open so they can see the error and try again if needed
-			handleSafeActionError(error);
-		},
+		onError: ({ error }) => handleSafeActionError(error),
 	});
+
+	// 3. THE HANDSHAKE CLOSE TRIGGER
+	const handleCloseSuccessModal = () => {
+		if (!successPayload) return;
+		const invoiceId = successPayload.id;
+		setSuccessPayload(null); // Clear state
+
+		// Redirect to the internal detail dossier we designed in Phase 5!
+		router.push(`/invoices/${invoiceId}`);
+	};
 
 	// ── 7. VALIDATION & HANDSHAKE FLOW ──────────────────────────────────
 
@@ -201,22 +237,25 @@ export function NewInvoiceClient({ labId, initialClinicId, onboardingData }: Pro
 	};
 
 	return (
-		<div className="flex flex-col h-full animate-in fade-in duration-700 bg-background relative">
+		// FIX 1: ROOT WRAPPER
+		// On mobile, we allow the entire page to scroll (`overflow-y-auto`).
+		// On desktop (xl), we lock the screen (`xl:overflow-hidden`) to let individual panes scroll.
+		<div className="flex flex-col h-full overflow-y-auto xl:overflow-hidden animate-in fade-in duration-700 bg-background relative custom-scrollbar">
 			{/* --- THE STICKY COMMAND HEADER --- */}
-			<NewInvoiceHeader
-				clinicId={selectedClinicId}
-				selectedCount={calculatedTotals.selectedCount}
-				isSavingDraft={isCreatingInvoice} // Bind directly to the Action state
-				onSaveDraft={handleHeaderSaveDraft}
-			/>
+			<NewInvoiceHeader clinicId={selectedClinicId} selectedCount={calculatedTotals.selectedCount} isSavingDraft={isCreatingInvoice} onSaveDraft={handleHeaderSaveDraft} />
 
 			{/* --- THE SPLIT CANVAS --- */}
-			<div className="flex-1 min-h-0 relative z-10 w-full">
+			{/* FIX 2: WRAPPER DIV */}
+			{/* On mobile, we use h-auto. On desktop, we lock it to h-full so columns can stretch */}
+			<div className="flex-1 h-auto xl:h-full xl:min-h-0 relative z-10 w-full">
 				<AmbientBgGlow variant="emerald" />
 
 				<div className="flex flex-col xl:flex-row gap-8 h-full max-w-500 mx-auto px-4 sm:px-6 lg:px-8">
 					{/* LEFT PANE: Invoicing Terms (30%) */}
-					<div className="w-full xl:w-96 shrink-0 xl:h-full overflow-y-auto custom-scrollbar pt-6 lg:pt-8 pb-32">
+					{/* FIX 3: LEFT PANE SCROLL */}
+					{/* On mobile, we use `overflow-visible` (no internal scroll, flows naturally). */}
+					{/* On desktop, we lock the column height and enable `overflow-y-auto` scrolling. */}
+					<div className="w-full xl:w-96 shrink-0 h-auto xl:h-full overflow-visible xl:overflow-y-auto custom-scrollbar pt-2 xl:pt-6 pb-6 xl:pb-32">
 						<FormProvider {...form}>
 							<InvoiceConfigurationPane
 								clinics={onboardingData.eligibleClinics}
@@ -228,17 +267,20 @@ export function NewInvoiceClient({ labId, initialClinicId, onboardingData }: Pro
 					</div>
 
 					{/* RIGHT PANE: Reconciliation Ledger (70%) */}
-					<div className="flex-1 h-full min-h-0 flex flex-col pt-6 lg:pt-8 pb-8 relative">
+					{/* FIX 4: RIGHT PANE SCROLL */}
+					{/* On mobile, we use `overflow-visible` to let cases flow naturally into the page scroll. */}
+					{/* On desktop, we lock it to `flex-1 h-full flex flex-col` so the internal scroll works. */}
+					<div className="flex-1 h-auto xl:h-full min-h-0 flex flex-col overflow-visible xl:overflow-hidden pt-2 xl:pt-6 pb-32 xl:pb-8 relative">
 						<ReconciliationLedger
 							cases={activeCases}
-							isLoading={isFetchingCases}
 							selectedIds={selectedCaseIds}
 							totals={calculatedTotals}
 							onToggle={handleToggleCase}
 							onToggleAll={handleToggleAllCases}
 							isClinicSelected={!!selectedClinicId}
 							selectedClinicName={onboardingData.selectedClinicName}
-							onGenerate={handleOpenReviewModal} // Opens the Modal
+							onGenerate={handleOpenReviewModal}
+							isLoading={isFetchingCases}
 						/>
 					</div>
 				</div>
@@ -249,10 +291,24 @@ export function NewInvoiceClient({ labId, initialClinicId, onboardingData }: Pro
 				isOpen={isModalOpen}
 				onClose={() => setIsModalOpen(false)}
 				onConfirm={handleModalConfirm}
-				isExecuting={isCreatingInvoice} // Modal buttons will spin while executing
+				isExecuting={isCreatingInvoice}
 				clinicName={onboardingData.selectedClinicName || "Selected Clinic"}
 				totals={calculatedTotals}
 			/>
+
+			{/* RENDER THE SUCCESS HANDSHAKE MODAL */}
+			{successPayload && (
+				<InvoiceSuccessShareModal
+					isOpen={successPayload !== null}
+					onClose={handleCloseSuccessModal}
+					invoiceNumber={successPayload.invoiceNumber}
+					publicToken={successPayload.publicToken}
+					clinicName={successPayload.clinicName}
+					// Grab the phone number directly from the pre-fetched clinics list
+					clinicPhone={onboardingData.eligibleClinics.find((c) => c.id === selectedClinicId)?.phoneNumber}
+					amountDue={successPayload.amountDue}
+				/>
+			)}
 		</div>
 	);
 }

@@ -83,3 +83,47 @@ export interface UninvoicedClinicsSummary {
 	}[];
 	totalUnbilledCases: number;
 }
+
+// ── 1. THE PUBLIC-SAFE DTO (NO SENSITIVE DATA LEAKS) ──────────────────────
+export type PublicInvoiceDTO = {
+	invoiceNumber: string;
+	status: InvoiceStatus;
+	notes: string | null;
+	subtotal: number;
+	discountAmount: number;
+	total: number;
+	amountPaid: number;
+	amountDue: number;
+	issuedAt: Date | null;
+	dueDate: Date | null;
+
+	lab: {
+		title: string;
+		subtitle: string | null;
+		brandAvatarUrl: string | null;
+	};
+
+	clinic: {
+		name: string;
+		city: string;
+		address1: string;
+		phoneNumber: string;
+		email: string;
+	};
+
+	cases: {
+		id: string;
+		caseNumber: string;
+		patientName: string;
+		patientAge: number | null;
+		patientGender: string | null;
+		dentistName: string | null;
+		caseTotal: number;
+		workItems: {
+			productName: string;
+			workTypeName: string;
+			jawType: string;
+			teethCount: number;
+		}[];
+	}[];
+};

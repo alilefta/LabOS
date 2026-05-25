@@ -27,6 +27,8 @@ export const EligibleClinicDTOSchema = z.object({
 	name: z.string(),
 	city: z.string(),
 	type: z.string(),
+	phoneNumber: z.string(),
+	email: z.string(),
 });
 
 export type EligibleClinicDTO = z.infer<typeof EligibleClinicDTOSchema>;

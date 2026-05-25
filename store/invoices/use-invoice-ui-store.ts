@@ -1,9 +1,19 @@
-import { InvoiceListDTO } from "@/schema/composed/invoices/invoices.dtos";
+// store/use-invoice-ui-store.ts
+
 import { create } from "zustand";
 
+// This is a common, lightweight shape that both DTOs can easily satisfy
+export interface PaymentTarget {
+	id: string;
+	invoiceNumber: string;
+	amountDue: number;
+	total: number;
+	clinicName?: string; // Optional because the detail page already has the name
+}
+
 interface InvoiceUiState {
-	paymentInvoice: InvoiceListDTO | null;
-	openPaymentSheet: (invoice: InvoiceListDTO) => void;
+	paymentInvoice: PaymentTarget | null;
+	openPaymentSheet: (invoice: PaymentTarget) => void;
 	closePaymentSheet: () => void;
 }
 

@@ -36,7 +36,7 @@ export function InvoiceConfigurationPane({ clinics, selectedId, selectedClinicNa
 	const selectedTerms = useWatch({ control, name: "billingTerms" });
 
 	return (
-		<div className="w-full shrink-0 rounded-[24px] xl:rounded-[32px] border border-border bg-card p-6 sm:p-8 flex flex-col gap-6 sm:gap-8 shadow-sm transition-all animate-in fade-in slide-in-from-left-4 duration-500">
+		<div className="w-full shrink-0 rounded-3xl xl:rounded-4xl border border-border bg-card p-6 sm:p-8 flex flex-col gap-6 sm:gap-8 shadow-sm transition-all animate-in fade-in slide-in-from-left-4 duration-500">
 			{/* --- 1. CLINIC SELECTION (LOCKED OR SEARCHABLE) --- */}
 			<div className="space-y-2">
 				<label className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground ml-1">
@@ -135,7 +135,7 @@ export function InvoiceConfigurationPane({ clinics, selectedId, selectedClinicNa
 													onSelect={field.onChange}
 													// Prevent setting a due date in the past
 													disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
-													initialFocus
+													autoFocus
 													className="p-3 pointer-events-auto"
 													classNames={{
 														day_selected: "bg-emerald-600 text-white hover:bg-emerald-600 hover:text-white focus:bg-emerald-600 focus:text-white rounded-lg",
@@ -153,7 +153,7 @@ export function InvoiceConfigurationPane({ clinics, selectedId, selectedClinicNa
 			</div>
 
 			{/* --- 3. GLOBAL ADJUSTMENTS (Emerald Tinted Card) --- */}
-			<div className="p-5 rounded-2xl bg-emerald-500/[0.02] border border-emerald-500/10 space-y-5">
+			<div className="p-5 rounded-2xl bg-emerald-500/2 border border-emerald-500/10 space-y-5">
 				<div className="flex items-center gap-2 pb-3 border-b border-border/50">
 					<Percent className="w-4 h-4 text-emerald-500" />
 					<h4 className="text-[11px] font-bold uppercase tracking-widest text-emerald-600 dark:text-emerald-400">Ledger Discount</h4>
@@ -223,7 +223,7 @@ export function InvoiceConfigurationPane({ clinics, selectedId, selectedClinicNa
 									value={field.value ?? ""}
 									placeholder="These notes will be printed on the final PDF statement..."
 									className={cn(
-										"relative w-full min-h-[100px] p-4 bg-white dark:bg-[#121214] border border-border rounded-xl text-sm outline-none transition-all resize-none shadow-sm custom-scrollbar",
+										"relative w-full min-h-25 p-4 bg-white dark:bg-[#121214] border border-border rounded-xl text-sm outline-none transition-all resize-none shadow-sm custom-scrollbar",
 										"focus:border-emerald-500 focus:ring-[3px] focus:ring-emerald-500/20",
 										fieldState.invalid && "border-destructive focus:border-destructive focus:ring-destructive/20",
 									)}

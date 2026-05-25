@@ -90,6 +90,8 @@ export async function getNewInvoiceOnboardingData(clinicId?: string): Promise<DA
 					name: true,
 					city: true,
 					type: true,
+					phoneNumber: true,
+					email: true,
 				},
 				orderBy: { name: "asc" },
 			});
