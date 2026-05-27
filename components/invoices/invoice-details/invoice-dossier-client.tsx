@@ -26,6 +26,7 @@ import { format } from "date-fns";
 import dynamic from "next/dynamic";
 import { useCallback, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
+import { InvoiceAdminDropdown } from "./invoice-admin-dropdown";
 
 interface Props {
 	initialData: InvoiceDetailsDTO;
@@ -196,6 +197,8 @@ export function InvoiceDossierClient({ initialData, initialAction }: Props) {
 								Log Payment
 							</Button>
 						)}
+
+						<InvoiceAdminDropdown invoiceId={invoice.id} invoiceNumber={invoice.invoiceNumber} status={invoice.status} clinicName={invoice.clinic.name} totalAmount={invoice.total} />
 					</div>
 				</div>
 			</header>
@@ -239,6 +242,7 @@ export function InvoiceDossierClient({ initialData, initialAction }: Props) {
 								amountDue={invoice.amountDue}
 								appliedDiscountPercentage={invoice.appliedDiscountPercentage}
 								discountReason={invoice.discountReason}
+								notes={invoice.notes} // 🔥 ADD THIS PROP
 							/>
 
 							{/* 

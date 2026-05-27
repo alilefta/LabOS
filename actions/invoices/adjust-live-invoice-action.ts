@@ -5,6 +5,7 @@ import { actionClientWithLab } from "@/lib/safe-action";
 import { ERRORS } from "@/lib/errors";
 import { AdjustInvoiceInputSchema } from "@/schema/composed/invoices/adjust-invoice.schema";
 import { InvoiceUpdateInput } from "@/generated/prisma/models";
+import { revalidatePath } from "next/cache";
 
 export const adjustLiveInvoiceAction = actionClientWithLab
 	.metadata({
@@ -116,6 +117,8 @@ export const adjustLiveInvoiceAction = actionClientWithLab
 			// In a true ERP, you would log this to CaseActivityLog or a new InvoiceActivityLog
 			// showing exactly who applied the post-issuance discount.
 		});
+
+		revalidatePath("/invoices/[invoiceId]");
 
 		return { success: true, newStatus };
 	});

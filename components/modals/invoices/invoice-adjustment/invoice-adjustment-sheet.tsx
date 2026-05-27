@@ -17,7 +17,7 @@ import { CustomFieldWithLabel } from "@/components/ui/custom/custom-field-with-l
 import { cn } from "@/lib/utils";
 
 import { AdjustInvoiceInput, AdjustInvoiceInputSchema } from "@/schema/composed/invoices/adjust-invoice.schema";
-import { adjustLiveInvoiceAction } from "@/actions/invoices/adjust-live-invoice-action"; // Assuming this is your action path
+import { adjustLiveInvoiceAction } from "@/actions/invoices/adjust-live-invoice-action";
 import { handleSafeActionError } from "@/lib/safe-action-helpers";
 
 interface Props {

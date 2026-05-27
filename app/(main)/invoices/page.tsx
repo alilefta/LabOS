@@ -18,6 +18,7 @@ import { DEFAULT_INVOICE_FILTERS } from "@/schema/composed/invoices/invoice-filt
 import { getArRiskClinicsAction } from "@/actions/invoices/get-risk-clinics";
 import { getUninvoicedClinicsSummary } from "@/data/invoices/get-invoices";
 import Link from "next/link";
+import { SyncLedgerButton } from "@/components/invoices/invoices-page/sync-ledge-button";
 
 export const metadata = {
 	title: "Accounts Receivable | LabOS",
@@ -79,6 +80,8 @@ export default async function InvoicesDashboardPage({ searchParams }: { searchPa
 						<TimeFrameFilter activePeriod={activePeriod} />
 
 						<AskAiButton mode="INVOICES" />
+						{/* 🔥 THE NEW SYNC LEDGER BUTTON */}
+						<SyncLedgerButton labId={labId} />
 
 						<Button
 							variant="outline"
@@ -117,9 +120,6 @@ export default async function InvoicesDashboardPage({ searchParams }: { searchPa
 					</div>
 				</div>
 			</div>
-
-			{/* ── MODALS & SHEETS ──────────────────────────────────────────────── */}
-			{/* <RecordPaymentSheet /> */}
 		</div>
 	);
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { BadgePercent, ShieldCheck, HelpCircle } from "lucide-react";
+import { BadgePercent, ShieldCheck, HelpCircle, FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { memo } from "react";
 
@@ -12,18 +12,35 @@ interface Props {
 	amountDue: number;
 	appliedDiscountPercentage: number | null;
 	discountReason: string | null;
+	notes: string | null;
 }
 
-export const DigitalBillFooter = memo(function DigitalBillFooter({ subtotal, discountAmount, total, amountPaid, amountDue, appliedDiscountPercentage, discountReason }: Props) {
+export const DigitalBillFooter = memo(function DigitalBillFooter({ subtotal, discountAmount, total, amountPaid, amountDue, appliedDiscountPercentage, discountReason, notes }: Props) {
 	const formatMoney = (val: number) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(val);
 
 	const isPaidInFull = amountDue <= 0;
 	const hasDiscount = appliedDiscountPercentage && appliedDiscountPercentage > 0;
+	const isVoided = notes?.includes("[VOIDED"); // Detect if this is a voided audit log
 
 	return (
 		<div className="pt-8 flex flex-col md:flex-row md:items-end justify-between gap-8 relative z-10 animate-in fade-in duration-500 delay-300">
 			{/* --- LEFT COLUMN: AUDIT & COMPLIANCE --- */}
 			<div className="flex-1 max-w-sm space-y-4">
+				{/* 1. Dynamic Statement Memo (GENERAL NOTES) */}
+				{notes && (
+					<div
+						className={cn(
+							"p-4 rounded-2xl border flex gap-3 items-start animate-in fade-in",
+							isVoided ? "bg-rose-500/5 border-rose-500/10 text-rose-700 dark:text-rose-400" : "bg-slate-50 dark:bg-white/2 border-border text-muted-foreground",
+						)}
+					>
+						<FileText className={cn("w-5 h-5 shrink-0 mt-0.5", isVoided ? "text-rose-500" : "text-primary/70")} />
+						<div className="flex flex-col gap-0.5">
+							<span className="text-[10px] font-bold uppercase tracking-widest text-foreground">{isVoided ? "Audit Cancellation Log" : "Statement Memo"}</span>
+							<p className="text-xs leading-relaxed font-medium whitespace-pre-wrap italic">{notes}</p>
+						</div>
+					</div>
+				)}
 				{/* 1. Discount Voucher Flag */}
 				{hasDiscount && (
 					<div className="p-4 rounded-2xl bg-emerald-500/5 border border-emerald-500/10 flex gap-3 items-start animate-in fade-in slide-in-from-bottom-2">
