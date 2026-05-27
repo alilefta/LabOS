@@ -333,3 +333,20 @@ export const ClinicQuickOverviewDTOSchema = z.object({
 });
 
 export type ClinicQuickOverviewDTO = z.infer<typeof ClinicQuickOverviewDTOSchema>;
+
+export const ClinicSelectionDTOSchema = ClinicBaseSchema.omit({
+	address1: true,
+	address2: true,
+	createdAt: true,
+	updatedAt: true,
+	billingPhoneNumber: true,
+	creditLimit: true,
+	currentBalance: true,
+	description: true,
+	discount: true,
+	zipcode: true,
+	notes: true,
+	taxNumber: true,
+	billingEmail: true,
+});
+export type ClinicSelectionDTO = z.infer<typeof ClinicSelectionDTOSchema>;

@@ -1,6 +1,7 @@
 import * as z from 'zod';
 import { Prisma } from '../../../../generated/prisma/client';
-import { InvoiceCreateNestedOneWithoutCasesInputObjectSchema as InvoiceCreateNestedOneWithoutCasesInputObjectSchema } from './InvoiceCreateNestedOneWithoutCasesInput.schema'
+import { InvoiceCreateNestedOneWithoutCasesInputObjectSchema as InvoiceCreateNestedOneWithoutCasesInputObjectSchema } from './InvoiceCreateNestedOneWithoutCasesInput.schema';
+import { LabCreateNestedOneWithoutInvoiceCaseInputObjectSchema as LabCreateNestedOneWithoutInvoiceCaseInputObjectSchema } from './LabCreateNestedOneWithoutInvoiceCaseInput.schema'
 
 import { DecimalJSLikeSchema, isValidDecimalInput } from '../../helpers/decimal-helpers';
 const makeSchema = () => z.object({
@@ -12,7 +13,8 @@ const makeSchema = () => z.object({
 ]).refine((v) => isValidDecimalInput(v), {
   message: "Field 'caseTotal' must be a Decimal",
 }),
-  invoice: z.lazy(() => InvoiceCreateNestedOneWithoutCasesInputObjectSchema)
+  invoice: z.lazy(() => InvoiceCreateNestedOneWithoutCasesInputObjectSchema),
+  lab: z.lazy(() => LabCreateNestedOneWithoutInvoiceCaseInputObjectSchema)
 }).strict();
 export const InvoiceCaseCreateWithoutCaseInputObjectSchema: z.ZodType<Prisma.InvoiceCaseCreateWithoutCaseInput> = makeSchema() as unknown as z.ZodType<Prisma.InvoiceCaseCreateWithoutCaseInput>;
 export const InvoiceCaseCreateWithoutCaseInputObjectZodSchema = makeSchema();

@@ -1,9 +1,10 @@
 "use client";
 
-import { Building2, Calendar, FileText, Phone, Mail, Landmark } from "lucide-react";
+import { Building2, Phone, Mail, Landmark, AlertTriangle } from "lucide-react";
 import { format } from "date-fns";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
+import { memo } from "react";
 
 interface Props {
 	lab: {
@@ -22,9 +23,10 @@ interface Props {
 	issuedAt: Date | null;
 	dueDate: Date | null;
 	isOverdue: boolean;
+	agingDays: number | null; // <-- NEW: Injected from DTO
 }
 
-export function DigitalBillHeader({ lab, clinic, invoiceNumber, issuedAt, dueDate, isOverdue }: Props) {
+export const DigitalBillHeader = memo(function DigitalBillHeader({ lab, clinic, invoiceNumber, issuedAt, dueDate, isOverdue, agingDays }: Props) {
 	return (
 		<div className="space-y-8 pb-8 border-b border-border/50 animate-in fade-in duration-500">
 			{/* --- ROW 1: LAB BRANDING & INVOICE META --- */}
@@ -46,7 +48,7 @@ export function DigitalBillHeader({ lab, clinic, invoiceNumber, issuedAt, dueDat
 					</div>
 				</div>
 
-				{/* Invoice Reference Data (Locked to Monospace for precision) */}
+				{/* Invoice Reference Data */}
 				<div className="text-left sm:text-right space-y-1.5 font-mono">
 					<div className="flex items-center sm:justify-end gap-2 text-xs font-bold text-muted-foreground uppercase tracking-widest font-sans">
 						<Landmark className="w-3.5 h-3.5 text-emerald-500" /> Bill Statement
@@ -61,7 +63,7 @@ export function DigitalBillHeader({ lab, clinic, invoiceNumber, issuedAt, dueDat
 				{/* Billed To Address */}
 				<div className="space-y-2.5">
 					<span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest block px-1">Billed To</span>
-					<div className="p-4 rounded-2xl bg-slate-50 dark:bg-white/[0.02] border border-border space-y-2">
+					<div className="p-4 rounded-2xl bg-slate-50 dark:bg-white/2 border border-border space-y-2">
 						<p className="text-sm font-bold text-foreground flex items-center gap-2">
 							<Building2 className="w-4 h-4 text-emerald-500 shrink-0" />
 							{clinic.name}
@@ -74,14 +76,25 @@ export function DigitalBillHeader({ lab, clinic, invoiceNumber, issuedAt, dueDat
 
 				{/* Financial Due Dates & Contacts */}
 				<div className="space-y-2.5">
-					<span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest block px-1">Payment parameters</span>
-					<div className="p-4 rounded-2xl bg-slate-50 dark:bg-white/[0.02] border border-border space-y-3">
-						{/* Due Date Indicator */}
+					<span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest block px-1">Payment Parameters</span>
+					<div className="p-4 rounded-2xl bg-slate-50 dark:bg-white/2 border border-border space-y-3">
+						{/* THE UX UPGRADE: Due Date & Aging Counter */}
 						<div className="flex items-center justify-between text-xs font-semibold text-foreground">
 							<span className="text-muted-foreground">Due Date</span>
-							<span className={cn("font-mono font-bold", isOverdue ? "text-rose-500 dark:text-rose-400 animate-pulse" : "text-foreground")}>
-								{dueDate ? format(new Date(dueDate), "yyyy-MM-dd") : "On Receipt"}
-							</span>
+
+							<div className="flex flex-col items-end gap-1">
+								<span className={cn("font-mono font-bold", isOverdue ? "text-rose-500 dark:text-rose-400" : "text-foreground")}>
+									{dueDate ? format(new Date(dueDate), "yyyy-MM-dd") : "On Receipt"}
+								</span>
+
+								{/* The Aging Counter */}
+								{isOverdue && agingDays && (
+									<span className="flex items-center gap-1 text-[9px] font-black uppercase tracking-widest text-rose-500 animate-pulse bg-rose-500/10 px-1.5 py-0.5 rounded-md border border-rose-500/20">
+										<AlertTriangle className="w-2.5 h-2.5" />
+										{agingDays} Days Aging
+									</span>
+								)}
+							</div>
 						</div>
 
 						<div className="h-px bg-border/50 border-dashed" />
@@ -103,4 +116,4 @@ export function DigitalBillHeader({ lab, clinic, invoiceNumber, issuedAt, dueDat
 			</div>
 		</div>
 	);
-}
+});

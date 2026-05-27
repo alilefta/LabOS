@@ -30,7 +30,7 @@ export const StatementSharingBox = memo(function StatementSharingBox({ publicTok
 		if (!publicUrl) return;
 		navigator.clipboard.writeText(publicUrl);
 		setCopied(true);
-		toast.success("Statement link copied to clipboard.");
+		toast.success("Secure statement link copied.");
 		setTimeout(() => setCopied(false), 2000);
 	}, [publicUrl]);
 
@@ -38,19 +38,28 @@ export const StatementSharingBox = memo(function StatementSharingBox({ publicTok
 	const handleWhatsAppShare = useCallback(() => {
 		if (!publicToken || !clinicPhone) return;
 
-		const message = encodeURIComponent(
-			`Hello Dr. from ${clinicName},\n\nThis is an automated statement from our accounts team.\n\nYour statement #${invoiceNumber} for ${formatMoney(amountDue)} is ready. You can securely review the cases and download the PDF here:\n\n${publicUrl}\n\nThank you for your business!`,
-		);
+		const isSettled = amountDue <= 0;
 
-		// Clean non-numeric characters for the WhatsApp API
-		const cleanPhone = clinicPhone.replace(/\D/g, "");
+		// Context-aware B2B phrasing
+		const greeting = `Hello! This is an automated message regarding the account for ${clinicName}.`;
+
+		const statusText = isSettled
+			? `Your statement #${invoiceNumber} has been fully settled. Thank you for your prompt payment!`
+			: `Your statement #${invoiceNumber} is ready, showing a remaining balance of *${formatMoney(amountDue)}*.`;
+
+		const callToAction = `You can securely review the case details and download your PDF statement here:\n${publicUrl}`;
+
+		const message = encodeURIComponent(`${greeting}\n\n${statusText}\n\n${callToAction}`);
+
+		// CRITICAL FIX: Preserve the '+' sign for international MENA dialing codes
+		const cleanPhone = clinicPhone.replace(/[^\d+]/g, "");
 		window.open(`https://wa.me/${cleanPhone}?text=${message}`, "_blank");
 	}, [publicToken, clinicName, invoiceNumber, amountDue, publicUrl, clinicPhone]);
 
 	const isDraft = !publicToken;
 
 	return (
-		<div className="lab-card p-6 flex flex-col justify-between relative overflow-hidden group min-h-[160px]">
+		<div className="lab-card p-6 flex flex-col justify-between relative overflow-hidden group min-h-40">
 			{/* Ambient Glow */}
 			<div className="absolute -top-12 -right-12 w-28 h-28 bg-emerald-500/5 rounded-full blur-2xl pointer-events-none group-hover:bg-emerald-500/10 transition-colors" />
 
@@ -76,26 +85,29 @@ export const StatementSharingBox = memo(function StatementSharingBox({ publicTok
 				</div>
 			) : (
 				// LIVE SHARING VIEW
-				<div className="flex flex-col gap-4 relative z-10 animate-in fade-in duration-500">
+				<div className="flex flex-col gap-4 relative z-10 animate-in fade-in duration-500 mt-2">
 					{/* Link Preview & Copy Input */}
-					<div className="flex items-center gap-2 p-1.5 bg-slate-50 dark:bg-[#121214] border border-border rounded-xl">
+					<div className="flex items-center gap-2 p-1.5 bg-slate-50 dark:bg-[#121214] border border-border rounded-xl focus-within:border-emerald-500/50 focus-within:ring-[3px] focus-within:ring-emerald-500/20 transition-all">
 						<input
 							title="Public URL"
 							type="text"
 							readOnly
 							value={publicUrl}
-							className="flex-1 bg-transparent border-none outline-none pl-3 text-xs font-mono text-muted-foreground truncate"
+							onClick={(e) => e.currentTarget.select()} // UX trick: auto-select text
+							className="flex-1 bg-transparent border-none outline-none pl-3 text-xs font-mono text-muted-foreground truncate cursor-text"
 						/>
 						<Button
 							type="button"
 							onClick={handleCopy}
 							className={cn(
 								"rounded-lg h-8 font-bold text-[10px] shrink-0 transition-all px-3 uppercase tracking-wider",
-								copied ? "bg-emerald-500 text-white shadow-sm" : "bg-primary text-primary-foreground hover:bg-primary/90",
+								copied
+									? "bg-emerald-500 text-white shadow-sm"
+									: "bg-white dark:bg-white/10 text-foreground border border-border hover:bg-emerald-500 hover:text-white hover:border-emerald-500",
 							)}
 						>
-							{copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5 mr-1.5" />}
-							{copied ? "Copied" : "Copy"}
+							{copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5 sm:mr-1.5" />}
+							<span className="hidden sm:inline">{copied ? "Copied" : "Copy"}</span>
 						</Button>
 					</div>
 
@@ -104,15 +116,17 @@ export const StatementSharingBox = memo(function StatementSharingBox({ publicTok
 						<Button
 							type="button"
 							onClick={handleWhatsAppShare}
-							className="w-full h-10 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-premium shadow-emerald-500/10 font-bold text-xs flex items-center justify-center gap-2 transition-all"
+							className="w-full h-11 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-premium shadow-emerald-500/10 font-bold text-xs flex items-center justify-center gap-2 transition-all"
 						>
 							<MessageSquare className="w-4 h-4" />
 							Forward to Doctor via WhatsApp
 						</Button>
 					) : (
-						<div className="p-3 rounded-xl bg-slate-50 dark:bg-[#121214] border border-border flex items-center gap-2.5">
-							<Info className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-							<p className="text-[10px] text-muted-foreground leading-snug">To send directly via WhatsApp, ensure a phone number is registered in the Clinic settings.</p>
+						<div className="p-3 rounded-xl bg-amber-500/5 border border-amber-500/20 flex items-center gap-2.5">
+							<Info className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+							<p className="text-[10px] text-amber-600 dark:text-amber-500 leading-snug font-medium">
+								To send directly via WhatsApp, ensure a phone number is registered in the Clinic settings.
+							</p>
 						</div>
 					)}
 				</div>

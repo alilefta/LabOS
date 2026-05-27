@@ -5,7 +5,9 @@ export const InvoiceCaseResultSchema = z.object({
     invoice: z.unknown(),
     caseId: z.string(),
     case: z.unknown(),
-    caseTotal: z.number()
+    caseTotal: z.number(),
+    labId: z.string(),
+    lab: z.unknown()
 }).strict();
 
 export type InvoiceCaseResultType = z.infer<typeof InvoiceCaseResultSchema>;

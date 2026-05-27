@@ -25,6 +25,7 @@ export const LabInputSchema = z.object({
     invoicePayments: z.array(z.unknown()),
     nextCaseNumber: z.number().int(),
     caseActivityLogs: z.array(z.unknown()),
+    invoiceCase: z.array(z.unknown()),
     nextInvoiceNumber: z.number().int(),
     createdAt: z.date(),
     updatedAt: z.date()

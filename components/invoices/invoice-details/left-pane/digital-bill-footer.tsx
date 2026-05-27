@@ -1,7 +1,8 @@
 "use client";
 
-import { BadgePercent, DollarSign, ShieldCheck, HelpCircle } from "lucide-react";
+import { BadgePercent, ShieldCheck, HelpCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { memo } from "react";
 
 interface Props {
 	subtotal: number;
@@ -13,7 +14,7 @@ interface Props {
 	discountReason: string | null;
 }
 
-export function DigitalBillFooter({ subtotal, discountAmount, total, amountPaid, amountDue, appliedDiscountPercentage, discountReason }: Props) {
+export const DigitalBillFooter = memo(function DigitalBillFooter({ subtotal, discountAmount, total, amountPaid, amountDue, appliedDiscountPercentage, discountReason }: Props) {
 	const formatMoney = (val: number) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(val);
 
 	const isPaidInFull = amountDue <= 0;
@@ -44,7 +45,7 @@ export function DigitalBillFooter({ subtotal, discountAmount, total, amountPaid,
 						</div>
 					</div>
 				) : (
-					<div className="p-4 rounded-2xl bg-slate-50 dark:bg-white/[0.01] border border-border flex gap-3 items-start">
+					<div className="p-4 rounded-2xl bg-slate-50 dark:bg-white/1 border border-border flex gap-3 items-start">
 						<HelpCircle className="w-5 h-5 text-slate-400 shrink-0 mt-0.5" />
 						<div className="flex flex-col gap-0.5">
 							<span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Payment Instructions</span>
@@ -98,4 +99,4 @@ export function DigitalBillFooter({ subtotal, discountAmount, total, amountPaid,
 			</div>
 		</div>
 	);
-}
+});

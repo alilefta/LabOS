@@ -43,10 +43,10 @@ export type InvoiceMetadataInput = z.infer<typeof InvoiceMetadataSchema>;
 // ── 2. MASTER SUBMISSION SCHEMA (Atomic Action Input) ──────────────────────
 // This schema merges the form metadata with the active "Cart" selections
 export const CreateInvoiceInputSchema = InvoiceMetadataSchema.extend({
-	clinicId: z.string().uuid("Please select a clinic partner."),
+	clinicId: z.uuid("Please select a clinic partner."),
 
 	// Accountant must select at least 1 case to build a valid statement
-	caseIds: z.array(z.string().uuid()).min(1, "You must select at least one completed case to invoice."),
+	caseIds: z.array(z.uuid()).min(1, "You must select at least one completed case to invoice."),
 
 	status: z.enum(["DRAFT", "SENT"]).default("DRAFT"),
 });

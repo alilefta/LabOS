@@ -1,4 +1,3 @@
-// import { getCurrentProfile } from "@/data/profile";
 import { Prisma } from "@/generated/prisma/client";
 import { createMiddleware, createSafeActionClient } from "next-safe-action";
 import z from "zod/v4";

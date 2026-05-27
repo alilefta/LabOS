@@ -2,7 +2,8 @@ import * as z from 'zod';
 import { Prisma } from '../../../../generated/prisma/client';
 import { DecimalFieldUpdateOperationsInputObjectSchema as DecimalFieldUpdateOperationsInputObjectSchema } from './DecimalFieldUpdateOperationsInput.schema';
 import { InvoiceUpdateOneRequiredWithoutCasesNestedInputObjectSchema as InvoiceUpdateOneRequiredWithoutCasesNestedInputObjectSchema } from './InvoiceUpdateOneRequiredWithoutCasesNestedInput.schema';
-import { CaseUpdateOneRequiredWithoutInvoiceCaseNestedInputObjectSchema as CaseUpdateOneRequiredWithoutInvoiceCaseNestedInputObjectSchema } from './CaseUpdateOneRequiredWithoutInvoiceCaseNestedInput.schema'
+import { CaseUpdateOneRequiredWithoutInvoiceCaseNestedInputObjectSchema as CaseUpdateOneRequiredWithoutInvoiceCaseNestedInputObjectSchema } from './CaseUpdateOneRequiredWithoutInvoiceCaseNestedInput.schema';
+import { LabUpdateOneRequiredWithoutInvoiceCaseNestedInputObjectSchema as LabUpdateOneRequiredWithoutInvoiceCaseNestedInputObjectSchema } from './LabUpdateOneRequiredWithoutInvoiceCaseNestedInput.schema'
 
 import { DecimalJSLikeSchema, isValidDecimalInput } from '../../helpers/decimal-helpers';
 const makeSchema = () => z.object({
@@ -15,7 +16,8 @@ const makeSchema = () => z.object({
   message: "Field 'caseTotal' must be a Decimal",
 }), z.lazy(() => DecimalFieldUpdateOperationsInputObjectSchema)]).optional(),
   invoice: z.lazy(() => InvoiceUpdateOneRequiredWithoutCasesNestedInputObjectSchema).optional(),
-  case: z.lazy(() => CaseUpdateOneRequiredWithoutInvoiceCaseNestedInputObjectSchema).optional()
+  case: z.lazy(() => CaseUpdateOneRequiredWithoutInvoiceCaseNestedInputObjectSchema).optional(),
+  lab: z.lazy(() => LabUpdateOneRequiredWithoutInvoiceCaseNestedInputObjectSchema).optional()
 }).strict();
 export const InvoiceCaseUpdateInputObjectSchema: z.ZodType<Prisma.InvoiceCaseUpdateInput> = makeSchema() as unknown as z.ZodType<Prisma.InvoiceCaseUpdateInput>;
 export const InvoiceCaseUpdateInputObjectZodSchema = makeSchema();

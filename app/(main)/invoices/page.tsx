@@ -17,6 +17,7 @@ import { GetInvoicesListResult, RiskClinicDTO, UninvoicedClinicsSummary } from "
 import { DEFAULT_INVOICE_FILTERS } from "@/schema/composed/invoices/invoice-filters";
 import { getArRiskClinicsAction } from "@/actions/invoices/get-risk-clinics";
 import { getUninvoicedClinicsSummary } from "@/data/invoices/get-invoices";
+import Link from "next/link";
 
 export const metadata = {
 	title: "Accounts Receivable | LabOS",
@@ -87,7 +88,9 @@ export default async function InvoicesDashboardPage({ searchParams }: { searchPa
 							<span className="hidden sm:inline">Export Aging Report</span>
 						</Button>
 						<Button className="h-10 rounded-xl shadow-[0_0_20px_rgba(16,185,129,0.2)] bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 transition-all">
-							<Plus className="w-4 h-4 mr-2" /> New Invoice
+							<Link href={"/invoices/new-invoice"} className="flex items-center gap-2">
+								<Plus className="w-4 h-4 mr-2" /> New Invoice
+							</Link>
 						</Button>
 					</div>
 				</div>

@@ -85,6 +85,7 @@ export async function getNewInvoiceOnboardingData(clinicId?: string): Promise<DA
 						},
 					},
 				},
+
 				select: {
 					id: true,
 					name: true,
@@ -92,6 +93,9 @@ export async function getNewInvoiceOnboardingData(clinicId?: string): Promise<DA
 					type: true,
 					phoneNumber: true,
 					email: true,
+					website: true,
+					status: true,
+					labId: true,
 				},
 				orderBy: { name: "asc" },
 			});

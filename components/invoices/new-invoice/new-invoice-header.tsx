@@ -23,7 +23,7 @@ export function NewInvoiceHeader({ clinicId, isSavingDraft, onSaveDraft, selecte
 		// The header should ONLY handle the sticky background and border.
 		<header className="shrink-0 sticky top-0 z-30 bg-background/80 backdrop-blur-xl border-b border-border shadow-sm transition-all duration-300">
 			{/* FIX: Inner container handles max-width, centering, and padding */}
-			<div className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-4 px-4 sm:px-6 lg:px-8 max-w-[2000px] mx-auto w-full">
+			<div className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-4 px-4 sm:px-6 lg:px-8 max-w-500 mx-auto w-full">
 				{/* LEFT: Back Navigation & Dynamic Subtitle */}
 				<div className="flex items-start sm:items-center gap-3 sm:gap-4">
 					<Link href="/invoices" className="shrink-0 mt-0.5 sm:mt-0">

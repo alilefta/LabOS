@@ -17,18 +17,28 @@ export default async function proxy(request: NextRequest) {
 	// });
 
 	// route groups
-	const publicRoutes = ["/", "/pricing", "/about", "/contact", "/statement"];
+	// Route groups
+	const exactPublicRoutes = ["/", "/pricing", "/about", "/contact"];
+	const dynamicPublicRoutes = ["/statement"]; // Add paths that have dynamic slugs here
+
 	const authRoutes = ["/sign-in", "/sign-up"];
 	const onboardingRoute = "/onboarding";
 	const dashboardRoute = "/dashboard";
-
 	const protectedRoutes = ["/clinics", "/settings", "/cases", "/invoices"];
 
-	// allow public routes immediately
-	if (publicRoutes.includes(pathname)) {
+	// 1. FAST PUBLIC CHECK (Allows /statement/12345 to pass)
+	const isExactPublic = exactPublicRoutes.includes(pathname);
+	const isDynamicPublic = dynamicPublicRoutes.some((route) => pathname.startsWith(route));
+
+	if (isExactPublic || isDynamicPublic) {
 		return NextResponse.next();
 	}
 
+	// allow public routes immediately
+	console.log("Pathname: ", pathname);
+	if (isExactPublic || isDynamicPublic) {
+		return NextResponse.next();
+	}
 	// fast check (no DB call) so it saves a db call
 	// const sessionCookie = getSessionCookie(request);
 
@@ -50,54 +60,35 @@ export default async function proxy(request: NextRequest) {
 	// -------------------------
 	// NOT AUTHENTICATED
 	// -------------------------
-
 	if (!hasSession) {
 		if (authRoutes.some((route) => pathname.startsWith(route))) {
 			return NextResponse.next();
 		}
-
 		return NextResponse.redirect(new URL("/sign-in", request.url));
 	}
 
 	// -------------------------
 	// AUTH BUT NOT ONBOARDED
 	// -------------------------
-
 	if (!hasOnboarded) {
 		if (pathname.startsWith(onboardingRoute)) {
 			return NextResponse.next();
 		}
-
 		return NextResponse.redirect(new URL("/onboarding", request.url));
 	}
 
 	// -------------------------
 	// FULLY AUTHENTICATED
 	// -------------------------
-
 	if (pathname.startsWith(dashboardRoute)) {
 		return NextResponse.next();
 	}
-
-	// if (pathname.startsWith(settingsRoute)) {
-	// 	return NextResponse.next();
-	// }
-
-	// if (pathname.startsWith(clinicsRoute)) {
-	// 	return NextResponse.next();
-	// }
 
 	if (protectedRoutes.some((route) => pathname.startsWith(route))) {
 		return NextResponse.next();
 	}
 
-	// many protected routes will go here! we need a better way to handle protected route like an array of protected routes
-
-	if (publicRoutes.includes(pathname)) {
-		return NextResponse.next();
-	}
-
-	// fallback
+	// Fallback for authenticated users trying to access an unknown route
 	return NextResponse.redirect(new URL("/dashboard", request.url));
 }
 

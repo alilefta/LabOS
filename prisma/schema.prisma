@@ -228,6 +228,8 @@ model Lab {
   nextCaseNumber   Int               @default(0)
   caseActivityLogs CaseActivityLog[]
 
+  invoiceCase InvoiceCase[]
+
   nextInvoiceNumber Int @default(0)
 
   createdAt DateTime @default(now())
@@ -756,6 +758,10 @@ model InvoiceCase {
 
   // Snapshot at invoice time — grandTotal may change later
   caseTotal Decimal @db.Decimal(10, 2)
+
+  // 🔥 ADD THESE TWO LINES:
+  labId String
+  lab   Lab    @relation(fields: [labId], references: [id], onDelete: Cascade)
 
   @@id([invoiceId, caseId])
   @@index([invoiceId])

@@ -13,7 +13,8 @@ const makeSchema = () => z.object({
   DecimalJSLikeSchema,
 ]).refine((v) => isValidDecimalInput(v), {
   message: "Field 'caseTotal' must be a Decimal",
-}), z.lazy(() => DecimalFieldUpdateOperationsInputObjectSchema)]).optional()
+}), z.lazy(() => DecimalFieldUpdateOperationsInputObjectSchema)]).optional(),
+  labId: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputObjectSchema)]).optional()
 }).strict();
 export const InvoiceCaseUncheckedUpdateWithoutInvoiceInputObjectSchema: z.ZodType<Prisma.InvoiceCaseUncheckedUpdateWithoutInvoiceInput> = makeSchema() as unknown as z.ZodType<Prisma.InvoiceCaseUncheckedUpdateWithoutInvoiceInput>;
 export const InvoiceCaseUncheckedUpdateWithoutInvoiceInputObjectZodSchema = makeSchema();

@@ -8,11 +8,11 @@ import { memo, useCallback, useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import useDebounce from "@/hooks/useDebounce";
-import { ClinicDetailsUI } from "@/schema/composed/clinic.details";
+import { ClinicDetailsUI, ClinicSelectionDTO } from "@/schema/composed/clinic.details";
 
 import { Skeleton } from "@/components/ui/skeleton";
 import { handleSafeActionError } from "@/lib/safe-action-helpers";
-import { getClinicsBySearchQueryAction } from "@/actions/clinics/get-clinics";
+import { getBaseClinicsBySearchQueryAction } from "@/actions/clinics/get-clinics";
 
 // Helper to get icon based on ClinicType
 const getClinicIcon = (type: string) => {
@@ -32,6 +32,7 @@ interface ClinicFilterSelectorProps {
 	value: string | null;
 	onSelect: (clinicId: string | null) => void;
 	label: string;
+	initialData?: ClinicSelectionDTO[];
 }
 
 export const ClinicFilterSelector = memo(({ value, onSelect, label }: ClinicFilterSelectorProps) => {
@@ -39,12 +40,12 @@ export const ClinicFilterSelector = memo(({ value, onSelect, label }: ClinicFilt
 	const [search, setSearch] = useState("");
 	const debouncedSearch = useDebounce({ value: search, delay: 300 });
 
-	const queryKey = useMemo(() => ["clinics", "search", debouncedSearch], [debouncedSearch]);
+	const queryKey = useMemo(() => ["clinics-selection", "search", debouncedSearch], [debouncedSearch]);
 
 	const { data: fetchedClinics, isFetching } = useQuery({
 		queryKey,
 		queryFn: async () => {
-			const res = await getClinicsBySearchQueryAction({ searchQuery: debouncedSearch, limit: 10 });
+			const res = await getBaseClinicsBySearchQueryAction({ searchQuery: debouncedSearch, limit: 10 });
 			if (res.serverError || res.validationErrors) {
 				handleSafeActionError({ serverError: res.serverError, validationErrors: res.validationErrors });
 			}

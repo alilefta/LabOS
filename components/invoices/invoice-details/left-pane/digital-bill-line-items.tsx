@@ -1,16 +1,18 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { ChevronRight, Box, Layers } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { BilledCaseLineItemDTO } from "@/schema/composed/invoices/invoice-details.dtos";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import Link from "next/link";
+import { memo } from "react";
 
 interface Props {
 	cases: BilledCaseLineItemDTO[];
 }
 
-export function DigitalBillLineItems({ cases }: Props) {
+export const DigitalBillLineItems = memo(function DigitalBillLineItems({ cases }: Props) {
 	const router = useRouter();
 
 	const formatMoney = (val: number) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(val);
@@ -22,10 +24,10 @@ export function DigitalBillLineItems({ cases }: Props) {
 				<h3 className="text-sm font-bold uppercase tracking-widest text-muted-foreground">Billed Line Items</h3>
 			</div>
 
-			<div className="w-full overflow-x-auto no-scrollbar border border-border rounded-2xl bg-slate-50/50 dark:bg-white/[0.01] shadow-sm">
+			<div className="w-full overflow-x-auto no-scrollbar border border-border rounded-2xl bg-slate-50/50 dark:bg-white/1 shadow-sm">
 				<table className="w-full text-left text-sm border-collapse whitespace-nowrap">
 					<thead>
-						<tr className="border-b border-border/60 bg-slate-100/50 dark:bg-white/[0.02]">
+						<tr className="border-b border-border/60 bg-slate-100/50 dark:bg-white/2">
 							<th className="h-10 px-6 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Case ID</th>
 							<th className="h-10 px-6 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Patient & Prescriber</th>
 							<th className="h-10 px-6 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Prescription Summary</th>
@@ -69,7 +71,7 @@ export function DigitalBillLineItems({ cases }: Props) {
 													>
 														{firstItem.jawType}
 													</span>
-													<span className="text-xs font-semibold text-foreground truncate max-w-[120px]">{firstItem.productName}</span>
+													<span className="text-xs font-semibold text-foreground truncate max-w-30">{firstItem.productName}</span>
 													{firstItem.teethCount > 0 && <span className="text-[10px] font-mono font-bold text-muted-foreground">({firstItem.teethCount}U)</span>}
 												</div>
 
@@ -90,7 +92,7 @@ export function DigitalBillLineItems({ cases }: Props) {
 																{ic.workItems.slice(1).map((item, i) => (
 																	<div key={i} className="flex items-center gap-3 text-xs font-medium">
 																		<span className="font-mono text-primary w-10">{item.jawType}</span>
-																		<span className="text-foreground truncate max-w-[120px]">{item.productName}</span>
+																		<span className="text-foreground truncate max-w-30">{item.productName}</span>
 																		<span className="text-muted-foreground">({item.teethCount}U)</span>
 																	</div>
 																))}
@@ -111,7 +113,13 @@ export function DigitalBillLineItems({ cases }: Props) {
 
 									{/* Chevron Indicator */}
 									<td className="p-4 px-6 text-right align-middle">
-										<ChevronRight className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
+										<Link
+											href={`/cases/${ic.id}`}
+											className="inline-flex w-8 h-8 items-center justify-center rounded-full text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors"
+											onClick={(e) => e.stopPropagation()}
+										>
+											<ChevronRight className="w-4 h-4 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
+										</Link>
 									</td>
 								</tr>
 							);
@@ -121,4 +129,4 @@ export function DigitalBillLineItems({ cases }: Props) {
 			</div>
 		</div>
 	);
-}
+});

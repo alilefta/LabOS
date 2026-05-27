@@ -11,6 +11,7 @@ const makeSchema = () => z.object({
   invoiceId: SortOrderSchema.optional(),
   caseId: SortOrderSchema.optional(),
   caseTotal: SortOrderSchema.optional(),
+  labId: SortOrderSchema.optional(),
   _count: z.lazy(() => InvoiceCaseCountOrderByAggregateInputObjectSchema).optional(),
   _avg: z.lazy(() => InvoiceCaseAvgOrderByAggregateInputObjectSchema).optional(),
   _max: z.lazy(() => InvoiceCaseMaxOrderByAggregateInputObjectSchema).optional(),

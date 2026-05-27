@@ -15,7 +15,7 @@ import { format } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
 
 interface Props {
-	clinics: EligibleClinicDTO[];
+	clinics?: EligibleClinicDTO[];
 	selectedId?: string;
 	selectedClinicName: string | null;
 	onSelectClinic: (id: string | null) => void;
@@ -28,7 +28,7 @@ const BILLING_TERMS = [
 	{ id: "CUSTOM", label: "Custom" }, // Added Custom
 ];
 
-export function InvoiceConfigurationPane({ clinics, selectedId, selectedClinicName, onSelectClinic }: Props) {
+export function InvoiceConfigurationPane({ selectedId, selectedClinicName, onSelectClinic }: Props) {
 	const { control } = useFormContext<InvoiceMetadataInput>();
 
 	// Watch values to handle conditional label updates or dynamic math

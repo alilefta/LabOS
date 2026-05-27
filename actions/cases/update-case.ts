@@ -17,7 +17,6 @@ import { actionClientWithLab } from "@/lib/safe-action";
 import { ActionError, ERRORS } from "@/lib/errors";
 import { tenantPrisma } from "@/lib/prisma";
 import { CaseStatus, StaffRoleCategory, CommissionType } from "@/schema/base/enums.base";
-import { APIError } from "better-auth";
 import {
 	AddCaseAssetFilesSchema,
 	AssignCaseStaffSchema,
@@ -354,53 +353,46 @@ export const addCaseAssetFilesAction = actionClientWithLab
 		const { labId, labUser } = ctx;
 		const { caseId, files } = parsedInput;
 
-		try {
-			const prisma = await tenantPrisma(labId);
-			await requireCase(prisma, caseId, labId);
+		const prisma = await tenantPrisma(labId);
+		await requireCase(prisma, caseId, labId);
 
-			const actorName = await resolveActorName(labUser.id, labId);
+		const actorName = await resolveActorName(labUser.id, labId);
 
-			const [createdFiles] = await prisma.$transaction([
-				prisma.caseAssetFile.createManyAndReturn({
-					data: files.map((f) => ({
-						caseId, // tenantPrisma will inject labId automatically
-						labId,
-						dentalCaseId: caseId,
-						title: f.title,
-						description: f.description,
-						documentUrl: f.documentUrl,
-						assetFileType: f.assetFileType,
-						fileExtension: f.fileExtension,
-					})),
-					select: { id: true, documentUrl: true, assetFileType: true, title: true },
+		const [createdFiles] = await prisma.$transaction([
+			prisma.caseAssetFile.createManyAndReturn({
+				data: files.map((f) => ({
+					caseId, // tenantPrisma will inject labId automatically
+					labId,
+					dentalCaseId: caseId,
+					title: f.title,
+					description: f.description,
+					documentUrl: f.documentUrl,
+					assetFileType: f.assetFileType,
+					fileExtension: f.fileExtension,
+				})),
+				select: { id: true, documentUrl: true, assetFileType: true, title: true },
+			}),
+
+			prisma.caseActivityLog.create({
+				data: buildLogEntry({
+					caseId,
+					labId,
+					actorId: labUser.id,
+					actorName,
+					type: "FILE_UPLOADED",
+					summary: `${files.length} file${files.length > 1 ? "s" : ""} uploaded`,
+					payload: {
+						count: files.length,
+						files: files.map((f) => ({
+							fileName: f.title ?? f.fileExtension,
+							assetFileType: f.assetFileType,
+						})),
+					} as z.infer<typeof FileUploadedPayloadSchema>,
 				}),
+			}),
+		]);
 
-				prisma.caseActivityLog.create({
-					data: buildLogEntry({
-						caseId,
-						labId,
-						actorId: labUser.id,
-						actorName,
-						type: "FILE_UPLOADED",
-						summary: `${files.length} file${files.length > 1 ? "s" : ""} uploaded`,
-						payload: {
-							count: files.length,
-							files: files.map((f) => ({
-								fileName: f.title ?? f.fileExtension,
-								assetFileType: f.assetFileType,
-							})),
-						} as z.infer<typeof FileUploadedPayloadSchema>,
-					}),
-				}),
-			]);
-
-			return { createdFiles };
-		} catch (e) {
-			if (e instanceof APIError || e instanceof Error) {
-				console.error("[Add-Case-Asset-Files-Action] Error", e.message);
-			}
-			throw e;
-		}
+		return { createdFiles };
 	});
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -414,61 +406,54 @@ export const deleteCaseAssetFileAction = actionClientWithLab
 		const { labId, labUser } = ctx;
 		const { caseId, fileId } = parsedInput;
 
-		try {
-			const prisma = await tenantPrisma(labId);
-			await requireCase(prisma, caseId, labId);
+		const prisma = await tenantPrisma(labId);
+		await requireCase(prisma, caseId, labId);
 
-			// Verify the file belongs to this case AND this lab
-			// This is the critical ownership check — prevents deleting another lab's files
-			const file = await prisma.caseAssetFile.findUnique({
-				where: { id: fileId },
-				select: { id: true, labId: true, dentalCaseId: true, title: true, assetFileType: true },
+		// Verify the file belongs to this case AND this lab
+		// This is the critical ownership check — prevents deleting another lab's files
+		const file = await prisma.caseAssetFile.findUnique({
+			where: { id: fileId },
+			select: { id: true, labId: true, dentalCaseId: true, title: true, assetFileType: true },
+		});
+
+		if (!file) throw ERRORS.FILE_NOT_FOUND;
+		if (file.labId !== labId) throw ERRORS.FORBIDDEN;
+		if (file.dentalCaseId !== caseId) {
+			// File exists but belongs to a different case — possible IDOR attempt
+			console.error("[Security] File-case mismatch on delete", {
+				fileId,
+				fileCaseId: file.dentalCaseId,
+				requestedCaseId: caseId,
+				labId,
 			});
-
-			if (!file) throw ERRORS.FILE_NOT_FOUND;
-			if (file.labId !== labId) throw ERRORS.FORBIDDEN;
-			if (file.dentalCaseId !== caseId) {
-				// File exists but belongs to a different case — possible IDOR attempt
-				console.error("[Security] File-case mismatch on delete", {
-					fileId,
-					fileCaseId: file.dentalCaseId,
-					requestedCaseId: caseId,
-					labId,
-				});
-				throw ERRORS.FORBIDDEN;
-			}
-
-			const actorName = await resolveActorName(labUser.id, labId);
-
-			await prisma.$transaction([
-				prisma.caseAssetFile.delete({
-					where: { id: fileId },
-				}),
-
-				prisma.caseActivityLog.create({
-					data: buildLogEntry({
-						caseId,
-						labId,
-						actorId: labUser.id,
-						actorName,
-						type: "FILE_DELETED",
-						summary: `File "${file.title ?? file.assetFileType}" deleted`,
-						payload: {
-							fileId,
-							fileName: file.title ?? null,
-							assetFileType: file.assetFileType,
-						} as z.infer<typeof FileDeletedPayloadSchema>,
-					}),
-				}),
-			]);
-
-			return { deleted: true };
-		} catch (e) {
-			if (e instanceof APIError || e instanceof Error) {
-				console.error("[Delete-Case-Asset-Files-Action] Error", e.message);
-			}
-			throw e;
+			throw ERRORS.FORBIDDEN;
 		}
+
+		const actorName = await resolveActorName(labUser.id, labId);
+
+		await prisma.$transaction([
+			prisma.caseAssetFile.delete({
+				where: { id: fileId },
+			}),
+
+			prisma.caseActivityLog.create({
+				data: buildLogEntry({
+					caseId,
+					labId,
+					actorId: labUser.id,
+					actorName,
+					type: "FILE_DELETED",
+					summary: `File "${file.title ?? file.assetFileType}" deleted`,
+					payload: {
+						fileId,
+						fileName: file.title ?? null,
+						assetFileType: file.assetFileType,
+					} as z.infer<typeof FileDeletedPayloadSchema>,
+				}),
+			}),
+		]);
+
+		return { deleted: true };
 	});
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -482,42 +467,35 @@ export const updateCaseNotesAction = actionClientWithLab
 		const { labId, labUser } = ctx;
 		const { caseId, notes } = parsedInput;
 
-		try {
-			const prisma = await tenantPrisma(labId);
-			await requireCase(prisma, caseId, labId);
+		const prisma = await tenantPrisma(labId);
+		await requireCase(prisma, caseId, labId);
 
-			const actorName = await resolveActorName(labUser.id, labId);
+		const actorName = await resolveActorName(labUser.id, labId);
 
-			const [updatedCase] = await prisma.$transaction([
-				prisma.case.update({
-					where: { id: caseId, labId },
-					data: { notes },
-					select: { id: true, notes: true },
+		const [updatedCase] = await prisma.$transaction([
+			prisma.case.update({
+				where: { id: caseId, labId },
+				data: { notes },
+				select: { id: true, notes: true },
+			}),
+
+			prisma.caseActivityLog.create({
+				data: buildLogEntry({
+					caseId,
+					labId,
+					actorId: labUser.id,
+					actorName,
+					type: "NOTE_ADDED",
+					summary: notes ? "Clinical notes updated" : "Clinical notes cleared",
+					payload: {
+						// Don't store the full note content in the payload —
+						// notes can be long and are already on the Case record.
+						// Store a truncated preview only.
+						note: notes ? notes.slice(0, 100) + (notes.length > 100 ? "…" : "") : null,
+					} as z.infer<typeof NoteAddedPayloadSchema>,
 				}),
+			}),
+		]);
 
-				prisma.caseActivityLog.create({
-					data: buildLogEntry({
-						caseId,
-						labId,
-						actorId: labUser.id,
-						actorName,
-						type: "NOTE_ADDED",
-						summary: notes ? "Clinical notes updated" : "Clinical notes cleared",
-						payload: {
-							// Don't store the full note content in the payload —
-							// notes can be long and are already on the Case record.
-							// Store a truncated preview only.
-							note: notes ? notes.slice(0, 100) + (notes.length > 100 ? "…" : "") : null,
-						} as z.infer<typeof NoteAddedPayloadSchema>,
-					}),
-				}),
-			]);
-
-			return { updatedCase };
-		} catch (e) {
-			if (e instanceof APIError || e instanceof Error) {
-				console.error("[Delete-Case-Asset-Files-Action] Error", e.message);
-			}
-			throw e;
-		}
+		return { updatedCase };
 	});

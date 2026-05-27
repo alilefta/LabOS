@@ -4,5 +4,7 @@ export const InvoiceCaseDeleteResultSchema = z.nullable(z.object({
   invoice: z.unknown(),
   caseId: z.string(),
   case: z.unknown(),
-  caseTotal: z.number()
+  caseTotal: z.number(),
+  labId: z.string(),
+  lab: z.unknown()
 }));

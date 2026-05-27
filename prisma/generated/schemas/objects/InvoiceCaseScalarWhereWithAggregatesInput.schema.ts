@@ -17,7 +17,8 @@ const invoicecasescalarwherewithaggregatesinputSchema = z.object({
   DecimalJSLikeSchema,
 ]).refine((v) => isValidDecimalInput(v), {
   message: "Field 'caseTotal' must be a Decimal",
-})]).optional()
+})]).optional(),
+  labId: z.union([z.lazy(() => StringWithAggregatesFilterObjectSchema), z.string()]).optional()
 }).strict();
 export const InvoiceCaseScalarWhereWithAggregatesInputObjectSchema: z.ZodType<Prisma.InvoiceCaseScalarWhereWithAggregatesInput> = invoicecasescalarwherewithaggregatesinputSchema as unknown as z.ZodType<Prisma.InvoiceCaseScalarWhereWithAggregatesInput>;
 export const InvoiceCaseScalarWhereWithAggregatesInputObjectZodSchema = invoicecasescalarwherewithaggregatesinputSchema;

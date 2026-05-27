@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import { format } from "date-fns";
-import { Check, Building2, ChevronLeft, CheckCircle2 } from "lucide-react";
+import { Check, Building2, ChevronLeft, CheckCircle2, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -31,10 +31,32 @@ export function ReconciliationLedger({ cases, selectedIds, totals, onToggle, onT
 
 	const formatMoney = (val: number) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(val);
 
+	if (isLoading) {
+		return (
+			<div className="flex-1 w-full h-full flex flex-col items-center justify-center p-8 text-center animate-in fade-in zoom-in-95 duration-500 relative overflow-hidden rounded-3xl bg-slate-50 dark:bg-[#121214] border border-border shadow-sm">
+				{/* High-Performance Emerald Radial Glow */}
+				<div
+					className="absolute inset-0 pointer-events-none opacity-40 dark:opacity-20"
+					style={{ background: `radial-gradient(circle at center, rgba(var(--glow-emerald-rgb), 0.15) 0%, transparent 60%)` }}
+				/>
+
+				<div className="relative z-10 max-w-sm flex flex-col items-center gap-4">
+					<div className="w-16 h-16 rounded-3xl bg-gray-500/10 border border-gray-500/20 flex items-center justify-center text-gray-600 dark:text-gray-500 shadow-[0_0_20px_rgba(16,185,129,0.15)]">
+						<Loader2 className="w-8 h-8 animate-spin" />
+					</div>
+					<div className="space-y-1.5">
+						<h3 className="text-lg font-bold text-foreground tracking-tight">Loading</h3>
+						<p className="text-xs text-muted-foreground leading-relaxed">Please wait while the unbilled cases get loaded.</p>
+					</div>
+				</div>
+			</div>
+		);
+	}
+
 	// ── 1. STATE A: NO CLINIC SELECTED ────────────────
 	if (!isClinicSelected) {
 		return (
-			<div className="flex-1 w-full h-full flex flex-col items-center justify-center p-8 text-center animate-in fade-in zoom-in-95 duration-500 relative overflow-hidden rounded-[24px] bg-slate-50 dark:bg-[#121214] border border-border shadow-sm">
+			<div className="flex-1 w-full h-full flex flex-col items-center justify-center p-8 text-center animate-in fade-in zoom-in-95 duration-500 relative overflow-hidden rounded-3xl bg-slate-50 dark:bg-[#121214] border border-border shadow-sm">
 				{/* High-Performance Radial Glow */}
 				<div
 					className="absolute inset-0 pointer-events-none opacity-40 dark:opacity-20"
@@ -62,7 +84,7 @@ export function ReconciliationLedger({ cases, selectedIds, totals, onToggle, onT
 	// ── 2. STATE B: CLINIC SELECTED, BUT 0 PENDING CASES ──────
 	if (cases.length === 0) {
 		return (
-			<div className="flex-1 w-full h-full flex flex-col items-center justify-center p-8 text-center animate-in fade-in zoom-in-95 duration-500 relative overflow-hidden rounded-[24px] bg-slate-50 dark:bg-[#121214] border border-border shadow-sm">
+			<div className="flex-1 w-full h-full flex flex-col items-center justify-center p-8 text-center animate-in fade-in zoom-in-95 duration-500 relative overflow-hidden rounded-3xl bg-slate-50 dark:bg-[#121214] border border-border shadow-sm">
 				{/* High-Performance Emerald Radial Glow */}
 				<div
 					className="absolute inset-0 pointer-events-none opacity-40 dark:opacity-20"
@@ -104,7 +126,7 @@ export function ReconciliationLedger({ cases, selectedIds, totals, onToggle, onT
 							isAllSelected ? "bg-emerald-600 border-emerald-600 text-white" : "border-slate-300 dark:border-zinc-700 bg-white dark:bg-[#121214]",
 						)}
 					>
-						{isAllSelected && <Check className="w-3 h-3 stroke-[3]" />}
+						{isAllSelected && <Check className="w-3 h-3 stroke-3" />}
 					</div>
 					<span>{isAllSelected ? "Deselect All" : "Select All"}</span>
 				</button>
@@ -124,7 +146,7 @@ export function ReconciliationLedger({ cases, selectedIds, totals, onToggle, onT
 							onClick={() => onToggle(c.id)}
 							className={cn(
 								"w-full text-left p-4 bg-card border rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 group transition-all duration-200 cursor-pointer shadow-sm outline-none focus-visible:ring-2 focus-visible:ring-emerald-500",
-								isChecked ? "border-emerald-500/50 bg-emerald-500/[0.02] shadow-[0_4px_15px_rgba(16,185,129,0.05)]" : "border-border hover:border-emerald-500/40",
+								isChecked ? "border-emerald-500/50 bg-emerald-500/2 shadow-[0_4px_15px_rgba(16,185,129,0.05)]" : "border-border hover:border-emerald-500/40",
 							)}
 						>
 							<div className="flex items-start gap-4">
@@ -136,7 +158,7 @@ export function ReconciliationLedger({ cases, selectedIds, totals, onToggle, onT
 											: "border border-slate-300 dark:border-white/10 bg-white dark:bg-[#121214] group-hover:border-emerald-500/50",
 									)}
 								>
-									{isChecked && <Check className="w-3.5 h-3.5 stroke-[3]" />}
+									{isChecked && <Check className="w-3.5 h-3.5 stroke-3" />}
 								</div>
 
 								<div>
@@ -151,7 +173,7 @@ export function ReconciliationLedger({ cases, selectedIds, totals, onToggle, onT
 							<div className="flex items-center justify-between sm:justify-end gap-6 w-full sm:w-auto pl-9 sm:pl-0 border-t border-border/50 pt-3 sm:border-0 sm:pt-0 mt-2 sm:mt-0">
 								<div className="flex items-center gap-2">
 									{firstItem && (
-										<div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-slate-50 dark:bg-white/[0.02] border border-border transition-colors group-hover:border-border/80">
+										<div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-slate-50 dark:bg-white/2 border border-border transition-colors group-hover:border-border/80">
 											<span
 												className={cn(
 													"text-[9px] font-black px-1 rounded uppercase tracking-tighter",
@@ -164,7 +186,7 @@ export function ReconciliationLedger({ cases, selectedIds, totals, onToggle, onT
 											>
 												{firstItem.jawType}
 											</span>
-											<span className="text-xs font-semibold text-foreground truncate max-w-[120px]">{firstItem.productName}</span>
+											<span className="text-xs font-semibold text-foreground truncate max-w-30">{firstItem.productName}</span>
 											<span className="text-[10px] font-mono font-bold text-muted-foreground">({firstItem.teethCount}U)</span>
 										</div>
 									)}
@@ -185,7 +207,7 @@ export function ReconciliationLedger({ cases, selectedIds, totals, onToggle, onT
 													{c.workItems.slice(1).map((item, i) => (
 														<div key={i} className="flex items-center gap-3 text-xs font-medium">
 															<span className="font-mono text-emerald-500 w-10 text-[10px]">{item.jawType}</span>
-															<span className="text-foreground truncate max-w-[120px]">{item.productName}</span>
+															<span className="text-foreground truncate max-w-30">{item.productName}</span>
 															<span className="text-muted-foreground font-mono">({item.teethCount}U)</span>
 														</div>
 													))}
@@ -195,7 +217,7 @@ export function ReconciliationLedger({ cases, selectedIds, totals, onToggle, onT
 									)}
 								</div>
 
-								<div className="text-right min-w-[80px] shrink-0">
+								<div className="text-right min-w-20 shrink-0">
 									<span className={cn("text-lg font-mono font-bold transition-colors", isChecked ? "text-emerald-600 dark:text-emerald-500" : "text-foreground")}>
 										{formatMoney(c.grandTotal || 0)}
 									</span>
@@ -210,7 +232,7 @@ export function ReconciliationLedger({ cases, selectedIds, totals, onToggle, onT
 			{cases.length > 0 && (
 				<div className="shrink-0 pt-4 mt-2 z-20 relative">
 					{/* Solid Card Boundary to prevent blending into the parent background */}
-					<div className="bg-white dark:bg-[#09090B] border border-border shadow-[0_-10px_40px_rgba(0,0,0,0.03)] dark:shadow-[0_-10px_40px_rgba(0,0,0,0.4)] rounded-[24px] p-6 lg:p-8 flex flex-col md:flex-row md:items-end justify-between gap-6 transition-all duration-500 relative overflow-hidden">
+					<div className="bg-white dark:bg-[#09090B] border border-border shadow-[0_-10px_40px_rgba(0,0,0,0.03)] dark:shadow-[0_-10px_40px_rgba(0,0,0,0.4)] rounded-3xl p-6 lg:p-8 flex flex-col md:flex-row md:items-end justify-between gap-6 transition-all duration-500 relative overflow-hidden">
 						{/* Performance-Friendly Embedded Glow */}
 						{totals.selectedCount > 0 && (
 							<div

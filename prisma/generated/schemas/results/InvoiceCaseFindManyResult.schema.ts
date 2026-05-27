@@ -5,7 +5,9 @@ export const InvoiceCaseFindManyResultSchema = z.object({
   invoice: z.unknown(),
   caseId: z.string(),
   case: z.unknown(),
-  caseTotal: z.number()
+  caseTotal: z.number(),
+  labId: z.string(),
+  lab: z.unknown()
 })),
   pagination: z.object({
   page: z.number().int().min(1),

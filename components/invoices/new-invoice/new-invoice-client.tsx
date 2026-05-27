@@ -13,13 +13,12 @@ import { InvoiceConfigurationPane } from "./sections/invoice-configuration-pane"
 import { ReconciliationLedger } from "./sections/reconciliation-ledger";
 import { NewInvoiceHeader } from "./new-invoice-header";
 import { AmbientBgGlow } from "@/components/ui/ui-utils/animated-ambient-bg-glow";
-import { InvoiceGenerationModal } from "@/components/modals/invoices/invoice-generation/invoice-generation-modal";
 import { getUnbilledCasesAction } from "@/actions/invoices/get-unbilled-cases";
 import { handleSafeActionError } from "@/lib/safe-action-helpers";
 import { createInvoiceAction } from "@/actions/invoices/create-invoice";
 import { useRouter } from "next/navigation";
 import { useAction } from "next-safe-action/hooks";
-import { InvoiceSuccessShareModal } from "@/components/modals/invoice-generation/invoice-success-share-modal";
+import dynamic from "next/dynamic";
 
 interface Props {
 	labId: string;
@@ -28,6 +27,14 @@ interface Props {
 }
 
 const EMPTY_CASES: UnbilledCaseDTO[] = [];
+
+const InvoiceGenerationModal = dynamic(() => import("../../modals/invoices/invoice-generation/invoice-generation-modal").then((cm) => cm.InvoiceGenerationModal), {
+	ssr: false,
+});
+
+const InvoiceSuccessShareModal = dynamic(() => import("../../modals/invoices/invoice-generation/invoice-success-share-modal").then((cm) => cm.InvoiceSuccessShareModal), {
+	ssr: false,
+});
 
 export function NewInvoiceClient({ labId, initialClinicId, onboardingData }: Props) {
 	const router = useRouter();

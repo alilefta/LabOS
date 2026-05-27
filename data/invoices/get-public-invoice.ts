@@ -1,12 +1,11 @@
 // data/invoices/get-public-invoice.ts
-import { generalPrisma, tenantPrisma } from "@/lib/prisma";
+import { generalPrisma } from "@/lib/prisma";
 import { ERRORS } from "@/lib/errors";
 import { daError, daSuccess, toDAError, DAResult } from "@/lib/data-access-errors";
 import z from "zod";
 import { PublicInvoiceDTO } from "@/schema/composed/invoices/invoices.dtos";
-import { getServerSession } from "@/lib/get-session";
 
-const TokenInputSchema = z.string().uuid("Invalid secure token format.");
+const TokenInputSchema = z.uuid("Invalid secure token format.");
 
 export async function getPublicInvoiceByToken(token: string): Promise<DAResult<PublicInvoiceDTO>> {
 	try {

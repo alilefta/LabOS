@@ -18,6 +18,7 @@ import { LabStaffFindManySchema as LabStaffFindManySchema } from '../findManyLab
 import { InvoiceFindManySchema as InvoiceFindManySchema } from '../findManyInvoice.schema';
 import { InvoicePaymentFindManySchema as InvoicePaymentFindManySchema } from '../findManyInvoicePayment.schema';
 import { CaseActivityLogFindManySchema as CaseActivityLogFindManySchema } from '../findManyCaseActivityLog.schema';
+import { InvoiceCaseFindManySchema as InvoiceCaseFindManySchema } from '../findManyInvoiceCase.schema';
 import { LabCountOutputTypeArgsObjectSchema as LabCountOutputTypeArgsObjectSchema } from './LabCountOutputTypeArgs.schema'
 
 const makeSchema = () => z.object({
@@ -39,6 +40,7 @@ const makeSchema = () => z.object({
   invoices: z.union([z.boolean(), z.lazy(() => InvoiceFindManySchema)]).optional(),
   invoicePayments: z.union([z.boolean(), z.lazy(() => InvoicePaymentFindManySchema)]).optional(),
   caseActivityLogs: z.union([z.boolean(), z.lazy(() => CaseActivityLogFindManySchema)]).optional(),
+  invoiceCase: z.union([z.boolean(), z.lazy(() => InvoiceCaseFindManySchema)]).optional(),
   _count: z.union([z.boolean(), z.lazy(() => LabCountOutputTypeArgsObjectSchema)]).optional()
 }).strict();
 export const LabIncludeObjectSchema: z.ZodType<Prisma.LabInclude> = makeSchema() as unknown as z.ZodType<Prisma.LabInclude>;

@@ -56,7 +56,7 @@ export interface ArVitalsDTO {
 
 export const RecordPaymentInputSchema = z.object({
 	invoiceId: z.uuid(),
-	amount: z.number().min(0.01, "Amount must be greater than zero."),
+	amount: z.coerce.number<number>().min(0.01, "Amount must be greater than zero."),
 	method: PaymentMethodSchema,
 	reference: z.string().trim().optional(),
 	notes: z.string().trim().optional(),

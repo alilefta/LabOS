@@ -1,11 +1,9 @@
-// app/(public)/statement/[token]/page.tsx
-
 import { notFound } from "next/navigation";
 import { format, isAfter } from "date-fns";
 
-import { CheckCircle2, AlertTriangle, Printer, Phone, Mail, Building2, Stethoscope, FileText, DownloadCloud, Box } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { CheckCircle2, AlertTriangle, Phone, Mail, Stethoscope, FileText } from "lucide-react";
 import { getPublicInvoiceByToken } from "@/data/invoices/get-public-invoice";
+import { PrintInvoiceButton } from "@/components/statement/public-invoice/print-invoice-button";
 
 interface Props {
 	params: Promise<{ token: string }>;
@@ -34,7 +32,7 @@ export default async function PublicStatementPage({ params }: Props) {
 	return (
 		<div className="min-h-screen bg-slate-50 dark:bg-[#09090B] py-8 px-4 sm:px-6 lg:px-8 print:bg-white print:p-0 flex flex-col items-center">
 			{/* Ambient Glowing Background (Hidden on Print) */}
-			<div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-emerald-500/5 rounded-full blur-[120px] pointer-events-none print:hidden" />
+			<div className="absolute top-0 left-1/2 -translate-x-1/2 w-200 h-100 bg-emerald-500/5 rounded-full blur-[120px] pointer-events-none print:hidden" />
 
 			<div className="w-full max-w-4xl space-y-6 relative z-10">
 				{/* --- STICKY FLOAT HEADER (Hidden on Print) --- */}
@@ -49,9 +47,7 @@ export default async function PublicStatementPage({ params }: Props) {
 						</div>
 					</div>
 					<div className="flex items-center gap-2">
-						<Button variant="outline" onClick={() => window.print()} className="rounded-xl h-10 px-4 font-bold border-border bg-white dark:bg-[#121214] shadow-sm text-xs">
-							<Printer className="w-4 h-4 mr-2" /> Print Statement
-						</Button>
+						<PrintInvoiceButton />
 					</div>
 				</div>
 
@@ -114,8 +110,8 @@ export default async function PublicStatementPage({ params }: Props) {
 						</div>
 
 						{/* Memo Area */}
-						<div className="p-4 rounded-2xl bg-slate-50 dark:bg-white/[0.02] border border-border">
-							<span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest block mb-2 flex items-center gap-1.5">
+						<div className="p-4 rounded-2xl bg-slate-50 dark:bg-white/2 border border-border">
+							<span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-2 flex items-center gap-1.5">
 								<FileText className="w-3.5 h-3.5 text-emerald-500" /> Statement Memo
 							</span>
 							<p className="text-xs text-foreground leading-relaxed italic">
@@ -202,7 +198,7 @@ export default async function PublicStatementPage({ params }: Props) {
 function PublicLinkExpiredView() {
 	return (
 		<div className="min-h-screen bg-slate-50 dark:bg-[#09090B] flex flex-col items-center justify-center p-8 text-center">
-			<div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-rose-500/5 rounded-full blur-[100px] pointer-events-none" />
+			<div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-150 h-150 bg-rose-500/5 rounded-full blur-[100px] pointer-events-none" />
 			<div className="relative z-10 max-w-md animate-in fade-in zoom-in-95 duration-500">
 				<div className="w-16 h-16 rounded-3xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-500 mx-auto mb-6 shadow-[0_0_30px_rgba(239,68,68,0.2)]">
 					<AlertTriangle className="w-8 h-8 animate-pulse" />

@@ -299,46 +299,81 @@ export const getClinicsRevenueAction = actionClientWithLab
 export const getClinicsBySearchQueryAction = actionClientWithLab
 	.metadata({
 		actionName: "Get-Clinics-By-Search-Query-Action",
-		requiredLabRole: "ADMIN",
+		requiredLabRole: "STAFF",
 	})
 	.inputSchema(SearchInputSchema)
 	.action(async ({ parsedInput, ctx }) => {
 		const { searchQuery, limit } = parsedInput;
 		const { labId } = ctx;
 
-		try {
-			const clinics = await (
-				await tenantPrisma(labId)
-			).clinic.findMany({
-				where: {
-					labId: labId,
-					name: {
-						startsWith: searchQuery,
-					},
+		const clinics = await (
+			await tenantPrisma(labId)
+		).clinic.findMany({
+			where: {
+				labId: labId,
+				name: {
+					startsWith: searchQuery,
 				},
-				orderBy: {
-					createdAt: "desc",
-				},
-				take: limit,
-				include: {
-					lab: true,
-					dentists: true,
-				},
-			});
+			},
+			orderBy: {
+				createdAt: "desc",
+			},
+			take: limit,
+			include: {
+				dentists: true,
+			},
+		});
 
-			return {
-				clinics: clinics.map((c) => ({
-					...c,
-					currentBalance: c.currentBalance === null ? null : Number(c.currentBalance),
-					discount: c.discount === null ? null : Number(c.discount),
-					creditLimit: c.creditLimit === null ? null : Number(c.creditLimit),
-				})),
-			};
-		} catch (e) {
-			if (e instanceof APIError || e instanceof Error) {
-				console.error("[Get-Clinics-By-Search-Query-Action] Error", e.message);
-			}
-			console.error(e);
-			throw e;
-		}
+		return {
+			clinics: clinics.map((c) => ({
+				...c,
+				currentBalance: c.currentBalance === null ? null : Number(c.currentBalance),
+				discount: c.discount === null ? null : Number(c.discount),
+				creditLimit: c.creditLimit === null ? null : Number(c.creditLimit),
+			})),
+		};
+	});
+
+export const getBaseClinicsBySearchQueryAction = actionClientWithLab
+	.metadata({
+		actionName: "Get-Base-Clinics-By-Search-Query-Action",
+		requiredLabRole: "STAFF", // Changed to STAFF so any lab user can run selectors
+	})
+	.inputSchema(SearchInputSchema)
+	.action(async ({ parsedInput, ctx }) => {
+		const { searchQuery, limit } = parsedInput;
+		const { labId } = ctx;
+
+		const prisma = await tenantPrisma(labId);
+
+		// ── HIGH-PERFORMANCE FLAT QUERY ─────────────────────────────────
+		// By selecting only the specific fields used by the UI dropdown,
+		// we avoid loading heavy text columns (notes, description) and
+		// completely eliminate the join overhead for dentists/labs.
+		const clinics = await prisma.clinic.findMany({
+			where: {
+				labId: labId,
+				name: {
+					startsWith: searchQuery,
+					mode: "insensitive", // 🔥 UX FIX: case-insensitive searching
+				},
+			},
+			orderBy: {
+				name: "asc", // Alphabetical sorting is better for dropdown scanability
+			},
+			take: limit ?? 10,
+			select: {
+				id: true,
+				name: true,
+				city: true,
+				type: true,
+				phoneNumber: true,
+				email: true,
+				status: true,
+				labId: true,
+				website: true,
+			},
+		});
+
+		return { clinics };
 	});

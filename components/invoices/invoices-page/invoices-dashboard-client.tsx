@@ -73,7 +73,7 @@ export function InvoicesDashboardClient({ labId, period }: Props) {
 					invoice={{
 						id: paymentInvoice.id,
 						invoiceNumber: paymentInvoice.invoiceNumber,
-						clinicName: paymentInvoice.clinicName,
+						clinicName: paymentInvoice.clinicName ?? "Selected Clinic",
 						amountDue: paymentInvoice.amountDue,
 						total: paymentInvoice.total,
 					}}

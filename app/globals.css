@@ -310,3 +310,15 @@
 		/* max-height: var(--radix-popover-content-available-height); */
 	}
 }
+
+@media print {
+	/* @page {
+		margin: 1cm;
+		size: A4 portrait;
+	} */
+	/* Force browsers to print your background colors/emerald tints */
+	/* * {
+		-webkit-print-color-adjust: exact !important;
+		print-color-adjust: exact !important;
+	} */
+}

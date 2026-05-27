@@ -3,14 +3,16 @@
 import { notFound, redirect } from "next/navigation";
 import { getInvoiceDossierData } from "@/data/invoices/get-invoice-dossier"; // Import our new separated function
 import { getServerSession } from "@/lib/get-session";
-import { InvoiceDossierClient } from "@/components/invoices/invoice-details/left-pane/invoice-dossier-client";
+import { InvoiceDossierClient } from "@/components/invoices/invoice-details/invoice-dossier-client";
 
 interface Props {
 	params: Promise<{ invoiceId: string }>;
+	searchParams: Promise<{ action?: string }>;
 }
 
-export default async function InvoiceDetailPage({ params }: Props) {
+export default async function InvoiceDetailPage({ params, searchParams }: Props) {
 	const { invoiceId } = await params;
+	const { action } = await searchParams;
 
 	// 1. Fetch the secure, pre-validated and formatted source of truth [1]
 	const result = await getInvoiceDossierData(invoiceId);
@@ -32,7 +34,7 @@ export default async function InvoiceDetailPage({ params }: Props) {
 	return (
 		<div className="flex flex-col h-full bg-background">
 			{/* Pass the pristine DTO straight to the Client Component */}
-			<InvoiceDossierClient initialData={invoiceData} labId={session?.user.labId ?? ""} />
+			<InvoiceDossierClient initialData={invoiceData} labId={session?.user.labId ?? ""} initialAction={action} />
 		</div>
 	);
 }

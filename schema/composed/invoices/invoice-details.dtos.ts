@@ -10,7 +10,7 @@ export const InvoicePaymentSchema = z.object({
 	method: PaymentMethodSchema,
 	reference: z.string().nullable(),
 	notes: z.string().nullable(),
-	paidAt: z.coerce.date(), // Coerce safely handles ISO date strings from JSON
+	paidAt: z.coerce.date<Date>(), // Coerce safely handles ISO date strings from JSON
 });
 
 export type InvoicePaymentDTO = z.infer<typeof InvoicePaymentSchema>;

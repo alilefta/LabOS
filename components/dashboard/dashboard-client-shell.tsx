@@ -10,15 +10,17 @@ const DashboardTopHeader = dynamic(() => import("./dashboard-top-header").then((
 
 export function DashboardClientShell({ children }: { children: ReactNode }) {
 	return (
-		<div className="flex h-screen w-full overflow-hidden bg-background selection:bg-primary/30">
-			<div className="hidden lg:block shrink-0 border-r border-border bg-card dark:bg-[#09090B] z-20">
+		<div className="flex h-screen w-full overflow-hidden bg-background selection:bg-primary/30 print:h-auto print:overflow-visible print:bg-white">
+			<div className="hidden lg:block shrink-0 border-r border-border bg-card dark:bg-[#09090B] z-20 print:hidden">
 				<DashboardSidebar />
 			</div>
-			<div className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
-				<DashboardTopHeader />
-				<main className="flex-1 overflow-hidden relative">
+			<div className="flex-1 flex flex-col min-w-0 overflow-hidden relative print:overflow-visible">
+				<div className="print:hidden">
+					<DashboardTopHeader />
+				</div>
+				<main className="flex-1 overflow-hidden relative print:overflow-visible print:p-0 print:h-auto">
 					<div
-						className="absolute top-0 inset-x-0 h-125 pointer-events-none -z-10"
+						className="absolute top-0 inset-x-0 h-125 pointer-events-none -z-10 print:hidden "
 						style={{
 							background: "radial-gradient(ellipse at top, rgba(var(--glow-primary-rgb), 0.06) 0%, transparent 70%)",
 						}}
