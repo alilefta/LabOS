@@ -9,7 +9,7 @@ import { APIError } from "better-auth";
 export const createWorkTypeAction = actionClientWithLab
 	.metadata({
 		actionName: "Create-New-WorkType-Action",
-		requiredLabRole: "ADMIN",
+		requiredLabRole: "STAFF",
 	})
 	.inputSchema(CreateWorkTypeInputSchema)
 	.action(async ({ parsedInput, ctx }) => {
@@ -47,7 +47,7 @@ export const createWorkTypeAction = actionClientWithLab
 export const getWorkTypeBySearchQueryAction = actionClientWithLab
 	.metadata({
 		actionName: "Get-WorkTypes-By-Search-Query-Action",
-		requiredLabRole: "ADMIN",
+		requiredLabRole: "STAFF",
 	})
 	.inputSchema(SearchInputSchema)
 	.action(async ({ parsedInput, ctx }) => {
@@ -87,7 +87,7 @@ export const getWorkTypeBySearchQueryAction = actionClientWithLab
 export const getWorkTypesByCategoryAction = actionClientWithLab
 	.metadata({
 		actionName: "Get-WorkTypes-By-CategoryId-Action",
-		requiredLabRole: "ADMIN",
+		requiredLabRole: "STAFF",
 	})
 	.inputSchema(GetWorkTypesByCategoryInputSchema)
 	.action(async ({ parsedInput, ctx }) => {

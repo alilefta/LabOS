@@ -1,6 +1,6 @@
 // schema/composed/team.dtos.ts
+import { CommissionType, LabRole, StaffRoleCategory, StaffRoleCategorySchema } from "@/schema/base/enums.base";
 import { z } from "zod";
-import { StaffRoleCategory, LabRole, CommissionType } from "../base/enums.base";
 
 export type SystemAccessState = "ACTIVE_USER" | "PENDING_INVITE" | "NO_ACCESS";
 
@@ -24,11 +24,12 @@ export interface StaffMemberDTO {
 
 	// Operational Metrics (Preventing N+1)
 	activeCaseCount: number; // Cases currently ASSIGNED or PROCESSING
+	isActive: boolean;
 }
 
 // Filter Schema for the Client Wrapper
 export const TeamFiltersSchema = z.object({
-	roleCategories: z.array(z.nativeEnum(StaffRoleCategory)).default([]),
+	roleCategories: z.array(StaffRoleCategorySchema).default([]),
 	accessStates: z.array(z.enum(["ACTIVE_USER", "PENDING_INVITE", "NO_ACCESS"])).default([]),
 	isActive: z.boolean().default(true), // Toggle to see archived/fired staff
 });
@@ -40,3 +41,17 @@ export const DEFAULT_TEAM_FILTERS: TeamFilters = {
 	accessStates: [],
 	isActive: true,
 };
+
+export interface StaffVitalsDTO {
+	// Group 1: Identity (Total counts)
+	totalActiveStaff: number;
+	pendingInviteCount: number;
+
+	// Group 2: Workload (Prisma sum of assigned cases across active staff)
+	labCapacityPct: number; // e.g. 82 (%) - average capacity utilization
+	totalActiveCases: number;
+
+	// Group 3: Velocity (Prisma avg of `completedAt - createdAt` on Cases)
+	avgTurnaroundDays: number; // e.g. 3.2
+	turnaroundDeltaPercent: number; // compared to last month (e.g. -15.4%)
+}

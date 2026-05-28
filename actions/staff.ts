@@ -39,13 +39,10 @@ export const createLabStaffAction = actionClientWithLab
 					commissionValue: commissionValue ?? null,
 					labId: labId,
 				},
-				include: {
-					lab: true,
-				},
 			});
 
 			return {
-				staff: normalizeLabStaff(staff),
+				staff: { ...normalizeLabStaff(staff), labInvitation: null },
 			};
 		} catch (e) {
 			if (e instanceof APIError || e instanceof Error) {

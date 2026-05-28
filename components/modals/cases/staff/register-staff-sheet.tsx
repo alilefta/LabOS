@@ -21,16 +21,6 @@ import { useEffect } from "react";
 
 type DataShape = LabStaffDetailsUI[];
 
-// const transform = {
-// 	input: (value: number | undefined) => (isNaN(value) || value === undefined ? "" : value.toString()),
-// 	output: (e: ChangeEvent<HTMLInputElement, HTMLInputElement>) => {
-// 		const output = parseFloat(e.target.value);
-// 		return isNaN(output) ? undefined : output;
-// 	},
-// };
-
-// --- MOCK ACTION (Replace with your actual import) ---
-
 interface Props {
 	isOpen: boolean;
 	onClose: () => void;
@@ -153,10 +143,10 @@ export function RegisterStaffSheet({ isOpen, onClose, onStaffCreated, requiredRo
 				</SheetHeader>
 
 				{/* --- FORM BODY --- */}
-				<div className="flex-1 overflow-y-auto p-8 space-y-10 custom-scrollbar">
-					<form id="register-staff-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-10">
+				<div className="flex-1 overflow-y-auto p-8 flex flex-col gap-10 custom-scrollbar">
+					<form id="register-staff-form" onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-10">
 						{/* SECTION 1: SYSTEM ROLE (Visual Grid) */}
-						<section className="space-y-4">
+						<section className="flex flex-col gap-4">
 							<div className="flex items-center justify-between px-1">
 								<label className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">System Role</label>
 								<span className="text-[10px] font-mono text-primary font-bold bg-primary/10 px-2 py-0.5 rounded-md">{selectedRole}</span>
@@ -212,7 +202,7 @@ export function RegisterStaffSheet({ isOpen, onClose, onStaffCreated, requiredRo
 						</section>
 
 						{/* SECTION 2: IDENTITY */}
-						<div className="space-y-5">
+						<div className="flex flex-col gap-5">
 							<div className="flex items-center gap-2 mb-2 pb-2 border-b border-border/50">
 								<UserCog className="w-4 h-4 text-primary" />
 								<h4 className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">Identity & Contact</h4>
@@ -240,7 +230,7 @@ export function RegisterStaffSheet({ isOpen, onClose, onStaffCreated, requiredRo
 						</div>
 
 						{/* SECTION 3: ADDRESS (NEW) */}
-						<div className="space-y-5">
+						<div className="flex flex-col gap-5">
 							<div className="flex items-center gap-2 mb-2 pb-2 border-b border-border/50">
 								<MapPin className="w-4 h-4 text-primary" />
 								<h4 className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">Location & Logistics</h4>
@@ -274,7 +264,7 @@ export function RegisterStaffSheet({ isOpen, onClose, onStaffCreated, requiredRo
 						</div>
 
 						{/* SECTION 4: JOB SPECIFICS */}
-						<div className="space-y-5">
+						<div className="flex flex-col gap-5">
 							<div className="flex items-center gap-2 mb-2 pb-2 border-b border-border/50">
 								<Briefcase className="w-4 h-4 text-primary" />
 								<h4 className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">Job Details</h4>
@@ -302,7 +292,7 @@ export function RegisterStaffSheet({ isOpen, onClose, onStaffCreated, requiredRo
 						</div>
 
 						{/* SECTION 4: COMPENSATION (Dynamic) */}
-						<div className="space-y-5 pt-6 border-t border-border">
+						<div className="flex flex-col gap-5 pt-6 border-t border-border">
 							<div className="flex items-center gap-2 mb-4">
 								<Wallet className="w-4 h-4 text-emerald-500" />
 								<h4 className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">Compensation Model</h4>

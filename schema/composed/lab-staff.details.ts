@@ -5,11 +5,13 @@ import { CommissionTypeSchema, StaffRoleCategorySchema } from "../base/enums.bas
 import { emptyToUndefinedTransformer } from "../base/utils.base";
 import { CaseStaffAssignmentBaseSchema } from "../base/case-staff-assignment.base";
 import { LabUserBaseSchema } from "../base/lab-user.base";
+import { LabInvitationBaseSchema } from "../base/lab-invitation.base";
 
 export const LabStaffDetailsSchema = LabStaffBaseSchema.extend({
 	lab: LabBaseSchema,
 	caseAssignments: z.array(CaseStaffAssignmentBaseSchema),
 	labUser: LabUserBaseSchema.nullable(),
+	labInvitation: LabInvitationBaseSchema.nullable(),
 });
 
 export type LabStaffDetails = z.infer<typeof LabStaffDetailsSchema>;
@@ -18,6 +20,7 @@ export const LabStaffDetailsUISchema = LabStaffBaseSchema.extend({
 	lab: LabBaseSchema.optional(),
 	caseAssignments: z.array(CaseStaffAssignmentBaseSchema).optional(),
 	labUser: LabUserBaseSchema.optional(),
+	labInvitation: LabInvitationBaseSchema.nullable(),
 });
 
 export type LabStaffDetailsUI = z.infer<typeof LabStaffDetailsUISchema>;

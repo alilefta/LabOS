@@ -16,10 +16,11 @@ export interface UserContext {
 	role: LabRole;
 	staffCategory?: StaffRoleCategory | null;
 	staffId?: string | null;
+	labId?: string | null;
 }
 
 export function getPermissions(user: UserContext) {
-	const { role, staffCategory, staffId } = user;
+	const { role, staffCategory, staffId, labId } = user;
 
 	// --- HELPER GROUPS ---
 	const isOwner = role === "OWNER";
@@ -60,6 +61,8 @@ export function getPermissions(user: UserContext) {
 
 		// --- NEW: Pass these through so any component can access the user's raw identity ---
 		staffId: staffId || null,
+		labId,
+
 		role,
 		staffCategory: staffCategory || null,
 	};

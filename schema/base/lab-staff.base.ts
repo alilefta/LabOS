@@ -1,6 +1,5 @@
 import z from "zod";
 import { CommissionTypeSchema, StaffRoleCategorySchema } from "./enums.base";
-
 export const LabStaffBaseSchema = z.object({
 	id: z.string(),
 	labId: z.string(),
@@ -18,6 +17,7 @@ export const LabStaffBaseSchema = z.object({
 	specialization: z.string().nullable(),
 	commissionType: CommissionTypeSchema,
 	commissionValue: z.number().nullable(),
+
 	createdAt: z.date(),
 	updatedAt: z.date(),
 });

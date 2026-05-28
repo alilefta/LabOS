@@ -24,7 +24,7 @@ export default async function proxy(request: NextRequest) {
 	const authRoutes = ["/sign-in", "/sign-up"];
 	const onboardingRoute = "/onboarding";
 	const dashboardRoute = "/dashboard";
-	const protectedRoutes = ["/clinics", "/settings", "/cases", "/invoices"];
+	const protectedRoutes = ["/clinics", "/settings", "/cases", "/invoices", "/team"];
 
 	// 1. FAST PUBLIC CHECK (Allows /statement/12345 to pass)
 	const isExactPublic = exactPublicRoutes.includes(pathname);

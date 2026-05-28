@@ -3,11 +3,9 @@
 import { tenantPrisma } from "@/lib/prisma";
 import { actionClientWithLab } from "@/lib/safe-action";
 
-import { APIError } from "better-auth";
 import z from "zod/v3";
 import { ERRORS } from "@/lib/errors";
-import { caseWorkItemServerToFrontDTO } from "@/lib/server-only-helpers";
-import { composeWorkItem, normalizeWorkItem } from "@/lib/mappers";
+import { normalizeWorkItem } from "@/lib/mappers";
 
 export const getCaseWorkItemByCase = actionClientWithLab
 	.metadata({
@@ -28,29 +26,22 @@ export const getCaseWorkItemByCase = actionClientWithLab
 			throw ERRORS.BAD_REQUEST;
 		}
 
-		try {
-			const caseWorkItems = await (
-				await tenantPrisma(labId)
-			).caseWorkItem.findMany({
-				where: {
-					dentalCaseId: caseId,
+		const caseWorkItems = await (
+			await tenantPrisma(labId)
+		).caseWorkItem.findMany({
+			where: {
+				dentalCaseId: caseId,
 
-					labId,
-					dentalCase: caseNumber
-						? {
-								caseNumber: caseNumber,
-							}
-						: undefined,
-				},
-			});
+				labId,
+				dentalCase: caseNumber
+					? {
+							caseNumber: caseNumber,
+						}
+					: undefined,
+			},
+		});
 
-			return {
-				caseWorkItems: caseWorkItems.map(normalizeWorkItem),
-			};
-		} catch (e) {
-			if (e instanceof APIError || e instanceof Error) {
-				console.error("[Get-Case-Work-Items-By-Case-Action] Error", e.message);
-			}
-			throw e;
-		}
+		return {
+			caseWorkItems: caseWorkItems.map(normalizeWorkItem),
+		};
 	});
