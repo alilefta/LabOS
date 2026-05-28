@@ -21,6 +21,7 @@ export const LabStaffModelSchema = z.object({
     commissionType: CommissionTypeSchema,
     commissionValue: z.number().nullable(),
     labUser: z.unknown().nullable(),
+    labInvitation: z.unknown().nullable(),
     caseAssignments: z.array(z.unknown()),
     createdAt: z.date(),
     updatedAt: z.date()

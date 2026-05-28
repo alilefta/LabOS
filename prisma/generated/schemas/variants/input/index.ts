@@ -23,6 +23,7 @@ export { InvoiceCaseInputSchema } from './InvoiceCase.input';
 export { InvoicePaymentInputSchema } from './InvoicePayment.input';
 export { LabSubscriptionPlanInputSchema } from './LabSubscriptionPlan.input';
 export { LabUserInputSchema } from './LabUser.input';
+export { LabInvitationInputSchema } from './LabInvitation.input';
 export { SuperUserInputSchema } from './SuperUser.input';
 export { AuthUserInputSchema } from './AuthUser.input';
 export { SessionInputSchema } from './Session.input';

@@ -18,7 +18,8 @@ import { LabStaffCreateNestedManyWithoutLabInputObjectSchema as LabStaffCreateNe
 import { InvoiceCreateNestedManyWithoutLabInputObjectSchema as InvoiceCreateNestedManyWithoutLabInputObjectSchema } from './InvoiceCreateNestedManyWithoutLabInput.schema';
 import { InvoicePaymentCreateNestedManyWithoutLabInputObjectSchema as InvoicePaymentCreateNestedManyWithoutLabInputObjectSchema } from './InvoicePaymentCreateNestedManyWithoutLabInput.schema';
 import { CaseActivityLogCreateNestedManyWithoutLabInputObjectSchema as CaseActivityLogCreateNestedManyWithoutLabInputObjectSchema } from './CaseActivityLogCreateNestedManyWithoutLabInput.schema';
-import { InvoiceCaseCreateNestedManyWithoutLabInputObjectSchema as InvoiceCaseCreateNestedManyWithoutLabInputObjectSchema } from './InvoiceCaseCreateNestedManyWithoutLabInput.schema'
+import { InvoiceCaseCreateNestedManyWithoutLabInputObjectSchema as InvoiceCaseCreateNestedManyWithoutLabInputObjectSchema } from './InvoiceCaseCreateNestedManyWithoutLabInput.schema';
+import { LabInvitationCreateNestedManyWithoutLabInputObjectSchema as LabInvitationCreateNestedManyWithoutLabInputObjectSchema } from './LabInvitationCreateNestedManyWithoutLabInput.schema'
 
 const makeSchema = () => z.object({
   id: z.string().optional(),
@@ -47,7 +48,8 @@ const makeSchema = () => z.object({
   invoices: z.lazy(() => InvoiceCreateNestedManyWithoutLabInputObjectSchema).optional(),
   invoicePayments: z.lazy(() => InvoicePaymentCreateNestedManyWithoutLabInputObjectSchema).optional(),
   caseActivityLogs: z.lazy(() => CaseActivityLogCreateNestedManyWithoutLabInputObjectSchema).optional(),
-  invoiceCase: z.lazy(() => InvoiceCaseCreateNestedManyWithoutLabInputObjectSchema).optional()
+  invoiceCase: z.lazy(() => InvoiceCaseCreateNestedManyWithoutLabInputObjectSchema).optional(),
+  invitations: z.lazy(() => LabInvitationCreateNestedManyWithoutLabInputObjectSchema).optional()
 }).strict();
 export const LabCreateInputObjectSchema: z.ZodType<Prisma.LabCreateInput> = makeSchema() as unknown as z.ZodType<Prisma.LabCreateInput>;
 export const LabCreateInputObjectZodSchema = makeSchema();

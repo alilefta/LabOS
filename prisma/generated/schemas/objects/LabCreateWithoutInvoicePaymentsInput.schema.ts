@@ -17,7 +17,8 @@ import { LabUserCreateNestedManyWithoutLabInputObjectSchema as LabUserCreateNest
 import { LabStaffCreateNestedManyWithoutLabInputObjectSchema as LabStaffCreateNestedManyWithoutLabInputObjectSchema } from './LabStaffCreateNestedManyWithoutLabInput.schema';
 import { InvoiceCreateNestedManyWithoutLabInputObjectSchema as InvoiceCreateNestedManyWithoutLabInputObjectSchema } from './InvoiceCreateNestedManyWithoutLabInput.schema';
 import { CaseActivityLogCreateNestedManyWithoutLabInputObjectSchema as CaseActivityLogCreateNestedManyWithoutLabInputObjectSchema } from './CaseActivityLogCreateNestedManyWithoutLabInput.schema';
-import { InvoiceCaseCreateNestedManyWithoutLabInputObjectSchema as InvoiceCaseCreateNestedManyWithoutLabInputObjectSchema } from './InvoiceCaseCreateNestedManyWithoutLabInput.schema'
+import { InvoiceCaseCreateNestedManyWithoutLabInputObjectSchema as InvoiceCaseCreateNestedManyWithoutLabInputObjectSchema } from './InvoiceCaseCreateNestedManyWithoutLabInput.schema';
+import { LabInvitationCreateNestedManyWithoutLabInputObjectSchema as LabInvitationCreateNestedManyWithoutLabInputObjectSchema } from './LabInvitationCreateNestedManyWithoutLabInput.schema'
 
 const makeSchema = () => z.object({
   id: z.string().optional(),
@@ -46,7 +47,8 @@ const makeSchema = () => z.object({
   staff: z.lazy(() => LabStaffCreateNestedManyWithoutLabInputObjectSchema).optional(),
   invoices: z.lazy(() => InvoiceCreateNestedManyWithoutLabInputObjectSchema).optional(),
   caseActivityLogs: z.lazy(() => CaseActivityLogCreateNestedManyWithoutLabInputObjectSchema).optional(),
-  invoiceCase: z.lazy(() => InvoiceCaseCreateNestedManyWithoutLabInputObjectSchema).optional()
+  invoiceCase: z.lazy(() => InvoiceCaseCreateNestedManyWithoutLabInputObjectSchema).optional(),
+  invitations: z.lazy(() => LabInvitationCreateNestedManyWithoutLabInputObjectSchema).optional()
 }).strict();
 export const LabCreateWithoutInvoicePaymentsInputObjectSchema: z.ZodType<Prisma.LabCreateWithoutInvoicePaymentsInput> = makeSchema() as unknown as z.ZodType<Prisma.LabCreateWithoutInvoicePaymentsInput>;
 export const LabCreateWithoutInvoicePaymentsInputObjectZodSchema = makeSchema();

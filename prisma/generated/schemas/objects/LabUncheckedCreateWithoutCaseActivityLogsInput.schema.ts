@@ -17,7 +17,8 @@ import { LabUserUncheckedCreateNestedManyWithoutLabInputObjectSchema as LabUserU
 import { LabStaffUncheckedCreateNestedManyWithoutLabInputObjectSchema as LabStaffUncheckedCreateNestedManyWithoutLabInputObjectSchema } from './LabStaffUncheckedCreateNestedManyWithoutLabInput.schema';
 import { InvoiceUncheckedCreateNestedManyWithoutLabInputObjectSchema as InvoiceUncheckedCreateNestedManyWithoutLabInputObjectSchema } from './InvoiceUncheckedCreateNestedManyWithoutLabInput.schema';
 import { InvoicePaymentUncheckedCreateNestedManyWithoutLabInputObjectSchema as InvoicePaymentUncheckedCreateNestedManyWithoutLabInputObjectSchema } from './InvoicePaymentUncheckedCreateNestedManyWithoutLabInput.schema';
-import { InvoiceCaseUncheckedCreateNestedManyWithoutLabInputObjectSchema as InvoiceCaseUncheckedCreateNestedManyWithoutLabInputObjectSchema } from './InvoiceCaseUncheckedCreateNestedManyWithoutLabInput.schema'
+import { InvoiceCaseUncheckedCreateNestedManyWithoutLabInputObjectSchema as InvoiceCaseUncheckedCreateNestedManyWithoutLabInputObjectSchema } from './InvoiceCaseUncheckedCreateNestedManyWithoutLabInput.schema';
+import { LabInvitationUncheckedCreateNestedManyWithoutLabInputObjectSchema as LabInvitationUncheckedCreateNestedManyWithoutLabInputObjectSchema } from './LabInvitationUncheckedCreateNestedManyWithoutLabInput.schema'
 
 const makeSchema = () => z.object({
   id: z.string().optional(),
@@ -46,7 +47,8 @@ const makeSchema = () => z.object({
   staff: z.lazy(() => LabStaffUncheckedCreateNestedManyWithoutLabInputObjectSchema).optional(),
   invoices: z.lazy(() => InvoiceUncheckedCreateNestedManyWithoutLabInputObjectSchema).optional(),
   invoicePayments: z.lazy(() => InvoicePaymentUncheckedCreateNestedManyWithoutLabInputObjectSchema).optional(),
-  invoiceCase: z.lazy(() => InvoiceCaseUncheckedCreateNestedManyWithoutLabInputObjectSchema).optional()
+  invoiceCase: z.lazy(() => InvoiceCaseUncheckedCreateNestedManyWithoutLabInputObjectSchema).optional(),
+  invitations: z.lazy(() => LabInvitationUncheckedCreateNestedManyWithoutLabInputObjectSchema).optional()
 }).strict();
 export const LabUncheckedCreateWithoutCaseActivityLogsInputObjectSchema: z.ZodType<Prisma.LabUncheckedCreateWithoutCaseActivityLogsInput> = makeSchema() as unknown as z.ZodType<Prisma.LabUncheckedCreateWithoutCaseActivityLogsInput>;
 export const LabUncheckedCreateWithoutCaseActivityLogsInputObjectZodSchema = makeSchema();

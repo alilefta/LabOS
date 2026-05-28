@@ -10,6 +10,7 @@ import { EnumCommissionTypeFieldUpdateOperationsInputObjectSchema as EnumCommiss
 import { NullableDecimalFieldUpdateOperationsInputObjectSchema as NullableDecimalFieldUpdateOperationsInputObjectSchema } from './NullableDecimalFieldUpdateOperationsInput.schema';
 import { DateTimeFieldUpdateOperationsInputObjectSchema as DateTimeFieldUpdateOperationsInputObjectSchema } from './DateTimeFieldUpdateOperationsInput.schema';
 import { LabUserUncheckedUpdateOneWithoutLabStaffNestedInputObjectSchema as LabUserUncheckedUpdateOneWithoutLabStaffNestedInputObjectSchema } from './LabUserUncheckedUpdateOneWithoutLabStaffNestedInput.schema';
+import { LabInvitationUncheckedUpdateOneWithoutLabStaffNestedInputObjectSchema as LabInvitationUncheckedUpdateOneWithoutLabStaffNestedInputObjectSchema } from './LabInvitationUncheckedUpdateOneWithoutLabStaffNestedInput.schema';
 import { CaseStaffAssignmentUncheckedUpdateManyWithoutStaffNestedInputObjectSchema as CaseStaffAssignmentUncheckedUpdateManyWithoutStaffNestedInputObjectSchema } from './CaseStaffAssignmentUncheckedUpdateManyWithoutStaffNestedInput.schema'
 
 import { DecimalJSLikeSchema, isValidDecimalInput } from '../../helpers/decimal-helpers';
@@ -39,6 +40,7 @@ const makeSchema = () => z.object({
   createdAt: z.union([z.coerce.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputObjectSchema)]).optional(),
   updatedAt: z.union([z.coerce.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputObjectSchema)]).optional(),
   labUser: z.lazy(() => LabUserUncheckedUpdateOneWithoutLabStaffNestedInputObjectSchema).optional(),
+  labInvitation: z.lazy(() => LabInvitationUncheckedUpdateOneWithoutLabStaffNestedInputObjectSchema).optional(),
   caseAssignments: z.lazy(() => CaseStaffAssignmentUncheckedUpdateManyWithoutStaffNestedInputObjectSchema).optional()
 }).strict();
 export const LabStaffUncheckedUpdateWithoutLabInputObjectSchema: z.ZodType<Prisma.LabStaffUncheckedUpdateWithoutLabInput> = makeSchema() as unknown as z.ZodType<Prisma.LabStaffUncheckedUpdateWithoutLabInput>;

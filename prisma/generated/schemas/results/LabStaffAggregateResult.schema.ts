@@ -18,6 +18,7 @@ export const LabStaffAggregateResultSchema = z.object({  _count: z.object({
     commissionType: z.number(),
     commissionValue: z.number(),
     labUser: z.number(),
+    labInvitation: z.number(),
     caseAssignments: z.number(),
     createdAt: z.number(),
     updatedAt: z.number()

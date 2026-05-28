@@ -1,0 +1,12 @@
+import type { Prisma } from '../../../generated/prisma/client';
+import * as z from 'zod';
+import { LabInvitationOrderByWithRelationInputObjectSchema as LabInvitationOrderByWithRelationInputObjectSchema } from './objects/LabInvitationOrderByWithRelationInput.schema';
+import { LabInvitationWhereInputObjectSchema as LabInvitationWhereInputObjectSchema } from './objects/LabInvitationWhereInput.schema';
+import { LabInvitationWhereUniqueInputObjectSchema as LabInvitationWhereUniqueInputObjectSchema } from './objects/LabInvitationWhereUniqueInput.schema';
+import { LabInvitationCountAggregateInputObjectSchema as LabInvitationCountAggregateInputObjectSchema } from './objects/LabInvitationCountAggregateInput.schema';
+import { LabInvitationMinAggregateInputObjectSchema as LabInvitationMinAggregateInputObjectSchema } from './objects/LabInvitationMinAggregateInput.schema';
+import { LabInvitationMaxAggregateInputObjectSchema as LabInvitationMaxAggregateInputObjectSchema } from './objects/LabInvitationMaxAggregateInput.schema';
+
+export const LabInvitationAggregateSchema: z.ZodType<Prisma.LabInvitationAggregateArgs> = z.object({ orderBy: z.union([LabInvitationOrderByWithRelationInputObjectSchema, LabInvitationOrderByWithRelationInputObjectSchema.array()]).optional(), where: LabInvitationWhereInputObjectSchema.optional(), cursor: LabInvitationWhereUniqueInputObjectSchema.optional(), take: z.number().optional(), skip: z.number().optional(), _count: z.union([ z.literal(true), LabInvitationCountAggregateInputObjectSchema ]).optional(), _min: LabInvitationMinAggregateInputObjectSchema.optional(), _max: LabInvitationMaxAggregateInputObjectSchema.optional() }).strict() as unknown as z.ZodType<Prisma.LabInvitationAggregateArgs>;
+
+export const LabInvitationAggregateZodSchema = z.object({ orderBy: z.union([LabInvitationOrderByWithRelationInputObjectSchema, LabInvitationOrderByWithRelationInputObjectSchema.array()]).optional(), where: LabInvitationWhereInputObjectSchema.optional(), cursor: LabInvitationWhereUniqueInputObjectSchema.optional(), take: z.number().optional(), skip: z.number().optional(), _count: z.union([ z.literal(true), LabInvitationCountAggregateInputObjectSchema ]).optional(), _min: LabInvitationMinAggregateInputObjectSchema.optional(), _max: LabInvitationMaxAggregateInputObjectSchema.optional() }).strict();

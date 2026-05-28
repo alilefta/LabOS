@@ -40,6 +40,7 @@ export default async function InvoicesDashboardPage({ searchParams }: { searchPa
 	const res = await getUninvoicedClinicsSummary();
 
 	const pendingBillingSummary = res.success ? res.data : ({ clinics: [], totalUnbilledCases: 0 } as UninvoicedClinicsSummary);
+
 	await queryClient.prefetchInfiniteQuery({
 		queryKey: ["invoices-list", labId, "", DEFAULT_INVOICE_FILTERS],
 		queryFn: async ({ pageParam }): Promise<GetInvoicesListResult> => {

@@ -4,6 +4,7 @@ import { SortOrderSchema } from '../enums/SortOrder.schema';
 import { SortOrderInputObjectSchema as SortOrderInputObjectSchema } from './SortOrderInput.schema';
 import { LabOrderByWithRelationInputObjectSchema as LabOrderByWithRelationInputObjectSchema } from './LabOrderByWithRelationInput.schema';
 import { LabUserOrderByWithRelationInputObjectSchema as LabUserOrderByWithRelationInputObjectSchema } from './LabUserOrderByWithRelationInput.schema';
+import { LabInvitationOrderByWithRelationInputObjectSchema as LabInvitationOrderByWithRelationInputObjectSchema } from './LabInvitationOrderByWithRelationInput.schema';
 import { CaseStaffAssignmentOrderByRelationAggregateInputObjectSchema as CaseStaffAssignmentOrderByRelationAggregateInputObjectSchema } from './CaseStaffAssignmentOrderByRelationAggregateInput.schema'
 
 const makeSchema = () => z.object({
@@ -27,6 +28,7 @@ const makeSchema = () => z.object({
   updatedAt: SortOrderSchema.optional(),
   lab: z.lazy(() => LabOrderByWithRelationInputObjectSchema).optional(),
   labUser: z.lazy(() => LabUserOrderByWithRelationInputObjectSchema).optional(),
+  labInvitation: z.lazy(() => LabInvitationOrderByWithRelationInputObjectSchema).optional(),
   caseAssignments: z.lazy(() => CaseStaffAssignmentOrderByRelationAggregateInputObjectSchema).optional()
 }).strict();
 export const LabStaffOrderByWithRelationInputObjectSchema: z.ZodType<Prisma.LabStaffOrderByWithRelationInput> = makeSchema() as unknown as z.ZodType<Prisma.LabStaffOrderByWithRelationInput>;

@@ -230,6 +230,8 @@ model Lab {
 
   invoiceCase InvoiceCase[]
 
+  invitations LabInvitation[]
+
   nextInvoiceNumber Int @default(0)
 
   createdAt DateTime @default(now())
@@ -623,7 +625,8 @@ model LabStaff {
   commissionValue Decimal?       @db.Decimal(10, 2) // % or fixed amount
 
   // THE LINK: 1:1 Optional relationship to a System Account
-  labUser LabUser? // Defined on the other side
+  labUser       LabUser? // Defined on the other side
+  labInvitation LabInvitation? // NEW: Track if they have a pending invite
 
   // Operational History
   caseAssignments CaseStaffAssignment[]
@@ -850,6 +853,30 @@ model LabUser {
   activityLogs CaseActivityLog[]
 
   @@index([labId])
+}
+
+/// THE INVITATION SYSTEM
+/// Manages pending secure links sent to staff to join the software.
+model LabInvitation {
+  id    String @id @default(uuid())
+  token String @unique @default(uuid()) // Secure token for the URL (e.g. /invite/[token])
+  email String // The email the invite was sent to
+
+  labId String
+  lab   Lab    @relation(fields: [labId], references: [id], onDelete: Cascade)
+
+  // The crucial link: When they sign up, the new LabUser is bound to this physical worker
+  labStaffId String?   @unique
+  labStaff   LabStaff? @relation(fields: [labStaffId], references: [id], onDelete: Cascade)
+
+  // The system permissions they will be granted upon successful sign-up
+  roleToGrant LabRole @default(STAFF)
+
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([labId])
+  @@index([email])
 }
 
 model SuperUser {

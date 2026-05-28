@@ -18,6 +18,7 @@ export const LabStaffFindFirstResultSchema = z.nullable(z.object({
   commissionType: z.unknown(),
   commissionValue: z.number().optional(),
   labUser: z.unknown().optional(),
+  labInvitation: z.unknown().optional(),
   caseAssignments: z.array(z.unknown()),
   createdAt: z.date(),
   updatedAt: z.date()

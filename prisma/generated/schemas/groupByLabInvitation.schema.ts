@@ -1,0 +1,13 @@
+import type { Prisma } from '../../../generated/prisma/client';
+import * as z from 'zod';
+import { LabInvitationWhereInputObjectSchema as LabInvitationWhereInputObjectSchema } from './objects/LabInvitationWhereInput.schema';
+import { LabInvitationOrderByWithAggregationInputObjectSchema as LabInvitationOrderByWithAggregationInputObjectSchema } from './objects/LabInvitationOrderByWithAggregationInput.schema';
+import { LabInvitationScalarWhereWithAggregatesInputObjectSchema as LabInvitationScalarWhereWithAggregatesInputObjectSchema } from './objects/LabInvitationScalarWhereWithAggregatesInput.schema';
+import { LabInvitationScalarFieldEnumSchema } from './enums/LabInvitationScalarFieldEnum.schema';
+import { LabInvitationCountAggregateInputObjectSchema as LabInvitationCountAggregateInputObjectSchema } from './objects/LabInvitationCountAggregateInput.schema';
+import { LabInvitationMinAggregateInputObjectSchema as LabInvitationMinAggregateInputObjectSchema } from './objects/LabInvitationMinAggregateInput.schema';
+import { LabInvitationMaxAggregateInputObjectSchema as LabInvitationMaxAggregateInputObjectSchema } from './objects/LabInvitationMaxAggregateInput.schema';
+
+export const LabInvitationGroupBySchema: z.ZodType<Prisma.LabInvitationGroupByArgs> = z.object({ where: LabInvitationWhereInputObjectSchema.optional(), orderBy: z.union([LabInvitationOrderByWithAggregationInputObjectSchema, LabInvitationOrderByWithAggregationInputObjectSchema.array()]).optional(), having: LabInvitationScalarWhereWithAggregatesInputObjectSchema.optional(), take: z.number().optional(), skip: z.number().optional(), by: z.array(LabInvitationScalarFieldEnumSchema), _count: z.union([ z.literal(true), LabInvitationCountAggregateInputObjectSchema ]).optional(), _min: LabInvitationMinAggregateInputObjectSchema.optional(), _max: LabInvitationMaxAggregateInputObjectSchema.optional() }).strict() as unknown as z.ZodType<Prisma.LabInvitationGroupByArgs>;
+
+export const LabInvitationGroupByZodSchema = z.object({ where: LabInvitationWhereInputObjectSchema.optional(), orderBy: z.union([LabInvitationOrderByWithAggregationInputObjectSchema, LabInvitationOrderByWithAggregationInputObjectSchema.array()]).optional(), having: LabInvitationScalarWhereWithAggregatesInputObjectSchema.optional(), take: z.number().optional(), skip: z.number().optional(), by: z.array(LabInvitationScalarFieldEnumSchema), _count: z.union([ z.literal(true), LabInvitationCountAggregateInputObjectSchema ]).optional(), _min: LabInvitationMinAggregateInputObjectSchema.optional(), _max: LabInvitationMaxAggregateInputObjectSchema.optional() }).strict();

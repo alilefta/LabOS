@@ -3,6 +3,7 @@ import { Prisma } from '../../../../generated/prisma/client';
 import { StaffRoleCategorySchema } from '../enums/StaffRoleCategory.schema';
 import { CommissionTypeSchema } from '../enums/CommissionType.schema';
 import { LabUserUncheckedCreateNestedOneWithoutLabStaffInputObjectSchema as LabUserUncheckedCreateNestedOneWithoutLabStaffInputObjectSchema } from './LabUserUncheckedCreateNestedOneWithoutLabStaffInput.schema';
+import { LabInvitationUncheckedCreateNestedOneWithoutLabStaffInputObjectSchema as LabInvitationUncheckedCreateNestedOneWithoutLabStaffInputObjectSchema } from './LabInvitationUncheckedCreateNestedOneWithoutLabStaffInput.schema';
 import { CaseStaffAssignmentUncheckedCreateNestedManyWithoutStaffInputObjectSchema as CaseStaffAssignmentUncheckedCreateNestedManyWithoutStaffInputObjectSchema } from './CaseStaffAssignmentUncheckedCreateNestedManyWithoutStaffInput.schema'
 
 import { DecimalJSLikeSchema, isValidDecimalInput } from '../../helpers/decimal-helpers';
@@ -32,6 +33,7 @@ const makeSchema = () => z.object({
 }).optional().nullable(),
   createdAt: z.coerce.date().optional(),
   labUser: z.lazy(() => LabUserUncheckedCreateNestedOneWithoutLabStaffInputObjectSchema).optional(),
+  labInvitation: z.lazy(() => LabInvitationUncheckedCreateNestedOneWithoutLabStaffInputObjectSchema).optional(),
   caseAssignments: z.lazy(() => CaseStaffAssignmentUncheckedCreateNestedManyWithoutStaffInputObjectSchema).optional()
 }).strict();
 export const LabStaffUncheckedCreateInputObjectSchema: z.ZodType<Prisma.LabStaffUncheckedCreateInput> = makeSchema() as unknown as z.ZodType<Prisma.LabStaffUncheckedCreateInput>;

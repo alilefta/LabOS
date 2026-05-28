@@ -26,6 +26,7 @@ export const LabModelSchema = z.object({
     nextCaseNumber: z.number().int(),
     caseActivityLogs: z.array(z.unknown()),
     invoiceCase: z.array(z.unknown()),
+    invitations: z.array(z.unknown()),
     nextInvoiceNumber: z.number().int(),
     createdAt: z.date(),
     updatedAt: z.date()

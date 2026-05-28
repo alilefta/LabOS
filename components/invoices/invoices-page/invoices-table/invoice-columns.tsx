@@ -13,14 +13,17 @@ import {
 	MessageCircle, // Using this for WhatsApp
 	X,
 	LucideIcon,
+	Check,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { InvoiceStatus } from "@/schema/base/enums.base";
 import { InvoiceListDTO } from "@/schema/composed/invoices/invoices.dtos";
 import { useInvoiceUiStore } from "@/store/invoices/use-invoice-ui-store";
+import { useCallback, useMemo } from "react";
+import { toast } from "sonner";
 
 // --- STATUS UI DICTIONARY ---
 const INVOICE_STATUS_UI: Record<InvoiceStatus, { label: string; icon: LucideIcon; color: string }> = {
@@ -131,6 +134,27 @@ function ActionsColumn({ invoice }: { invoice: InvoiceListDTO }) {
 	const hasPublicLink = !!invoice.publicToken && invoice.status !== "DRAFT";
 	const openPaymentSheet = useInvoiceUiStore((state) => state.openPaymentSheet);
 
+	const publicUrl = useMemo(() => {
+		if (typeof window === "undefined" || !invoice.publicToken) return "";
+		return `${window.location.origin}/statement/${invoice.publicToken}`;
+	}, [invoice.publicToken]);
+
+	const handleCopy = useCallback(async ({ textToCopy }: { textToCopy: string }) => {
+		try {
+			await navigator.clipboard.writeText(textToCopy);
+			toast.success(
+				<p className="flex items-center gap-2">
+					<Check className="w-4 h-4" /> Copied To Clipboard
+				</p>,
+				{
+					richColors: true,
+				},
+			);
+		} catch (err) {
+			console.error("Failed to copy!", err);
+		}
+	}, []);
+
 	return (
 		<div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity">
 			{/* WhatsApp / Copy Link Action */}
@@ -143,6 +167,7 @@ function ActionsColumn({ invoice }: { invoice: InvoiceListDTO }) {
 							onClick={(e) => {
 								e.stopPropagation();
 								// Handle copy to clipboard or open WhatsApp URL logic here
+								handleCopy({ textToCopy: publicUrl });
 							}}
 							className="w-8 h-8 rounded-lg text-emerald-600 hover:bg-emerald-500/10 hover:text-emerald-700 transition-colors"
 						>

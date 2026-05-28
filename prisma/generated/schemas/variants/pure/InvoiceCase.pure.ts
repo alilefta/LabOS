@@ -1,4 +1,4 @@
-import * as z from "zod";
+import * as z from 'zod';
 // prettier-ignore
 export const InvoiceCaseModelSchema = z.object({
     invoiceId: z.string(),

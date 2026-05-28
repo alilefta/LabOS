@@ -35,6 +35,7 @@ export const LabGroupByResultSchema = z.array(z.object({
     nextCaseNumber: z.number(),
     caseActivityLogs: z.number(),
     invoiceCase: z.number(),
+    invitations: z.number(),
     nextInvoiceNumber: z.number(),
     createdAt: z.number(),
     updatedAt: z.number()

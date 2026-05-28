@@ -10,6 +10,7 @@ import { EnumCommissionTypeFieldUpdateOperationsInputObjectSchema as EnumCommiss
 import { NullableDecimalFieldUpdateOperationsInputObjectSchema as NullableDecimalFieldUpdateOperationsInputObjectSchema } from './NullableDecimalFieldUpdateOperationsInput.schema';
 import { DateTimeFieldUpdateOperationsInputObjectSchema as DateTimeFieldUpdateOperationsInputObjectSchema } from './DateTimeFieldUpdateOperationsInput.schema';
 import { LabUserUpdateOneWithoutLabStaffNestedInputObjectSchema as LabUserUpdateOneWithoutLabStaffNestedInputObjectSchema } from './LabUserUpdateOneWithoutLabStaffNestedInput.schema';
+import { LabInvitationUpdateOneWithoutLabStaffNestedInputObjectSchema as LabInvitationUpdateOneWithoutLabStaffNestedInputObjectSchema } from './LabInvitationUpdateOneWithoutLabStaffNestedInput.schema';
 import { CaseStaffAssignmentUpdateManyWithoutStaffNestedInputObjectSchema as CaseStaffAssignmentUpdateManyWithoutStaffNestedInputObjectSchema } from './CaseStaffAssignmentUpdateManyWithoutStaffNestedInput.schema'
 
 import { DecimalJSLikeSchema, isValidDecimalInput } from '../../helpers/decimal-helpers';
@@ -39,6 +40,7 @@ const makeSchema = () => z.object({
   createdAt: z.union([z.coerce.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputObjectSchema)]).optional(),
   updatedAt: z.union([z.coerce.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputObjectSchema)]).optional(),
   labUser: z.lazy(() => LabUserUpdateOneWithoutLabStaffNestedInputObjectSchema).optional(),
+  labInvitation: z.lazy(() => LabInvitationUpdateOneWithoutLabStaffNestedInputObjectSchema).optional(),
   caseAssignments: z.lazy(() => CaseStaffAssignmentUpdateManyWithoutStaffNestedInputObjectSchema).optional()
 }).strict();
 export const LabStaffUpdateWithoutLabInputObjectSchema: z.ZodType<Prisma.LabStaffUpdateWithoutLabInput> = makeSchema() as unknown as z.ZodType<Prisma.LabStaffUpdateWithoutLabInput>;

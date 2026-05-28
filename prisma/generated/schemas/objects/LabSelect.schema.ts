@@ -19,6 +19,7 @@ import { InvoiceFindManySchema as InvoiceFindManySchema } from '../findManyInvoi
 import { InvoicePaymentFindManySchema as InvoicePaymentFindManySchema } from '../findManyInvoicePayment.schema';
 import { CaseActivityLogFindManySchema as CaseActivityLogFindManySchema } from '../findManyCaseActivityLog.schema';
 import { InvoiceCaseFindManySchema as InvoiceCaseFindManySchema } from '../findManyInvoiceCase.schema';
+import { LabInvitationFindManySchema as LabInvitationFindManySchema } from '../findManyLabInvitation.schema';
 import { LabCountOutputTypeArgsObjectSchema as LabCountOutputTypeArgsObjectSchema } from './LabCountOutputTypeArgs.schema'
 
 const makeSchema = () => z.object({
@@ -47,6 +48,7 @@ const makeSchema = () => z.object({
   nextCaseNumber: z.boolean().optional(),
   caseActivityLogs: z.union([z.boolean(), z.lazy(() => CaseActivityLogFindManySchema)]).optional(),
   invoiceCase: z.union([z.boolean(), z.lazy(() => InvoiceCaseFindManySchema)]).optional(),
+  invitations: z.union([z.boolean(), z.lazy(() => LabInvitationFindManySchema)]).optional(),
   nextInvoiceNumber: z.boolean().optional(),
   createdAt: z.boolean().optional(),
   updatedAt: z.boolean().optional(),

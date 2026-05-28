@@ -23,6 +23,7 @@ export { InvoiceCaseResultSchema } from './InvoiceCase.result';
 export { InvoicePaymentResultSchema } from './InvoicePayment.result';
 export { LabSubscriptionPlanResultSchema } from './LabSubscriptionPlan.result';
 export { LabUserResultSchema } from './LabUser.result';
+export { LabInvitationResultSchema } from './LabInvitation.result';
 export { SuperUserResultSchema } from './SuperUser.result';
 export { AuthUserResultSchema } from './AuthUser.result';
 export { SessionResultSchema } from './Session.result';
