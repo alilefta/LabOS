@@ -68,7 +68,6 @@ export const DentistPersonaCard = memo(function DentistPersonaCard({ dentist, cl
 			)}
 
 			{/* --- ZONE A: IDENTITY & BADGES --- */}
-			{/* --- ZONE A: IDENTITY & CLINICAL ROLE --- */}
 			<div className="flex items-start justify-between mb-5 relative z-10">
 				<div className="flex gap-3 min-w-0">
 					<Avatar

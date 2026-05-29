@@ -1,6 +1,7 @@
-// schema/composed/team.dtos.ts
+// schema/composed/team/team.dtos.ts
 import { CommissionType, LabRole, StaffRoleCategory, StaffRoleCategorySchema } from "@/schema/base/enums.base";
 import { z } from "zod";
+import { CapacityBand, QualityRiskBand } from "./team-filters";
 
 export type SystemAccessState = "ACTIVE_USER" | "PENDING_INVITE" | "NO_ACCESS";
 
@@ -25,6 +26,10 @@ export interface StaffMemberDTO {
 	// Operational Metrics (Preventing N+1)
 	activeCaseCount: number; // Cases currently ASSIGNED or PROCESSING
 	isActive: boolean;
+
+	capacityBand: CapacityBand;
+	qualityBand: QualityRiskBand;
+	remakeRate: number;
 }
 
 // Filter Schema for the Client Wrapper

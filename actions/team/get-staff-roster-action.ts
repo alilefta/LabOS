@@ -1,21 +1,28 @@
-// actions/team/get-staff-roster.ts
 "use server";
 
 import { z } from "zod";
 import { actionClientWithLab } from "@/lib/safe-action";
 import { tenantPrisma } from "@/lib/prisma";
-import { StaffMemberDTO, SystemAccessState, TeamFiltersSchema } from "@/schema/composed/team/team.dtos";
+import { SystemAccessState, TeamFiltersSchema, CapacityBand, QualityRiskBand } from "@/schema/composed/team/team-filters";
 import { LabStaffWhereInput } from "@/generated/prisma/models";
+import { StaffMemberDTO } from "@/schema/composed/team/team.dtos";
 
 export const getStaffRosterAction = actionClientWithLab
 	.metadata({
 		actionName: "Get-Staff-Roster-Action",
-		requiredLabRole: "STAFF", // Adjust based on who can view the directory ["OWNER" | "MANAGER" | "ADMIN" | "STAFF" | null]
+		requiredLabRole: "STAFF",
 	})
 	.inputSchema(
 		z.object({
 			searchQuery: z.string().optional(),
-			filters: TeamFiltersSchema.default({ roleCategories: [], accessStates: [], isActive: true }),
+			filters: TeamFiltersSchema.default({
+				roleCategories: [],
+				accessStates: [],
+				isActive: true,
+				capacityBands: [],
+				qualityBands: [],
+				specializationSearch: null,
+			}),
 		}),
 	)
 	.action(async ({ parsedInput, ctx }) => {
@@ -24,7 +31,7 @@ export const getStaffRosterAction = actionClientWithLab
 
 		const prisma = await tenantPrisma(labId);
 
-		// ── 1. BUILD QUERY FILTERS ────────────────────────────────────────
+		// ── 1. BUILD PRIMITIVE DATABASE FILTERS ───────────────────────────
 		const whereClause: LabStaffWhereInput = {
 			labId,
 			isActive: filters.isActive,
@@ -34,6 +41,13 @@ export const getStaffRosterAction = actionClientWithLab
 			whereClause.roleCategory = { in: filters.roleCategories };
 		}
 
+		if (filters.specializationSearch) {
+			whereClause.specialization = {
+				contains: filters.specializationSearch,
+				mode: "insensitive",
+			};
+		}
+
 		if (searchQuery) {
 			whereClause.OR = [
 				{ firstName: { contains: searchQuery, mode: "insensitive" } },
@@ -41,9 +55,6 @@ export const getStaffRosterAction = actionClientWithLab
 				{ jobTitle: { contains: searchQuery, mode: "insensitive" } },
 			];
 		}
-
-		// We fetch ALL matching staff (usually < 100), then apply the `accessState`
-		// filter in-memory since it relies on checking relations.
 
 		// ── 2. OPTIMIZED DATABASE FETCH ───────────────────────────────────
 		const rawStaff = await prisma.labStaff.findMany({
@@ -61,16 +72,14 @@ export const getStaffRosterAction = actionClientWithLab
 				isActive: true,
 
 				// Relation 1: System Access
-				labUser: {
-					select: { role: true },
-				},
+				labUser: { select: { role: true } },
 
-				// Relation 2: Pending Invite
+				// Relation 2: The Invitation System
 				labInvitation: {
 					select: { email: true, roleToGrant: true, expiresAt: true },
 				},
 
-				// N+1 Prevention: Aggregated active case count
+				// Operational N+1 Prevention: Aggregated active case count
 				_count: {
 					select: {
 						caseAssignments: {
@@ -78,6 +87,16 @@ export const getStaffRosterAction = actionClientWithLab
 								dentalCase: { status: { in: ["ASSIGNED", "PROCESSING"] } },
 							},
 						},
+					},
+				},
+
+				// Quality N+1 Prevention
+				caseAssignments: {
+					where: {
+						dentalCase: { status: { in: ["COMPLETED", "DELIVERED", "FAILED"] } },
+					},
+					select: {
+						dentalCase: { select: { status: true, isRemake: true } },
 					},
 				},
 			},
@@ -88,7 +107,7 @@ export const getStaffRosterAction = actionClientWithLab
 		const now = new Date();
 
 		let mappedStaff: StaffMemberDTO[] = rawStaff.map((staff) => {
-			// Determine Unified Identity State
+			// --- Determine Unified Identity State ---
 			let accessState: SystemAccessState = "NO_ACCESS";
 			let systemRole = null;
 			let inviteEmail = null;
@@ -97,10 +116,32 @@ export const getStaffRosterAction = actionClientWithLab
 				accessState = "ACTIVE_USER";
 				systemRole = staff.labUser.role;
 			} else if (staff.labInvitation && staff.labInvitation.expiresAt > now) {
+				// The invite is active and hasn't expired yet!
 				accessState = "PENDING_INVITE";
 				systemRole = staff.labInvitation.roleToGrant;
 				inviteEmail = staff.labInvitation.email;
 			}
+
+			// --- Determine Capacity Band ---
+			const activeCases = staff._count.caseAssignments;
+			let capacityBand: CapacityBand = "AVAILABLE";
+			if (activeCases >= 15) capacityBand = "OVERLOADED";
+			else if (activeCases >= 9) capacityBand = "HEAVY";
+			else if (activeCases >= 4) capacityBand = "OPTIMAL";
+
+			// --- Determine Quality Risk Band ---
+			const totalHistoricalCases = staff.caseAssignments.length;
+			const failedCases = staff.caseAssignments.filter((ca) => ca.dentalCase.status === "FAILED" || ca.dentalCase.isRemake).length;
+
+			let remakeRate = 0;
+			if (totalHistoricalCases > 0) {
+				remakeRate = (failedCases / totalHistoricalCases) * 100;
+			}
+
+			let qualityBand: QualityRiskBand = "EXCELLENT";
+			if (remakeRate > 10) qualityBand = "CRITICAL";
+			else if (remakeRate >= 6) qualityBand = "ELEVATED";
+			else if (remakeRate >= 2) qualityBand = "AVERAGE";
 
 			return {
 				id: staff.id,
@@ -117,14 +158,23 @@ export const getStaffRosterAction = actionClientWithLab
 				systemRole,
 				inviteEmail,
 				isActive: staff.isActive,
+				activeCaseCount: activeCases,
 
-				activeCaseCount: staff._count.caseAssignments,
-			};
+				capacityBand,
+				qualityBand,
+				remakeRate,
+			} as StaffMemberDTO;
 		});
 
-		// Apply the Access State filter if requested by the client
+		// ── 4. APPLY COMPLEX IN-MEMORY FILTERS ──────────────────────────────
 		if (filters.accessStates.length > 0) {
 			mappedStaff = mappedStaff.filter((staff) => filters.accessStates.includes(staff.accessState));
+		}
+		if (filters.capacityBands.length > 0) {
+			mappedStaff = mappedStaff.filter((staff) => filters.capacityBands.includes(staff.capacityBand));
+		}
+		if (filters.qualityBands.length > 0) {
+			mappedStaff = mappedStaff.filter((staff) => filters.qualityBands.includes(staff.qualityBand));
 		}
 
 		return { staff: mappedStaff, totalCount: mappedStaff.length };

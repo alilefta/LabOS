@@ -58,23 +58,25 @@ export default async function ClinicDetailPage({ params, searchParams }: PagePro
 	const activePeriod = parsedPeriod.success ? parsedPeriod.data : "90d";
 
 	return (
-		<ClinicTerminalShell>
-			{/* --- STICKY HEADER & TABS --- */}
-			<div className="sticky top-0 z-30 bg-background/80  border-b border-border pt-6 flex flex-col gap-4 shadow-sm">
-				<Suspense fallback={<ClinicHeaderSectionSkeleton />}>
-					<ClinicHeaderSection clinicId={clinicId} />
-				</Suspense>
-				<Suspense fallback={<p>Loading Tab Nav</p>}>
-					<ClinicTabNavigation activeTab={activeTab} clinicId={clinicId} />
-				</Suspense>
-			</div>
+		<div className="flex flex-col h-full bg-background relative overflow-hidden">
+			<div className="relative z-10 flex flex-col h-full">
+				{/* --- STICKY HEADER & TABS --- */}
+				<div className="sticky top-0 z-30 bg-background/80  border-b border-border pt-6 flex flex-col gap-4 shadow-sm">
+					<Suspense fallback={<ClinicHeaderSectionSkeleton />}>
+						<ClinicHeaderSection clinicId={clinicId} />
+					</Suspense>
+					<Suspense fallback={<p>Loading Tab Nav</p>}>
+						<ClinicTabNavigation activeTab={activeTab} clinicId={clinicId} />
+					</Suspense>
+				</div>
 
-			{/* --- DYNAMIC TAB CONTENT AREA --- */}
-			<div className="flex-1 overflow-y-auto custom-scrollbar relative z-10 w-full">
-				<Suspense fallback={<ClinicDetailsSkeleton />}>
-					<ClinicTabRouter activePeriod={activePeriod} activeTab={activeTab} clinicId={clinicId} />
-				</Suspense>
+				{/* --- DYNAMIC TAB CONTENT AREA --- */}
+				<div className="flex-1 overflow-y-auto custom-scrollbar relative z-10 w-full">
+					<Suspense fallback={<ClinicDetailsSkeleton />}>
+						<ClinicTabRouter activePeriod={activePeriod} activeTab={activeTab} clinicId={clinicId} />
+					</Suspense>
+				</div>
 			</div>
-		</ClinicTerminalShell>
+		</div>
 	);
 }
