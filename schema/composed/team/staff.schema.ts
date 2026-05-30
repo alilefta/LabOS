@@ -40,3 +40,21 @@ export const CreateLabStaffInputSchema = z.object({
 });
 
 export type CreateLabStaffInput = z.infer<typeof CreateLabStaffInputSchema>;
+
+// ── 1. INPUT SCHEMA ─────────────────────────────────────────────────────────
+export const ReassignCasesStaffSchema = z
+	.object({
+		caseIds: z.array(z.string().uuid()).min(1, "Select at least one case to reassign"),
+		originalStaffId: z.string().uuid("Invalid original staff ID"),
+		targetStaffId: z.string().uuid("Invalid target staff ID"),
+		roleCategory: z.string(), // e.g. "TECHNICIAN"
+	})
+	.superRefine((data, ctx) => {
+		if (data.originalStaffId === data.targetStaffId) {
+			ctx.addIssue({
+				code: "custom",
+				message: "Cannot reassign cases to the same staff member.",
+				path: ["targetStaffId"],
+			});
+		}
+	});

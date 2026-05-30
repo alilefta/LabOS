@@ -34,7 +34,7 @@ export const StaffAssignedPayloadSchema = z.object({
 	staffId: z.string(),
 	staffName: z.string(),
 	roleCategory: StaffRoleCategorySchema,
-	autoStatusChange: z.string().nullable(),
+	autoStatusChange: z.string().nullable().optional(),
 });
 
 export const StaffRemovedPayloadSchema = z.object({

@@ -1,5 +1,6 @@
 "use server";
 
+import { LabStaffWhereInput } from "@/generated/prisma/models";
 import { normalizeLabStaff } from "@/lib/mappers";
 import { tenantPrisma } from "@/lib/prisma";
 import { actionClientWithLab } from "@/lib/safe-action";
@@ -62,43 +63,37 @@ export const getActiveLabStaffBySearchQueryAction = actionClientWithLab
 		const { searchQuery, limit } = parsedInput;
 		const { labId } = ctx;
 
-		try {
-			const staffMembers = await (
-				await tenantPrisma(labId)
-			).labStaff.findMany({
-				where: {
-					labId: labId,
+		// ── 1. BUILD EFFICIENT SEARCH FILTER ──────────────────────────────
+		const whereClause: LabStaffWhereInput = {
+			labId,
+			isActive: true, // Only fetch currently employed team members
+		};
 
-					OR: [
-						{
-							firstName: {
-								startsWith: searchQuery,
-							},
-							lastName: {
-								startsWith: searchQuery,
-							},
-						},
-					],
-					isActive: true,
-				},
-				orderBy: {
-					createdAt: "desc",
-				},
-				take: limit,
-				include: {
-					lab: true,
-				},
-			});
-
-			return {
-				staff: staffMembers.map(normalizeLabStaff),
-			};
-		} catch (e) {
-			if (e instanceof APIError || e instanceof Error) {
-				console.error("[Get-Active-Lab-Staff-By-Search-Query-Action] Error", e.message);
-			}
-			throw e;
+		if (searchQuery.trim().length > 0) {
+			const cleanSearch = searchQuery.trim();
+			whereClause.OR = [
+				// UX FIX: Using 'contains' with 'mode: "insensitive"' is vastly superior
+				// to 'startsWith' because it handles typos and middle/last names perfectly.
+				{ firstName: { contains: cleanSearch, mode: "insensitive" } },
+				{ lastName: { contains: cleanSearch, mode: "insensitive" } },
+				{ jobTitle: { contains: cleanSearch, mode: "insensitive" } },
+			];
 		}
+
+		const staffMembers = await (
+			await tenantPrisma(labId)
+		).labStaff.findMany({
+			where: whereClause,
+
+			orderBy: {
+				createdAt: "desc",
+			},
+			take: limit,
+		});
+
+		return {
+			staff: staffMembers.map(normalizeLabStaff),
+		};
 	});
 
 export const getLabStaffByRoleAndSearchAction = actionClientWithLab
@@ -190,11 +185,3 @@ export const getActiveLabStaffAction = actionClientWithLab
 			throw e;
 		}
 	});
-
-// // ========================== Helpers ===============================
-// function normalizeStaffMembers(labStaff: LabStaffModel[]): LabStaffDetailsUI[] {
-// 	return labStaff.map((s) => ({
-// 		...s,
-// 		commissionValue: s.commissionValue === null ? null : Number(s.commissionValue),
-// 	}));
-// }

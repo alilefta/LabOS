@@ -1,6 +1,6 @@
 "use client";
 
-import { Users, UserPlus, MoreHorizontal, ShieldCheck } from "lucide-react";
+import { Users, UserPlus, MoreHorizontal } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 import { Button } from "@/components/ui/button";
@@ -36,7 +36,7 @@ export default function TeamSettingsPage() {
 			</div>
 
 			<div className="lab-card overflow-hidden flex flex-col">
-				<div className="px-8 py-6 border-b border-border bg-slate-50/50 dark:bg-white/[0.02] flex items-center gap-3">
+				<div className="px-8 py-6 border-b border-border bg-slate-50/50 dark:bg-white/2 flex items-center gap-3">
 					<div className="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
 						<Users className="w-4 h-4" />
 					</div>

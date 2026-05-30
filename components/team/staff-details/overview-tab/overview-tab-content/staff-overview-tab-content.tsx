@@ -10,13 +10,13 @@ import { Skeleton } from "@/components/ui/skeleton";
 // Schemas & Actions (Conceptual)
 import { TeamDashboardTimeFramePeriod } from "@/schema/composed/team/helpers";
 import { handleSafeActionError } from "@/lib/safe-action-helpers";
-import { StaffHealthRing } from "./overview-tab-content/staff-health-ring";
-import { StaffSpecialtyDonut } from "./overview-tab-content/staff-speciality-donut";
+import { StaffHealthRing } from "./staff-health-ring";
+import { StaffSpecialtyDonut } from "./staff-speciality-donut";
 import { usePermissions } from "@/providers/permissions-provider";
-import { StaffPerformanceVitalsCard } from "./overview-tab-content/staff-performance-vitals-card";
-import { StaffProductionHeatmap } from "./overview-tab-content/staff-production-heatmap";
+import { StaffPerformanceVitalsCard } from "./staff-performance-vitals-card";
+import { StaffProductionHeatmap } from "./staff-production-heatmap";
 import { getStaffOverviewAnalyticsAction } from "@/actions/team/get-staff-overview-analytics-action";
-import { StaffAiOverviewAuditor } from "./overview-tab-content/staff-ai-overview-auditor";
+import { StaffAiOverviewAuditor } from "./staff-ai-overview-auditor";
 
 interface Props {
 	staffId: string;

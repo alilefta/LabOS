@@ -1,12 +1,13 @@
 "use client";
 
-import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table";
+import { ColumnDef, flexRender } from "@tanstack/react-table";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { Inbox, Loader2 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, ReactNode } from "react";
+import { useDataTable } from "@/hooks/use-data-table";
 
 interface DataTableProps<TData, TValue> {
 	columns: ColumnDef<TData, TValue>[];
@@ -14,47 +15,48 @@ interface DataTableProps<TData, TValue> {
 	isLoading?: boolean;
 	onRowClick?: (row: TData) => void;
 
-	// Optional: Infinite Scroll Triggers (For Step 3!)
+	// Infinite Scroll Triggers
 	fetchNextPage?: () => void;
 	isFetchingNextPage?: boolean;
 	hasNextPage?: boolean;
+
+	// UPGRADED: Structured Empty State Configuration [DX Improvement]
+	emptyState?: {
+		title: string;
+		description: string;
+		icon?: ReactNode; // Supports passing a styled Lucide Icon or custom badge
+	};
+	minHeight: number;
 }
 
-export function DataTable<TData, TValue>({ columns, data, isLoading, onRowClick, fetchNextPage, isFetchingNextPage, hasNextPage }: DataTableProps<TData, TValue>) {
-	// 1. Initialize TanStack Table
-	const table = useReactTable({
+export function DataTable<TData, TValue>({ columns, data, isLoading, onRowClick, fetchNextPage, isFetchingNextPage, hasNextPage, emptyState, minHeight }: DataTableProps<TData, TValue>) {
+	const table = useDataTable({
 		data,
 		columns,
-		getCoreRowModel: getCoreRowModel(),
 	});
 
 	const { rows } = table.getRowModel();
-
-	// 2. Initialize the Scroll Container Ref for Virtualization
 	const tableContainerRef = useRef<HTMLDivElement>(null);
 
-	// 3. Initialize TanStack Virtualizer
 	const rowVirtualizer = useVirtualizer({
-		count: hasNextPage ? rows.length + 1 : rows.length, // Add 1 extra row for the loading spinner if more pages exist
+		count: hasNextPage ? rows.length + 1 : rows.length,
 		getScrollElement: () => tableContainerRef.current,
-		// Estimate row height (72px is roughly the height of our padded rows)
 		estimateSize: () => 72,
-		overscan: 10, // Render 10 items off-screen for smooth scrolling
+		overscan: 10,
 	});
 
-	// 4. Infinite Scroll Trigger Effect
 	const virtualItems = rowVirtualizer.getVirtualItems();
+
+	// Infinite Scroll Trigger Effect
 	useEffect(() => {
 		const [lastItem] = [...virtualItems].reverse();
 		if (!lastItem) return;
 
-		// If the last rendered item is the "loading" row and we aren't already fetching, grab the next page!
 		if (lastItem.index >= rows.length - 1 && hasNextPage && !isFetchingNextPage && fetchNextPage) {
 			fetchNextPage();
 		}
 	}, [hasNextPage, fetchNextPage, rows.length, isFetchingNextPage, virtualItems]);
 
-	// 5. Calculate Virtual Padding (The magic that makes the scrollbar accurate without rendering rows)
 	const paddingTop = virtualItems.length > 0 ? virtualItems?.[0]?.start || 0 : 0;
 	const paddingBottom = virtualItems.length > 0 ? rowVirtualizer.getTotalSize() - (virtualItems?.[virtualItems.length - 1]?.end || 0) : 0;
 
@@ -78,19 +80,16 @@ export function DataTable<TData, TValue>({ columns, data, isLoading, onRowClick,
 
 				{/* --- VIRTUALIZED BODY --- */}
 				<tbody className="divide-y divide-border/50">
-					{/* Top Padding */}
 					{paddingTop > 0 && (
 						<tr>
 							<td style={{ height: `${paddingTop}px` }} />
 						</tr>
 					)}
 
-					{/* Visible Rows */}
 					{virtualItems.map((virtualRow) => {
 						const isLoaderRow = virtualRow.index > rows.length - 1;
 						const row = rows[virtualRow.index];
 
-						// If this is the extra row added for infinite scrolling
 						if (isLoaderRow) {
 							return (
 								<tr key={`loader-${virtualRow.index}`} className="h-18">
@@ -101,7 +100,6 @@ export function DataTable<TData, TValue>({ columns, data, isLoading, onRowClick,
 							);
 						}
 
-						// Actual Data Row
 						return (
 							<tr
 								key={row.id}
@@ -117,23 +115,33 @@ export function DataTable<TData, TValue>({ columns, data, isLoading, onRowClick,
 						);
 					})}
 
-					{/* Bottom Padding */}
 					{paddingBottom > 0 && (
 						<tr>
 							<td style={{ height: `${paddingBottom}px` }} />
 						</tr>
 					)}
 
-					{/* Empty State */}
+					{/* --- EMPTY STATE HANDLING --- */}
 					{!isLoading && data.length === 0 && (
 						<tr>
 							<td colSpan={columns.length}>
-								<div className="flex flex-col items-center justify-center p-16 text-center animate-in fade-in zoom-in-95">
-									<div className="w-16 h-16 rounded-2xl bg-slate-100 dark:bg-white/5 flex items-center justify-center mb-4 border border-border">
-										<Inbox className="w-8 h-8 text-slate-400 dark:text-zinc-500" />
+								<div
+									className="flex flex-col items-center justify-center py-16 px-4 text-center animate-in fade-in zoom-in-95 duration-500"
+									style={{
+										// Uses your exact layout height logic!
+										minHeight: `${minHeight}px`,
+									}}
+								>
+									{/* 1. DYNAMIC CONTAINER FOR ICON */}
+									<div className="w-16 h-16 rounded-2xl bg-slate-100 dark:bg-white/5 border border-border flex items-center justify-center mb-4 shadow-sm transition-transform duration-300 hover:scale-110">
+										{emptyState?.icon ? emptyState.icon : <Inbox className="w-8 h-8 text-slate-400 dark:text-zinc-500" />}
 									</div>
-									<h3 className="text-lg font-bold text-foreground">No cases found</h3>
-									<p className="text-xs text-muted-foreground mt-1 max-w-sm">Adjust your filters or use the AI Copilot to query different clinical parameters.</p>
+
+									{/* 2. DYNAMIC TEXT CONTENT */}
+									<h3 className="text-lg font-bold text-foreground">{emptyState?.title || "No records found"}</h3>
+									<p className="text-xs text-muted-foreground mt-1 max-w-sm leading-relaxed">
+										{emptyState?.description || "Adjust your filters or use the AI Copilot to query different parameters."}
+									</p>
 								</div>
 							</td>
 						</tr>

@@ -7,11 +7,11 @@ import { ERRORS } from "@/lib/errors";
 import { composeClinicQuickOverviewDTO } from "@/lib/mappers/composers";
 import { APIError } from "better-auth";
 import { normalizeClinic } from "@/lib/mappers";
-import { startOfMonth, subMonths, startOfDay, endOfDay, differenceInDays } from "date-fns";
+import { startOfDay, differenceInDays } from "date-fns";
 import { ClinicActiveCaseDTO } from "@/schema/composed/clinics/clinic-cases.dtos";
 import { GetClinicHistoricalCasesInputSchema, GetClinicHistoricalCasesResult, ClinicHistoricalCaseDTO, ClinicHistoricalWorkItemDTO } from "@/schema/composed/clinics/clinic-cases.dtos";
 import { Prisma } from "@/generated/prisma/client";
-import { DatePreset } from "@/schema/composed/cases/cases-filters";
+import { resolveDatePreset } from "@/schema/composed/shared/date-preset";
 
 export const getClinicQuickOverviewAction = actionClientWithLab
 	.metadata({
@@ -264,28 +264,6 @@ export const getClinicActivePipelineAction = actionClientWithLab
 	});
 
 // =============== Get Clinic Historical Cases Action ======================
-
-// ── Date preset resolver ──────────────────────────────────────────────────────
-function resolveDatePreset(preset: DatePreset, from: Date | null, to: Date | null): { gte: Date; lte: Date } | null {
-	const now = new Date();
-
-	switch (preset) {
-		case "this_month":
-			return { gte: startOfMonth(now), lte: endOfDay(now) };
-		case "last_month": {
-			const start = startOfMonth(subMonths(now, 1));
-			const end = endOfDay(new Date(now.getFullYear(), now.getMonth(), 0));
-			return { gte: start, lte: end };
-		}
-		case "last_3_months":
-			return { gte: startOfDay(subMonths(now, 3)), lte: endOfDay(now) };
-		case "last_6_months":
-			return { gte: startOfDay(subMonths(now, 6)), lte: endOfDay(now) };
-		case "custom":
-			if (!from || !to) return null;
-			return { gte: startOfDay(from), lte: endOfDay(to) };
-	}
-}
 
 export const getClinicHistoricalCasesAction = actionClientWithLab
 	.metadata({

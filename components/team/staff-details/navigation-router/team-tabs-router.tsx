@@ -1,6 +1,7 @@
 import { TeamDashboardTab, TeamDashboardTimeFramePeriod } from "@/schema/composed/team/helpers";
 import { ReactNode, Suspense } from "react";
 import { StaffOverviewTab } from "../overview-tab/staff-overview-tab";
+import { StaffCasesTab } from "../overview-tab/staff-cases-tab";
 
 interface Props {
 	staffId: string;
@@ -11,9 +12,9 @@ interface Props {
 export async function TeamTabRouter({ staffId, activePeriod, activeTab }: Props) {
 	let tab: ReactNode | null = null;
 	switch (activeTab) {
-		// case "cases":
-		// 	tab = <StaffCasesTab staffId={staffId} />;
-		// 	break;
+		case "cases":
+			tab = <StaffCasesTab staffId={staffId} />;
+			break;
 
 		// case "payroll":
 		// 	tab = <StaffPayrollTab staffId={staffId} />;

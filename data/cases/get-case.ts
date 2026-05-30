@@ -95,12 +95,10 @@ export async function getDentalCaseById(caseId: string) {
 			originalCase: true,
 		},
 	});
-
 	if (!dentalCase) {
 		return daError(ERRORS.NOT_FOUND.toJSON());
 	}
 
-	// return daSuccess<CaseDetailsUI | null>(serverCaseToCaseDetailsDTOMapper({ ...dentalCase, lab: null, caseItems: dentalCase.caseItems.map((ci) => ({ ...ci, lab: null, dentalCase: null })) }));
 	return daSuccess<CaseDetailsUI | null>(composeCaseDTO(dentalCase));
 }
 export const rawCaseToCaseBaseMapper = (data: Case[]): CaseBase[] => {

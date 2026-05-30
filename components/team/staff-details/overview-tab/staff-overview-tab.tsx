@@ -10,7 +10,7 @@ import { getQueryClient } from "@/providers/get-query-client";
 
 // Shared Custom Components
 import { QueryHydrationBoundary } from "@/providers/query-hydration-boundary";
-import { StaffOverviewTabContent } from "./staff-overview-tab-content";
+import { StaffOverviewTabContent } from "./overview-tab-content/staff-overview-tab-content";
 import { TimeFrameFilter } from "@/components/shared/filters/time-frame-filter";
 import { getStaffOverviewAnalyticsAction } from "@/actions/team/get-staff-overview-analytics-action";
 
