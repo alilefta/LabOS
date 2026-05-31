@@ -171,6 +171,7 @@ export const ClinicHistoricalDataTable = memo(function ClinicHistoricalDataTable
 					fetchNextPage={fetchNextPage}
 					hasNextPage={hasNextPage}
 					isFetchingNextPage={isFetchingNextPage}
+					minHeight={0}
 				/>
 			</div>
 

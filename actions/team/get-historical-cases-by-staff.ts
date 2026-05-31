@@ -1,18 +1,19 @@
+// actions/team/get-historical-cases-by-staff.ts
 "use server";
 
 import { z } from "zod";
 import { actionClientWithLab } from "@/lib/safe-action";
 import { tenantPrisma } from "@/lib/prisma";
 import { ERRORS } from "@/lib/errors";
-import { GetStaffActiveCasesResult, StaffActiveCaseDTO } from "@/schema/composed/team/staff-active-cases.dtos";
-import { startOfDay, addDays } from "date-fns";
+import { resolveDatePreset } from "@/schema/composed/shared/date-preset"; // Adjust path to your date helper
+import { ClinicHistoricalCaseDTO, ClinicHistoricalWorkItemDTO } from "@/schema/composed/clinics/clinic-cases.dtos"; // Re-use the existing DTOs!
 import { CaseStaffAssignmentWhereInput, CaseWhereInput } from "@/generated/prisma/models";
 import { CasesFiltersSchema } from "@/schema/composed/cases/cases-filters";
-import { resolveDatePreset } from "@/schema/composed/shared/date-preset";
+import { GetStaffHistoricalCasesResult, StaffHistoricalCaseDTO, StaffHistoricalWorkItemDTO } from "@/schema/composed/team/staff-historical-cases.dtos";
 
-export const getActiveCasesByStaffAction = actionClientWithLab
+export const getHistoricalCasesByStaffAction = actionClientWithLab
 	.metadata({
-		actionName: "Get-Active-Cases-By-Staff",
+		actionName: "Get-Historical-Cases-By-Staff-Action", // Fixed name for audit logs
 		requiredLabRole: "STAFF",
 	})
 	.inputSchema(
@@ -39,7 +40,7 @@ export const getActiveCasesByStaffAction = actionClientWithLab
 
 		const prisma = await tenantPrisma(labId);
 
-		// ── 1. SECURITY CHECK ───────────────────────────────────────────────
+		// ── 1. SECURITY GATES ───────────────────────────────────────────────
 		const staffExists = await prisma.labStaff.findUnique({
 			where: { id: staffId, labId },
 			select: { id: true },
@@ -51,112 +52,117 @@ export const getActiveCasesByStaffAction = actionClientWithLab
 
 		// ── 2. DYNAMIC PRISMA FILTERS (N+1 PROOF) ───────────────────────────
 		const caseFilters: CaseWhereInput = {
-			// Base Operational Constraint: Only show active production stages
+			// Base Historical Constraint: Only show finalized/closed stages
 			status: {
-				in: filters.statuses.length > 0 ? filters.statuses : ["ASSIGNED", "PROCESSING"],
+				in: filters.statuses.length > 0 ? filters.statuses : ["COMPLETED", "DELIVERED", "FAILED"],
 			},
 		};
 
 		if (filters.categoryId) caseFilters.caseCategoryId = filters.categoryId;
 		if (filters.clinicId) caseFilters.clinicId = filters.clinicId;
-
-		// ── THE DEADLINE & URGENCY ENGINE ──
-		// We implement a priority hierarchy: Overdue (Critical) overrides Rush (Warning) [3]
-		if (filters.isOverdueOnly) {
-			// Overdue: The deadline is in the past (strictly less than today) [1]
-			caseFilters.deadline = {
-				lt: startOfDay(new Date()),
-			};
-		} else if (filters.isRushOnly) {
-			// Rush: Deadline is between today and 3 days from now
-			const rushLimit = addDays(startOfDay(new Date()), 3);
-			caseFilters.deadline = {
-				lte: rushLimit,
-				gte: startOfDay(new Date()),
-			};
-		}
+		if (filters.isRemakeOnly) caseFilters.isRemake = true;
 
 		// Text Search (Fuzzy search matching Patient Name or Case Number)
 		if (search?.trim()) {
 			caseFilters.OR = [{ caseNumber: { contains: search.trim(), mode: "insensitive" } }, { patient: { name: { contains: search.trim(), mode: "insensitive" } } }];
 		}
 
-		// Date range filter (Only applies if Overdue/Rush aren't overriding the deadline)
-		if (filters.dateRange && !filters.isOverdueOnly && !filters.isRushOnly) {
+		// Date Range Resolver
+		if (filters.dateRange) {
 			const range = resolveDatePreset(filters.dateRange.preset, filters.dateRange.from, filters.dateRange.to);
 			if (range) {
 				caseFilters[filters.dateRange.field] = range;
 			}
 		}
 
+		// Scope the query strictly to this staff member's assignments
 		const whereClause: CaseStaffAssignmentWhereInput = {
 			staffId,
 			labId,
-			dentalCase: caseFilters,
+			dentalCase: caseFilters, // Corrected schema relation
 		};
 
-		// ── 3. HIGH-PERFORMANCE DATABASE READ ─────────────────────────────
+		// ── 3. DATABASE FETCH (Cursor Pagination on Junction ID) ───────────
 		const [rawAssignments, totalCount] = await Promise.all([
 			prisma.caseStaffAssignment.findMany({
 				where: whereClause,
 				take: take + 1,
-				...(cursor && { cursor: { id: cursor }, skip: 1 }), // Fixed cursor logic!
+				...(cursor && { cursor: { id: cursor }, skip: 1 }),
 				select: {
-					// FIX: We must explicitly select the junction table ID for the cursor!
-					id: true,
+					id: true, // Needed for infinite scroll cursor mapping
 					roleCategory: true,
 					dentalCase: {
 						select: {
 							id: true,
 							caseNumber: true,
 							status: true,
-							createdAt: true,
-							deadline: true,
-							isRemake: true,
 							grandTotal: true,
+							isRemake: true,
+							failureReason: true,
+							completedAt: true,
+							deliveredAt: true,
+							updatedAt: true,
 							patient: { select: { name: true } },
-							clinic: { select: { name: true } },
 							dentist: { select: { name: true } },
-							caseCategory: { select: { name: true } },
+							clinic: {
+								select: {
+									name: true,
+								},
+							},
 							caseItems: {
 								select: {
+									id: true,
+									jawType: true,
 									product: { select: { name: true } },
+									workType: { select: { name: true } },
+									selectedTeeth: { select: { id: true } },
 								},
-								take: 1,
 							},
 						},
 					},
 				},
-				orderBy: { createdAt: "asc" }, // Oldest assignments first
+				orderBy: [{ createdAt: "desc" }], // Show most recently finished work first
 			}),
 			prisma.caseStaffAssignment.count({ where: whereClause }),
 		]);
 
-		// ── 4. MAP TO FLAT READ DTO ────────────────────────────────────────
+		// ── 4. MAP TO CLINIC HISTORICAL DTO (O(1) Memory Mapping) ──────────
 		const hasNextPage = rawAssignments.length > take;
 		const page = hasNextPage ? rawAssignments.slice(0, -1) : rawAssignments;
 
-		const cases: StaffActiveCaseDTO[] = page.map((ra) => {
+		const cases: StaffHistoricalCaseDTO[] = page.map((ra) => {
 			const c = ra.dentalCase;
+
+			// Resolve the active "Resolution Date" based on standard clinical milestones
+			const resolvedDate = c.status === "DELIVERED" && c.deliveredAt ? c.deliveredAt : c.status === "COMPLETED" && c.completedAt ? c.completedAt : c.updatedAt;
+
+			// Map work items to their lightweight summaries
+			const workItems: StaffHistoricalWorkItemDTO[] = c.caseItems.map((ci) => ({
+				id: ci.id,
+				productName: ci.product?.name ?? "Unknown Product",
+				workTypeName: ci.workType?.name ?? "General",
+				jawType: ci.jawType,
+				teethCount: ci.selectedTeeth.length,
+			}));
+
 			return {
 				id: c.id,
 				caseNumber: c.caseNumber,
+				status: c.status,
+				resolvedDate,
 				patientName: c.patient.name,
-				clinicName: c.clinic?.name ?? "Direct Intake",
 				dentistName: c.dentist?.name ?? null,
-				primaryProduct: c.caseItems[0]?.product?.name ?? null,
-				caseCategory: c.caseCategory?.name ?? null,
+				grandTotal: c.grandTotal !== null ? Number(c.grandTotal) : null,
 				isRemake: c.isRemake,
-				deadline: c.deadline,
-				createdAt: c.createdAt,
-				status: c.status as "ASSIGNED" | "PROCESSING", // Typecast to active statuses
-				assignedRole: ra.roleCategory,
+				failureReason: c.failureReason,
+				workItems,
+				clinicName: c.clinic?.name ?? "N/A",
 			};
 		});
 
 		return {
 			cases,
-			nextCursor: hasNextPage ? page[page.length - 1].id : null,
+			nextCursor: hasNextPage ? page[page.length - 1].id : null, // Safely maps junction ID as the next cursor
 			totalCount,
-		} as GetStaffActiveCasesResult;
+		} as GetStaffHistoricalCasesResult;
 	});

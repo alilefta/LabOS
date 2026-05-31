@@ -42,22 +42,6 @@ export const ClinicOverviewTabContent = memo(function ClinicOverviewTabContent({
 		staleTime: 1000 * 60 * 5, // Cache for 5 minutes
 	});
 
-	// // 2. High-End Skeleton Loading State
-	// moved for a seperate component that is passed as a fallback around it's suspense boundary
-	// if (isLoading) {
-	// 	return (
-	// 		<div className="flex flex-col gap-6 animate-in fade-in duration-500">
-	// 			<div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-	// 				<Skeleton className="h-80 rounded-4xl bg-slate-100 dark:bg-white/5" />
-	// 				<Skeleton className="h-80 rounded-4xl bg-slate-100 dark:bg-white/5" />
-	// 				<Skeleton className="h-80 rounded-4xl bg-slate-100 dark:bg-white/5" />
-	// 			</div>
-	// 			<Skeleton className="h-75 w-full rounded-4xl bg-slate-100 dark:bg-white/5" />
-	// 			<Skeleton className="h-50 w-full rounded-4xl bg-slate-100 dark:bg-white/5" />
-	// 		</div>
-	// 	);
-	// }
-
 	// Safety fallback if data fails to load
 	// 3. The "Awwwards-Level" Network Failure UI
 	if (isError || !data) {

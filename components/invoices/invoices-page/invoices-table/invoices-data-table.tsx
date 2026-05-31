@@ -68,53 +68,37 @@ export function InvoicesDataTable({ labId, filters, setFilters, onOpenFilters }:
 
 		// Search Mismatch
 		if (debouncedSearch) {
-			return (
-				<div className="flex flex-col items-center justify-center p-16 text-center animate-in fade-in zoom-in-95">
-					<div className="w-16 h-16 rounded-2xl bg-slate-100 dark:bg-white/5 flex items-center justify-center mb-4 border border-border shadow-sm">
-						<FileQuestion className="w-8 h-8 text-slate-400 dark:text-zinc-500" />
-					</div>
-					<h3 className="text-lg font-bold text-foreground">No invoices found</h3>
-					<p className="text-xs text-muted-foreground mt-1 max-w-sm">No results match &quot;{debouncedSearch}&quot;. Check for typos or clear your search.</p>
-				</div>
-			);
+			return {
+				title: "No invoices found",
+				description: `No results match "${debouncedSearch}". Check for typos or clear your search.`,
+				icon: <FileQuestion className="w-8 h-8 text-slate-400 dark:text-zinc-500" />,
+			};
 		}
 
 		// Overdue Reward State
 		if (filters.pulseFilter === "overdue") {
-			return (
-				<div className="flex flex-col items-center justify-center p-16 text-center animate-in fade-in zoom-in-95">
-					<div className="w-16 h-16 rounded-2xl bg-emerald-500/10 flex items-center justify-center mb-4 border border-emerald-500/20 shadow-[0_0_20px_rgba(16,185,129,0.15)]">
-						<ShieldCheck className="w-8 h-8 text-emerald-500" />
-					</div>
-					<h3 className="text-lg font-bold text-foreground">Zero Past Due Accounts</h3>
-					<p className="text-xs text-muted-foreground mt-1 max-w-sm">Incredible work. All of your clinic partners are currently up to date on their payments.</p>
-				</div>
-			);
+			return {
+				title: "Zero Past Due Accounts",
+				description: "Incredible work. All of your clinic partners are currently up to date on their payments.",
+				icon: <ShieldCheck className="w-8 h-8 text-emerald-500" />,
+			};
 		}
 
 		// Outstanding Reward State
 		if (filters.pulseFilter === "outstanding") {
-			return (
-				<div className="flex flex-col items-center justify-center p-16 text-center animate-in fade-in zoom-in-95">
-					<div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-4 border border-primary/20">
-						<Wallet className="w-8 h-8 text-primary" />
-					</div>
-					<h3 className="text-lg font-bold text-foreground">Ledger Balanced</h3>
-					<p className="text-xs text-muted-foreground mt-1 max-w-sm">There are no outstanding invoices in the system. The lab&apos;s A/R is fully settled.</p>
-				</div>
-			);
+			return {
+				title: "Ledger Balanced",
+				description: "There are no outstanding invoices in the system. The lab's A/R is fully settled.",
+				icon: <Wallet className="w-8 h-8 text-primary" />,
+			};
 		}
 
 		// Default Empty
-		return (
-			<div className="flex flex-col items-center justify-center p-16 text-center animate-in fade-in zoom-in-95">
-				<div className="w-16 h-16 rounded-2xl bg-slate-100 dark:bg-white/5 flex items-center justify-center mb-4 border border-border">
-					<Receipt className="w-8 h-8 text-slate-400 dark:text-zinc-500" />
-				</div>
-				<h3 className="text-lg font-bold text-foreground">No Invoice Records</h3>
-				<p className="text-xs text-muted-foreground mt-1 max-w-sm">Adjust your filters to see historical billing data.</p>
-			</div>
-		);
+		return {
+			title: "No Invoice Records",
+			description: "Adjust your filters to see historical billing data.",
+			icon: <Receipt className="w-8 h-8 text-slate-400 dark:text-zinc-500" />,
+		};
 	};
 
 	return (
@@ -191,8 +175,8 @@ export function InvoicesDataTable({ labId, filters, setFilters, onOpenFilters }:
 					fetchNextPage={fetchNextPage}
 					hasNextPage={hasNextPage}
 					isFetchingNextPage={isFetchingNextPage}
-					// Override the default DataTable empty state to use our custom one
-					// customEmptyState={renderEmptyState()}
+					emptyState={renderEmptyState() ?? undefined}
+					minHeight={500}
 				/>
 			</div>
 		</div>

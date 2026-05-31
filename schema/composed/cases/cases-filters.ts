@@ -2,7 +2,7 @@ import z from "zod";
 import { CaseStatusSchema } from "@/schema/base/enums.base";
 import { DatePresetSchema } from "../shared/date-preset";
 
-export const CaseFilterModeSchema = z.enum(["GLOBAL", "CLINIC_HISTORY", "STAFF_DASHBOARD"]);
+export const CaseFilterModeSchema = z.enum(["GLOBAL", "CLINIC_HISTORY", "STAFF_DASHBOARD", "STAFF_HISTORICAL"]);
 export type CaseFilterMode = z.infer<typeof CaseFilterModeSchema>;
 
 // ── DATE LOGIC (Universal) ──────────────────────────────────────────────────
@@ -40,6 +40,7 @@ export const CasesFiltersSchema = z.object({
 	// Boolean Flags
 	isRushOnly: z.boolean(),
 	isRemakeOnly: z.boolean().optional(), // Specific to Clinical History
+	isOverdueOnly: z.boolean().default(false), // 🔥 NEW: Overdue filter
 
 	// UI Context
 	pulseFilter: PulseFilterSchema.default("all"), // Specific to Global Dashboard ("all" | "processing" etc)
@@ -58,4 +59,5 @@ export const DEFAULT_CASES_FILTERS: CasesFilters = {
 	isRemakeOnly: false,
 	dateRange: null,
 	pulseFilter: "all",
+	isOverdueOnly: false,
 };

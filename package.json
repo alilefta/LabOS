@@ -66,6 +66,7 @@
 		"@types/three": "^0.183.1",
 		"eslint": "^9",
 		"eslint-config-next": "16.1.7",
+		"eslint-plugin-better-tailwindcss": "^4.5.0",
 		"prisma": "^7.5.0",
 		"tailwindcss": "^4",
 		"typescript": "^5"

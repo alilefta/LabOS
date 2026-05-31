@@ -221,47 +221,76 @@ export function ReassignStaffCasesSheet({
 					</div>
 
 					{/* --- HIGH-END COMPARATIVE CAPACITY PREVIEW --- */}
-					{targetStaff && (
-						<div className="p-5 rounded-2xl bg-slate-50 dark:bg-white/2 border border-border flex flex-col gap-4 animate-in fade-in zoom-in-95">
-							<div className="flex items-center gap-2">
-								<Sparkles className="w-4 h-4 text-primary" />
-								<h4 className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">Workload Comparison</h4>
-							</div>
+					{targetStaff &&
+						(() => {
+							// 1. Safe Math Calculations
+							const MAX_CAPACITY = 15;
 
-							<div className="flex flex-col gap-4">
-								{/* Original Tech ( Ahmed ) */}
-								<div className="flex flex-col gap-1.5">
-									<div className="flex justify-between text-xs font-semibold">
-										<span className="text-muted-foreground">{originalStaffName}</span>
-										{/* FIX: Now computes based on the REAL database count passed from parent [1] */}
-										<span className="font-mono text-muted-foreground">{Math.max(0, originalActiveCaseCount - caseIds.length)} Active</span>
+							// Original Staff Math
+							const originalNewCount = Math.max(0, originalActiveCaseCount - caseIds.length);
+							const originalPct = Math.min((originalNewCount / MAX_CAPACITY) * 100, 100);
+
+							// Target Staff Math
+							const targetNewCount = targetStaff.activeCaseCount + caseIds.length;
+							const targetPct = Math.min((targetNewCount / MAX_CAPACITY) * 100, 100);
+
+							// Target Staff Color Logic
+							const targetIsCritical = targetNewCount >= 15;
+							const targetIsWarning = targetNewCount >= 12 && targetNewCount < 15;
+
+							return (
+								<div className="p-5 rounded-2xl bg-slate-50 dark:bg-white/2 border border-border flex flex-col gap-5 animate-in fade-in zoom-in-95 shadow-sm">
+									<div className="flex items-center justify-between">
+										<div className="flex items-center gap-2">
+											<Sparkles className="w-4 h-4 text-primary" />
+											<h4 className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">Post-Transfer Load</h4>
+										</div>
+										{targetIsCritical && (
+											<span className="text-[9px] font-bold text-rose-500 uppercase tracking-widest bg-rose-500/10 px-2 py-0.5 rounded animate-pulse">Burnout Risk</span>
+										)}
 									</div>
-									<div className="h-1.5 w-full bg-slate-100 dark:bg-white/5 rounded-full overflow-hidden">
-										<div
-											className="h-full bg-slate-300 dark:bg-zinc-600 rounded-full animate-all duration-1000"
-											style={{ width: `${(Math.max(0, originalActiveCaseCount - caseIds.length) / 15) * 100}%` }}
-										/>
+
+									<div className="flex flex-col gap-5">
+										{/* Original Tech ( Ahmed ) */}
+										<div className="flex flex-col gap-2">
+											<div className="flex justify-between text-xs font-semibold">
+												<span className="text-muted-foreground truncate max-w-37.5">{originalStaffName}</span>
+												<span className="font-mono text-muted-foreground">{originalNewCount} Active</span>
+											</div>
+											<div className="h-1.5 w-full bg-slate-100 dark:bg-white/5 rounded-full overflow-hidden">
+												<div className="h-full bg-slate-300 dark:bg-zinc-600 rounded-full transition-all duration-1000 ease-out" style={{ width: `${originalPct}%` }} />
+											</div>
+										</div>
+
+										{/* Target Tech ( Elena ) */}
+										<div className="flex flex-col gap-2">
+											<div className="flex justify-between text-xs font-bold">
+												<span className="text-foreground truncate max-w-37.5">
+													{targetStaff.firstName} {targetStaff.lastName}
+												</span>
+												<span
+													className={cn(
+														"font-mono transition-colors duration-500",
+														targetIsCritical ? "text-rose-500" : targetIsWarning ? "text-amber-500" : "text-emerald-500",
+													)}
+												>
+													+{caseIds.length} → {targetNewCount} Active
+												</span>
+											</div>
+											<div className="h-1.5 w-full bg-slate-100 dark:bg-white/5 rounded-full overflow-hidden">
+												<div
+													className={cn(
+														"h-full rounded-full transition-all duration-1000 ease-out",
+														targetIsCritical ? "bg-rose-500" : targetIsWarning ? "bg-amber-500" : "bg-emerald-500",
+													)}
+													style={{ width: `${targetPct}%` }}
+												/>
+											</div>
+										</div>
 									</div>
 								</div>
-
-								{/* Target Tech ( Elena ) */}
-								<div className="flex flex-col gap-1.5">
-									<div className="flex justify-between text-xs font-bold">
-										<span className="text-foreground">
-											{targetStaff.firstName} {targetStaff.lastName}
-										</span>
-										<span className="font-mono text-emerald-500">{targetStaff.activeCaseCount + caseIds.length} Active</span>
-									</div>
-									<div className="h-1.5 w-full bg-slate-100 dark:bg-white/5 rounded-full overflow-hidden">
-										<div
-											className="h-full bg-emerald-500 rounded-full animate-all duration-1000"
-											style={{ width: `${((targetStaff.activeCaseCount + caseIds.length) / 15) * 100}%` }}
-										/>
-									</div>
-								</div>
-							</div>
-						</div>
-					)}
+							);
+						})()}
 				</div>
 
 				{/* --- FOOTER --- */}

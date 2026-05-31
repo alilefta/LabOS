@@ -16,7 +16,7 @@ import { getClinicsListAction } from "@/actions/clinics/get-clinics";
 import { handleSafeActionError } from "@/lib/safe-action-helpers";
 import { usePermissions } from "@/providers/permissions-provider";
 import { ClinicPulseStrip } from "./pulse-strip/clinics-pulse-strip";
-import { DataTable } from "./clinics-table/data-table";
+// import { DataTable } from "./clinics-table/data-table";
 import { columns } from "./clinics-table/columns";
 import { ClinicFiltersSheet } from "./clinic-filter-sheet";
 import { ClinicQuickViewSheet } from "./clinic-quick-view-sheet";
@@ -25,6 +25,7 @@ import { parseAsString, useQueryState } from "nuqs";
 import dynamic from "next/dynamic";
 import { useCopilotStore } from "@/store/ai-copilot/use-copilot-store";
 import { AskAiButton } from "@/components/copilot/ask-ai-button";
+import { DataTable } from "@/components/shared/tables/data-table";
 
 // const ClinicCopilotSheet = dynamic(() => import("./clinic-ai-copilot-sheet").then((cm) => cm.ClinicCopilotSheet), { ssr: false });
 const GlobalAiCopilotSheet = dynamic(() => import("../../modals/shared/global-ai-copilot-sheet").then((cm) => cm.GlobalAiCopilotSheet), {
@@ -255,6 +256,7 @@ export function ClinicsClientWrapper({ labId }: PageProps) {
 							fetchNextPage={fetchNextPage}
 							hasNextPage={hasNextPage}
 							isFetchingNextPage={isFetchingNextPage}
+							minHeight={636}
 						/>
 					</div>
 				</div>

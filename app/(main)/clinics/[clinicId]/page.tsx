@@ -1,4 +1,3 @@
-import { ClinicTerminalShell } from "@/components/clinics/clinic-details/navigation-shell/clinic-terminal-shell";
 import { ClinicHeaderSection } from "@/components/clinics/clinic-details/navigation-shell/clinic-header-section";
 import { ClinicTabNavigation } from "@/components/clinics/clinic-details/navigation-shell/clinic-tab-navigation";
 import { Suspense } from "react";
@@ -61,7 +60,7 @@ export default async function ClinicDetailPage({ params, searchParams }: PagePro
 		<div className="flex flex-col h-full bg-background relative overflow-hidden">
 			<div className="relative z-10 flex flex-col h-full">
 				{/* --- STICKY HEADER & TABS --- */}
-				<div className="sticky top-0 z-30 bg-background/80  border-b border-border pt-6 flex flex-col gap-4 shadow-sm">
+				<div className="sticky top-0 z-30 bg-background/80 backdrop-blur-md border-b border-border pt-6 flex flex-col gap-4 shadow-sm w-full max-w-500 mx-auto">
 					<Suspense fallback={<ClinicHeaderSectionSkeleton />}>
 						<ClinicHeaderSection clinicId={clinicId} />
 					</Suspense>
@@ -71,7 +70,7 @@ export default async function ClinicDetailPage({ params, searchParams }: PagePro
 				</div>
 
 				{/* --- DYNAMIC TAB CONTENT AREA --- */}
-				<div className="flex-1 overflow-y-auto custom-scrollbar relative z-10 w-full">
+				<div className="flex-1 overflow-y-auto custom-scrollbar relative z-10 w-full max-w-500 mx-auto">
 					<Suspense fallback={<ClinicDetailsSkeleton />}>
 						<ClinicTabRouter activePeriod={activePeriod} activeTab={activeTab} clinicId={clinicId} />
 					</Suspense>

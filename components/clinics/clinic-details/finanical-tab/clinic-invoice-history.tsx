@@ -180,6 +180,7 @@ export const ClinicInvoiceHistory = memo(function ClinicInvoiceHistory({ clinicI
 					fetchNextPage={fetchNextPage}
 					hasNextPage={hasNextPage}
 					isFetchingNextPage={isFetchingNextPage}
+					minHeight={400}
 				/>
 			</div>
 

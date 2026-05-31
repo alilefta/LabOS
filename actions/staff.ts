@@ -11,7 +11,7 @@ import { APIError } from "better-auth";
 export const createLabStaffAction = actionClientWithLab
 	.metadata({
 		actionName: "Register-New-Lab-Staff-Action",
-		requiredLabRole: "ADMIN",
+		requiredLabRole: "STAFF",
 	})
 	.inputSchema(CreateLabStaffInputSchema)
 	.action(async ({ parsedInput, ctx }) => {
@@ -56,7 +56,7 @@ export const createLabStaffAction = actionClientWithLab
 export const getActiveLabStaffBySearchQueryAction = actionClientWithLab
 	.metadata({
 		actionName: "Get-Lab-Staff-By-Search-Query-Action",
-		requiredLabRole: "ADMIN",
+		requiredLabRole: "STAFF",
 	})
 	.inputSchema(SearchInputSchema)
 	.action(async ({ parsedInput, ctx }) => {
@@ -99,7 +99,7 @@ export const getActiveLabStaffBySearchQueryAction = actionClientWithLab
 export const getLabStaffByRoleAndSearchAction = actionClientWithLab
 	.metadata({
 		actionName: "Get-Lab-Staff-By-Role-And-Search-Action",
-		requiredLabRole: "ADMIN",
+		requiredLabRole: "STAFF",
 	})
 	.inputSchema(GetLabStaffByRoleAndSearchQueryInputSchema)
 	.action(async ({ parsedInput, ctx }) => {
@@ -154,7 +154,7 @@ export const getLabStaffByRoleAndSearchAction = actionClientWithLab
 export const getActiveLabStaffAction = actionClientWithLab
 	.metadata({
 		actionName: "Get-Active-Lab-Staff-Action",
-		requiredLabRole: "ADMIN",
+		requiredLabRole: "STAFF",
 	})
 	.action(async ({ ctx }) => {
 		const { labId } = ctx;

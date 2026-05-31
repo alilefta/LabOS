@@ -6,8 +6,9 @@ import { normalizeClinic } from "@/lib/mappers";
 import { composeClinicBase } from "@/lib/mappers/composers";
 import { tenantPrisma } from "@/lib/prisma";
 import { ClinicBase } from "@/schema/base/clinic.base";
+import { cache } from "react";
 
-export async function getClinicDetailsById(clinicId: string) {
+export const getClinicDetailsById = cache(async function getClinicDetailsById(clinicId: string) {
 	const session = await getServerSession();
 
 	if (!session) {
@@ -59,7 +60,7 @@ export async function getClinicDetailsById(clinicId: string) {
 	}
 
 	return daSuccess<ClinicBase | null>(normalizeClinic(clinic));
-}
+});
 
 export async function getClinicById(clinicId: string) {
 	const session = await getServerSession();

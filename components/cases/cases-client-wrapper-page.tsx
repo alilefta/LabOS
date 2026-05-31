@@ -334,6 +334,7 @@ export default function CasesClientWrapperPage({ labId }: PageProps) {
 									fetchNextPage={fetchNextPage}
 									hasNextPage={hasNextPage}
 									isFetchingNextPage={isFetchingNextPage}
+									minHeight={500}
 								/>
 							</div>
 						) : (
