@@ -21,6 +21,7 @@ export const LabStaffUpsertResultSchema = z.object({
   labInvitation: z.unknown().optional(),
   caseAssignments: z.array(z.unknown()),
   workingDays: z.array(z.unknown()),
+  staffPayouts: z.array(z.unknown()),
   createdAt: z.date(),
   updatedAt: z.date()
 });

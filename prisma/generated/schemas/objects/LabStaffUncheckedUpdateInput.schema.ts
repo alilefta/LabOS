@@ -13,7 +13,8 @@ import { WeekdaySchema } from '../enums/Weekday.schema';
 import { DateTimeFieldUpdateOperationsInputObjectSchema as DateTimeFieldUpdateOperationsInputObjectSchema } from './DateTimeFieldUpdateOperationsInput.schema';
 import { LabUserUncheckedUpdateOneWithoutLabStaffNestedInputObjectSchema as LabUserUncheckedUpdateOneWithoutLabStaffNestedInputObjectSchema } from './LabUserUncheckedUpdateOneWithoutLabStaffNestedInput.schema';
 import { LabInvitationUncheckedUpdateOneWithoutLabStaffNestedInputObjectSchema as LabInvitationUncheckedUpdateOneWithoutLabStaffNestedInputObjectSchema } from './LabInvitationUncheckedUpdateOneWithoutLabStaffNestedInput.schema';
-import { CaseStaffAssignmentUncheckedUpdateManyWithoutStaffNestedInputObjectSchema as CaseStaffAssignmentUncheckedUpdateManyWithoutStaffNestedInputObjectSchema } from './CaseStaffAssignmentUncheckedUpdateManyWithoutStaffNestedInput.schema'
+import { CaseStaffAssignmentUncheckedUpdateManyWithoutStaffNestedInputObjectSchema as CaseStaffAssignmentUncheckedUpdateManyWithoutStaffNestedInputObjectSchema } from './CaseStaffAssignmentUncheckedUpdateManyWithoutStaffNestedInput.schema';
+import { StaffPayoutUncheckedUpdateManyWithoutStaffNestedInputObjectSchema as StaffPayoutUncheckedUpdateManyWithoutStaffNestedInputObjectSchema } from './StaffPayoutUncheckedUpdateManyWithoutStaffNestedInput.schema'
 
 import { DecimalJSLikeSchema, isValidDecimalInput } from '../../helpers/decimal-helpers';
 const makeSchema = () => z.object({
@@ -45,7 +46,8 @@ const makeSchema = () => z.object({
   updatedAt: z.union([z.coerce.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputObjectSchema)]).optional(),
   labUser: z.lazy(() => LabUserUncheckedUpdateOneWithoutLabStaffNestedInputObjectSchema).optional(),
   labInvitation: z.lazy(() => LabInvitationUncheckedUpdateOneWithoutLabStaffNestedInputObjectSchema).optional(),
-  caseAssignments: z.lazy(() => CaseStaffAssignmentUncheckedUpdateManyWithoutStaffNestedInputObjectSchema).optional()
+  caseAssignments: z.lazy(() => CaseStaffAssignmentUncheckedUpdateManyWithoutStaffNestedInputObjectSchema).optional(),
+  staffPayouts: z.lazy(() => StaffPayoutUncheckedUpdateManyWithoutStaffNestedInputObjectSchema).optional()
 }).strict();
 export const LabStaffUncheckedUpdateInputObjectSchema: z.ZodType<Prisma.LabStaffUncheckedUpdateInput> = makeSchema() as unknown as z.ZodType<Prisma.LabStaffUncheckedUpdateInput>;
 export const LabStaffUncheckedUpdateInputObjectZodSchema = makeSchema();

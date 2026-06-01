@@ -8,13 +8,16 @@ import { CommissionTypeSchema } from '../enums/CommissionType.schema';
 import { DecimalFilterObjectSchema as DecimalFilterObjectSchema } from './DecimalFilter.schema';
 import { BoolFilterObjectSchema as BoolFilterObjectSchema } from './BoolFilter.schema';
 import { DateTimeNullableFilterObjectSchema as DateTimeNullableFilterObjectSchema } from './DateTimeNullableFilter.schema';
+import { StringNullableFilterObjectSchema as StringNullableFilterObjectSchema } from './StringNullableFilter.schema';
 import { DateTimeFilterObjectSchema as DateTimeFilterObjectSchema } from './DateTimeFilter.schema';
 import { CaseScalarRelationFilterObjectSchema as CaseScalarRelationFilterObjectSchema } from './CaseScalarRelationFilter.schema';
 import { CaseWhereInputObjectSchema as CaseWhereInputObjectSchema } from './CaseWhereInput.schema';
 import { LabStaffScalarRelationFilterObjectSchema as LabStaffScalarRelationFilterObjectSchema } from './LabStaffScalarRelationFilter.schema';
 import { LabStaffWhereInputObjectSchema as LabStaffWhereInputObjectSchema } from './LabStaffWhereInput.schema';
 import { LabScalarRelationFilterObjectSchema as LabScalarRelationFilterObjectSchema } from './LabScalarRelationFilter.schema';
-import { LabWhereInputObjectSchema as LabWhereInputObjectSchema } from './LabWhereInput.schema'
+import { LabWhereInputObjectSchema as LabWhereInputObjectSchema } from './LabWhereInput.schema';
+import { StaffPayoutNullableScalarRelationFilterObjectSchema as StaffPayoutNullableScalarRelationFilterObjectSchema } from './StaffPayoutNullableScalarRelationFilter.schema';
+import { StaffPayoutWhereInputObjectSchema as StaffPayoutWhereInputObjectSchema } from './StaffPayoutWhereInput.schema'
 
 import { DecimalJSLikeSchema, isValidDecimalInput } from '../../helpers/decimal-helpers';
 const casestaffassignmentwhereinputSchema = z.object({
@@ -45,11 +48,13 @@ const casestaffassignmentwhereinputSchema = z.object({
 })]).optional(),
   isPaid: z.union([z.lazy(() => BoolFilterObjectSchema), z.boolean()]).optional(),
   paidAt: z.union([z.lazy(() => DateTimeNullableFilterObjectSchema), z.coerce.date()]).optional().nullable(),
+  payoutId: z.union([z.lazy(() => StringNullableFilterObjectSchema), z.string()]).optional().nullable(),
   createdAt: z.union([z.lazy(() => DateTimeFilterObjectSchema), z.coerce.date()]).optional(),
   updatedAt: z.union([z.lazy(() => DateTimeFilterObjectSchema), z.coerce.date()]).optional(),
   dentalCase: z.union([z.lazy(() => CaseScalarRelationFilterObjectSchema), z.lazy(() => CaseWhereInputObjectSchema)]).optional(),
   staff: z.union([z.lazy(() => LabStaffScalarRelationFilterObjectSchema), z.lazy(() => LabStaffWhereInputObjectSchema)]).optional(),
-  lab: z.union([z.lazy(() => LabScalarRelationFilterObjectSchema), z.lazy(() => LabWhereInputObjectSchema)]).optional()
+  lab: z.union([z.lazy(() => LabScalarRelationFilterObjectSchema), z.lazy(() => LabWhereInputObjectSchema)]).optional(),
+  payout: z.union([z.lazy(() => StaffPayoutNullableScalarRelationFilterObjectSchema), z.lazy(() => StaffPayoutWhereInputObjectSchema)]).optional()
 }).strict();
 export const CaseStaffAssignmentWhereInputObjectSchema: z.ZodType<Prisma.CaseStaffAssignmentWhereInput> = casestaffassignmentwhereinputSchema as unknown as z.ZodType<Prisma.CaseStaffAssignmentWhereInput>;
 export const CaseStaffAssignmentWhereInputObjectZodSchema = casestaffassignmentwhereinputSchema;

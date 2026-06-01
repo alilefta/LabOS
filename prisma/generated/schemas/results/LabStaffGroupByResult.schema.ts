@@ -38,6 +38,7 @@ export const LabStaffGroupByResultSchema = z.array(z.object({
     labInvitation: z.number(),
     caseAssignments: z.number(),
     workingDays: z.number(),
+    staffPayouts: z.number(),
     createdAt: z.number(),
     updatedAt: z.number()
   }).optional(),

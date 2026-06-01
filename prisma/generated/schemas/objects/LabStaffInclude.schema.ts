@@ -4,6 +4,7 @@ import { LabArgsObjectSchema as LabArgsObjectSchema } from './LabArgs.schema';
 import { LabUserArgsObjectSchema as LabUserArgsObjectSchema } from './LabUserArgs.schema';
 import { LabInvitationArgsObjectSchema as LabInvitationArgsObjectSchema } from './LabInvitationArgs.schema';
 import { CaseStaffAssignmentFindManySchema as CaseStaffAssignmentFindManySchema } from '../findManyCaseStaffAssignment.schema';
+import { StaffPayoutFindManySchema as StaffPayoutFindManySchema } from '../findManyStaffPayout.schema';
 import { LabStaffCountOutputTypeArgsObjectSchema as LabStaffCountOutputTypeArgsObjectSchema } from './LabStaffCountOutputTypeArgs.schema'
 
 const makeSchema = () => z.object({
@@ -11,6 +12,7 @@ const makeSchema = () => z.object({
   labUser: z.union([z.boolean(), z.lazy(() => LabUserArgsObjectSchema)]).optional(),
   labInvitation: z.union([z.boolean(), z.lazy(() => LabInvitationArgsObjectSchema)]).optional(),
   caseAssignments: z.union([z.boolean(), z.lazy(() => CaseStaffAssignmentFindManySchema)]).optional(),
+  staffPayouts: z.union([z.boolean(), z.lazy(() => StaffPayoutFindManySchema)]).optional(),
   _count: z.union([z.boolean(), z.lazy(() => LabStaffCountOutputTypeArgsObjectSchema)]).optional()
 }).strict();
 export const LabStaffIncludeObjectSchema: z.ZodType<Prisma.LabStaffInclude> = makeSchema() as unknown as z.ZodType<Prisma.LabStaffInclude>;

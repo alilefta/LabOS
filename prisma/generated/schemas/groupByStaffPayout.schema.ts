@@ -1,0 +1,15 @@
+import type { Prisma } from '../../../generated/prisma/client';
+import * as z from 'zod';
+import { StaffPayoutWhereInputObjectSchema as StaffPayoutWhereInputObjectSchema } from './objects/StaffPayoutWhereInput.schema';
+import { StaffPayoutOrderByWithAggregationInputObjectSchema as StaffPayoutOrderByWithAggregationInputObjectSchema } from './objects/StaffPayoutOrderByWithAggregationInput.schema';
+import { StaffPayoutScalarWhereWithAggregatesInputObjectSchema as StaffPayoutScalarWhereWithAggregatesInputObjectSchema } from './objects/StaffPayoutScalarWhereWithAggregatesInput.schema';
+import { StaffPayoutScalarFieldEnumSchema } from './enums/StaffPayoutScalarFieldEnum.schema';
+import { StaffPayoutCountAggregateInputObjectSchema as StaffPayoutCountAggregateInputObjectSchema } from './objects/StaffPayoutCountAggregateInput.schema';
+import { StaffPayoutMinAggregateInputObjectSchema as StaffPayoutMinAggregateInputObjectSchema } from './objects/StaffPayoutMinAggregateInput.schema';
+import { StaffPayoutMaxAggregateInputObjectSchema as StaffPayoutMaxAggregateInputObjectSchema } from './objects/StaffPayoutMaxAggregateInput.schema';
+import { StaffPayoutAvgAggregateInputObjectSchema as StaffPayoutAvgAggregateInputObjectSchema } from './objects/StaffPayoutAvgAggregateInput.schema';
+import { StaffPayoutSumAggregateInputObjectSchema as StaffPayoutSumAggregateInputObjectSchema } from './objects/StaffPayoutSumAggregateInput.schema';
+
+export const StaffPayoutGroupBySchema: z.ZodType<Prisma.StaffPayoutGroupByArgs> = z.object({ where: StaffPayoutWhereInputObjectSchema.optional(), orderBy: z.union([StaffPayoutOrderByWithAggregationInputObjectSchema, StaffPayoutOrderByWithAggregationInputObjectSchema.array()]).optional(), having: StaffPayoutScalarWhereWithAggregatesInputObjectSchema.optional(), take: z.number().optional(), skip: z.number().optional(), by: z.array(StaffPayoutScalarFieldEnumSchema), _count: z.union([ z.literal(true), StaffPayoutCountAggregateInputObjectSchema ]).optional(), _min: StaffPayoutMinAggregateInputObjectSchema.optional(), _max: StaffPayoutMaxAggregateInputObjectSchema.optional(), _avg: StaffPayoutAvgAggregateInputObjectSchema.optional(), _sum: StaffPayoutSumAggregateInputObjectSchema.optional() }).strict() as unknown as z.ZodType<Prisma.StaffPayoutGroupByArgs>;
+
+export const StaffPayoutGroupByZodSchema = z.object({ where: StaffPayoutWhereInputObjectSchema.optional(), orderBy: z.union([StaffPayoutOrderByWithAggregationInputObjectSchema, StaffPayoutOrderByWithAggregationInputObjectSchema.array()]).optional(), having: StaffPayoutScalarWhereWithAggregatesInputObjectSchema.optional(), take: z.number().optional(), skip: z.number().optional(), by: z.array(StaffPayoutScalarFieldEnumSchema), _count: z.union([ z.literal(true), StaffPayoutCountAggregateInputObjectSchema ]).optional(), _min: StaffPayoutMinAggregateInputObjectSchema.optional(), _max: StaffPayoutMaxAggregateInputObjectSchema.optional(), _avg: StaffPayoutAvgAggregateInputObjectSchema.optional(), _sum: StaffPayoutSumAggregateInputObjectSchema.optional() }).strict();

@@ -6,7 +6,8 @@ import { LabStaffCreateworkingDaysInputObjectSchema as LabStaffCreateworkingDays
 import { WeekdaySchema } from '../enums/Weekday.schema';
 import { LabCreateNestedOneWithoutStaffInputObjectSchema as LabCreateNestedOneWithoutStaffInputObjectSchema } from './LabCreateNestedOneWithoutStaffInput.schema';
 import { LabUserCreateNestedOneWithoutLabStaffInputObjectSchema as LabUserCreateNestedOneWithoutLabStaffInputObjectSchema } from './LabUserCreateNestedOneWithoutLabStaffInput.schema';
-import { LabInvitationCreateNestedOneWithoutLabStaffInputObjectSchema as LabInvitationCreateNestedOneWithoutLabStaffInputObjectSchema } from './LabInvitationCreateNestedOneWithoutLabStaffInput.schema'
+import { LabInvitationCreateNestedOneWithoutLabStaffInputObjectSchema as LabInvitationCreateNestedOneWithoutLabStaffInputObjectSchema } from './LabInvitationCreateNestedOneWithoutLabStaffInput.schema';
+import { StaffPayoutCreateNestedManyWithoutStaffInputObjectSchema as StaffPayoutCreateNestedManyWithoutStaffInputObjectSchema } from './StaffPayoutCreateNestedManyWithoutStaffInput.schema'
 
 import { DecimalJSLikeSchema, isValidDecimalInput } from '../../helpers/decimal-helpers';
 const makeSchema = () => z.object({
@@ -37,7 +38,8 @@ const makeSchema = () => z.object({
   updatedAt: z.coerce.date().optional(),
   lab: z.lazy(() => LabCreateNestedOneWithoutStaffInputObjectSchema),
   labUser: z.lazy(() => LabUserCreateNestedOneWithoutLabStaffInputObjectSchema).optional(),
-  labInvitation: z.lazy(() => LabInvitationCreateNestedOneWithoutLabStaffInputObjectSchema).optional()
+  labInvitation: z.lazy(() => LabInvitationCreateNestedOneWithoutLabStaffInputObjectSchema).optional(),
+  staffPayouts: z.lazy(() => StaffPayoutCreateNestedManyWithoutStaffInputObjectSchema).optional()
 }).strict();
 export const LabStaffCreateWithoutCaseAssignmentsInputObjectSchema: z.ZodType<Prisma.LabStaffCreateWithoutCaseAssignmentsInput> = makeSchema() as unknown as z.ZodType<Prisma.LabStaffCreateWithoutCaseAssignmentsInput>;
 export const LabStaffCreateWithoutCaseAssignmentsInputObjectZodSchema = makeSchema();

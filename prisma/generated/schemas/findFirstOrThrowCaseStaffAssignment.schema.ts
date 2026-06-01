@@ -23,6 +23,8 @@ export const CaseStaffAssignmentFindFirstOrThrowSelectSchema: z.ZodType<Prisma.C
     commissionTotal: z.boolean().optional(),
     isPaid: z.boolean().optional(),
     paidAt: z.boolean().optional(),
+    payoutId: z.boolean().optional(),
+    payout: z.boolean().optional(),
     createdAt: z.boolean().optional(),
     updatedAt: z.boolean().optional()
   }).strict() as unknown as z.ZodType<Prisma.CaseStaffAssignmentSelect>;
@@ -41,6 +43,8 @@ export const CaseStaffAssignmentFindFirstOrThrowSelectZodSchema = z.object({
     commissionTotal: z.boolean().optional(),
     isPaid: z.boolean().optional(),
     paidAt: z.boolean().optional(),
+    payoutId: z.boolean().optional(),
+    payout: z.boolean().optional(),
     createdAt: z.boolean().optional(),
     updatedAt: z.boolean().optional()
   }).strict();

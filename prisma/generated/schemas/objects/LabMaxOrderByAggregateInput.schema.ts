@@ -9,6 +9,7 @@ const makeSchema = () => z.object({
   brandAvatarUrl: SortOrderSchema.optional(),
   subtitle: SortOrderSchema.optional(),
   nextCaseNumber: SortOrderSchema.optional(),
+  nextPayoutNumber: SortOrderSchema.optional(),
   nextInvoiceNumber: SortOrderSchema.optional(),
   createdAt: SortOrderSchema.optional(),
   updatedAt: SortOrderSchema.optional()

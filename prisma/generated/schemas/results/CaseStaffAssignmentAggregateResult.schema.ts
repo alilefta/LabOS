@@ -13,6 +13,8 @@ export const CaseStaffAssignmentAggregateResultSchema = z.object({  _count: z.ob
     commissionTotal: z.number(),
     isPaid: z.number(),
     paidAt: z.number(),
+    payoutId: z.number(),
+    payout: z.number(),
     createdAt: z.number(),
     updatedAt: z.number()
   }).optional(),
@@ -32,6 +34,7 @@ export const CaseStaffAssignmentAggregateResultSchema = z.object({  _count: z.ob
     commissionValue: z.number().nullable(),
     commissionTotal: z.number().nullable(),
     paidAt: z.date().nullable(),
+    payoutId: z.string().nullable(),
     createdAt: z.date().nullable(),
     updatedAt: z.date().nullable()
   }).nullable().optional(),
@@ -43,6 +46,7 @@ export const CaseStaffAssignmentAggregateResultSchema = z.object({  _count: z.ob
     commissionValue: z.number().nullable(),
     commissionTotal: z.number().nullable(),
     paidAt: z.date().nullable(),
+    payoutId: z.string().nullable(),
     createdAt: z.date().nullable(),
     updatedAt: z.date().nullable()
   }).nullable().optional()});

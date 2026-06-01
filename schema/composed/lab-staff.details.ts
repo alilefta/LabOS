@@ -1,29 +1,35 @@
-import z from "zod";
-import { LabStaffBaseSchema } from "../base/lab-staff.base";
-import { LabBaseSchema } from "../base/lab.base";
-import { CommissionTypeSchema, StaffRoleCategorySchema } from "../base/enums.base";
-import { emptyToUndefinedTransformer } from "../base/utils.base";
-import { CaseStaffAssignmentBaseSchema } from "../base/case-staff-assignment.base";
-import { LabUserBaseSchema } from "../base/lab-user.base";
-import { LabInvitationBaseSchema } from "../base/lab-invitation.base";
+import z from 'zod'
+import { LabStaffBaseSchema } from '../base/lab-staff.base'
+import { LabBaseSchema } from '../base/lab.base'
+import {
+	CommissionTypeSchema,
+	StaffRoleCategorySchema,
+} from '../base/enums.base'
+import { emptyToUndefinedTransformer } from '../base/utils.base'
+import { CaseStaffAssignmentBaseSchema } from '../base/case-staff-assignment.base'
+import { LabUserBaseSchema } from '../base/lab-user.base'
+import { LabInvitationBaseSchema } from '../base/lab-invitation.base'
+import { StaffPayoutBaseSchema } from '../base/staff-payout.base'
 
 export const LabStaffDetailsSchema = LabStaffBaseSchema.extend({
 	lab: LabBaseSchema,
 	caseAssignments: z.array(CaseStaffAssignmentBaseSchema),
 	labUser: LabUserBaseSchema.nullable(),
 	labInvitation: LabInvitationBaseSchema.nullable(),
-});
 
-export type LabStaffDetails = z.infer<typeof LabStaffDetailsSchema>;
+	staffPayouts: z.array(StaffPayoutBaseSchema),
+})
+
+export type LabStaffDetails = z.infer<typeof LabStaffDetailsSchema>
 
 export const LabStaffDetailsUISchema = LabStaffBaseSchema.extend({
 	lab: LabBaseSchema.optional(),
 	caseAssignments: z.array(CaseStaffAssignmentBaseSchema).optional(),
 	labUser: LabUserBaseSchema.optional(),
 	labInvitation: LabInvitationBaseSchema.nullable(),
-});
+})
 
-export type LabStaffDetailsUI = z.infer<typeof LabStaffDetailsUISchema>;
+export type LabStaffDetailsUI = z.infer<typeof LabStaffDetailsUISchema>
 
 export const CreateLabStaffInputSchema = LabStaffBaseSchema.omit({
 	id: true,
@@ -31,18 +37,27 @@ export const CreateLabStaffInputSchema = LabStaffBaseSchema.omit({
 	createdAt: true,
 	updatedAt: true,
 }).extend({
-	firstName: z.string().trim().min(2, "First name must be at least 2 characters."),
-	lastName: z.string().trim().min(2, "Last name must be at least 2 characters."),
-	phoneNumber: z.string().trim().min(7, "Please enter a valid phone number."),
+	firstName: z
+		.string()
+		.trim()
+		.min(2, 'First name must be at least 2 characters.'),
+	lastName: z
+		.string()
+		.trim()
+		.min(2, 'Last name must be at least 2 characters.'),
+	phoneNumber: z.string().trim().min(7, 'Please enter a valid phone number.'),
 
 	// Address Fields (Required for HR & Logistics)
-	city: z.string().trim().min(1, "City is required."),
-	address1: z.string().trim().min(1, "Street address is required."),
+	city: z.string().trim().min(1, 'City is required.'),
+	address1: z.string().trim().min(1, 'Street address is required.'),
 	address2: z.string().trim().transform(emptyToUndefinedTransformer).optional(),
 	zipcode: z.string().trim().transform(emptyToUndefinedTransformer).optional(),
 
 	avatarUrl: z
-		.union([z.literal(""), z.string().trim().url("Please enter a valid image URL")])
+		.union([
+			z.literal(''),
+			z.string().trim().url('Please enter a valid image URL'),
+		])
 		.transform(emptyToUndefinedTransformer)
 		.optional(),
 	isActive: z.boolean(),
@@ -50,15 +65,20 @@ export const CreateLabStaffInputSchema = LabStaffBaseSchema.omit({
 	roleCategory: StaffRoleCategorySchema,
 	specialization: z.string().transform(emptyToUndefinedTransformer).optional(),
 	commissionType: CommissionTypeSchema,
-	commissionValue: z.coerce.number<number>().min(0, "Value must be positive").optional(),
-});
+	commissionValue: z.coerce
+		.number<number>()
+		.min(0, 'Value must be positive')
+		.optional(),
+})
 
-export type CreateLabStaffInput = z.infer<typeof CreateLabStaffInputSchema>;
+export type CreateLabStaffInput = z.infer<typeof CreateLabStaffInputSchema>
 
 export const GetLabStaffByRoleAndSearchQueryInputSchema = z.object({
 	role: StaffRoleCategorySchema,
 	searchQuery: z.string(),
 	limit: z.number().default(20),
-});
+})
 
-export type GetLabStaffByRoleAndSearchQueryInput = z.infer<typeof GetLabStaffByRoleAndSearchQueryInputSchema>;
+export type GetLabStaffByRoleAndSearchQueryInput = z.infer<
+	typeof GetLabStaffByRoleAndSearchQueryInputSchema
+>

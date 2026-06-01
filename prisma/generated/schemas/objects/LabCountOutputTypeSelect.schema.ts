@@ -18,7 +18,8 @@ import { LabCountOutputTypeCountInvoicesArgsObjectSchema as LabCountOutputTypeCo
 import { LabCountOutputTypeCountInvoicePaymentsArgsObjectSchema as LabCountOutputTypeCountInvoicePaymentsArgsObjectSchema } from './LabCountOutputTypeCountInvoicePaymentsArgs.schema';
 import { LabCountOutputTypeCountCaseActivityLogsArgsObjectSchema as LabCountOutputTypeCountCaseActivityLogsArgsObjectSchema } from './LabCountOutputTypeCountCaseActivityLogsArgs.schema';
 import { LabCountOutputTypeCountInvoiceCaseArgsObjectSchema as LabCountOutputTypeCountInvoiceCaseArgsObjectSchema } from './LabCountOutputTypeCountInvoiceCaseArgs.schema';
-import { LabCountOutputTypeCountInvitationsArgsObjectSchema as LabCountOutputTypeCountInvitationsArgsObjectSchema } from './LabCountOutputTypeCountInvitationsArgs.schema'
+import { LabCountOutputTypeCountInvitationsArgsObjectSchema as LabCountOutputTypeCountInvitationsArgsObjectSchema } from './LabCountOutputTypeCountInvitationsArgs.schema';
+import { LabCountOutputTypeCountStaffPayoutsArgsObjectSchema as LabCountOutputTypeCountStaffPayoutsArgsObjectSchema } from './LabCountOutputTypeCountStaffPayoutsArgs.schema'
 
 const makeSchema = () => z.object({
   clinics: z.union([z.boolean(), z.lazy(() => LabCountOutputTypeCountClinicsArgsObjectSchema)]).optional(),
@@ -39,7 +40,8 @@ const makeSchema = () => z.object({
   invoicePayments: z.union([z.boolean(), z.lazy(() => LabCountOutputTypeCountInvoicePaymentsArgsObjectSchema)]).optional(),
   caseActivityLogs: z.union([z.boolean(), z.lazy(() => LabCountOutputTypeCountCaseActivityLogsArgsObjectSchema)]).optional(),
   invoiceCase: z.union([z.boolean(), z.lazy(() => LabCountOutputTypeCountInvoiceCaseArgsObjectSchema)]).optional(),
-  invitations: z.union([z.boolean(), z.lazy(() => LabCountOutputTypeCountInvitationsArgsObjectSchema)]).optional()
+  invitations: z.union([z.boolean(), z.lazy(() => LabCountOutputTypeCountInvitationsArgsObjectSchema)]).optional(),
+  staffPayouts: z.union([z.boolean(), z.lazy(() => LabCountOutputTypeCountStaffPayoutsArgsObjectSchema)]).optional()
 }).strict();
 export const LabCountOutputTypeSelectObjectSchema: z.ZodType<Prisma.LabCountOutputTypeSelect> = makeSchema() as unknown as z.ZodType<Prisma.LabCountOutputTypeSelect>;
 export const LabCountOutputTypeSelectObjectZodSchema = makeSchema();

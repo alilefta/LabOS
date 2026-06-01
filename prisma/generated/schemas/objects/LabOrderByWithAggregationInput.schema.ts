@@ -15,6 +15,7 @@ const makeSchema = () => z.object({
   brandAvatarUrl: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
   subtitle: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
   nextCaseNumber: SortOrderSchema.optional(),
+  nextPayoutNumber: SortOrderSchema.optional(),
   nextInvoiceNumber: SortOrderSchema.optional(),
   createdAt: SortOrderSchema.optional(),
   updatedAt: SortOrderSchema.optional(),

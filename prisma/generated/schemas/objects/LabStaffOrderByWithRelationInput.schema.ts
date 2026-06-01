@@ -5,7 +5,8 @@ import { SortOrderInputObjectSchema as SortOrderInputObjectSchema } from './Sort
 import { LabOrderByWithRelationInputObjectSchema as LabOrderByWithRelationInputObjectSchema } from './LabOrderByWithRelationInput.schema';
 import { LabUserOrderByWithRelationInputObjectSchema as LabUserOrderByWithRelationInputObjectSchema } from './LabUserOrderByWithRelationInput.schema';
 import { LabInvitationOrderByWithRelationInputObjectSchema as LabInvitationOrderByWithRelationInputObjectSchema } from './LabInvitationOrderByWithRelationInput.schema';
-import { CaseStaffAssignmentOrderByRelationAggregateInputObjectSchema as CaseStaffAssignmentOrderByRelationAggregateInputObjectSchema } from './CaseStaffAssignmentOrderByRelationAggregateInput.schema'
+import { CaseStaffAssignmentOrderByRelationAggregateInputObjectSchema as CaseStaffAssignmentOrderByRelationAggregateInputObjectSchema } from './CaseStaffAssignmentOrderByRelationAggregateInput.schema';
+import { StaffPayoutOrderByRelationAggregateInputObjectSchema as StaffPayoutOrderByRelationAggregateInputObjectSchema } from './StaffPayoutOrderByRelationAggregateInput.schema'
 
 const makeSchema = () => z.object({
   id: SortOrderSchema.optional(),
@@ -30,7 +31,8 @@ const makeSchema = () => z.object({
   lab: z.lazy(() => LabOrderByWithRelationInputObjectSchema).optional(),
   labUser: z.lazy(() => LabUserOrderByWithRelationInputObjectSchema).optional(),
   labInvitation: z.lazy(() => LabInvitationOrderByWithRelationInputObjectSchema).optional(),
-  caseAssignments: z.lazy(() => CaseStaffAssignmentOrderByRelationAggregateInputObjectSchema).optional()
+  caseAssignments: z.lazy(() => CaseStaffAssignmentOrderByRelationAggregateInputObjectSchema).optional(),
+  staffPayouts: z.lazy(() => StaffPayoutOrderByRelationAggregateInputObjectSchema).optional()
 }).strict();
 export const LabStaffOrderByWithRelationInputObjectSchema: z.ZodType<Prisma.LabStaffOrderByWithRelationInput> = makeSchema() as unknown as z.ZodType<Prisma.LabStaffOrderByWithRelationInput>;
 export const LabStaffOrderByWithRelationInputObjectZodSchema = makeSchema();

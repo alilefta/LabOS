@@ -1,87 +1,148 @@
-import * as z from "zod";
+import * as z from 'zod'
 
 // ========== Case Status ===========
-export const CaseStatusSchema = z.enum(["NEW", "ASSIGNED", "PROCESSING", "COMPLETED", "FAILED", "DELIVERED", "DRAFT"]);
-export type CaseStatus = z.infer<typeof CaseStatusSchema>;
+export const CaseStatusSchema = z.enum([
+	'NEW',
+	'ASSIGNED',
+	'PROCESSING',
+	'COMPLETED',
+	'FAILED',
+	'DELIVERED',
+	'DRAFT',
+])
+export type CaseStatus = z.infer<typeof CaseStatusSchema>
 
 // ========== Asset File Type ===========
-export const AssetFileTypeSchema = z.enum(["IMAGE", "VIDEO", "SCANNERFILE"]);
-export type AssetFileType = z.infer<typeof AssetFileTypeSchema>;
+export const AssetFileTypeSchema = z.enum(['IMAGE', 'VIDEO', 'SCANNERFILE'])
+export type AssetFileType = z.infer<typeof AssetFileTypeSchema>
 
 // ========== Auth User Role ===========
-export const AuthUserRoleSchema = z.enum(["SYSTEM_USER", "LAB_USER"]);
-export type AuthUserRole = z.infer<typeof AuthUserRoleSchema>;
+export const AuthUserRoleSchema = z.enum(['SYSTEM_USER', 'LAB_USER'])
+export type AuthUserRole = z.infer<typeof AuthUserRoleSchema>
 
 // ========== Pricing Strategy ===========
-export const PricingStrategySchema = z.enum(["BULK", "PERTOOTH", "CUSTOM"]);
-export type PricingStrategy = z.infer<typeof PricingStrategySchema>;
+export const PricingStrategySchema = z.enum(['BULK', 'PERTOOTH', 'CUSTOM'])
+export type PricingStrategy = z.infer<typeof PricingStrategySchema>
 
 // ========== Lab User Role ===========
-export const LabRoleSchema = z.enum(["OWNER", "MANAGER", "ADMIN", "STAFF"]);
-export type LabRole = z.infer<typeof LabRoleSchema>;
+export const LabRoleSchema = z.enum(['OWNER', 'MANAGER', 'ADMIN', 'STAFF'])
+export type LabRole = z.infer<typeof LabRoleSchema>
 
 // ========== Jaw Type ============
-export const JawTypeSchema = z.enum(["UPPER", "LOWER", "OTHER"]);
-export type JawType = z.infer<typeof JawTypeSchema>;
+export const JawTypeSchema = z.enum(['UPPER', 'LOWER', 'OTHER'])
+export type JawType = z.infer<typeof JawTypeSchema>
 
 // ========== Clinic Status ============
-export const ClinicStatusSchema = z.enum(["ACTIVE", "INACTIVE", "SUSPENDED"]);
-export type ClinicStatus = z.infer<typeof ClinicStatusSchema>;
+export const ClinicStatusSchema = z.enum(['ACTIVE', 'INACTIVE', 'SUSPENDED'])
+export type ClinicStatus = z.infer<typeof ClinicStatusSchema>
 
 // ========== Clinic Type ============
-export const ClinicTypeSchema = z.enum(["SOLO", "CLINIC", "HOSPITAL", "UNIVERSITY"]);
-export type ClinicType = z.infer<typeof ClinicTypeSchema>;
+export const ClinicTypeSchema = z.enum([
+	'SOLO',
+	'CLINIC',
+	'HOSPITAL',
+	'UNIVERSITY',
+])
+export type ClinicType = z.infer<typeof ClinicTypeSchema>
 
 // ========== Patient Gender ============
-export const PatientGenderSchema = z.enum(["MALE", "FEMALE", "OTHER"]);
-export type PatientGender = z.infer<typeof PatientGenderSchema>;
+export const PatientGenderSchema = z.enum(['MALE', 'FEMALE', 'OTHER'])
+export type PatientGender = z.infer<typeof PatientGenderSchema>
 
 // ========== Subscription Tier ============
-export const SubscriptionTierSchema = z.enum(["FREE", "STARTER", "PROFESSIONAL", "ENTERPRISE"]);
-export type SubscriptionTier = z.infer<typeof SubscriptionTierSchema>;
+export const SubscriptionTierSchema = z.enum([
+	'FREE',
+	'STARTER',
+	'PROFESSIONAL',
+	'ENTERPRISE',
+])
+export type SubscriptionTier = z.infer<typeof SubscriptionTierSchema>
 
 // ========== Commission Type ============
-export const CommissionTypeSchema = z.enum(["PERCENTAGE", "FIXED"]);
-export type CommissionType = z.infer<typeof CommissionTypeSchema>;
+export const CommissionTypeSchema = z.enum(['PERCENTAGE', 'FIXED'])
+export type CommissionType = z.infer<typeof CommissionTypeSchema>
 
 // ========== Staff Role Category ============
-export const StaffRoleCategorySchema = z.enum(["TECHNICIAN", "SENIOR_TECHNICIAN", "QC_INSPECTOR", "COURIER", "SALES_REP", "ACCOUNT_MANAGER", "RECEPTIONIST", "MANAGER", "ACCOUNTANT"]);
-export type StaffRoleCategory = z.infer<typeof StaffRoleCategorySchema>;
+export const StaffRoleCategorySchema = z.enum([
+	'TECHNICIAN',
+	'SENIOR_TECHNICIAN',
+	'QC_INSPECTOR',
+	'COURIER',
+	'SALES_REP',
+	'ACCOUNT_MANAGER',
+	'RECEPTIONIST',
+	'MANAGER',
+	'ACCOUNTANT',
+])
+export type StaffRoleCategory = z.infer<typeof StaffRoleCategorySchema>
 
 // ========== Case Activity Type  ============
 export const CaseActivityTypeSchema = z.enum([
-	"CASE_CREATED",
-	"STATUS_CHANGED",
-	"CASE_UPDATED",
-	"STAFF_ASSIGNED",
-	"STAFF_REMOVED",
-	"NOTE_ADDED",
-	"FILE_UPLOADED",
-	"FILE_DELETED",
-	"DEADLINE_CHANGED",
-	"AI_AUDIT_COMPLETED",
-	"CASE_PRICING_RECALCULATED",
-	"INVOICE_CREATED",
-	"INVOICE_SENT",
-	"PAYMENT_RECORDED",
-]);
+	'CASE_CREATED',
+	'STATUS_CHANGED',
+	'CASE_UPDATED',
+	'STAFF_ASSIGNED',
+	'STAFF_REMOVED',
+	'NOTE_ADDED',
+	'FILE_UPLOADED',
+	'FILE_DELETED',
+	'DEADLINE_CHANGED',
+	'AI_AUDIT_COMPLETED',
+	'CASE_PRICING_RECALCULATED',
+	'INVOICE_CREATED',
+	'INVOICE_SENT',
+	'PAYMENT_RECORDED',
+])
 
-export type CaseActivityType = z.infer<typeof CaseActivityTypeSchema>;
+export type CaseActivityType = z.infer<typeof CaseActivityTypeSchema>
 
 // ========== Invoice Status  ============
-export const InvoiceStatusSchema = z.enum(["DRAFT", "SENT", "PARTIAL", "PAID", "OVERDUE", "CANCELLED"]);
-export type InvoiceStatus = z.infer<typeof InvoiceStatusSchema>;
+export const InvoiceStatusSchema = z.enum([
+	'DRAFT',
+	'SENT',
+	'PARTIAL',
+	'PAID',
+	'OVERDUE',
+	'CANCELLED',
+])
+export type InvoiceStatus = z.infer<typeof InvoiceStatusSchema>
 
 // ========== Payment Methods  ============
 
-export const PaymentMethodSchema = z.enum(["CASH", "SUPER_QI", "BANK_TRANSFER", "STRIPE", "PADDLE", "ZAIN_CASH", "ASIA_HAWALA", "OTHER"]);
-export type PaymentMethod = z.infer<typeof PaymentMethodSchema>;
+export const PaymentMethodSchema = z.enum([
+	'CASH',
+	'SUPER_QI',
+	'BANK_TRANSFER',
+	'STRIPE',
+	'PADDLE',
+	'ZAIN_CASH',
+	'ASIA_HAWALA',
+	'OTHER',
+])
+export type PaymentMethod = z.infer<typeof PaymentMethodSchema>
 
 // ========== Payment Methods  ============
-export const FaultPartySchema = z.enum(["LAB", "CLINIC"]);
-export type FaultParty = z.infer<typeof FaultPartySchema>;
+export const FaultPartySchema = z.enum(['LAB', 'CLINIC'])
+export type FaultParty = z.infer<typeof FaultPartySchema>
 
 // ========== Staff Working Days  ============
 
-export const WeekdaySchema = z.enum(["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"]);
-export type Weekday = z.infer<typeof WeekdaySchema>;
+export const WeekdaySchema = z.enum([
+	'MONDAY',
+	'TUESDAY',
+	'WEDNESDAY',
+	'THURSDAY',
+	'FRIDAY',
+	'SATURDAY',
+	'SUNDAY',
+])
+export type Weekday = z.infer<typeof WeekdaySchema>
+
+// ========== Staff Payout Status  ============
+export const PayoutStatusSchema = z.enum([
+	'PENDING_APPROVAL',
+	'PROCESSING',
+	'SETTLED',
+	'VOIDED',
+])
+export type PayoutStatus = z.infer<typeof PayoutStatusSchema>

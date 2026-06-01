@@ -27,6 +27,8 @@ export const LabFindManyResultSchema = z.object({
   caseActivityLogs: z.array(z.unknown()),
   invoiceCase: z.array(z.unknown()),
   invitations: z.array(z.unknown()),
+  staffPayouts: z.array(z.unknown()),
+  nextPayoutNumber: z.number().int(),
   nextInvoiceNumber: z.number().int(),
   createdAt: z.date(),
   updatedAt: z.date()

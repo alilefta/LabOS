@@ -17,6 +17,7 @@ export { CasePricingPlanInputSchema } from './CasePricingPlan.input';
 export { SelectedToothInputSchema } from './SelectedTooth.input';
 export { LabStaffInputSchema } from './LabStaff.input';
 export { CaseStaffAssignmentInputSchema } from './CaseStaffAssignment.input';
+export { StaffPayoutInputSchema } from './StaffPayout.input';
 export { CaseActivityLogInputSchema } from './CaseActivityLog.input';
 export { InvoiceInputSchema } from './Invoice.input';
 export { InvoiceCaseInputSchema } from './InvoiceCase.input';

@@ -25,6 +25,7 @@ export const LabStaffModelSchema = z.object({
     labInvitation: z.unknown().nullable(),
     caseAssignments: z.array(z.unknown()),
     workingDays: WeekdaySchema.array(),
+    staffPayouts: z.array(z.unknown()),
     createdAt: z.date(),
     updatedAt: z.date()
 }).strict();

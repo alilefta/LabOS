@@ -21,7 +21,8 @@ import { InvoiceOrderByRelationAggregateInputObjectSchema as InvoiceOrderByRelat
 import { InvoicePaymentOrderByRelationAggregateInputObjectSchema as InvoicePaymentOrderByRelationAggregateInputObjectSchema } from './InvoicePaymentOrderByRelationAggregateInput.schema';
 import { CaseActivityLogOrderByRelationAggregateInputObjectSchema as CaseActivityLogOrderByRelationAggregateInputObjectSchema } from './CaseActivityLogOrderByRelationAggregateInput.schema';
 import { InvoiceCaseOrderByRelationAggregateInputObjectSchema as InvoiceCaseOrderByRelationAggregateInputObjectSchema } from './InvoiceCaseOrderByRelationAggregateInput.schema';
-import { LabInvitationOrderByRelationAggregateInputObjectSchema as LabInvitationOrderByRelationAggregateInputObjectSchema } from './LabInvitationOrderByRelationAggregateInput.schema'
+import { LabInvitationOrderByRelationAggregateInputObjectSchema as LabInvitationOrderByRelationAggregateInputObjectSchema } from './LabInvitationOrderByRelationAggregateInput.schema';
+import { StaffPayoutOrderByRelationAggregateInputObjectSchema as StaffPayoutOrderByRelationAggregateInputObjectSchema } from './StaffPayoutOrderByRelationAggregateInput.schema'
 
 const makeSchema = () => z.object({
   id: SortOrderSchema.optional(),
@@ -30,6 +31,7 @@ const makeSchema = () => z.object({
   brandAvatarUrl: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
   subtitle: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
   nextCaseNumber: SortOrderSchema.optional(),
+  nextPayoutNumber: SortOrderSchema.optional(),
   nextInvoiceNumber: SortOrderSchema.optional(),
   createdAt: SortOrderSchema.optional(),
   updatedAt: SortOrderSchema.optional(),
@@ -52,7 +54,8 @@ const makeSchema = () => z.object({
   invoicePayments: z.lazy(() => InvoicePaymentOrderByRelationAggregateInputObjectSchema).optional(),
   caseActivityLogs: z.lazy(() => CaseActivityLogOrderByRelationAggregateInputObjectSchema).optional(),
   invoiceCase: z.lazy(() => InvoiceCaseOrderByRelationAggregateInputObjectSchema).optional(),
-  invitations: z.lazy(() => LabInvitationOrderByRelationAggregateInputObjectSchema).optional()
+  invitations: z.lazy(() => LabInvitationOrderByRelationAggregateInputObjectSchema).optional(),
+  staffPayouts: z.lazy(() => StaffPayoutOrderByRelationAggregateInputObjectSchema).optional()
 }).strict();
 export const LabOrderByWithRelationInputObjectSchema: z.ZodType<Prisma.LabOrderByWithRelationInput> = makeSchema() as unknown as z.ZodType<Prisma.LabOrderByWithRelationInput>;
 export const LabOrderByWithRelationInputObjectZodSchema = makeSchema();

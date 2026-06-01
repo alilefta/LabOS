@@ -14,7 +14,8 @@ import { DateTimeFieldUpdateOperationsInputObjectSchema as DateTimeFieldUpdateOp
 import { LabUpdateOneRequiredWithoutStaffNestedInputObjectSchema as LabUpdateOneRequiredWithoutStaffNestedInputObjectSchema } from './LabUpdateOneRequiredWithoutStaffNestedInput.schema';
 import { LabUserUpdateOneWithoutLabStaffNestedInputObjectSchema as LabUserUpdateOneWithoutLabStaffNestedInputObjectSchema } from './LabUserUpdateOneWithoutLabStaffNestedInput.schema';
 import { LabInvitationUpdateOneWithoutLabStaffNestedInputObjectSchema as LabInvitationUpdateOneWithoutLabStaffNestedInputObjectSchema } from './LabInvitationUpdateOneWithoutLabStaffNestedInput.schema';
-import { CaseStaffAssignmentUpdateManyWithoutStaffNestedInputObjectSchema as CaseStaffAssignmentUpdateManyWithoutStaffNestedInputObjectSchema } from './CaseStaffAssignmentUpdateManyWithoutStaffNestedInput.schema'
+import { CaseStaffAssignmentUpdateManyWithoutStaffNestedInputObjectSchema as CaseStaffAssignmentUpdateManyWithoutStaffNestedInputObjectSchema } from './CaseStaffAssignmentUpdateManyWithoutStaffNestedInput.schema';
+import { StaffPayoutUpdateManyWithoutStaffNestedInputObjectSchema as StaffPayoutUpdateManyWithoutStaffNestedInputObjectSchema } from './StaffPayoutUpdateManyWithoutStaffNestedInput.schema'
 
 import { DecimalJSLikeSchema, isValidDecimalInput } from '../../helpers/decimal-helpers';
 const makeSchema = () => z.object({
@@ -46,7 +47,8 @@ const makeSchema = () => z.object({
   lab: z.lazy(() => LabUpdateOneRequiredWithoutStaffNestedInputObjectSchema).optional(),
   labUser: z.lazy(() => LabUserUpdateOneWithoutLabStaffNestedInputObjectSchema).optional(),
   labInvitation: z.lazy(() => LabInvitationUpdateOneWithoutLabStaffNestedInputObjectSchema).optional(),
-  caseAssignments: z.lazy(() => CaseStaffAssignmentUpdateManyWithoutStaffNestedInputObjectSchema).optional()
+  caseAssignments: z.lazy(() => CaseStaffAssignmentUpdateManyWithoutStaffNestedInputObjectSchema).optional(),
+  staffPayouts: z.lazy(() => StaffPayoutUpdateManyWithoutStaffNestedInputObjectSchema).optional()
 }).strict();
 export const LabStaffUpdateInputObjectSchema: z.ZodType<Prisma.LabStaffUpdateInput> = makeSchema() as unknown as z.ZodType<Prisma.LabStaffUpdateInput>;
 export const LabStaffUpdateInputObjectZodSchema = makeSchema();

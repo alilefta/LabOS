@@ -13,7 +13,8 @@ import { WeekdaySchema } from '../enums/Weekday.schema';
 import { DateTimeFieldUpdateOperationsInputObjectSchema as DateTimeFieldUpdateOperationsInputObjectSchema } from './DateTimeFieldUpdateOperationsInput.schema';
 import { LabUserUpdateOneWithoutLabStaffNestedInputObjectSchema as LabUserUpdateOneWithoutLabStaffNestedInputObjectSchema } from './LabUserUpdateOneWithoutLabStaffNestedInput.schema';
 import { LabInvitationUpdateOneWithoutLabStaffNestedInputObjectSchema as LabInvitationUpdateOneWithoutLabStaffNestedInputObjectSchema } from './LabInvitationUpdateOneWithoutLabStaffNestedInput.schema';
-import { CaseStaffAssignmentUpdateManyWithoutStaffNestedInputObjectSchema as CaseStaffAssignmentUpdateManyWithoutStaffNestedInputObjectSchema } from './CaseStaffAssignmentUpdateManyWithoutStaffNestedInput.schema'
+import { CaseStaffAssignmentUpdateManyWithoutStaffNestedInputObjectSchema as CaseStaffAssignmentUpdateManyWithoutStaffNestedInputObjectSchema } from './CaseStaffAssignmentUpdateManyWithoutStaffNestedInput.schema';
+import { StaffPayoutUpdateManyWithoutStaffNestedInputObjectSchema as StaffPayoutUpdateManyWithoutStaffNestedInputObjectSchema } from './StaffPayoutUpdateManyWithoutStaffNestedInput.schema'
 
 import { DecimalJSLikeSchema, isValidDecimalInput } from '../../helpers/decimal-helpers';
 const makeSchema = () => z.object({
@@ -44,7 +45,8 @@ const makeSchema = () => z.object({
   updatedAt: z.union([z.coerce.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputObjectSchema)]).optional(),
   labUser: z.lazy(() => LabUserUpdateOneWithoutLabStaffNestedInputObjectSchema).optional(),
   labInvitation: z.lazy(() => LabInvitationUpdateOneWithoutLabStaffNestedInputObjectSchema).optional(),
-  caseAssignments: z.lazy(() => CaseStaffAssignmentUpdateManyWithoutStaffNestedInputObjectSchema).optional()
+  caseAssignments: z.lazy(() => CaseStaffAssignmentUpdateManyWithoutStaffNestedInputObjectSchema).optional(),
+  staffPayouts: z.lazy(() => StaffPayoutUpdateManyWithoutStaffNestedInputObjectSchema).optional()
 }).strict();
 export const LabStaffUpdateWithoutLabInputObjectSchema: z.ZodType<Prisma.LabStaffUpdateWithoutLabInput> = makeSchema() as unknown as z.ZodType<Prisma.LabStaffUpdateWithoutLabInput>;
 export const LabStaffUpdateWithoutLabInputObjectZodSchema = makeSchema();

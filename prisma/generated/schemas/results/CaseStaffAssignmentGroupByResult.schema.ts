@@ -8,6 +8,7 @@ export const CaseStaffAssignmentGroupByResultSchema = z.array(z.object({
   commissionTotal: z.number(),
   isPaid: z.boolean(),
   paidAt: z.date(),
+  payoutId: z.string(),
   createdAt: z.date(),
   updatedAt: z.date(),
   _count: z.object({
@@ -24,6 +25,8 @@ export const CaseStaffAssignmentGroupByResultSchema = z.array(z.object({
     commissionTotal: z.number(),
     isPaid: z.number(),
     paidAt: z.number(),
+    payoutId: z.number(),
+    payout: z.number(),
     createdAt: z.number(),
     updatedAt: z.number()
   }).optional(),
@@ -43,6 +46,7 @@ export const CaseStaffAssignmentGroupByResultSchema = z.array(z.object({
     commissionValue: z.number().nullable(),
     commissionTotal: z.number().nullable(),
     paidAt: z.date().nullable(),
+    payoutId: z.string().nullable(),
     createdAt: z.date().nullable(),
     updatedAt: z.date().nullable()
   }).nullable().optional(),
@@ -54,6 +58,7 @@ export const CaseStaffAssignmentGroupByResultSchema = z.array(z.object({
     commissionValue: z.number().nullable(),
     commissionTotal: z.number().nullable(),
     paidAt: z.date().nullable(),
+    payoutId: z.string().nullable(),
     createdAt: z.date().nullable(),
     updatedAt: z.date().nullable()
   }).nullable().optional()

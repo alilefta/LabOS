@@ -24,7 +24,8 @@ import { InvoiceListRelationFilterObjectSchema as InvoiceListRelationFilterObjec
 import { InvoicePaymentListRelationFilterObjectSchema as InvoicePaymentListRelationFilterObjectSchema } from './InvoicePaymentListRelationFilter.schema';
 import { CaseActivityLogListRelationFilterObjectSchema as CaseActivityLogListRelationFilterObjectSchema } from './CaseActivityLogListRelationFilter.schema';
 import { InvoiceCaseListRelationFilterObjectSchema as InvoiceCaseListRelationFilterObjectSchema } from './InvoiceCaseListRelationFilter.schema';
-import { LabInvitationListRelationFilterObjectSchema as LabInvitationListRelationFilterObjectSchema } from './LabInvitationListRelationFilter.schema'
+import { LabInvitationListRelationFilterObjectSchema as LabInvitationListRelationFilterObjectSchema } from './LabInvitationListRelationFilter.schema';
+import { StaffPayoutListRelationFilterObjectSchema as StaffPayoutListRelationFilterObjectSchema } from './StaffPayoutListRelationFilter.schema'
 
 const labwhereinputSchema = z.object({
   AND: z.union([z.lazy(() => LabWhereInputObjectSchema), z.lazy(() => LabWhereInputObjectSchema).array()]).optional(),
@@ -36,6 +37,7 @@ const labwhereinputSchema = z.object({
   brandAvatarUrl: z.union([z.lazy(() => StringNullableFilterObjectSchema), z.string()]).optional().nullable(),
   subtitle: z.union([z.lazy(() => StringNullableFilterObjectSchema), z.string()]).optional().nullable(),
   nextCaseNumber: z.union([z.lazy(() => IntFilterObjectSchema), z.number().int()]).optional(),
+  nextPayoutNumber: z.union([z.lazy(() => IntFilterObjectSchema), z.number().int()]).optional(),
   nextInvoiceNumber: z.union([z.lazy(() => IntFilterObjectSchema), z.number().int()]).optional(),
   createdAt: z.union([z.lazy(() => DateTimeFilterObjectSchema), z.coerce.date()]).optional(),
   updatedAt: z.union([z.lazy(() => DateTimeFilterObjectSchema), z.coerce.date()]).optional(),
@@ -58,7 +60,8 @@ const labwhereinputSchema = z.object({
   invoicePayments: z.lazy(() => InvoicePaymentListRelationFilterObjectSchema).optional(),
   caseActivityLogs: z.lazy(() => CaseActivityLogListRelationFilterObjectSchema).optional(),
   invoiceCase: z.lazy(() => InvoiceCaseListRelationFilterObjectSchema).optional(),
-  invitations: z.lazy(() => LabInvitationListRelationFilterObjectSchema).optional()
+  invitations: z.lazy(() => LabInvitationListRelationFilterObjectSchema).optional(),
+  staffPayouts: z.lazy(() => StaffPayoutListRelationFilterObjectSchema).optional()
 }).strict();
 export const LabWhereInputObjectSchema: z.ZodType<Prisma.LabWhereInput> = labwhereinputSchema as unknown as z.ZodType<Prisma.LabWhereInput>;
 export const LabWhereInputObjectZodSchema = labwhereinputSchema;

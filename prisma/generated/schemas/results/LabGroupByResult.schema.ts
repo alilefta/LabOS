@@ -6,6 +6,7 @@ export const LabGroupByResultSchema = z.array(z.object({
   brandAvatarUrl: z.string(),
   subtitle: z.string(),
   nextCaseNumber: z.number().int(),
+  nextPayoutNumber: z.number().int(),
   nextInvoiceNumber: z.number().int(),
   createdAt: z.date(),
   updatedAt: z.date(),
@@ -36,16 +37,20 @@ export const LabGroupByResultSchema = z.array(z.object({
     caseActivityLogs: z.number(),
     invoiceCase: z.number(),
     invitations: z.number(),
+    staffPayouts: z.number(),
+    nextPayoutNumber: z.number(),
     nextInvoiceNumber: z.number(),
     createdAt: z.number(),
     updatedAt: z.number()
   }).optional(),
   _sum: z.object({
     nextCaseNumber: z.number().nullable(),
+    nextPayoutNumber: z.number().nullable(),
     nextInvoiceNumber: z.number().nullable()
   }).nullable().optional(),
   _avg: z.object({
     nextCaseNumber: z.number().nullable(),
+    nextPayoutNumber: z.number().nullable(),
     nextInvoiceNumber: z.number().nullable()
   }).nullable().optional(),
   _min: z.object({
@@ -55,6 +60,7 @@ export const LabGroupByResultSchema = z.array(z.object({
     brandAvatarUrl: z.string().nullable(),
     subtitle: z.string().nullable(),
     nextCaseNumber: z.number().int().nullable(),
+    nextPayoutNumber: z.number().int().nullable(),
     nextInvoiceNumber: z.number().int().nullable(),
     createdAt: z.date().nullable(),
     updatedAt: z.date().nullable()
@@ -66,6 +72,7 @@ export const LabGroupByResultSchema = z.array(z.object({
     brandAvatarUrl: z.string().nullable(),
     subtitle: z.string().nullable(),
     nextCaseNumber: z.number().int().nullable(),
+    nextPayoutNumber: z.number().int().nullable(),
     nextInvoiceNumber: z.number().int().nullable(),
     createdAt: z.date().nullable(),
     updatedAt: z.date().nullable()

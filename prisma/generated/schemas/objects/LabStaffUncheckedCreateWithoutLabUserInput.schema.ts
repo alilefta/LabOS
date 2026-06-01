@@ -5,7 +5,8 @@ import { CommissionTypeSchema } from '../enums/CommissionType.schema';
 import { LabStaffCreateworkingDaysInputObjectSchema as LabStaffCreateworkingDaysInputObjectSchema } from './LabStaffCreateworkingDaysInput.schema';
 import { WeekdaySchema } from '../enums/Weekday.schema';
 import { LabInvitationUncheckedCreateNestedOneWithoutLabStaffInputObjectSchema as LabInvitationUncheckedCreateNestedOneWithoutLabStaffInputObjectSchema } from './LabInvitationUncheckedCreateNestedOneWithoutLabStaffInput.schema';
-import { CaseStaffAssignmentUncheckedCreateNestedManyWithoutStaffInputObjectSchema as CaseStaffAssignmentUncheckedCreateNestedManyWithoutStaffInputObjectSchema } from './CaseStaffAssignmentUncheckedCreateNestedManyWithoutStaffInput.schema'
+import { CaseStaffAssignmentUncheckedCreateNestedManyWithoutStaffInputObjectSchema as CaseStaffAssignmentUncheckedCreateNestedManyWithoutStaffInputObjectSchema } from './CaseStaffAssignmentUncheckedCreateNestedManyWithoutStaffInput.schema';
+import { StaffPayoutUncheckedCreateNestedManyWithoutStaffInputObjectSchema as StaffPayoutUncheckedCreateNestedManyWithoutStaffInputObjectSchema } from './StaffPayoutUncheckedCreateNestedManyWithoutStaffInput.schema'
 
 import { DecimalJSLikeSchema, isValidDecimalInput } from '../../helpers/decimal-helpers';
 const makeSchema = () => z.object({
@@ -36,7 +37,8 @@ const makeSchema = () => z.object({
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
   labInvitation: z.lazy(() => LabInvitationUncheckedCreateNestedOneWithoutLabStaffInputObjectSchema).optional(),
-  caseAssignments: z.lazy(() => CaseStaffAssignmentUncheckedCreateNestedManyWithoutStaffInputObjectSchema).optional()
+  caseAssignments: z.lazy(() => CaseStaffAssignmentUncheckedCreateNestedManyWithoutStaffInputObjectSchema).optional(),
+  staffPayouts: z.lazy(() => StaffPayoutUncheckedCreateNestedManyWithoutStaffInputObjectSchema).optional()
 }).strict();
 export const LabStaffUncheckedCreateWithoutLabUserInputObjectSchema: z.ZodType<Prisma.LabStaffUncheckedCreateWithoutLabUserInput> = makeSchema() as unknown as z.ZodType<Prisma.LabStaffUncheckedCreateWithoutLabUserInput>;
 export const LabStaffUncheckedCreateWithoutLabUserInputObjectZodSchema = makeSchema();

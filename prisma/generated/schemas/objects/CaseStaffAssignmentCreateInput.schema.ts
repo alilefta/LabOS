@@ -4,7 +4,8 @@ import { StaffRoleCategorySchema } from '../enums/StaffRoleCategory.schema';
 import { CommissionTypeSchema } from '../enums/CommissionType.schema';
 import { CaseCreateNestedOneWithoutStaffAssignmentsInputObjectSchema as CaseCreateNestedOneWithoutStaffAssignmentsInputObjectSchema } from './CaseCreateNestedOneWithoutStaffAssignmentsInput.schema';
 import { LabStaffCreateNestedOneWithoutCaseAssignmentsInputObjectSchema as LabStaffCreateNestedOneWithoutCaseAssignmentsInputObjectSchema } from './LabStaffCreateNestedOneWithoutCaseAssignmentsInput.schema';
-import { LabCreateNestedOneWithoutStaffAssignmentsInputObjectSchema as LabCreateNestedOneWithoutStaffAssignmentsInputObjectSchema } from './LabCreateNestedOneWithoutStaffAssignmentsInput.schema'
+import { LabCreateNestedOneWithoutStaffAssignmentsInputObjectSchema as LabCreateNestedOneWithoutStaffAssignmentsInputObjectSchema } from './LabCreateNestedOneWithoutStaffAssignmentsInput.schema';
+import { StaffPayoutCreateNestedOneWithoutCaseAssignmentsInputObjectSchema as StaffPayoutCreateNestedOneWithoutCaseAssignmentsInputObjectSchema } from './StaffPayoutCreateNestedOneWithoutCaseAssignmentsInput.schema'
 
 import { DecimalJSLikeSchema, isValidDecimalInput } from '../../helpers/decimal-helpers';
 const makeSchema = () => z.object({
@@ -32,7 +33,8 @@ const makeSchema = () => z.object({
   createdAt: z.coerce.date().optional(),
   dentalCase: z.lazy(() => CaseCreateNestedOneWithoutStaffAssignmentsInputObjectSchema),
   staff: z.lazy(() => LabStaffCreateNestedOneWithoutCaseAssignmentsInputObjectSchema),
-  lab: z.lazy(() => LabCreateNestedOneWithoutStaffAssignmentsInputObjectSchema)
+  lab: z.lazy(() => LabCreateNestedOneWithoutStaffAssignmentsInputObjectSchema),
+  payout: z.lazy(() => StaffPayoutCreateNestedOneWithoutCaseAssignmentsInputObjectSchema).optional()
 }).strict();
 export const CaseStaffAssignmentCreateInputObjectSchema: z.ZodType<Prisma.CaseStaffAssignmentCreateInput> = makeSchema() as unknown as z.ZodType<Prisma.CaseStaffAssignmentCreateInput>;
 export const CaseStaffAssignmentCreateInputObjectZodSchema = makeSchema();

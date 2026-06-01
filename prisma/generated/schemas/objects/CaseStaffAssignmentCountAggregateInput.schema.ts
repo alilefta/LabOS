@@ -13,6 +13,7 @@ const makeSchema = () => z.object({
   commissionTotal: z.literal(true).optional(),
   isPaid: z.literal(true).optional(),
   paidAt: z.literal(true).optional(),
+  payoutId: z.literal(true).optional(),
   createdAt: z.literal(true).optional(),
   updatedAt: z.literal(true).optional(),
   _all: z.literal(true).optional()

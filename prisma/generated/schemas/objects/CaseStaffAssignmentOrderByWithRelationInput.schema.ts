@@ -4,7 +4,8 @@ import { SortOrderSchema } from '../enums/SortOrder.schema';
 import { SortOrderInputObjectSchema as SortOrderInputObjectSchema } from './SortOrderInput.schema';
 import { CaseOrderByWithRelationInputObjectSchema as CaseOrderByWithRelationInputObjectSchema } from './CaseOrderByWithRelationInput.schema';
 import { LabStaffOrderByWithRelationInputObjectSchema as LabStaffOrderByWithRelationInputObjectSchema } from './LabStaffOrderByWithRelationInput.schema';
-import { LabOrderByWithRelationInputObjectSchema as LabOrderByWithRelationInputObjectSchema } from './LabOrderByWithRelationInput.schema'
+import { LabOrderByWithRelationInputObjectSchema as LabOrderByWithRelationInputObjectSchema } from './LabOrderByWithRelationInput.schema';
+import { StaffPayoutOrderByWithRelationInputObjectSchema as StaffPayoutOrderByWithRelationInputObjectSchema } from './StaffPayoutOrderByWithRelationInput.schema'
 
 const makeSchema = () => z.object({
   id: SortOrderSchema.optional(),
@@ -17,11 +18,13 @@ const makeSchema = () => z.object({
   commissionTotal: SortOrderSchema.optional(),
   isPaid: SortOrderSchema.optional(),
   paidAt: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
+  payoutId: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
   createdAt: SortOrderSchema.optional(),
   updatedAt: SortOrderSchema.optional(),
   dentalCase: z.lazy(() => CaseOrderByWithRelationInputObjectSchema).optional(),
   staff: z.lazy(() => LabStaffOrderByWithRelationInputObjectSchema).optional(),
-  lab: z.lazy(() => LabOrderByWithRelationInputObjectSchema).optional()
+  lab: z.lazy(() => LabOrderByWithRelationInputObjectSchema).optional(),
+  payout: z.lazy(() => StaffPayoutOrderByWithRelationInputObjectSchema).optional()
 }).strict();
 export const CaseStaffAssignmentOrderByWithRelationInputObjectSchema: z.ZodType<Prisma.CaseStaffAssignmentOrderByWithRelationInput> = makeSchema() as unknown as z.ZodType<Prisma.CaseStaffAssignmentOrderByWithRelationInput>;
 export const CaseStaffAssignmentOrderByWithRelationInputObjectZodSchema = makeSchema();

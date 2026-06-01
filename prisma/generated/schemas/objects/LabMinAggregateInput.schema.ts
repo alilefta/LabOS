@@ -9,6 +9,7 @@ const makeSchema = () => z.object({
   brandAvatarUrl: z.literal(true).optional(),
   subtitle: z.literal(true).optional(),
   nextCaseNumber: z.literal(true).optional(),
+  nextPayoutNumber: z.literal(true).optional(),
   nextInvoiceNumber: z.literal(true).optional(),
   createdAt: z.literal(true).optional(),
   updatedAt: z.literal(true).optional()

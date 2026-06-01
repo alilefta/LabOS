@@ -250,6 +250,7 @@ model Lab {
   invitations LabInvitation[]
 
   staffPayouts StaffPayout[]
+  nextPayoutNumber    Int      @default(0) 
 
   nextInvoiceNumber Int @default(0)
 

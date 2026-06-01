@@ -28,6 +28,7 @@ const makeSchema = () => z.object({
 }).optional(),
   isPaid: z.boolean().optional(),
   paidAt: z.coerce.date().optional().nullable(),
+  payoutId: z.string().optional().nullable(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional()
 }).strict();

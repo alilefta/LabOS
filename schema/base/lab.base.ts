@@ -1,6 +1,5 @@
 // No import for LabModelSchema! because it imports the prisma client and it crashes the app because of using Decimals in Case!
-import { z } from "zod";
-
+import { z } from 'zod'
 export const LabBaseSchema = z.object({
 	id: z.string(),
 	title: z.string(),
@@ -9,22 +8,29 @@ export const LabBaseSchema = z.object({
 	subtitle: z.string().nullable(),
 
 	nextCaseNumber: z.number().int(),
+
+	nextPayoutNumber: z.number().int(),
 	nextInvoiceNumber: z.number().int(),
 	createdAt: z.date(),
 	updatedAt: z.date(),
-});
+})
 
-export type LabBase = z.infer<typeof LabBaseSchema>;
+export type LabBase = z.infer<typeof LabBaseSchema>
 
 export const CreateLabInputSchema = z.object({
-	title: z.string({ error: "Please enter your lab name." }).min(2, { message: "Lab name must be at least 2 characters long." }),
+	title: z
+		.string({ error: 'Please enter your lab name.' })
+		.min(2, { message: 'Lab name must be at least 2 characters long.' }),
 	slug: z
-		.string({ error: "A workspace URL slug is required." })
-		.min(2, { message: "Slug must contain at least 2 characters." })
+		.string({ error: 'A workspace URL slug is required.' })
+		.min(2, { message: 'Slug must contain at least 2 characters.' })
 		.regex(/^[a-z0-9-_]+$/, {
-			message: "Slug can only contain lowercase letters, numbers, and hyphens.",
+			message: 'Slug can only contain lowercase letters, numbers, and hyphens.',
 		}),
-	brandAvatarUrl: z.url({ message: "Please upload a valid lab logo." }),
-	subtitle: z.string().max(120, { message: "Subtitle cannot exceed 120 characters." }).optional(),
-});
-export type CreateLabInput = z.infer<typeof CreateLabInputSchema>;
+	brandAvatarUrl: z.url({ message: 'Please upload a valid lab logo.' }),
+	subtitle: z
+		.string()
+		.max(120, { message: 'Subtitle cannot exceed 120 characters.' })
+		.optional(),
+})
+export type CreateLabInput = z.infer<typeof CreateLabInputSchema>

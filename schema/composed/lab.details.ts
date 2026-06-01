@@ -1,24 +1,25 @@
-import z from "zod";
-import { CreateLabInputSchema, LabBaseSchema } from "@/schema/base/lab.base";
-import { CreateLabUserInputSchema } from "./lab-user.details";
-import { LabUserBaseSchema } from "../base/lab-user.base";
-import { ClinicBaseSchema } from "../base/clinic.base";
-import { PatientBaseSchema } from "../base/patient.base";
-import { CaseAssetFileBaseSchema } from "../base/case-asset-file.base";
-import { CasePricingPlanBaseSchema } from "../base/case-pricing-plan.base";
-import { LabSubscriptionPlanBaseSchema } from "../base/lab-subscription-plan.base";
-import { CaseBaseSchema } from "../base/case.base";
-import { CaseCategoryBaseSchema } from "../base/case-category.base";
-import { WorkTypeBaseSchema } from "../base/worktype.base";
-import { ProductBaseSchema } from "../base/product.base";
-import { CaseWorkItemBaseSchema } from "../base/case-work-item.base";
-import { SelectedToothBaseSchema } from "../base/selected-tooth.base";
-import { DentistBaseSchema } from "../base/dentist.base";
-import { CaseStaffAssignmentBaseSchema } from "../base/case-staff-assignment.base";
-import { LabStaffBaseSchema } from "../base/lab-staff.base";
-import { CaseActivityLogBaseSchema } from "../base/case-activity-logs.base";
-import { InvoiceBaseSchema } from "../base/invoice.base";
-import { InvoicePaymentBaseSchema } from "../base/invoice-payment.base";
+import z from 'zod'
+import { CreateLabInputSchema, LabBaseSchema } from '@/schema/base/lab.base'
+import { CreateLabUserInputSchema } from './lab-user.details'
+import { LabUserBaseSchema } from '../base/lab-user.base'
+import { ClinicBaseSchema } from '../base/clinic.base'
+import { PatientBaseSchema } from '../base/patient.base'
+import { CaseAssetFileBaseSchema } from '../base/case-asset-file.base'
+import { CasePricingPlanBaseSchema } from '../base/case-pricing-plan.base'
+import { LabSubscriptionPlanBaseSchema } from '../base/lab-subscription-plan.base'
+import { CaseBaseSchema } from '../base/case.base'
+import { CaseCategoryBaseSchema } from '../base/case-category.base'
+import { WorkTypeBaseSchema } from '../base/worktype.base'
+import { ProductBaseSchema } from '../base/product.base'
+import { CaseWorkItemBaseSchema } from '../base/case-work-item.base'
+import { SelectedToothBaseSchema } from '../base/selected-tooth.base'
+import { DentistBaseSchema } from '../base/dentist.base'
+import { CaseStaffAssignmentBaseSchema } from '../base/case-staff-assignment.base'
+import { LabStaffBaseSchema } from '../base/lab-staff.base'
+import { CaseActivityLogBaseSchema } from '../base/case-activity-logs.base'
+import { InvoiceBaseSchema } from '../base/invoice.base'
+import { InvoicePaymentBaseSchema } from '../base/invoice-payment.base'
+import { StaffPayoutBaseSchema } from '../base/staff-payout.base'
 
 export const LabDetailsSchema = LabBaseSchema.extend({
 	labSubscriptionPlan: LabSubscriptionPlanBaseSchema.nullable(),
@@ -44,11 +45,15 @@ export const LabDetailsSchema = LabBaseSchema.extend({
 
 	invoices: z.array(InvoiceBaseSchema),
 	invoicePayments: z.array(InvoicePaymentBaseSchema),
-});
+
+	staffPayouts: z.array(StaffPayoutBaseSchema),
+})
 
 export const CreateLabAndLabUserInputSchema = z.object({
 	lab: CreateLabInputSchema,
 	labUser: CreateLabUserInputSchema,
-});
+})
 
-export type CreateLabAndLabUserInput = z.infer<typeof CreateLabAndLabUserInputSchema>;
+export type CreateLabAndLabUserInput = z.infer<
+	typeof CreateLabAndLabUserInputSchema
+>

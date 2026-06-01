@@ -2,7 +2,8 @@ import * as z from 'zod';
 import type { Prisma } from '../../../../generated/prisma/client';
 import { CaseArgsObjectSchema as CaseArgsObjectSchema } from './CaseArgs.schema';
 import { LabStaffArgsObjectSchema as LabStaffArgsObjectSchema } from './LabStaffArgs.schema';
-import { LabArgsObjectSchema as LabArgsObjectSchema } from './LabArgs.schema'
+import { LabArgsObjectSchema as LabArgsObjectSchema } from './LabArgs.schema';
+import { StaffPayoutArgsObjectSchema as StaffPayoutArgsObjectSchema } from './StaffPayoutArgs.schema'
 
 const makeSchema = () => z.object({
   id: z.boolean().optional(),
@@ -18,6 +19,8 @@ const makeSchema = () => z.object({
   commissionTotal: z.boolean().optional(),
   isPaid: z.boolean().optional(),
   paidAt: z.boolean().optional(),
+  payoutId: z.boolean().optional(),
+  payout: z.union([z.boolean(), z.lazy(() => StaffPayoutArgsObjectSchema)]).optional(),
   createdAt: z.boolean().optional(),
   updatedAt: z.boolean().optional()
 }).strict();

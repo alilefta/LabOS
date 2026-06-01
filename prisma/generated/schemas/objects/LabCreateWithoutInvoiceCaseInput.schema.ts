@@ -18,7 +18,8 @@ import { LabStaffCreateNestedManyWithoutLabInputObjectSchema as LabStaffCreateNe
 import { InvoiceCreateNestedManyWithoutLabInputObjectSchema as InvoiceCreateNestedManyWithoutLabInputObjectSchema } from './InvoiceCreateNestedManyWithoutLabInput.schema';
 import { InvoicePaymentCreateNestedManyWithoutLabInputObjectSchema as InvoicePaymentCreateNestedManyWithoutLabInputObjectSchema } from './InvoicePaymentCreateNestedManyWithoutLabInput.schema';
 import { CaseActivityLogCreateNestedManyWithoutLabInputObjectSchema as CaseActivityLogCreateNestedManyWithoutLabInputObjectSchema } from './CaseActivityLogCreateNestedManyWithoutLabInput.schema';
-import { LabInvitationCreateNestedManyWithoutLabInputObjectSchema as LabInvitationCreateNestedManyWithoutLabInputObjectSchema } from './LabInvitationCreateNestedManyWithoutLabInput.schema'
+import { LabInvitationCreateNestedManyWithoutLabInputObjectSchema as LabInvitationCreateNestedManyWithoutLabInputObjectSchema } from './LabInvitationCreateNestedManyWithoutLabInput.schema';
+import { StaffPayoutCreateNestedManyWithoutLabInputObjectSchema as StaffPayoutCreateNestedManyWithoutLabInputObjectSchema } from './StaffPayoutCreateNestedManyWithoutLabInput.schema'
 
 const makeSchema = () => z.object({
   id: z.string().optional(),
@@ -27,6 +28,7 @@ const makeSchema = () => z.object({
   brandAvatarUrl: z.string().optional().nullable(),
   subtitle: z.string().optional().nullable(),
   nextCaseNumber: z.number().int().optional(),
+  nextPayoutNumber: z.number().int().optional(),
   nextInvoiceNumber: z.number().int().optional(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
@@ -48,7 +50,8 @@ const makeSchema = () => z.object({
   invoices: z.lazy(() => InvoiceCreateNestedManyWithoutLabInputObjectSchema).optional(),
   invoicePayments: z.lazy(() => InvoicePaymentCreateNestedManyWithoutLabInputObjectSchema).optional(),
   caseActivityLogs: z.lazy(() => CaseActivityLogCreateNestedManyWithoutLabInputObjectSchema).optional(),
-  invitations: z.lazy(() => LabInvitationCreateNestedManyWithoutLabInputObjectSchema).optional()
+  invitations: z.lazy(() => LabInvitationCreateNestedManyWithoutLabInputObjectSchema).optional(),
+  staffPayouts: z.lazy(() => StaffPayoutCreateNestedManyWithoutLabInputObjectSchema).optional()
 }).strict();
 export const LabCreateWithoutInvoiceCaseInputObjectSchema: z.ZodType<Prisma.LabCreateWithoutInvoiceCaseInput> = makeSchema() as unknown as z.ZodType<Prisma.LabCreateWithoutInvoiceCaseInput>;
 export const LabCreateWithoutInvoiceCaseInputObjectZodSchema = makeSchema();

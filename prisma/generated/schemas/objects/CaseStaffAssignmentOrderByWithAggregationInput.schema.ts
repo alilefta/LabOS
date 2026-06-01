@@ -19,6 +19,7 @@ const makeSchema = () => z.object({
   commissionTotal: SortOrderSchema.optional(),
   isPaid: SortOrderSchema.optional(),
   paidAt: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
+  payoutId: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
   createdAt: SortOrderSchema.optional(),
   updatedAt: SortOrderSchema.optional(),
   _count: z.lazy(() => CaseStaffAssignmentCountOrderByAggregateInputObjectSchema).optional(),

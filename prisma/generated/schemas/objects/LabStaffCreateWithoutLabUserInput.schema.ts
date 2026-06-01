@@ -6,7 +6,8 @@ import { LabStaffCreateworkingDaysInputObjectSchema as LabStaffCreateworkingDays
 import { WeekdaySchema } from '../enums/Weekday.schema';
 import { LabCreateNestedOneWithoutStaffInputObjectSchema as LabCreateNestedOneWithoutStaffInputObjectSchema } from './LabCreateNestedOneWithoutStaffInput.schema';
 import { LabInvitationCreateNestedOneWithoutLabStaffInputObjectSchema as LabInvitationCreateNestedOneWithoutLabStaffInputObjectSchema } from './LabInvitationCreateNestedOneWithoutLabStaffInput.schema';
-import { CaseStaffAssignmentCreateNestedManyWithoutStaffInputObjectSchema as CaseStaffAssignmentCreateNestedManyWithoutStaffInputObjectSchema } from './CaseStaffAssignmentCreateNestedManyWithoutStaffInput.schema'
+import { CaseStaffAssignmentCreateNestedManyWithoutStaffInputObjectSchema as CaseStaffAssignmentCreateNestedManyWithoutStaffInputObjectSchema } from './CaseStaffAssignmentCreateNestedManyWithoutStaffInput.schema';
+import { StaffPayoutCreateNestedManyWithoutStaffInputObjectSchema as StaffPayoutCreateNestedManyWithoutStaffInputObjectSchema } from './StaffPayoutCreateNestedManyWithoutStaffInput.schema'
 
 import { DecimalJSLikeSchema, isValidDecimalInput } from '../../helpers/decimal-helpers';
 const makeSchema = () => z.object({
@@ -37,7 +38,8 @@ const makeSchema = () => z.object({
   updatedAt: z.coerce.date().optional(),
   lab: z.lazy(() => LabCreateNestedOneWithoutStaffInputObjectSchema),
   labInvitation: z.lazy(() => LabInvitationCreateNestedOneWithoutLabStaffInputObjectSchema).optional(),
-  caseAssignments: z.lazy(() => CaseStaffAssignmentCreateNestedManyWithoutStaffInputObjectSchema).optional()
+  caseAssignments: z.lazy(() => CaseStaffAssignmentCreateNestedManyWithoutStaffInputObjectSchema).optional(),
+  staffPayouts: z.lazy(() => StaffPayoutCreateNestedManyWithoutStaffInputObjectSchema).optional()
 }).strict();
 export const LabStaffCreateWithoutLabUserInputObjectSchema: z.ZodType<Prisma.LabStaffCreateWithoutLabUserInput> = makeSchema() as unknown as z.ZodType<Prisma.LabStaffCreateWithoutLabUserInput>;
 export const LabStaffCreateWithoutLabUserInputObjectZodSchema = makeSchema();

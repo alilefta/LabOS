@@ -10,7 +10,8 @@ import { BoolFieldUpdateOperationsInputObjectSchema as BoolFieldUpdateOperations
 import { NullableDateTimeFieldUpdateOperationsInputObjectSchema as NullableDateTimeFieldUpdateOperationsInputObjectSchema } from './NullableDateTimeFieldUpdateOperationsInput.schema';
 import { DateTimeFieldUpdateOperationsInputObjectSchema as DateTimeFieldUpdateOperationsInputObjectSchema } from './DateTimeFieldUpdateOperationsInput.schema';
 import { LabStaffUpdateOneRequiredWithoutCaseAssignmentsNestedInputObjectSchema as LabStaffUpdateOneRequiredWithoutCaseAssignmentsNestedInputObjectSchema } from './LabStaffUpdateOneRequiredWithoutCaseAssignmentsNestedInput.schema';
-import { LabUpdateOneRequiredWithoutStaffAssignmentsNestedInputObjectSchema as LabUpdateOneRequiredWithoutStaffAssignmentsNestedInputObjectSchema } from './LabUpdateOneRequiredWithoutStaffAssignmentsNestedInput.schema'
+import { LabUpdateOneRequiredWithoutStaffAssignmentsNestedInputObjectSchema as LabUpdateOneRequiredWithoutStaffAssignmentsNestedInputObjectSchema } from './LabUpdateOneRequiredWithoutStaffAssignmentsNestedInput.schema';
+import { StaffPayoutUpdateOneWithoutCaseAssignmentsNestedInputObjectSchema as StaffPayoutUpdateOneWithoutCaseAssignmentsNestedInputObjectSchema } from './StaffPayoutUpdateOneWithoutCaseAssignmentsNestedInput.schema'
 
 import { DecimalJSLikeSchema, isValidDecimalInput } from '../../helpers/decimal-helpers';
 const makeSchema = () => z.object({
@@ -38,7 +39,8 @@ const makeSchema = () => z.object({
   createdAt: z.union([z.coerce.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputObjectSchema)]).optional(),
   updatedAt: z.union([z.coerce.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputObjectSchema)]).optional(),
   staff: z.lazy(() => LabStaffUpdateOneRequiredWithoutCaseAssignmentsNestedInputObjectSchema).optional(),
-  lab: z.lazy(() => LabUpdateOneRequiredWithoutStaffAssignmentsNestedInputObjectSchema).optional()
+  lab: z.lazy(() => LabUpdateOneRequiredWithoutStaffAssignmentsNestedInputObjectSchema).optional(),
+  payout: z.lazy(() => StaffPayoutUpdateOneWithoutCaseAssignmentsNestedInputObjectSchema).optional()
 }).strict();
 export const CaseStaffAssignmentUpdateWithoutDentalCaseInputObjectSchema: z.ZodType<Prisma.CaseStaffAssignmentUpdateWithoutDentalCaseInput> = makeSchema() as unknown as z.ZodType<Prisma.CaseStaffAssignmentUpdateWithoutDentalCaseInput>;
 export const CaseStaffAssignmentUpdateWithoutDentalCaseInputObjectZodSchema = makeSchema();

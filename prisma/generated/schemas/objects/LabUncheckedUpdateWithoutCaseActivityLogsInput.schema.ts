@@ -22,7 +22,8 @@ import { LabStaffUncheckedUpdateManyWithoutLabNestedInputObjectSchema as LabStaf
 import { InvoiceUncheckedUpdateManyWithoutLabNestedInputObjectSchema as InvoiceUncheckedUpdateManyWithoutLabNestedInputObjectSchema } from './InvoiceUncheckedUpdateManyWithoutLabNestedInput.schema';
 import { InvoicePaymentUncheckedUpdateManyWithoutLabNestedInputObjectSchema as InvoicePaymentUncheckedUpdateManyWithoutLabNestedInputObjectSchema } from './InvoicePaymentUncheckedUpdateManyWithoutLabNestedInput.schema';
 import { InvoiceCaseUncheckedUpdateManyWithoutLabNestedInputObjectSchema as InvoiceCaseUncheckedUpdateManyWithoutLabNestedInputObjectSchema } from './InvoiceCaseUncheckedUpdateManyWithoutLabNestedInput.schema';
-import { LabInvitationUncheckedUpdateManyWithoutLabNestedInputObjectSchema as LabInvitationUncheckedUpdateManyWithoutLabNestedInputObjectSchema } from './LabInvitationUncheckedUpdateManyWithoutLabNestedInput.schema'
+import { LabInvitationUncheckedUpdateManyWithoutLabNestedInputObjectSchema as LabInvitationUncheckedUpdateManyWithoutLabNestedInputObjectSchema } from './LabInvitationUncheckedUpdateManyWithoutLabNestedInput.schema';
+import { StaffPayoutUncheckedUpdateManyWithoutLabNestedInputObjectSchema as StaffPayoutUncheckedUpdateManyWithoutLabNestedInputObjectSchema } from './StaffPayoutUncheckedUpdateManyWithoutLabNestedInput.schema'
 
 const makeSchema = () => z.object({
   id: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputObjectSchema)]).optional(),
@@ -31,6 +32,7 @@ const makeSchema = () => z.object({
   brandAvatarUrl: z.union([z.string(), z.lazy(() => NullableStringFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
   subtitle: z.union([z.string(), z.lazy(() => NullableStringFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
   nextCaseNumber: z.union([z.number().int(), z.lazy(() => IntFieldUpdateOperationsInputObjectSchema)]).optional(),
+  nextPayoutNumber: z.union([z.number().int(), z.lazy(() => IntFieldUpdateOperationsInputObjectSchema)]).optional(),
   nextInvoiceNumber: z.union([z.number().int(), z.lazy(() => IntFieldUpdateOperationsInputObjectSchema)]).optional(),
   createdAt: z.union([z.coerce.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputObjectSchema)]).optional(),
   updatedAt: z.union([z.coerce.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputObjectSchema)]).optional(),
@@ -52,7 +54,8 @@ const makeSchema = () => z.object({
   invoices: z.lazy(() => InvoiceUncheckedUpdateManyWithoutLabNestedInputObjectSchema).optional(),
   invoicePayments: z.lazy(() => InvoicePaymentUncheckedUpdateManyWithoutLabNestedInputObjectSchema).optional(),
   invoiceCase: z.lazy(() => InvoiceCaseUncheckedUpdateManyWithoutLabNestedInputObjectSchema).optional(),
-  invitations: z.lazy(() => LabInvitationUncheckedUpdateManyWithoutLabNestedInputObjectSchema).optional()
+  invitations: z.lazy(() => LabInvitationUncheckedUpdateManyWithoutLabNestedInputObjectSchema).optional(),
+  staffPayouts: z.lazy(() => StaffPayoutUncheckedUpdateManyWithoutLabNestedInputObjectSchema).optional()
 }).strict();
 export const LabUncheckedUpdateWithoutCaseActivityLogsInputObjectSchema: z.ZodType<Prisma.LabUncheckedUpdateWithoutCaseActivityLogsInput> = makeSchema() as unknown as z.ZodType<Prisma.LabUncheckedUpdateWithoutCaseActivityLogsInput>;
 export const LabUncheckedUpdateWithoutCaseActivityLogsInputObjectZodSchema = makeSchema();

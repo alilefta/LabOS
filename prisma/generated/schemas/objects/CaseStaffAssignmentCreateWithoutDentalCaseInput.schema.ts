@@ -3,7 +3,8 @@ import { Prisma } from '../../../../generated/prisma/client';
 import { StaffRoleCategorySchema } from '../enums/StaffRoleCategory.schema';
 import { CommissionTypeSchema } from '../enums/CommissionType.schema';
 import { LabStaffCreateNestedOneWithoutCaseAssignmentsInputObjectSchema as LabStaffCreateNestedOneWithoutCaseAssignmentsInputObjectSchema } from './LabStaffCreateNestedOneWithoutCaseAssignmentsInput.schema';
-import { LabCreateNestedOneWithoutStaffAssignmentsInputObjectSchema as LabCreateNestedOneWithoutStaffAssignmentsInputObjectSchema } from './LabCreateNestedOneWithoutStaffAssignmentsInput.schema'
+import { LabCreateNestedOneWithoutStaffAssignmentsInputObjectSchema as LabCreateNestedOneWithoutStaffAssignmentsInputObjectSchema } from './LabCreateNestedOneWithoutStaffAssignmentsInput.schema';
+import { StaffPayoutCreateNestedOneWithoutCaseAssignmentsInputObjectSchema as StaffPayoutCreateNestedOneWithoutCaseAssignmentsInputObjectSchema } from './StaffPayoutCreateNestedOneWithoutCaseAssignmentsInput.schema'
 
 import { DecimalJSLikeSchema, isValidDecimalInput } from '../../helpers/decimal-helpers';
 const makeSchema = () => z.object({
@@ -31,7 +32,8 @@ const makeSchema = () => z.object({
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
   staff: z.lazy(() => LabStaffCreateNestedOneWithoutCaseAssignmentsInputObjectSchema),
-  lab: z.lazy(() => LabCreateNestedOneWithoutStaffAssignmentsInputObjectSchema)
+  lab: z.lazy(() => LabCreateNestedOneWithoutStaffAssignmentsInputObjectSchema),
+  payout: z.lazy(() => StaffPayoutCreateNestedOneWithoutCaseAssignmentsInputObjectSchema).optional()
 }).strict();
 export const CaseStaffAssignmentCreateWithoutDentalCaseInputObjectSchema: z.ZodType<Prisma.CaseStaffAssignmentCreateWithoutDentalCaseInput> = makeSchema() as unknown as z.ZodType<Prisma.CaseStaffAssignmentCreateWithoutDentalCaseInput>;
 export const CaseStaffAssignmentCreateWithoutDentalCaseInputObjectZodSchema = makeSchema();

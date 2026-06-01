@@ -16,6 +16,8 @@ export const CaseStaffAssignmentInputSchema = z.object({
     commissionTotal: z.number(),
     isPaid: z.boolean(),
     paidAt: z.date().optional().nullable(),
+    payoutId: z.string().optional().nullable(),
+    payout: z.unknown().optional().nullable(),
     createdAt: z.date(),
     updatedAt: z.date()
 }).strict();

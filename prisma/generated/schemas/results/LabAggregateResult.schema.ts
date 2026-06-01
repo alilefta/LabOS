@@ -26,16 +26,20 @@ export const LabAggregateResultSchema = z.object({  _count: z.object({
     caseActivityLogs: z.number(),
     invoiceCase: z.number(),
     invitations: z.number(),
+    staffPayouts: z.number(),
+    nextPayoutNumber: z.number(),
     nextInvoiceNumber: z.number(),
     createdAt: z.number(),
     updatedAt: z.number()
   }).optional(),
   _sum: z.object({
     nextCaseNumber: z.number().nullable(),
+    nextPayoutNumber: z.number().nullable(),
     nextInvoiceNumber: z.number().nullable()
   }).nullable().optional(),
   _avg: z.object({
     nextCaseNumber: z.number().nullable(),
+    nextPayoutNumber: z.number().nullable(),
     nextInvoiceNumber: z.number().nullable()
   }).nullable().optional(),
   _min: z.object({
@@ -45,6 +49,7 @@ export const LabAggregateResultSchema = z.object({  _count: z.object({
     brandAvatarUrl: z.string().nullable(),
     subtitle: z.string().nullable(),
     nextCaseNumber: z.number().int().nullable(),
+    nextPayoutNumber: z.number().int().nullable(),
     nextInvoiceNumber: z.number().int().nullable(),
     createdAt: z.date().nullable(),
     updatedAt: z.date().nullable()
@@ -56,6 +61,7 @@ export const LabAggregateResultSchema = z.object({  _count: z.object({
     brandAvatarUrl: z.string().nullable(),
     subtitle: z.string().nullable(),
     nextCaseNumber: z.number().int().nullable(),
+    nextPayoutNumber: z.number().int().nullable(),
     nextInvoiceNumber: z.number().int().nullable(),
     createdAt: z.date().nullable(),
     updatedAt: z.date().nullable()

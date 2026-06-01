@@ -17,6 +17,7 @@ export { CasePricingPlanResultSchema } from './CasePricingPlan.result';
 export { SelectedToothResultSchema } from './SelectedTooth.result';
 export { LabStaffResultSchema } from './LabStaff.result';
 export { CaseStaffAssignmentResultSchema } from './CaseStaffAssignment.result';
+export { StaffPayoutResultSchema } from './StaffPayout.result';
 export { CaseActivityLogResultSchema } from './CaseActivityLog.result';
 export { InvoiceResultSchema } from './Invoice.result';
 export { InvoiceCaseResultSchema } from './InvoiceCase.result';

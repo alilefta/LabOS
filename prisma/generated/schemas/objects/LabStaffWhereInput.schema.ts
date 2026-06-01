@@ -16,7 +16,8 @@ import { LabUserNullableScalarRelationFilterObjectSchema as LabUserNullableScala
 import { LabUserWhereInputObjectSchema as LabUserWhereInputObjectSchema } from './LabUserWhereInput.schema';
 import { LabInvitationNullableScalarRelationFilterObjectSchema as LabInvitationNullableScalarRelationFilterObjectSchema } from './LabInvitationNullableScalarRelationFilter.schema';
 import { LabInvitationWhereInputObjectSchema as LabInvitationWhereInputObjectSchema } from './LabInvitationWhereInput.schema';
-import { CaseStaffAssignmentListRelationFilterObjectSchema as CaseStaffAssignmentListRelationFilterObjectSchema } from './CaseStaffAssignmentListRelationFilter.schema'
+import { CaseStaffAssignmentListRelationFilterObjectSchema as CaseStaffAssignmentListRelationFilterObjectSchema } from './CaseStaffAssignmentListRelationFilter.schema';
+import { StaffPayoutListRelationFilterObjectSchema as StaffPayoutListRelationFilterObjectSchema } from './StaffPayoutListRelationFilter.schema'
 
 import { DecimalJSLikeSchema, isValidDecimalInput } from '../../helpers/decimal-helpers';
 const labstaffwhereinputSchema = z.object({
@@ -52,7 +53,8 @@ const labstaffwhereinputSchema = z.object({
   lab: z.union([z.lazy(() => LabScalarRelationFilterObjectSchema), z.lazy(() => LabWhereInputObjectSchema)]).optional(),
   labUser: z.union([z.lazy(() => LabUserNullableScalarRelationFilterObjectSchema), z.lazy(() => LabUserWhereInputObjectSchema)]).optional(),
   labInvitation: z.union([z.lazy(() => LabInvitationNullableScalarRelationFilterObjectSchema), z.lazy(() => LabInvitationWhereInputObjectSchema)]).optional(),
-  caseAssignments: z.lazy(() => CaseStaffAssignmentListRelationFilterObjectSchema).optional()
+  caseAssignments: z.lazy(() => CaseStaffAssignmentListRelationFilterObjectSchema).optional(),
+  staffPayouts: z.lazy(() => StaffPayoutListRelationFilterObjectSchema).optional()
 }).strict();
 export const LabStaffWhereInputObjectSchema: z.ZodType<Prisma.LabStaffWhereInput> = labstaffwhereinputSchema as unknown as z.ZodType<Prisma.LabStaffWhereInput>;
 export const LabStaffWhereInputObjectZodSchema = labstaffwhereinputSchema;

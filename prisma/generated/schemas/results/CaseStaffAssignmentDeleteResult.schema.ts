@@ -13,6 +13,8 @@ export const CaseStaffAssignmentDeleteResultSchema = z.nullable(z.object({
   commissionTotal: z.number(),
   isPaid: z.boolean(),
   paidAt: z.date().optional(),
+  payoutId: z.string().optional(),
+  payout: z.unknown().optional(),
   createdAt: z.date(),
   updatedAt: z.date()
 }));

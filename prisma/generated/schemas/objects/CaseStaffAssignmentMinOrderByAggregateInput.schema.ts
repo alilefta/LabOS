@@ -13,6 +13,7 @@ const makeSchema = () => z.object({
   commissionTotal: SortOrderSchema.optional(),
   isPaid: SortOrderSchema.optional(),
   paidAt: SortOrderSchema.optional(),
+  payoutId: SortOrderSchema.optional(),
   createdAt: SortOrderSchema.optional(),
   updatedAt: SortOrderSchema.optional()
 }).strict();
