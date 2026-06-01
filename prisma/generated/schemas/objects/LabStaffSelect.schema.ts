@@ -27,6 +27,7 @@ const makeSchema = () => z.object({
   labUser: z.union([z.boolean(), z.lazy(() => LabUserArgsObjectSchema)]).optional(),
   labInvitation: z.union([z.boolean(), z.lazy(() => LabInvitationArgsObjectSchema)]).optional(),
   caseAssignments: z.union([z.boolean(), z.lazy(() => CaseStaffAssignmentFindManySchema)]).optional(),
+  workingDays: z.boolean().optional(),
   createdAt: z.boolean().optional(),
   updatedAt: z.boolean().optional(),
   _count: z.union([z.boolean(), z.lazy(() => LabStaffCountOutputTypeArgsObjectSchema)]).optional()

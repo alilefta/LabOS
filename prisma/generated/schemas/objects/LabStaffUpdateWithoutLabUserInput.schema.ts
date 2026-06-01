@@ -8,6 +8,8 @@ import { EnumStaffRoleCategoryFieldUpdateOperationsInputObjectSchema as EnumStaf
 import { CommissionTypeSchema } from '../enums/CommissionType.schema';
 import { EnumCommissionTypeFieldUpdateOperationsInputObjectSchema as EnumCommissionTypeFieldUpdateOperationsInputObjectSchema } from './EnumCommissionTypeFieldUpdateOperationsInput.schema';
 import { NullableDecimalFieldUpdateOperationsInputObjectSchema as NullableDecimalFieldUpdateOperationsInputObjectSchema } from './NullableDecimalFieldUpdateOperationsInput.schema';
+import { LabStaffUpdateworkingDaysInputObjectSchema as LabStaffUpdateworkingDaysInputObjectSchema } from './LabStaffUpdateworkingDaysInput.schema';
+import { WeekdaySchema } from '../enums/Weekday.schema';
 import { DateTimeFieldUpdateOperationsInputObjectSchema as DateTimeFieldUpdateOperationsInputObjectSchema } from './DateTimeFieldUpdateOperationsInput.schema';
 import { LabUpdateOneRequiredWithoutStaffNestedInputObjectSchema as LabUpdateOneRequiredWithoutStaffNestedInputObjectSchema } from './LabUpdateOneRequiredWithoutStaffNestedInput.schema';
 import { LabInvitationUpdateOneWithoutLabStaffNestedInputObjectSchema as LabInvitationUpdateOneWithoutLabStaffNestedInputObjectSchema } from './LabInvitationUpdateOneWithoutLabStaffNestedInput.schema';
@@ -37,6 +39,7 @@ const makeSchema = () => z.object({
 ]).refine((v) => isValidDecimalInput(v), {
   message: "Field 'commissionValue' must be a Decimal",
 }), z.lazy(() => NullableDecimalFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
+  workingDays: z.union([z.lazy(() => LabStaffUpdateworkingDaysInputObjectSchema), WeekdaySchema.array()]).optional(),
   createdAt: z.union([z.coerce.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputObjectSchema)]).optional(),
   updatedAt: z.union([z.coerce.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputObjectSchema)]).optional(),
   lab: z.lazy(() => LabUpdateOneRequiredWithoutStaffNestedInputObjectSchema).optional(),

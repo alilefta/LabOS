@@ -3,7 +3,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { LabRole } from "@/schema/base/enums.base";
 
 // Import your 4 highly optimized setting cards
@@ -26,21 +26,18 @@ export function StaffSettingsTabContent({ staffId, currentUserRole }: Props) {
 	const { canViewFinancials } = usePermissions();
 
 	// ── 1. HIGH-PERFORMANCE DATA FETCH (SUSPENDED) ────────────────────
-	// useSuspenseQuery suspends the render and triggers the server-rendered
-	// skeleton until the database returns the DTO [1].
-	const { data: staff } = useSuspenseQuery({
+
+	const { data: staff } = useQuery({
 		queryKey: ["staff-details", staffId],
 		queryFn: async () => {
-			// 🔥 CORRECTED: Execute the Server Action as a secure network fetch
 			const res = await getStaffDataDossierAction({ staffId });
 
 			if (res?.serverError || res?.validationErrors) {
 				handleSafeActionError({ serverError: res.serverError, validationErrors: res.validationErrors });
-				throw new Error("Failed to load staff details");
 			}
 			return res.data?.staff || null;
 		},
-		staleTime: 1000 * 60 * 5, // Cache for 5 mins
+		staleTime: 1000 * 60 * 5,
 	});
 
 	if (!staff) return null;

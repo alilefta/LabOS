@@ -24,6 +24,7 @@ const makeSchema = () => z.object({
   specialization: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
   commissionType: SortOrderSchema.optional(),
   commissionValue: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
+  workingDays: SortOrderSchema.optional(),
   createdAt: SortOrderSchema.optional(),
   updatedAt: SortOrderSchema.optional(),
   lab: z.lazy(() => LabOrderByWithRelationInputObjectSchema).optional(),

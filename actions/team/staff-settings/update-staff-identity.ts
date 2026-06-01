@@ -7,6 +7,7 @@ import { tenantPrisma } from "@/lib/prisma";
 import { ERRORS } from "@/lib/errors";
 import { StaffRoleCategorySchema } from "@/schema/base/enums.base";
 import { UpdateStaffIdentityInputSchema } from "@/schema/composed/team/staff-settings.schema";
+import { normalizeLabStaff } from "@/lib/mappers";
 
 export const updateStaffIdentityAction = actionClientWithLab
 	.metadata({
@@ -78,7 +79,7 @@ export const updateStaffIdentityAction = actionClientWithLab
 				return staff;
 			});
 
-			return { success: true, staff: updatedStaff };
+			return { success: true, staff: normalizeLabStaff(updatedStaff) };
 		} catch (error: any) {
 			console.error("[Update-Staff-Identity-Action] Error:", error.message);
 			if (error instanceof Error) throw error;

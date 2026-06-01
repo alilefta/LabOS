@@ -2,6 +2,8 @@ import * as z from 'zod';
 import { Prisma } from '../../../../generated/prisma/client';
 import { StaffRoleCategorySchema } from '../enums/StaffRoleCategory.schema';
 import { CommissionTypeSchema } from '../enums/CommissionType.schema';
+import { LabStaffCreateworkingDaysInputObjectSchema as LabStaffCreateworkingDaysInputObjectSchema } from './LabStaffCreateworkingDaysInput.schema';
+import { WeekdaySchema } from '../enums/Weekday.schema';
 import { LabInvitationUncheckedCreateNestedOneWithoutLabStaffInputObjectSchema as LabInvitationUncheckedCreateNestedOneWithoutLabStaffInputObjectSchema } from './LabInvitationUncheckedCreateNestedOneWithoutLabStaffInput.schema';
 import { CaseStaffAssignmentUncheckedCreateNestedManyWithoutStaffInputObjectSchema as CaseStaffAssignmentUncheckedCreateNestedManyWithoutStaffInputObjectSchema } from './CaseStaffAssignmentUncheckedCreateNestedManyWithoutStaffInput.schema'
 
@@ -30,6 +32,7 @@ const makeSchema = () => z.object({
 ]).refine((v) => isValidDecimalInput(v), {
   message: "Field 'commissionValue' must be a Decimal",
 }).optional().nullable(),
+  workingDays: z.union([z.lazy(() => LabStaffCreateworkingDaysInputObjectSchema), WeekdaySchema.array()]).optional(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
   labInvitation: z.lazy(() => LabInvitationUncheckedCreateNestedOneWithoutLabStaffInputObjectSchema).optional(),

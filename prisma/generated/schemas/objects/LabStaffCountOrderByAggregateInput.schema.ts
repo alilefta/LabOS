@@ -19,6 +19,7 @@ const makeSchema = () => z.object({
   specialization: SortOrderSchema.optional(),
   commissionType: SortOrderSchema.optional(),
   commissionValue: SortOrderSchema.optional(),
+  workingDays: SortOrderSchema.optional(),
   createdAt: SortOrderSchema.optional(),
   updatedAt: SortOrderSchema.optional()
 }).strict();

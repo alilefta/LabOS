@@ -8,6 +8,7 @@ import { StaffRoleCategorySchema } from '../enums/StaffRoleCategory.schema';
 import { EnumCommissionTypeWithAggregatesFilterObjectSchema as EnumCommissionTypeWithAggregatesFilterObjectSchema } from './EnumCommissionTypeWithAggregatesFilter.schema';
 import { CommissionTypeSchema } from '../enums/CommissionType.schema';
 import { DecimalNullableWithAggregatesFilterObjectSchema as DecimalNullableWithAggregatesFilterObjectSchema } from './DecimalNullableWithAggregatesFilter.schema';
+import { EnumWeekdayNullableListFilterObjectSchema as EnumWeekdayNullableListFilterObjectSchema } from './EnumWeekdayNullableListFilter.schema';
 import { DateTimeWithAggregatesFilterObjectSchema as DateTimeWithAggregatesFilterObjectSchema } from './DateTimeWithAggregatesFilter.schema'
 
 import { DecimalJSLikeSchema, isValidDecimalInput } from '../../helpers/decimal-helpers';
@@ -38,6 +39,7 @@ const labstaffscalarwherewithaggregatesinputSchema = z.object({
 ]).refine((v) => isValidDecimalInput(v), {
   message: "Field 'commissionValue' must be a Decimal",
 })]).optional().nullable(),
+  workingDays: z.lazy(() => EnumWeekdayNullableListFilterObjectSchema).optional(),
   createdAt: z.union([z.lazy(() => DateTimeWithAggregatesFilterObjectSchema), z.coerce.date()]).optional(),
   updatedAt: z.union([z.lazy(() => DateTimeWithAggregatesFilterObjectSchema), z.coerce.date()]).optional()
 }).strict();

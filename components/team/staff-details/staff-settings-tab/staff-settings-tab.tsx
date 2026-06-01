@@ -1,16 +1,16 @@
-// components/team/team-details/settings-tab/staff-settings-tab.tsx
-
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { SlidersHorizontal, ShieldAlert } from "lucide-react";
 
-// Server-side Authentication & Role Access
 import { getServerSession } from "@/lib/get-session";
 import { getCurrentLabUserRoleByAuthUserId } from "@/data/lab";
 
-// Skeletons & Content
 import { Skeleton } from "@/components/ui/skeleton";
-import { StaffSettingsTabContent } from "./staff-settings-tab-content"; // This is the Client integration component we built in the previous turn
+import { StaffSettingsTabContent } from "./staff-settings-tab-content";
+import { QueryHydrationBoundary } from "@/providers/query-hydration-boundary";
+import { getQueryClient } from "@/providers/get-query-client";
+import { getStaffDataDossierAction } from "@/actions/team/get-staff-dossier-action";
+import { dehydrate } from "@tanstack/react-query";
 
 interface Props {
 	staffId: string;
@@ -26,12 +26,14 @@ export async function StaffSettingsTab({ staffId }: Props) {
 	const labUser = await getCurrentLabUserRoleByAuthUserId();
 	if (!labUser) redirect("/onboarding");
 
+	const queryClient = getQueryClient();
+
 	const userRole = labUser.role; // e.g. "OWNER" | "MANAGER" | "STAFF"
 	const canManageSettings = userRole === "OWNER" || userRole === "MANAGER";
 
 	if (!canManageSettings) {
 		return (
-			<div className="w-full h-80 rounded-[32px] border-2 border-dashed border-destructive/20 bg-destructive/5 flex flex-col items-center justify-center p-8 text-center animate-in fade-in duration-500">
+			<div className="w-full h-80 rounded-4xl border-2 border-dashed border-destructive/20 bg-destructive/5 flex flex-col items-center justify-center p-8 text-center animate-in fade-in duration-500">
 				<div className="w-12 h-12 rounded-2xl bg-destructive/10 flex items-center justify-center text-destructive mb-4 shadow-[0_0_15px_rgba(239,68,68,0.2)] animate-pulse">
 					<ShieldAlert className="w-6 h-6" />
 				</div>
@@ -42,6 +44,15 @@ export async function StaffSettingsTab({ staffId }: Props) {
 			</div>
 		);
 	}
+
+	await queryClient.prefetchQuery({
+		queryKey: ["staff-details", staffId],
+		queryFn: async () => {
+			const res = await getStaffDataDossierAction({ staffId });
+			return res.data?.staff || null;
+		},
+		staleTime: 1000 * 60 * 10,
+	});
 
 	return (
 		<div className="flex flex-col gap-6 animate-in fade-in duration-500">
@@ -58,9 +69,11 @@ export async function StaffSettingsTab({ staffId }: Props) {
 
 			{/* ── SUSPENSE BOUNDARY ────────────────────────────────────────── */}
 			{/* The client-side useQuery will mount and fetch the data on-demand inside the boundary */}
-			<Suspense fallback={<StaffSettingsTabSkeleton />}>
-				<StaffSettingsTabContent staffId={staffId} currentUserRole={userRole} />
-			</Suspense>
+			<QueryHydrationBoundary state={dehydrate(queryClient)}>
+				<Suspense fallback={<StaffSettingsTabSkeleton />}>
+					<StaffSettingsTabContent staffId={staffId} currentUserRole={userRole} />
+				</Suspense>
+			</QueryHydrationBoundary>
 		</div>
 	);
 }
@@ -71,14 +84,14 @@ function StaffSettingsTabSkeleton() {
 		<div className="grid grid-cols-1 lg:grid-cols-2 gap-6 animate-pulse">
 			{/* Column 1: Identity & Availability Skeletons */}
 			<div className="flex flex-col gap-6">
-				<Skeleton className="h-[450px] w-full rounded-[24px] bg-slate-100 dark:bg-white/5 border border-border" />
-				<Skeleton className="h-[220px] w-full rounded-[24px] bg-slate-100 dark:bg-white/5 border border-border" />
+				<Skeleton className="h-112.5 w-full rounded-3xl bg-slate-100 dark:bg-white/5 border border-border" />
+				<Skeleton className="h-55 w-full rounded-3xl bg-slate-100 dark:bg-white/5 border border-border" />
 			</div>
 
 			{/* Column 2: IT Security & Compensation Skeletons */}
 			<div className="flex flex-col gap-6">
-				<Skeleton className="h-[320px] w-full rounded-[24px] bg-slate-100 dark:bg-white/5 border border-border" />
-				<Skeleton className="h-[280px] w-full rounded-[24px] bg-slate-100 dark:bg-white/5 border border-border" />
+				<Skeleton className="h-80 w-full rounded-3xl bg-slate-100 dark:bg-white/5 border border-border" />
+				<Skeleton className="h-70 w-full rounded-3xl bg-slate-100 dark:bg-white/5 border border-border" />
 			</div>
 		</div>
 	);

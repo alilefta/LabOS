@@ -4,7 +4,7 @@
 import { z } from "zod";
 import { actionClientWithLab } from "@/lib/safe-action";
 import { getStaffDossierData } from "@/data/team/get-staff-dossier"; // Import our secure DAF
-import { ERRORS } from "@/lib/errors";
+import { ActionError, ERRORS } from "@/lib/errors";
 
 const GetStaffDossierInputSchema = z.object({
 	staffId: z.string().uuid("Invalid staff ID format."),
@@ -18,13 +18,10 @@ export const getStaffDataDossierAction = actionClientWithLab
 	.inputSchema(GetStaffDossierInputSchema)
 	.action(async ({ parsedInput }) => {
 		const { staffId } = parsedInput;
-
-		// We execute the secure data-access function.
-		// It will internally resolve the session and verify tenant isolation.
 		const result = await getStaffDossierData(staffId);
 
 		if (!result.success) {
-			throw new Error(result.error?.message || "Failed to load staff dossier.");
+			throw new ActionError(result.error.message, result.error.code, result.error.statusCode);
 		}
 
 		return { staff: result.data };

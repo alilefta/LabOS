@@ -4,7 +4,6 @@ import { tenantPrisma } from "@/lib/prisma";
 import { getServerSession } from "@/lib/get-session";
 import { ERRORS } from "@/lib/errors";
 import { daError, daSuccess, toDAError, DAResult } from "@/lib/data-access-errors";
-import { differenceInDays, startOfDay } from "date-fns";
 import { StaffDossierDTO, StaffHeaderDTO, StaffMetadataDTO, SystemAccessState } from "@/schema/composed/team/staff-dossier.dtos"; // Adjust path
 import z from "zod";
 
@@ -12,7 +11,7 @@ const InputSchema = z.string().uuid("Invalid Staff ID format");
 
 export async function getStaffDossierData(staffId: string): Promise<DAResult<StaffDossierDTO>> {
 	try {
-		// 1. SECURITY GATES
+		// ── 1. SECURITY GATES ───────────────────────────────────────────────
 		const session = await getServerSession();
 		if (!session) {
 			return daError(ERRORS.UNAUTHORIZED.toJSON());
@@ -23,7 +22,6 @@ export async function getStaffDossierData(staffId: string): Promise<DAResult<Sta
 			return daError(ERRORS.LAB_NOT_FOUND.toJSON());
 		}
 
-		// Sanitize input
 		const parsedId = InputSchema.safeParse(staffId);
 		if (!parsedId.success) {
 			return daError(ERRORS.INVALID_INPUT.toJSON());
@@ -31,72 +29,87 @@ export async function getStaffDossierData(staffId: string): Promise<DAResult<Sta
 
 		const prisma = await tenantPrisma(labId);
 
-		// 2. OPTIMIZED DATABASE QUERY
-		const staff = await prisma.labStaff.findUnique({
-			where: { id: parsedId.data, labId },
-			include: {
-				labUser: {
-					select: { id: true, role: true },
-				},
-				labInvitation: {
-					select: { token: true, email: true, roleToGrant: true, expiresAt: true },
-				},
-				// N+1 Prevention: Fetch active workload & finished assignments in one query [3]
-				caseAssignments: {
-					include: {
-						dentalCase: {
-							select: {
-								id: true,
-								status: true,
-								isRemake: true,
-								createdAt: true,
-								completedAt: true,
-							},
+		// ── 2. DATABASE READS (N+1 PROOF & RUN IN PARALLEL) ─────────────────
+		// We execute 4 queries in parallel.
+		// Notice the raw SQL query running alongside the Prisma ORM queries!
+		const [staff, completedAgg, failedAgg, rawSpeedResult] = await Promise.all([
+			// A. Fetch core details + only active case assignments (O(1) memory)
+			prisma.labStaff.findUnique({
+				where: { id: parsedId.data, labId },
+				include: {
+					labUser: { select: { id: true, role: true } },
+					labInvitation: { select: { token: true, email: true, roleToGrant: true, expiresAt: true } },
+					caseAssignments: {
+						where: {
+							dentalCase: { status: { in: ["ASSIGNED", "PROCESSING"] } },
 						},
+						select: { id: true },
 					},
 				},
-			},
-		});
+			}),
+
+			// B. Aggregate completed cases directly inside PostgreSQL
+			prisma.caseStaffAssignment.aggregate({
+				where: {
+					staffId: parsedId.data,
+					labId,
+					dentalCase: { status: { in: ["COMPLETED", "DELIVERED"] } },
+				},
+				_count: { id: true },
+			}),
+
+			// C. Aggregate failed/remake cases directly inside PostgreSQL
+			prisma.caseStaffAssignment.aggregate({
+				where: {
+					staffId: parsedId.data,
+					labId,
+					OR: [{ dentalCase: { status: "FAILED" } }, { dentalCase: { isRemake: true } }],
+				},
+				_count: { id: true },
+			}),
+
+			// D. 🔥 THE RAW SQL SPEED ENGINE (O(1) Space Complexity)
+			// We calculate the average difference between completedAt and createdAt in seconds (EPOCH),
+			// divide by 86400 (seconds in a day), and let PostgreSQL run the math.
+			// Prisma parameterized templates automatically protect against SQL injection.
+			prisma.$queryRaw<[{ avgDays: number | null }]>`
+				SELECT AVG(EXTRACT(EPOCH FROM (c."completedAt" - c."createdAt"))) / 86400 AS "avgDays"
+				FROM "Case" c
+				INNER JOIN "CaseStaffAssignment" csa ON c."id" = csa."caseId"
+				WHERE csa."staffId" = ${parsedId.data}::uuid
+				  AND csa."labId" = ${labId}::uuid
+				  AND c."status" IN ('COMPLETED', 'DELIVERED')
+				  AND c."completedAt" IS NOT NULL
+			`,
+		]);
 
 		if (!staff) {
 			return daError(ERRORS.NOT_FOUND.toJSON());
 		}
 
-		// 3. THE HR MATHEMATICAL ENGINE (Calculated on server) [2]
-		const activeCases = staff.caseAssignments.filter((ca) => ca.dentalCase.status === "ASSIGNED" || ca.dentalCase.status === "PROCESSING");
+		// ── 3. THE HR METRIC COMPILER ───────────────────────────────────────
+		const activeCount = staff.caseAssignments.length;
 
-		const completedCases = staff.caseAssignments.filter((ca) => ca.dentalCase.status === "COMPLETED" || ca.dentalCase.status === "DELIVERED");
-
-		const failedCases = staff.caseAssignments.filter((ca) => ca.dentalCase.status === "FAILED" || ca.dentalCase.isRemake);
-
-		// A. Burnout Risk calculation based on active count [2]
-		const activeCount = activeCases.length;
+		// A. Burnout Risk
 		let burnoutRisk: "LOW" | "MEDIUM" | "HIGH" = "LOW";
 		if (activeCount >= 15) burnoutRisk = "HIGH";
 		else if (activeCount >= 8) burnoutRisk = "MEDIUM";
 
-		// B. Remake Rate (Quality) [2]
-		const totalHistoricalCount = completedCases.length + failedCases.length;
+		// B. Remake Rate (Quality)
+		const totalCompleted = completedAgg._count.id;
+		const totalFailed = failedAgg._count.id;
+		const totalHistoricalCount = totalCompleted + totalFailed;
+
 		let remakeRate = 0;
 		if (totalHistoricalCount > 0) {
-			remakeRate = (failedCases.length / totalHistoricalCount) * 100;
+			remakeRate = (totalFailed / totalHistoricalCount) * 100;
 		}
 
-		// C. Speed / Turnaround Time (immutable calculations) [2]
-		let totalDays = 0;
-		let validSpeedCases = 0;
+		// C. Speed / Turnaround Time (Read directly from the single raw SQL float)
+		const rawAvgDays = rawSpeedResult[0]?.avgDays;
+		const avgTurnaroundDays = rawAvgDays !== null && rawAvgDays !== undefined ? Math.round(Number(rawAvgDays) * 10) / 10 : null;
 
-		completedCases.forEach((ca) => {
-			if (ca.dentalCase.completedAt) {
-				const days = differenceInDays(startOfDay(new Date(ca.dentalCase.completedAt)), startOfDay(new Date(ca.dentalCase.createdAt)));
-				totalDays += days;
-				validSpeedCases++;
-			}
-		});
-
-		const avgTurnaroundDays = validSpeedCases > 0 ? Math.round((totalDays / validSpeedCases) * 10) / 10 : null;
-
-		// 4. RESOLVE IDENTITY ACCESS STATE
+		// ── 4. RESOLVE SECURITY PORTAL STATUS ──────────────────────────────
 		const now = new Date();
 		let accessState: SystemAccessState = "NO_ACCESS";
 		let systemRole = null;
@@ -113,8 +126,8 @@ export async function getStaffDossierData(staffId: string): Promise<DAResult<Sta
 			inviteToken = staff.labInvitation.token;
 		}
 
-		// 5. MAP TO SECURE DTO
-		const sanitizedDossier: StaffDossierDTO = {
+		// ── 5. MAP TO SECURE, SANITIZED DTO ────────────────────────────────
+		return daSuccess({
 			id: staff.id,
 			firstName: staff.firstName,
 			lastName: staff.lastName,
@@ -135,14 +148,12 @@ export async function getStaffDossierData(staffId: string): Promise<DAResult<Sta
 
 			vitals: {
 				activeCaseCount: activeCount,
-				totalCompletedCases: completedCases.length,
+				totalCompletedCases: totalCompleted,
 				avgTurnaroundDays,
 				remakeRate,
 				burnoutRisk,
 			},
-		};
-
-		return daSuccess(sanitizedDossier);
+		});
 	} catch (e) {
 		return toDAError(e);
 	}

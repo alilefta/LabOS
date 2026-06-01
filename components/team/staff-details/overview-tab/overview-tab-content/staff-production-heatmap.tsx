@@ -16,14 +16,23 @@ interface Props {
 	staffName: string;
 }
 
+const parseLocalDate = (dateStr: string) => {
+	// Appending T00:00:00 forces the browser to evaluate in local time, not UTC!
+	return new Date(`${dateStr}T00:00:00`);
+};
+
+const getColor = (volume: number) => {
+	if (volume === 0) return "bg-slate-100 dark:bg-white/5";
+	if (volume === 1) return "bg-primary/20";
+	if (volume <= 3) return "bg-primary/40";
+	if (volume <= 5) return "bg-primary/70";
+	return "bg-primary shadow-[0_0_10px_rgba(37,99,235,0.3)]";
+};
+
 export const StaffProductionHeatmap = memo(function StaffProductionHeatmap({ heatmapData, staffName }: Props) {
 	const formatPercent = (val: number) => `${Math.round(val)}%`;
 
 	// Safe Date Parser to prevent timezone offset shifts (The UTC Bug Fix)
-	const parseLocalDate = (dateStr: string) => {
-		// Appending T00:00:00 forces the browser to evaluate in local time, not UTC!
-		return new Date(`${dateStr}T00:00:00`);
-	};
 
 	// --- HUMAN PERFORMANCE METRICS ---
 	const stats = useMemo(() => {
@@ -44,14 +53,6 @@ export const StaffProductionHeatmap = memo(function StaffProductionHeatmap({ hea
 			peakDate: peak?.date ? new Intl.DateTimeFormat("en-US", { weekday: "long" }).format(parseLocalDate(peak.date)) : "N/A",
 		};
 	}, [heatmapData]);
-
-	const getColor = (volume: number) => {
-		if (volume === 0) return "bg-slate-100 dark:bg-white/5";
-		if (volume === 1) return "bg-primary/20";
-		if (volume <= 3) return "bg-primary/40";
-		if (volume <= 5) return "bg-primary/70";
-		return "bg-primary shadow-[0_0_10px_rgba(37,99,235,0.3)]";
-	};
 
 	return (
 		<div className="lab-card flex-1 p-6 flex flex-col w-full overflow-hidden transition-all duration-500">
@@ -74,37 +75,10 @@ export const StaffProductionHeatmap = memo(function StaffProductionHeatmap({ hea
 
 			{/* --- RESPONSIVE GRID CONTAINER --- */}
 			<div className="flex-1 flex flex-col justify-end w-full overflow-x-auto custom-scrollbar pb-4">
-				<div className="grid grid-flow-col grid-rows-7 gap-1 sm:gap-1.5 xl:gap-2 w-full min-w-175">
+				<div className="grid grid-flow-col grid-rows-7 lg:grid-rows-4  gap-1 sm:gap-1.5 xl:gap-2 w-full min-w-175 p-2">
 					{/* FIX 1: Wrapped the loop in TooltipProvider to prevent Radix crash */}
 					{heatmapData.map((day) => (
-						<Tooltip key={day.date}>
-							<TooltipTrigger asChild>
-								<div
-									className={cn(
-										"w-full aspect-square rounded-[3px] xl:rounded-md transition-all duration-300 cursor-help relative group",
-										getColor(day.count),
-										day.hasFailed ? "ring-2 ring-rose-500 ring-offset-2 ring-offset-card z-10 scale-110" : "hover:scale-110 hover:z-20",
-									)}
-								/>
-							</TooltipTrigger>
-							<TooltipContent side="top" className="glass-ai-panel p-3 border-border shadow-2xl z-50 animate-in fade-in zoom-in-95">
-								<div className="space-y-1.5">
-									<p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground border-b border-border pb-1 mb-1">
-										{new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric" }).format(parseLocalDate(day.date))}
-									</p>
-									<div className="flex items-center justify-between gap-4">
-										<span className="text-xs font-bold text-foreground">Units Finished</span>
-										<span className="text-xs font-mono font-black text-primary">{day.count}</span>
-									</div>
-									{day.hasFailed && (
-										<div className="flex items-center gap-1.5 text-[10px] font-bold text-rose-500 pt-1">
-											<div className="w-1 h-1 rounded-full bg-rose-500 animate-pulse" />
-											<span>FAILED REMAKE ATTRIBUTED</span>
-										</div>
-									)}
-								</div>
-							</TooltipContent>
-						</Tooltip>
+						<HeatmapItem day={day} key={day.date} color={getColor(day.count)} />
 					))}
 				</div>
 			</div>
@@ -154,3 +128,36 @@ export const StaffProductionHeatmap = memo(function StaffProductionHeatmap({ hea
 });
 
 StaffProductionHeatmap.displayName = "StaffProductionHeatmap";
+
+const HeatmapItem = memo(function HeatmapItem({ color, day }: { color: string; day: HeatmapEntry }) {
+	return (
+		<Tooltip key={day.date}>
+			<TooltipTrigger asChild>
+				<div
+					className={cn(
+						"w-full aspect-square rounded-[3px] xl:rounded-md transition-all duration-300 cursor-help relative group",
+						color,
+						day.hasFailed ? "ring-2 ring-rose-500 ring-offset-2 ring-offset-card z-10 scale-110" : "hover:scale-110 hover:z-20",
+					)}
+				/>
+			</TooltipTrigger>
+			<TooltipContent side="top" className="glass-ai-panel p-3 border-border shadow-2xl z-50 animate-in fade-in zoom-in-95">
+				<div className="space-y-1.5">
+					<p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground border-b border-border pb-1 mb-1">
+						{new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric" }).format(parseLocalDate(day.date))}
+					</p>
+					<div className="flex items-center justify-between gap-4">
+						<span className="text-xs font-bold text-foreground">Units Finished</span>
+						<span className="text-xs font-mono font-black text-primary">{day.count}</span>
+					</div>
+					{day.hasFailed && (
+						<div className="flex items-center gap-1.5 text-[10px] font-bold text-rose-500 pt-1">
+							<div className="w-1 h-1 rounded-full bg-rose-500 animate-pulse" />
+							<span>FAILED REMAKE ATTRIBUTED</span>
+						</div>
+					)}
+				</div>
+			</TooltipContent>
+		</Tooltip>
+	);
+});

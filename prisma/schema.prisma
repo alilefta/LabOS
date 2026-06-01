@@ -94,6 +94,16 @@ enum CommissionType {
   FIXED
 }
 
+enum Weekday {
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+  SUNDAY
+}
+
 enum StaffRoleCategory {
   //  Core production
   TECHNICIAN // makes the actual dental work
@@ -630,6 +640,8 @@ model LabStaff {
 
   // Operational History
   caseAssignments CaseStaffAssignment[]
+
+  workingDays Weekday[] @default([MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

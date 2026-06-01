@@ -20,6 +20,7 @@ export const LabStaffDeleteResultSchema = z.nullable(z.object({
   labUser: z.unknown().optional(),
   labInvitation: z.unknown().optional(),
   caseAssignments: z.array(z.unknown()),
+  workingDays: z.array(z.unknown()),
   createdAt: z.date(),
   updatedAt: z.date()
 }));
