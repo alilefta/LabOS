@@ -1,126 +1,147 @@
 // data/team/get-staff-paystub.ts
 
-import { tenantPrisma } from "@/lib/prisma";
-import { getServerSession } from "@/lib/get-session";
-import { ERRORS } from "@/lib/errors";
-import { daError, daSuccess, toDAError, DAResult } from "@/lib/data-access-errors";
-import { startOfDay, endOfDay } from "date-fns";
-import z from "zod";
-import { getCurrentLabUserRoleByAuthUserId } from "../lab";
+import { generalPrisma, tenantPrisma } from '@/lib/prisma'
+import { ERRORS } from '@/lib/errors'
+import {
+	daError,
+	daSuccess,
+	toDAError,
+	DAResult,
+} from '@/lib/data-access-errors'
+import z from 'zod'
+import { PayoutStatus } from '@/schema/base/enums.base'
 
 const InputSchema = z.object({
-	staffId: z.string().uuid(),
-	dateKey: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date format YYYY-MM-DD"),
-});
+	staffId: z.string().uuid('Invalid Staff ID format'),
+	payoutId: z.string().uuid('Invalid Payout ID format'),
+})
 
 export interface StaffPaystubDTO {
-	payoutDate: Date;
+	payoutNumber: string
+	payoutDate: Date
+	status: PayoutStatus
 	staff: {
-		id: string;
-		name: string;
-		jobTitle: string | null;
-		roleCategory: string;
-	};
+		id: string
+		name: string
+		jobTitle: string | null
+		roleCategory: string
+	}
 	lab: {
-		title: string;
-		subtitle: string | null;
-	};
+		title: string
+		subtitle: string | null
+	}
 	cases: {
-		caseNumber: string;
-		patientName: string;
-		caseTotal: number;
-		commissionTotal: number;
-	}[];
-	totalDisbursed: number;
+		caseNumber: string
+		patientName: string
+		caseTotal: number
+		commissionTotal: number
+		productName: string // Added for auditing [3]
+		teethCount: number // Added for auditing [3]
+	}[]
+	totalDisbursed: number
 }
 
-export async function getStaffPaystubData(staffId: string, dateKey: string): Promise<DAResult<StaffPaystubDTO>> {
+export async function getStaffPaystubData(
+	staffId: string,
+	payoutId: string,
+): Promise<DAResult<StaffPaystubDTO>> {
 	try {
-		// ── 1. STRICT SECURITY GUARD (Dual-Authorization) ───────────────────
-		const session = await getServerSession();
-		if (!session) return daError(ERRORS.UNAUTHORIZED.toJSON());
-
-		const labId = session.user.labId;
-		if (!labId) return daError(ERRORS.LAB_NOT_FOUND.toJSON());
-
-		// A. Validate Input
-		const parsed = InputSchema.safeParse({ staffId, dateKey });
-		if (!parsed.success) return daError(ERRORS.INVALID_INPUT.toJSON());
-
-		const labUser = await getCurrentLabUserRoleByAuthUserId();
-		if (!labUser) return daError(ERRORS.LAB_NOT_FOUND.toJSON());
-
-		const labStaff = labUser.labStaff;
-		if (!labStaff) return daError(ERRORS.LAB_NOT_FOUND.toJSON());
-
-		// B. Authorization check: Owner/Manager OR The Employee themselves [2]
-		const isManager = labUser.role === "OWNER" || labUser.role === "MANAGER";
-		const isSelf = labUser.labStaff?.id === staffId; // Matches their linked human record [2]
-
-		if (!isManager && !isSelf) {
-			return daError(ERRORS.UNAUTHORIZED.toJSON());
+		// --- GUARD 1: INPUT SANITIZATION ---
+		const parsed = InputSchema.safeParse({ staffId, payoutId })
+		if (!parsed.success) {
+			return daError(ERRORS.INVALID_INPUT.toJSON())
 		}
 
-		const prisma = await tenantPrisma(labId);
+		// Public/Unauthenticated access: we resolve via global Prisma
+		const prisma = generalPrisma
 
-		// Resolve date boundaries for the specific YYYY-MM-DD string
-		const targetDate = new Date(dateKey);
-		const start = startOfDay(targetDate);
-		const end = endOfDay(targetDate);
-
-		// ── 2. DATABASE FETCH ───────────────────────────────────────────────
-		const [staff, assignments] = await Promise.all([
-			prisma.labStaff.findUnique({
-				where: { id: staffId, labId },
-				select: { id: true, firstName: true, lastName: true, jobTitle: true, roleCategory: true },
-			}),
-			prisma.caseStaffAssignment.findMany({
-				where: {
-					labId,
-					staffId,
-					isPaid: true,
-					paidAt: { gte: start, lte: end }, // Fetch all paid on this specific day
+		// ── 2. THE SINGLE-JOIN DATABASE QUERY (N+1 Proof) ───────────────────
+		// Collapses 3 separate queries from your old code into exactly ONE database read [2]
+		const payout = await prisma.staffPayout.findFirst({
+			where: {
+				id: parsed.data.payoutId,
+				staffId: parsed.data.staffId,
+				// GUARD 2: Only show finalized/processing paychecks. Never show Drafts (PENDING_APPROVAL)
+				status: { in: ['SETTLED', 'PROCESSING'] },
+			},
+			include: {
+				lab: {
+					select: { title: true, subtitle: true },
 				},
-				include: {
-					dentalCase: {
-						select: {
-							caseNumber: true,
-							grandTotal: true,
-							patient: { select: { name: true } },
+				staff: {
+					select: {
+						id: true,
+						firstName: true,
+						lastName: true,
+						jobTitle: true,
+						roleCategory: true,
+					},
+				},
+				caseAssignments: {
+					include: {
+						dentalCase: {
+							select: {
+								caseNumber: true,
+								grandTotal: true,
+								patient: { select: { name: true } },
+								// Grab the product and teeth details for the itemized backlog [3]
+								caseItems: {
+									select: {
+										product: { select: { name: true } },
+										_count: { select: { selectedTeeth: true } },
+									},
+								},
+							},
 						},
 					},
 				},
-			}),
-		]);
+			},
+		})
 
-		if (!staff) return daError(ERRORS.NOT_FOUND.toJSON());
-		if (assignments.length === 0) return daError(ERRORS.NOT_FOUND.toJSON());
+		// GUARD 3: OBFUSCATE EXPIRED/VOIDED RECORDS
+		// If the paycheck is voided or doesn't exist, return a flat 404
+		if (!payout) {
+			return daError(ERRORS.NOT_FOUND.toJSON())
+		}
 
 		// ── 3. MAP TO SANITIZED DTO ─────────────────────────────────────────
-		const totalDisbursed = assignments.reduce((sum, item) => sum + Number(item.commissionTotal), 0);
-		const lab = await prisma.lab.findFirst({ where: { id: labId }, select: { title: true, subtitle: true } });
+		const sanitizedPaystub: StaffPaystubDTO = {
+			payoutNumber: payout.payoutNumber,
+			payoutDate: payout.paidAt || payout.createdAt,
+			status: payout.status,
 
-		return daSuccess({
-			payoutDate: targetDate,
 			staff: {
-				id: staff.id,
-				name: `${staff.firstName} ${staff.lastName}`,
-				jobTitle: staff.jobTitle,
-				roleCategory: staff.roleCategory,
+				id: payout.staff.id,
+				name: `${payout.staff.firstName} ${payout.staff.lastName}`,
+				jobTitle: payout.staff.jobTitle,
+				roleCategory: payout.staff.roleCategory,
 			},
+
 			lab: {
-				title: lab?.title || "LabOS",
-				subtitle: lab?.subtitle || "Dental Lab",
+				title: payout.lab.title,
+				subtitle: payout.lab.subtitle,
 			},
-			cases: assignments.map((a) => ({
-				caseNumber: a.dentalCase.caseNumber,
-				patientName: a.dentalCase.patient.name,
-				caseTotal: Number(a.dentalCase.grandTotal ?? 0),
-				commissionTotal: Number(a.commissionTotal),
-			})),
-			totalDisbursed,
-		});
+
+			// Map and flatten case assignments into auditable line items [3]
+			cases: payout.caseAssignments.map((ca) => {
+				const c = ca.dentalCase
+				const firstItem = c.caseItems[0]
+
+				return {
+					caseNumber: c.caseNumber,
+					patientName: c.patient.name,
+					caseTotal: Number(c.grandTotal ?? 0),
+					commissionTotal: Number(ca.commissionTotal), // The frozen historical rate!
+					productName: firstItem?.product?.name ?? 'Custom Restoration', // [3]
+					teethCount: firstItem?._count.selectedTeeth ?? 0, // [3]
+				}
+			}),
+
+			totalDisbursed: Number(payout.amount),
+		}
+
+		return daSuccess(sanitizedPaystub)
 	} catch (e) {
-		return toDAError(e);
+		return toDAError(e)
 	}
 }

@@ -1,88 +1,78 @@
 // actions/team/get-payout-history.ts
-"use server";
+'use server'
 
-import { z } from "zod";
-import { actionClientWithLab } from "@/lib/safe-action";
-import { tenantPrisma } from "@/lib/prisma";
-import { ERRORS } from "@/lib/errors";
-import { GetStaffPayoutHistoryResultDTO } from "@/schema/composed/team/payroll-history.dtos";
+import { z } from 'zod'
+import { actionClientWithLab } from '@/lib/safe-action'
+import { tenantPrisma } from '@/lib/prisma'
+import { ERRORS } from '@/lib/errors'
+import { GetStaffPayoutHistoryResultDTO } from '@/schema/composed/team/payroll-history.dtos'
+import { PayoutStatus } from '@/schema/base/enums.base'
 
 export const getStaffPayoutHistoryAction = actionClientWithLab
 	.metadata({
-		actionName: "Get-Staff-Payout-History-Action",
-		requiredLabRole: "MANAGER", // Security: Only managers can view past payroll files
+		actionName: 'Get-Staff-Payout-History-Action',
+		requiredLabRole: 'MANAGER', // Security: Only managers can view past payroll files
 	})
 	.inputSchema(
 		z.object({
-			staffId: z.string().uuid("Invalid Staff ID format"),
+			staffId: z.string().uuid('Invalid Staff ID format'),
+			take: z.number().default(20).optional(), // Support pagination / limits
 		}),
 	)
 	.action(async ({ parsedInput, ctx }) => {
-		const { labId } = ctx;
-		const { staffId } = parsedInput;
+		const { labId } = ctx
+		const { staffId, take } = parsedInput
 
-		const prisma = await tenantPrisma(labId);
+		const prisma = await tenantPrisma(labId)
 
-		// 1. Security Check: Verify staff belongs to this lab tenant
+		// 1. Security Check: Verify staff belongs to this lab tenant [2]
 		const staffExists = await prisma.labStaff.findUnique({
 			where: { id: staffId, labId },
 			select: { id: true },
-		});
+		})
 
 		if (!staffExists) {
-			throw ERRORS.NOT_FOUND;
+			throw ERRORS.NOT_FOUND
 		}
 
-		// 2. Fetch Paid Assignments (High-Performance Query)
-		const paidAssignments = await prisma.caseStaffAssignment.findMany({
+		// 2. Fetch Settled & Pending Paychecks (High-Performance Query) [2]
+		const payoutsRaw = await prisma.staffPayout.findMany({
 			where: {
 				labId,
 				staffId,
-				isPaid: true,
 			},
 			select: {
 				id: true,
-				commissionTotal: true,
+				payoutNumber: true,
+				amount: true,
+				status: true,
+				createdAt: true,
 				paidAt: true,
+
+				// N+1 Prevention: Get the exact count of cases inside this paycheck [3]
+				_count: {
+					select: {
+						caseAssignments: true,
+					},
+				},
 			},
 			// Order by payment date descending (Most recent paychecks first)
-			orderBy: { paidAt: "desc" },
-		});
+			orderBy: { createdAt: 'desc' },
+			take: take ?? 20,
+		})
 
-		// 3. IN-MEMORY BATCH GROUPING (The "Virtual Paystub" Engine) [1]
-		// Build a map of "YYYY-MM-DD" → Payout Metrics
-		const payoutMap = new Map<string, { date: Date; total: number; count: number }>();
-
-		paidAssignments.forEach((sa) => {
-			if (!sa.paidAt) return; // Safety check
-
-			// Extract date without hours/minutes
-			const dateKey = sa.paidAt.toISOString().slice(0, 10); // "2026-05-24"
-
-			const existing = payoutMap.get(dateKey) ?? {
-				date: sa.paidAt,
-				total: 0,
-				count: 0,
-			};
-
-			payoutMap.set(dateKey, {
-				date: existing.date,
-				total: existing.total + Number(sa.commissionTotal),
-				count: existing.count + 1,
-			});
-		});
-
-		// 4. Map to strict GetStaffPayoutHistoryResultDTO DTO [2]
-		const payouts = Array.from(payoutMap.entries()).map(([key, data]) => ({
-			id: key, // Date string is the ID
-			payoutDate: data.date,
-			casesCount: data.count,
-			totalPaid: Math.round(data.total * 100) / 100, // Safe rounding
-			status: "SETTLED" as const,
-		}));
+		// 3. Simple, Flat DTO Mapping (No heavy memory manipulation) [4]
+		const payouts = payoutsRaw.map((p) => ({
+			id: p.id, // Using the database Payout ID as the react key
+			payoutDate: p.paidAt || p.createdAt, // Fallback to creation date if still PENDING [4]
+			casesCount: p._count.caseAssignments,
+			totalPaid: Number(p.amount), // Convert Prisma Decimal to Number [4]
+			status: p.status as PayoutStatus, // Now dynamic, no longer hardcoded [4]
+			payoutNumber: p.payoutNumber,
+		}))
 
 		return {
 			payouts,
 			totalCount: payouts.length,
-		} as GetStaffPayoutHistoryResultDTO;
-	});
+		} as GetStaffPayoutHistoryResultDTO
+	})

@@ -112,7 +112,6 @@ export const getPayrollLedgerColumns = (
 		accessorKey: 'status',
 		header: 'Status',
 		cell: ({ row }) => {
-			// UX FIX: Read dynamically from the DTO instead of hardcoding "Settled" [3]
 			const status = (row.getValue('status') as PayoutStatus) || 'SETTLED'
 			const config = STATUS_CONFIG[status] || STATUS_CONFIG['SETTLED']
 			const Icon = config.icon
@@ -133,7 +132,7 @@ export const getPayrollLedgerColumns = (
 	{
 		id: 'actions',
 		cell: ({ row }) => {
-			const dateKey = row.original.id // YYYY-MM-DD
+			const payoutId = row.original.id
 
 			return (
 				<div className="text-right pr-2">
@@ -145,7 +144,7 @@ export const getPayrollLedgerColumns = (
 								size="icon"
 								onClick={(e) => {
 									e.stopPropagation()
-									window.open(`/paystub/${staffId}/${dateKey}`, '_blank')
+									window.open(`/paystub/${staffId}/${payoutId}`, '_blank')
 								}}
 								className="h-8 w-8 rounded-lg text-slate-400 hover:text-primary hover:bg-primary/10 transition-colors"
 							>
