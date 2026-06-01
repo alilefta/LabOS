@@ -22,8 +22,8 @@ export async function getStaffDossierData(staffId: string): Promise<DAResult<Sta
 			return daError(ERRORS.LAB_NOT_FOUND.toJSON());
 		}
 
-		const parsedId = InputSchema.safeParse(staffId);
-		if (!parsedId.success) {
+		const parsedStaffId = InputSchema.safeParse(staffId);
+		if (!parsedStaffId.success) {
 			return daError(ERRORS.INVALID_INPUT.toJSON());
 		}
 
@@ -35,7 +35,7 @@ export async function getStaffDossierData(staffId: string): Promise<DAResult<Sta
 		const [staff, completedAgg, failedAgg, rawSpeedResult] = await Promise.all([
 			// A. Fetch core details + only active case assignments (O(1) memory)
 			prisma.labStaff.findUnique({
-				where: { id: parsedId.data, labId },
+				where: { id: parsedStaffId.data, labId },
 				include: {
 					labUser: { select: { id: true, role: true } },
 					labInvitation: { select: { token: true, email: true, roleToGrant: true, expiresAt: true } },
@@ -51,7 +51,7 @@ export async function getStaffDossierData(staffId: string): Promise<DAResult<Sta
 			// B. Aggregate completed cases directly inside PostgreSQL
 			prisma.caseStaffAssignment.aggregate({
 				where: {
-					staffId: parsedId.data,
+					staffId: parsedStaffId.data,
 					labId,
 					dentalCase: { status: { in: ["COMPLETED", "DELIVERED"] } },
 				},
@@ -61,7 +61,7 @@ export async function getStaffDossierData(staffId: string): Promise<DAResult<Sta
 			// C. Aggregate failed/remake cases directly inside PostgreSQL
 			prisma.caseStaffAssignment.aggregate({
 				where: {
-					staffId: parsedId.data,
+					staffId: parsedStaffId.data,
 					labId,
 					OR: [{ dentalCase: { status: "FAILED" } }, { dentalCase: { isRemake: true } }],
 				},
@@ -76,8 +76,8 @@ export async function getStaffDossierData(staffId: string): Promise<DAResult<Sta
 				SELECT AVG(EXTRACT(EPOCH FROM (c."completedAt" - c."createdAt"))) / 86400 AS "avgDays"
 				FROM "Case" c
 				INNER JOIN "CaseStaffAssignment" csa ON c."id" = csa."caseId"
-				WHERE csa."staffId" = ${parsedId.data}::uuid
-				  AND csa."labId" = ${labId}::uuid
+				WHERE csa."staffId" = ${parsedStaffId.data}
+				  AND csa."labId" = ${labId}
 				  AND c."status" IN ('COMPLETED', 'DELIVERED')
 				  AND c."completedAt" IS NOT NULL
 			`,
@@ -137,6 +137,7 @@ export async function getStaffDossierData(staffId: string): Promise<DAResult<Sta
 			jobTitle: staff.jobTitle,
 			specialization: staff.specialization,
 			isActive: staff.isActive,
+			workingDays: staff.workingDays,
 
 			commissionType: staff.commissionType,
 			commissionValue: staff.commissionValue ? Number(staff.commissionValue) : null,
@@ -168,13 +169,13 @@ export async function getStaffMetadata(staffId: string): Promise<DAResult<StaffM
 		const labId = session.user.labId;
 		if (!labId) return daError(ERRORS.LAB_NOT_FOUND.toJSON());
 
-		const parsedId = InputSchema.safeParse(staffId);
-		if (!parsedId.success) return daError(ERRORS.INVALID_INPUT.toJSON());
+		const parsedStaffId = InputSchema.safeParse(staffId);
+		if (!parsedStaffId.success) return daError(ERRORS.INVALID_INPUT.toJSON());
 
 		const prisma = await tenantPrisma(labId);
 
 		const staff = await prisma.labStaff.findUnique({
-			where: { id: parsedId.data, labId },
+			where: { id: parsedStaffId.data, labId },
 			select: {
 				id: true,
 				firstName: true,
@@ -199,13 +200,13 @@ export async function getStaffHeaderData(staffId: string): Promise<DAResult<Staf
 		const labId = session.user.labId;
 		if (!labId) return daError(ERRORS.LAB_NOT_FOUND.toJSON());
 
-		const parsedId = InputSchema.safeParse(staffId);
-		if (!parsedId.success) return daError(ERRORS.INVALID_INPUT.toJSON());
+		const parsedStaffId = InputSchema.safeParse(staffId);
+		if (!parsedStaffId.success) return daError(ERRORS.INVALID_INPUT.toJSON());
 
 		const prisma = await tenantPrisma(labId);
 
 		const staff = await prisma.labStaff.findUnique({
-			where: { id: parsedId.data, labId },
+			where: { id: parsedStaffId.data, labId },
 			select: {
 				id: true,
 				firstName: true,

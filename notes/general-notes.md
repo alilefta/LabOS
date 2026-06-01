@@ -12,3 +12,7 @@ to resolve this issue:
 
 **for optional numbers:**
 `ts z.coerce.number<number>().min(0, "").optional(),`
+
+## Prisma Client usage
+
+To use {Prisma} from "@prisma/client", I have to use "@/generated/prisma/client" because I have custom output

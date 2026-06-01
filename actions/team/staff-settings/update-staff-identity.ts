@@ -1,85 +1,94 @@
-// actions/team/update-staff-identity.ts
+// actions/team/staff-settings/update-staff-identity.ts
 "use server";
 
-import { z } from "zod";
 import { actionClientWithLab } from "@/lib/safe-action";
 import { tenantPrisma } from "@/lib/prisma";
 import { ERRORS } from "@/lib/errors";
-import { StaffRoleCategorySchema } from "@/schema/base/enums.base";
 import { UpdateStaffIdentityInputSchema } from "@/schema/composed/team/staff-settings.schema";
-import { normalizeLabStaff } from "@/lib/mappers";
+import { normalizeLabStaff } from "@/lib/mappers"; // Assuming this is your mapper utility
 
 export const updateStaffIdentityAction = actionClientWithLab
 	.metadata({
 		actionName: "Update-Staff-Identity-Action",
-		// Standard safe-action middleware check
+		// Security: Enforced at the middleware level. No manual database queries needed [1].
 		requiredLabRole: "MANAGER",
 	})
 	.inputSchema(UpdateStaffIdentityInputSchema)
 	.action(async ({ parsedInput, ctx }) => {
 		const { staffId, firstName, lastName, phoneNumber, jobTitle, specialization, roleCategory, isActive } = parsedInput;
-		const { labId, user } = ctx; // Scoped by safe-action context
+		const { labId } = ctx; // Scoped securely by safe-action context
 
 		try {
 			const prisma = await tenantPrisma(labId);
 
-			// ── 2. SECURITY GUARD: ROLE CHECK ──────────────────────────────────
-			// Even if a user bypassed the client-side middleware, we do a
-			// database-level verification to ensure they are an OWNER or MANAGER.
-			const sessionUser = await prisma.labUser.findUnique({
-				where: { authUserId: user.id },
-				select: { role: true },
-			});
-
-			if (!sessionUser || (sessionUser.role !== "OWNER" && sessionUser.role !== "MANAGER")) {
-				throw new Error("Unauthorized. Only Lab Owners or Managers can alter employee profiles.");
-			}
-
-			// ── 3. ATOMIC TRANSACTION (DEACTIVATION LOGIC) ────────────────────
-			const updatedStaff = await prisma.$transaction(async (tx) => {
-				// A. Business Rule: Block deactivation if they have active cases
-				if (!isActive) {
-					const activeCasesCount = await tx.caseStaffAssignment.count({
-						where: {
-							staffId,
-							dentalCase: {
-								status: { in: ["ASSIGNED", "PROCESSING"] },
+			// ── ATOMIC TRANSACTION (DEACTIVATION & SESSION TERMINATION) ──────
+			const updatedStaff = await prisma.$transaction(
+				async (tx) => {
+					// A. Business Rule: Block deactivation if they have active workload
+					if (!isActive) {
+						const activeCasesCount = await tx.caseStaffAssignment.count({
+							where: {
+								staffId,
+								dentalCase: {
+									status: { in: ["ASSIGNED", "PROCESSING"] },
+								},
 							},
+						});
+
+						if (activeCasesCount > 0) {
+							throw new Error(`Cannot deactivate. This employee still has ${activeCasesCount} active cases assigned on their bench. Reassign their workload first.`);
+						}
+					}
+
+					// B. Perform the actual LabStaff update
+					const staff = await tx.labStaff.update({
+						where: { id: staffId },
+						data: {
+							firstName,
+							lastName,
+							phoneNumber,
+							jobTitle: jobTitle || null,
+							specialization: specialization || null,
+							roleCategory,
+							isActive,
 						},
 					});
 
-					if (activeCasesCount > 0) {
-						throw new Error(`Cannot deactivate. This employee still has ${activeCasesCount} active cases assigned to them. Reassign their workload first.`);
+					// C. SECURITY HANDSHAKE: Session Purging & Login Lockout [2]
+					if (!isActive) {
+						// 1. Locate their connected AuthUser ID via the LabUser relation [2]
+						const linkedUser = await tx.labUser.findUnique({
+							where: { labStaffId: staffId, labId },
+							select: { authUserId: true },
+						});
+
+						if (linkedUser) {
+							// 2. Deactivate their software login seat [2]
+							await tx.labUser.update({
+								where: { labStaffId: staffId },
+								data: { isActive: false },
+							});
+
+							// 3. FORCE LOGOUT: Instantly delete all active sessions from the database [2]
+							// This immediately revokes their JWT/Session tokens across all active devices.
+							await tx.session.deleteMany({
+								where: { userId: linkedUser.authUserId },
+							});
+						}
 					}
-				}
 
-				// B. Perform the actual update
-				const staff = await tx.labStaff.update({
-					where: { id: staffId },
-					data: {
-						firstName,
-						lastName,
-						phoneNumber,
-						jobTitle: jobTitle || null,
-						specialization: specialization || null,
-						roleCategory,
-						isActive,
-					},
-				});
+					return staff;
+				},
+				{
+					maxWait: 5000,
+					timeout: 10000, // 10s timeout to handle session deletion joins safely
+				},
+			);
 
-				// C. Safety Handshake: If we deactivated the staff,
-				// also deactivate their corresponding login seat (LabUser) if one exists!
-				if (!isActive) {
-					await tx.labUser.updateMany({
-						where: { labStaffId: staffId, labId },
-						data: { isActive: false },
-					});
-				}
-
-				return staff;
-			});
-
-			return { success: true, staff: normalizeLabStaff(updatedStaff) };
+			return {
+				success: true,
+				staff: normalizeLabStaff(updatedStaff), // Returns the sanitized, pristine object [3]
+			};
 		} catch (error: any) {
 			console.error("[Update-Staff-Identity-Action] Error:", error.message);
 			if (error instanceof Error) throw error;

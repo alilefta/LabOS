@@ -1,46 +1,56 @@
 // components/team/team-details/settings-tab/staff-settings-tab-content.tsx
 
-"use client";
+'use client'
 
-import { useMemo } from "react";
-import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
-import { LabRole } from "@/schema/base/enums.base";
+import { useMemo } from 'react'
+import { useQuery } from '@tanstack/react-query'
+import { LabRole } from '@/schema/base/enums.base'
 
 // Import your 4 highly optimized setting cards
-import { StaffIdentityCard } from "./staff-identity-card";
-import { StaffScheduleCard } from "./staff-schedule-card";
-import { StaffSecurityCard } from "./staff-security-card";
-import { StaffCompensationCard } from "./staff-compensation-card";
-import { usePermissions } from "@/providers/permissions-provider";
+import { StaffIdentityCard } from './staff-identity-card'
+import { StaffScheduleCard } from './staff-schedule-card'
+import { StaffSecurityCard } from './staff-security-card'
+import { usePermissions } from '@/providers/permissions-provider'
 
 // Data Access
-import { handleSafeActionError } from "@/lib/safe-action-helpers";
-import { getStaffDataDossierAction } from "@/actions/team/get-staff-dossier-action";
+import { handleSafeActionError } from '@/lib/safe-action-helpers'
+import { getStaffDataDossierAction } from '@/actions/team/get-staff-dossier-action'
+import dynamic from 'next/dynamic'
+import { StaffCompensationCard } from './staff-compensation-card'
 
 interface Props {
-	staffId: string;
-	currentUserRole: LabRole;
+	staffId: string
+	currentUserRole: LabRole
 }
-
+// const StaffCompensationCard = dynamic(
+// 	() =>
+// 		import('./staff-compensation-card').then((cm) => cm.StaffCompensationCard),
+// 	{ ssr: false, loading: () => <p>Loading </p> },
+// )
 export function StaffSettingsTabContent({ staffId, currentUserRole }: Props) {
-	const { canViewFinancials } = usePermissions();
+	const { canViewFinancials, canManageStaff } = usePermissions()
 
 	// ── 1. HIGH-PERFORMANCE DATA FETCH (SUSPENDED) ────────────────────
 
 	const { data: staff } = useQuery({
-		queryKey: ["staff-details", staffId],
+		queryKey: ['staff-details', staffId],
 		queryFn: async () => {
-			const res = await getStaffDataDossierAction({ staffId });
+			const res = await getStaffDataDossierAction({ staffId })
 
 			if (res?.serverError || res?.validationErrors) {
-				handleSafeActionError({ serverError: res.serverError, validationErrors: res.validationErrors });
+				handleSafeActionError({
+					serverError: res.serverError,
+					validationErrors: res.validationErrors,
+				})
 			}
-			return res.data?.staff || null;
+			return res.data?.staff || null
 		},
-		staleTime: 1000 * 60 * 5,
-	});
+		refetchOnWindowFocus: false,
+		refetchOnMount: false,
+		staleTime: Infinity, // Settings data should only refresh when explicitly mutated/invalidated
+	})
 
-	if (!staff) return null;
+	if (!staff) return null
 
 	// ── 2. MAP DATA TO SPECIFIC CARD SCHEMAS ────────────────────────────
 	const identityData = useMemo(
@@ -55,7 +65,7 @@ export function StaffSettingsTabContent({ staffId, currentUserRole }: Props) {
 			isActive: staff.isActive,
 		}),
 		[staff],
-	);
+	)
 
 	const compensationData = useMemo(
 		() => ({
@@ -64,32 +74,50 @@ export function StaffSettingsTabContent({ staffId, currentUserRole }: Props) {
 			commissionValue: staff.commissionValue,
 		}),
 		[staff],
-	);
+	)
 
-	// Fetch working days directly from our new schema field [3]
-	const workingDays = ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY"]; // it should be inserted in the db
-
+	const workingDays = staff.workingDays || [
+		'MONDAY',
+		'TUESDAY',
+		'WEDNESDAY',
+		'THURSDAY',
+		'FRIDAY',
+	]
 	return (
 		// strictly aligned to your 2000px layout grids
-		<div className="grid grid-cols-1 lg:grid-cols-2 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+		<div className="grid grid-cols-1 lg:grid-cols-2 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500 ">
 			{/* ── COLUMN 1: THE OPERATIONAL WORKER (Left) ── */}
-			<div className="flex flex-col gap-6 h-fit">
-				<StaffIdentityCard initialData={identityData} />
-				<StaffScheduleCard staffId={staff.id} initialWorkingDays={workingDays} />
+			<div className="flex flex-col gap-6 h-fit ">
+				<StaffIdentityCard
+					initialData={identityData}
+					isReadOnly={!canManageStaff}
+				/>
+				<StaffScheduleCard
+					staffId={staff.id}
+					initialWorkingDays={workingDays}
+					isReadOnly={!canManageStaff}
+				/>
 			</div>
 
 			{/* ── COLUMN 2: THE SYSTEM & FINANCE (Right) ── */}
 			<div className="flex flex-col gap-6 h-fit">
 				{/* The IT software license manager */}
-				<StaffSecurityCard initialData={staff} currentUserRole={currentUserRole} />
 
 				{/* 
-					Role-Guarded Compensation block. 
-					If a standard technician is editing their own settings, 
-					this card is completely removed from the DOM.
-				*/}
-				{canViewFinancials && <StaffCompensationCard initialData={compensationData} />}
+                🚨 CRITICAL FIX: THE DYNAMIC KEY
+                Assigning key={staff.id} guarantees that the security form resets 
+                and destroys its dirty state whenever the manager switches users [1].
+            */}
+				<StaffSecurityCard
+					key={staff.id}
+					initialData={staff}
+					currentUserRole={currentUserRole}
+				/>
+
+				{canViewFinancials && (
+					<StaffCompensationCard initialData={compensationData} />
+				)}
 			</div>
 		</div>
-	);
+	)
 }

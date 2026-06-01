@@ -199,6 +199,13 @@ enum PaymentMethod {
   OTHER
 }
 
+enum PayoutStatus {
+  PENDING_APPROVAL   // Accountant generated, waiting for Lab Owner's bank sign-off
+  PROCESSING         // Zain Cash or Bank transfer initiated but not cleared
+  SETTLED            // Transaction completed, money received by employee
+  VOIDED             // Erroneous payout, cancelled and backed out
+}
+
 enum FaultParty {
   LAB // Our fault (eating the cost)
   CLINIC // Doctor's fault (billable remake)
@@ -241,6 +248,8 @@ model Lab {
   invoiceCase InvoiceCase[]
 
   invitations LabInvitation[]
+
+  staffPayouts StaffPayout[]
 
   nextInvoiceNumber Int @default(0)
 
@@ -643,6 +652,8 @@ model LabStaff {
 
   workingDays Weekday[] @default([MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY])
 
+  staffPayouts StaffPayout[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -692,6 +703,10 @@ model CaseStaffAssignment {
   isPaid Boolean   @default(false)
   paidAt DateTime?
 
+   // Link to the specific paycheck
+  payoutId     String?
+  payout       StaffPayout? @relation(fields: [payoutId], references: [id], onDelete: SetNull)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -700,6 +715,38 @@ model CaseStaffAssignment {
   // NO 2 LabStaff persons for the same role for the case
   @@index([caseId, roleCategory])
   @@index([labId])
+}
+
+
+model StaffPayout {
+  id                  String                  @id @default(uuid())
+  payoutNumber        String                  // Sequential ID per lab: e.g. "PAY-2605-0012"
+  
+  labId               String
+  lab                 Lab                     @relation(fields: [labId], references: [id], onDelete: Cascade)
+
+  staffId             String
+  staff               LabStaff                @relation(fields: [staffId], references: [id], onDelete: Cascade)
+
+  // Financials
+  amount              Decimal                 @db.Decimal(10, 2)
+  method              PaymentMethod           @default(CASH) // Reuses your Zain/Qi/Cash enum!
+  status              PayoutStatus            @default(PENDING_APPROVAL)
+  
+  // Auditing
+  reference           String?                 // Zain Cash Transaction ID or Bank Reference
+  notes               String?                 // Memo ("April 2026 Payout")
+
+  // The Links: Which specific cases are being paid by this paycheck?
+  caseAssignments     CaseStaffAssignment[]
+
+  paidAt              DateTime?
+  createdAt           DateTime                @default(now())
+  updatedAt           DateTime                @updatedAt
+
+  @@unique([labId, payoutNumber])
+  @@index([labId])
+  @@index([staffId])
 }
 
 // new to add

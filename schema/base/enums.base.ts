@@ -80,3 +80,8 @@ export type PaymentMethod = z.infer<typeof PaymentMethodSchema>;
 // ========== Payment Methods  ============
 export const FaultPartySchema = z.enum(["LAB", "CLINIC"]);
 export type FaultParty = z.infer<typeof FaultPartySchema>;
+
+// ========== Staff Working Days  ============
+
+export const WeekdaySchema = z.enum(["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"]);
+export type Weekday = z.infer<typeof WeekdaySchema>;

@@ -1,7 +1,7 @@
 // schema/composed/team/staff-dossier.dtos.ts
 
 import { z } from "zod";
-import { StaffRoleCategorySchema, CommissionTypeSchema, LabRoleSchema } from "@/schema/base/enums.base"; // Adjust paths to your base enums
+import { StaffRoleCategorySchema, CommissionTypeSchema, LabRoleSchema, WeekdaySchema } from "@/schema/base/enums.base"; // Adjust paths to your base enums
 
 // ── 1. THE SYSTEM ACCESS STATUS ENUM ────────────────────────────────────────
 // Represents the unified software credential state of this employee
@@ -41,6 +41,7 @@ export const StaffDossierDTOSchema = z.object({
 	phoneNumber: z.string().trim(),
 	avatarUrl: z.string().url().nullable(),
 	isActive: z.boolean(),
+	workingDays: z.array(WeekdaySchema),
 
 	// Operational Metadata
 	roleCategory: StaffRoleCategorySchema,
