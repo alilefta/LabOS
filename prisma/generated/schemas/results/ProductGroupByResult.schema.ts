@@ -8,6 +8,7 @@ export const ProductGroupByResultSchema = z.array(z.object({
   workTypeId: z.string(),
   createdAt: z.date(),
   updatedAt: z.date(),
+  isArchived: z.boolean(),
   _count: z.object({
     id: z.number(),
     name: z.number(),
@@ -20,7 +21,9 @@ export const ProductGroupByResultSchema = z.array(z.object({
     workType: z.number(),
     createdAt: z.number(),
     updatedAt: z.number(),
-    casePricingPlans: z.number()
+    casePricingPlans: z.number(),
+    addons: z.number(),
+    isArchived: z.number()
   }).optional(),
   _min: z.object({
     id: z.string().nullable(),

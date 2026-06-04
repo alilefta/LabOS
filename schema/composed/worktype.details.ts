@@ -1,54 +1,65 @@
-import { z } from "zod";
-import { WorkTypeBaseSchema } from "../base/worktype.base";
-import { ProductBaseSchema } from "../base/product.base";
-import { LabBaseSchema } from "../base/lab.base";
-import { CaseCategoryBaseSchema } from "../base/case-category.base";
-import { CaseWorkItemBaseSchema } from "../base/case-work-item.base";
-import { emptyToUndefinedTransformer } from "../base/utils.base";
+import { z } from 'zod'
+import { WorkTypeBaseSchema } from '../base/worktype.base'
+import { ProductBaseSchema } from '../base/product.base'
+import { LabBaseSchema } from '../base/lab.base'
+import { CaseCategoryBaseSchema } from '../base/case-category.base'
+import { CaseWorkItemBaseSchema } from '../base/case-work-item.base'
+import { emptyToUndefinedTransformer } from '../base/utils.base'
 
 export const WorktypeDetailsSchema = WorkTypeBaseSchema.extend({
-	product: z.array(ProductBaseSchema),
+	products: z.array(ProductBaseSchema),
 	lab: LabBaseSchema,
 	caseCategory: CaseCategoryBaseSchema,
 	caseWorkItems: z.array(CaseWorkItemBaseSchema),
-});
+})
 
-export type WorktypeDetails = z.infer<typeof WorktypeDetailsSchema>;
+export type WorktypeDetails = z.infer<typeof WorktypeDetailsSchema>
 
 export const WorktypeDetailsUISchema = WorkTypeBaseSchema.extend({
 	products: z.array(ProductBaseSchema).optional(),
 	lab: LabBaseSchema.optional(),
 	caseCategory: CaseCategoryBaseSchema.optional(),
 	caseWorkItems: z.array(CaseWorkItemBaseSchema).optional(),
-});
+})
 
-export type WorktypeDetailsUI = z.infer<typeof WorktypeDetailsUISchema>;
+export type WorktypeDetailsUI = z.infer<typeof WorktypeDetailsUISchema>
 
 export const CreateWorkTypeInputSchema = z.object({
-	name: z.string().trim().min(1, "Work type name is required"),
-	description: z.string().trim().transform(emptyToUndefinedTransformer).optional(),
+	name: z.string().trim().min(1, 'Work type name is required'),
+	description: z
+		.string()
+		.trim()
+		.transform(emptyToUndefinedTransformer)
+		.optional(),
 	imageUrl: z
-		.union([z.literal(""), z.string().trim().url("Please enter a valid image URL")])
+		.union([
+			z.literal(''),
+			z.string().trim().url('Please enter a valid image URL'),
+		])
 		.transform(emptyToUndefinedTransformer)
 		.optional(),
 	requireTeethSelection: z.boolean().default(true).optional(),
 	caseCategoryId: z.string(),
 	// product: CreateProductInputSchema,
-});
+})
 
-export type CreateWorkTypeInput = z.infer<typeof CreateWorkTypeInputSchema>;
+export type CreateWorkTypeInput = z.infer<typeof CreateWorkTypeInputSchema>
 
 export const GetProductsByWorkTypeInputSchema = z.object({
 	workTypeId: z.string(),
 	limit: z.number().default(10),
-});
+})
 
-export type GetProductsByWorkTypeInput = z.infer<typeof GetProductsByWorkTypeInputSchema>;
+export type GetProductsByWorkTypeInput = z.infer<
+	typeof GetProductsByWorkTypeInputSchema
+>
 
 export const GetWorkTypesByCategoryInputSchema = z.object({
 	caseCategoryId: z.string(),
 	limit: z.number().default(10),
 	requireTeethSelection: z.boolean(),
-});
+})
 
-export type GetWorkTypesByCategoryInput = z.infer<typeof GetWorkTypesByCategoryInputSchema>;
+export type GetWorkTypesByCategoryInput = z.infer<
+	typeof GetWorkTypesByCategoryInputSchema
+>

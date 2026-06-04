@@ -9,7 +9,8 @@ const makeSchema = () => z.object({
   imageUrl: z.string().optional().nullable(),
   labId: z.string(),
   createdAt: z.coerce.date().optional(),
-  updatedAt: z.coerce.date().optional()
+  updatedAt: z.coerce.date().optional(),
+  isArchived: z.boolean().optional()
 }).strict();
 export const ProductCreateManyWorkTypeInputObjectSchema: z.ZodType<Prisma.ProductCreateManyWorkTypeInput> = makeSchema() as unknown as z.ZodType<Prisma.ProductCreateManyWorkTypeInput>;
 export const ProductCreateManyWorkTypeInputObjectZodSchema = makeSchema();

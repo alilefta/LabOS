@@ -39,6 +39,8 @@ export const LabFindFirstOrThrowSelectSchema: z.ZodType<Prisma.LabSelect> = z.ob
     staffPayouts: z.boolean().optional(),
     nextPayoutNumber: z.boolean().optional(),
     nextInvoiceNumber: z.boolean().optional(),
+    caseWorkItemAddons: z.boolean().optional(),
+    productAddons: z.boolean().optional(),
     createdAt: z.boolean().optional(),
     updatedAt: z.boolean().optional(),
     _count: z.boolean().optional()
@@ -74,6 +76,8 @@ export const LabFindFirstOrThrowSelectZodSchema = z.object({
     staffPayouts: z.boolean().optional(),
     nextPayoutNumber: z.boolean().optional(),
     nextInvoiceNumber: z.boolean().optional(),
+    caseWorkItemAddons: z.boolean().optional(),
+    productAddons: z.boolean().optional(),
     createdAt: z.boolean().optional(),
     updatedAt: z.boolean().optional(),
     _count: z.boolean().optional()

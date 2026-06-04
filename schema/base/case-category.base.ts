@@ -1,4 +1,4 @@
-import * as z from "zod";
+import z from 'zod'
 
 export const CaseCategoryBaseSchema = z.object({
 	id: z.string(),
@@ -6,9 +6,11 @@ export const CaseCategoryBaseSchema = z.object({
 	description: z.string().nullable(),
 	imageUrl: z.string().nullable(),
 	isActive: z.boolean(),
+	isArchived: z.boolean(),
+
 	labId: z.string(),
 	createdAt: z.date(),
 	updatedAt: z.date(),
-});
+})
 
-export type CaseCategoryBase = z.infer<typeof CaseCategoryBaseSchema>;
+export type CaseCategoryBase = z.infer<typeof CaseCategoryBaseSchema>

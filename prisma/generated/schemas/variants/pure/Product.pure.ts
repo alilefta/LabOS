@@ -12,7 +12,9 @@ export const ProductModelSchema = z.object({
     workType: z.unknown(),
     createdAt: z.date(),
     updatedAt: z.date(),
-    casePricingPlans: z.array(z.unknown())
+    casePricingPlans: z.array(z.unknown()),
+    addons: z.array(z.unknown()),
+    isArchived: z.boolean()
 }).strict();
 
 export type ProductPureType = z.infer<typeof ProductModelSchema>;

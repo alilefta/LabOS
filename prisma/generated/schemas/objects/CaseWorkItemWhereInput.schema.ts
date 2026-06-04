@@ -19,6 +19,7 @@ import { CasePricingPlanScalarRelationFilterObjectSchema as CasePricingPlanScala
 import { CasePricingPlanWhereInputObjectSchema as CasePricingPlanWhereInputObjectSchema } from './CasePricingPlanWhereInput.schema';
 import { WorkTypeNullableScalarRelationFilterObjectSchema as WorkTypeNullableScalarRelationFilterObjectSchema } from './WorkTypeNullableScalarRelationFilter.schema';
 import { WorkTypeWhereInputObjectSchema as WorkTypeWhereInputObjectSchema } from './WorkTypeWhereInput.schema';
+import { CaseWorkItemAddonListRelationFilterObjectSchema as CaseWorkItemAddonListRelationFilterObjectSchema } from './CaseWorkItemAddonListRelationFilter.schema';
 import { SelectedToothListRelationFilterObjectSchema as SelectedToothListRelationFilterObjectSchema } from './SelectedToothListRelationFilter.schema'
 
 import { DecimalJSLikeSchema, isValidDecimalInput } from '../../helpers/decimal-helpers';
@@ -94,6 +95,7 @@ const caseworkitemwhereinputSchema = z.object({
   dentalCase: z.union([z.lazy(() => CaseScalarRelationFilterObjectSchema), z.lazy(() => CaseWhereInputObjectSchema)]).optional(),
   casePricingPlan: z.union([z.lazy(() => CasePricingPlanScalarRelationFilterObjectSchema), z.lazy(() => CasePricingPlanWhereInputObjectSchema)]).optional(),
   workType: z.union([z.lazy(() => WorkTypeNullableScalarRelationFilterObjectSchema), z.lazy(() => WorkTypeWhereInputObjectSchema)]).optional(),
+  addons: z.lazy(() => CaseWorkItemAddonListRelationFilterObjectSchema).optional(),
   selectedTeeth: z.lazy(() => SelectedToothListRelationFilterObjectSchema).optional()
 }).strict();
 export const CaseWorkItemWhereInputObjectSchema: z.ZodType<Prisma.CaseWorkItemWhereInput> = caseworkitemwhereinputSchema as unknown as z.ZodType<Prisma.CaseWorkItemWhereInput>;

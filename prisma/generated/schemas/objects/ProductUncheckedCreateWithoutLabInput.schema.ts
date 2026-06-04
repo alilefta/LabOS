@@ -1,7 +1,8 @@
 import * as z from 'zod';
 import type { Prisma } from '../../../../generated/prisma/client';
 import { CaseWorkItemUncheckedCreateNestedManyWithoutProductInputObjectSchema as CaseWorkItemUncheckedCreateNestedManyWithoutProductInputObjectSchema } from './CaseWorkItemUncheckedCreateNestedManyWithoutProductInput.schema';
-import { CasePricingPlanUncheckedCreateNestedManyWithoutProductInputObjectSchema as CasePricingPlanUncheckedCreateNestedManyWithoutProductInputObjectSchema } from './CasePricingPlanUncheckedCreateNestedManyWithoutProductInput.schema'
+import { CasePricingPlanUncheckedCreateNestedManyWithoutProductInputObjectSchema as CasePricingPlanUncheckedCreateNestedManyWithoutProductInputObjectSchema } from './CasePricingPlanUncheckedCreateNestedManyWithoutProductInput.schema';
+import { ProductAddonUncheckedCreateNestedManyWithoutProductInputObjectSchema as ProductAddonUncheckedCreateNestedManyWithoutProductInputObjectSchema } from './ProductAddonUncheckedCreateNestedManyWithoutProductInput.schema'
 
 const makeSchema = () => z.object({
   id: z.string().optional(),
@@ -11,8 +12,10 @@ const makeSchema = () => z.object({
   workTypeId: z.string(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
+  isArchived: z.boolean().optional(),
   caseWorkItems: z.lazy(() => CaseWorkItemUncheckedCreateNestedManyWithoutProductInputObjectSchema).optional(),
-  casePricingPlans: z.lazy(() => CasePricingPlanUncheckedCreateNestedManyWithoutProductInputObjectSchema).optional()
+  casePricingPlans: z.lazy(() => CasePricingPlanUncheckedCreateNestedManyWithoutProductInputObjectSchema).optional(),
+  addons: z.lazy(() => ProductAddonUncheckedCreateNestedManyWithoutProductInputObjectSchema).optional()
 }).strict();
 export const ProductUncheckedCreateWithoutLabInputObjectSchema: z.ZodType<Prisma.ProductUncheckedCreateWithoutLabInput> = makeSchema() as unknown as z.ZodType<Prisma.ProductUncheckedCreateWithoutLabInput>;
 export const ProductUncheckedCreateWithoutLabInputObjectZodSchema = makeSchema();

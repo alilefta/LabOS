@@ -5,6 +5,7 @@ import { LabArgsObjectSchema as LabArgsObjectSchema } from './LabArgs.schema';
 import { CaseArgsObjectSchema as CaseArgsObjectSchema } from './CaseArgs.schema';
 import { CasePricingPlanArgsObjectSchema as CasePricingPlanArgsObjectSchema } from './CasePricingPlanArgs.schema';
 import { WorkTypeArgsObjectSchema as WorkTypeArgsObjectSchema } from './WorkTypeArgs.schema';
+import { CaseWorkItemAddonFindManySchema as CaseWorkItemAddonFindManySchema } from '../findManyCaseWorkItemAddon.schema';
 import { SelectedToothFindManySchema as SelectedToothFindManySchema } from '../findManySelectedTooth.schema';
 import { CaseWorkItemCountOutputTypeArgsObjectSchema as CaseWorkItemCountOutputTypeArgsObjectSchema } from './CaseWorkItemCountOutputTypeArgs.schema'
 
@@ -14,6 +15,7 @@ const makeSchema = () => z.object({
   dentalCase: z.union([z.boolean(), z.lazy(() => CaseArgsObjectSchema)]).optional(),
   casePricingPlan: z.union([z.boolean(), z.lazy(() => CasePricingPlanArgsObjectSchema)]).optional(),
   workType: z.union([z.boolean(), z.lazy(() => WorkTypeArgsObjectSchema)]).optional(),
+  addons: z.union([z.boolean(), z.lazy(() => CaseWorkItemAddonFindManySchema)]).optional(),
   selectedTeeth: z.union([z.boolean(), z.lazy(() => SelectedToothFindManySchema)]).optional(),
   _count: z.union([z.boolean(), z.lazy(() => CaseWorkItemCountOutputTypeArgsObjectSchema)]).optional()
 }).strict();

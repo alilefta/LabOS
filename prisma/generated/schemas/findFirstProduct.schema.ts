@@ -22,6 +22,8 @@ export const ProductFindFirstSelectSchema: z.ZodType<Prisma.ProductSelect> = z.o
     createdAt: z.boolean().optional(),
     updatedAt: z.boolean().optional(),
     casePricingPlans: z.boolean().optional(),
+    addons: z.boolean().optional(),
+    isArchived: z.boolean().optional(),
     _count: z.boolean().optional()
   }).strict() as unknown as z.ZodType<Prisma.ProductSelect>;
 
@@ -38,6 +40,8 @@ export const ProductFindFirstSelectZodSchema = z.object({
     createdAt: z.boolean().optional(),
     updatedAt: z.boolean().optional(),
     casePricingPlans: z.boolean().optional(),
+    addons: z.boolean().optional(),
+    isArchived: z.boolean().optional(),
     _count: z.boolean().optional()
   }).strict();
 

@@ -9,6 +9,7 @@ const makeSchema = () => z.object({
   labId: z.string(),
   name: z.string(),
   isDefault: z.boolean().optional(),
+  isArchived: z.boolean().optional(),
   pricingStrategy: PricingStrategySchema.optional(),
   firstToothPrice: z.union([
   z.number(),

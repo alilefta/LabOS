@@ -10,7 +10,8 @@ const makeSchema = () => z.object({
   labId: z.literal(true).optional(),
   workTypeId: z.literal(true).optional(),
   createdAt: z.literal(true).optional(),
-  updatedAt: z.literal(true).optional()
+  updatedAt: z.literal(true).optional(),
+  isArchived: z.literal(true).optional()
 }).strict();
 export const ProductMinAggregateInputObjectSchema: z.ZodType<Prisma.ProductMinAggregateInputType> = makeSchema() as unknown as z.ZodType<Prisma.ProductMinAggregateInputType>;
 export const ProductMinAggregateInputObjectZodSchema = makeSchema();

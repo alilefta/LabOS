@@ -19,7 +19,9 @@ import { InvoiceCreateNestedManyWithoutLabInputObjectSchema as InvoiceCreateNest
 import { InvoicePaymentCreateNestedManyWithoutLabInputObjectSchema as InvoicePaymentCreateNestedManyWithoutLabInputObjectSchema } from './InvoicePaymentCreateNestedManyWithoutLabInput.schema';
 import { CaseActivityLogCreateNestedManyWithoutLabInputObjectSchema as CaseActivityLogCreateNestedManyWithoutLabInputObjectSchema } from './CaseActivityLogCreateNestedManyWithoutLabInput.schema';
 import { InvoiceCaseCreateNestedManyWithoutLabInputObjectSchema as InvoiceCaseCreateNestedManyWithoutLabInputObjectSchema } from './InvoiceCaseCreateNestedManyWithoutLabInput.schema';
-import { LabInvitationCreateNestedManyWithoutLabInputObjectSchema as LabInvitationCreateNestedManyWithoutLabInputObjectSchema } from './LabInvitationCreateNestedManyWithoutLabInput.schema'
+import { LabInvitationCreateNestedManyWithoutLabInputObjectSchema as LabInvitationCreateNestedManyWithoutLabInputObjectSchema } from './LabInvitationCreateNestedManyWithoutLabInput.schema';
+import { CaseWorkItemAddonCreateNestedManyWithoutLabInputObjectSchema as CaseWorkItemAddonCreateNestedManyWithoutLabInputObjectSchema } from './CaseWorkItemAddonCreateNestedManyWithoutLabInput.schema';
+import { ProductAddonCreateNestedManyWithoutLabInputObjectSchema as ProductAddonCreateNestedManyWithoutLabInputObjectSchema } from './ProductAddonCreateNestedManyWithoutLabInput.schema'
 
 const makeSchema = () => z.object({
   id: z.string().optional(),
@@ -51,7 +53,9 @@ const makeSchema = () => z.object({
   invoicePayments: z.lazy(() => InvoicePaymentCreateNestedManyWithoutLabInputObjectSchema).optional(),
   caseActivityLogs: z.lazy(() => CaseActivityLogCreateNestedManyWithoutLabInputObjectSchema).optional(),
   invoiceCase: z.lazy(() => InvoiceCaseCreateNestedManyWithoutLabInputObjectSchema).optional(),
-  invitations: z.lazy(() => LabInvitationCreateNestedManyWithoutLabInputObjectSchema).optional()
+  invitations: z.lazy(() => LabInvitationCreateNestedManyWithoutLabInputObjectSchema).optional(),
+  caseWorkItemAddons: z.lazy(() => CaseWorkItemAddonCreateNestedManyWithoutLabInputObjectSchema).optional(),
+  productAddons: z.lazy(() => ProductAddonCreateNestedManyWithoutLabInputObjectSchema).optional()
 }).strict();
 export const LabCreateWithoutStaffPayoutsInputObjectSchema: z.ZodType<Prisma.LabCreateWithoutStaffPayoutsInput> = makeSchema() as unknown as z.ZodType<Prisma.LabCreateWithoutStaffPayoutsInput>;
 export const LabCreateWithoutStaffPayoutsInputObjectZodSchema = makeSchema();

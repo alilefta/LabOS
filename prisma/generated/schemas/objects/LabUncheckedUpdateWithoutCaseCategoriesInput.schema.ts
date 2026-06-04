@@ -23,7 +23,9 @@ import { InvoicePaymentUncheckedUpdateManyWithoutLabNestedInputObjectSchema as I
 import { CaseActivityLogUncheckedUpdateManyWithoutLabNestedInputObjectSchema as CaseActivityLogUncheckedUpdateManyWithoutLabNestedInputObjectSchema } from './CaseActivityLogUncheckedUpdateManyWithoutLabNestedInput.schema';
 import { InvoiceCaseUncheckedUpdateManyWithoutLabNestedInputObjectSchema as InvoiceCaseUncheckedUpdateManyWithoutLabNestedInputObjectSchema } from './InvoiceCaseUncheckedUpdateManyWithoutLabNestedInput.schema';
 import { LabInvitationUncheckedUpdateManyWithoutLabNestedInputObjectSchema as LabInvitationUncheckedUpdateManyWithoutLabNestedInputObjectSchema } from './LabInvitationUncheckedUpdateManyWithoutLabNestedInput.schema';
-import { StaffPayoutUncheckedUpdateManyWithoutLabNestedInputObjectSchema as StaffPayoutUncheckedUpdateManyWithoutLabNestedInputObjectSchema } from './StaffPayoutUncheckedUpdateManyWithoutLabNestedInput.schema'
+import { StaffPayoutUncheckedUpdateManyWithoutLabNestedInputObjectSchema as StaffPayoutUncheckedUpdateManyWithoutLabNestedInputObjectSchema } from './StaffPayoutUncheckedUpdateManyWithoutLabNestedInput.schema';
+import { CaseWorkItemAddonUncheckedUpdateManyWithoutLabNestedInputObjectSchema as CaseWorkItemAddonUncheckedUpdateManyWithoutLabNestedInputObjectSchema } from './CaseWorkItemAddonUncheckedUpdateManyWithoutLabNestedInput.schema';
+import { ProductAddonUncheckedUpdateManyWithoutLabNestedInputObjectSchema as ProductAddonUncheckedUpdateManyWithoutLabNestedInputObjectSchema } from './ProductAddonUncheckedUpdateManyWithoutLabNestedInput.schema'
 
 const makeSchema = () => z.object({
   id: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputObjectSchema)]).optional(),
@@ -55,7 +57,9 @@ const makeSchema = () => z.object({
   caseActivityLogs: z.lazy(() => CaseActivityLogUncheckedUpdateManyWithoutLabNestedInputObjectSchema).optional(),
   invoiceCase: z.lazy(() => InvoiceCaseUncheckedUpdateManyWithoutLabNestedInputObjectSchema).optional(),
   invitations: z.lazy(() => LabInvitationUncheckedUpdateManyWithoutLabNestedInputObjectSchema).optional(),
-  staffPayouts: z.lazy(() => StaffPayoutUncheckedUpdateManyWithoutLabNestedInputObjectSchema).optional()
+  staffPayouts: z.lazy(() => StaffPayoutUncheckedUpdateManyWithoutLabNestedInputObjectSchema).optional(),
+  caseWorkItemAddons: z.lazy(() => CaseWorkItemAddonUncheckedUpdateManyWithoutLabNestedInputObjectSchema).optional(),
+  productAddons: z.lazy(() => ProductAddonUncheckedUpdateManyWithoutLabNestedInputObjectSchema).optional()
 }).strict();
 export const LabUncheckedUpdateWithoutCaseCategoriesInputObjectSchema: z.ZodType<Prisma.LabUncheckedUpdateWithoutCaseCategoriesInput> = makeSchema() as unknown as z.ZodType<Prisma.LabUncheckedUpdateWithoutCaseCategoriesInput>;
 export const LabUncheckedUpdateWithoutCaseCategoriesInputObjectZodSchema = makeSchema();

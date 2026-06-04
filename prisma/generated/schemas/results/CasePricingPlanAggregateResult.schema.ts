@@ -5,6 +5,7 @@ export const CasePricingPlanAggregateResultSchema = z.object({  _count: z.object
     lab: z.number(),
     name: z.number(),
     isDefault: z.number(),
+    isArchived: z.number(),
     pricingStrategy: z.number(),
     firstToothPrice: z.number(),
     additionalToothPrice: z.number(),

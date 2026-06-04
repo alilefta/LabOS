@@ -1,14 +1,17 @@
-import * as z from "zod";
-import { InvoiceStatusSchema } from "./enums.base";
+import * as z from 'zod'
+import { InvoiceStatusSchema } from './enums.base'
 export const InvoiceBaseSchema = z.object({
 	id: z.string(),
 	labId: z.string(),
 	clinicId: z.string(),
+
 	invoiceNumber: z.string(),
 	status: InvoiceStatusSchema,
 	notes: z.string().nullable(),
 	subtotal: z.number(),
 	discountAmount: z.number(),
+	appliedDiscountPercentage: z.number().nullable(),
+	discountReason: z.string().nullable(),
 	total: z.number(),
 	amountPaid: z.number(),
 	amountDue: z.number(),
@@ -16,9 +19,9 @@ export const InvoiceBaseSchema = z.object({
 	dueDate: z.date().nullable(),
 	publicToken: z.string().nullable(),
 	publicLinkExpiresAt: z.date().nullable(),
-
+	isActive: z.boolean(),
 	createdAt: z.date(),
 	updatedAt: z.date(),
-});
+})
 
-export type InvoiceBase = z.infer<typeof InvoiceBaseSchema>;
+export type InvoiceBase = z.infer<typeof InvoiceBaseSchema>

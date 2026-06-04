@@ -25,6 +25,8 @@ export { InvoicePaymentInputSchema } from './InvoicePayment.input';
 export { LabSubscriptionPlanInputSchema } from './LabSubscriptionPlan.input';
 export { LabUserInputSchema } from './LabUser.input';
 export { LabInvitationInputSchema } from './LabInvitation.input';
+export { ProductAddonInputSchema } from './ProductAddon.input';
+export { CaseWorkItemAddonInputSchema } from './CaseWorkItemAddon.input';
 export { SuperUserInputSchema } from './SuperUser.input';
 export { AuthUserInputSchema } from './AuthUser.input';
 export { SessionInputSchema } from './Session.input';

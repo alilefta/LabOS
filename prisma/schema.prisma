@@ -254,6 +254,9 @@ model Lab {
 
   nextInvoiceNumber Int @default(0)
 
+  caseWorkItemAddons CaseWorkItemAddon[]
+  productAddons ProductAddon[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -457,6 +460,9 @@ model CaseWorkItem {
   workTypeId String?
   workType   WorkType? @relation(fields: [workTypeId], references: [id], onDelete: SetNull)
 
+  addons        CaseWorkItemAddon[] 
+
+
   notes String? // per-item technician instructions
 
   // Shade tracking
@@ -501,7 +507,8 @@ model CaseCategory {
   description String?
   imageUrl    String?
 
-  isActive Boolean @default(true)
+  isActive    Boolean  @default(true) // Controls global visibility
+  isArchived  Boolean  @default(false) // 🔥 NEW: Soft-delete flag
 
   workTypes WorkType[]
   cases     Case[]
@@ -532,6 +539,8 @@ model WorkType {
   caseCategoryId String
   caseCategory   CaseCategory @relation(fields: [caseCategoryId], references: [id], onDelete: Cascade)
 
+  isArchived            Boolean  @default(false) // 🔥 NEW: Soft-delete flag
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -557,6 +566,12 @@ model Product {
 
   casePricingPlans CasePricingPlan[]
 
+  addons     ProductAddon[] // 🔥 NEW: Link to accessory catalog
+
+  // isActive Boolean @default(true)
+  isArchived Boolean  @default(false) // 🔥 NEW: Soft-delete flag
+
+
   @@index([labId])
   @@index([workTypeId])
 }
@@ -566,8 +581,10 @@ model CasePricingPlan {
   labId String
   lab   Lab    @relation(fields: [labId], references: [id], onDelete: Cascade)
 
-  name      String
-  isDefault Boolean @default(false)
+  name       String
+  isDefault  Boolean @default(false)
+
+  isArchived Boolean  @default(false) // 🔥 NEW: Soft-delete flag
 
   pricingStrategy PricingStrategy @default(BULK)
 
@@ -800,6 +817,8 @@ model Invoice {
   publicToken         String?   @unique @default(cuid())
   publicLinkExpiresAt DateTime?
 
+    isActive Boolean @default(true)
+
   cases    InvoiceCase[]
   payments InvoicePayment[]
 
@@ -937,6 +956,52 @@ model LabInvitation {
 
   @@index([labId])
   @@index([email])
+}
+
+
+// 🔥 NEW MODEL: The catalog definition for product accessories (e.g. Z-Spring, Clasp, Rest)
+model ProductAddon {
+  id          String   @id @default(uuid())
+  productId   String
+  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  
+  labId       String
+  lab         Lab      @relation(fields: [labId], references: [id], onDelete: Cascade)
+
+  name        String
+  price       Decimal  @db.Decimal(10, 2)
+  isArchived  Boolean  @default(false) // Soft-delete for addons
+
+  caseWorkItemAddons CaseWorkItemAddon[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([productId])
+  @@index([labId])
+}
+
+// 🔥 NEW MODEL: The transactional junction table holding the PRICE SNAPSHOT
+model CaseWorkItemAddon {
+  id             String       @id @default(uuid())
+  caseWorkItemId String
+  caseWorkItem   CaseWorkItem @relation(fields: [caseWorkItemId], references: [id], onDelete: Cascade)
+
+  addonId        String
+  addon          ProductAddon @relation(fields: [addonId], references: [id], onDelete: Cascade)
+
+  // Price Snapshot — guarantees historical integrity even if the catalog price changes [2]
+  priceSnapshot  Decimal      @db.Decimal(10, 2) 
+
+  labId          String
+  lab            Lab          @relation(fields: [labId], references: [id], onDelete: Cascade)
+
+  createdAt      DateTime     @default(now())
+
+  @@unique([caseWorkItemId, addonId]) // One unique addon instance per case item
+  @@index([caseWorkItemId])
+  @@index([addonId])
+  @@index([labId])
 }
 
 model SuperUser {

@@ -15,6 +15,7 @@ const makeSchema = () => z.object({
   workTypeId: SortOrderSchema.optional(),
   createdAt: SortOrderSchema.optional(),
   updatedAt: SortOrderSchema.optional(),
+  isArchived: SortOrderSchema.optional(),
   _count: z.lazy(() => ProductCountOrderByAggregateInputObjectSchema).optional(),
   _max: z.lazy(() => ProductMaxOrderByAggregateInputObjectSchema).optional(),
   _min: z.lazy(() => ProductMinOrderByAggregateInputObjectSchema).optional()

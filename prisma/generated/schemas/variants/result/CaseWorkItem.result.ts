@@ -22,6 +22,7 @@ export const CaseWorkItemResultSchema = z.object({
     jawType: JawTypeSchema,
     workTypeId: z.string().nullable(),
     workType: z.unknown().nullable(),
+    addons: z.array(z.unknown()),
     notes: z.string().nullable(),
     shadeSystem: z.string().nullable(),
     baseShade: z.string().nullable(),

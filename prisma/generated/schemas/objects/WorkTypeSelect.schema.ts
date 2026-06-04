@@ -18,6 +18,7 @@ const makeSchema = () => z.object({
   caseWorkItems: z.union([z.boolean(), z.lazy(() => CaseWorkItemFindManySchema)]).optional(),
   caseCategoryId: z.boolean().optional(),
   caseCategory: z.union([z.boolean(), z.lazy(() => CaseCategoryArgsObjectSchema)]).optional(),
+  isArchived: z.boolean().optional(),
   createdAt: z.boolean().optional(),
   updatedAt: z.boolean().optional(),
   _count: z.union([z.boolean(), z.lazy(() => WorkTypeCountOutputTypeArgsObjectSchema)]).optional()

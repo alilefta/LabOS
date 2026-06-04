@@ -1,4 +1,4 @@
-import * as z from 'zod';
+import * as z from 'zod'
 // prettier-ignore
 export const LabModelSchema = z.object({
     id: z.string(),
@@ -26,12 +26,14 @@ export const LabModelSchema = z.object({
     nextCaseNumber: z.number().int(),
     caseActivityLogs: z.array(z.unknown()),
     invoiceCase: z.array(z.unknown()),
-    invitations: z.array(z.unknown()),
     staffPayouts: z.array(z.unknown()),
     nextPayoutNumber: z.number().int(),
     nextInvoiceNumber: z.number().int(),
+    invitations: z.array(z.unknown()),
+    caseWorkItemAddons: z.array(z.unknown()),
+    productAddons: z.array(z.unknown()),
     createdAt: z.date(),
     updatedAt: z.date()
 }).strict();
 
-export type LabPureType = z.infer<typeof LabModelSchema>;
+export type LabPureType = z.infer<typeof LabModelSchema>

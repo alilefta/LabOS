@@ -13,6 +13,7 @@ const makeSchema = () => z.object({
   labId: SortOrderSchema.optional(),
   name: SortOrderSchema.optional(),
   isDefault: SortOrderSchema.optional(),
+  isArchived: SortOrderSchema.optional(),
   pricingStrategy: SortOrderSchema.optional(),
   firstToothPrice: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
   additionalToothPrice: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),

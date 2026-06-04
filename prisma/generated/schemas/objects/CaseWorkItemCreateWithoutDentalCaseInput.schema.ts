@@ -6,6 +6,7 @@ import { ProductCreateNestedOneWithoutCaseWorkItemsInputObjectSchema as ProductC
 import { LabCreateNestedOneWithoutCaseWorkItemsInputObjectSchema as LabCreateNestedOneWithoutCaseWorkItemsInputObjectSchema } from './LabCreateNestedOneWithoutCaseWorkItemsInput.schema';
 import { CasePricingPlanCreateNestedOneWithoutCaseWorkItemInputObjectSchema as CasePricingPlanCreateNestedOneWithoutCaseWorkItemInputObjectSchema } from './CasePricingPlanCreateNestedOneWithoutCaseWorkItemInput.schema';
 import { WorkTypeCreateNestedOneWithoutCaseWorkItemsInputObjectSchema as WorkTypeCreateNestedOneWithoutCaseWorkItemsInputObjectSchema } from './WorkTypeCreateNestedOneWithoutCaseWorkItemsInput.schema';
+import { CaseWorkItemAddonCreateNestedManyWithoutCaseWorkItemInputObjectSchema as CaseWorkItemAddonCreateNestedManyWithoutCaseWorkItemInputObjectSchema } from './CaseWorkItemAddonCreateNestedManyWithoutCaseWorkItemInput.schema';
 import { SelectedToothCreateNestedManyWithoutCaseWorkItemInputObjectSchema as SelectedToothCreateNestedManyWithoutCaseWorkItemInputObjectSchema } from './SelectedToothCreateNestedManyWithoutCaseWorkItemInput.schema'
 
 import { DecimalJSLikeSchema, isValidDecimalInput } from '../../helpers/decimal-helpers';
@@ -72,6 +73,7 @@ const makeSchema = () => z.object({
   lab: z.lazy(() => LabCreateNestedOneWithoutCaseWorkItemsInputObjectSchema),
   casePricingPlan: z.lazy(() => CasePricingPlanCreateNestedOneWithoutCaseWorkItemInputObjectSchema),
   workType: z.lazy(() => WorkTypeCreateNestedOneWithoutCaseWorkItemsInputObjectSchema).optional(),
+  addons: z.lazy(() => CaseWorkItemAddonCreateNestedManyWithoutCaseWorkItemInputObjectSchema).optional(),
   selectedTeeth: z.lazy(() => SelectedToothCreateNestedManyWithoutCaseWorkItemInputObjectSchema).optional()
 }).strict();
 export const CaseWorkItemCreateWithoutDentalCaseInputObjectSchema: z.ZodType<Prisma.CaseWorkItemCreateWithoutDentalCaseInput> = makeSchema() as unknown as z.ZodType<Prisma.CaseWorkItemCreateWithoutDentalCaseInput>;

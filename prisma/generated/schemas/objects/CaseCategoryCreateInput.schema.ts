@@ -10,6 +10,7 @@ const makeSchema = () => z.object({
   description: z.string().optional().nullable(),
   imageUrl: z.string().optional().nullable(),
   isActive: z.boolean().optional(),
+  isArchived: z.boolean().optional(),
   createdAt: z.coerce.date().optional(),
   workTypes: z.lazy(() => WorkTypeCreateNestedManyWithoutCaseCategoryInputObjectSchema).optional(),
   cases: z.lazy(() => CaseCreateNestedManyWithoutCaseCategoryInputObjectSchema).optional(),

@@ -1,5 +1,4 @@
-import * as z from "zod";
-
+import z from 'zod'
 export const WorkTypeBaseSchema = z.object({
 	id: z.string(),
 	name: z.string(),
@@ -7,9 +6,11 @@ export const WorkTypeBaseSchema = z.object({
 	imageUrl: z.string().nullable(),
 	labId: z.string(),
 	requireTeethSelection: z.boolean(),
+
 	caseCategoryId: z.string(),
+	isArchived: z.boolean(),
 	createdAt: z.date(),
 	updatedAt: z.date(),
-});
+})
 
-export type WorktypeBase = z.infer<typeof WorkTypeBaseSchema>;
+export type WorktypeBase = z.infer<typeof WorkTypeBaseSchema>

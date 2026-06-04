@@ -11,6 +11,7 @@ export const WorkTypeUpdateResultSchema = z.nullable(z.object({
   caseWorkItems: z.array(z.unknown()),
   caseCategoryId: z.string(),
   caseCategory: z.unknown(),
+  isArchived: z.boolean(),
   createdAt: z.date(),
   updatedAt: z.date()
 }));

@@ -19,7 +19,7 @@ export default async function proxy(request: NextRequest) {
 	// route groups
 	// Route groups
 	const exactPublicRoutes = ['/', '/pricing', '/about', '/contact']
-	const dynamicPublicRoutes = ['/statement', '/paystub'] // Add paths that have dynamic slugs here
+	const dynamicPublicRoutes = ['/statement', '/paystub', '/catalog'] // Add paths that have dynamic slugs here
 
 	const authRoutes = ['/sign-in', '/sign-up']
 	const onboardingRoute = '/onboarding'

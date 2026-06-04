@@ -10,7 +10,8 @@ const makeSchema = () => z.object({
   labId: SortOrderSchema.optional(),
   workTypeId: SortOrderSchema.optional(),
   createdAt: SortOrderSchema.optional(),
-  updatedAt: SortOrderSchema.optional()
+  updatedAt: SortOrderSchema.optional(),
+  isArchived: SortOrderSchema.optional()
 }).strict();
 export const ProductCountOrderByAggregateInputObjectSchema: z.ZodType<Prisma.ProductCountOrderByAggregateInput> = makeSchema() as unknown as z.ZodType<Prisma.ProductCountOrderByAggregateInput>;
 export const ProductCountOrderByAggregateInputObjectZodSchema = makeSchema();

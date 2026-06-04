@@ -20,6 +20,7 @@ const makeSchema = () => z.object({
   dueDate: z.literal(true).optional(),
   publicToken: z.literal(true).optional(),
   publicLinkExpiresAt: z.literal(true).optional(),
+  isActive: z.literal(true).optional(),
   createdAt: z.literal(true).optional(),
   updatedAt: z.literal(true).optional(),
   _all: z.literal(true).optional()

@@ -9,6 +9,7 @@ const makeSchema = () => z.object({
   imageUrl: z.string().optional().nullable(),
   requireTeethSelection: z.boolean().optional(),
   caseCategoryId: z.string(),
+  isArchived: z.boolean().optional(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional()
 }).strict();

@@ -21,6 +21,7 @@ export const WorkTypeFindManySelectSchema: z.ZodType<Prisma.WorkTypeSelect> = z.
     caseWorkItems: z.boolean().optional(),
     caseCategoryId: z.boolean().optional(),
     caseCategory: z.boolean().optional(),
+    isArchived: z.boolean().optional(),
     createdAt: z.boolean().optional(),
     updatedAt: z.boolean().optional(),
     _count: z.boolean().optional()
@@ -38,6 +39,7 @@ export const WorkTypeFindManySelectZodSchema = z.object({
     caseWorkItems: z.boolean().optional(),
     caseCategoryId: z.boolean().optional(),
     caseCategory: z.boolean().optional(),
+    isArchived: z.boolean().optional(),
     createdAt: z.boolean().optional(),
     updatedAt: z.boolean().optional(),
     _count: z.boolean().optional()

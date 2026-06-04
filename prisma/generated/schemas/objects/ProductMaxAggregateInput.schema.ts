@@ -10,7 +10,8 @@ const makeSchema = () => z.object({
   labId: z.literal(true).optional(),
   workTypeId: z.literal(true).optional(),
   createdAt: z.literal(true).optional(),
-  updatedAt: z.literal(true).optional()
+  updatedAt: z.literal(true).optional(),
+  isArchived: z.literal(true).optional()
 }).strict();
 export const ProductMaxAggregateInputObjectSchema: z.ZodType<Prisma.ProductMaxAggregateInputType> = makeSchema() as unknown as z.ZodType<Prisma.ProductMaxAggregateInputType>;
 export const ProductMaxAggregateInputObjectZodSchema = makeSchema();

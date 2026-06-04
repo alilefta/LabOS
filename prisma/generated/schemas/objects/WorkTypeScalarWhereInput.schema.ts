@@ -16,6 +16,7 @@ const worktypescalarwhereinputSchema = z.object({
   labId: z.union([z.lazy(() => StringFilterObjectSchema), z.string()]).optional(),
   requireTeethSelection: z.union([z.lazy(() => BoolFilterObjectSchema), z.boolean()]).optional(),
   caseCategoryId: z.union([z.lazy(() => StringFilterObjectSchema), z.string()]).optional(),
+  isArchived: z.union([z.lazy(() => BoolFilterObjectSchema), z.boolean()]).optional(),
   createdAt: z.union([z.lazy(() => DateTimeFilterObjectSchema), z.coerce.date()]).optional(),
   updatedAt: z.union([z.lazy(() => DateTimeFilterObjectSchema), z.coerce.date()]).optional()
 }).strict();

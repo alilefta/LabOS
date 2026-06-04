@@ -9,6 +9,7 @@ import { NullableDecimalFieldUpdateOperationsInputObjectSchema as NullableDecima
 import { JawTypeSchema } from '../enums/JawType.schema';
 import { EnumJawTypeFieldUpdateOperationsInputObjectSchema as EnumJawTypeFieldUpdateOperationsInputObjectSchema } from './EnumJawTypeFieldUpdateOperationsInput.schema';
 import { DateTimeFieldUpdateOperationsInputObjectSchema as DateTimeFieldUpdateOperationsInputObjectSchema } from './DateTimeFieldUpdateOperationsInput.schema';
+import { CaseWorkItemAddonUncheckedUpdateManyWithoutCaseWorkItemNestedInputObjectSchema as CaseWorkItemAddonUncheckedUpdateManyWithoutCaseWorkItemNestedInputObjectSchema } from './CaseWorkItemAddonUncheckedUpdateManyWithoutCaseWorkItemNestedInput.schema';
 import { SelectedToothUncheckedUpdateManyWithoutCaseWorkItemNestedInputObjectSchema as SelectedToothUncheckedUpdateManyWithoutCaseWorkItemNestedInputObjectSchema } from './SelectedToothUncheckedUpdateManyWithoutCaseWorkItemNestedInput.schema'
 
 import { DecimalJSLikeSchema, isValidDecimalInput } from '../../helpers/decimal-helpers';
@@ -75,6 +76,7 @@ const makeSchema = () => z.object({
   shadeNotes: z.union([z.string(), z.lazy(() => NullableStringFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
   createdAt: z.union([z.coerce.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputObjectSchema)]).optional(),
   updatedAt: z.union([z.coerce.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputObjectSchema)]).optional(),
+  addons: z.lazy(() => CaseWorkItemAddonUncheckedUpdateManyWithoutCaseWorkItemNestedInputObjectSchema).optional(),
   selectedTeeth: z.lazy(() => SelectedToothUncheckedUpdateManyWithoutCaseWorkItemNestedInputObjectSchema).optional()
 }).strict();
 export const CaseWorkItemUncheckedUpdateWithoutDentalCaseInputObjectSchema: z.ZodType<Prisma.CaseWorkItemUncheckedUpdateWithoutDentalCaseInput> = makeSchema() as unknown as z.ZodType<Prisma.CaseWorkItemUncheckedUpdateWithoutDentalCaseInput>;

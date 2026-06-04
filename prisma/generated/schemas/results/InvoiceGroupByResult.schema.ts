@@ -16,6 +16,7 @@ export const InvoiceGroupByResultSchema = z.array(z.object({
   dueDate: z.date(),
   publicToken: z.string(),
   publicLinkExpiresAt: z.date(),
+  isActive: z.boolean(),
   createdAt: z.date(),
   updatedAt: z.date(),
   _count: z.object({
@@ -38,6 +39,7 @@ export const InvoiceGroupByResultSchema = z.array(z.object({
     dueDate: z.number(),
     publicToken: z.number(),
     publicLinkExpiresAt: z.number(),
+    isActive: z.number(),
     cases: z.number(),
     payments: z.number(),
     createdAt: z.number(),

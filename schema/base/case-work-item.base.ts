@@ -1,30 +1,28 @@
-import { z } from "zod";
-import { JawTypeSchema, PricingStrategySchema } from "./enums.base";
-
+import { z } from 'zod'
+import { JawTypeSchema, PricingStrategySchema } from './enums.base'
 export const CaseWorkItemBaseSchema = z.object({
 	id: z.string(),
 	productId: z.string().nullable(),
 	labId: z.string(),
+
 	dentalCaseId: z.string(),
 	casePricingPlanId: z.string(),
 	totalPrice: z.number(),
 	pricingStrategy: PricingStrategySchema,
 	firstToothPrice: z.number().nullable(),
-	bulkPrice: z.number().nullable(),
 	additionalToothPrice: z.number().nullable(),
 	teethCountToApplyBulkPrice: z.number().nullable(),
+	bulkPrice: z.number().nullable(),
 	toothPrice: z.number().nullable(),
 	jawType: JawTypeSchema,
 	workTypeId: z.string().nullable(),
-
 	notes: z.string().nullable(),
 	shadeSystem: z.string().nullable(),
 	baseShade: z.string().nullable(),
 	stumpShade: z.string().nullable(),
 	shadeNotes: z.string().nullable(),
-
 	createdAt: z.date(),
 	updatedAt: z.date(),
-});
+})
 
-export type CaseWorkItemBase = z.infer<typeof CaseWorkItemBaseSchema>;
+export type CaseWorkItemBase = z.infer<typeof CaseWorkItemBaseSchema>

@@ -1,0 +1,10 @@
+import type { Prisma } from '../../../generated/prisma/client';
+import * as z from 'zod';
+import { CaseWorkItemAddonOrderByWithRelationInputObjectSchema as CaseWorkItemAddonOrderByWithRelationInputObjectSchema } from './objects/CaseWorkItemAddonOrderByWithRelationInput.schema';
+import { CaseWorkItemAddonWhereInputObjectSchema as CaseWorkItemAddonWhereInputObjectSchema } from './objects/CaseWorkItemAddonWhereInput.schema';
+import { CaseWorkItemAddonWhereUniqueInputObjectSchema as CaseWorkItemAddonWhereUniqueInputObjectSchema } from './objects/CaseWorkItemAddonWhereUniqueInput.schema';
+import { CaseWorkItemAddonCountAggregateInputObjectSchema as CaseWorkItemAddonCountAggregateInputObjectSchema } from './objects/CaseWorkItemAddonCountAggregateInput.schema';
+
+export const CaseWorkItemAddonCountSchema: z.ZodType<Prisma.CaseWorkItemAddonCountArgs> = z.object({ orderBy: z.union([CaseWorkItemAddonOrderByWithRelationInputObjectSchema, CaseWorkItemAddonOrderByWithRelationInputObjectSchema.array()]).optional(), where: CaseWorkItemAddonWhereInputObjectSchema.optional(), cursor: CaseWorkItemAddonWhereUniqueInputObjectSchema.optional(), take: z.number().optional(), skip: z.number().optional(), select: z.union([ z.literal(true), CaseWorkItemAddonCountAggregateInputObjectSchema ]).optional() }).strict() as unknown as z.ZodType<Prisma.CaseWorkItemAddonCountArgs>;
+
+export const CaseWorkItemAddonCountZodSchema = z.object({ orderBy: z.union([CaseWorkItemAddonOrderByWithRelationInputObjectSchema, CaseWorkItemAddonOrderByWithRelationInputObjectSchema.array()]).optional(), where: CaseWorkItemAddonWhereInputObjectSchema.optional(), cursor: CaseWorkItemAddonWhereUniqueInputObjectSchema.optional(), take: z.number().optional(), skip: z.number().optional(), select: z.union([ z.literal(true), CaseWorkItemAddonCountAggregateInputObjectSchema ]).optional() }).strict();

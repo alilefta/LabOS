@@ -2,7 +2,8 @@ import * as z from 'zod';
 import type { Prisma } from '../../../../generated/prisma/client';
 import { CaseWorkItemCreateNestedManyWithoutProductInputObjectSchema as CaseWorkItemCreateNestedManyWithoutProductInputObjectSchema } from './CaseWorkItemCreateNestedManyWithoutProductInput.schema';
 import { LabCreateNestedOneWithoutProductsInputObjectSchema as LabCreateNestedOneWithoutProductsInputObjectSchema } from './LabCreateNestedOneWithoutProductsInput.schema';
-import { CasePricingPlanCreateNestedManyWithoutProductInputObjectSchema as CasePricingPlanCreateNestedManyWithoutProductInputObjectSchema } from './CasePricingPlanCreateNestedManyWithoutProductInput.schema'
+import { CasePricingPlanCreateNestedManyWithoutProductInputObjectSchema as CasePricingPlanCreateNestedManyWithoutProductInputObjectSchema } from './CasePricingPlanCreateNestedManyWithoutProductInput.schema';
+import { ProductAddonCreateNestedManyWithoutProductInputObjectSchema as ProductAddonCreateNestedManyWithoutProductInputObjectSchema } from './ProductAddonCreateNestedManyWithoutProductInput.schema'
 
 const makeSchema = () => z.object({
   id: z.string().optional(),
@@ -11,9 +12,11 @@ const makeSchema = () => z.object({
   imageUrl: z.string().optional().nullable(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
+  isArchived: z.boolean().optional(),
   caseWorkItems: z.lazy(() => CaseWorkItemCreateNestedManyWithoutProductInputObjectSchema).optional(),
   lab: z.lazy(() => LabCreateNestedOneWithoutProductsInputObjectSchema),
-  casePricingPlans: z.lazy(() => CasePricingPlanCreateNestedManyWithoutProductInputObjectSchema).optional()
+  casePricingPlans: z.lazy(() => CasePricingPlanCreateNestedManyWithoutProductInputObjectSchema).optional(),
+  addons: z.lazy(() => ProductAddonCreateNestedManyWithoutProductInputObjectSchema).optional()
 }).strict();
 export const ProductCreateWithoutWorkTypeInputObjectSchema: z.ZodType<Prisma.ProductCreateWithoutWorkTypeInput> = makeSchema() as unknown as z.ZodType<Prisma.ProductCreateWithoutWorkTypeInput>;
 export const ProductCreateWithoutWorkTypeInputObjectZodSchema = makeSchema();

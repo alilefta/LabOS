@@ -25,7 +25,9 @@ import { InvoicePaymentListRelationFilterObjectSchema as InvoicePaymentListRelat
 import { CaseActivityLogListRelationFilterObjectSchema as CaseActivityLogListRelationFilterObjectSchema } from './CaseActivityLogListRelationFilter.schema';
 import { InvoiceCaseListRelationFilterObjectSchema as InvoiceCaseListRelationFilterObjectSchema } from './InvoiceCaseListRelationFilter.schema';
 import { LabInvitationListRelationFilterObjectSchema as LabInvitationListRelationFilterObjectSchema } from './LabInvitationListRelationFilter.schema';
-import { StaffPayoutListRelationFilterObjectSchema as StaffPayoutListRelationFilterObjectSchema } from './StaffPayoutListRelationFilter.schema'
+import { StaffPayoutListRelationFilterObjectSchema as StaffPayoutListRelationFilterObjectSchema } from './StaffPayoutListRelationFilter.schema';
+import { CaseWorkItemAddonListRelationFilterObjectSchema as CaseWorkItemAddonListRelationFilterObjectSchema } from './CaseWorkItemAddonListRelationFilter.schema';
+import { ProductAddonListRelationFilterObjectSchema as ProductAddonListRelationFilterObjectSchema } from './ProductAddonListRelationFilter.schema'
 
 const labwhereinputSchema = z.object({
   AND: z.union([z.lazy(() => LabWhereInputObjectSchema), z.lazy(() => LabWhereInputObjectSchema).array()]).optional(),
@@ -61,7 +63,9 @@ const labwhereinputSchema = z.object({
   caseActivityLogs: z.lazy(() => CaseActivityLogListRelationFilterObjectSchema).optional(),
   invoiceCase: z.lazy(() => InvoiceCaseListRelationFilterObjectSchema).optional(),
   invitations: z.lazy(() => LabInvitationListRelationFilterObjectSchema).optional(),
-  staffPayouts: z.lazy(() => StaffPayoutListRelationFilterObjectSchema).optional()
+  staffPayouts: z.lazy(() => StaffPayoutListRelationFilterObjectSchema).optional(),
+  caseWorkItemAddons: z.lazy(() => CaseWorkItemAddonListRelationFilterObjectSchema).optional(),
+  productAddons: z.lazy(() => ProductAddonListRelationFilterObjectSchema).optional()
 }).strict();
 export const LabWhereInputObjectSchema: z.ZodType<Prisma.LabWhereInput> = labwhereinputSchema as unknown as z.ZodType<Prisma.LabWhereInput>;
 export const LabWhereInputObjectZodSchema = labwhereinputSchema;

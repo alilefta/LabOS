@@ -11,7 +11,9 @@ export const ProductAggregateResultSchema = z.object({  _count: z.object({
     workType: z.number(),
     createdAt: z.number(),
     updatedAt: z.number(),
-    casePricingPlans: z.number()
+    casePricingPlans: z.number(),
+    addons: z.number(),
+    isArchived: z.number()
   }).optional(),
   _min: z.object({
     id: z.string().nullable(),

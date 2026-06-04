@@ -17,6 +17,7 @@ const casepricingplanscalarwhereinputSchema = z.object({
   labId: z.union([z.lazy(() => StringFilterObjectSchema), z.string()]).optional(),
   name: z.union([z.lazy(() => StringFilterObjectSchema), z.string()]).optional(),
   isDefault: z.union([z.lazy(() => BoolFilterObjectSchema), z.boolean()]).optional(),
+  isArchived: z.union([z.lazy(() => BoolFilterObjectSchema), z.boolean()]).optional(),
   pricingStrategy: z.union([z.lazy(() => EnumPricingStrategyFilterObjectSchema), PricingStrategySchema]).optional(),
   firstToothPrice: z.union([z.lazy(() => DecimalNullableFilterObjectSchema), z.union([
   z.number(),

@@ -7,6 +7,7 @@ const makeSchema = () => z.object({
   labId: z.literal(true).optional(),
   name: z.literal(true).optional(),
   isDefault: z.literal(true).optional(),
+  isArchived: z.literal(true).optional(),
   pricingStrategy: z.literal(true).optional(),
   firstToothPrice: z.literal(true).optional(),
   additionalToothPrice: z.literal(true).optional(),

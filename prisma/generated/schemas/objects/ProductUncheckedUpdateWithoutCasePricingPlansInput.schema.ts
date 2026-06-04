@@ -3,7 +3,9 @@ import type { Prisma } from '../../../../generated/prisma/client';
 import { StringFieldUpdateOperationsInputObjectSchema as StringFieldUpdateOperationsInputObjectSchema } from './StringFieldUpdateOperationsInput.schema';
 import { NullableStringFieldUpdateOperationsInputObjectSchema as NullableStringFieldUpdateOperationsInputObjectSchema } from './NullableStringFieldUpdateOperationsInput.schema';
 import { DateTimeFieldUpdateOperationsInputObjectSchema as DateTimeFieldUpdateOperationsInputObjectSchema } from './DateTimeFieldUpdateOperationsInput.schema';
-import { CaseWorkItemUncheckedUpdateManyWithoutProductNestedInputObjectSchema as CaseWorkItemUncheckedUpdateManyWithoutProductNestedInputObjectSchema } from './CaseWorkItemUncheckedUpdateManyWithoutProductNestedInput.schema'
+import { BoolFieldUpdateOperationsInputObjectSchema as BoolFieldUpdateOperationsInputObjectSchema } from './BoolFieldUpdateOperationsInput.schema';
+import { CaseWorkItemUncheckedUpdateManyWithoutProductNestedInputObjectSchema as CaseWorkItemUncheckedUpdateManyWithoutProductNestedInputObjectSchema } from './CaseWorkItemUncheckedUpdateManyWithoutProductNestedInput.schema';
+import { ProductAddonUncheckedUpdateManyWithoutProductNestedInputObjectSchema as ProductAddonUncheckedUpdateManyWithoutProductNestedInputObjectSchema } from './ProductAddonUncheckedUpdateManyWithoutProductNestedInput.schema'
 
 const makeSchema = () => z.object({
   id: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputObjectSchema)]).optional(),
@@ -14,7 +16,9 @@ const makeSchema = () => z.object({
   workTypeId: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputObjectSchema)]).optional(),
   createdAt: z.union([z.coerce.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputObjectSchema)]).optional(),
   updatedAt: z.union([z.coerce.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputObjectSchema)]).optional(),
-  caseWorkItems: z.lazy(() => CaseWorkItemUncheckedUpdateManyWithoutProductNestedInputObjectSchema).optional()
+  isArchived: z.union([z.boolean(), z.lazy(() => BoolFieldUpdateOperationsInputObjectSchema)]).optional(),
+  caseWorkItems: z.lazy(() => CaseWorkItemUncheckedUpdateManyWithoutProductNestedInputObjectSchema).optional(),
+  addons: z.lazy(() => ProductAddonUncheckedUpdateManyWithoutProductNestedInputObjectSchema).optional()
 }).strict();
 export const ProductUncheckedUpdateWithoutCasePricingPlansInputObjectSchema: z.ZodType<Prisma.ProductUncheckedUpdateWithoutCasePricingPlansInput> = makeSchema() as unknown as z.ZodType<Prisma.ProductUncheckedUpdateWithoutCasePricingPlansInput>;
 export const ProductUncheckedUpdateWithoutCasePricingPlansInputObjectZodSchema = makeSchema();

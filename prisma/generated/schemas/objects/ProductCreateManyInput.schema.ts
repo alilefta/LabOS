@@ -10,7 +10,8 @@ const makeSchema = () => z.object({
   labId: z.string(),
   workTypeId: z.string(),
   createdAt: z.coerce.date().optional(),
-  updatedAt: z.coerce.date().optional()
+  updatedAt: z.coerce.date().optional(),
+  isArchived: z.boolean().optional()
 }).strict();
 export const ProductCreateManyInputObjectSchema: z.ZodType<Prisma.ProductCreateManyInput> = makeSchema() as unknown as z.ZodType<Prisma.ProductCreateManyInput>;
 export const ProductCreateManyInputObjectZodSchema = makeSchema();

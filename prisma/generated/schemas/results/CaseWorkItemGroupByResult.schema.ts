@@ -39,6 +39,7 @@ export const CaseWorkItemGroupByResultSchema = z.array(z.object({
     jawType: z.number(),
     workTypeId: z.number(),
     workType: z.number(),
+    addons: z.number(),
     notes: z.number(),
     shadeSystem: z.number(),
     baseShade: z.number(),

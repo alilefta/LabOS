@@ -5,6 +5,7 @@ import { LabArgsObjectSchema as LabArgsObjectSchema } from './LabArgs.schema';
 import { CaseArgsObjectSchema as CaseArgsObjectSchema } from './CaseArgs.schema';
 import { CasePricingPlanArgsObjectSchema as CasePricingPlanArgsObjectSchema } from './CasePricingPlanArgs.schema';
 import { WorkTypeArgsObjectSchema as WorkTypeArgsObjectSchema } from './WorkTypeArgs.schema';
+import { CaseWorkItemAddonFindManySchema as CaseWorkItemAddonFindManySchema } from '../findManyCaseWorkItemAddon.schema';
 import { SelectedToothFindManySchema as SelectedToothFindManySchema } from '../findManySelectedTooth.schema';
 import { CaseWorkItemCountOutputTypeArgsObjectSchema as CaseWorkItemCountOutputTypeArgsObjectSchema } from './CaseWorkItemCountOutputTypeArgs.schema'
 
@@ -28,6 +29,7 @@ const makeSchema = () => z.object({
   jawType: z.boolean().optional(),
   workTypeId: z.boolean().optional(),
   workType: z.union([z.boolean(), z.lazy(() => WorkTypeArgsObjectSchema)]).optional(),
+  addons: z.union([z.boolean(), z.lazy(() => CaseWorkItemAddonFindManySchema)]).optional(),
   notes: z.boolean().optional(),
   shadeSystem: z.boolean().optional(),
   baseShade: z.boolean().optional(),

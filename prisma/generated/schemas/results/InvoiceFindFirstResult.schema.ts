@@ -19,6 +19,7 @@ export const InvoiceFindFirstResultSchema = z.nullable(z.object({
   dueDate: z.date().optional(),
   publicToken: z.string().optional(),
   publicLinkExpiresAt: z.date().optional(),
+  isActive: z.boolean(),
   cases: z.array(z.unknown()),
   payments: z.array(z.unknown()),
   createdAt: z.date(),

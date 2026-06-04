@@ -13,6 +13,7 @@ import { ProductUpdateOneWithoutCaseWorkItemsNestedInputObjectSchema as ProductU
 import { LabUpdateOneRequiredWithoutCaseWorkItemsNestedInputObjectSchema as LabUpdateOneRequiredWithoutCaseWorkItemsNestedInputObjectSchema } from './LabUpdateOneRequiredWithoutCaseWorkItemsNestedInput.schema';
 import { CaseUpdateOneRequiredWithoutCaseItemsNestedInputObjectSchema as CaseUpdateOneRequiredWithoutCaseItemsNestedInputObjectSchema } from './CaseUpdateOneRequiredWithoutCaseItemsNestedInput.schema';
 import { CasePricingPlanUpdateOneRequiredWithoutCaseWorkItemNestedInputObjectSchema as CasePricingPlanUpdateOneRequiredWithoutCaseWorkItemNestedInputObjectSchema } from './CasePricingPlanUpdateOneRequiredWithoutCaseWorkItemNestedInput.schema';
+import { CaseWorkItemAddonUpdateManyWithoutCaseWorkItemNestedInputObjectSchema as CaseWorkItemAddonUpdateManyWithoutCaseWorkItemNestedInputObjectSchema } from './CaseWorkItemAddonUpdateManyWithoutCaseWorkItemNestedInput.schema';
 import { SelectedToothUpdateManyWithoutCaseWorkItemNestedInputObjectSchema as SelectedToothUpdateManyWithoutCaseWorkItemNestedInputObjectSchema } from './SelectedToothUpdateManyWithoutCaseWorkItemNestedInput.schema'
 
 import { DecimalJSLikeSchema, isValidDecimalInput } from '../../helpers/decimal-helpers';
@@ -79,6 +80,7 @@ const makeSchema = () => z.object({
   lab: z.lazy(() => LabUpdateOneRequiredWithoutCaseWorkItemsNestedInputObjectSchema).optional(),
   dentalCase: z.lazy(() => CaseUpdateOneRequiredWithoutCaseItemsNestedInputObjectSchema).optional(),
   casePricingPlan: z.lazy(() => CasePricingPlanUpdateOneRequiredWithoutCaseWorkItemNestedInputObjectSchema).optional(),
+  addons: z.lazy(() => CaseWorkItemAddonUpdateManyWithoutCaseWorkItemNestedInputObjectSchema).optional(),
   selectedTeeth: z.lazy(() => SelectedToothUpdateManyWithoutCaseWorkItemNestedInputObjectSchema).optional()
 }).strict();
 export const CaseWorkItemUpdateWithoutWorkTypeInputObjectSchema: z.ZodType<Prisma.CaseWorkItemUpdateWithoutWorkTypeInput> = makeSchema() as unknown as z.ZodType<Prisma.CaseWorkItemUpdateWithoutWorkTypeInput>;

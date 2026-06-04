@@ -65,6 +65,7 @@ const makeSchema = () => z.object({
   dueDate: z.coerce.date().optional().nullable(),
   publicToken: z.string().optional().nullable(),
   publicLinkExpiresAt: z.coerce.date().optional().nullable(),
+  isActive: z.boolean().optional(),
   createdAt: z.coerce.date().optional(),
   cases: z.lazy(() => InvoiceCaseUncheckedCreateNestedManyWithoutInvoiceInputObjectSchema).optional(),
   payments: z.lazy(() => InvoicePaymentUncheckedCreateNestedManyWithoutInvoiceInputObjectSchema).optional()

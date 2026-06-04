@@ -13,6 +13,7 @@ import { ProductUpdateOneWithoutCaseWorkItemsNestedInputObjectSchema as ProductU
 import { LabUpdateOneRequiredWithoutCaseWorkItemsNestedInputObjectSchema as LabUpdateOneRequiredWithoutCaseWorkItemsNestedInputObjectSchema } from './LabUpdateOneRequiredWithoutCaseWorkItemsNestedInput.schema';
 import { CaseUpdateOneRequiredWithoutCaseItemsNestedInputObjectSchema as CaseUpdateOneRequiredWithoutCaseItemsNestedInputObjectSchema } from './CaseUpdateOneRequiredWithoutCaseItemsNestedInput.schema';
 import { WorkTypeUpdateOneWithoutCaseWorkItemsNestedInputObjectSchema as WorkTypeUpdateOneWithoutCaseWorkItemsNestedInputObjectSchema } from './WorkTypeUpdateOneWithoutCaseWorkItemsNestedInput.schema';
+import { CaseWorkItemAddonUpdateManyWithoutCaseWorkItemNestedInputObjectSchema as CaseWorkItemAddonUpdateManyWithoutCaseWorkItemNestedInputObjectSchema } from './CaseWorkItemAddonUpdateManyWithoutCaseWorkItemNestedInput.schema';
 import { SelectedToothUpdateManyWithoutCaseWorkItemNestedInputObjectSchema as SelectedToothUpdateManyWithoutCaseWorkItemNestedInputObjectSchema } from './SelectedToothUpdateManyWithoutCaseWorkItemNestedInput.schema'
 
 import { DecimalJSLikeSchema, isValidDecimalInput } from '../../helpers/decimal-helpers';
@@ -79,6 +80,7 @@ const makeSchema = () => z.object({
   lab: z.lazy(() => LabUpdateOneRequiredWithoutCaseWorkItemsNestedInputObjectSchema).optional(),
   dentalCase: z.lazy(() => CaseUpdateOneRequiredWithoutCaseItemsNestedInputObjectSchema).optional(),
   workType: z.lazy(() => WorkTypeUpdateOneWithoutCaseWorkItemsNestedInputObjectSchema).optional(),
+  addons: z.lazy(() => CaseWorkItemAddonUpdateManyWithoutCaseWorkItemNestedInputObjectSchema).optional(),
   selectedTeeth: z.lazy(() => SelectedToothUpdateManyWithoutCaseWorkItemNestedInputObjectSchema).optional()
 }).strict();
 export const CaseWorkItemUpdateWithoutCasePricingPlanInputObjectSchema: z.ZodType<Prisma.CaseWorkItemUpdateWithoutCasePricingPlanInput> = makeSchema() as unknown as z.ZodType<Prisma.CaseWorkItemUpdateWithoutCasePricingPlanInput>;

@@ -29,6 +29,8 @@ export const LabDeleteResultSchema = z.nullable(z.object({
   staffPayouts: z.array(z.unknown()),
   nextPayoutNumber: z.number().int(),
   nextInvoiceNumber: z.number().int(),
+  caseWorkItemAddons: z.array(z.unknown()),
+  productAddons: z.array(z.unknown()),
   createdAt: z.date(),
   updatedAt: z.date()
 }));

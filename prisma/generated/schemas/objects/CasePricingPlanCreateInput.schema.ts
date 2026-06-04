@@ -11,6 +11,7 @@ const makeSchema = () => z.object({
   id: z.string().optional(),
   name: z.string(),
   isDefault: z.boolean().optional(),
+  isArchived: z.boolean().optional(),
   pricingStrategy: PricingStrategySchema.optional(),
   firstToothPrice: z.union([
   z.number(),

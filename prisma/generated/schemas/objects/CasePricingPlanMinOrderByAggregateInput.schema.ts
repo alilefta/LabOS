@@ -7,6 +7,7 @@ const makeSchema = () => z.object({
   labId: SortOrderSchema.optional(),
   name: SortOrderSchema.optional(),
   isDefault: SortOrderSchema.optional(),
+  isArchived: SortOrderSchema.optional(),
   pricingStrategy: SortOrderSchema.optional(),
   firstToothPrice: SortOrderSchema.optional(),
   additionalToothPrice: SortOrderSchema.optional(),

@@ -11,6 +11,7 @@ export const WorkTypeAggregateResultSchema = z.object({  _count: z.object({
     caseWorkItems: z.number(),
     caseCategoryId: z.number(),
     caseCategory: z.number(),
+    isArchived: z.number(),
     createdAt: z.number(),
     updatedAt: z.number()
   }).optional(),

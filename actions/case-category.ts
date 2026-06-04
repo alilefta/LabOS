@@ -1,20 +1,23 @@
-"use server";
+'use server'
 
-import { tenantPrisma } from "@/lib/prisma";
-import { actionClientWithLab } from "@/lib/safe-action";
-import { CreateCaseCategoryInputSchema, GetCaseCategoriesForCaseInputSchema } from "@/schema/composed/case-category.details";
-import { SearchInputSchema } from "@/schema/composed/shared-schema";
-import { APIError } from "better-auth";
+import { tenantPrisma } from '@/lib/prisma'
+import { actionClientWithLab } from '@/lib/safe-action'
+import {
+	CreateCaseCategoryInputSchema,
+	GetCaseCategoriesForCaseInputSchema,
+} from '@/schema/composed/case-category.details'
+import { SearchInputSchema } from '@/schema/composed/shared-schema'
+import { APIError } from 'better-auth'
 
 export const createCaseCategoryAction = actionClientWithLab
 	.metadata({
-		actionName: "Create-New-CaseCategory-Action",
-		requiredLabRole: "ADMIN",
+		actionName: 'Create-New-CaseCategory-Action',
+		requiredLabRole: 'STAFF',
 	})
 	.inputSchema(CreateCaseCategoryInputSchema)
 	.action(async ({ parsedInput, ctx }) => {
-		const { name, description, imageUrl, isActive } = parsedInput;
-		const { labId } = ctx;
+		const { name, description, imageUrl, isActive } = parsedInput
+		const { labId } = ctx
 
 		try {
 			const category = await (
@@ -30,28 +33,28 @@ export const createCaseCategoryAction = actionClientWithLab
 				include: {
 					lab: true,
 				},
-			});
+			})
 
 			return {
 				category,
-			};
+			}
 		} catch (e) {
 			if (e instanceof APIError || e instanceof Error) {
-				console.error("[Create-CaseCategory-Action] Error", e.message);
+				console.error('[Create-CaseCategory-Action] Error', e.message)
 			}
-			throw e;
+			throw e
 		}
-	});
+	})
 
 export const getCaseCategoryBySearchQueryAction = actionClientWithLab
 	.metadata({
-		actionName: "Get-CaseCategorys-By-Search-Query-Action",
-		requiredLabRole: "ADMIN",
+		actionName: 'Get-CaseCategorys-By-Search-Query-Action',
+		requiredLabRole: 'STAFF',
 	})
 	.inputSchema(SearchInputSchema)
 	.action(async ({ parsedInput, ctx }) => {
-		const { searchQuery, limit } = parsedInput;
-		const { labId } = ctx;
+		const { searchQuery, limit } = parsedInput
+		const { labId } = ctx
 
 		try {
 			const caseCategories = await (
@@ -64,34 +67,34 @@ export const getCaseCategoryBySearchQueryAction = actionClientWithLab
 					},
 				},
 				orderBy: {
-					createdAt: "desc",
+					createdAt: 'desc',
 				},
 				take: limit,
-				include: {
-					lab: true,
-				},
-			});
+			})
 
 			return {
 				categories: caseCategories,
-			};
+			}
 		} catch (e) {
 			if (e instanceof APIError || e instanceof Error) {
-				console.error("[Get-CaseCategories-By-Search-Query-Action] Error", e.message);
+				console.error(
+					'[Get-CaseCategories-By-Search-Query-Action] Error',
+					e.message,
+				)
 			}
-			throw e;
+			throw e
 		}
-	});
+	})
 
 export const getCaseCategoriesAction = actionClientWithLab
 	.metadata({
-		actionName: "Get-CaseCategorys-Action",
-		requiredLabRole: "ADMIN",
+		actionName: 'Get-CaseCategorys-Action',
+		requiredLabRole: 'STAFF',
 	})
 	.inputSchema(GetCaseCategoriesForCaseInputSchema)
 	.action(async ({ parsedInput, ctx }) => {
-		const { limit } = parsedInput;
-		const { labId } = ctx;
+		const { limit } = parsedInput
+		const { labId } = ctx
 
 		try {
 			const caseCategories = await (
@@ -101,21 +104,21 @@ export const getCaseCategoriesAction = actionClientWithLab
 					labId: labId,
 				},
 				orderBy: {
-					createdAt: "desc",
+					createdAt: 'desc',
 				},
 				take: limit,
 				include: {
 					lab: true,
 				},
-			});
+			})
 
 			return {
 				categories: caseCategories,
-			};
+			}
 		} catch (e) {
 			if (e instanceof APIError || e instanceof Error) {
-				console.error("[Get-CaseCategories-Action] Error", e.message);
+				console.error('[Get-CaseCategories-Action] Error', e.message)
 			}
-			throw e;
+			throw e
 		}
-	});
+	})

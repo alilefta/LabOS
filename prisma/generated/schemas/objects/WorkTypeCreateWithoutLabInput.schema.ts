@@ -10,6 +10,7 @@ const makeSchema = () => z.object({
   description: z.string().optional().nullable(),
   imageUrl: z.string().optional().nullable(),
   requireTeethSelection: z.boolean().optional(),
+  isArchived: z.boolean().optional(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
   products: z.lazy(() => ProductCreateNestedManyWithoutWorkTypeInputObjectSchema).optional(),

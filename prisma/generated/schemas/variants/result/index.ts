@@ -25,6 +25,8 @@ export { InvoicePaymentResultSchema } from './InvoicePayment.result';
 export { LabSubscriptionPlanResultSchema } from './LabSubscriptionPlan.result';
 export { LabUserResultSchema } from './LabUser.result';
 export { LabInvitationResultSchema } from './LabInvitation.result';
+export { ProductAddonResultSchema } from './ProductAddon.result';
+export { CaseWorkItemAddonResultSchema } from './CaseWorkItemAddon.result';
 export { SuperUserResultSchema } from './SuperUser.result';
 export { AuthUserResultSchema } from './AuthUser.result';
 export { SessionResultSchema } from './Session.result';

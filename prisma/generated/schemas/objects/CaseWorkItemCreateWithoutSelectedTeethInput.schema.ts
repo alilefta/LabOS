@@ -6,7 +6,8 @@ import { ProductCreateNestedOneWithoutCaseWorkItemsInputObjectSchema as ProductC
 import { LabCreateNestedOneWithoutCaseWorkItemsInputObjectSchema as LabCreateNestedOneWithoutCaseWorkItemsInputObjectSchema } from './LabCreateNestedOneWithoutCaseWorkItemsInput.schema';
 import { CaseCreateNestedOneWithoutCaseItemsInputObjectSchema as CaseCreateNestedOneWithoutCaseItemsInputObjectSchema } from './CaseCreateNestedOneWithoutCaseItemsInput.schema';
 import { CasePricingPlanCreateNestedOneWithoutCaseWorkItemInputObjectSchema as CasePricingPlanCreateNestedOneWithoutCaseWorkItemInputObjectSchema } from './CasePricingPlanCreateNestedOneWithoutCaseWorkItemInput.schema';
-import { WorkTypeCreateNestedOneWithoutCaseWorkItemsInputObjectSchema as WorkTypeCreateNestedOneWithoutCaseWorkItemsInputObjectSchema } from './WorkTypeCreateNestedOneWithoutCaseWorkItemsInput.schema'
+import { WorkTypeCreateNestedOneWithoutCaseWorkItemsInputObjectSchema as WorkTypeCreateNestedOneWithoutCaseWorkItemsInputObjectSchema } from './WorkTypeCreateNestedOneWithoutCaseWorkItemsInput.schema';
+import { CaseWorkItemAddonCreateNestedManyWithoutCaseWorkItemInputObjectSchema as CaseWorkItemAddonCreateNestedManyWithoutCaseWorkItemInputObjectSchema } from './CaseWorkItemAddonCreateNestedManyWithoutCaseWorkItemInput.schema'
 
 import { DecimalJSLikeSchema, isValidDecimalInput } from '../../helpers/decimal-helpers';
 const makeSchema = () => z.object({
@@ -72,7 +73,8 @@ const makeSchema = () => z.object({
   lab: z.lazy(() => LabCreateNestedOneWithoutCaseWorkItemsInputObjectSchema),
   dentalCase: z.lazy(() => CaseCreateNestedOneWithoutCaseItemsInputObjectSchema),
   casePricingPlan: z.lazy(() => CasePricingPlanCreateNestedOneWithoutCaseWorkItemInputObjectSchema),
-  workType: z.lazy(() => WorkTypeCreateNestedOneWithoutCaseWorkItemsInputObjectSchema).optional()
+  workType: z.lazy(() => WorkTypeCreateNestedOneWithoutCaseWorkItemsInputObjectSchema).optional(),
+  addons: z.lazy(() => CaseWorkItemAddonCreateNestedManyWithoutCaseWorkItemInputObjectSchema).optional()
 }).strict();
 export const CaseWorkItemCreateWithoutSelectedTeethInputObjectSchema: z.ZodType<Prisma.CaseWorkItemCreateWithoutSelectedTeethInput> = makeSchema() as unknown as z.ZodType<Prisma.CaseWorkItemCreateWithoutSelectedTeethInput>;
 export const CaseWorkItemCreateWithoutSelectedTeethInputObjectZodSchema = makeSchema();

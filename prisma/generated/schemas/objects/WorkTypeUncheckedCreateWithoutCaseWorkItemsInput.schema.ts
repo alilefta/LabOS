@@ -10,6 +10,7 @@ const makeSchema = () => z.object({
   labId: z.string(),
   requireTeethSelection: z.boolean().optional(),
   caseCategoryId: z.string(),
+  isArchived: z.boolean().optional(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
   products: z.lazy(() => ProductUncheckedCreateNestedManyWithoutWorkTypeInputObjectSchema).optional()

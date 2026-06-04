@@ -7,6 +7,7 @@ export const WorkTypeGroupByResultSchema = z.array(z.object({
   labId: z.string(),
   requireTeethSelection: z.boolean(),
   caseCategoryId: z.string(),
+  isArchived: z.boolean(),
   createdAt: z.date(),
   updatedAt: z.date(),
   _count: z.object({
@@ -21,6 +22,7 @@ export const WorkTypeGroupByResultSchema = z.array(z.object({
     caseWorkItems: z.number(),
     caseCategoryId: z.number(),
     caseCategory: z.number(),
+    isArchived: z.number(),
     createdAt: z.number(),
     updatedAt: z.number()
   }).optional(),

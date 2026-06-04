@@ -11,6 +11,7 @@ const makeSchema = () => z.object({
   workTypeId: z.literal(true).optional(),
   createdAt: z.literal(true).optional(),
   updatedAt: z.literal(true).optional(),
+  isArchived: z.literal(true).optional(),
   _all: z.literal(true).optional()
 }).strict();
 export const ProductCountAggregateInputObjectSchema: z.ZodType<Prisma.ProductCountAggregateInputType> = makeSchema() as unknown as z.ZodType<Prisma.ProductCountAggregateInputType>;

@@ -6,6 +6,7 @@ export const CaseCategoryInputSchema = z.object({
     description: z.string().optional().nullable(),
     imageUrl: z.string().optional().nullable(),
     isActive: z.boolean(),
+    isArchived: z.boolean(),
     workTypes: z.array(z.unknown()),
     cases: z.array(z.unknown()),
     labId: z.string(),

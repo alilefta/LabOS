@@ -21,6 +21,10 @@ import { InvoiceBaseSchema } from '../base/invoice.base'
 import { InvoicePaymentBaseSchema } from '../base/invoice-payment.base'
 import { StaffPayoutBaseSchema } from '../base/staff-payout.base'
 
+import { LabInvitationBaseSchema } from '../base/lab-invitation.base'
+import { CaseWorkItemAddonBaseSchema } from '../base/case-work-item-addon.base'
+import { ProductAddonBaseSchema } from '../base/product-addon.base'
+
 export const LabDetailsSchema = LabBaseSchema.extend({
 	labSubscriptionPlan: LabSubscriptionPlanBaseSchema.nullable(),
 	users: z.array(LabUserBaseSchema),
@@ -47,6 +51,10 @@ export const LabDetailsSchema = LabBaseSchema.extend({
 	invoicePayments: z.array(InvoicePaymentBaseSchema),
 
 	staffPayouts: z.array(StaffPayoutBaseSchema),
+
+	invitations: z.array(LabInvitationBaseSchema),
+	caseWorkItemAddons: z.array(CaseWorkItemAddonBaseSchema),
+	productAddons: z.array(ProductAddonBaseSchema),
 })
 
 export const CreateLabAndLabUserInputSchema = z.object({

@@ -3,12 +3,14 @@ import type { Prisma } from '../../../../generated/prisma/client';
 import { StringFilterObjectSchema as StringFilterObjectSchema } from './StringFilter.schema';
 import { StringNullableFilterObjectSchema as StringNullableFilterObjectSchema } from './StringNullableFilter.schema';
 import { DateTimeFilterObjectSchema as DateTimeFilterObjectSchema } from './DateTimeFilter.schema';
+import { BoolFilterObjectSchema as BoolFilterObjectSchema } from './BoolFilter.schema';
 import { CaseWorkItemListRelationFilterObjectSchema as CaseWorkItemListRelationFilterObjectSchema } from './CaseWorkItemListRelationFilter.schema';
 import { LabScalarRelationFilterObjectSchema as LabScalarRelationFilterObjectSchema } from './LabScalarRelationFilter.schema';
 import { LabWhereInputObjectSchema as LabWhereInputObjectSchema } from './LabWhereInput.schema';
 import { WorkTypeScalarRelationFilterObjectSchema as WorkTypeScalarRelationFilterObjectSchema } from './WorkTypeScalarRelationFilter.schema';
 import { WorkTypeWhereInputObjectSchema as WorkTypeWhereInputObjectSchema } from './WorkTypeWhereInput.schema';
-import { CasePricingPlanListRelationFilterObjectSchema as CasePricingPlanListRelationFilterObjectSchema } from './CasePricingPlanListRelationFilter.schema'
+import { CasePricingPlanListRelationFilterObjectSchema as CasePricingPlanListRelationFilterObjectSchema } from './CasePricingPlanListRelationFilter.schema';
+import { ProductAddonListRelationFilterObjectSchema as ProductAddonListRelationFilterObjectSchema } from './ProductAddonListRelationFilter.schema'
 
 const productwhereinputSchema = z.object({
   AND: z.union([z.lazy(() => ProductWhereInputObjectSchema), z.lazy(() => ProductWhereInputObjectSchema).array()]).optional(),
@@ -22,10 +24,12 @@ const productwhereinputSchema = z.object({
   workTypeId: z.union([z.lazy(() => StringFilterObjectSchema), z.string()]).optional(),
   createdAt: z.union([z.lazy(() => DateTimeFilterObjectSchema), z.coerce.date()]).optional(),
   updatedAt: z.union([z.lazy(() => DateTimeFilterObjectSchema), z.coerce.date()]).optional(),
+  isArchived: z.union([z.lazy(() => BoolFilterObjectSchema), z.boolean()]).optional(),
   caseWorkItems: z.lazy(() => CaseWorkItemListRelationFilterObjectSchema).optional(),
   lab: z.union([z.lazy(() => LabScalarRelationFilterObjectSchema), z.lazy(() => LabWhereInputObjectSchema)]).optional(),
   workType: z.union([z.lazy(() => WorkTypeScalarRelationFilterObjectSchema), z.lazy(() => WorkTypeWhereInputObjectSchema)]).optional(),
-  casePricingPlans: z.lazy(() => CasePricingPlanListRelationFilterObjectSchema).optional()
+  casePricingPlans: z.lazy(() => CasePricingPlanListRelationFilterObjectSchema).optional(),
+  addons: z.lazy(() => ProductAddonListRelationFilterObjectSchema).optional()
 }).strict();
 export const ProductWhereInputObjectSchema: z.ZodType<Prisma.ProductWhereInput> = productwhereinputSchema as unknown as z.ZodType<Prisma.ProductWhereInput>;
 export const ProductWhereInputObjectZodSchema = productwhereinputSchema;

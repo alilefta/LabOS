@@ -3,7 +3,8 @@ import type { Prisma } from '../../../../generated/prisma/client';
 import { CaseWorkItemCreateNestedManyWithoutProductInputObjectSchema as CaseWorkItemCreateNestedManyWithoutProductInputObjectSchema } from './CaseWorkItemCreateNestedManyWithoutProductInput.schema';
 import { LabCreateNestedOneWithoutProductsInputObjectSchema as LabCreateNestedOneWithoutProductsInputObjectSchema } from './LabCreateNestedOneWithoutProductsInput.schema';
 import { WorkTypeCreateNestedOneWithoutProductsInputObjectSchema as WorkTypeCreateNestedOneWithoutProductsInputObjectSchema } from './WorkTypeCreateNestedOneWithoutProductsInput.schema';
-import { CasePricingPlanCreateNestedManyWithoutProductInputObjectSchema as CasePricingPlanCreateNestedManyWithoutProductInputObjectSchema } from './CasePricingPlanCreateNestedManyWithoutProductInput.schema'
+import { CasePricingPlanCreateNestedManyWithoutProductInputObjectSchema as CasePricingPlanCreateNestedManyWithoutProductInputObjectSchema } from './CasePricingPlanCreateNestedManyWithoutProductInput.schema';
+import { ProductAddonCreateNestedManyWithoutProductInputObjectSchema as ProductAddonCreateNestedManyWithoutProductInputObjectSchema } from './ProductAddonCreateNestedManyWithoutProductInput.schema'
 
 const makeSchema = () => z.object({
   id: z.string().optional(),
@@ -11,10 +12,12 @@ const makeSchema = () => z.object({
   description: z.string().optional().nullable(),
   imageUrl: z.string().optional().nullable(),
   createdAt: z.coerce.date().optional(),
+  isArchived: z.boolean().optional(),
   caseWorkItems: z.lazy(() => CaseWorkItemCreateNestedManyWithoutProductInputObjectSchema).optional(),
   lab: z.lazy(() => LabCreateNestedOneWithoutProductsInputObjectSchema),
   workType: z.lazy(() => WorkTypeCreateNestedOneWithoutProductsInputObjectSchema),
-  casePricingPlans: z.lazy(() => CasePricingPlanCreateNestedManyWithoutProductInputObjectSchema).optional()
+  casePricingPlans: z.lazy(() => CasePricingPlanCreateNestedManyWithoutProductInputObjectSchema).optional(),
+  addons: z.lazy(() => ProductAddonCreateNestedManyWithoutProductInputObjectSchema).optional()
 }).strict();
 export const ProductCreateInputObjectSchema: z.ZodType<Prisma.ProductCreateInput> = makeSchema() as unknown as z.ZodType<Prisma.ProductCreateInput>;
 export const ProductCreateInputObjectZodSchema = makeSchema();

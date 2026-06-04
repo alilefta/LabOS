@@ -19,6 +19,7 @@ export const CaseWorkItemFindUniqueResultSchema = z.nullable(z.object({
   jawType: z.unknown(),
   workTypeId: z.string().optional(),
   workType: z.unknown().optional(),
+  addons: z.array(z.unknown()),
   notes: z.string().optional(),
   shadeSystem: z.string().optional(),
   baseShade: z.string().optional(),

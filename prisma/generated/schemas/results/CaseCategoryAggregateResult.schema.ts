@@ -5,6 +5,7 @@ export const CaseCategoryAggregateResultSchema = z.object({  _count: z.object({
     description: z.number(),
     imageUrl: z.number(),
     isActive: z.number(),
+    isArchived: z.number(),
     workTypes: z.number(),
     cases: z.number(),
     labId: z.number(),

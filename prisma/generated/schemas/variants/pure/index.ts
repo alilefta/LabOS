@@ -25,6 +25,8 @@ export { InvoicePaymentModelSchema } from './InvoicePayment.pure';
 export { LabSubscriptionPlanModelSchema } from './LabSubscriptionPlan.pure';
 export { LabUserModelSchema } from './LabUser.pure';
 export { LabInvitationModelSchema } from './LabInvitation.pure';
+export { ProductAddonModelSchema } from './ProductAddon.pure';
+export { CaseWorkItemAddonModelSchema } from './CaseWorkItemAddon.pure';
 export { SuperUserModelSchema } from './SuperUser.pure';
 export { AuthUserModelSchema } from './AuthUser.pure';
 export { SessionModelSchema } from './Session.pure';

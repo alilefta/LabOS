@@ -21,6 +21,7 @@ export const InvoiceModelSchema = z.object({
     dueDate: z.date().nullable(),
     publicToken: z.string().nullable(),
     publicLinkExpiresAt: z.date().nullable(),
+    isActive: z.boolean(),
     cases: z.array(z.unknown()),
     payments: z.array(z.unknown()),
     createdAt: z.date(),

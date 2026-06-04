@@ -6,6 +6,7 @@ export const CaseCategoryResultSchema = z.object({
     description: z.string().nullable(),
     imageUrl: z.string().nullable(),
     isActive: z.boolean(),
+    isArchived: z.boolean(),
     workTypes: z.array(z.unknown()),
     cases: z.array(z.unknown()),
     labId: z.string(),

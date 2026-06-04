@@ -1,21 +1,24 @@
-"use server";
+'use server'
 
-import { normalizePricingPlan } from "@/lib/mappers";
-import { tenantPrisma } from "@/lib/prisma";
-import { actionClientWithLab } from "@/lib/safe-action";
-import { GetPricingPlansByClinicIdInputSchema, GetPricingPlansByProductIdInputSchema } from "@/schema/composed/case-pricing-plan.details";
-import { SearchInputSchema } from "@/schema/composed/shared-schema";
-import { APIError } from "better-auth";
+import { normalizePricingPlan } from '@/lib/mappers'
+import { tenantPrisma } from '@/lib/prisma'
+import { actionClientWithLab } from '@/lib/safe-action'
+import {
+	GetPricingPlansByClinicIdInputSchema,
+	GetPricingPlansByProductIdInputSchema,
+} from '@/schema/composed/case-pricing-plan.details'
+import { SearchInputSchema } from '@/schema/composed/shared-schema'
+import { APIError } from 'better-auth'
 
 export const getPricingPlanBySearchQueryAction = actionClientWithLab
 	.metadata({
-		actionName: "Get-PricingPlans-By-Search-Query-Action",
-		requiredLabRole: "ADMIN",
+		actionName: 'Get-PricingPlans-By-Search-Query-Action',
+		requiredLabRole: 'ADMIN',
 	})
 	.inputSchema(SearchInputSchema)
 	.action(async ({ parsedInput, ctx }) => {
-		const { searchQuery, limit } = parsedInput;
-		const { labId } = ctx;
+		const { searchQuery, limit } = parsedInput
+		const { labId } = ctx
 
 		try {
 			const pricings = await (
@@ -28,31 +31,34 @@ export const getPricingPlanBySearchQueryAction = actionClientWithLab
 					},
 				},
 				orderBy: {
-					createdAt: "desc",
+					createdAt: 'desc',
 				},
 				take: limit,
-			});
+			})
 
 			return {
 				pricings: pricings.map(normalizePricingPlan),
-			};
+			}
 		} catch (e) {
 			if (e instanceof APIError || e instanceof Error) {
-				console.error("[Get-PricingPlans-By-Search-Query-Action] Error", e.message);
+				console.error(
+					'[Get-PricingPlans-By-Search-Query-Action] Error',
+					e.message,
+				)
 			}
-			throw e;
+			throw e
 		}
-	});
+	})
 
 export const getPricingPlansByProductAction = actionClientWithLab
 	.metadata({
-		actionName: "Get-PricingPlans-By-ProductId-Action",
-		requiredLabRole: "ADMIN",
+		actionName: 'Get-PricingPlans-By-ProductId-Action',
+		requiredLabRole: 'ADMIN',
 	})
 	.inputSchema(GetPricingPlansByProductIdInputSchema)
 	.action(async ({ parsedInput, ctx }) => {
-		const { limit, productId } = parsedInput;
-		const { labId } = ctx;
+		const { limit, productId } = parsedInput
+		const { labId } = ctx
 
 		try {
 			const pricings = await (
@@ -63,35 +69,34 @@ export const getPricingPlansByProductAction = actionClientWithLab
 					productId: productId,
 				},
 				orderBy: {
-					createdAt: "desc",
+					createdAt: 'desc',
 				},
 				take: limit,
 				include: {
-					lab: true,
 					product: true,
 				},
-			});
+			})
 
 			return {
 				pricings: pricings.map(normalizePricingPlan),
-			};
+			}
 		} catch (e) {
 			if (e instanceof APIError || e instanceof Error) {
-				console.error("[Get-PricingPlans-By-ProductId-Action] Error", e.message);
+				console.error('[Get-PricingPlans-By-ProductId-Action] Error', e.message)
 			}
-			throw e;
+			throw e
 		}
-	});
+	})
 
 export const getPricingPlansByClinicAction = actionClientWithLab
 	.metadata({
-		actionName: "Get-PricingPlans-By-ClinicId-Action",
-		requiredLabRole: "ADMIN",
+		actionName: 'Get-PricingPlans-By-ClinicId-Action',
+		requiredLabRole: 'ADMIN',
 	})
 	.inputSchema(GetPricingPlansByClinicIdInputSchema)
 	.action(async ({ parsedInput, ctx }) => {
-		const { limit, clinicId } = parsedInput;
-		const { labId } = ctx;
+		const { limit, clinicId } = parsedInput
+		const { labId } = ctx
 
 		try {
 			const pricings = await (
@@ -102,25 +107,25 @@ export const getPricingPlansByClinicAction = actionClientWithLab
 					clinicId,
 				},
 				orderBy: {
-					createdAt: "desc",
+					createdAt: 'desc',
 				},
 				take: limit,
 				include: {
 					lab: true,
 					clinic: true,
 				},
-			});
+			})
 
 			return {
 				pricings: pricings.map(normalizePricingPlan),
-			};
+			}
 		} catch (e) {
 			if (e instanceof APIError || e instanceof Error) {
-				console.error("[Get-PricingPlans-By-ClinicId-Action] Error", e.message);
+				console.error('[Get-PricingPlans-By-ClinicId-Action] Error', e.message)
 			}
-			throw e;
+			throw e
 		}
-	});
+	})
 
 // function pricingPlansNormalizer(pricingPlan: CasePricingPlanModel[] | CasePricingPlanModel): CasePricingPlanDetailsUI[] | CasePricingPlanDetailsUI {
 // 	if (Array.isArray(pricingPlan)) {

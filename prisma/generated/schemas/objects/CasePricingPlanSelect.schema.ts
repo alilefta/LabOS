@@ -12,6 +12,7 @@ const makeSchema = () => z.object({
   lab: z.union([z.boolean(), z.lazy(() => LabArgsObjectSchema)]).optional(),
   name: z.boolean().optional(),
   isDefault: z.boolean().optional(),
+  isArchived: z.boolean().optional(),
   pricingStrategy: z.boolean().optional(),
   firstToothPrice: z.boolean().optional(),
   additionalToothPrice: z.boolean().optional(),

@@ -8,7 +8,8 @@ import { EnumPricingStrategyFieldUpdateOperationsInputObjectSchema as EnumPricin
 import { NullableDecimalFieldUpdateOperationsInputObjectSchema as NullableDecimalFieldUpdateOperationsInputObjectSchema } from './NullableDecimalFieldUpdateOperationsInput.schema';
 import { JawTypeSchema } from '../enums/JawType.schema';
 import { EnumJawTypeFieldUpdateOperationsInputObjectSchema as EnumJawTypeFieldUpdateOperationsInputObjectSchema } from './EnumJawTypeFieldUpdateOperationsInput.schema';
-import { DateTimeFieldUpdateOperationsInputObjectSchema as DateTimeFieldUpdateOperationsInputObjectSchema } from './DateTimeFieldUpdateOperationsInput.schema'
+import { DateTimeFieldUpdateOperationsInputObjectSchema as DateTimeFieldUpdateOperationsInputObjectSchema } from './DateTimeFieldUpdateOperationsInput.schema';
+import { CaseWorkItemAddonUncheckedUpdateManyWithoutCaseWorkItemNestedInputObjectSchema as CaseWorkItemAddonUncheckedUpdateManyWithoutCaseWorkItemNestedInputObjectSchema } from './CaseWorkItemAddonUncheckedUpdateManyWithoutCaseWorkItemNestedInput.schema'
 
 import { DecimalJSLikeSchema, isValidDecimalInput } from '../../helpers/decimal-helpers';
 const makeSchema = () => z.object({
@@ -74,7 +75,8 @@ const makeSchema = () => z.object({
   stumpShade: z.union([z.string(), z.lazy(() => NullableStringFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
   shadeNotes: z.union([z.string(), z.lazy(() => NullableStringFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
   createdAt: z.union([z.coerce.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputObjectSchema)]).optional(),
-  updatedAt: z.union([z.coerce.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputObjectSchema)]).optional()
+  updatedAt: z.union([z.coerce.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputObjectSchema)]).optional(),
+  addons: z.lazy(() => CaseWorkItemAddonUncheckedUpdateManyWithoutCaseWorkItemNestedInputObjectSchema).optional()
 }).strict();
 export const CaseWorkItemUncheckedUpdateWithoutSelectedTeethInputObjectSchema: z.ZodType<Prisma.CaseWorkItemUncheckedUpdateWithoutSelectedTeethInput> = makeSchema() as unknown as z.ZodType<Prisma.CaseWorkItemUncheckedUpdateWithoutSelectedTeethInput>;
 export const CaseWorkItemUncheckedUpdateWithoutSelectedTeethInputObjectZodSchema = makeSchema();

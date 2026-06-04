@@ -22,7 +22,9 @@ import { InvoicePaymentOrderByRelationAggregateInputObjectSchema as InvoicePayme
 import { CaseActivityLogOrderByRelationAggregateInputObjectSchema as CaseActivityLogOrderByRelationAggregateInputObjectSchema } from './CaseActivityLogOrderByRelationAggregateInput.schema';
 import { InvoiceCaseOrderByRelationAggregateInputObjectSchema as InvoiceCaseOrderByRelationAggregateInputObjectSchema } from './InvoiceCaseOrderByRelationAggregateInput.schema';
 import { LabInvitationOrderByRelationAggregateInputObjectSchema as LabInvitationOrderByRelationAggregateInputObjectSchema } from './LabInvitationOrderByRelationAggregateInput.schema';
-import { StaffPayoutOrderByRelationAggregateInputObjectSchema as StaffPayoutOrderByRelationAggregateInputObjectSchema } from './StaffPayoutOrderByRelationAggregateInput.schema'
+import { StaffPayoutOrderByRelationAggregateInputObjectSchema as StaffPayoutOrderByRelationAggregateInputObjectSchema } from './StaffPayoutOrderByRelationAggregateInput.schema';
+import { CaseWorkItemAddonOrderByRelationAggregateInputObjectSchema as CaseWorkItemAddonOrderByRelationAggregateInputObjectSchema } from './CaseWorkItemAddonOrderByRelationAggregateInput.schema';
+import { ProductAddonOrderByRelationAggregateInputObjectSchema as ProductAddonOrderByRelationAggregateInputObjectSchema } from './ProductAddonOrderByRelationAggregateInput.schema'
 
 const makeSchema = () => z.object({
   id: SortOrderSchema.optional(),
@@ -55,7 +57,9 @@ const makeSchema = () => z.object({
   caseActivityLogs: z.lazy(() => CaseActivityLogOrderByRelationAggregateInputObjectSchema).optional(),
   invoiceCase: z.lazy(() => InvoiceCaseOrderByRelationAggregateInputObjectSchema).optional(),
   invitations: z.lazy(() => LabInvitationOrderByRelationAggregateInputObjectSchema).optional(),
-  staffPayouts: z.lazy(() => StaffPayoutOrderByRelationAggregateInputObjectSchema).optional()
+  staffPayouts: z.lazy(() => StaffPayoutOrderByRelationAggregateInputObjectSchema).optional(),
+  caseWorkItemAddons: z.lazy(() => CaseWorkItemAddonOrderByRelationAggregateInputObjectSchema).optional(),
+  productAddons: z.lazy(() => ProductAddonOrderByRelationAggregateInputObjectSchema).optional()
 }).strict();
 export const LabOrderByWithRelationInputObjectSchema: z.ZodType<Prisma.LabOrderByWithRelationInput> = makeSchema() as unknown as z.ZodType<Prisma.LabOrderByWithRelationInput>;
 export const LabOrderByWithRelationInputObjectZodSchema = makeSchema();

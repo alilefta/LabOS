@@ -7,6 +7,7 @@ export const CasePricingPlanInputSchema = z.object({
     lab: z.unknown(),
     name: z.string(),
     isDefault: z.boolean(),
+    isArchived: z.boolean(),
     pricingStrategy: PricingStrategySchema,
     firstToothPrice: z.number().optional().nullable(),
     additionalToothPrice: z.number().optional().nullable(),

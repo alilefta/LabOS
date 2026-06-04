@@ -2,6 +2,7 @@ import * as z from 'zod';
 import { Prisma } from '../../../../generated/prisma/client';
 import { PricingStrategySchema } from '../enums/PricingStrategy.schema';
 import { JawTypeSchema } from '../enums/JawType.schema';
+import { CaseWorkItemAddonUncheckedCreateNestedManyWithoutCaseWorkItemInputObjectSchema as CaseWorkItemAddonUncheckedCreateNestedManyWithoutCaseWorkItemInputObjectSchema } from './CaseWorkItemAddonUncheckedCreateNestedManyWithoutCaseWorkItemInput.schema';
 import { SelectedToothUncheckedCreateNestedManyWithoutCaseWorkItemInputObjectSchema as SelectedToothUncheckedCreateNestedManyWithoutCaseWorkItemInputObjectSchema } from './SelectedToothUncheckedCreateNestedManyWithoutCaseWorkItemInput.schema'
 
 import { DecimalJSLikeSchema, isValidDecimalInput } from '../../helpers/decimal-helpers';
@@ -68,6 +69,7 @@ const makeSchema = () => z.object({
   shadeNotes: z.string().optional().nullable(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
+  addons: z.lazy(() => CaseWorkItemAddonUncheckedCreateNestedManyWithoutCaseWorkItemInputObjectSchema).optional(),
   selectedTeeth: z.lazy(() => SelectedToothUncheckedCreateNestedManyWithoutCaseWorkItemInputObjectSchema).optional()
 }).strict();
 export const CaseWorkItemUncheckedCreateWithoutLabInputObjectSchema: z.ZodType<Prisma.CaseWorkItemUncheckedCreateWithoutLabInput> = makeSchema() as unknown as z.ZodType<Prisma.CaseWorkItemUncheckedCreateWithoutLabInput>;

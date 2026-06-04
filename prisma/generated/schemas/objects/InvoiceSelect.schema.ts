@@ -26,6 +26,7 @@ const makeSchema = () => z.object({
   dueDate: z.boolean().optional(),
   publicToken: z.boolean().optional(),
   publicLinkExpiresAt: z.boolean().optional(),
+  isActive: z.boolean().optional(),
   cases: z.union([z.boolean(), z.lazy(() => InvoiceCaseFindManySchema)]).optional(),
   payments: z.union([z.boolean(), z.lazy(() => InvoicePaymentFindManySchema)]).optional(),
   createdAt: z.boolean().optional(),

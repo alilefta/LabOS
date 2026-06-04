@@ -20,6 +20,7 @@ const makeSchema = () => z.object({
   dueDate: SortOrderSchema.optional(),
   publicToken: SortOrderSchema.optional(),
   publicLinkExpiresAt: SortOrderSchema.optional(),
+  isActive: SortOrderSchema.optional(),
   createdAt: SortOrderSchema.optional(),
   updatedAt: SortOrderSchema.optional()
 }).strict();

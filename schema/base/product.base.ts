@@ -1,5 +1,4 @@
-import * as z from "zod";
-
+import z from 'zod'
 export const ProductBaseSchema = z.object({
 	id: z.string(),
 	name: z.string(),
@@ -7,8 +6,10 @@ export const ProductBaseSchema = z.object({
 	imageUrl: z.string().nullable(),
 	labId: z.string(),
 	workTypeId: z.string(),
+
 	createdAt: z.date(),
 	updatedAt: z.date(),
-});
+	isArchived: z.boolean(),
+})
 
-export type ProductBase = z.infer<typeof ProductBaseSchema>;
+export type ProductBase = z.infer<typeof ProductBaseSchema>

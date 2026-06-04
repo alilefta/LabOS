@@ -19,6 +19,7 @@ export const InvoiceAggregateResultSchema = z.object({  _count: z.object({
     dueDate: z.number(),
     publicToken: z.number(),
     publicLinkExpiresAt: z.number(),
+    isActive: z.number(),
     cases: z.number(),
     payments: z.number(),
     createdAt: z.number(),

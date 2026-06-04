@@ -15,6 +15,7 @@ const makeSchema = () => z.object({
   labId: SortOrderSchema.optional(),
   requireTeethSelection: SortOrderSchema.optional(),
   caseCategoryId: SortOrderSchema.optional(),
+  isArchived: SortOrderSchema.optional(),
   createdAt: SortOrderSchema.optional(),
   updatedAt: SortOrderSchema.optional(),
   products: z.lazy(() => ProductOrderByRelationAggregateInputObjectSchema).optional(),

@@ -11,6 +11,7 @@ const makeSchema = () => z.object({
   description: z.boolean().optional(),
   imageUrl: z.boolean().optional(),
   isActive: z.boolean().optional(),
+  isArchived: z.boolean().optional(),
   workTypes: z.union([z.boolean(), z.lazy(() => WorkTypeFindManySchema)]).optional(),
   cases: z.union([z.boolean(), z.lazy(() => CaseFindManySchema)]).optional(),
   labId: z.boolean().optional(),

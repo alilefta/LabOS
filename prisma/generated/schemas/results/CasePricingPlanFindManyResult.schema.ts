@@ -6,6 +6,7 @@ export const CasePricingPlanFindManyResultSchema = z.object({
   lab: z.unknown(),
   name: z.string(),
   isDefault: z.boolean(),
+  isArchived: z.boolean(),
   pricingStrategy: z.unknown(),
   firstToothPrice: z.number().optional(),
   additionalToothPrice: z.number().optional(),

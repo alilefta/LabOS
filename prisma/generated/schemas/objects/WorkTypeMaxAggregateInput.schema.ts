@@ -10,6 +10,7 @@ const makeSchema = () => z.object({
   labId: z.literal(true).optional(),
   requireTeethSelection: z.literal(true).optional(),
   caseCategoryId: z.literal(true).optional(),
+  isArchived: z.literal(true).optional(),
   createdAt: z.literal(true).optional(),
   updatedAt: z.literal(true).optional()
 }).strict();
