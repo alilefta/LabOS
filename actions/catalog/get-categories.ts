@@ -3,15 +3,22 @@
 import { tenantPrisma } from '@/lib/prisma'
 import { actionClientWithLab } from '@/lib/safe-action'
 import { ERRORS } from '@/lib/errors'
+import z from 'zod'
 
-export const getActiveCategoriesAction = actionClientWithLab
+export const getCatalogCategoriesAction = actionClientWithLab
 	.metadata({
-		actionName: 'Get-Active-Categories-Action',
+		actionName: 'Get-Catalog-Categories-Action',
 		// Everyone needs to be able to read categories (e.g. Receptionists making cases)
 		requiredLabRole: 'STAFF',
 	})
-	.action(async ({ ctx }) => {
+	.inputSchema(
+		z.object({
+			showArchivedCategories: z.boolean().optional().default(false),
+		}),
+	)
+	.action(async ({ ctx, parsedInput }) => {
 		const { labId } = ctx
+		const { showArchivedCategories } = parsedInput
 
 		try {
 			const prisma = await tenantPrisma(labId)
@@ -22,11 +29,14 @@ export const getActiveCategoriesAction = actionClientWithLab
 			const categories = await prisma.caseCategory.findMany({
 				where: {
 					labId,
-					isActive: true, // Only allow assigning to active categories
+					isArchived: showArchivedCategories, // Only allow assigning to active categories
 				},
 				select: {
 					id: true,
 					name: true,
+					imageUrl: true,
+					isActive: true,
+					isArchived: true,
 				},
 				orderBy: {
 					name: 'asc', // Alphabetical for easy scanning
@@ -35,7 +45,7 @@ export const getActiveCategoriesAction = actionClientWithLab
 
 			return { categories }
 		} catch (error) {
-			console.error('[Get-Active-Categories-Action] Error:', error)
+			console.error('[Get-Catalog-Categories-Action] Error:', error)
 			throw ERRORS.OPERATION_NOT_ALLOWED
 		}
 	})

@@ -57,7 +57,7 @@ export type GetProductsByWorkTypeInput = z.infer<
 export const GetWorkTypesByCategoryInputSchema = z.object({
 	caseCategoryId: z.string(),
 	limit: z.number().default(10),
-	requireTeethSelection: z.boolean(),
+	requireTeethSelection: z.boolean().optional(),
 })
 
 export type GetWorkTypesByCategoryInput = z.infer<

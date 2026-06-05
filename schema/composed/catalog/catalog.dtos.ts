@@ -15,6 +15,14 @@ export type CatalogTreeDTO = {
 	}[]
 }[]
 
+export type CatalogCategoryDTO = {
+	id: string
+	name: string
+	imageUrl: string | null
+	isArchived: boolean
+	isActive: boolean
+}
+
 export type CatalogProductDTO = {
 	id: string
 	name: string
