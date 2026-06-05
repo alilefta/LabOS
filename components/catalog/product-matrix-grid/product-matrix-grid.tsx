@@ -1,18 +1,23 @@
 'use client'
 
 import { useState, useMemo, useCallback } from 'react'
-import { PackageX, Search, Plus, Layers } from 'lucide-react'
+import { useSearchParams } from 'next/navigation'
+import { useQuery } from '@tanstack/react-query'
+import { PackageX, Search, Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { Skeleton } from '@/components/ui/skeleton'
+import { cn } from '@/lib/utils'
+
+// Data & Actions
+import { getProductsByWorkTypeAction } from '@/actions/catalog/get-products'
+import { handleSafeActionError } from '@/lib/safe-action-helpers'
+import { CatalogProductDTO } from '@/schema/composed/catalog/catalog.dtos'
+
+// Children
 import { ProductMatrixHeader } from './product-matrix-header'
 import { ProductMatrixCard } from './product-matrix-card'
 import { PricingTierManagerSheet } from '@/components/modals/catalog/pricing-tier-manager/pricing-tier-manager-sheet'
 import { useClinicalCreationStore } from '@/store/use-clinical-creation-store'
-import { useQuery } from '@tanstack/react-query'
-import { getProductsByWorkTypeAction } from '@/actions/catalog/get-products'
-import { handleSafeActionError } from '@/lib/safe-action-helpers'
-import { CatalogProductDTO } from '@/schema/composed/catalog/catalog.dtos'
-import { Skeleton } from '@/components/ui/skeleton'
-import { ProductMatrixHydrationWrapper } from './product-matrix-hydration-wrapper'
 
 interface Props {
 	activeWorkTypeId: string
@@ -23,18 +28,22 @@ export function ProductMatrixGrid({
 	activeWorkTypeId,
 	activeWorktypeName,
 }: Props) {
-	// ── 1. LOCAL SEARCH STATE ────────────────────────────────────────────────
+	const searchParams = useSearchParams()
 	const [searchQuery, setSearchQuery] = useState('')
 	const [pricingManagerProductId, setPricingManagerProductId] = useState<
 		string | null
 	>(null)
 
-	// ── 1. TANSTACK QUERY ACTIVE FETCHING [2]
+	// 1. Read the "Show Archived" state directly from the URL [3]
+	const showArchived = searchParams.get('showArchived') === 'true'
+
+	// 2. Dynamic React Query Fetching (Auto-syncs with URL!) [3]
 	const { data: products = [], isFetching } = useQuery({
-		queryKey: ['products-list', activeWorkTypeId],
+		queryKey: ['products-list', activeWorkTypeId, showArchived], // Added showArchived to key [3]
 		queryFn: async () => {
 			const res = await getProductsByWorkTypeAction({
 				workTypeId: activeWorkTypeId,
+				showArchived, // Pass the toggle to the server action [3]
 			})
 
 			if (res.serverError || res.validationErrors) {
@@ -47,10 +56,10 @@ export function ProductMatrixGrid({
 			return (res?.data?.products as CatalogProductDTO[]) || []
 		},
 		enabled: !!activeWorkTypeId,
-		staleTime: 1000 * 60 * 5, // Cache for 5 minutes
+		staleTime: 1000 * 60 * 5,
 	})
 
-	// ── 2. IN-MEMORY FILTERING ──
+	// 3. In-Memory Search Filtering
 	const filteredProducts = useMemo(() => {
 		if (!searchQuery.trim()) return products
 		const query = searchQuery.toLowerCase()
@@ -61,7 +70,7 @@ export function ProductMatrixGrid({
 		)
 	}, [products, searchQuery])
 
-	// ── 2. STORE CONNECTIONS (For Creation) ──────────────────────────────────
+	// 4. Store Connections (Creation)
 	const openProductSheet = useClinicalCreationStore(
 		(state) => state.openProductSheet,
 	)
@@ -70,11 +79,8 @@ export function ProductMatrixGrid({
 		openProductSheet(activeWorkTypeId)
 	}, [openProductSheet, activeWorkTypeId])
 
-	// ── 3. STABILIZED INTERACTION CALLBACKS (120 FPS Guard) ──────────────────
-	// Wrapping these in useCallback guarantees that typing in the search input
-	// does NOT trigger re-renders in your ProductMatrixCards!
+	// 5. Stabilized Interaction Callbacks (120 FPS Guard) [1]
 	const handleEditProduct = useCallback((id: string) => {
-		// Trigger your openProductSheet(id) edit-state here later
 		console.log('Trigger edit product sheet for ID:', id)
 	}, [])
 
@@ -87,9 +93,10 @@ export function ProductMatrixGrid({
 	}, [])
 
 	const workTypeName =
-		activeWorktypeName || products.length > 0 ? products[0].workTypeName : 'N/A'
-	// ── 4. EMPTY STATE RENDERER ─────────────────────────────────────────────
-	// ── 4. LOADING STATE (OLED Skeletons) [2]
+		activeWorktypeName ||
+		(products.length > 0 ? products[0].workTypeName : 'Selected Department')
+
+	// 6. Loading Skeletons
 	if (isFetching && products.length === 0) {
 		return (
 			<div className="flex flex-col h-full animate-in fade-in duration-300">
@@ -114,7 +121,7 @@ export function ProductMatrixGrid({
 		)
 	}
 
-	// ── 5. EMPTY STATE RENDERER ──
+	// 7. Empty State Fallback
 	if (!isFetching && products.length === 0) {
 		return (
 			<div className="w-full h-full min-h-125 flex flex-col items-center justify-center text-center animate-in fade-in zoom-in-95 duration-500 relative">
@@ -128,7 +135,7 @@ export function ProductMatrixGrid({
 							Empty Department
 						</h3>
 						<p className="text-sm text-muted-foreground leading-relaxed">
-							There are currently no products configured under{' '}
+							There are currently no active products configured under{' '}
 							<strong className="text-foreground">{workTypeName}</strong>.
 						</p>
 					</div>
@@ -174,17 +181,15 @@ export function ProductMatrixGrid({
 					))}
 				</div>
 			)}
-			<ProductMatrixHydrationWrapper productId={pricingManagerProductId || ''}>
-				{/* --- THE PRICING SHEET --- */}
-				<PricingTierManagerSheet
-					isOpen={!!pricingManagerProductId}
-					onClose={() => setPricingManagerProductId(null)}
-					productId={pricingManagerProductId || ''}
-					productName={
-						products.find((p) => p.id === pricingManagerProductId)?.name || ''
-					}
-				/>
-			</ProductMatrixHydrationWrapper>
+
+			<PricingTierManagerSheet
+				isOpen={!!pricingManagerProductId}
+				onClose={() => setPricingManagerProductId(null)}
+				productId={pricingManagerProductId || ''}
+				productName={
+					products.find((p) => p.id === pricingManagerProductId)?.name || ''
+				}
+			/>
 		</div>
 	)
 }

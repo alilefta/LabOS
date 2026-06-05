@@ -21,6 +21,7 @@ import { CaseActivityLogUncheckedCreateNestedManyWithoutLabInputObjectSchema as 
 import { InvoiceCaseUncheckedCreateNestedManyWithoutLabInputObjectSchema as InvoiceCaseUncheckedCreateNestedManyWithoutLabInputObjectSchema } from './InvoiceCaseUncheckedCreateNestedManyWithoutLabInput.schema';
 import { LabInvitationUncheckedCreateNestedManyWithoutLabInputObjectSchema as LabInvitationUncheckedCreateNestedManyWithoutLabInputObjectSchema } from './LabInvitationUncheckedCreateNestedManyWithoutLabInput.schema';
 import { StaffPayoutUncheckedCreateNestedManyWithoutLabInputObjectSchema as StaffPayoutUncheckedCreateNestedManyWithoutLabInputObjectSchema } from './StaffPayoutUncheckedCreateNestedManyWithoutLabInput.schema';
+import { LabSettingsUncheckedCreateNestedOneWithoutLabInputObjectSchema as LabSettingsUncheckedCreateNestedOneWithoutLabInputObjectSchema } from './LabSettingsUncheckedCreateNestedOneWithoutLabInput.schema';
 import { CaseWorkItemAddonUncheckedCreateNestedManyWithoutLabInputObjectSchema as CaseWorkItemAddonUncheckedCreateNestedManyWithoutLabInputObjectSchema } from './CaseWorkItemAddonUncheckedCreateNestedManyWithoutLabInput.schema'
 
 const makeSchema = () => z.object({
@@ -55,6 +56,7 @@ const makeSchema = () => z.object({
   invoiceCase: z.lazy(() => InvoiceCaseUncheckedCreateNestedManyWithoutLabInputObjectSchema).optional(),
   invitations: z.lazy(() => LabInvitationUncheckedCreateNestedManyWithoutLabInputObjectSchema).optional(),
   staffPayouts: z.lazy(() => StaffPayoutUncheckedCreateNestedManyWithoutLabInputObjectSchema).optional(),
+  settings: z.lazy(() => LabSettingsUncheckedCreateNestedOneWithoutLabInputObjectSchema).optional(),
   caseWorkItemAddons: z.lazy(() => CaseWorkItemAddonUncheckedCreateNestedManyWithoutLabInputObjectSchema).optional()
 }).strict();
 export const LabUncheckedCreateWithoutProductAddonsInputObjectSchema: z.ZodType<Prisma.LabUncheckedCreateWithoutProductAddonsInput> = makeSchema() as unknown as z.ZodType<Prisma.LabUncheckedCreateWithoutProductAddonsInput>;

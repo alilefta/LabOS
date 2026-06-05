@@ -21,6 +21,7 @@ import { CaseActivityLogFindManySchema as CaseActivityLogFindManySchema } from '
 import { InvoiceCaseFindManySchema as InvoiceCaseFindManySchema } from '../findManyInvoiceCase.schema';
 import { LabInvitationFindManySchema as LabInvitationFindManySchema } from '../findManyLabInvitation.schema';
 import { StaffPayoutFindManySchema as StaffPayoutFindManySchema } from '../findManyStaffPayout.schema';
+import { LabSettingsArgsObjectSchema as LabSettingsArgsObjectSchema } from './LabSettingsArgs.schema';
 import { CaseWorkItemAddonFindManySchema as CaseWorkItemAddonFindManySchema } from '../findManyCaseWorkItemAddon.schema';
 import { ProductAddonFindManySchema as ProductAddonFindManySchema } from '../findManyProductAddon.schema';
 import { LabCountOutputTypeArgsObjectSchema as LabCountOutputTypeArgsObjectSchema } from './LabCountOutputTypeArgs.schema'
@@ -55,6 +56,7 @@ const makeSchema = () => z.object({
   staffPayouts: z.union([z.boolean(), z.lazy(() => StaffPayoutFindManySchema)]).optional(),
   nextPayoutNumber: z.boolean().optional(),
   nextInvoiceNumber: z.boolean().optional(),
+  settings: z.union([z.boolean(), z.lazy(() => LabSettingsArgsObjectSchema)]).optional(),
   caseWorkItemAddons: z.union([z.boolean(), z.lazy(() => CaseWorkItemAddonFindManySchema)]).optional(),
   productAddons: z.union([z.boolean(), z.lazy(() => ProductAddonFindManySchema)]).optional(),
   createdAt: z.boolean().optional(),

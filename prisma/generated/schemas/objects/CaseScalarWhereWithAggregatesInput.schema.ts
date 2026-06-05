@@ -5,9 +5,10 @@ import { StringNullableWithAggregatesFilterObjectSchema as StringNullableWithAgg
 import { EnumCaseStatusWithAggregatesFilterObjectSchema as EnumCaseStatusWithAggregatesFilterObjectSchema } from './EnumCaseStatusWithAggregatesFilter.schema';
 import { CaseStatusSchema } from '../enums/CaseStatus.schema';
 import { DecimalNullableWithAggregatesFilterObjectSchema as DecimalNullableWithAggregatesFilterObjectSchema } from './DecimalNullableWithAggregatesFilter.schema';
+import { DecimalWithAggregatesFilterObjectSchema as DecimalWithAggregatesFilterObjectSchema } from './DecimalWithAggregatesFilter.schema';
+import { BoolWithAggregatesFilterObjectSchema as BoolWithAggregatesFilterObjectSchema } from './BoolWithAggregatesFilter.schema';
 import { DateTimeNullableWithAggregatesFilterObjectSchema as DateTimeNullableWithAggregatesFilterObjectSchema } from './DateTimeNullableWithAggregatesFilter.schema';
 import { DateTimeWithAggregatesFilterObjectSchema as DateTimeWithAggregatesFilterObjectSchema } from './DateTimeWithAggregatesFilter.schema';
-import { BoolWithAggregatesFilterObjectSchema as BoolWithAggregatesFilterObjectSchema } from './BoolWithAggregatesFilter.schema';
 import { EnumFaultPartyNullableWithAggregatesFilterObjectSchema as EnumFaultPartyNullableWithAggregatesFilterObjectSchema } from './EnumFaultPartyNullableWithAggregatesFilter.schema';
 import { FaultPartySchema } from '../enums/FaultParty.schema'
 
@@ -30,6 +31,16 @@ const casescalarwherewithaggregatesinputSchema = z.object({
 ]).refine((v) => isValidDecimalInput(v), {
   message: "Field 'grandTotal' must be a Decimal",
 })]).optional().nullable(),
+  manualDiscountAmount: z.union([z.lazy(() => DecimalWithAggregatesFilterObjectSchema), z.union([
+  z.number(),
+  z.string(),
+  z.instanceof(Prisma.Decimal),
+  DecimalJSLikeSchema,
+]).refine((v) => isValidDecimalInput(v), {
+  message: "Field 'manualDiscountAmount' must be a Decimal",
+})]).optional(),
+  manualDiscountReason: z.union([z.lazy(() => StringNullableWithAggregatesFilterObjectSchema), z.string()]).optional().nullable(),
+  isWarranty: z.union([z.lazy(() => BoolWithAggregatesFilterObjectSchema), z.boolean()]).optional(),
   clinicId: z.union([z.lazy(() => StringNullableWithAggregatesFilterObjectSchema), z.string()]).optional().nullable(),
   dentistId: z.union([z.lazy(() => StringNullableWithAggregatesFilterObjectSchema), z.string()]).optional().nullable(),
   notes: z.union([z.lazy(() => StringNullableWithAggregatesFilterObjectSchema), z.string()]).optional().nullable(),

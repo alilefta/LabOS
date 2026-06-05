@@ -26,6 +26,8 @@ import { CaseActivityLogListRelationFilterObjectSchema as CaseActivityLogListRel
 import { InvoiceCaseListRelationFilterObjectSchema as InvoiceCaseListRelationFilterObjectSchema } from './InvoiceCaseListRelationFilter.schema';
 import { LabInvitationListRelationFilterObjectSchema as LabInvitationListRelationFilterObjectSchema } from './LabInvitationListRelationFilter.schema';
 import { StaffPayoutListRelationFilterObjectSchema as StaffPayoutListRelationFilterObjectSchema } from './StaffPayoutListRelationFilter.schema';
+import { LabSettingsNullableScalarRelationFilterObjectSchema as LabSettingsNullableScalarRelationFilterObjectSchema } from './LabSettingsNullableScalarRelationFilter.schema';
+import { LabSettingsWhereInputObjectSchema as LabSettingsWhereInputObjectSchema } from './LabSettingsWhereInput.schema';
 import { CaseWorkItemAddonListRelationFilterObjectSchema as CaseWorkItemAddonListRelationFilterObjectSchema } from './CaseWorkItemAddonListRelationFilter.schema';
 import { ProductAddonListRelationFilterObjectSchema as ProductAddonListRelationFilterObjectSchema } from './ProductAddonListRelationFilter.schema'
 
@@ -64,6 +66,7 @@ const labwhereinputSchema = z.object({
   invoiceCase: z.lazy(() => InvoiceCaseListRelationFilterObjectSchema).optional(),
   invitations: z.lazy(() => LabInvitationListRelationFilterObjectSchema).optional(),
   staffPayouts: z.lazy(() => StaffPayoutListRelationFilterObjectSchema).optional(),
+  settings: z.union([z.lazy(() => LabSettingsNullableScalarRelationFilterObjectSchema), z.lazy(() => LabSettingsWhereInputObjectSchema)]).optional(),
   caseWorkItemAddons: z.lazy(() => CaseWorkItemAddonListRelationFilterObjectSchema).optional(),
   productAddons: z.lazy(() => ProductAddonListRelationFilterObjectSchema).optional()
 }).strict();

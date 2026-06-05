@@ -1,22 +1,38 @@
-import z from "zod";
-import { CaseBaseSchema } from "../base/case.base";
-import { LabBaseSchema } from "../base/lab.base";
-import { CaseWorkItemBaseSchema } from "../base/case-work-item.base";
-import { PatientBaseSchema } from "../base/patient.base";
-import { CaseCategoryBaseSchema } from "../base/case-category.base";
-import { ClinicBaseSchema } from "../base/clinic.base";
-import { CaseAssetFileBaseSchema } from "../base/case-asset-file.base";
-import { CaseWorkItemDetailsUISchema, CreateCaseWorkItemInput, CreateCaseWorkItemInputSchema } from "./case-work-item.details";
-import { AssetFileTypeSchema, CaseStatus, CaseStatusSchema, CommissionTypeSchema, JawTypeSchema, StaffRoleCategory, StaffRoleCategorySchema } from "../base/enums.base";
-import { DentistBaseSchema } from "../base/dentist.base";
-import { CreateCaseAssetFilesInputSchema } from "./case-asset-file.details";
-import { emptyToUndefinedTransformer } from "../base/utils.base";
-import { CaseStaffAssignmentDetailsUISchema, CreateCaseStaffAssignmentInput, CreateCaseStaffAssignmentInputSchema } from "./case-staff-assignment.details";
-import { ToothPositionSchema } from "../base/tooth-position.base";
-import { CaseStaffAssignmentBaseSchema } from "../base/case-staff-assignment.base";
-import { CaseActivityLogDetailsUISchema } from "./case-activity-logs.details";
-import { InvoiceCaseBaseSchema } from "../base/invoice-case.base";
-import { CasesFiltersSchema } from "./cases/cases-filters";
+import z from 'zod'
+import { CaseBaseSchema } from '../base/case.base'
+import { LabBaseSchema } from '../base/lab.base'
+import { CaseWorkItemBaseSchema } from '../base/case-work-item.base'
+import { PatientBaseSchema } from '../base/patient.base'
+import { CaseCategoryBaseSchema } from '../base/case-category.base'
+import { ClinicBaseSchema } from '../base/clinic.base'
+import { CaseAssetFileBaseSchema } from '../base/case-asset-file.base'
+import {
+	CaseWorkItemDetailsUISchema,
+	CreateCaseWorkItemInput,
+	CreateCaseWorkItemInputSchema,
+} from './case-work-item.details'
+import {
+	AssetFileTypeSchema,
+	CaseStatus,
+	CaseStatusSchema,
+	CommissionTypeSchema,
+	JawTypeSchema,
+	StaffRoleCategory,
+	StaffRoleCategorySchema,
+} from '../base/enums.base'
+import { DentistBaseSchema } from '../base/dentist.base'
+import { CreateCaseAssetFilesInputSchema } from './case-asset-file.details'
+import { emptyToUndefinedTransformer } from '../base/utils.base'
+import {
+	CaseStaffAssignmentDetailsUISchema,
+	CreateCaseStaffAssignmentInput,
+	CreateCaseStaffAssignmentInputSchema,
+} from './case-staff-assignment.details'
+import { ToothPositionSchema } from '../base/tooth-position.base'
+import { CaseStaffAssignmentBaseSchema } from '../base/case-staff-assignment.base'
+import { CaseActivityLogDetailsUISchema } from './case-activity-logs.details'
+import { InvoiceCaseBaseSchema } from '../base/invoice-case.base'
+import { CasesFiltersSchema } from './cases/cases-filters'
 
 export const CaseDetailsSchema = CaseBaseSchema.extend({
 	caseCategory: CaseCategoryBaseSchema.nullable(),
@@ -31,8 +47,8 @@ export const CaseDetailsSchema = CaseBaseSchema.extend({
 	invoiceCase: InvoiceCaseBaseSchema.nullable(),
 	originalCase: CaseBaseSchema.nullable(),
 	remakes: z.array(CaseBaseSchema),
-});
-export type CaseDetails = z.infer<typeof CaseDetailsSchema>;
+})
+export type CaseDetails = z.infer<typeof CaseDetailsSchema>
 
 export const CaseDetailsUISchema = CaseBaseSchema.extend({
 	caseCategory: CaseCategoryBaseSchema.nullable(),
@@ -47,8 +63,8 @@ export const CaseDetailsUISchema = CaseBaseSchema.extend({
 	invoiceCase: InvoiceCaseBaseSchema.nullable(),
 	originalCase: CaseBaseSchema.nullable(),
 	remakes: z.array(CaseBaseSchema).nullable(),
-});
-export type CaseDetailsUI = z.infer<typeof CaseDetailsUISchema>;
+})
+export type CaseDetailsUI = z.infer<typeof CaseDetailsUISchema>
 
 // ------------------------ Create Case -------------------------------
 
@@ -56,13 +72,25 @@ export const CreateCaseInputSchema = z
 	.object({
 		// draftId: z.string().optional(), // if draft was saved
 		// caseNumber: z.string().optional(), // if draft was saved
-		patientId: z.string().min(1, "Patient is required"), // ← add min(1), empty string would pass
-		caseCategoryId: z.string().trim().transform(emptyToUndefinedTransformer).optional(),
+		patientId: z.string().min(1, 'Patient is required'), // ← add min(1), empty string would pass
+		caseCategoryId: z
+			.string()
+			.trim()
+			.transform(emptyToUndefinedTransformer)
+			.optional(),
 		status: CaseStatusSchema, // ← add default, shouldn't need client to set this
 		grandTotal: z.number().min(0).optional(), // ← add min(0), negative total makes no sense
-		clinicId: z.string().trim().transform(emptyToUndefinedTransformer).optional(),
+		clinicId: z
+			.string()
+			.trim()
+			.transform(emptyToUndefinedTransformer)
+			.optional(),
 		deadline: z.date().optional(),
-		dentistId: z.string().trim().transform(emptyToUndefinedTransformer).optional(),
+		dentistId: z
+			.string()
+			.trim()
+			.transform(emptyToUndefinedTransformer)
+			.optional(),
 		caseWorkItems: z.array(CreateCaseWorkItemInputSchema),
 		caseAssetFiles: z.array(CreateCaseAssetFilesInputSchema).optional(),
 		notes: z.string().trim().transform(emptyToUndefinedTransformer).optional(),
@@ -70,66 +98,68 @@ export const CreateCaseInputSchema = z
 		staffAssignments: z.array(CreateCaseStaffAssignmentInputSchema).optional(),
 	})
 	.superRefine((data, ctx) => {
-		if (data.status === "DRAFT") return;
+		if (data.status === 'DRAFT') return
 
-		if (!data.patientId || data.patientId.trim() === "") {
+		if (!data.patientId || data.patientId.trim() === '') {
 			ctx.addIssue({
-				code: "custom",
-				message: "A patient is required to submit a case.",
-				path: ["patientId"],
-			});
+				code: 'custom',
+				message: 'A patient is required to submit a case.',
+				path: ['patientId'],
+			})
 		}
 
 		if (!data.deadline) {
 			ctx.addIssue({
-				code: "custom",
-				message: "A deadline is required to submit a case.",
-				path: ["deadline"],
-			});
+				code: 'custom',
+				message: 'A deadline is required to submit a case.',
+				path: ['deadline'],
+			})
 		}
 
 		if (!data.clinicId) {
 			ctx.addIssue({
-				code: "custom",
-				message: "A clinic must be selected.",
-				path: ["clinicId"],
-			});
+				code: 'custom',
+				message: 'A clinic must be selected.',
+				path: ['clinicId'],
+			})
 		}
 
 		if (!data.caseCategoryId) {
 			// ← missing from your original
 			ctx.addIssue({
-				code: "custom",
-				message: "A case category must be selected.",
-				path: ["caseCategoryId"],
-			});
+				code: 'custom',
+				message: 'A case category must be selected.',
+				path: ['caseCategoryId'],
+			})
 		}
 		// Filter out empty ghost rows before checking
-		const validWorkItems = (data.caseWorkItems ?? []).filter((item) => item.productId || item.casePricingPlanId);
+		const validWorkItems = (data.caseWorkItems ?? []).filter(
+			(item) => item.productId || item.casePricingPlanId,
+		)
 
 		if (validWorkItems.length === 0) {
 			ctx.addIssue({
-				code: "custom",
-				message: "At least one work item is required.",
-				path: ["caseWorkItems"],
-			});
+				code: 'custom',
+				message: 'At least one work item is required.',
+				path: ['caseWorkItems'],
+			})
 		}
 
 		// ← missing: if dentistId provided but no clinicId, that's inconsistent
 		if (data.dentistId && !data.clinicId) {
 			ctx.addIssue({
-				code: "custom",
-				message: "A clinic must be selected when a dentist is specified.",
-				path: ["clinicId"],
-			});
+				code: 'custom',
+				message: 'A clinic must be selected when a dentist is specified.',
+				path: ['clinicId'],
+			})
 		}
-	});
+	})
 
-export type CreateCaseInput = z.infer<typeof CreateCaseInputSchema>;
+export type CreateCaseInput = z.infer<typeof CreateCaseInputSchema>
 
 // ---------------------------- Update Schema ----------------------------
 
-export const UpdateCaseAssetFilesInputSchema = z.discriminatedUnion("isNew", [
+export const UpdateCaseAssetFilesInputSchema = z.discriminatedUnion('isNew', [
 	// BRAND NEW FILES (Uploaded during this edit session)
 	z.object({
 		isNew: z.literal(true),
@@ -150,23 +180,37 @@ export const UpdateCaseAssetFilesInputSchema = z.discriminatedUnion("isNew", [
 		assetFileType: AssetFileTypeSchema,
 		fileExtension: z.string().min(1),
 	}),
-]);
+])
 
-export type UpdateCaseAssetFilesInput = z.infer<typeof UpdateCaseAssetFilesInputSchema>;
+export type UpdateCaseAssetFilesInput = z.infer<
+	typeof UpdateCaseAssetFilesInputSchema
+>
 
 // 2. The Master Update Schema
 // The Master Update Schema (Explicitly defined for decoupling)
 export const UpdateCaseInputSchema = z
 	.object({
-		caseId: z.string().min(1, "Case ID is required to update"),
+		caseId: z.string().min(1, 'Case ID is required to update'),
 		// Notice patientId is omitted here because it is immutable during an edit!
 
-		caseCategoryId: z.string().trim().transform(emptyToUndefinedTransformer).optional(),
+		caseCategoryId: z
+			.string()
+			.trim()
+			.transform(emptyToUndefinedTransformer)
+			.optional(),
 		status: CaseStatusSchema,
 		grandTotal: z.number().min(0).optional(),
-		clinicId: z.string().trim().transform(emptyToUndefinedTransformer).optional(),
+		clinicId: z
+			.string()
+			.trim()
+			.transform(emptyToUndefinedTransformer)
+			.optional(),
 		deadline: z.date().optional(),
-		dentistId: z.string().trim().transform(emptyToUndefinedTransformer).optional(),
+		dentistId: z
+			.string()
+			.trim()
+			.transform(emptyToUndefinedTransformer)
+			.optional(),
 
 		caseWorkItems: z.array(CreateCaseWorkItemInputSchema),
 		caseAssetFiles: z.array(UpdateCaseAssetFilesInputSchema).optional(),
@@ -179,66 +223,68 @@ export const UpdateCaseInputSchema = z
 
 		if (!data.deadline) {
 			ctx.addIssue({
-				code: "custom",
-				message: "A deadline is required to update this case.",
-				path: ["deadline"],
-			});
+				code: 'custom',
+				message: 'A deadline is required to update this case.',
+				path: ['deadline'],
+			})
 		}
 
 		if (!data.clinicId) {
 			ctx.addIssue({
-				code: "custom",
-				message: "A clinic must be selected.",
-				path: ["clinicId"],
-			});
+				code: 'custom',
+				message: 'A clinic must be selected.',
+				path: ['clinicId'],
+			})
 		}
 
 		if (!data.caseCategoryId) {
 			ctx.addIssue({
-				code: "custom",
-				message: "A case category must be selected.",
-				path: ["caseCategoryId"],
-			});
+				code: 'custom',
+				message: 'A case category must be selected.',
+				path: ['caseCategoryId'],
+			})
 		}
 
 		// Filter out empty ghost rows before checking
-		const validWorkItems = (data.caseWorkItems ?? []).filter((item) => item.productId || item.casePricingPlanId);
+		const validWorkItems = (data.caseWorkItems ?? []).filter(
+			(item) => item.productId || item.casePricingPlanId,
+		)
 
 		if (validWorkItems.length === 0) {
 			ctx.addIssue({
-				code: "custom",
-				message: "At least one work item is required.",
-				path: ["caseWorkItems"],
-			});
+				code: 'custom',
+				message: 'At least one work item is required.',
+				path: ['caseWorkItems'],
+			})
 		}
 
 		if (data.dentistId && !data.clinicId) {
 			ctx.addIssue({
-				code: "custom",
-				message: "A clinic must be selected when a dentist is specified.",
-				path: ["clinicId"],
-			});
+				code: 'custom',
+				message: 'A clinic must be selected when a dentist is specified.',
+				path: ['clinicId'],
+			})
 		}
-	});
+	})
 
-export type UpdateCaseInput = z.infer<typeof UpdateCaseInputSchema>;
+export type UpdateCaseInput = z.infer<typeof UpdateCaseInputSchema>
 
-export type CaseFormModeType = "create" | "edit";
+export type CaseFormModeType = 'create' | 'edit'
 
 // ========================= Additional Fields ===================================
 // This is the inclusive shape the Modal expects.
 // It doesn't care if it came from Create or Edit, as long as it has these fields.
 export interface CaseSummaryPayload {
-	caseId?: string; // Present in Edit
-	patientId: string; // Explicitly required
-	clinicId?: string;
-	dentistId?: string;
-	deadline?: Date;
-	status: CaseStatus | string;
-	grandTotal?: number;
-	caseWorkItems: CreateCaseWorkItemInput[];
-	staffAssignments?: CreateCaseStaffAssignmentInput[];
-	notes?: string;
+	caseId?: string // Present in Edit
+	patientId: string // Explicitly required
+	clinicId?: string
+	dentistId?: string
+	deadline?: Date
+	status: CaseStatus | string
+	grandTotal?: number
+	caseWorkItems: CreateCaseWorkItemInput[]
+	staffAssignments?: CreateCaseStaffAssignmentInput[]
+	notes?: string
 }
 
 // ================== Draft Schema ==========================
@@ -246,12 +292,20 @@ export interface CaseSummaryPayload {
 // Only patientId is required, everything else is optional
 export const SaveDraftCaseInputSchema = z.object({
 	// The one hard requirement — a draft must be linked to a patient
-	patientId: z.string().min(1, "A patient must be selected to save a draft."),
+	patientId: z.string().min(1, 'A patient must be selected to save a draft.'),
 
 	// Optional — may not have been selected yet
 	clinicId: z.string().trim().transform(emptyToUndefinedTransformer).optional(),
-	dentistId: z.string().trim().transform(emptyToUndefinedTransformer).optional(),
-	caseCategoryId: z.string().trim().transform(emptyToUndefinedTransformer).optional(),
+	dentistId: z
+		.string()
+		.trim()
+		.transform(emptyToUndefinedTransformer)
+		.optional(),
+	caseCategoryId: z
+		.string()
+		.trim()
+		.transform(emptyToUndefinedTransformer)
+		.optional(),
 	deadline: z.date().optional(),
 	notes: z.string().trim().transform(emptyToUndefinedTransformer).optional(),
 
@@ -260,10 +314,22 @@ export const SaveDraftCaseInputSchema = z.object({
 	caseWorkItems: z
 		.array(
 			z.object({
-				productId: z.string().trim().transform(emptyToUndefinedTransformer).optional(),
-				workTypeId: z.string().trim().transform(emptyToUndefinedTransformer).optional(),
-				casePricingPlanId: z.string().trim().transform(emptyToUndefinedTransformer).optional(),
-				jawType: JawTypeSchema.default("UPPER"),
+				productId: z
+					.string()
+					.trim()
+					.transform(emptyToUndefinedTransformer)
+					.optional(),
+				workTypeId: z
+					.string()
+					.trim()
+					.transform(emptyToUndefinedTransformer)
+					.optional(),
+				casePricingPlanId: z
+					.string()
+					.trim()
+					.transform(emptyToUndefinedTransformer)
+					.optional(),
+				jawType: JawTypeSchema.default('UPPER'),
 				totalPrice: z.number().min(0).default(0),
 				selectedTeeth: z
 					.array(
@@ -272,11 +338,31 @@ export const SaveDraftCaseInputSchema = z.object({
 						}),
 					)
 					.default([]),
-				notes: z.string().trim().transform(emptyToUndefinedTransformer).optional(),
-				shadeSystem: z.string().trim().transform(emptyToUndefinedTransformer).optional(),
-				baseShade: z.string().trim().transform(emptyToUndefinedTransformer).optional(),
-				stumpShade: z.string().trim().transform(emptyToUndefinedTransformer).optional(),
-				shadeNotes: z.string().trim().transform(emptyToUndefinedTransformer).optional(),
+				notes: z
+					.string()
+					.trim()
+					.transform(emptyToUndefinedTransformer)
+					.optional(),
+				shadeSystem: z
+					.string()
+					.trim()
+					.transform(emptyToUndefinedTransformer)
+					.optional(),
+				baseShade: z
+					.string()
+					.trim()
+					.transform(emptyToUndefinedTransformer)
+					.optional(),
+				stumpShade: z
+					.string()
+					.trim()
+					.transform(emptyToUndefinedTransformer)
+					.optional(),
+				shadeNotes: z
+					.string()
+					.trim()
+					.transform(emptyToUndefinedTransformer)
+					.optional(),
 			}),
 		)
 		.default([]),
@@ -295,8 +381,16 @@ export const SaveDraftCaseInputSchema = z.object({
 	caseAssetFiles: z
 		.array(
 			z.object({
-				title: z.string().trim().transform(emptyToUndefinedTransformer).optional(),
-				description: z.string().trim().transform(emptyToUndefinedTransformer).optional(),
+				title: z
+					.string()
+					.trim()
+					.transform(emptyToUndefinedTransformer)
+					.optional(),
+				description: z
+					.string()
+					.trim()
+					.transform(emptyToUndefinedTransformer)
+					.optional(),
 				documentUrl: z.string().url(),
 				assetFileType: AssetFileTypeSchema,
 				fileExtension: z.string().min(1),
@@ -306,9 +400,9 @@ export const SaveDraftCaseInputSchema = z.object({
 
 	// If updating an existing draft — pass the existing case id
 	existingDraftId: z.string().optional(),
-});
+})
 
-export type SaveDraftCaseInput = z.infer<typeof SaveDraftCaseInputSchema>;
+export type SaveDraftCaseInput = z.infer<typeof SaveDraftCaseInputSchema>
 
 // ── Draft DTO ──────────────────────────────────────────────────────────────
 // Returned from saveDraftCaseAction and loadDraftByIdAction.
@@ -321,9 +415,9 @@ export const DraftCaseSummaryDTOSchema = z.object({
 	lastSavedAt: z.date(),
 	patientName: z.string(),
 	clinicName: z.string().nullable(),
-});
+})
 
-export type DraftCaseSummaryDTO = z.infer<typeof DraftCaseSummaryDTOSchema>;
+export type DraftCaseSummaryDTO = z.infer<typeof DraftCaseSummaryDTOSchema>
 
 // Full draft — used when resuming/hydrating the form
 export const DraftCaseDTOSchema = CaseBaseSchema.extend({
@@ -355,49 +449,60 @@ export const DraftCaseDTOSchema = CaseBaseSchema.extend({
 		.optional(),
 	caseAssetFiles: z.array(CaseAssetFileBaseSchema).optional(),
 	caseCategory: CaseCategoryBaseSchema.partial().nullable(),
-});
+})
 
-export type DraftCaseDTO = z.infer<typeof DraftCaseDTOSchema>;
+export type DraftCaseDTO = z.infer<typeof DraftCaseDTOSchema>
 
 // --------------------------------------------------------------
 
 // Used for Case Summary and Draft info
 export type CaseSummaryMetadata = {
-	caseNumber: string;
+	caseNumber: string
 	clinicInfo: {
-		id: string;
-		name: string;
-		dentists: { id: string; name: string; isOwner: boolean; isDefault: boolean }[];
-	} | null;
+		id: string
+		name: string
+		dentists: {
+			id: string
+			name: string
+			isOwner: boolean
+			isDefault: boolean
+		}[]
+	} | null
 	patientInfo: {
-		id: string;
-		name: string;
-		age: number | null;
-		gender: string | null;
-		description: string | null;
-		cases: { id: string }[];
-	} | null;
-	courier: { id: string; firstName: string; lastName: string } | null;
-	technician: { id: string; firstName: string; lastName: string } | null;
+		id: string
+		name: string
+		age: number | null
+		gender: string | null
+		description: string | null
+		cases: { id: string }[]
+	} | null
+	courier: { id: string; firstName: string; lastName: string } | null
+	technician: { id: string; firstName: string; lastName: string } | null
 	technicalDetails: {
-		name: string;
-		clinicId: string | null;
+		name: string
+		clinicId: string | null
 		product: {
-			id: string;
-			name: string;
+			id: string
+			name: string
 			workType: {
-				id: string;
-				name: string;
-				caseCategory: { id: string; name: string };
-			};
-		} | null;
-	}[];
-};
+				id: string
+				name: string
+				caseCategory: { id: string; name: string }
+			}
+		} | null
+	}[]
+}
 
 // ====================== Get-Cases + Filters =========================
 
-export const PulseFilterSchema = z.enum(["overdue", "due_today", "unassigned", "processing", "all"]);
-export type PulseFilter = z.infer<typeof PulseFilterSchema>;
+export const PulseFilterSchema = z.enum([
+	'overdue',
+	'due_today',
+	'unassigned',
+	'processing',
+	'all',
+])
+export type PulseFilter = z.infer<typeof PulseFilterSchema>
 
 // export const DateFilterFieldSchema = z.enum(["createdAt", "deadline"]);
 
@@ -449,36 +554,36 @@ export type PulseFilter = z.infer<typeof PulseFilterSchema>;
 // model. Pulling full case details for 30+ rows at once would be wasteful.
 
 export type CaseListDTO = {
-	id: string;
-	caseNumber: string;
-	status: CaseStatus;
-	deadline: Date | null;
-	grandTotal: number | null;
-	patientName: string;
-	clinicName: string | null;
-	dentistName: string | null;
-	caseCategory: string | null;
-	primaryProduct: string | null; // first work item's product name
+	id: string
+	caseNumber: string
+	status: CaseStatus
+	deadline: Date | null
+	grandTotal: number | null
+	patientName: string
+	clinicName: string | null
+	dentistName: string | null
+	caseCategory: string | null
+	primaryProduct: string | null // first work item's product name
 	leadTechnician: {
-		id: string;
-		firstName: string;
-		lastName: string;
-		avatarUrl: string | null;
-	} | null;
-	staffCount: number; // total assignments — for "X people assigned" hint
+		id: string
+		firstName: string
+		lastName: string
+		avatarUrl: string | null
+	} | null
+	staffCount: number // total assignments — for "X people assigned" hint
 	// --- NEW: A lightweight array of active roles on this case ---
-	assignedRoles: StaffRoleCategory[];
-};
+	assignedRoles: StaffRoleCategory[]
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // 1. getCasesList
 // ─────────────────────────────────────────────────────────────────────────────
 
 export type GetCasesListResult = {
-	cases: CaseListDTO[];
-	nextCursor: string | null;
-	totalCount: number;
-};
+	cases: CaseListDTO[]
+	nextCursor: string | null
+	totalCount: number
+}
 
 export const GetCasesListInputSchema = z.object({
 	// labId: z.string(), // provided by ctx
@@ -486,20 +591,20 @@ export const GetCasesListInputSchema = z.object({
 	take: z.number().optional(),
 	search: z.string().optional(),
 	filters: CasesFiltersSchema,
-});
+})
 
-export type GetCasesListInput = z.infer<typeof GetCasesListInputSchema>;
+export type GetCasesListInput = z.infer<typeof GetCasesListInputSchema>
 
 export type PulseStats = {
-	overdue: number;
-	dueToday: number;
-	unassigned: number;
-	processing: number;
-	total: number;
-};
+	overdue: number
+	dueToday: number
+	unassigned: number
+	processing: number
+	total: number
+}
 
 export type RevenueStats = {
-	dueTodayTotal: number; // sum of grandTotal for cases due today (any non-draft status)
-	overdueTotal: number; // sum of grandTotal for overdue active cases
-	monthToDateTotal: number; // sum of grandTotal for cases completed this calendar month
-};
+	dueTodayTotal: number // sum of grandTotal for cases due today (any non-draft status)
+	overdueTotal: number // sum of grandTotal for overdue active cases
+	monthToDateTotal: number // sum of grandTotal for cases completed this calendar month
+}

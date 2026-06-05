@@ -24,6 +24,7 @@ import { InvoicePaymentUpdateManyWithoutLabNestedInputObjectSchema as InvoicePay
 import { InvoiceCaseUpdateManyWithoutLabNestedInputObjectSchema as InvoiceCaseUpdateManyWithoutLabNestedInputObjectSchema } from './InvoiceCaseUpdateManyWithoutLabNestedInput.schema';
 import { LabInvitationUpdateManyWithoutLabNestedInputObjectSchema as LabInvitationUpdateManyWithoutLabNestedInputObjectSchema } from './LabInvitationUpdateManyWithoutLabNestedInput.schema';
 import { StaffPayoutUpdateManyWithoutLabNestedInputObjectSchema as StaffPayoutUpdateManyWithoutLabNestedInputObjectSchema } from './StaffPayoutUpdateManyWithoutLabNestedInput.schema';
+import { LabSettingsUpdateOneWithoutLabNestedInputObjectSchema as LabSettingsUpdateOneWithoutLabNestedInputObjectSchema } from './LabSettingsUpdateOneWithoutLabNestedInput.schema';
 import { CaseWorkItemAddonUpdateManyWithoutLabNestedInputObjectSchema as CaseWorkItemAddonUpdateManyWithoutLabNestedInputObjectSchema } from './CaseWorkItemAddonUpdateManyWithoutLabNestedInput.schema';
 import { ProductAddonUpdateManyWithoutLabNestedInputObjectSchema as ProductAddonUpdateManyWithoutLabNestedInputObjectSchema } from './ProductAddonUpdateManyWithoutLabNestedInput.schema'
 
@@ -58,6 +59,7 @@ const makeSchema = () => z.object({
   invoiceCase: z.lazy(() => InvoiceCaseUpdateManyWithoutLabNestedInputObjectSchema).optional(),
   invitations: z.lazy(() => LabInvitationUpdateManyWithoutLabNestedInputObjectSchema).optional(),
   staffPayouts: z.lazy(() => StaffPayoutUpdateManyWithoutLabNestedInputObjectSchema).optional(),
+  settings: z.lazy(() => LabSettingsUpdateOneWithoutLabNestedInputObjectSchema).optional(),
   caseWorkItemAddons: z.lazy(() => CaseWorkItemAddonUpdateManyWithoutLabNestedInputObjectSchema).optional(),
   productAddons: z.lazy(() => ProductAddonUpdateManyWithoutLabNestedInputObjectSchema).optional()
 }).strict();

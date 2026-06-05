@@ -5,23 +5,27 @@ import { actionClientWithLab } from '@/lib/safe-action'
 import { tenantPrisma } from '@/lib/prisma'
 import { ERRORS } from '@/lib/errors'
 import { d } from '@/lib/mappers/normalizers'
-import { GetProductsInputSchema } from '@/schema/composed/catalog/catalog.schema'
 import { CatalogProductDTO } from '@/schema/composed/catalog/catalog.dtos'
+import z from 'zod'
 
+const GetProductsByWorkTypeInputSchema = z.object({
+	workTypeId: z.string().uuid('Invalid Work Type ID'),
+	showArchived: z.boolean().default(false).optional(), // <-- FIX 1
+})
 export const getProductsByWorkTypeAction = actionClientWithLab
 	.metadata({
 		actionName: 'Get-Products-By-WorkType',
-		requiredLabRole: 'STAFF', // Staff can read the catalog, only Admin/Manager can write
+		requiredLabRole: 'STAFF',
 	})
-	.inputSchema(GetProductsInputSchema)
+	.inputSchema(GetProductsByWorkTypeInputSchema)
 	.action(async ({ parsedInput, ctx }) => {
-		const { workTypeId } = parsedInput
+		const { workTypeId, showArchived = false } = parsedInput // <-- FIX 1
 		const { labId } = ctx
 
 		try {
 			const prisma = await tenantPrisma(labId)
 
-			// 1. SECURITY: Verify this Work Type belongs to this lab tenant [1]
+			// 1. SECURITY: Verify this Work Type belongs to this lab tenant
 			const isValid = await prisma.workType.findUnique({
 				where: { id: workTypeId, labId },
 				select: { id: true },
@@ -32,15 +36,19 @@ export const getProductsByWorkTypeAction = actionClientWithLab
 			}
 
 			// 2. HIGH PERFORMANCE QUERY
-			// Selective projection to minimize memory and payload [2]
 			const rawProducts = await prisma.product.findMany({
-				where: { workTypeId, labId },
+				where: {
+					workTypeId,
+					labId,
+					// --- FIX 1: If showArchived is false, exclude them at the DB level! [1]
+					...(!showArchived && { isArchived: false }),
+				},
 				select: {
 					id: true,
 					name: true,
 					description: true,
 					imageUrl: true,
-					// Fetch ONLY the standard default base price
+					isArchived: true,
 					casePricingPlans: {
 						where: { isDefault: true },
 						select: {
@@ -51,6 +59,7 @@ export const getProductsByWorkTypeAction = actionClientWithLab
 							firstToothPrice: true,
 							additionalToothPrice: true,
 							teethCountToApplyBulkPrice: true,
+							isArchived: true,
 						},
 						take: 1,
 					},
@@ -59,11 +68,18 @@ export const getProductsByWorkTypeAction = actionClientWithLab
 							name: true,
 						},
 					},
-					// Count custom clinic overrides in a single SQL step (N+1 Prevention)
 					_count: {
 						select: {
 							casePricingPlans: {
 								where: { clinicId: { not: null } },
+							},
+							// --- FIX 2: Aggregate active production cases in one SQL join! [3]
+							caseWorkItems: {
+								where: {
+									dentalCase: {
+										status: { in: ['NEW', 'ASSIGNED', 'PROCESSING'] },
+									},
+								},
 							},
 						},
 					},
@@ -94,6 +110,9 @@ export const getProductsByWorkTypeAction = actionClientWithLab
 					: null,
 				customClinicDealsCount: p._count.casePricingPlans,
 				workTypeName: p.workType.name,
+				isArchived: p.isArchived,
+				// --- FIX 2: Map the aggregated count to the DTO [3]
+				activeCasesCount: p._count.caseWorkItems,
 			}))
 
 			return { products }

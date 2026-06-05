@@ -1,5 +1,6 @@
 // No import for LabModelSchema! because it imports the prisma client and it crashes the app because of using Decimals in Case!
 import { z } from 'zod'
+
 export const LabBaseSchema = z.object({
 	id: z.string(),
 	title: z.string(),

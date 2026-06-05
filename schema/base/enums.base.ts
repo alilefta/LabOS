@@ -146,3 +146,20 @@ export const PayoutStatusSchema = z.enum([
 	'VOIDED',
 ])
 export type PayoutStatus = z.infer<typeof PayoutStatusSchema>
+
+// ========== Supported Currency Schema  ============
+export const SupportedCurrencySchema = z.enum([
+	'IQD',
+	'USD',
+	'AED',
+	'SAR',
+	'EUR',
+])
+
+export type SupportedCurrency = z.infer<typeof SupportedCurrencySchema>
+
+// ========== Supported Language Schema  ============
+
+export const SupportedLanguageSchema = z.enum(['EN', 'AR', 'KU'])
+
+export type SupportedLanguage = z.infer<typeof SupportedLanguageSchema>

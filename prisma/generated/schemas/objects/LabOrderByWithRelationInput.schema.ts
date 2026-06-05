@@ -23,6 +23,7 @@ import { CaseActivityLogOrderByRelationAggregateInputObjectSchema as CaseActivit
 import { InvoiceCaseOrderByRelationAggregateInputObjectSchema as InvoiceCaseOrderByRelationAggregateInputObjectSchema } from './InvoiceCaseOrderByRelationAggregateInput.schema';
 import { LabInvitationOrderByRelationAggregateInputObjectSchema as LabInvitationOrderByRelationAggregateInputObjectSchema } from './LabInvitationOrderByRelationAggregateInput.schema';
 import { StaffPayoutOrderByRelationAggregateInputObjectSchema as StaffPayoutOrderByRelationAggregateInputObjectSchema } from './StaffPayoutOrderByRelationAggregateInput.schema';
+import { LabSettingsOrderByWithRelationInputObjectSchema as LabSettingsOrderByWithRelationInputObjectSchema } from './LabSettingsOrderByWithRelationInput.schema';
 import { CaseWorkItemAddonOrderByRelationAggregateInputObjectSchema as CaseWorkItemAddonOrderByRelationAggregateInputObjectSchema } from './CaseWorkItemAddonOrderByRelationAggregateInput.schema';
 import { ProductAddonOrderByRelationAggregateInputObjectSchema as ProductAddonOrderByRelationAggregateInputObjectSchema } from './ProductAddonOrderByRelationAggregateInput.schema'
 
@@ -58,6 +59,7 @@ const makeSchema = () => z.object({
   invoiceCase: z.lazy(() => InvoiceCaseOrderByRelationAggregateInputObjectSchema).optional(),
   invitations: z.lazy(() => LabInvitationOrderByRelationAggregateInputObjectSchema).optional(),
   staffPayouts: z.lazy(() => StaffPayoutOrderByRelationAggregateInputObjectSchema).optional(),
+  settings: z.lazy(() => LabSettingsOrderByWithRelationInputObjectSchema).optional(),
   caseWorkItemAddons: z.lazy(() => CaseWorkItemAddonOrderByRelationAggregateInputObjectSchema).optional(),
   productAddons: z.lazy(() => ProductAddonOrderByRelationAggregateInputObjectSchema).optional()
 }).strict();

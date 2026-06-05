@@ -4,6 +4,7 @@
  */
 
 export { LabInputSchema } from './Lab.input';
+export { LabSettingsInputSchema } from './LabSettings.input';
 export { ClinicInputSchema } from './Clinic.input';
 export { DentistInputSchema } from './Dentist.input';
 export { CaseInputSchema } from './Case.input';

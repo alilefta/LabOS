@@ -4,6 +4,7 @@
  */
 
 export { LabResultSchema } from './Lab.result';
+export { LabSettingsResultSchema } from './LabSettings.result';
 export { ClinicResultSchema } from './Clinic.result';
 export { DentistResultSchema } from './Dentist.result';
 export { CaseResultSchema } from './Case.result';

@@ -29,6 +29,7 @@ export const LabFindUniqueResultSchema = z.nullable(z.object({
   staffPayouts: z.array(z.unknown()),
   nextPayoutNumber: z.number().int(),
   nextInvoiceNumber: z.number().int(),
+  settings: z.unknown().optional(),
   caseWorkItemAddons: z.array(z.unknown()),
   productAddons: z.array(z.unknown()),
   createdAt: z.date(),

@@ -5,9 +5,10 @@ import { StringNullableFilterObjectSchema as StringNullableFilterObjectSchema } 
 import { EnumCaseStatusFilterObjectSchema as EnumCaseStatusFilterObjectSchema } from './EnumCaseStatusFilter.schema';
 import { CaseStatusSchema } from '../enums/CaseStatus.schema';
 import { DecimalNullableFilterObjectSchema as DecimalNullableFilterObjectSchema } from './DecimalNullableFilter.schema';
+import { DecimalFilterObjectSchema as DecimalFilterObjectSchema } from './DecimalFilter.schema';
+import { BoolFilterObjectSchema as BoolFilterObjectSchema } from './BoolFilter.schema';
 import { DateTimeNullableFilterObjectSchema as DateTimeNullableFilterObjectSchema } from './DateTimeNullableFilter.schema';
 import { DateTimeFilterObjectSchema as DateTimeFilterObjectSchema } from './DateTimeFilter.schema';
-import { BoolFilterObjectSchema as BoolFilterObjectSchema } from './BoolFilter.schema';
 import { EnumFaultPartyNullableFilterObjectSchema as EnumFaultPartyNullableFilterObjectSchema } from './EnumFaultPartyNullableFilter.schema';
 import { FaultPartySchema } from '../enums/FaultParty.schema';
 import { PatientScalarRelationFilterObjectSchema as PatientScalarRelationFilterObjectSchema } from './PatientScalarRelationFilter.schema';
@@ -48,6 +49,16 @@ const casewhereinputSchema = z.object({
 ]).refine((v) => isValidDecimalInput(v), {
   message: "Field 'grandTotal' must be a Decimal",
 })]).optional().nullable(),
+  manualDiscountAmount: z.union([z.lazy(() => DecimalFilterObjectSchema), z.union([
+  z.number(),
+  z.string(),
+  z.instanceof(Prisma.Decimal),
+  DecimalJSLikeSchema,
+]).refine((v) => isValidDecimalInput(v), {
+  message: "Field 'manualDiscountAmount' must be a Decimal",
+})]).optional(),
+  manualDiscountReason: z.union([z.lazy(() => StringNullableFilterObjectSchema), z.string()]).optional().nullable(),
+  isWarranty: z.union([z.lazy(() => BoolFilterObjectSchema), z.boolean()]).optional(),
   clinicId: z.union([z.lazy(() => StringNullableFilterObjectSchema), z.string()]).optional().nullable(),
   dentistId: z.union([z.lazy(() => StringNullableFilterObjectSchema), z.string()]).optional().nullable(),
   notes: z.union([z.lazy(() => StringNullableFilterObjectSchema), z.string()]).optional().nullable(),

@@ -211,6 +211,21 @@ enum FaultParty {
   CLINIC // Doctor's fault (billable remake)
 }
 
+enum SupportedCurrency {
+  IQD // Iraqi Dinar
+  USD // US Dollar
+  AED // UAE Dirham
+  SAR // Saudi Riyal
+  EUR // Euro
+}
+
+enum SupportedLanguage {
+  EN // English
+  AR // Arabic
+  KU // Kurdish (Sorani/Badini)
+}
+
+
 model Lab {
   id String @id @default(uuid())
 
@@ -254,12 +269,38 @@ model Lab {
 
   nextInvoiceNumber Int @default(0)
 
+  settings LabSettings? // 1-to-1 relation
+
   caseWorkItemAddons CaseWorkItemAddon[]
   productAddons ProductAddon[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
 }
+
+model LabSettings {
+  id    String @id @default(uuid())
+  labId String @unique // Strict 1-to-1 relationship
+  lab   Lab    @relation(fields: [labId], references: [id], onDelete: Cascade)
+
+  // --- Regional & Localization ---
+  currency SupportedCurrency @default(IQD)
+  language SupportedLanguage @default(EN)
+  timezone String            @default("Asia/Baghdad") // IANA Timezone string
+  
+  // --- Financial Defaults ---
+  taxRatePercentage  Decimal @default(0) @db.Decimal(5, 2)
+  invoicePrefix      String  @default("INV-") // e.g., INV-2026-001
+  requirePaymentToDeliver Boolean @default(false) // Strict mode: Courier cannot deliver if balance > 0
+
+  // --- Notification Preferences ---
+  autoSendWhatsAppOnCompletion Boolean @default(false)
+  autoEmailInvoices            Boolean @default(true)
+
+  updatedAt DateTime @updatedAt
+}
+
 
 model Clinic {
   id    String @id @default(uuid())
@@ -358,6 +399,11 @@ model Case {
 
   status     CaseStatus @default(DRAFT)
   grandTotal Decimal?   @default(0)
+
+    // 🔥 NEW: Financial overrides for this specific case
+  manualDiscountAmount Decimal  @default(0) @db.Decimal(10, 2)
+  manualDiscountReason String?  // e.g. "Doctor dropped it, 50% courtesy discount applied"
+  isWarranty           Boolean  @default(false) // If true, the case is billed at $0.00 automatically.
 
   clinicId String?
   clinic   Clinic? @relation(fields: [clinicId], references: [id], onDelete: SetNull)

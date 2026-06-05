@@ -10,6 +10,7 @@ import {
 	CatalogProductDTO,
 	CatalogTreeDTO,
 } from '@/schema/composed/catalog/catalog.dtos'
+import { d } from '@/lib/mappers/normalizers'
 
 // --- QUERIES ---
 
@@ -20,17 +21,29 @@ export async function getCatalogTree(
 		const prisma = await tenantPrisma(labId)
 
 		const categories = await prisma.caseCategory.findMany({
-			where: { labId, isActive: true },
+			where: { labId }, // We pull archived folders too if URL params request them [4]
 			select: {
 				id: true,
 				name: true,
 				imageUrl: true,
+				isArchived: true,
 				workTypes: {
 					select: {
 						id: true,
 						name: true,
+						isArchived: true,
 						_count: {
-							select: { products: true }, // N+1 prevention: Count products without fetching them
+							select: {
+								products: true, // Product count
+								// N+1 Prevention: Calculate active cases on the floor [3]
+								caseWorkItems: {
+									where: {
+										dentalCase: {
+											status: { in: ['NEW', 'ASSIGNED', 'PROCESSING'] },
+										},
+									},
+								},
+							},
 						},
 					},
 					orderBy: { name: 'asc' },
@@ -43,10 +56,13 @@ export async function getCatalogTree(
 			id: cat.id,
 			name: cat.name,
 			imageUrl: cat.imageUrl,
+			isArchived: cat.isArchived,
 			workTypes: cat.workTypes.map((wt) => ({
 				id: wt.id,
 				name: wt.name,
 				productCount: wt._count.products,
+				isArchived: wt.isArchived,
+				casesCount: wt._count.caseWorkItems,
 			})),
 		}))
 
@@ -59,6 +75,7 @@ export async function getCatalogTree(
 export async function getWorkTypeProducts(
 	labId: string,
 	workTypeId: string,
+	showArchived = false,
 ): Promise<DAResult<CatalogProductDTO[]>> {
 	try {
 		const prisma = await tenantPrisma(labId)
@@ -72,12 +89,22 @@ export async function getWorkTypeProducts(
 		if (!isValid) return daError(ERRORS.NOT_FOUND.toJSON())
 
 		const rawProducts = await prisma.product.findMany({
-			where: { workTypeId, labId },
+			where: {
+				workTypeId,
+				labId,
+				// If showArchived is false, strictly omit archived products [4]
+				...(!showArchived && { isArchived: false }),
+			},
 			select: {
 				id: true,
 				name: true,
 				description: true,
 				imageUrl: true,
+				isArchived: true,
+				workType: {
+					select: { name: true },
+				},
+				// Grab the standard default base price
 				casePricingPlans: {
 					where: { isDefault: true },
 					select: {
@@ -86,20 +113,23 @@ export async function getWorkTypeProducts(
 						toothPrice: true,
 						bulkPrice: true,
 						firstToothPrice: true,
-						teethCountToApplyBulkPrice: true,
 						additionalToothPrice: true,
+						teethCountToApplyBulkPrice: true,
 					},
-					take: 1, // Enforce single default plan
-				},
-				workType: {
-					select: {
-						name: true,
-					},
+					take: 1,
 				},
 				_count: {
 					select: {
 						casePricingPlans: {
-							where: { clinicId: { not: null } }, // Count custom clinic overrides
+							where: { clinicId: { not: null } }, // Custom overrides count
+						},
+						// Calculate active cases on the floor for this specific product [3]
+						caseWorkItems: {
+							where: {
+								dentalCase: {
+									status: { in: ['NEW', 'ASSIGNED', 'PROCESSING'] },
+								},
+							},
 						},
 					},
 				},
@@ -112,30 +142,26 @@ export async function getWorkTypeProducts(
 			name: p.name,
 			description: p.description,
 			imageUrl: p.imageUrl,
+			isArchived: p.isArchived,
+			workTypeName: p.workType.name,
+			activeCasesCount: p._count.caseWorkItems, // Map live volume [3]
+			customClinicDealsCount: p._count.casePricingPlans,
+
+			// Pluck default pricing and safely normalize decimals
 			defaultPricingPlan: p.casePricingPlans[0]
 				? {
 						id: p.casePricingPlans[0].id,
 						strategy: p.casePricingPlans[0].pricingStrategy,
-						toothPrice: p.casePricingPlans[0].toothPrice
-							? Number(p.casePricingPlans[0].toothPrice)
-							: null,
-						bulkPrice: p.casePricingPlans[0].bulkPrice
-							? Number(p.casePricingPlans[0].bulkPrice)
-							: null,
-						firstToothPrice: p.casePricingPlans[0].firstToothPrice
-							? Number(p.casePricingPlans[0].firstToothPrice)
-							: null,
-						additionalToothPrice: p.casePricingPlans[0].additionalToothPrice
-							? Number(p.casePricingPlans[0].additionalToothPrice)
-							: null,
+						toothPrice: d(p.casePricingPlans[0].toothPrice),
+						bulkPrice: d(p.casePricingPlans[0].bulkPrice),
+						firstToothPrice: d(p.casePricingPlans[0].firstToothPrice),
+						additionalToothPrice: d(p.casePricingPlans[0].additionalToothPrice),
 						teethCountToApplyBulkPrice: p.casePricingPlans[0]
 							.teethCountToApplyBulkPrice
 							? Number(p.casePricingPlans[0].teethCountToApplyBulkPrice)
 							: null,
 					}
 				: null,
-			customClinicDealsCount: p._count.casePricingPlans,
-			workTypeName: p.workType.name,
 		}))
 
 		return daSuccess(products)

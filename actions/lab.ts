@@ -1,35 +1,37 @@
-"use server";
+'use server'
 
-import { auth } from "@/lib/auth";
-import { ERRORS } from "@/lib/errors";
-import { generalPrisma } from "@/lib/prisma";
-import { actionClientWithSession } from "@/lib/safe-action";
-import { CreateLabAndLabUserInputSchema } from "@/schema/composed/lab.details";
-import { APIError } from "better-auth";
-import { headers } from "next/headers";
+import { auth } from '@/lib/auth'
+import { ERRORS } from '@/lib/errors'
+import { generalPrisma } from '@/lib/prisma'
+import { actionClientWithSession } from '@/lib/safe-action'
+import { CreateLabAndLabUserInputSchema } from '@/schema/composed/lab.details'
+import { APIError } from 'better-auth'
+import { headers } from 'next/headers'
 
 export const createLabAndLabUser = actionClientWithSession
 	.metadata({
-		actionName: "Create-Lab-And-Lab-User",
+		actionName: 'Create-Lab-And-Lab-User',
 		requiredLabRole: null,
 	})
 	.inputSchema(CreateLabAndLabUserInputSchema)
 	.action(async ({ parsedInput, ctx }) => {
-		const { lab, labUser } = parsedInput;
+		const { lab, labUser } = parsedInput
 
-		const { user } = ctx;
+		const { user } = ctx
 
 		if (user.labId) {
-			const existing = await generalPrisma.lab.findUnique({ where: { id: user.labId } });
-			if (existing) throw ERRORS.LAB_ALREADY_EXISTS;
+			const existing = await generalPrisma.lab.findUnique({
+				where: { id: user.labId },
+			})
+			if (existing) throw ERRORS.LAB_ALREADY_EXISTS
 		}
 
 		// Split the Better-Auth name into First/Last for LabStaff
-		const nameParts = user.name.split(" ");
-		const firstName = nameParts[0] || "Owner";
-		const lastName = nameParts.slice(1).join(" ") || "Member";
+		const nameParts = user.name.split(' ')
+		const firstName = nameParts[0] || 'Owner'
+		const lastName = nameParts.slice(1).join(' ') || 'Member'
 
-		// maybe there is a lab user but the lab ID is not set to that user
+		// Maybe there is a lab user but the lab ID is not set to the auth user yet
 		const labUserEntity = await generalPrisma.labUser.findFirst({
 			where: {
 				authUserId: user.id,
@@ -37,39 +39,51 @@ export const createLabAndLabUser = actionClientWithSession
 			include: {
 				lab: true,
 			},
-		});
+		})
 
-		// if exists then we just set
+		// If it exists, sync Better-Auth and return early
 		if (labUserEntity?.labId) {
 			await auth.api.updateUser({
 				body: {
 					labId: labUserEntity.labId,
 				},
 				headers: await headers(),
-			});
+			})
 
 			return {
 				alreadyExists: true,
 				lab: labUserEntity.lab,
 				labUser: labUserEntity,
-			};
+			}
 		}
 
 		try {
+			// THE MASTER TRANSACTION
 			const results = await generalPrisma.$transaction(async (tx) => {
-				// A. Create the Lab
+				// A. Create the Lab AND its isolated configuration settings
 				const createdLab = await tx.lab.create({
 					data: {
 						title: lab.title,
 						subtitle: lab.subtitle,
 						slug: lab.slug,
 						brandAvatarUrl: lab.brandAvatarUrl,
+
+						// 🔥 NEW: Instantly generate default settings for the new tenant
+						settings: {
+							create: {
+								currency: 'IQD', // Defaulting to Iraqi Dinar for MENA market
+								language: 'EN', // UI Language
+								timezone: 'Asia/Baghdad', // Default timezone
+								taxRatePercentage: 0,
+								invoicePrefix: 'INV-', // Standard prefix
+							},
+						},
 					},
 					select: {
-						title: true,
 						id: true,
+						title: true,
 					},
-				});
+				})
 
 				// B. Create the Human Resource (LabStaff)
 				// This holds the physical address and phone from the form
@@ -79,19 +93,19 @@ export const createLabAndLabUser = actionClientWithSession
 						firstName,
 						lastName,
 						phoneNumber: labUser.phoneNumber,
-						avatarUrl: user.image ?? lab.brandAvatarUrl, // Use the profile photo from Google/Github
+						avatarUrl: user.image ?? lab.brandAvatarUrl,
 						city: labUser.city,
 						address1: labUser.address1,
 						address2: labUser.address2,
 						zipcode: labUser.zipcode,
-						roleCategory: "MANAGER", // Owners act as Managers operationally
-						commissionType: "PERCENTAGE",
+						roleCategory: 'MANAGER', // Owners act as Managers operationally on the floor
+						commissionType: 'PERCENTAGE',
 						commissionValue: 0,
 					},
 					select: {
 						id: true,
 					},
-				});
+				})
 
 				// C. Create the System Seat (LabUser)
 				// Linked to BOTH the human record and the auth account
@@ -100,31 +114,33 @@ export const createLabAndLabUser = actionClientWithSession
 						labId: createdLab.id,
 						authUserId: user.id,
 						labStaffId: ownerStaffRecord.id, // THE LINK
-						role: "OWNER", // Permissions role
+						role: 'OWNER', // Permissions role
+						isAccountOwner: true, // 🔥 NEW: Flags them as the ultimate billing authority
 					},
 					select: {
 						id: true,
 					},
-				});
+				})
 
-				return { createdLab, createdLabUser };
-			});
+				return { createdLab, createdLabUser }
+			})
 
+			// Sync the newly created Lab ID back to the Better-Auth session
 			await auth.api.updateUser({
 				body: {
 					labId: results.createdLab.id,
 				},
 				headers: await headers(),
-			});
+			})
 
 			return {
 				lab: results.createdLab,
 				alreadyExists: false,
-			};
+			}
 		} catch (e) {
 			if (e instanceof APIError || e instanceof Error) {
-				console.error("[Sign-Up-Action] Error", e.message);
+				console.error('[Sign-Up-Action] Error', e.message)
 			}
-			throw e;
+			throw e
 		}
-	});
+	})

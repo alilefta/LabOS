@@ -6,6 +6,9 @@ export const CaseGroupByResultSchema = z.array(z.object({
   labId: z.string(),
   caseCategoryId: z.string(),
   grandTotal: z.number(),
+  manualDiscountAmount: z.number(),
+  manualDiscountReason: z.string(),
+  isWarranty: z.boolean(),
   clinicId: z.string(),
   dentistId: z.string(),
   notes: z.string(),
@@ -29,6 +32,9 @@ export const CaseGroupByResultSchema = z.array(z.object({
     caseCategory: z.number(),
     status: z.number(),
     grandTotal: z.number(),
+    manualDiscountAmount: z.number(),
+    manualDiscountReason: z.number(),
+    isWarranty: z.number(),
     clinicId: z.number(),
     clinic: z.number(),
     dentistId: z.number(),
@@ -51,10 +57,12 @@ export const CaseGroupByResultSchema = z.array(z.object({
     deliveredAt: z.number()
   }).optional(),
   _sum: z.object({
-    grandTotal: z.number().nullable()
+    grandTotal: z.number().nullable(),
+    manualDiscountAmount: z.number().nullable()
   }).nullable().optional(),
   _avg: z.object({
-    grandTotal: z.number().nullable()
+    grandTotal: z.number().nullable(),
+    manualDiscountAmount: z.number().nullable()
   }).nullable().optional(),
   _min: z.object({
     id: z.string().nullable(),
@@ -63,6 +71,8 @@ export const CaseGroupByResultSchema = z.array(z.object({
     labId: z.string().nullable(),
     caseCategoryId: z.string().nullable(),
     grandTotal: z.number().nullable(),
+    manualDiscountAmount: z.number().nullable(),
+    manualDiscountReason: z.string().nullable(),
     clinicId: z.string().nullable(),
     dentistId: z.string().nullable(),
     notes: z.string().nullable(),
@@ -81,6 +91,8 @@ export const CaseGroupByResultSchema = z.array(z.object({
     labId: z.string().nullable(),
     caseCategoryId: z.string().nullable(),
     grandTotal: z.number().nullable(),
+    manualDiscountAmount: z.number().nullable(),
+    manualDiscountReason: z.string().nullable(),
     clinicId: z.string().nullable(),
     dentistId: z.string().nullable(),
     notes: z.string().nullable(),

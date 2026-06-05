@@ -1,0 +1,14 @@
+import type { Prisma } from '../../../generated/prisma/client';
+import * as z from 'zod';
+import { LabSettingsOrderByWithRelationInputObjectSchema as LabSettingsOrderByWithRelationInputObjectSchema } from './objects/LabSettingsOrderByWithRelationInput.schema';
+import { LabSettingsWhereInputObjectSchema as LabSettingsWhereInputObjectSchema } from './objects/LabSettingsWhereInput.schema';
+import { LabSettingsWhereUniqueInputObjectSchema as LabSettingsWhereUniqueInputObjectSchema } from './objects/LabSettingsWhereUniqueInput.schema';
+import { LabSettingsCountAggregateInputObjectSchema as LabSettingsCountAggregateInputObjectSchema } from './objects/LabSettingsCountAggregateInput.schema';
+import { LabSettingsMinAggregateInputObjectSchema as LabSettingsMinAggregateInputObjectSchema } from './objects/LabSettingsMinAggregateInput.schema';
+import { LabSettingsMaxAggregateInputObjectSchema as LabSettingsMaxAggregateInputObjectSchema } from './objects/LabSettingsMaxAggregateInput.schema';
+import { LabSettingsAvgAggregateInputObjectSchema as LabSettingsAvgAggregateInputObjectSchema } from './objects/LabSettingsAvgAggregateInput.schema';
+import { LabSettingsSumAggregateInputObjectSchema as LabSettingsSumAggregateInputObjectSchema } from './objects/LabSettingsSumAggregateInput.schema';
+
+export const LabSettingsAggregateSchema: z.ZodType<Prisma.LabSettingsAggregateArgs> = z.object({ orderBy: z.union([LabSettingsOrderByWithRelationInputObjectSchema, LabSettingsOrderByWithRelationInputObjectSchema.array()]).optional(), where: LabSettingsWhereInputObjectSchema.optional(), cursor: LabSettingsWhereUniqueInputObjectSchema.optional(), take: z.number().optional(), skip: z.number().optional(), _count: z.union([ z.literal(true), LabSettingsCountAggregateInputObjectSchema ]).optional(), _min: LabSettingsMinAggregateInputObjectSchema.optional(), _max: LabSettingsMaxAggregateInputObjectSchema.optional(), _avg: LabSettingsAvgAggregateInputObjectSchema.optional(), _sum: LabSettingsSumAggregateInputObjectSchema.optional() }).strict() as unknown as z.ZodType<Prisma.LabSettingsAggregateArgs>;
+
+export const LabSettingsAggregateZodSchema = z.object({ orderBy: z.union([LabSettingsOrderByWithRelationInputObjectSchema, LabSettingsOrderByWithRelationInputObjectSchema.array()]).optional(), where: LabSettingsWhereInputObjectSchema.optional(), cursor: LabSettingsWhereUniqueInputObjectSchema.optional(), take: z.number().optional(), skip: z.number().optional(), _count: z.union([ z.literal(true), LabSettingsCountAggregateInputObjectSchema ]).optional(), _min: LabSettingsMinAggregateInputObjectSchema.optional(), _max: LabSettingsMaxAggregateInputObjectSchema.optional(), _avg: LabSettingsAvgAggregateInputObjectSchema.optional(), _sum: LabSettingsSumAggregateInputObjectSchema.optional() }).strict();

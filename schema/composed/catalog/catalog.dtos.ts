@@ -1,14 +1,17 @@
 import { PricingStrategy } from '@/schema/base/enums.base'
 
-// --- DTOs ---
+// ── 1. COMPLETED & RECONCILED DTOs ──────────────────────────────────────────
 export type CatalogTreeDTO = {
 	id: string
 	name: string
 	imageUrl: string | null
+	isArchived: boolean
 	workTypes: {
 		id: string
 		name: string
 		productCount: number
+		isArchived: boolean
+		casesCount: number // Active production volume for this department [3]
 	}[]
 }[]
 
@@ -28,6 +31,8 @@ export type CatalogProductDTO = {
 	} | null
 	customClinicDealsCount: number
 	workTypeName: string
+	activeCasesCount: number
+	isArchived: boolean
 }
 export type CatalogWorkTypeProductsDTO = {
 	workTypeName: string

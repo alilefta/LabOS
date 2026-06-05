@@ -4,10 +4,11 @@ import { StringFieldUpdateOperationsInputObjectSchema as StringFieldUpdateOperat
 import { CaseStatusSchema } from '../enums/CaseStatus.schema';
 import { EnumCaseStatusFieldUpdateOperationsInputObjectSchema as EnumCaseStatusFieldUpdateOperationsInputObjectSchema } from './EnumCaseStatusFieldUpdateOperationsInput.schema';
 import { NullableDecimalFieldUpdateOperationsInputObjectSchema as NullableDecimalFieldUpdateOperationsInputObjectSchema } from './NullableDecimalFieldUpdateOperationsInput.schema';
+import { DecimalFieldUpdateOperationsInputObjectSchema as DecimalFieldUpdateOperationsInputObjectSchema } from './DecimalFieldUpdateOperationsInput.schema';
 import { NullableStringFieldUpdateOperationsInputObjectSchema as NullableStringFieldUpdateOperationsInputObjectSchema } from './NullableStringFieldUpdateOperationsInput.schema';
+import { BoolFieldUpdateOperationsInputObjectSchema as BoolFieldUpdateOperationsInputObjectSchema } from './BoolFieldUpdateOperationsInput.schema';
 import { NullableDateTimeFieldUpdateOperationsInputObjectSchema as NullableDateTimeFieldUpdateOperationsInputObjectSchema } from './NullableDateTimeFieldUpdateOperationsInput.schema';
 import { DateTimeFieldUpdateOperationsInputObjectSchema as DateTimeFieldUpdateOperationsInputObjectSchema } from './DateTimeFieldUpdateOperationsInput.schema';
-import { BoolFieldUpdateOperationsInputObjectSchema as BoolFieldUpdateOperationsInputObjectSchema } from './BoolFieldUpdateOperationsInput.schema';
 import { FaultPartySchema } from '../enums/FaultParty.schema';
 import { NullableEnumFaultPartyFieldUpdateOperationsInputObjectSchema as NullableEnumFaultPartyFieldUpdateOperationsInputObjectSchema } from './NullableEnumFaultPartyFieldUpdateOperationsInput.schema';
 import { LabUpdateOneRequiredWithoutCasesNestedInputObjectSchema as LabUpdateOneRequiredWithoutCasesNestedInputObjectSchema } from './LabUpdateOneRequiredWithoutCasesNestedInput.schema';
@@ -35,6 +36,16 @@ const makeSchema = () => z.object({
 ]).refine((v) => isValidDecimalInput(v), {
   message: "Field 'grandTotal' must be a Decimal",
 }), z.lazy(() => NullableDecimalFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
+  manualDiscountAmount: z.union([z.union([
+  z.number(),
+  z.string(),
+  z.instanceof(Prisma.Decimal),
+  DecimalJSLikeSchema,
+]).refine((v) => isValidDecimalInput(v), {
+  message: "Field 'manualDiscountAmount' must be a Decimal",
+}), z.lazy(() => DecimalFieldUpdateOperationsInputObjectSchema)]).optional(),
+  manualDiscountReason: z.union([z.string(), z.lazy(() => NullableStringFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
+  isWarranty: z.union([z.boolean(), z.lazy(() => BoolFieldUpdateOperationsInputObjectSchema)]).optional(),
   notes: z.union([z.string(), z.lazy(() => NullableStringFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
   deadline: z.union([z.coerce.date(), z.lazy(() => NullableDateTimeFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
   createdAt: z.union([z.coerce.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputObjectSchema)]).optional(),

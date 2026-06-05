@@ -8,9 +8,9 @@ import {
 	AlertTriangle,
 	ShieldCheck,
 	Box,
-	Layers,
-	DollarSign,
-	TrendingDown,
+	Zap,
+	RotateCcw,
+	Archive,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -25,7 +25,7 @@ import {
 import { CatalogProductDTO } from '@/schema/composed/catalog/catalog.dtos'
 
 interface Props {
-	product: CatalogProductDTO[][number]
+	product: CatalogProductDTO
 	onEditProduct: (productId: string) => void
 	onManagePricing: (productId: string) => void
 }
@@ -37,6 +37,7 @@ export const ProductMatrixCard = memo(function ProductMatrixCard({
 }: Props) {
 	const plan = product.defaultPricingPlan
 	const isMissingPrice = !plan
+	const isArchived = product.isArchived // Soft-delete flag [4]
 
 	// Universal Currency Formatter
 	const formatMoney = (val: number | null | undefined) => {
@@ -47,32 +48,33 @@ export const ProductMatrixCard = memo(function ProductMatrixCard({
 		}).format(val)
 	}
 
-	// Stable Callbacks to preserve GPU layer during typing [1]
+	// Stable Callbacks
 	const handleEditClick = useCallback(() => {
-		onEditProduct(product.id)
-	}, [product.id, onEditProduct])
+		if (!isArchived) onEditProduct(product.id)
+	}, [product.id, onEditProduct, isArchived])
 
 	const handlePricingClick = useCallback(() => {
-		onManagePricing(product.id)
-	}, [product.id, onManagePricing])
+		if (!isArchived) onManagePricing(product.id)
+	}, [product.id, onManagePricing, isArchived])
 
 	return (
 		<div
 			className={cn(
 				'lab-card p-5 sm:p-6 flex flex-col group transition-all duration-300 relative overflow-hidden h-full',
 				isMissingPrice
-					? 'border-amber-500/40 bg-amber-500/[0.02]'
+					? 'border-amber-500/40 bg-amber-500/2'
 					: 'hover:border-primary/40 bg-card hover:shadow-md',
+				isArchived && 'opacity-45 grayscale-40 blur-[0.2px]', // THE GHOST CARD OVERLAY [4]
 			)}
 		>
-			{/* --- DANGER GLOW (If Missing Price) --- */}
-			{isMissingPrice && (
+			{/* --- DANGER GLOW (If Missing Price & Active) --- */}
+			{isMissingPrice && !isArchived && (
 				<div className="absolute -top-12 -right-12 w-32 h-32 bg-amber-500/10 rounded-full blur-2xl pointer-events-none animate-pulse" />
 			)}
 
 			{/* --- HEADER: Identity & Actions --- */}
-			<div className="flex items-start justify-between mb-5 relative z-10">
-				<div className="flex items-center gap-4">
+			<div className="flex items-start justify-between mb-5 relative z-10 w-full">
+				<div className="flex items-center gap-4 min-w-0">
 					{product.imageUrl ? (
 						<div className="relative w-12 h-12 rounded-xl overflow-hidden border border-border shadow-sm shrink-0 bg-slate-50 dark:bg-[#121214]">
 							<Image
@@ -89,17 +91,23 @@ export const ProductMatrixCard = memo(function ProductMatrixCard({
 					)}
 					<div className="flex flex-col min-w-0 pr-2">
 						<h3
-							className="text-sm font-bold text-foreground leading-tight line-clamp-2"
+							className={cn(
+								'text-sm font-bold leading-tight line-clamp-2',
+								isArchived && 'text-muted-foreground',
+							)}
 							title={product.name}
 						>
 							{product.name}
 						</h3>
 						<span className="text-[10px] text-muted-foreground font-mono uppercase tracking-widest mt-1">
-							ID: {product.id.substring(0, 8)}
+							{isArchived
+								? 'Archived SKU'
+								: `ID: ${product.id.substring(0, 8)}`}
 						</span>
 					</div>
 				</div>
 
+				{/* Options Dropdown (Remains active even on archived card so users can Restore!) [2] */}
 				<DropdownMenu>
 					<DropdownMenuTrigger asChild>
 						<Button
@@ -118,15 +126,24 @@ export const ProductMatrixCard = memo(function ProductMatrixCard({
 							Options
 						</DropdownMenuLabel>
 						<DropdownMenuItem
+							disabled={isArchived}
 							onClick={handleEditClick}
 							className="cursor-pointer font-medium py-2 hover:bg-primary/5"
 						>
 							Edit Product Details
 						</DropdownMenuItem>
 						<DropdownMenuSeparator className="bg-border" />
-						<DropdownMenuItem className="cursor-pointer font-medium py-2 text-destructive focus:text-destructive hover:bg-destructive/10">
-							Archive Product
-						</DropdownMenuItem>
+
+						{/* Dynamic Archive / Restore Option [2, 4] */}
+						{isArchived ? (
+							<DropdownMenuItem className="cursor-pointer font-semibold py-2 text-emerald-500 hover:bg-emerald-500/10">
+								<RotateCcw className="w-3.5 h-3.5 mr-2" /> Restore Product
+							</DropdownMenuItem>
+						) : (
+							<DropdownMenuItem className="cursor-pointer font-semibold py-2 text-amber-500 hover:bg-amber-500/10">
+								<Archive className="w-3.5 h-3.5 mr-2" /> Archive Product
+							</DropdownMenuItem>
+						)}
 					</DropdownMenuContent>
 				</DropdownMenu>
 			</div>
@@ -144,7 +161,6 @@ export const ProductMatrixCard = memo(function ProductMatrixCard({
 
 			{/* --- FOOTER: Pricing Engine --- */}
 			<div className="mt-auto relative z-10 space-y-3 w-full">
-				{/* The Mathematical Pricing Block */}
 				{isMissingPrice ? (
 					<div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-start gap-3">
 						<AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-500 shrink-0 mt-0.5" />
@@ -153,8 +169,7 @@ export const ProductMatrixCard = memo(function ProductMatrixCard({
 								Missing Base Price
 							</span>
 							<span className="text-[10px] text-amber-600/80 dark:text-amber-400/80 leading-snug">
-								This item cannot be billed until a default pricing plan is
-								established.
+								No active pricing plan found.
 							</span>
 						</div>
 					</div>
@@ -169,7 +184,6 @@ export const ProductMatrixCard = memo(function ProductMatrixCard({
 							</span>
 						</div>
 
-						{/* Strategy-Aware Value Rendering */}
 						<div className="flex flex-col gap-2.5 w-full pt-1">
 							{plan.strategy === 'PERTOOTH' && (
 								<div className="flex items-end justify-between">
@@ -212,7 +226,6 @@ export const ProductMatrixCard = memo(function ProductMatrixCard({
 										</div>
 									</div>
 
-									{/* 🔥 NEW HOLE FIXED: Render Volume Cap on Catalog view! [2] */}
 									{plan.bulkPrice && plan.teethCountToApplyBulkPrice && (
 										<div className="p-2.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-between">
 											<div className="flex flex-col">
@@ -236,23 +249,27 @@ export const ProductMatrixCard = memo(function ProductMatrixCard({
 
 				{/* Quick Actions & Meta */}
 				<div className="flex items-center justify-between pt-1">
-					<span
-						className={cn(
-							'text-[10px] font-bold uppercase tracking-widest',
-							product.customClinicDealsCount > 0
-								? 'text-primary'
-								: 'text-muted-foreground opacity-60',
+					<div className="flex items-center gap-2">
+						{/* ⚡ ACTIVE CASES VELOCITY BADGE (High Value) [3] */}
+						{product.activeCasesCount && product.activeCasesCount > 0 && (
+							<span className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-primary/10 text-primary border border-primary/20 flex items-center gap-0.5">
+								<Zap className="w-2.5 h-2.5 fill-current" />{' '}
+								{product.activeCasesCount} Active
+							</span>
 						)}
-					>
-						{product.customClinicDealsCount > 0
-							? `${product.customClinicDealsCount} Custom Deals`
-							: 'No Overrides'}
-					</span>
+
+						<span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground opacity-60">
+							{product.customClinicDealsCount > 0
+								? `${product.customClinicDealsCount} Overrides`
+								: 'No Overrides'}
+						</span>
+					</div>
 
 					<Button
 						variant="ghost"
 						size="sm"
-						onClick={handlePricingClick} // Stable callback reference [1]
+						disabled={isArchived} // Cannot edit pricing of a retired product [4]
+						onClick={handlePricingClick}
 						className="h-8 text-[11px] font-bold text-muted-foreground hover:text-primary hover:bg-primary/10 transition-all -mr-2"
 					>
 						<Settings2 className="w-3.5 h-3.5 mr-1.5" /> Pricing

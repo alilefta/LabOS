@@ -20,6 +20,7 @@ import { InvoicePaymentUncheckedCreateNestedManyWithoutLabInputObjectSchema as I
 import { CaseActivityLogUncheckedCreateNestedManyWithoutLabInputObjectSchema as CaseActivityLogUncheckedCreateNestedManyWithoutLabInputObjectSchema } from './CaseActivityLogUncheckedCreateNestedManyWithoutLabInput.schema';
 import { InvoiceCaseUncheckedCreateNestedManyWithoutLabInputObjectSchema as InvoiceCaseUncheckedCreateNestedManyWithoutLabInputObjectSchema } from './InvoiceCaseUncheckedCreateNestedManyWithoutLabInput.schema';
 import { StaffPayoutUncheckedCreateNestedManyWithoutLabInputObjectSchema as StaffPayoutUncheckedCreateNestedManyWithoutLabInputObjectSchema } from './StaffPayoutUncheckedCreateNestedManyWithoutLabInput.schema';
+import { LabSettingsUncheckedCreateNestedOneWithoutLabInputObjectSchema as LabSettingsUncheckedCreateNestedOneWithoutLabInputObjectSchema } from './LabSettingsUncheckedCreateNestedOneWithoutLabInput.schema';
 import { CaseWorkItemAddonUncheckedCreateNestedManyWithoutLabInputObjectSchema as CaseWorkItemAddonUncheckedCreateNestedManyWithoutLabInputObjectSchema } from './CaseWorkItemAddonUncheckedCreateNestedManyWithoutLabInput.schema';
 import { ProductAddonUncheckedCreateNestedManyWithoutLabInputObjectSchema as ProductAddonUncheckedCreateNestedManyWithoutLabInputObjectSchema } from './ProductAddonUncheckedCreateNestedManyWithoutLabInput.schema'
 
@@ -54,6 +55,7 @@ const makeSchema = () => z.object({
   caseActivityLogs: z.lazy(() => CaseActivityLogUncheckedCreateNestedManyWithoutLabInputObjectSchema).optional(),
   invoiceCase: z.lazy(() => InvoiceCaseUncheckedCreateNestedManyWithoutLabInputObjectSchema).optional(),
   staffPayouts: z.lazy(() => StaffPayoutUncheckedCreateNestedManyWithoutLabInputObjectSchema).optional(),
+  settings: z.lazy(() => LabSettingsUncheckedCreateNestedOneWithoutLabInputObjectSchema).optional(),
   caseWorkItemAddons: z.lazy(() => CaseWorkItemAddonUncheckedCreateNestedManyWithoutLabInputObjectSchema).optional(),
   productAddons: z.lazy(() => ProductAddonUncheckedCreateNestedManyWithoutLabInputObjectSchema).optional()
 }).strict();

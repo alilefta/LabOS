@@ -30,6 +30,7 @@ export const LabInputSchema = z.object({
     staffPayouts: z.array(z.unknown()),
     nextPayoutNumber: z.number().int(),
     nextInvoiceNumber: z.number().int(),
+    settings: z.unknown().optional().nullable(),
     caseWorkItemAddons: z.array(z.unknown()),
     productAddons: z.array(z.unknown()),
     createdAt: z.date(),

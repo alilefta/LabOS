@@ -1,0 +1,37 @@
+import * as z from 'zod';
+export const LabSettingsAggregateResultSchema = z.object({  _count: z.object({
+    id: z.number(),
+    labId: z.number(),
+    lab: z.number(),
+    currency: z.number(),
+    language: z.number(),
+    timezone: z.number(),
+    taxRatePercentage: z.number(),
+    invoicePrefix: z.number(),
+    requirePaymentToDeliver: z.number(),
+    autoSendWhatsAppOnCompletion: z.number(),
+    autoEmailInvoices: z.number(),
+    updatedAt: z.number()
+  }).optional(),
+  _sum: z.object({
+    taxRatePercentage: z.number().nullable()
+  }).nullable().optional(),
+  _avg: z.object({
+    taxRatePercentage: z.number().nullable()
+  }).nullable().optional(),
+  _min: z.object({
+    id: z.string().nullable(),
+    labId: z.string().nullable(),
+    timezone: z.string().nullable(),
+    taxRatePercentage: z.number().nullable(),
+    invoicePrefix: z.string().nullable(),
+    updatedAt: z.date().nullable()
+  }).nullable().optional(),
+  _max: z.object({
+    id: z.string().nullable(),
+    labId: z.string().nullable(),
+    timezone: z.string().nullable(),
+    taxRatePercentage: z.number().nullable(),
+    invoicePrefix: z.string().nullable(),
+    updatedAt: z.date().nullable()
+  }).nullable().optional()});
