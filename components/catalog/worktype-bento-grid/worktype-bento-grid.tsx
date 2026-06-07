@@ -25,9 +25,9 @@ import {
 } from '@/components/ui/dropdown-menu'
 
 // Replace with your actual server action
-import { getWorkTypesByCategoryAction } from '@/actions/work-type'
 import { handleSafeActionError } from '@/lib/safe-action-helpers'
 import { WorkTypeBentoGridCard } from './worktype-bento-grid-card'
+import { getWorkTypesByCategoryAction } from '@/actions/catalog/get-worktypes-by-category'
 
 interface Props {
 	categoryId: string
@@ -79,7 +79,7 @@ export function WorkTypeBentoGrid({ categoryId, labId }: Props) {
 					{Array.from({ length: 3 }).map((_, i) => (
 						<Skeleton
 							key={i}
-							className="h-48 rounded-[24px] bg-slate-100 dark:bg-white/5"
+							className="h-48 rounded-3xl bg-slate-100 dark:bg-white/5"
 						/>
 					))}
 				</div>
@@ -142,22 +142,16 @@ export function WorkTypeBentoGrid({ categoryId, labId }: Props) {
 			) : (
 				/* --- BENTO GRID --- */
 				<div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-					{workTypes.map((wt: any) => (
+					{workTypes.map((wt) => (
 						<WorkTypeBentoGridCard
-							onArchive={() => {}}
-							onEdit={() => {}}
-							onHardDelete={() => {}}
-							workType={{
-								...wt,
-								_count: {
-									products: 10,
-									caseWorkItems: 5,
-								},
-								casesL30D: 20,
-							}}
-							onManageProducts={() => {}}
-							onMoveCategory={() => {}}
 							key={wt.id}
+							workType={wt} // Passes the exact object from the new server action
+							onManageProducts={navigateToProducts} // Use the routing function you built!
+							// These will be wired to your Zustand store or local state later
+							onEdit={(id) => console.log('Edit WT', id)}
+							onMoveCategory={(id) => console.log('Move WT', id)}
+							onArchive={(id) => console.log('Archive WT', id)}
+							onHardDelete={(id) => console.log('Hard Delete WT', id)}
 						/>
 					))}
 				</div>

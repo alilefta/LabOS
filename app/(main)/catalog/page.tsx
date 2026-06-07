@@ -9,8 +9,9 @@ import { AmbientBgGlow } from '@/components/ui/ui-utils/animated-ambient-bg-glow
 import { CategorySidebar } from '@/components/catalog/category-sidebar'
 import { ProductSidebar } from '@/components/catalog/product-sidebar'
 import { WorkTypeBentoGrid } from '@/components/catalog/worktype-bento-grid/worktype-bento-grid'
-import { PricingPlanLedger } from '@/components/catalog/pricing-plan-ledger/pricing-plan-ledger'
+import { PricingPlanLedger } from '@/components/catalog/products/pricing-plan-ledger/pricing-plan-ledger'
 import { CatalogEmptyState } from '@/components/catalog/catalog-empty-state'
+import { ProductWorkspace } from '@/components/catalog/products/product-workspace'
 // import { WorkTypeInspector } from "@/components/catalog/work-type-inspector";
 // import { PricingPlanInspector } from "@/components/catalog/pricing-plan-inspector";
 
@@ -128,7 +129,7 @@ export default async function CatalogPage({ searchParams }: Props) {
 							) : isLevel2_Category ? (
 								<WorkTypeBentoGrid categoryId={categoryId} labId={labId} />
 							) : (
-								<PricingPlanLedger productId={productId} labId={labId} />
+								<ProductWorkspace productId={productId} labId={labId} />
 							)}
 						</Suspense>
 					</div>

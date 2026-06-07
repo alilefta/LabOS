@@ -12,7 +12,7 @@ export function CatalogEmptyState({ type }: Props) {
 	const isCategory = type === 'category'
 
 	return (
-		<div className="flex-1 h-full w-full flex flex-col items-center justify-center p-8 relative animate-in fade-in duration-700">
+		<div className="flex-1 h-full w-full flex flex-col items-center justify-center p-8 relative animate-in fade-in duration-700 bg-background">
 			{/* Ambient Glowing Orbs */}
 			<div
 				className={cn(

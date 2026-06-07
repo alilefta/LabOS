@@ -13,7 +13,7 @@ export const getCatalogCategoriesAction = actionClientWithLab
 	})
 	.inputSchema(
 		z.object({
-			showArchivedCategories: z.boolean().optional().default(false),
+			showArchivedCategories: z.boolean().nullable().default(false),
 		}),
 	)
 	.action(async ({ ctx, parsedInput }) => {
@@ -29,7 +29,9 @@ export const getCatalogCategoriesAction = actionClientWithLab
 			const categories = await prisma.caseCategory.findMany({
 				where: {
 					labId,
-					isArchived: showArchivedCategories, // Only allow assigning to active categories
+					// If showArchived is true, omit the filter entirely.
+					// If false, strictly require isArchived to be false.
+					...(showArchivedCategories ? {} : { isArchived: false }),
 				},
 				select: {
 					id: true,

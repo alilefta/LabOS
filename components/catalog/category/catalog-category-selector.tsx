@@ -21,7 +21,7 @@ import { cn } from '@/lib/utils'
 import { useQuery } from '@tanstack/react-query'
 import { getCaseCategoriesAction } from '@/actions/case-category' // You'll need this simple fetcher
 import { handleSafeActionError } from '@/lib/safe-action-helpers'
-import { getActiveCategoriesAction } from '@/actions/catalog/get-categories'
+import { getCatalogCategoriesAction } from '@/actions/catalog/get-categories'
 
 interface Props {
 	value: string | undefined
@@ -39,7 +39,9 @@ export function CatalogCategorySelector({
 	const { data: categories = [], isFetching } = useQuery({
 		queryKey: ['case-categories'],
 		queryFn: async () => {
-			const res = await getActiveCategoriesAction() // Fetch all active categories
+			const res = await getCatalogCategoriesAction({
+				showArchivedCategories: false,
+			}) // Fetch all active categories
 			if (res?.serverError || res?.validationErrors) {
 				handleSafeActionError({
 					serverError: res.serverError,

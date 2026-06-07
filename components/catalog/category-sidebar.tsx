@@ -1,6 +1,6 @@
 'use client'
 
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import Link from 'next/link'
 import { usePathname, useSearchParams, useRouter } from 'next/navigation'
 import {
@@ -10,7 +10,7 @@ import {
 	Search,
 	Archive,
 	Edit3,
-	Loader2,
+	Type,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -22,14 +22,14 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { Skeleton } from '@/components/ui/skeleton'
-import { useState } from 'react'
+import { memo, useCallback, useState } from 'react'
 import useDebounce from '@/hooks/useDebounce'
 
 // Replace with your actual server action import
 import { handleSafeActionError } from '@/lib/safe-action-helpers'
 import { getCatalogCategoriesAction } from '@/actions/catalog/get-categories'
 import { CatalogCategoryDTO } from '@/schema/composed/catalog/catalog.dtos'
+import { CatalogRenameModal } from '../modals/catalog/catalog-rename-modal'
 
 interface Props {
 	labId: string
@@ -40,6 +40,13 @@ export function CategorySidebar({ labId, activeCategoryId }: Props) {
 	const router = useRouter()
 	const pathname = usePathname()
 	const searchParams = useSearchParams()
+	const queryClient = useQueryClient()
+
+	const [renameModal, setRenameModal] = useState(false)
+	const [catToRename, setCatToRename] = useState<{
+		id: string
+		name: string
+	} | null>(null)
 
 	// Local Search State
 	const [searchQuery, setSearchQuery] = useState('')
@@ -78,6 +85,19 @@ export function CategorySidebar({ labId, activeCategoryId }: Props) {
 		params.delete('product')
 		return `${pathname}?${params.toString()}`
 	}
+
+	const handleRename = useCallback((id: string, name: string) => {
+		setCatToRename({
+			id,
+			name,
+		})
+		setRenameModal(true)
+	}, [])
+
+	const handleCloseRenameModal = useCallback(() => {
+		setRenameModal(false)
+		setCatToRename(null)
+	}, [])
 
 	return (
 		<div className="flex flex-col h-full bg-slate-50/30 dark:bg-black/10 animate-in fade-in duration-500">
@@ -149,116 +169,159 @@ export function CategorySidebar({ labId, activeCategoryId }: Props) {
 						const isActive = activeCategoryId === cat.id
 
 						return (
-							<div
+							<CategoryItem
 								key={cat.id}
-								className={cn(
-									'group relative flex items-center justify-between p-1 pr-2 rounded-xl transition-all duration-200',
-									isActive
-										? 'bg-primary/10 dark:bg-primary/15'
-										: 'hover:bg-slate-100 dark:hover:bg-white/5',
-								)}
-							>
-								{/* The clickable area (Link) */}
-								<Link
-									href={createCategoryLink(cat.id)}
-									replace // Doesn't bloat browser history
-									className="flex-1 flex items-center gap-3 p-2 outline-none"
-								>
-									{/* Active Indicator Bar */}
-									<div
-										className={cn(
-											'absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 rounded-r-full transition-all duration-300',
-											isActive
-												? 'bg-primary scale-y-100'
-												: 'bg-transparent scale-y-0',
-										)}
-									/>
-
-									{/* Category Icon (If exists, else fallback) */}
-									<div
-										className={cn(
-											'w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-colors shadow-sm',
-											isActive
-												? 'bg-white dark:bg-[#121214] text-primary border border-primary/20'
-												: 'bg-white dark:bg-[#121214] text-muted-foreground border border-border group-hover:text-foreground',
-										)}
-									>
-										{/* Fallback to text initials if no image is uploaded */}
-										{cat.imageUrl ? (
-											<img
-												src={cat.imageUrl}
-												alt={cat.name}
-												className="w-5 h-5 object-contain"
-											/>
-										) : (
-											<span className="text-xs font-bold font-mono">
-												{cat.name.substring(0, 2).toUpperCase()}
-											</span>
-										)}
-									</div>
-
-									{/* Text Details */}
-									<div className="flex flex-col min-w-0">
-										<span
-											className={cn(
-												'text-xs font-bold truncate transition-colors',
-												isActive
-													? 'text-primary'
-													: 'text-foreground group-hover:text-primary',
-											)}
-										>
-											{cat.name}
-										</span>
-										{/* Status Badge if inactive */}
-										{!cat.isArchived && (
-											<span className="text-[9px] font-bold text-rose-500 uppercase tracking-widest mt-0.5">
-												Archived
-											</span>
-										)}
-									</div>
-								</Link>
-
-								{/* Context Menu (3-dots) */}
-								<DropdownMenu>
-									<DropdownMenuTrigger asChild>
-										<Button
-											variant="ghost"
-											size="icon"
-											className={cn(
-												'h-7 w-7 rounded-lg transition-opacity shrink-0',
-												isActive
-													? 'opacity-100 text-primary hover:bg-primary/20'
-													: 'opacity-0 group-hover:opacity-100 text-muted-foreground hover:bg-slate-200 dark:hover:bg-white/10',
-											)}
-										>
-											<MoreVertical className="w-3.5 h-3.5" />
-										</Button>
-									</DropdownMenuTrigger>
-									<DropdownMenuContent
-										align="start"
-										side="right"
-										className="w-48 rounded-xl border-border shadow-premium dark:bg-[#121214]"
-									>
-										<DropdownMenuLabel className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
-											Options
-										</DropdownMenuLabel>
-
-										<DropdownMenuItem className="cursor-pointer font-medium text-xs py-2 hover:bg-primary/5">
-											<Edit3 className="w-3.5 h-3.5 mr-2" /> Rename / Edit
-										</DropdownMenuItem>
-
-										<DropdownMenuSeparator className="bg-border/50" />
-
-										<DropdownMenuItem className="cursor-pointer font-medium text-xs py-2 text-rose-600 focus:text-rose-500 focus:bg-rose-500/10">
-											<Archive className="w-3.5 h-3.5 mr-2" /> Archive Category
-										</DropdownMenuItem>
-									</DropdownMenuContent>
-								</DropdownMenu>
-							</div>
+								cat={cat}
+								createCategoryLink={createCategoryLink}
+								handleRename={handleRename}
+								isActive={isActive}
+							/>
 						)
 					})
 				)}
 			</div>
+
+			{catToRename && (
+				<CatalogRenameModal
+					isOpen={renameModal}
+					onClose={handleCloseRenameModal}
+					entityId={catToRename.id}
+					entityType="CATEGORY"
+					initialName={catToRename.name}
+					key={catToRename.id}
+					onSuccess={() => {
+						queryClient.invalidateQueries({
+							queryKey: ['catalog-categories', labId],
+						})
+					}}
+				/>
+			)}
 		</div>
 	)
 }
+
+interface CategoryItemProps {
+	isActive: boolean
+	createCategoryLink: (id: string) => string
+	cat: CatalogCategoryDTO
+	handleRename: (id: string, name: string) => void
+}
+const CategoryItem = memo(function CategoryItem({
+	cat,
+	createCategoryLink,
+	isActive,
+	handleRename,
+}: CategoryItemProps) {
+	return (
+		<div
+			key={cat.id}
+			className={cn(
+				'group relative flex items-center justify-between p-1 pr-2 rounded-xl transition-all duration-200',
+				isActive
+					? 'bg-primary/10 dark:bg-primary/15'
+					: 'hover:bg-slate-100 dark:hover:bg-white/5',
+			)}
+		>
+			{/* The clickable area (Link) */}
+			<Link
+				href={createCategoryLink(cat.id)}
+				replace // Doesn't bloat browser history
+				className="flex-1 flex items-center gap-3 p-2 outline-none"
+			>
+				{/* Active Indicator Bar */}
+				<div
+					className={cn(
+						'absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 rounded-r-full transition-all duration-300',
+						isActive ? 'bg-primary scale-y-100' : 'bg-transparent scale-y-0',
+					)}
+				/>
+
+				{/* Category Icon (If exists, else fallback) */}
+				<div
+					className={cn(
+						'w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-colors shadow-sm',
+						isActive
+							? 'bg-white dark:bg-[#121214] text-primary border border-primary/20'
+							: 'bg-white dark:bg-[#121214] text-muted-foreground border border-border group-hover:text-foreground',
+					)}
+				>
+					{/* Fallback to text initials if no image is uploaded */}
+					{cat.imageUrl ? (
+						<img
+							src={cat.imageUrl}
+							alt={cat.name}
+							className="w-5 h-5 object-contain"
+						/>
+					) : (
+						<span className="text-xs font-bold font-mono">
+							{cat.name.substring(0, 2).toUpperCase()}
+						</span>
+					)}
+				</div>
+
+				{/* Text Details */}
+				<div className="flex flex-col min-w-0">
+					<span
+						className={cn(
+							'text-xs font-bold truncate transition-colors',
+							isActive
+								? 'text-primary'
+								: 'text-foreground group-hover:text-primary',
+						)}
+					>
+						{cat.name}
+					</span>
+					{/* Status Badge if inactive */}
+					{cat.isArchived && (
+						<span className="text-[9px] font-bold text-rose-500 uppercase tracking-widest mt-0.5">
+							Archived
+						</span>
+					)}
+				</div>
+			</Link>
+
+			{/* Context Menu (3-dots) */}
+			<DropdownMenu>
+				<DropdownMenuTrigger asChild>
+					<Button
+						variant="ghost"
+						size="icon"
+						className={cn(
+							'h-7 w-7 rounded-lg transition-opacity shrink-0',
+							isActive
+								? 'opacity-100 text-primary hover:bg-primary/20'
+								: 'opacity-0 group-hover:opacity-100 text-muted-foreground hover:bg-slate-200 dark:hover:bg-white/10',
+						)}
+					>
+						<MoreVertical className="w-3.5 h-3.5" />
+					</Button>
+				</DropdownMenuTrigger>
+				<DropdownMenuContent
+					align="start"
+					side="right"
+					className="w-48 rounded-xl border-border shadow-premium dark:bg-[#121214]"
+				>
+					<DropdownMenuLabel className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+						Options
+					</DropdownMenuLabel>
+
+					<DropdownMenuItem
+						className="cursor-pointer font-medium text-xs py-2 hover:bg-primary/5"
+						onClick={() => handleRename(cat.id, cat.name)}
+					>
+						<Type className="w-3.5 h-3.5 mr-2" /> Rename Category
+					</DropdownMenuItem>
+					<DropdownMenuItem className="cursor-pointer font-medium text-xs py-2 hover:bg-primary/5">
+						<Edit3 className="w-3.5 h-3.5 mr-2" /> Edit Category
+					</DropdownMenuItem>
+
+					<DropdownMenuSeparator className="bg-border/50" />
+
+					<DropdownMenuItem className="cursor-pointer font-medium text-xs py-2 text-rose-600 focus:text-rose-500 focus:bg-rose-500/10">
+						<Archive className="w-3.5 h-3.5 mr-2" /> Archive Category
+					</DropdownMenuItem>
+				</DropdownMenuContent>
+			</DropdownMenu>
+		</div>
+	)
+})
