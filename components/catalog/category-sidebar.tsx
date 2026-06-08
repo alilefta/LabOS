@@ -37,7 +37,6 @@ interface Props {
 }
 
 export function CategorySidebar({ labId, activeCategoryId }: Props) {
-	const router = useRouter()
 	const pathname = usePathname()
 	const searchParams = useSearchParams()
 	const queryClient = useQueryClient()
@@ -73,7 +72,7 @@ export function CategorySidebar({ labId, activeCategoryId }: Props) {
 	})
 
 	// Client-side filtering (since categories list is usually small, < 20 items)
-	const filteredCategories = categories.filter((cat: any) =>
+	const filteredCategories = categories.filter((cat) =>
 		cat.name.toLowerCase().includes(debouncedSearch.toLowerCase()),
 	)
 
@@ -192,6 +191,10 @@ export function CategorySidebar({ labId, activeCategoryId }: Props) {
 					onSuccess={() => {
 						queryClient.invalidateQueries({
 							queryKey: ['catalog-categories', labId],
+						})
+
+						queryClient.invalidateQueries({
+							queryKey: ['catalog-work-types', labId, catToRename.id],
 						})
 					}}
 				/>

@@ -205,6 +205,9 @@ export function ProductSidebar({ labId, workTypeId, activeProductId }: Props) {
 						queryClient.invalidateQueries({
 							queryKey: ['catalog-products', labId, workTypeId],
 						})
+						queryClient.invalidateQueries({
+							queryKey: ['product-vitals', prodToRename.id],
+						})
 					}}
 				/>
 			)}

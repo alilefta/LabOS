@@ -86,10 +86,12 @@ export function PricingPlanLedger({ productId, labId }: Props) {
 	}, [])
 
 	// --- 2. DERIVED STATE & GROUPING ENGINE ---
-	const generalPlans = pricingPlans.filter((p: any) => !p.clinic)
-	const customClinicPlans = pricingPlans.filter((p: any) => p.clinic)
+	const generalPlans = pricingPlans.filter((p) => !p.clinic)
+	const customClinicPlans = pricingPlans.filter((p) => p.clinic)
 
-	const defaultPlan = generalPlans.find((p: any) => p.isDefault)
+	const defaultPlan = useMemo(() => {
+		return generalPlans.find((p) => p.isDefault)
+	}, [generalPlans])
 
 	const standardBasePrice = useMemo(() => {
 		if (!defaultPlan) return null
@@ -122,16 +124,20 @@ export function PricingPlanLedger({ productId, labId }: Props) {
 
 	const handleCreateNew = useCallback(
 		(clinicId?: string, clinicName?: string) => {
-			setSheetPlan({
-				planId: 'new',
-				clinic:
-					clinicId && clinicId
-						? {
-								id: clinicId,
-								name: clinicName ?? 'N/A',
-							}
-						: null,
-			}) // Use "new" as a flag for creation mode
+			if (clinicId) {
+				setSheetPlan({
+					planId: 'new',
+					clinic: {
+						id: clinicId,
+						name: clinicName ?? 'N/A',
+					},
+				}) // Use "new" as a flag for creation mode
+			} else {
+				setSheetPlan({
+					planId: 'new',
+					clinic: null,
+				})
+			}
 			setIsSheetOpen(true)
 		},
 		[],
@@ -139,16 +145,20 @@ export function PricingPlanLedger({ productId, labId }: Props) {
 
 	const handleEdit = useCallback(
 		(id: string, clinicId?: string, clinicName?: string) => {
-			setSheetPlan({
-				planId: id,
-				clinic:
-					clinicId && clinicId
-						? {
-								id: clinicId,
-								name: clinicName ?? 'N/A',
-							}
-						: null,
-			})
+			if (clinicId) {
+				setSheetPlan({
+					planId: id,
+					clinic: {
+						id: clinicId,
+						name: clinicName ?? 'N/A',
+					},
+				})
+			} else {
+				setSheetPlan({
+					planId: id,
+					clinic: null,
+				})
+			}
 			setIsSheetOpen(true)
 		},
 		[],
@@ -164,6 +174,19 @@ export function PricingPlanLedger({ productId, labId }: Props) {
 	const planIdToEdit =
 		sheetPlan && sheetPlan.planId !== 'new' ? sheetPlan.planId : null
 
+	const handleRename = useCallback((id: string, name: string) => {
+		setPlanToRename({
+			id,
+			name,
+		})
+		setRenameModal(true)
+	}, [])
+
+	const handleCloseRenameModal = useCallback(() => {
+		setRenameModal(false)
+		setPlanToRename(null)
+	}, [])
+
 	// --- 3. LOADING STATE ---
 	if (isLoading) {
 		return (
@@ -178,19 +201,6 @@ export function PricingPlanLedger({ productId, labId }: Props) {
 	}
 
 	if (!productId) return null
-
-	const handleRename = useCallback((id: string, name: string) => {
-		setPlanToRename({
-			id,
-			name,
-		})
-		setRenameModal(true)
-	}, [])
-
-	const handleCloseRenameModal = useCallback(() => {
-		setRenameModal(false)
-		setPlanToRename(null)
-	}, [])
 
 	return (
 		<div className="flex flex-col h-full overflow-y-auto custom-scrollbar animate-in fade-in slide-in-from-right-4 duration-500 relative bg-background">
@@ -243,7 +253,7 @@ export function PricingPlanLedger({ productId, labId }: Props) {
 						</div>
 					) : (
 						<div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-							{generalPlans.map((plan: any) => (
+							{generalPlans.map((plan) => (
 								<PricingPlanLedgerCard
 									key={plan.id}
 									plan={plan}

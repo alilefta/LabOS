@@ -2,27 +2,9 @@
 
 import { useQuery } from '@tanstack/react-query'
 import { useRouter, usePathname, useSearchParams } from 'next/navigation'
-import {
-	Layers,
-	Plus,
-	MousePointer2,
-	MoreHorizontal,
-	Edit3,
-	Archive,
-	Package,
-	FolderOpen,
-	ArrowRight,
-} from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { Plus, FolderOpen } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuSeparator,
-	DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
 
 // Replace with your actual server action
 import { handleSafeActionError } from '@/lib/safe-action-helpers'
@@ -128,8 +110,9 @@ export function WorkTypeBentoGrid({ categoryId, labId }: Props) {
 						No Work Types Configured
 					</h3>
 					<p className="text-sm text-muted-foreground max-w-md leading-relaxed mb-8">
-						This category is empty. Create a Work Type (e.g. "Crowns & Bridges")
-						to begin adding manufacturing products to your catalog.
+						This category is empty. Create a Work Type (e.g. &quot;Crowns &
+						Bridges&quot;) to begin adding manufacturing products to your
+						catalog.
 					</p>
 					<Button
 						variant="outline"
@@ -156,93 +139,6 @@ export function WorkTypeBentoGrid({ categoryId, labId }: Props) {
 					))}
 				</div>
 			)}
-		</div>
-	)
-}
-
-function Card({
-	wt,
-	navigateToProducts,
-}: {
-	wt: any
-	navigateToProducts: (id: string) => void
-}) {
-	return (
-		<div
-			key={wt.id}
-			className="lab-card p-6 flex flex-col group relative overflow-hidden transition-all duration-300 hover:shadow-xl hover:border-primary/40 border-border bg-card"
-		>
-			{/* Background Graphic */}
-			<Layers className="absolute -bottom-6 -right-6 w-32 h-32 text-slate-50 dark:text-white/[0.02] pointer-events-none group-hover:scale-110 transition-transform duration-500" />
-
-			{/* Card Header */}
-			<div className="flex items-start justify-between mb-4 relative z-10">
-				<div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shadow-sm group-hover:scale-110 transition-transform duration-300">
-					<Layers className="w-5 h-5" />
-				</div>
-
-				{/* Context Menu */}
-				<DropdownMenu>
-					<DropdownMenuTrigger asChild>
-						<Button
-							variant="ghost"
-							size="icon"
-							className="h-8 w-8 text-muted-foreground hover:text-foreground -mr-2 -mt-2 transition-colors"
-						>
-							<MoreHorizontal className="w-4 h-4" />
-						</Button>
-					</DropdownMenuTrigger>
-					<DropdownMenuContent
-						align="end"
-						className="w-48 rounded-xl border-border shadow-premium dark:bg-[#121214]"
-					>
-						<DropdownMenuItem className="cursor-pointer font-medium text-xs py-2 hover:bg-primary/5">
-							<Edit3 className="w-3.5 h-3.5 mr-2" /> Edit Details
-						</DropdownMenuItem>
-						<DropdownMenuSeparator className="bg-border/50" />
-						<DropdownMenuItem className="cursor-pointer font-medium text-xs py-2 text-rose-600 focus:text-rose-500 focus:bg-rose-500/10">
-							<Archive className="w-3.5 h-3.5 mr-2" /> Archive Group
-						</DropdownMenuItem>
-					</DropdownMenuContent>
-				</DropdownMenu>
-			</div>
-
-			{/* Card Body */}
-			<div className="space-y-1 mb-6 relative z-10">
-				<h3 className="text-lg font-bold text-foreground leading-tight tracking-tight line-clamp-1">
-					{wt.name}
-				</h3>
-				<p className="text-xs text-muted-foreground line-clamp-2 min-h-[32px] leading-relaxed">
-					{wt.description || 'No description provided.'}
-				</p>
-			</div>
-
-			{/* Stats / Config Flags */}
-			<div className="flex items-center gap-2 mb-6 relative z-10">
-				<span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-slate-100 dark:bg-white/5 border border-border text-[9px] font-bold text-muted-foreground uppercase tracking-widest">
-					<Package className="w-3 h-3 text-primary/70" />
-					{wt._count?.products || 0} Products
-				</span>
-
-				{wt.requireTeethSelection && (
-					<span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-blue-500/10 border border-blue-500/20 text-[9px] font-bold text-blue-600 dark:text-blue-500 uppercase tracking-widest">
-						<MousePointer2 className="w-3 h-3" />
-						Anatomy Required
-					</span>
-				)}
-			</div>
-
-			{/* ACTION: Drill Down */}
-			<div className="mt-auto pt-4 border-t border-border relative z-10">
-				<Button
-					onClick={() => navigateToProducts(wt.id)}
-					variant="ghost"
-					className="w-full justify-between h-10 px-4 rounded-xl text-xs font-bold text-primary hover:text-white hover:bg-primary transition-all group/btn"
-				>
-					Manage Catalog{' '}
-					<ArrowRight className="w-4 h-4 opacity-50 group-hover/btn:opacity-100 group-hover/btn:translate-x-1 transition-all" />
-				</Button>
-			</div>
 		</div>
 	)
 }
