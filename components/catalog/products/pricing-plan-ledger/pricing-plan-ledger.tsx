@@ -4,7 +4,6 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import {
 	Plus,
 	Wallet,
-	ShieldCheck,
 	Landmark,
 	Receipt,
 	AlertCircle,
@@ -12,11 +11,9 @@ import {
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import { cn } from '@/lib/utils'
+import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 
 // Zustand Store & Handlers
-import { useClinicalCreationStore } from '@/store/use-clinical-creation-store'
 import { handleSafeActionError } from '@/lib/safe-action-helpers'
 import { getPricingPlansByProductAction } from '@/actions/catalog/get-pricing-plans'
 import { PricingPlanLedgerCard } from './pricing-plan-ledger-card'
@@ -29,8 +26,6 @@ interface Props {
 	labId: string
 }
 
-const preloadEditorSheet = () =>
-	import('../../../modals/pricing/custom-pricing-per-clinic/pricing-plan-editor-sheet')
 const PricingPlanEditorSheet = dynamic(
 	() =>
 		import('../../../modals/pricing/custom-pricing-per-clinic/pricing-plan-editor-sheet').then(
@@ -49,7 +44,10 @@ type SheetPlanDetails = {
 	} | null
 }
 
-export function PricingPlanLedger({ productId, labId }: Props) {
+export const PricingPlanLedger = memo(function PricingPlanLedger({
+	productId,
+	labId,
+}: Props) {
 	const queryClient = useQueryClient()
 
 	const [sheetPlan, setSheetPlan] = useState<SheetPlanDetails | null>(null)
@@ -79,11 +77,6 @@ export function PricingPlanLedger({ productId, labId }: Props) {
 		enabled: !!productId,
 		staleTime: 1000 * 60 * 5,
 	})
-
-	// Prefetch the sheet bundle as soon as the roster tab mounts
-	useEffect(() => {
-		preloadEditorSheet()
-	}, [])
 
 	// --- 2. DERIVED STATE & GROUPING ENGINE ---
 	const generalPlans = pricingPlans.filter((p) => !p.clinic)
@@ -349,18 +342,18 @@ export function PricingPlanLedger({ productId, labId }: Props) {
 					)}
 				</div>
 			</div>
-
-			<PricingPlanEditorSheet
-				activeProductId={productId}
-				clinicId={sheetPlan?.clinic?.id}
-				clinicName={sheetPlan?.clinic?.name}
-				isOpen={isSheetOpen}
-				isEdit={!!planIdToEdit}
-				onClose={handleClose}
-				planIdToEdit={planIdToEdit}
-				key={sheetPlan?.planId ?? 'new'}
-			/>
-
+			{sheetPlan && (
+				<PricingPlanEditorSheet
+					activeProductId={productId}
+					clinicId={sheetPlan?.clinic?.id}
+					clinicName={sheetPlan?.clinic?.name}
+					isOpen={isSheetOpen}
+					isEdit={!!planIdToEdit}
+					onClose={handleClose}
+					planIdToEdit={planIdToEdit}
+					key={sheetPlan?.planId ?? 'new'}
+				/>
+			)}
 			{planToRename && (
 				<CatalogRenameModal
 					isOpen={renameModal}
@@ -378,4 +371,4 @@ export function PricingPlanLedger({ productId, labId }: Props) {
 			)}
 		</div>
 	)
-}
+})

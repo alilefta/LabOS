@@ -13,6 +13,7 @@ import {
 	ArrowRight,
 	AlertCircle,
 	Activity,
+	Type,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -47,6 +48,7 @@ interface WorkTypeCardProps {
 	onArchive: (id: string) => void
 	onHardDelete: (id: string) => void
 	onManageProducts: (id: string) => void
+	onRename: (id: string, name: string) => void
 }
 
 export const WorkTypeBentoGridCard = memo(function WorkTypeBentoGridCard({
@@ -56,6 +58,7 @@ export const WorkTypeBentoGridCard = memo(function WorkTypeBentoGridCard({
 	onArchive,
 	onHardDelete,
 	onManageProducts,
+	onRename,
 }: WorkTypeCardProps) {
 	// Lockout logic for destructive actions
 	const hasCases = workType._count.caseWorkItems > 0
@@ -131,6 +134,13 @@ export const WorkTypeBentoGridCard = memo(function WorkTypeBentoGridCard({
 							className="cursor-pointer font-medium text-xs py-2 hover:bg-primary/5"
 						>
 							<Edit3 className="w-3.5 h-3.5 mr-2 text-slate-400" /> Edit Details
+						</DropdownMenuItem>
+
+						<DropdownMenuItem
+							onClick={() => onRename(workType.id, workType.name)}
+							className="cursor-pointer font-medium text-xs py-2 hover:bg-primary/5"
+						>
+							<Type className="w-3.5 h-3.5 mr-2 text-slate-400" /> Rename
 						</DropdownMenuItem>
 
 						<DropdownMenuItem

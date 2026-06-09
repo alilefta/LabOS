@@ -129,7 +129,11 @@ export default async function CatalogPage({ searchParams }: Props) {
 							) : isLevel2_Category ? (
 								<WorkTypeBentoGrid categoryId={categoryId} labId={labId} />
 							) : (
-								<ProductWorkspace productId={productId} labId={labId} />
+								<ProductWorkspace
+									productId={productId}
+									labId={labId}
+									workTypeId={workTypeId}
+								/>
 							)}
 						</Suspense>
 					</div>

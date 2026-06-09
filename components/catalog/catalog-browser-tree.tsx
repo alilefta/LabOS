@@ -294,7 +294,7 @@ export const CatalogBrowserTree = memo(function CatalogBrowserTree({
 													className="group/wt-row flex items-center justify-between relative w-full"
 												>
 													<Link
-														href={`/catalog?workTypeId=${wt.id}`}
+														href={`/catalog?wt=${wt.id}`}
 														replace
 														className={cn(
 															'flex-1 flex items-center justify-between pl-10 pr-12 py-2 rounded-xl transition-all duration-200 outline-none focus-visible:ring-2 focus-visible:ring-primary/50 relative',

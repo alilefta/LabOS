@@ -1,6 +1,6 @@
 'use client'
 
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useRouter, usePathname, useSearchParams } from 'next/navigation'
 import { Plus, FolderOpen } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -10,6 +10,8 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { handleSafeActionError } from '@/lib/safe-action-helpers'
 import { WorkTypeBentoGridCard } from './worktype-bento-grid-card'
 import { getWorkTypesByCategoryAction } from '@/actions/catalog/get-worktypes-by-category'
+import { useCallback, useState } from 'react'
+import { CatalogRenameModal } from '@/components/modals/catalog/catalog-rename-modal'
 
 interface Props {
 	categoryId: string
@@ -20,6 +22,13 @@ export function WorkTypeBentoGrid({ categoryId, labId }: Props) {
 	const router = useRouter()
 	const pathname = usePathname()
 	const searchParams = useSearchParams()
+	const queryClient = useQueryClient()
+
+	const [renameModal, setRenameModal] = useState(false)
+	const [workTypeToRename, setWorkTypeToRename] = useState<{
+		id: string
+		name: string
+	} | null>(null)
 
 	// --- 1. DATA FETCHING ---
 	const { data: workTypes = [], isLoading } = useQuery({
@@ -52,6 +61,19 @@ export function WorkTypeBentoGrid({ categoryId, labId }: Props) {
 		router.replace(`${pathname}?${params.toString()}`)
 	}
 
+	const handleRename = useCallback((id: string, name: string) => {
+		setWorkTypeToRename({
+			id,
+			name,
+		})
+		setRenameModal(true)
+	}, [])
+
+	const handleCloseRenameModal = useCallback(() => {
+		setRenameModal(false)
+		setWorkTypeToRename(null)
+	}, [])
+
 	// --- 3. LOADING STATE ---
 	if (isLoading) {
 		return (
@@ -72,7 +94,7 @@ export function WorkTypeBentoGrid({ categoryId, labId }: Props) {
 	return (
 		<div className="flex flex-col h-full overflow-y-auto custom-scrollbar p-6 lg:p-10 animate-in fade-in duration-500 relative">
 			{/* Ambient Category Glow */}
-			<div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[100px] pointer-events-none -z-10" />
+			<div className="absolute top-0 right-0 w-125 h-125 bg-primary/5 rounded-full blur-[100px] pointer-events-none -z-10" />
 
 			{/* --- HEADER --- */}
 			<div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8 shrink-0">
@@ -135,9 +157,26 @@ export function WorkTypeBentoGrid({ categoryId, labId }: Props) {
 							onMoveCategory={(id) => console.log('Move WT', id)}
 							onArchive={(id) => console.log('Archive WT', id)}
 							onHardDelete={(id) => console.log('Hard Delete WT', id)}
+							onRename={handleRename}
 						/>
 					))}
 				</div>
+			)}
+
+			{workTypeToRename && (
+				<CatalogRenameModal
+					isOpen={renameModal}
+					onClose={handleCloseRenameModal}
+					entityId={workTypeToRename.id}
+					entityType="WORKTYPE"
+					initialName={workTypeToRename.name}
+					key={workTypeToRename.id}
+					onSuccess={() => {
+						queryClient.invalidateQueries({
+							queryKey: ['catalog-work-types', labId, categoryId],
+						})
+					}}
+				/>
 			)}
 		</div>
 	)

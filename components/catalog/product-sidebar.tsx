@@ -1,37 +1,20 @@
 'use client'
 
-import { useQuery, useQueryClient } from '@tanstack/react-query'
-import Link from 'next/link'
+import { dehydrate, useQuery, useQueryClient } from '@tanstack/react-query'
 import { usePathname, useSearchParams, useRouter } from 'next/navigation'
-import {
-	Package,
-	Search,
-	Plus,
-	MoreVertical,
-	Edit3,
-	Archive,
-	ChevronLeft,
-	Layers,
-	Type,
-} from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { Package, Search, Plus, ChevronLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuLabel,
-	DropdownMenuSeparator,
-	DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { memo, useCallback, useState } from 'react'
+
+import { memo, useCallback, useEffect, useState } from 'react'
 import useDebounce from '@/hooks/useDebounce'
 import { handleSafeActionError } from '@/lib/safe-action-helpers'
 
-// Replace with your actual server action import
 import { getProductsByWorkTypeAction } from '@/actions/catalog/get-products'
-import { CatalogProductDTO } from '@/schema/composed/catalog/catalog.dtos'
 import { CatalogRenameModal } from '../modals/catalog/catalog-rename-modal'
+import { ProductItem } from './products/sidebar/product-sidebar-item'
+import dynamic from 'next/dynamic'
+import { getProductByIdAction } from '@/actions/catalog/products/get-product'
+import { QueryHydrationBoundary } from '@/providers/query-hydration-boundary'
 
 interface Props {
 	labId: string
@@ -39,11 +22,30 @@ interface Props {
 	activeProductId?: string
 }
 
-export function ProductSidebar({ labId, workTypeId, activeProductId }: Props) {
+const preloadEditorSheet = () =>
+	import('../modals/catalog/products/product-editor-sheet')
+const ProductEditorSheet = dynamic(
+	() =>
+		import('../modals/catalog/products/product-editor-sheet').then(
+			(m) => m.ProductEditorSheet,
+		),
+	{
+		ssr: false,
+	},
+)
+
+export const ProductSidebar = memo(function ProductSidebar({
+	labId,
+	workTypeId,
+	activeProductId,
+}: Props) {
 	const router = useRouter()
 	const pathname = usePathname()
 	const searchParams = useSearchParams()
 	const queryClient = useQueryClient()
+
+	const [productEditId, setProductEditId] = useState<string | null>(null)
+	const [isEditorSheetOpen, setIsEditorSheetOpen] = useState(false)
 
 	const [renameModal, setRenameModal] = useState(false)
 	const [prodToRename, setProdToRename] = useState<{
@@ -71,6 +73,16 @@ export function ProductSidebar({ labId, workTypeId, activeProductId }: Props) {
 		},
 		staleTime: 1000 * 60 * 5,
 	})
+
+	// queryClient.prefetchQuery({
+	// 	queryKey: ['product-editor-details', productEditId],
+	// 	queryFn: async () => {
+	// 		if (!productEditId) return null
+	// 		const res = await getProductByIdAction({ productId: productEditId })
+
+	// 		return res.data?.product ?? null
+	// 	},
+	// })
 
 	// Client-side filtering
 	const filteredProducts = products.filter((prod) =>
@@ -100,9 +112,26 @@ export function ProductSidebar({ labId, workTypeId, activeProductId }: Props) {
 		setRenameModal(true)
 	}, [])
 
+	const handleCreateNew = useCallback(() => {
+		setProductEditId(null)
+		setIsEditorSheetOpen(true)
+	}, [])
+
+	const handleEdit = useCallback((id: string) => {
+		setProductEditId(id)
+		setIsEditorSheetOpen(true)
+	}, [])
+
 	const handleCloseRenameModal = useCallback(() => {
 		setRenameModal(false)
 		setProdToRename(null)
+	}, [])
+
+	const handleCloseEditor = useCallback(() => {
+		setIsEditorSheetOpen(false)
+		setTimeout(() => {
+			setProductEditId(null)
+		}, 300)
 	}, [])
 
 	return (
@@ -136,8 +165,7 @@ export function ProductSidebar({ labId, workTypeId, activeProductId }: Props) {
 						variant="ghost"
 						className="h-8 w-8 rounded-lg text-ai hover:bg-ai/10 hover:text-ai transition-colors"
 						onClick={() => {
-							// Open CreateProductSheet pre-filled with `workTypeId`
-							console.log('Open Create Product Sheet')
+							handleCreateNew()
 						}}
 					>
 						<Plus className="w-4 h-4" />
@@ -187,11 +215,21 @@ export function ProductSidebar({ labId, workTypeId, activeProductId }: Props) {
 								handleRename={handleRename}
 								isActive={isActive}
 								prod={prod}
+								handleEdit={handleEdit}
 							/>
 						)
 					})
 				)}
 			</div>
+
+			<ProductEditorSheet
+				isOpen={isEditorSheetOpen}
+				onClose={handleCloseEditor}
+				workTypeId={workTypeId}
+				productIdToEdit={productEditId}
+				isEdit={!!productEditId}
+				key={productEditId ?? 'new'}
+			/>
 
 			{prodToRename && (
 				<CatalogRenameModal
@@ -211,127 +249,6 @@ export function ProductSidebar({ labId, workTypeId, activeProductId }: Props) {
 					}}
 				/>
 			)}
-		</div>
-	)
-}
-
-interface ProductItemProps {
-	prod: CatalogProductDTO
-	isActive: boolean
-	createProductLink: (id: string) => string
-	handleRename: (id: string, name: string) => void
-}
-const ProductItem = memo(function productItem({
-	prod,
-	isActive,
-	handleRename,
-	createProductLink,
-}: ProductItemProps) {
-	return (
-		<div
-			key={prod.id}
-			className={cn(
-				'group relative flex items-center justify-between p-1 pr-2 rounded-xl transition-all duration-200',
-				isActive
-					? 'bg-ai/10 dark:bg-ai/15'
-					: 'hover:bg-slate-100 dark:hover:bg-white/5',
-			)}
-		>
-			{/* The clickable area (Link) */}
-			<Link
-				href={createProductLink(prod.id)}
-				replace
-				className="flex-1 flex items-center gap-3 p-2 outline-none min-w-0"
-			>
-				{/* Active Indicator Bar */}
-				<div
-					className={cn(
-						'absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 rounded-r-full transition-all duration-300',
-						isActive ? 'bg-ai scale-y-100' : 'bg-transparent scale-y-0',
-					)}
-				/>
-
-				{/* Icon / Avatar */}
-				<div
-					className={cn(
-						'w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-colors shadow-sm',
-						isActive
-							? 'bg-white dark:bg-[#121214] text-ai border border-ai/20'
-							: 'bg-white dark:bg-[#121214] text-muted-foreground border border-border group-hover:text-foreground',
-					)}
-				>
-					{prod.imageUrl ? (
-						<img
-							src={prod.imageUrl}
-							alt={prod.name}
-							className="w-5 h-5 object-contain"
-						/>
-					) : (
-						<span className="text-xs font-bold font-mono">
-							{prod.name.substring(0, 2).toUpperCase()}
-						</span>
-					)}
-				</div>
-
-				{/* Text Details */}
-				<div className="flex flex-col min-w-0 flex-1">
-					<span
-						className={cn(
-							'text-xs font-bold truncate transition-colors',
-							isActive ? 'text-ai' : 'text-foreground group-hover:text-ai',
-						)}
-					>
-						{prod.name}
-					</span>
-					{/* Show material/desc snippet if exists */}
-					<span className="text-[9px] text-muted-foreground truncate max-w-full">
-						{prod.description || 'No description'}
-					</span>
-				</div>
-			</Link>
-
-			{/* Context Menu (3-dots) */}
-			<DropdownMenu>
-				<DropdownMenuTrigger asChild>
-					<Button
-						variant="ghost"
-						size="icon"
-						className={cn(
-							'h-7 w-7 rounded-lg transition-opacity shrink-0',
-							isActive
-								? 'opacity-100 text-ai hover:bg-ai/20'
-								: 'opacity-0 group-hover:opacity-100 text-muted-foreground hover:bg-slate-200 dark:hover:bg-white/10',
-						)}
-					>
-						<MoreVertical className="w-3.5 h-3.5" />
-					</Button>
-				</DropdownMenuTrigger>
-				<DropdownMenuContent
-					align="start"
-					side="right"
-					className="w-48 rounded-xl border-border shadow-premium dark:bg-[#121214]"
-				>
-					<DropdownMenuLabel className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
-						Options
-					</DropdownMenuLabel>
-					<DropdownMenuItem
-						className="cursor-pointer font-medium text-xs py-2 hover:bg-primary/5"
-						onClick={() => handleRename(prod.id, prod.name)}
-					>
-						<Type className="w-3.5 h-3.5 mr-2" /> Rename Product
-					</DropdownMenuItem>
-					<DropdownMenuItem className="cursor-pointer font-medium text-xs py-2 hover:bg-ai/5">
-						<Edit3 className="w-3.5 h-3.5 mr-2" />
-						Edit
-					</DropdownMenuItem>
-
-					<DropdownMenuSeparator className="bg-border/50" />
-
-					<DropdownMenuItem className="cursor-pointer font-medium text-xs py-2 text-rose-600 focus:text-rose-500 focus:bg-rose-500/10">
-						<Archive className="w-3.5 h-3.5 mr-2" /> Archive Product
-					</DropdownMenuItem>
-				</DropdownMenuContent>
-			</DropdownMenu>
 		</div>
 	)
 })

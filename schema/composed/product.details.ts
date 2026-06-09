@@ -31,17 +31,12 @@ export type ProductDetailsUI = z.infer<typeof ProductDetailsUISchema>
 
 export const CreateProductInputSchema = z.object({
 	name: z.string().trim().min(1, 'Product name is required'),
-	description: z
-		.string()
-		.trim()
-		.transform(emptyToUndefinedTransformer)
-		.optional(),
+	description: z.string().trim().optional(),
 	imageUrl: z
 		.union([
 			z.literal(''),
 			z.string().trim().url('Please enter a valid image URL'),
 		])
-		.transform(emptyToUndefinedTransformer)
 		.optional(),
 	workTypeId: z.string(),
 	// casePricingPlan: CreateCaseItemPricingPlanInputSchema, // independent

@@ -1,6 +1,6 @@
 'use client'
 
-import { memo, useEffect, useState, useCallback } from 'react'
+import { memo, useEffect, useCallback } from 'react'
 import { useForm, Controller, FormProvider } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
@@ -11,6 +11,8 @@ import {
 	Loader2,
 	Check,
 	Info,
+	Type,
+	LucideIcon,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
@@ -56,7 +58,7 @@ const ENTITY_CONFIG: Record<
 	{
 		title: string
 		desc: string
-		icon: any
+		icon: LucideIcon
 		colorClass: string
 		glowClass: string
 	}
@@ -66,28 +68,28 @@ const ENTITY_CONFIG: Record<
 		desc: 'Modify the high-level workflow department name.',
 		icon: LayoutGrid,
 		colorClass: 'text-primary bg-primary/10 border-primary/20',
-		glowClass: 'bg-primary/5',
+		glowClass: 'from-primary/10 via-primary/5 to-transparent',
 	},
 	WORKTYPE: {
 		title: 'Rename Work Type',
 		desc: 'Modify the structural group folder name.',
 		icon: Layers,
 		colorClass: 'text-primary bg-primary/10 border-primary/20',
-		glowClass: 'bg-primary/5',
+		glowClass: 'from-primary/10 via-primary/5 to-transparent',
 	},
 	PRODUCT: {
 		title: 'Rename Product',
 		desc: 'Modify the specific manufacturing material name.',
 		icon: Package,
 		colorClass: 'text-ai bg-ai/10 border-ai/20',
-		glowClass: 'bg-ai/5',
+		glowClass: 'from-ai/10 via-ai/5 to-transparent',
 	},
 	PRICING_PLAN: {
 		title: 'Rename Pricing Plan',
 		desc: 'Modify the default or custom billing plan name.',
 		icon: Calculator,
 		colorClass: 'text-emerald-500 bg-emerald-500/10 border-emerald-500/20',
-		glowClass: 'bg-emerald-500/5',
+		glowClass: 'from-emerald-500/10 via-emerald-500/5 to-transparent',
 	},
 }
 
@@ -118,23 +120,19 @@ export const CatalogRenameModal = memo(function CatalogRenameModal({
 	const { executeAsync: renameCategory, isExecuting: isRenamingCategory } =
 		useAction(renameCaseCategoryAction, {
 			onSuccess: ({ data }) => {
-				toast.success(
-					`Category ${initialName} renamed to ${data.category.name}`,
-				)
+				toast.success(`Category renamed to ${data.category.name}`)
 			},
 		})
 	const { executeAsync: renameWorkType, isExecuting: isRenamingWorkType } =
 		useAction(renameWorkTypeAction, {
 			onSuccess: ({ data }) => {
-				toast.success(
-					`Work Type ${initialName} renamed to ${data.workType.name}`,
-				)
+				toast.success(`Work Type renamed to ${data.workType.name}`)
 			},
 		})
 	const { executeAsync: renameProduct, isExecuting: isRenamingProduct } =
 		useAction(renameProductAction, {
 			onSuccess: ({ data }) => {
-				toast.success(`Product ${initialName} renamed to ${data.product.name}`)
+				toast.success(`Product renamed to ${data.product.name}`)
 			},
 		})
 	const {
@@ -142,7 +140,7 @@ export const CatalogRenameModal = memo(function CatalogRenameModal({
 		isExecuting: isRenamingPricingPlan,
 	} = useAction(renamePricingPlanAction, {
 		onSuccess: ({ data }) => {
-			toast.success(`Plan ${initialName} renamed to ${data.pricingPlan.name}`)
+			toast.success(`Plan renamed to ${data.pricingPlan.name}`)
 		},
 	})
 
@@ -172,11 +170,7 @@ export const CatalogRenameModal = memo(function CatalogRenameModal({
 						break
 				}
 
-				toast.success(
-					`${entityType.replace('_', ' ').toLowerCase()} successfully renamed.`,
-				)
-
-				if (onSuccess) onSuccess() // Invalidate specific React Query keys in the parent
+				if (onSuccess) onSuccess()
 				onClose()
 			} catch (err) {
 				console.error(
@@ -204,43 +198,34 @@ export const CatalogRenameModal = memo(function CatalogRenameModal({
 			open={isOpen}
 			onOpenChange={(open) => !isExecuting && !open && onClose()}
 		>
-			{/* Accessibility Headers */}
-			<DialogHeader className="sr-only">
-				<DialogTitle>{config.title}</DialogTitle>
-				<DialogDescription>{config.desc}</DialogDescription>
-			</DialogHeader>
-
 			<DialogContent
 				className="sm:max-w-md p-0 overflow-hidden border-border bg-card shadow-2xl rounded-3xl"
 				showCloseButton={false}
 			>
-				{/* --- HEADER --- */}
-				<div
+				{/* --- HEADER: Centered & Refined --- */}
+				<DialogHeader
 					className={cn(
-						'p-6 border-b border-border flex items-start gap-4 relative overflow-hidden bg-linear-to-br',
+						'p-8 pb-4 flex flex-col items-center text-center bg-linear-to-b relative border-b border-border/50',
 						config.glowClass,
 					)}
 				>
-					<div className="absolute top-0 right-0 p-8 opacity-10">
-						<config.icon className="w-24 h-24" />
-					</div>
 					<div
 						className={cn(
-							'w-12 h-12 rounded-2xl flex items-center justify-center border shadow-sm shrink-0 relative z-10',
+							'w-14 h-14 rounded-2xl flex items-center justify-center border shadow-sm mb-4 relative z-10',
 							config.colorClass,
 						)}
 					>
-						<config.icon className="w-6 h-6" />
+						<Type className="w-6 h-6" />
 					</div>
-					<div className="relative z-10 pt-1 text-left">
+					<div className="relative z-10">
 						<DialogTitle className="text-xl font-bold tracking-tight text-foreground">
 							{config.title}
 						</DialogTitle>
-						<p className="text-xs text-muted-foreground font-medium mt-1 leading-relaxed pr-4">
+						<DialogDescription className="text-xs text-muted-foreground font-medium mt-1">
 							{config.desc}
-						</p>
+						</DialogDescription>
 					</div>
-				</div>
+				</DialogHeader>
 
 				{/* --- BODY --- */}
 				<div className="p-6 space-y-6">
@@ -248,7 +233,6 @@ export const CatalogRenameModal = memo(function CatalogRenameModal({
 						<form
 							id="catalog-rename-form"
 							onSubmit={form.handleSubmit(onSubmit)}
-							className="space-y-6"
 						>
 							<Controller
 								control={form.control}
@@ -268,12 +252,15 @@ export const CatalogRenameModal = memo(function CatalogRenameModal({
 					</FormProvider>
 
 					{/* Progressive Context Tip */}
-					<div className="p-3.5 rounded-xl bg-slate-50 dark:bg-white/2 border border-border flex gap-2.5 items-start">
+					<div className="p-4 rounded-2xl bg-slate-50 dark:bg-white/2 border border-border flex gap-3 items-start shadow-sm">
 						<Info className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
-						<p className="text-[10px] text-muted-foreground leading-relaxed">
-							<span className="font-bold text-foreground">Audit Notice:</span>{' '}
+						<p className="text-[11px] text-muted-foreground leading-relaxed">
+							<span className="font-bold text-foreground mr-1">
+								Audit Notice:
+							</span>
 							Renaming this {entityType.toLowerCase().replace('_', ' ')} will
-							instantly update all active cases on your production floor.
+							instantly update the labels on all active cases on your production
+							floor.
 						</p>
 					</div>
 				</div>
@@ -285,7 +272,7 @@ export const CatalogRenameModal = memo(function CatalogRenameModal({
 							<Button
 								variant="ghost"
 								disabled={isExecuting}
-								className="rounded-xl h-11 px-6 font-semibold"
+								className="rounded-xl h-11 px-6 font-semibold flex-1 hover:bg-slate-100 dark:hover:bg-white/5"
 							>
 								Cancel
 							</Button>
@@ -297,8 +284,8 @@ export const CatalogRenameModal = memo(function CatalogRenameModal({
 							className={cn(
 								'flex-1 rounded-xl h-11 font-bold transition-all flex items-center justify-center gap-2',
 								isDirty
-									? 'bg-primary text-white shadow-premium'
-									: 'bg-slate-100 dark:bg-white/5 text-slate-400 dark:text-zinc-500 cursor-not-allowed',
+									? 'bg-primary text-white shadow-premium hover:bg-primary/90'
+									: 'bg-slate-100 dark:bg-white/5 text-slate-400 dark:text-zinc-500 cursor-not-allowed border border-border',
 							)}
 						>
 							{isExecuting ? (
