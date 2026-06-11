@@ -299,9 +299,7 @@ export const ProductEditorSheet = memo(function ProductEditorSheet({
 					</Button>
 					<Button
 						type="submit"
-						disabled={
-							isProcessing || isFetchingDetails || !form.formState.isDirty
-						}
+						disabled={isProcessing || isFetchingDetails}
 						form="product-editor-form"
 						className="rounded-xl flex items-center justify-center gap-2 h-11 bg-ai shadow-premium shadow-ai/20 font-bold hover:bg-ai/90 transition-all text-white shrink-0"
 					>

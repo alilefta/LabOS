@@ -11,7 +11,7 @@ const makeSchema = () => z.object({
   productId: z.string().optional().nullable(),
   labId: z.string(),
   dentalCaseId: z.string(),
-  casePricingPlanId: z.string(),
+  casePricingPlanId: z.string().optional().nullable(),
   totalPrice: z.union([
   z.number(),
   z.string(),

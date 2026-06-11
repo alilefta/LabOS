@@ -15,7 +15,7 @@ const makeSchema = () => z.object({
   productId: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
   labId: SortOrderSchema.optional(),
   dentalCaseId: SortOrderSchema.optional(),
-  casePricingPlanId: SortOrderSchema.optional(),
+  casePricingPlanId: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
   totalPrice: SortOrderSchema.optional(),
   pricingStrategy: SortOrderSchema.optional(),
   firstToothPrice: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),

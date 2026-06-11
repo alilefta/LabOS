@@ -36,8 +36,12 @@ import { handleSafeActionError } from '@/lib/safe-action-helpers'
 interface Props {
 	productId: string
 	onEdit: (id: string) => void
-	onArchiveToggle: (id: string, currentlyArchived: boolean) => void
-	onDeleteClick: (id: string) => void // Added for destructive action
+	onArchiveToggle: (
+		id: string,
+		name: string,
+		currentlyArchived: boolean,
+	) => void
+	onDeleteClick: (id: string, name: string) => void // Added for destructive action
 	onRename: (id: string, name: string) => void
 }
 
@@ -186,14 +190,16 @@ export const ProductIdentityVitals = memo(function ProductIdentityVitals({
 							<DropdownMenuSeparator className="bg-border" />
 
 							<DropdownMenuItem
-								onClick={() => onArchiveToggle(product.id, product.isArchived)}
+								onClick={() =>
+									onArchiveToggle(product.id, product.name, product.isArchived)
+								}
 								className="cursor-pointer font-medium py-2 text-amber-600 focus:text-amber-600 focus:bg-amber-500/10"
 							>
 								<Archive className="w-4 h-4 mr-2" />{' '}
 								{product.isArchived ? 'Restore to Catalog' : 'Archive Product'}
 							</DropdownMenuItem>
 							<DropdownMenuItem
-								onClick={() => onDeleteClick(product.id)}
+								onClick={() => onDeleteClick(product.id, product.name)}
 								className="cursor-pointer font-medium py-2 text-destructive focus:text-destructive focus:bg-destructive/10"
 							>
 								<Trash2 className="w-4 h-4 mr-2" /> Delete Permanently

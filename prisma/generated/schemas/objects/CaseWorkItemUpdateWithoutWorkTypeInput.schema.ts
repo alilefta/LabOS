@@ -12,7 +12,7 @@ import { DateTimeFieldUpdateOperationsInputObjectSchema as DateTimeFieldUpdateOp
 import { ProductUpdateOneWithoutCaseWorkItemsNestedInputObjectSchema as ProductUpdateOneWithoutCaseWorkItemsNestedInputObjectSchema } from './ProductUpdateOneWithoutCaseWorkItemsNestedInput.schema';
 import { LabUpdateOneRequiredWithoutCaseWorkItemsNestedInputObjectSchema as LabUpdateOneRequiredWithoutCaseWorkItemsNestedInputObjectSchema } from './LabUpdateOneRequiredWithoutCaseWorkItemsNestedInput.schema';
 import { CaseUpdateOneRequiredWithoutCaseItemsNestedInputObjectSchema as CaseUpdateOneRequiredWithoutCaseItemsNestedInputObjectSchema } from './CaseUpdateOneRequiredWithoutCaseItemsNestedInput.schema';
-import { CasePricingPlanUpdateOneRequiredWithoutCaseWorkItemNestedInputObjectSchema as CasePricingPlanUpdateOneRequiredWithoutCaseWorkItemNestedInputObjectSchema } from './CasePricingPlanUpdateOneRequiredWithoutCaseWorkItemNestedInput.schema';
+import { CasePricingPlanUpdateOneWithoutCaseWorkItemNestedInputObjectSchema as CasePricingPlanUpdateOneWithoutCaseWorkItemNestedInputObjectSchema } from './CasePricingPlanUpdateOneWithoutCaseWorkItemNestedInput.schema';
 import { CaseWorkItemAddonUpdateManyWithoutCaseWorkItemNestedInputObjectSchema as CaseWorkItemAddonUpdateManyWithoutCaseWorkItemNestedInputObjectSchema } from './CaseWorkItemAddonUpdateManyWithoutCaseWorkItemNestedInput.schema';
 import { SelectedToothUpdateManyWithoutCaseWorkItemNestedInputObjectSchema as SelectedToothUpdateManyWithoutCaseWorkItemNestedInputObjectSchema } from './SelectedToothUpdateManyWithoutCaseWorkItemNestedInput.schema'
 
@@ -79,7 +79,7 @@ const makeSchema = () => z.object({
   product: z.lazy(() => ProductUpdateOneWithoutCaseWorkItemsNestedInputObjectSchema).optional(),
   lab: z.lazy(() => LabUpdateOneRequiredWithoutCaseWorkItemsNestedInputObjectSchema).optional(),
   dentalCase: z.lazy(() => CaseUpdateOneRequiredWithoutCaseItemsNestedInputObjectSchema).optional(),
-  casePricingPlan: z.lazy(() => CasePricingPlanUpdateOneRequiredWithoutCaseWorkItemNestedInputObjectSchema).optional(),
+  casePricingPlan: z.lazy(() => CasePricingPlanUpdateOneWithoutCaseWorkItemNestedInputObjectSchema).optional(),
   addons: z.lazy(() => CaseWorkItemAddonUpdateManyWithoutCaseWorkItemNestedInputObjectSchema).optional(),
   selectedTeeth: z.lazy(() => SelectedToothUpdateManyWithoutCaseWorkItemNestedInputObjectSchema).optional()
 }).strict();

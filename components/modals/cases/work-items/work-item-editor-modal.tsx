@@ -1,130 +1,225 @@
-"use client";
+'use client'
 
-import { useState, useMemo, useRef, useCallback } from "react";
-import { X, Layers, Check, Stethoscope, AlertCircle, Calculator, CreditCard } from "lucide-react";
-import { Dialog, DialogClose, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import { HighFidelityDentalChart } from "./high-fidelity-dental-chart"; // Assuming this exists
-import { ToothPosition } from "@/schema/base/tooth-position.base";
-import { JawType } from "@/schema/base/enums.base";
-import { CreateCaseWorkItemInput } from "@/schema/composed/case-work-item.details";
-import { ClinicalProductConfigurator } from "@/components/cases/new-case/category-and-work-items/clinical-product-configurator";
-import { CasePricingPlanDetailsUI } from "@/schema/composed/case-pricing-plan.details";
+import { useState, useMemo, useRef, useCallback, useEffect } from 'react'
+import {
+	X,
+	Layers,
+	Check,
+	Stethoscope,
+	AlertCircle,
+	Calculator,
+	CreditCard,
+} from 'lucide-react'
+import {
+	Dialog,
+	DialogClose,
+	DialogContent,
+	DialogDescription,
+	DialogHeader,
+	DialogTitle,
+} from '@/components/ui/dialog'
+import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
+import { HighFidelityDentalChart } from './high-fidelity-dental-chart' // Assuming this exists
+import { ToothPosition } from '@/schema/base/tooth-position.base'
+import { JawType } from '@/schema/base/enums.base'
+import { CreateCaseWorkItemInput } from '@/schema/composed/case-work-item.details'
+import { ClinicalProductConfigurator } from '@/components/cases/new-case/category-and-work-items/clinical-product-configurator'
+import { CasePricingPlanDetailsUI } from '@/schema/composed/case-pricing-plan.details'
 
-import { MetadataEditorRef, WorkItemMetadataEditor } from "@/components/cases/new-case/category-and-work-items/work-item-metadata-editor";
-import { CaseFormModeType } from "@/schema/composed/case.details";
+import {
+	MetadataEditorRef,
+	WorkItemMetadataEditor,
+} from '@/components/cases/new-case/category-and-work-items/work-item-metadata-editor'
+import { CaseFormModeType } from '@/schema/composed/case.details'
+import { ProductAddonDTO } from '@/schema/composed/catalog/product.dtos'
+import { WorkItemAddonsManager } from '@/components/cases/new-case/category-and-work-items/work-item-addons-manager'
+import { useQueryClient } from '@tanstack/react-query'
 
 interface WorkItemEditorProps {
-	isOpen: boolean;
-	onClose: () => void;
-	onSave: (data: CreateCaseWorkItemInput) => void;
-	initialData: CreateCaseWorkItemInput | null;
-	selectedCategoryId: string;
-	selectedClinicId: string | null;
-	selectedCategoryName: string | null;
-	mode: CaseFormModeType;
+	isOpen: boolean
+	onClose: () => void
+	onSave: (data: CreateCaseWorkItemInput) => void
+	initialData: CreateCaseWorkItemInput | null
+	selectedCategoryId: string
+	selectedClinicId: string | null
+	selectedCategoryName: string | null
+	mode: CaseFormModeType
 }
 
-const parseTeethFromData = (teethData: CreateCaseWorkItemInput["selectedTeeth"]): ToothPosition[] => {
-	if (!teethData || !Array.isArray(teethData)) return [];
-	return teethData.map((t) => (typeof t === "string" ? t : t.toothPosition));
-};
+const parseTeethFromData = (
+	teethData: CreateCaseWorkItemInput['selectedTeeth'],
+): ToothPosition[] => {
+	if (!teethData || !Array.isArray(teethData)) return []
+	return teethData.map((t) => (typeof t === 'string' ? t : t.toothPosition))
+}
 
-export function WorkItemEditorModal({ isOpen, onClose, onSave, initialData, selectedCategoryId, selectedClinicId, selectedCategoryName, mode }: WorkItemEditorProps) {
-	const [productId, setProductId] = useState(initialData?.productId || "");
-	const [pricingPlanId, setPricingPlanId] = useState(initialData?.casePricingPlanId || "");
-	const [pricingPlanObj, setPricingPlanObj] = useState<CasePricingPlanDetailsUI | null>(null); // Lifted object
-	const [worktypeId, setWorktypeId] = useState(initialData?.workTypeId || "");
-	const [jawType, setJawType] = useState<"UPPER" | "LOWER" | "OTHER">(initialData?.jawType || "UPPER");
-	const [selectedTeeth, setSelectedTeeth] = useState<ToothPosition[]>(parseTeethFromData(initialData?.selectedTeeth ?? []));
-	const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
+export function WorkItemEditorModal({
+	isOpen,
+	onClose,
+	onSave,
+	initialData,
+	selectedCategoryId,
+	selectedClinicId,
+	selectedCategoryName,
+	mode,
+}: WorkItemEditorProps) {
+	const queryClient = useQueryClient()
+	const [productId, setProductId] = useState(initialData?.productId || '')
+	const [pricingPlanId, setPricingPlanId] = useState(
+		initialData?.casePricingPlanId || '',
+	)
+	const [pricingPlanObj, setPricingPlanObj] =
+		useState<CasePricingPlanDetailsUI | null>(null) // Lifted object
+	const [worktypeId, setWorktypeId] = useState(initialData?.workTypeId || '')
+	const [jawType, setJawType] = useState<'UPPER' | 'LOWER' | 'OTHER'>(
+		initialData?.jawType || 'UPPER',
+	)
+	const [selectedTeeth, setSelectedTeeth] = useState<ToothPosition[]>(
+		parseTeethFromData(initialData?.selectedTeeth ?? []),
+	)
+	const [prevIsOpen, setPrevIsOpen] = useState(isOpen)
+
+	// 1. Add Local State
+	const [selectedAddonIds, setSelectedAddonIds] = useState<string[]>(
+		initialData?.addonIds || [],
+	)
+	const [loadedAddons, setLoadedAddons] = useState<ProductAddonDTO[]>([])
 
 	const handleProductSelect = useCallback((id: string) => {
-		setProductId(id);
-	}, []);
+		setProductId(id)
+	}, [])
 
 	const handleWorkTypeSelect = useCallback((id: string) => {
-		setWorktypeId(id);
-	}, []);
+		setWorktypeId(id)
+	}, [])
 
-	const handlePricingPlanSelect = useCallback((id: string, plan: CasePricingPlanDetailsUI | null) => {
-		setPricingPlanObj(plan);
-		setPricingPlanId(id);
-	}, []);
+	const handlePricingPlanSelect = useCallback(
+		(id: string, plan: CasePricingPlanDetailsUI | null) => {
+			setPricingPlanObj(plan)
+			setPricingPlanId(id)
+		},
+		[],
+	)
+
+	const availableAddons = useMemo(() => {
+		const data = queryClient.getQueryData<ProductAddonDTO[]>([
+			'case-creation',
+			'product-addons',
+			productId,
+		])
+
+		return data || []
+	}, [queryClient, productId])
 
 	const handleJawTypeChange = useCallback(
-		(newType: "UPPER" | "LOWER" | "OTHER") => {
-			if (jawType === newType) return;
+		(newType: 'UPPER' | 'LOWER' | 'OTHER') => {
+			if (jawType === newType) return
 
-			setJawType(newType);
+			setJawType(newType)
 			// If switching between arches, clear teeth to prevent invalid positions (e.g. UR1 on Lower Arch)
-			setSelectedTeeth([]);
+			setSelectedTeeth([])
 
 			// If switching to OTHER, we don't need a workType reset here as the Configurator handles that cascadingly
 		},
 		[jawType],
-	);
+	)
 
-	const metadataRef = useRef<MetadataEditorRef>(null);
+	const metadataRef = useRef<MetadataEditorRef>(null)
 
 	if (isOpen !== prevIsOpen) {
-		setPrevIsOpen(isOpen);
+		setPrevIsOpen(isOpen)
 
 		if (isOpen) {
-			setProductId(initialData?.productId || "");
-			setPricingPlanId(initialData?.casePricingPlanId || "");
-			setWorktypeId(initialData?.workTypeId || "");
-			setJawType(initialData?.jawType || "UPPER");
-			setSelectedTeeth(parseTeethFromData(initialData?.selectedTeeth ?? []));
+			setProductId(initialData?.productId || '')
+			setPricingPlanId(initialData?.casePricingPlanId || '')
+			setWorktypeId(initialData?.workTypeId || '')
+			setJawType(initialData?.jawType || 'UPPER')
+			setSelectedTeeth(parseTeethFromData(initialData?.selectedTeeth ?? []))
+			if (initialData?.productId !== productId) {
+				setSelectedAddonIds([]) // Wipe addons if they switch products mid-edit
+			}
 		} else {
-			setPricingPlanObj(null);
+			setPricingPlanObj(null)
 		}
 	}
 
 	const toggleTooth = useCallback((id: ToothPosition) => {
-		setSelectedTeeth((prev) => (prev.includes(id) ? prev.filter((t) => t !== id) : [...prev, id]));
-	}, []);
+		setSelectedTeeth((prev) =>
+			prev.includes(id) ? prev.filter((t) => t !== id) : [...prev, id],
+		)
+	}, [])
 	// --- THE MATHEMATICAL PRICING ENGINE ---
 	const calculatedPrice = useMemo(() => {
-		if (!pricingPlanObj) return 0;
-		const count = selectedTeeth.length;
+		if (!pricingPlanObj) return 0
+		const count = selectedTeeth.length
+		let basePrice = 0
 
 		// If JawType is OTHER (No charting), assume count is 1 for pricing purposes if needed,
 		// though flat rates usually apply here.
-		const effectiveCount = jawType === "OTHER" && count === 0 ? 1 : count;
+		const effectiveCount = jawType === 'OTHER' && count === 0 ? 1 : count
 
 		// Don't charge if no teeth selected (unless it's a flat bulk rate)
-		if (effectiveCount === 0 && pricingPlanObj.pricingStrategy !== "BULK") return 0;
+		if (effectiveCount === 0 && pricingPlanObj.pricingStrategy !== 'BULK')
+			basePrice = 0
 
 		switch (pricingPlanObj.pricingStrategy) {
-			case "BULK":
-				return Number(pricingPlanObj.bulkPrice || 0);
+			case 'BULK':
+				basePrice = Number(pricingPlanObj.bulkPrice || 0)
+				break
 
-			case "PERTOOTH":
+			case 'PERTOOTH':
 				// Standard multiplication
-				return effectiveCount * Number(pricingPlanObj.toothPrice || 0);
+				basePrice = effectiveCount * Number(pricingPlanObj.toothPrice || 0)
+				break
 
-			case "CUSTOM":
+			case 'CUSTOM':
 				// 1. Check if they hit the Bulk Cap interval first!
-				if (pricingPlanObj.teethCountToApplyBulkPrice && pricingPlanObj.bulkPrice && effectiveCount >= Number(pricingPlanObj.teethCountToApplyBulkPrice)) {
-					return Number(pricingPlanObj.bulkPrice);
+				if (
+					pricingPlanObj.teethCountToApplyBulkPrice &&
+					pricingPlanObj.bulkPrice &&
+					effectiveCount >= Number(pricingPlanObj.teethCountToApplyBulkPrice)
+				) {
+					basePrice = Number(pricingPlanObj.bulkPrice)
+					break
 				}
 
 				// 2. Otherwise, apply Tiered Pricing (1st tooth = X, rest = Y)
-				const firstPrice = Number(pricingPlanObj.firstToothPrice || 0);
-				const additionalPrice = Number(pricingPlanObj.additionalToothPrice || 0);
+				const firstPrice = Number(pricingPlanObj.firstToothPrice || 0)
+				const additionalPrice = Number(pricingPlanObj.additionalToothPrice || 0)
 
-				if (effectiveCount === 1) return firstPrice;
-				return firstPrice + additionalPrice * (effectiveCount - 1);
+				if (effectiveCount === 1) basePrice = firstPrice
+				basePrice = firstPrice + additionalPrice * (effectiveCount - 1)
+				break
 
 			default:
-				return 0;
+				basePrice = 0
+				break
 		}
-	}, [pricingPlanObj, selectedTeeth.length, jawType]);
+
+		// NEW: Add the flat fees of all selected addons!
+		// Since we don't have the addon prices in the modal's state (only their IDs),
+		// we must rely on the parent (or pass them down) to calculate this.
+		// For safety, we fetch them or let the server calculate the final total.
+
+		// Assuming you passed availableAddons down or use a simple sum loop if available:
+		const addonsTotal = selectedAddonIds.reduce((sum, addonId) => {
+			// Find the addon price from the query cache or prop
+			const addon = availableAddons.find((a) => a.id === addonId)
+			return sum + (addon ? Number(addon.price) : 0)
+		}, 0)
+
+		return basePrice + addonsTotal
+	}, [
+		pricingPlanObj,
+		selectedTeeth.length,
+		jawType,
+		selectedAddonIds,
+		availableAddons,
+	])
 
 	const handleSave = () => {
-		const metadata = metadataRef.current?.getValues() || {};
+		const metadata = metadataRef.current?.getValues() || {}
 
 		onSave({
 			productId,
@@ -135,35 +230,42 @@ export function WorkItemEditorModal({ isOpen, onClose, onSave, initialData, sele
 			totalPrice: calculatedPrice, // Placeholder calculation
 
 			...metadata,
-		});
-	};
+		})
+	}
 
-	const handleSetTeeth = useCallback((teeth: ToothPosition[]) => setSelectedTeeth(teeth), []);
+	const handleSetTeeth = useCallback(
+		(teeth: ToothPosition[]) => setSelectedTeeth(teeth),
+		[],
+	)
 
 	// UX: Determine exactly what is missing for the "Save" button
 	const missingRequirements = useMemo(() => {
-		const missing = [];
-		if (!productId) missing.push("Product");
-		if (!pricingPlanId) missing.push("Pricing");
-		if (jawType !== "OTHER" && selectedTeeth.length === 0) missing.push("Teeth");
-		return missing;
-	}, [productId, pricingPlanId, jawType, selectedTeeth]);
+		const missing = []
+		if (!productId) missing.push('Product')
+		if (!pricingPlanId) missing.push('Pricing')
+		if (jawType !== 'OTHER' && selectedTeeth.length === 0) missing.push('Teeth')
+		return missing
+	}, [productId, pricingPlanId, jawType, selectedTeeth])
 
-	const isComplete = missingRequirements.length === 0;
+	const isComplete = missingRequirements.length === 0
 
-	const isEdit = mode === "edit";
+	const isEdit = mode === 'edit'
 
 	return (
 		<Dialog open={isOpen} onOpenChange={onClose}>
 			<DialogHeader className="sr-only">
 				<DialogTitle>Case Work Items Selector</DialogTitle>
-				<DialogDescription>Here You can build the case work items for your case</DialogDescription>
+				<DialogDescription>
+					Here You can build the case work items for your case
+				</DialogDescription>
 			</DialogHeader>
 			<DialogContent
 				className="w-[95vw]! sm:w-full! max-w-5xl! lg:max-w-7xl! p-0 overflow-hidden border-border bg-card shadow-2xl rounded-3xl lg:rounded-4xl gap-0 [&>button]:hidden max-h-screen lg:max-h-[90vh] flex flex-col"
 				showCloseButton={false}
 			>
-				<DialogDescription className="sr-only">Here You can build the case work items for your case</DialogDescription>
+				<DialogDescription className="sr-only">
+					Here You can build the case work items for your case
+				</DialogDescription>
 
 				{/* --- HEADER --- */}
 				<div className="p-4 sm:p-6 border-b border-border flex items-center justify-between bg-background shrink-0 z-20">
@@ -172,14 +274,22 @@ export function WorkItemEditorModal({ isOpen, onClose, onSave, initialData, sele
 							<Layers className="w-4 h-4 sm:w-5 sm:h-5" />
 						</div>
 						<div>
-							<DialogTitle className="text-lg sm:text-xl font-bold tracking-tight"> {isEdit ? "Update Work Item" : "Configure Work Item"}</DialogTitle>
+							<DialogTitle className="text-lg sm:text-xl font-bold tracking-tight">
+								{' '}
+								{isEdit ? 'Update Work Item' : 'Configure Work Item'}
+							</DialogTitle>
 							<p className="hidden sm:block text-xs text-muted-foreground font-medium">
-								{" "}
-								{isEdit ? "Revising clinical specs for this case." : "Select product and map clinical positions."}
+								{' '}
+								{isEdit
+									? 'Revising clinical specs for this case.'
+									: 'Select product and map clinical positions.'}
 							</p>
 						</div>
 					</div>
-					<DialogClose onClick={onClose} className="p-2 hover:bg-slate-100 dark:hover:bg-white/5 rounded-full transition-colors outline-none focus-visible:ring-2 focus-visible:ring-primary">
+					<DialogClose
+						onClick={onClose}
+						className="p-2 hover:bg-slate-100 dark:hover:bg-white/5 rounded-full transition-colors outline-none focus-visible:ring-2 focus-visible:ring-primary"
+					>
 						<X className="w-5 h-5 text-muted-foreground" />
 					</DialogClose>
 				</div>
@@ -193,18 +303,22 @@ export function WorkItemEditorModal({ isOpen, onClose, onSave, initialData, sele
 							<div className="relative w-full flex flex-col gap-2">
 								<div className="flex items-center gap-2 mb-1">
 									<Stethoscope className="w-4 h-4 text-primary" />
-									<label className="text-[13px] font-bold uppercase tracking-wider text-slate-700 dark:text-zinc-300">Target Arch</label>
+									<label className="text-[13px] font-bold uppercase tracking-wider text-slate-700 dark:text-zinc-300">
+										Target Arch
+									</label>
 								</div>
 
 								<div className="flex p-1 bg-slate-100 dark:bg-white/5 rounded-xl border border-border h-11">
-									{["UPPER", "LOWER", "OTHER"].map((type) => (
+									{['UPPER', 'LOWER', 'OTHER'].map((type) => (
 										<button
 											key={type}
 											type="button"
 											onClick={() => handleJawTypeChange(type as JawType)}
 											className={cn(
-												"flex-1 text-[11px] font-bold rounded-lg transition-all uppercase tracking-wider",
-												jawType === type ? "bg-white dark:bg-[#121214] text-primary shadow-sm ring-1 ring-border" : "text-muted-foreground hover:text-foreground",
+												'flex-1 text-[11px] font-bold rounded-lg transition-all uppercase tracking-wider',
+												jawType === type
+													? 'bg-white dark:bg-[#121214] text-primary shadow-sm ring-1 ring-border'
+													: 'text-muted-foreground hover:text-foreground',
 											)}
 										>
 											{type}
@@ -229,7 +343,19 @@ export function WorkItemEditorModal({ isOpen, onClose, onSave, initialData, sele
 							/>
 
 							{/* --- CLINICAL METADATA & SHADE SECTION --- */}
-							<WorkItemMetadataEditor key={initialData?.productId || "new-item"} ref={metadataRef} initialData={initialData} />
+							<WorkItemMetadataEditor
+								key={initialData?.productId || 'new-item'}
+								ref={metadataRef}
+								initialData={initialData}
+							/>
+
+							{/* 2. Accessories & Modifications (NEW!) */}
+							<WorkItemAddonsManager
+								productId={productId}
+								selectedAddonIds={selectedAddonIds}
+								onAddonsChange={setSelectedAddonIds}
+								onAddonPricesLoaded={setLoadedAddons} // Feed the prices back up for the Live Receipt
+							/>
 						</div>
 
 						{/* Live Pricing / Status Preview */}
@@ -237,8 +363,12 @@ export function WorkItemEditorModal({ isOpen, onClose, onSave, initialData, sele
 							{!pricingPlanId ? (
 								<div className="p-5 rounded-2xl bg-slate-50 dark:bg-white/2 border border-dashed border-border flex flex-col items-center justify-center text-center gap-2">
 									<Calculator className="w-6 h-6 text-slate-300 dark:text-zinc-600 mb-1" />
-									<p className="text-xs font-bold text-foreground">Awaiting Pricing Plan</p>
-									<p className="text-[10px] text-muted-foreground">Select a pricing plan above to estimate costs.</p>
+									<p className="text-xs font-bold text-foreground">
+										Awaiting Pricing Plan
+									</p>
+									<p className="text-[10px] text-muted-foreground">
+										Select a pricing plan above to estimate costs.
+									</p>
 								</div>
 							) : (
 								<div className="p-5 rounded-2xl bg-linear-to-br from-emerald-500/10 to-emerald-500/5 border border-emerald-500/20 transition-all duration-300 animate-in fade-in zoom-in-95 relative overflow-hidden">
@@ -249,9 +379,9 @@ export function WorkItemEditorModal({ isOpen, onClose, onSave, initialData, sele
 											<CreditCard className="w-3.5 h-3.5" /> Est. Item Total
 										</p>
 										<span className="px-2 py-0.5 rounded-md bg-white dark:bg-[#121214] border border-emerald-500/20 text-[9px] font-bold text-emerald-600 uppercase">
-											{pricingPlanObj?.pricingStrategy === "PERTOOTH" ? (
+											{pricingPlanObj?.pricingStrategy === 'PERTOOTH' ? (
 												<>Strict Per-Unit</>
-											) : pricingPlanObj?.pricingStrategy === "BULK" ? (
+											) : pricingPlanObj?.pricingStrategy === 'BULK' ? (
 												<>Flat Rate / Arch</>
 											) : (
 												<>Tiered & Hybrid</>
@@ -259,8 +389,12 @@ export function WorkItemEditorModal({ isOpen, onClose, onSave, initialData, sele
 										</span>
 									</div>
 									<div className="flex items-end justify-between mt-2 relative z-10">
-										<span className="text-3xl font-mono font-bold text-foreground">${calculatedPrice.toFixed(2)}</span>
-										<span className="text-xs font-bold text-muted-foreground">{selectedTeeth.length} Units Mapped</span>
+										<span className="text-3xl font-mono font-bold text-foreground">
+											${calculatedPrice.toFixed(2)}
+										</span>
+										<span className="text-xs font-bold text-muted-foreground">
+											{selectedTeeth.length} Units Mapped
+										</span>
 									</div>
 								</div>
 							)}
@@ -269,16 +403,25 @@ export function WorkItemEditorModal({ isOpen, onClose, onSave, initialData, sele
 
 					{/* RIGHT PANE: The Dental Canvas */}
 					<div className="flex-1 bg-slate-50 dark:bg-[#09090B] relative flex flex-col overflow-hidden min-h-100 lg:min-h-0 border-t lg:border-t-0 border-border">
-						{jawType === "OTHER" ? (
+						{jawType === 'OTHER' ? (
 							<div className="flex-1 flex flex-col items-center justify-center text-center p-8 animate-in fade-in">
 								<Layers className="w-12 h-12 text-slate-300 dark:text-zinc-700 mb-4" />
-								<h3 className="text-lg font-bold text-foreground">Non-Arch Restoration</h3>
+								<h3 className="text-lg font-bold text-foreground">
+									Non-Arch Restoration
+								</h3>
 								<p className="text-xs sm:text-sm text-muted-foreground mt-2 max-w-sm">
-									Dental charting is disabled for &quot;Other&quot; restorations. Describe specific mapping in clinical notes.
+									Dental charting is disabled for &quot;Other&quot;
+									restorations. Describe specific mapping in clinical notes.
 								</p>
 							</div>
 						) : (
-							<HighFidelityDentalChart isLocked={!productId || !pricingPlanId} jawType={jawType} selectedTeeth={selectedTeeth} onToggleTooth={toggleTooth} onSetTeeth={handleSetTeeth} />
+							<HighFidelityDentalChart
+								isLocked={!productId || !pricingPlanId}
+								jawType={jawType}
+								selectedTeeth={selectedTeeth}
+								onToggleTooth={toggleTooth}
+								onSetTeeth={handleSetTeeth}
+							/>
 						)}
 					</div>
 				</div>
@@ -286,7 +429,12 @@ export function WorkItemEditorModal({ isOpen, onClose, onSave, initialData, sele
 				{/* --- MODAL FOOTER --- */}
 				<div className="p-4 sm:p-6 border-t border-border bg-background flex flex-col-reverse sm:flex-row justify-between items-center gap-4 shrink-0 z-20">
 					<div className="flex items-center justify-center sm:justify-start w-full sm:w-auto gap-3">
-						<Button variant="ghost" type="button" onClick={onClose} className="rounded-xl h-11 sm:h-12 px-6 font-semibold w-full sm:w-auto">
+						<Button
+							variant="ghost"
+							type="button"
+							onClick={onClose}
+							className="rounded-xl h-11 sm:h-12 px-6 font-semibold w-full sm:w-auto"
+						>
 							Cancel
 						</Button>
 
@@ -294,7 +442,7 @@ export function WorkItemEditorModal({ isOpen, onClose, onSave, initialData, sele
 						{!isComplete && (
 							<div className="hidden sm:flex items-center gap-2 text-amber-600 dark:text-amber-500 text-[11px] font-bold bg-amber-500/10 px-3 py-1.5 rounded-lg animate-in fade-in">
 								<AlertCircle className="w-3.5 h-3.5" />
-								Missing: {missingRequirements.join(" & ")}
+								Missing: {missingRequirements.join(' & ')}
 							</div>
 						)}
 					</div>
@@ -304,14 +452,17 @@ export function WorkItemEditorModal({ isOpen, onClose, onSave, initialData, sele
 						onClick={handleSave}
 						disabled={!isComplete}
 						className={cn(
-							"rounded-xl h-11 sm:h-12 px-8 font-bold transition-all flex gap-2 shadow-sm w-full sm:w-auto",
-							isComplete ? "bg-primary hover:bg-primary/90 text-white shadow-premium" : "bg-slate-100 dark:bg-white/5 text-slate-400 dark:text-zinc-500 cursor-not-allowed",
+							'rounded-xl h-11 sm:h-12 px-8 font-bold transition-all flex gap-2 shadow-sm w-full sm:w-auto',
+							isComplete
+								? 'bg-primary hover:bg-primary/90 text-white shadow-premium'
+								: 'bg-slate-100 dark:bg-white/5 text-slate-400 dark:text-zinc-500 cursor-not-allowed',
 						)}
 					>
-						<Check className="w-4 h-4" /> {isEdit ? "Update Work Item" : "Save Work Item"}
+						<Check className="w-4 h-4" />{' '}
+						{isEdit ? 'Update Work Item' : 'Save Work Item'}
 					</Button>
 				</div>
 			</DialogContent>
 		</Dialog>
-	);
+	)
 }

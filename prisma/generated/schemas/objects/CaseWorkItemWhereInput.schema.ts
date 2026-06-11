@@ -15,7 +15,7 @@ import { LabScalarRelationFilterObjectSchema as LabScalarRelationFilterObjectSch
 import { LabWhereInputObjectSchema as LabWhereInputObjectSchema } from './LabWhereInput.schema';
 import { CaseScalarRelationFilterObjectSchema as CaseScalarRelationFilterObjectSchema } from './CaseScalarRelationFilter.schema';
 import { CaseWhereInputObjectSchema as CaseWhereInputObjectSchema } from './CaseWhereInput.schema';
-import { CasePricingPlanScalarRelationFilterObjectSchema as CasePricingPlanScalarRelationFilterObjectSchema } from './CasePricingPlanScalarRelationFilter.schema';
+import { CasePricingPlanNullableScalarRelationFilterObjectSchema as CasePricingPlanNullableScalarRelationFilterObjectSchema } from './CasePricingPlanNullableScalarRelationFilter.schema';
 import { CasePricingPlanWhereInputObjectSchema as CasePricingPlanWhereInputObjectSchema } from './CasePricingPlanWhereInput.schema';
 import { WorkTypeNullableScalarRelationFilterObjectSchema as WorkTypeNullableScalarRelationFilterObjectSchema } from './WorkTypeNullableScalarRelationFilter.schema';
 import { WorkTypeWhereInputObjectSchema as WorkTypeWhereInputObjectSchema } from './WorkTypeWhereInput.schema';
@@ -31,7 +31,7 @@ const caseworkitemwhereinputSchema = z.object({
   productId: z.union([z.lazy(() => StringNullableFilterObjectSchema), z.string()]).optional().nullable(),
   labId: z.union([z.lazy(() => StringFilterObjectSchema), z.string()]).optional(),
   dentalCaseId: z.union([z.lazy(() => StringFilterObjectSchema), z.string()]).optional(),
-  casePricingPlanId: z.union([z.lazy(() => StringFilterObjectSchema), z.string()]).optional(),
+  casePricingPlanId: z.union([z.lazy(() => StringNullableFilterObjectSchema), z.string()]).optional().nullable(),
   totalPrice: z.union([z.lazy(() => DecimalFilterObjectSchema), z.union([
   z.number(),
   z.string(),
@@ -93,7 +93,7 @@ const caseworkitemwhereinputSchema = z.object({
   product: z.union([z.lazy(() => ProductNullableScalarRelationFilterObjectSchema), z.lazy(() => ProductWhereInputObjectSchema)]).optional(),
   lab: z.union([z.lazy(() => LabScalarRelationFilterObjectSchema), z.lazy(() => LabWhereInputObjectSchema)]).optional(),
   dentalCase: z.union([z.lazy(() => CaseScalarRelationFilterObjectSchema), z.lazy(() => CaseWhereInputObjectSchema)]).optional(),
-  casePricingPlan: z.union([z.lazy(() => CasePricingPlanScalarRelationFilterObjectSchema), z.lazy(() => CasePricingPlanWhereInputObjectSchema)]).optional(),
+  casePricingPlan: z.union([z.lazy(() => CasePricingPlanNullableScalarRelationFilterObjectSchema), z.lazy(() => CasePricingPlanWhereInputObjectSchema)]).optional(),
   workType: z.union([z.lazy(() => WorkTypeNullableScalarRelationFilterObjectSchema), z.lazy(() => WorkTypeWhereInputObjectSchema)]).optional(),
   addons: z.lazy(() => CaseWorkItemAddonListRelationFilterObjectSchema).optional(),
   selectedTeeth: z.lazy(() => SelectedToothListRelationFilterObjectSchema).optional()

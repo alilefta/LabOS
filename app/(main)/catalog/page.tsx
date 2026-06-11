@@ -5,15 +5,11 @@ import { getServerSession } from '@/lib/get-session'
 import { cn } from '@/lib/utils'
 import { AmbientBgGlow } from '@/components/ui/ui-utils/animated-ambient-bg-glow'
 
-// We will build these components in the upcoming steps
 import { CategorySidebar } from '@/components/catalog/category-sidebar'
 import { ProductSidebar } from '@/components/catalog/product-sidebar'
 import { WorkTypeBentoGrid } from '@/components/catalog/worktype-bento-grid/worktype-bento-grid'
-import { PricingPlanLedger } from '@/components/catalog/products/pricing-plan-ledger/pricing-plan-ledger'
 import { CatalogEmptyState } from '@/components/catalog/catalog-empty-state'
 import { ProductWorkspace } from '@/components/catalog/products/product-workspace'
-// import { WorkTypeInspector } from "@/components/catalog/work-type-inspector";
-// import { PricingPlanInspector } from "@/components/catalog/pricing-plan-inspector";
 
 // --- VALIDATION SCHEMA FOR URL STATE ---
 // This ensures that if a user tampers with the URL (e.g., ?category=junk),

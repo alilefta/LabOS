@@ -15,7 +15,7 @@ import { CaseWorkItemAddonBaseSchema } from '../base/case-work-item-addon.base'
 export const CaseWorkItemDetailsSchema = CaseWorkItemBaseSchema.extend({
 	product: ProductBaseSchema.nullable(),
 	Lab: LabBaseSchema,
-	casePricingPlan: CasePricingPlanBaseSchema,
+	casePricingPlan: CasePricingPlanBaseSchema.nullable(),
 	dentalCase: CaseBaseSchema,
 	selectedTeeth: z.array(SelectedToothBaseSchema),
 	workType: WorkTypeBaseSchema.nullable(),
@@ -56,6 +56,8 @@ export const CreateCaseWorkItemInputSchema = CaseWorkItemBaseSchema.omit({
 		totalPrice: z.number().min(0, 'Total price must be >= 0'),
 		jawType: JawTypeSchema,
 		selectedTeeth: z.array(CreateSelectedToothInputSchema).optional(),
+		// We only need the IDs. The server will fetch the prices to ensure security!
+		addonIds: z.array(z.string().uuid('Invalid Addon ID')).optional(),
 
 		// Shade fields — all optional, no validation needed beyond string
 		notes: z.string().trim().transform(emptyToUndefinedTransformer).optional(),

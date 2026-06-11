@@ -1,25 +1,45 @@
-"use server";
+'use server'
 
-import { resolveActorName } from "@/data/activity-logs/build-activity-log";
-import { CaseActivityLogCreateManyDentalCaseInput } from "@/generated/prisma/models";
-import { ERRORS } from "@/lib/errors";
-import { tenantPrisma } from "@/lib/prisma";
-import { actionClientWithLab } from "@/lib/safe-action";
-import { computeCaseItemPrice, draftCaseServerToDTO, draftSummaryServerToDTO, optionalSelectiveDraftCaseServerToDTO } from "@/lib/server-only-helpers";
+import { resolveActorName } from '@/data/activity-logs/build-activity-log'
+import { CaseActivityLogCreateManyDentalCaseInput } from '@/generated/prisma/models'
+import { ERRORS } from '@/lib/errors'
+import { tenantPrisma } from '@/lib/prisma'
+import { actionClientWithLab } from '@/lib/safe-action'
+import {
+	computeCaseItemPrice,
+	draftCaseServerToDTO,
+	draftSummaryServerToDTO,
+	optionalSelectiveDraftCaseServerToDTO,
+} from '@/lib/server-only-helpers'
 
-import { CreateCaseInputSchema, SaveDraftCaseInputSchema } from "@/schema/composed/case.details";
-import { revalidatePath } from "next/cache";
-import z from "zod/v3";
+import {
+	CreateCaseInputSchema,
+	SaveDraftCaseInputSchema,
+} from '@/schema/composed/case.details'
+import { revalidatePath } from 'next/cache'
+import z from 'zod/v3'
 
 export const createDentalCaseAction = actionClientWithLab
 	.metadata({
-		actionName: "Create-New-Dental-Case-Action",
+		actionName: 'Create-New-Dental-Case-Action',
 		requiredLabRole: null,
 	})
 	.inputSchema(CreateCaseInputSchema)
 	.action(async ({ parsedInput, ctx }) => {
-		const { patientId, clinicId, dentistId, caseCategoryId, status, deadline, caseAssetFiles, caseWorkItems, staffAssignments, notes, existingDraftId } = parsedInput;
-		const { labId, labUser } = ctx;
+		const {
+			patientId,
+			clinicId,
+			dentistId,
+			caseCategoryId,
+			status,
+			deadline,
+			caseAssetFiles,
+			caseWorkItems,
+			staffAssignments,
+			notes,
+			existingDraftId,
+		} = parsedInput
+		const { labId, labUser } = ctx
 
 		// !!!!!!!!!!!! creating a case from stored draft should be done through update not create!!!!!
 
@@ -35,13 +55,15 @@ export const createDentalCaseAction = actionClientWithLab
 		// for assets they can be created throughly
 		// for work items at least one should exists, AND have pricingPlanId AND if jawType is Upper or Lower there should be teeth selected
 
-		const validWorkItems = (caseWorkItems ?? []).filter((item) => item.productId && item.casePricingPlanId);
+		const validWorkItems = (caseWorkItems ?? []).filter(
+			(item) => item.productId && item.casePricingPlanId,
+		)
 
-		if (status !== "DRAFT" && validWorkItems.length === 0) {
-			throw ERRORS.INVALID_INPUT;
+		if (status !== 'DRAFT' && validWorkItems.length === 0) {
+			throw ERRORS.INVALID_INPUT
 		}
 
-		const prisma = await tenantPrisma(labId);
+		const prisma = await tenantPrisma(labId)
 
 		// ─────────────────────────────────────────────────────────────────
 		// STEP 1: Ownership Verification
@@ -51,62 +73,75 @@ export const createDentalCaseAction = actionClientWithLab
 		// Run all checks in parallel for performance.
 		// ─────────────────────────────────────────────────────────────────
 
-		const pricingPlanIds = [...new Set(validWorkItems.map((cw) => cw.casePricingPlanId))];
-		const staffIds = staffAssignments?.map((s) => s.staffId) ?? [];
+		const pricingPlanIds = [
+			...new Set(validWorkItems.map((cw) => cw.casePricingPlanId)),
+		]
+		const staffIds = staffAssignments?.map((s) => s.staffId) ?? []
 
-		const [patient, clinic, category, pricingPlans, staffMembers, dentist] = await Promise.all([
-			prisma.patient.findUnique({
-				where: { id: patientId, labId },
-				select: { id: true },
-			}),
+		const [patient, clinic, category, pricingPlans, staffMembers, dentist] =
+			await Promise.all([
+				prisma.patient.findUnique({
+					where: { id: patientId, labId },
+					select: { id: true },
+				}),
 
-			clinicId
-				? prisma.clinic.findUnique({
-						where: { id: clinicId, labId },
-						select: { id: true, status: true },
-					})
-				: Promise.resolve(null),
+				clinicId
+					? prisma.clinic.findUnique({
+							where: { id: clinicId, labId },
+							select: { id: true, status: true },
+						})
+					: Promise.resolve(null),
 
-			caseCategoryId
-				? prisma.caseCategory.findUnique({
-						where: { id: caseCategoryId, labId },
-						select: { id: true, isActive: true },
-					})
-				: Promise.resolve(null),
+				caseCategoryId
+					? prisma.caseCategory.findUnique({
+							where: { id: caseCategoryId, labId },
+							select: { id: true, isActive: true },
+						})
+					: Promise.resolve(null),
 
-			pricingPlanIds.length > 0
-				? prisma.casePricingPlan.findMany({
-						where: { id: { in: pricingPlanIds }, labId },
-					})
-				: Promise.resolve([]),
+				pricingPlanIds.length > 0
+					? prisma.casePricingPlan.findMany({
+							where: { id: { in: pricingPlanIds }, labId },
+						})
+					: Promise.resolve([]),
 
-			staffIds.length > 0
-				? prisma.labStaff.findMany({
-						where: { id: { in: staffIds }, isActive: true, labId },
-						select: { id: true, roleCategory: true, firstName: true, lastName: true },
-					})
-				: Promise.resolve([]),
-			dentistId && clinicId ? prisma.dentist.findFirst({ where: { id: dentistId, clinicId, labId }, select: { id: true } }) : Promise.resolve(null),
-		]);
+				staffIds.length > 0
+					? prisma.labStaff.findMany({
+							where: { id: { in: staffIds }, isActive: true, labId },
+							select: {
+								id: true,
+								roleCategory: true,
+								firstName: true,
+								lastName: true,
+							},
+						})
+					: Promise.resolve([]),
+				dentistId && clinicId
+					? prisma.dentist.findFirst({
+							where: { id: dentistId, clinicId, labId },
+							select: { id: true },
+						})
+					: Promise.resolve(null),
+			])
 
 		// Resolve whether we're updating an existing draft or creating fresh
-		let resolvedDraftId: string | undefined = parsedInput.existingDraftId;
+		let resolvedDraftId: string | undefined = parsedInput.existingDraftId
 
 		if (resolvedDraftId) {
 			const existingDraft = await prisma.case.findUnique({
 				where: { id: resolvedDraftId, labId },
 				select: { id: true, status: true, patientId: true },
-			});
+			})
 
-			if (!existingDraft) throw ERRORS.NOT_FOUND;
-			if (existingDraft.status !== "DRAFT") {
-				resolvedDraftId = undefined; // replaced the throw with this line, NEED TEST
+			if (!existingDraft) throw ERRORS.NOT_FOUND
+			if (existingDraft.status !== 'DRAFT') {
+				resolvedDraftId = undefined // replaced the throw with this line, NEED TEST
 				// throw ERRORS.OPERATION_NOT_ALLOWED;
 			}
 
 			if (existingDraft.patientId !== patientId) {
 				// Patient changed — create a new case, leave the original draft alone
-				resolvedDraftId = undefined;
+				resolvedDraftId = undefined
 			}
 		}
 
@@ -117,51 +152,53 @@ export const createDentalCaseAction = actionClientWithLab
 
 		// Patient must exist in this lab
 		if (!patient) {
-			throw ERRORS.NOT_FOUND;
+			throw ERRORS.NOT_FOUND
 		}
 
 		// Clinic must exist and not be suspended
 		if (clinicId) {
-			if (!clinic) throw ERRORS.NOT_FOUND;
-			if (clinic.status === "SUSPENDED") {
-				throw ERRORS.OPERATION_NOT_ALLOWED;
+			if (!clinic) throw ERRORS.NOT_FOUND
+			if (clinic.status === 'SUSPENDED') {
+				throw ERRORS.OPERATION_NOT_ALLOWED
 			}
 		}
 
 		// Dentist can only be set if clinic is set (enforced by schema superRefine too,
 		// but defense in depth)
 		if (dentistId && !clinicId) {
-			throw ERRORS.INVALID_INPUT;
+			throw ERRORS.INVALID_INPUT
 		}
 
 		// Dentist must belong to the selected clinic
-		if (dentistId && !dentist) throw ERRORS.NOT_FOUND;
+		if (dentistId && !dentist) throw ERRORS.NOT_FOUND
 
 		// Category must exist and be active
 		if (caseCategoryId) {
-			if (!category) throw ERRORS.NOT_FOUND;
-			if (!category.isActive) throw ERRORS.OPERATION_NOT_ALLOWED;
+			if (!category) throw ERRORS.NOT_FOUND
+			if (!category.isActive) throw ERRORS.OPERATION_NOT_ALLOWED
 		}
 
 		// Every pricing plan ID must resolve to a record in this lab
-		const pricingPlanMap = new Map(pricingPlans.map((pp) => [pp.id, pp]));
+		const pricingPlanMap = new Map(pricingPlans.map((pp) => [pp.id, pp]))
 
 		for (const cw of validWorkItems) {
 			if (!pricingPlanMap.has(cw.casePricingPlanId)) {
-				throw ERRORS.NOT_FOUND;
+				throw ERRORS.NOT_FOUND
 			}
 		}
 
 		// Every staff ID must resolve to an active member of this lab
 		if (staffIds.length > 0) {
-			const staffMap = new Map(staffMembers.map((s) => [s.id, s]));
-			const missingStaff = staffAssignments?.find((s) => !staffMap.has(s.staffId));
-			if (missingStaff) throw ERRORS.NOT_MEMBER;
+			const staffMap = new Map(staffMembers.map((s) => [s.id, s]))
+			const missingStaff = staffAssignments?.find(
+				(s) => !staffMap.has(s.staffId),
+			)
+			if (missingStaff) throw ERRORS.NOT_MEMBER
 
 			// No duplicate staff assignments (same person assigned twice)
-			const uniqueStaffIds = new Set(staffIds);
+			const uniqueStaffIds = new Set(staffIds)
 			if (uniqueStaffIds.size !== staffIds.length) {
-				throw ERRORS.INVALID_INPUT;
+				throw ERRORS.INVALID_INPUT
 			}
 		}
 
@@ -169,12 +206,35 @@ export const createDentalCaseAction = actionClientWithLab
 		// STEP 3: Price Computation
 		// Never trust client-computed prices. Always recompute from DB records.
 		// ─────────────────────────────────────────────────────────────────
+		// ======= Product Addons ====
+		const addonIds = [
+			...new Set(validWorkItems.flatMap((cw) => cw.addonIds || [])),
+		]
+
+		const addonsList =
+			addonIds.length > 0
+				? await prisma.productAddon.findMany({
+						where: { id: { in: addonIds }, labId },
+					})
+				: []
+
+		const addonMap = new Map(addonsList.map((a) => [a.id, a]))
 
 		const computedWorkItems = validWorkItems.map((cw) => {
-			const plan = pricingPlanMap.get(cw.casePricingPlanId)!;
-			const teeth = cw.selectedTeeth?.map((t) => t.toothPosition) ?? [];
-			const totalPrice = computeCaseItemPrice(plan, teeth, cw.jawType);
+			const plan = pricingPlanMap.get(cw.casePricingPlanId)!
+			const teeth = cw.selectedTeeth?.map((t) => t.toothPosition) ?? []
+			let totalPrice = computeCaseItemPrice(plan, teeth, cw.jawType)
 
+			// Calculate Addons Price
+			const resolvedAddons = (cw.addonIds || []).map((id) => {
+				const addon = addonMap.get(id)
+				if (!addon) throw ERRORS.NOT_FOUND
+				totalPrice += Number(addon.price) // Add to the line item total
+				return {
+					addonId: addon.id,
+					priceSnapshot: Number(addon.price), // SNAPSHOT!
+				}
+			})
 			return {
 				// Identity
 				productId: cw.productId ?? null,
@@ -190,9 +250,16 @@ export const createDentalCaseAction = actionClientWithLab
 				pricingStrategy: plan.pricingStrategy,
 				bulkPrice: plan.bulkPrice !== null ? Number(plan.bulkPrice) : null,
 				toothPrice: plan.toothPrice !== null ? Number(plan.toothPrice) : null,
-				firstToothPrice: plan.firstToothPrice !== null ? Number(plan.firstToothPrice) : null,
-				additionalToothPrice: plan.additionalToothPrice !== null ? Number(plan.additionalToothPrice) : null,
-				teethCountToApplyBulkPrice: plan.teethCountToApplyBulkPrice !== null ? Number(plan.teethCountToApplyBulkPrice) : null,
+				firstToothPrice:
+					plan.firstToothPrice !== null ? Number(plan.firstToothPrice) : null,
+				additionalToothPrice:
+					plan.additionalToothPrice !== null
+						? Number(plan.additionalToothPrice)
+						: null,
+				teethCountToApplyBulkPrice:
+					plan.teethCountToApplyBulkPrice !== null
+						? Number(plan.teethCountToApplyBulkPrice)
+						: null,
 
 				// Clinical metadata
 				notes: cw.notes ?? null,
@@ -203,22 +270,30 @@ export const createDentalCaseAction = actionClientWithLab
 
 				// Teeth — normalized to positions only
 				selectedTeeth: teeth,
-			};
-		});
+				addonsToCreate: resolvedAddons, // Pass this to the Prisma query
+			}
+		})
 
-		const grandTotal = computedWorkItems.reduce((sum, item) => sum + item.totalPrice, 0);
+		const grandTotal = computedWorkItems.reduce(
+			(sum, item) => sum + item.totalPrice,
+			0,
+		)
 
 		// Case is ASSIGNED if a technician-role staff member is assigned
-		const isCaseAssigned = staffAssignments?.some((s) => ["TECHNICIAN", "SENIOR_TECHNICIAN", "MANAGER"].includes(s.roleCategory)) ?? false;
+		const isCaseAssigned =
+			staffAssignments?.some((s) =>
+				['TECHNICIAN', 'SENIOR_TECHNICIAN', 'MANAGER'].includes(s.roleCategory),
+			) ?? false
 
-		const resolvedStatus = status === "DRAFT" ? "DRAFT" : isCaseAssigned ? "ASSIGNED" : "NEW";
+		const resolvedStatus =
+			status === 'DRAFT' ? 'DRAFT' : isCaseAssigned ? 'ASSIGNED' : 'NEW'
 
 		// ─────────────────────────────────────────────────────────────────
 		// PRE-TRANSACTION: Build the Genesis Activity Logs
 		// ─────────────────────────────────────────────────────────────────
-		const staffMap = new Map(staffMembers.map((s) => [s.id, s]));
+		const staffMap = new Map(staffMembers.map((s) => [s.id, s]))
 
-		const actorName = await resolveActorName(labUser.id, labId);
+		const actorName = await resolveActorName(labUser.id, labId)
 
 		// We use an array of objects to map to Prisma's `createMany`
 		const genesisLogs: CaseActivityLogCreateManyDentalCaseInput[] = [
@@ -226,41 +301,41 @@ export const createDentalCaseAction = actionClientWithLab
 				labId,
 				actorId: labUser.id, // ✅ FIX: Use the LabUser ID, not the AuthUser ID
 				actorName,
-				type: "CASE_CREATED",
-				summary: "Created case prescription",
+				type: 'CASE_CREATED',
+				summary: 'Created case prescription',
 				payload: {},
 			},
-		];
+		]
 
 		if (notes) {
 			genesisLogs.push({
 				labId,
 				actorId: labUser.id, // ✅ FIX: Consistency
 				actorName,
-				type: "NOTE_ADDED",
-				summary: "Added global clinical instructions",
+				type: 'NOTE_ADDED',
+				summary: 'Added global clinical instructions',
 				payload: { note: notes },
-			});
+			})
 		}
 
 		if (staffAssignments && staffAssignments.length > 0) {
 			staffAssignments.forEach((sa) => {
-				const staffData = staffMap.get(sa.staffId);
+				const staffData = staffMap.get(sa.staffId)
 				if (staffData) {
 					genesisLogs.push({
 						labId,
 						actorId: labUser.id,
 						actorName,
-						type: "STAFF_ASSIGNED",
+						type: 'STAFF_ASSIGNED',
 						summary: `Assigned ${staffData.firstName} ${staffData.lastName}`,
 						payload: {
 							staffId: sa.staffId,
 							staffName: `${staffData.firstName} ${staffData.lastName}`,
 							roleCategory: sa.roleCategory,
 						},
-					});
+					})
 				}
-			});
+			})
 		}
 
 		if (caseAssetFiles && caseAssetFiles.length > 0) {
@@ -269,15 +344,15 @@ export const createDentalCaseAction = actionClientWithLab
 					labId,
 					actorId: labUser.id,
 					actorName,
-					type: "FILE_UPLOADED",
-					summary: `Attached ${file.assetFileType}: ${file.title || "Asset"}`,
+					type: 'FILE_UPLOADED',
+					summary: `Attached ${file.assetFileType}: ${file.title || 'Asset'}`,
 					payload: {
 						fileId: file.documentUrl, // Fallback if no specific file ID exists yet
-						fileName: file.title || "Clinical Asset",
+						fileName: file.title || 'Clinical Asset',
 						assetFileType: file.assetFileType,
 					},
-				});
-			});
+				})
+			})
 		}
 
 		// ─────────────────────────────────────────────────────────────────
@@ -304,10 +379,16 @@ export const createDentalCaseAction = actionClientWithLab
 
 					// To improve RTT I replaced the queries above with this sequential pattern
 					await Promise.all([
-						tx.caseWorkItem.deleteMany({ where: { dentalCaseId: resolvedDraftId, labId } }),
-						tx.caseAssetFile.deleteMany({ where: { dentalCaseId: resolvedDraftId, labId } }),
-						tx.caseStaffAssignment.deleteMany({ where: { caseId: resolvedDraftId, labId } }),
-					]);
+						tx.caseWorkItem.deleteMany({
+							where: { dentalCaseId: resolvedDraftId, labId },
+						}),
+						tx.caseAssetFile.deleteMany({
+							where: { dentalCaseId: resolvedDraftId, labId },
+						}),
+						tx.caseStaffAssignment.deleteMany({
+							where: { caseId: resolvedDraftId, labId },
+						}),
+					])
 
 					return tx.case.update({
 						where: { id: resolvedDraftId, labId },
@@ -337,7 +418,8 @@ export const createDentalCaseAction = actionClientWithLab
 												toothPrice: item.toothPrice,
 												firstToothPrice: item.firstToothPrice,
 												additionalToothPrice: item.additionalToothPrice,
-												teethCountToApplyBulkPrice: item.teethCountToApplyBulkPrice,
+												teethCountToApplyBulkPrice:
+													item.teethCountToApplyBulkPrice,
 												notes: item.notes,
 												shadeSystem: item.shadeSystem,
 												baseShade: item.baseShade,
@@ -350,6 +432,19 @@ export const createDentalCaseAction = actionClientWithLab
 																createMany: {
 																	data: item.selectedTeeth.map((pos) => ({
 																		toothPosition: pos,
+																		labId,
+																	})),
+																},
+															}
+														: undefined,
+
+												addons:
+													item.addonsToCreate.length > 0
+														? {
+																createMany: {
+																	data: item.addonsToCreate.map((addon) => ({
+																		addonId: addon.addonId,
+																		priceSnapshot: addon.priceSnapshot, // Safe from future price changes
 																		labId,
 																	})),
 																},
@@ -397,7 +492,7 @@ export const createDentalCaseAction = actionClientWithLab
 						},
 
 						select: { id: true, caseNumber: true },
-					});
+					})
 				}
 
 				// ── CREATE new case ────────────────────────────────────────────
@@ -405,9 +500,9 @@ export const createDentalCaseAction = actionClientWithLab
 					where: { id: labId },
 					data: { nextCaseNumber: { increment: 1 } },
 					select: { nextCaseNumber: true },
-				});
+				})
 
-				const caseNumber = `LAB-${updatedLab.nextCaseNumber.toString().padStart(4, "0")}`;
+				const caseNumber = `LAB-${updatedLab.nextCaseNumber.toString().padStart(4, '0')}`
 
 				return tx.case.create({
 					data: {
@@ -435,7 +530,8 @@ export const createDentalCaseAction = actionClientWithLab
 											toothPrice: item.toothPrice,
 											firstToothPrice: item.firstToothPrice,
 											additionalToothPrice: item.additionalToothPrice,
-											teethCountToApplyBulkPrice: item.teethCountToApplyBulkPrice,
+											teethCountToApplyBulkPrice:
+												item.teethCountToApplyBulkPrice,
 											notes: item.notes,
 											shadeSystem: item.shadeSystem,
 											baseShade: item.baseShade,
@@ -448,6 +544,18 @@ export const createDentalCaseAction = actionClientWithLab
 															createMany: {
 																data: item.selectedTeeth.map((pos) => ({
 																	toothPosition: pos,
+																	labId,
+																})),
+															},
+														}
+													: undefined,
+											addons:
+												item.addonsToCreate.length > 0
+													? {
+															createMany: {
+																data: item.addonsToCreate.map((addon) => ({
+																	addonId: addon.addonId,
+																	priceSnapshot: addon.priceSnapshot, // Safe from future price changes
 																	labId,
 																})),
 															},
@@ -492,32 +600,43 @@ export const createDentalCaseAction = actionClientWithLab
 						},
 					},
 					select: { id: true, caseNumber: true },
-				});
+				})
 			},
 			{ maxWait: 5000, timeout: 15000 },
-		);
+		)
 
 		// ─────────────────────────────────────────────────────────────────
 		// STEP 5: Fetch the Fully Populated DTO (READ ONLY)
 		// Happens outside the transaction, completely safe and fast!
 		// ─────────────────────────────────────────────────────────────────
 
-		revalidatePath("/cases/new-case");
+		revalidatePath('/cases/new-case')
 
-		return { createdCase: createdCase };
-	});
+		return { createdCase: createdCase }
+	})
 
 export const saveDraftCaseAction = actionClientWithLab
 	.metadata({
-		actionName: "Save-Draft-Case-Action",
+		actionName: 'Save-Draft-Case-Action',
 		requiredLabRole: null, // any lab member can save a draft
 	})
 	.inputSchema(SaveDraftCaseInputSchema)
 	.action(async ({ parsedInput, ctx }) => {
-		const { patientId, clinicId, dentistId, caseCategoryId, deadline, notes, caseWorkItems, staffAssignments, caseAssetFiles, existingDraftId } = parsedInput;
+		const {
+			patientId,
+			clinicId,
+			dentistId,
+			caseCategoryId,
+			deadline,
+			notes,
+			caseWorkItems,
+			staffAssignments,
+			caseAssetFiles,
+			existingDraftId,
+		} = parsedInput
 
-		const { labId } = ctx;
-		const prisma = await tenantPrisma(labId);
+		const { labId } = ctx
+		const prisma = await tenantPrisma(labId)
 
 		// ─────────────────────────────────────────────────────────────────
 		// STEP 1: Verify patient exists — the one hard requirement
@@ -526,9 +645,9 @@ export const saveDraftCaseAction = actionClientWithLab
 		const patient = await prisma.patient.findUnique({
 			where: { id: patientId, labId },
 			select: { id: true },
-		});
+		})
 
-		if (!patient) throw ERRORS.NOT_FOUND;
+		if (!patient) throw ERRORS.NOT_FOUND
 
 		// ─────────────────────────────────────────────────────────────────
 		// STEP 2: If updating existing draft, verify ownership
@@ -538,13 +657,13 @@ export const saveDraftCaseAction = actionClientWithLab
 			const existingDraft = await prisma.case.findUnique({
 				where: { id: existingDraftId, labId },
 				select: { id: true, status: true },
-			});
+			})
 
-			if (!existingDraft) throw ERRORS.NOT_FOUND;
+			if (!existingDraft) throw ERRORS.NOT_FOUND
 
 			// Can only update a draft — not a submitted case
-			if (existingDraft.status !== "DRAFT") {
-				throw ERRORS.OPERATION_NOT_ALLOWED;
+			if (existingDraft.status !== 'DRAFT') {
+				throw ERRORS.OPERATION_NOT_ALLOWED
 			}
 		}
 
@@ -568,12 +687,13 @@ export const saveDraftCaseAction = actionClientWithLab
 						select: { id: true, isActive: true },
 					})
 				: Promise.resolve(null),
-		]);
+		])
 
-		if (clinicId && !clinic) throw ERRORS.NOT_FOUND;
-		if (clinicId && clinic?.status === "SUSPENDED") throw ERRORS.OPERATION_NOT_ALLOWED;
-		if (caseCategoryId && !category) throw ERRORS.NOT_FOUND;
-		if (dentistId && !clinicId) throw ERRORS.INVALID_INPUT;
+		if (clinicId && !clinic) throw ERRORS.NOT_FOUND
+		if (clinicId && clinic?.status === 'SUSPENDED')
+			throw ERRORS.OPERATION_NOT_ALLOWED
+		if (caseCategoryId && !category) throw ERRORS.NOT_FOUND
+		if (dentistId && !clinicId) throw ERRORS.INVALID_INPUT
 
 		// ─────────────────────────────────────────────────────────────────
 		// STEP 4: Partial price computation
@@ -581,24 +701,34 @@ export const saveDraftCaseAction = actionClientWithLab
 		// Items without a plan get totalPrice: 0.
 		// ─────────────────────────────────────────────────────────────────
 
-		const pricingPlanIds = [...new Set(caseWorkItems.filter((cw) => cw.casePricingPlanId).map((cw) => cw.casePricingPlanId!))];
+		const pricingPlanIds = [
+			...new Set(
+				caseWorkItems
+					.filter((cw) => cw.casePricingPlanId)
+					.map((cw) => cw.casePricingPlanId!),
+			),
+		]
 
 		const pricingPlans =
 			pricingPlanIds.length > 0
 				? await prisma.casePricingPlan.findMany({
 						where: { id: { in: pricingPlanIds }, labId },
 					})
-				: [];
+				: []
 
-		const pricingPlanMap = new Map(pricingPlans.map((pp) => [pp.id, pp]));
+		const pricingPlanMap = new Map(pricingPlans.map((pp) => [pp.id, pp]))
 
 		const computedWorkItems = caseWorkItems.map((cw) => {
-			const plan = cw.casePricingPlanId ? pricingPlanMap.get(cw.casePricingPlanId) : null;
+			const plan = cw.casePricingPlanId
+				? pricingPlanMap.get(cw.casePricingPlanId)
+				: null
 
-			const teeth = cw.selectedTeeth?.map((t) => t.toothPosition) ?? [];
+			const teeth = cw.selectedTeeth?.map((t) => t.toothPosition) ?? []
 
 			// Only compute if we have a plan — otherwise store 0
-			const totalPrice = plan ? computeCaseItemPrice(plan, teeth, cw.jawType) : 0;
+			const totalPrice = plan
+				? computeCaseItemPrice(plan, teeth, cw.jawType)
+				: 0
 
 			return {
 				productId: cw.productId ?? null,
@@ -608,12 +738,23 @@ export const saveDraftCaseAction = actionClientWithLab
 				totalPrice,
 
 				// Pricing snapshot — only if plan exists
-				pricingStrategy: plan?.pricingStrategy ?? "BULK",
-				bulkPrice: plan?.bulkPrice !== null ? Number(plan?.bulkPrice ?? 0) : null,
-				toothPrice: plan?.toothPrice !== null ? Number(plan?.toothPrice ?? 0) : null,
-				firstToothPrice: plan?.firstToothPrice !== null ? Number(plan?.firstToothPrice ?? 0) : null,
-				additionalToothPrice: plan?.additionalToothPrice !== null ? Number(plan?.additionalToothPrice ?? 0) : null,
-				teethCountToApplyBulkPrice: plan?.teethCountToApplyBulkPrice !== null ? Number(plan?.teethCountToApplyBulkPrice ?? 0) : null,
+				pricingStrategy: plan?.pricingStrategy ?? 'BULK',
+				bulkPrice:
+					plan?.bulkPrice !== null ? Number(plan?.bulkPrice ?? 0) : null,
+				toothPrice:
+					plan?.toothPrice !== null ? Number(plan?.toothPrice ?? 0) : null,
+				firstToothPrice:
+					plan?.firstToothPrice !== null
+						? Number(plan?.firstToothPrice ?? 0)
+						: null,
+				additionalToothPrice:
+					plan?.additionalToothPrice !== null
+						? Number(plan?.additionalToothPrice ?? 0)
+						: null,
+				teethCountToApplyBulkPrice:
+					plan?.teethCountToApplyBulkPrice !== null
+						? Number(plan?.teethCountToApplyBulkPrice ?? 0)
+						: null,
 
 				notes: cw.notes ?? null,
 				shadeSystem: cw.shadeSystem ?? null,
@@ -621,10 +762,13 @@ export const saveDraftCaseAction = actionClientWithLab
 				stumpShade: cw.stumpShade ?? null,
 				shadeNotes: cw.shadeNotes ?? null,
 				selectedTeeth: teeth,
-			};
-		});
+			}
+		})
 
-		const grandTotal = computedWorkItems.reduce((sum, item) => sum + item.totalPrice, 0);
+		const grandTotal = computedWorkItems.reduce(
+			(sum, item) => sum + item.totalPrice,
+			0,
+		)
 
 		// ─────────────────────────────────────────────────────────────────
 		// STEP 5: Transaction — upsert pattern
@@ -647,10 +791,16 @@ export const saveDraftCaseAction = actionClientWithLab
 				// 	where: { caseId: existingDraftId, labId },
 				// });
 				await Promise.all([
-					tx.caseWorkItem.deleteMany({ where: { dentalCaseId: existingDraftId, labId } }),
-					tx.caseAssetFile.deleteMany({ where: { dentalCaseId: existingDraftId, labId } }),
-					tx.caseStaffAssignment.deleteMany({ where: { caseId: existingDraftId, labId } }),
-				]);
+					tx.caseWorkItem.deleteMany({
+						where: { dentalCaseId: existingDraftId, labId },
+					}),
+					tx.caseAssetFile.deleteMany({
+						where: { dentalCaseId: existingDraftId, labId },
+					}),
+					tx.caseStaffAssignment.deleteMany({
+						where: { caseId: existingDraftId, labId },
+					}),
+				])
 
 				return tx.case.update({
 					where: { id: existingDraftId, labId },
@@ -662,7 +812,7 @@ export const saveDraftCaseAction = actionClientWithLab
 						grandTotal,
 						deadline: deadline ?? null,
 						notes: notes ?? null,
-						status: "DRAFT",
+						status: 'DRAFT',
 						labId,
 						caseItems:
 							computedWorkItems.length > 0
@@ -678,7 +828,8 @@ export const saveDraftCaseAction = actionClientWithLab
 											toothPrice: item.toothPrice,
 											firstToothPrice: item.firstToothPrice,
 											additionalToothPrice: item.additionalToothPrice,
-											teethCountToApplyBulkPrice: item.teethCountToApplyBulkPrice,
+											teethCountToApplyBulkPrice:
+												item.teethCountToApplyBulkPrice,
 											notes: item.notes,
 											shadeSystem: item.shadeSystem,
 											baseShade: item.baseShade,
@@ -741,7 +892,7 @@ export const saveDraftCaseAction = actionClientWithLab
 						staffAssignments: true,
 						caseAssetFiles: true,
 					},
-				});
+				})
 			}
 
 			// ── CREATE new draft ───────────────────────────────────────
@@ -749,16 +900,16 @@ export const saveDraftCaseAction = actionClientWithLab
 				where: { id: labId },
 				data: { nextCaseNumber: { increment: 1 } },
 				select: { nextCaseNumber: true },
-			});
+			})
 
-			const caseNumber = `LAB-${updatedLab.nextCaseNumber.toString().padStart(4, "0")}`;
+			const caseNumber = `LAB-${updatedLab.nextCaseNumber.toString().padStart(4, '0')}`
 
 			return tx.case.create({
 				data: {
 					patientId,
 					labId,
 					caseNumber,
-					status: "DRAFT",
+					status: 'DRAFT',
 					grandTotal,
 					deadline: deadline ?? null,
 					notes: notes ?? null,
@@ -842,28 +993,28 @@ export const saveDraftCaseAction = actionClientWithLab
 					staffAssignments: true,
 					caseAssetFiles: true,
 				},
-			});
-		});
+			})
+		})
 
 		return {
 			draftCase: draftCaseServerToDTO(draftCase),
-		};
-	});
+		}
+	})
 
 // ========================== Retrieval =================================
 export const getRecentDraftsAction = actionClientWithLab
 	.metadata({
-		actionName: "Get-Recent-Drafts-Action",
+		actionName: 'Get-Recent-Drafts-Action',
 		requiredLabRole: null,
 	})
 	.inputSchema(z.object({ limit: z.number().min(1).max(20).default(5) }))
 	.action(async ({ parsedInput, ctx }) => {
-		const { labId } = ctx;
-		const prisma = await tenantPrisma(labId);
+		const { labId } = ctx
+		const prisma = await tenantPrisma(labId)
 
 		const drafts = await prisma.case.findMany({
-			where: { status: "DRAFT", labId },
-			orderBy: { updatedAt: "desc" },
+			where: { status: 'DRAFT', labId },
+			orderBy: { updatedAt: 'desc' },
 			take: parsedInput.limit,
 			select: {
 				id: true,
@@ -872,12 +1023,12 @@ export const getRecentDraftsAction = actionClientWithLab
 				patient: { select: { id: true, name: true } },
 				clinic: { select: { id: true, name: true } },
 			},
-		});
+		})
 
 		return {
 			drafts: drafts.map(draftSummaryServerToDTO),
-		};
-	});
+		}
+	})
 
 // export const getDentalCaseByIdAction = actionClientWithLab
 // 	.metadata({
@@ -943,21 +1094,21 @@ export const getRecentDraftsAction = actionClientWithLab
 
 export const getDraftByPatientAction = actionClientWithLab
 	.metadata({
-		actionName: "Get-Draft-By-Patient-Action",
+		actionName: 'Get-Draft-By-Patient-Action',
 		requiredLabRole: null,
 	})
 	.inputSchema(z.object({ patientId: z.string().min(1) }))
 	.action(async ({ parsedInput, ctx }) => {
-		const { labId } = ctx;
-		const prisma = await tenantPrisma(labId);
+		const { labId } = ctx
+		const prisma = await tenantPrisma(labId)
 
 		const draft = await prisma.case.findFirst({
 			where: {
 				patientId: parsedInput.patientId,
 				labId,
-				status: "DRAFT",
+				status: 'DRAFT',
 			},
-			orderBy: { updatedAt: "desc" }, // most recent if multiple
+			orderBy: { updatedAt: 'desc' }, // most recent if multiple
 			select: {
 				id: true,
 				caseNumber: true,
@@ -992,20 +1143,20 @@ export const getDraftByPatientAction = actionClientWithLab
 					},
 				},
 			},
-		});
+		})
 
-		return { draft: draft ?? null };
-	});
+		return { draft: draft ?? null }
+	})
 
 export const loadDraftByIdAction = actionClientWithLab
 	.metadata({
-		actionName: "Load-Draft-By-Id-Action",
+		actionName: 'Load-Draft-By-Id-Action',
 		requiredLabRole: null,
 	})
 	.inputSchema(z.object({ draftId: z.string().min(1) }))
 	.action(async ({ parsedInput, ctx }) => {
-		const { labId } = ctx;
-		const prisma = await tenantPrisma(labId);
+		const { labId } = ctx
+		const prisma = await tenantPrisma(labId)
 
 		const draft = await prisma.case.findUnique({
 			where: { id: parsedInput.draftId, labId },
@@ -1023,10 +1174,10 @@ export const loadDraftByIdAction = actionClientWithLab
 				staffAssignments: true,
 				caseAssetFiles: true,
 			},
-		});
+		})
 
-		if (!draft) throw ERRORS.NOT_FOUND;
-		if (draft.status !== "DRAFT") throw ERRORS.OPERATION_NOT_ALLOWED;
+		if (!draft) throw ERRORS.NOT_FOUND
+		if (draft.status !== 'DRAFT') throw ERRORS.OPERATION_NOT_ALLOWED
 
-		return { draft: optionalSelectiveDraftCaseServerToDTO(draft) };
-	});
+		return { draft: optionalSelectiveDraftCaseServerToDTO(draft) }
+	})

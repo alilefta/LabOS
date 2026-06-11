@@ -92,7 +92,7 @@ export const DestructiveActionModal = memo(function DestructiveActionModal({
 				</DialogHeader>
 
 				{/* --- BODY --- */}
-				<div className="p-6 space-y-6">
+				<div className="p-6 flex flex-col gap-6">
 					{/* Impact Warning */}
 					{warningText && (
 						<div className="p-4 rounded-2xl bg-destructive/5 border border-destructive/20 flex gap-3 items-start shadow-sm">
@@ -108,7 +108,7 @@ export const DestructiveActionModal = memo(function DestructiveActionModal({
 
 					{/* NEW: Type-To-Confirm Barrier */}
 					{requireConfirmationText && (
-						<div className="space-y-2 pt-2">
+						<div className="flex flex-col gap-2 pt-2">
 							<label className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest ml-1">
 								Type{' '}
 								<span className="text-foreground font-mono bg-slate-100 dark:bg-white/5 px-1.5 py-0.5 rounded select-all">

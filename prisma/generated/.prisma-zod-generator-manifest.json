@@ -1,7 +1,7 @@
 {
   "version": "1.0",
   "generatorVersion": "0.1.0",
-  "generatedAt": "2026-06-05T15:01:17.648Z",
+  "generatedAt": "2026-06-11T15:00:56.661Z",
   "outputPath": "F:\\Software_Engineering\\Phase 1 Web Development\\Project 7 Freelancer Command Center\\next-projects\\lab-os-project-4\\prisma\\generated",
   "files": [
     "schemas\\enums\\TransactionIsolationLevel.schema.ts",
@@ -542,7 +542,7 @@
     "schemas\\objects\\EnumJawTypeFilter.schema.ts",
     "schemas\\objects\\ProductNullableScalarRelationFilter.schema.ts",
     "schemas\\objects\\CaseScalarRelationFilter.schema.ts",
-    "schemas\\objects\\CasePricingPlanScalarRelationFilter.schema.ts",
+    "schemas\\objects\\CasePricingPlanNullableScalarRelationFilter.schema.ts",
     "schemas\\objects\\WorkTypeNullableScalarRelationFilter.schema.ts",
     "schemas\\objects\\CaseWorkItemCountOrderByAggregateInput.schema.ts",
     "schemas\\objects\\CaseWorkItemAvgOrderByAggregateInput.schema.ts",
@@ -885,7 +885,7 @@
     "schemas\\objects\\ProductUpdateOneWithoutCaseWorkItemsNestedInput.schema.ts",
     "schemas\\objects\\LabUpdateOneRequiredWithoutCaseWorkItemsNestedInput.schema.ts",
     "schemas\\objects\\CaseUpdateOneRequiredWithoutCaseItemsNestedInput.schema.ts",
-    "schemas\\objects\\CasePricingPlanUpdateOneRequiredWithoutCaseWorkItemNestedInput.schema.ts",
+    "schemas\\objects\\CasePricingPlanUpdateOneWithoutCaseWorkItemNestedInput.schema.ts",
     "schemas\\objects\\WorkTypeUpdateOneWithoutCaseWorkItemsNestedInput.schema.ts",
     "schemas\\objects\\CaseWorkItemAddonUpdateManyWithoutCaseWorkItemNestedInput.schema.ts",
     "schemas\\objects\\SelectedToothUpdateManyWithoutCaseWorkItemNestedInput.schema.ts",

@@ -1,11 +1,11 @@
 'use client'
 
-import { dehydrate, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { usePathname, useSearchParams, useRouter } from 'next/navigation'
 import { Package, Search, Plus, ChevronLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
-import { memo, useCallback, useEffect, useState } from 'react'
+import { memo, useCallback, useState } from 'react'
 import useDebounce from '@/hooks/useDebounce'
 import { handleSafeActionError } from '@/lib/safe-action-helpers'
 
@@ -13,8 +13,7 @@ import { getProductsByWorkTypeAction } from '@/actions/catalog/get-products'
 import { CatalogRenameModal } from '../modals/catalog/catalog-rename-modal'
 import { ProductItem } from './products/sidebar/product-sidebar-item'
 import dynamic from 'next/dynamic'
-import { getProductByIdAction } from '@/actions/catalog/products/get-product'
-import { QueryHydrationBoundary } from '@/providers/query-hydration-boundary'
+import { ArchiveProductModal } from '../modals/catalog/products/archive-product-modal'
 
 interface Props {
 	labId: string
@@ -22,8 +21,6 @@ interface Props {
 	activeProductId?: string
 }
 
-const preloadEditorSheet = () =>
-	import('../modals/catalog/products/product-editor-sheet')
 const ProductEditorSheet = dynamic(
 	() =>
 		import('../modals/catalog/products/product-editor-sheet').then(
@@ -53,6 +50,15 @@ export const ProductSidebar = memo(function ProductSidebar({
 		name: string
 	} | null>(null)
 
+	const [productToArchive, setProductToArchive] = useState<{
+		id: string
+		name: string
+		isCurrentlyArchived: boolean
+	} | null>(null)
+
+	const [isArchiveProductModalOpen, setIsArchiveProductModalOpen] =
+		useState(false)
+
 	// Local Search State
 	const [searchQuery, setSearchQuery] = useState('')
 	const debouncedSearch = useDebounce({ value: searchQuery, delay: 300 })
@@ -61,7 +67,10 @@ export const ProductSidebar = memo(function ProductSidebar({
 	const { data: products = [], isLoading } = useQuery({
 		queryKey: ['catalog-products', labId, workTypeId],
 		queryFn: async () => {
-			const res = await getProductsByWorkTypeAction({ workTypeId })
+			const res = await getProductsByWorkTypeAction({
+				workTypeId,
+				showArchived: true,
+			})
 			if (res?.serverError || res?.validationErrors) {
 				handleSafeActionError({
 					serverError: res.serverError,
@@ -73,16 +82,6 @@ export const ProductSidebar = memo(function ProductSidebar({
 		},
 		staleTime: 1000 * 60 * 5,
 	})
-
-	// queryClient.prefetchQuery({
-	// 	queryKey: ['product-editor-details', productEditId],
-	// 	queryFn: async () => {
-	// 		if (!productEditId) return null
-	// 		const res = await getProductByIdAction({ productId: productEditId })
-
-	// 		return res.data?.product ?? null
-	// 	},
-	// })
 
 	// Client-side filtering
 	const filteredProducts = products.filter((prod) =>
@@ -122,6 +121,18 @@ export const ProductSidebar = memo(function ProductSidebar({
 		setIsEditorSheetOpen(true)
 	}, [])
 
+	const handleArchive = useCallback(
+		(id: string, name: string, isCurrentlyArchived: boolean) => {
+			setProductToArchive({
+				id,
+				name,
+				isCurrentlyArchived,
+			})
+			setIsArchiveProductModalOpen(true)
+		},
+		[],
+	)
+
 	const handleCloseRenameModal = useCallback(() => {
 		setRenameModal(false)
 		setProdToRename(null)
@@ -131,6 +142,13 @@ export const ProductSidebar = memo(function ProductSidebar({
 		setIsEditorSheetOpen(false)
 		setTimeout(() => {
 			setProductEditId(null)
+		}, 300)
+	}, [])
+
+	const handleCloseArchiveProductModal = useCallback(() => {
+		setIsArchiveProductModalOpen(false)
+		setTimeout(() => {
+			setProductToArchive(null)
 		}, 300)
 	}, [])
 
@@ -216,6 +234,7 @@ export const ProductSidebar = memo(function ProductSidebar({
 								isActive={isActive}
 								prod={prod}
 								handleEdit={handleEdit}
+								onArchive={handleArchive}
 							/>
 						)
 					})
@@ -229,6 +248,14 @@ export const ProductSidebar = memo(function ProductSidebar({
 				productIdToEdit={productEditId}
 				isEdit={!!productEditId}
 				key={productEditId ?? 'new'}
+				onSuccess={() => {
+					queryClient.invalidateQueries({
+						queryKey: ['catalog-products', labId, workTypeId],
+					})
+					queryClient.invalidateQueries({
+						queryKey: ['product-vitals', activeProductId],
+					})
+				}}
 			/>
 
 			{prodToRename && (
@@ -247,6 +274,26 @@ export const ProductSidebar = memo(function ProductSidebar({
 							queryKey: ['product-vitals', prodToRename.id],
 						})
 					}}
+				/>
+			)}
+
+			{productToArchive && (
+				<ArchiveProductModal
+					isOpen={isArchiveProductModalOpen}
+					onClose={handleCloseArchiveProductModal}
+					productId={productToArchive.id}
+					productName={productToArchive.name}
+					key={productToArchive.id}
+					onSuccess={() => {
+						queryClient.invalidateQueries({
+							queryKey: ['product-vitals', productToArchive.id],
+						})
+
+						queryClient.invalidateQueries({
+							queryKey: ['catalog-products', labId, workTypeId],
+						})
+					}}
+					isCurrentlyArchived={productToArchive.isCurrentlyArchived}
 				/>
 			)}
 		</div>

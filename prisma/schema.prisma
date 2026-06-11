@@ -200,10 +200,10 @@ enum PaymentMethod {
 }
 
 enum PayoutStatus {
-  PENDING_APPROVAL   // Accountant generated, waiting for Lab Owner's bank sign-off
-  PROCESSING         // Zain Cash or Bank transfer initiated but not cleared
-  SETTLED            // Transaction completed, money received by employee
-  VOIDED             // Erroneous payout, cancelled and backed out
+  PENDING_APPROVAL // Accountant generated, waiting for Lab Owner's bank sign-off
+  PROCESSING // Zain Cash or Bank transfer initiated but not cleared
+  SETTLED // Transaction completed, money received by employee
+  VOIDED // Erroneous payout, cancelled and backed out
 }
 
 enum FaultParty {
@@ -224,7 +224,6 @@ enum SupportedLanguage {
   AR // Arabic
   KU // Kurdish (Sorani/Badini)
 }
-
 
 model Lab {
   id String @id @default(uuid())
@@ -264,19 +263,18 @@ model Lab {
 
   invitations LabInvitation[]
 
-  staffPayouts StaffPayout[]
-  nextPayoutNumber    Int      @default(0) 
+  staffPayouts     StaffPayout[]
+  nextPayoutNumber Int           @default(0)
 
   nextInvoiceNumber Int @default(0)
 
   settings LabSettings? // 1-to-1 relation
 
   caseWorkItemAddons CaseWorkItemAddon[]
-  productAddons ProductAddon[]
+  productAddons      ProductAddon[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
 }
 
 model LabSettings {
@@ -288,10 +286,10 @@ model LabSettings {
   currency SupportedCurrency @default(IQD)
   language SupportedLanguage @default(EN)
   timezone String            @default("Asia/Baghdad") // IANA Timezone string
-  
+
   // --- Financial Defaults ---
-  taxRatePercentage  Decimal @default(0) @db.Decimal(5, 2)
-  invoicePrefix      String  @default("INV-") // e.g., INV-2026-001
+  taxRatePercentage       Decimal @default(0) @db.Decimal(5, 2)
+  invoicePrefix           String  @default("INV-") // e.g., INV-2026-001
   requirePaymentToDeliver Boolean @default(false) // Strict mode: Courier cannot deliver if balance > 0
 
   // --- Notification Preferences ---
@@ -300,7 +298,6 @@ model LabSettings {
 
   updatedAt DateTime @updatedAt
 }
-
 
 model Clinic {
   id    String @id @default(uuid())
@@ -400,10 +397,10 @@ model Case {
   status     CaseStatus @default(DRAFT)
   grandTotal Decimal?   @default(0)
 
-    // 🔥 NEW: Financial overrides for this specific case
-  manualDiscountAmount Decimal  @default(0) @db.Decimal(10, 2)
-  manualDiscountReason String?  // e.g. "Doctor dropped it, 50% courtesy discount applied"
-  isWarranty           Boolean  @default(false) // If true, the case is billed at $0.00 automatically.
+  // 🔥 NEW: Financial overrides for this specific case
+  manualDiscountAmount Decimal @default(0) @db.Decimal(10, 2)
+  manualDiscountReason String? // e.g. "Doctor dropped it, 50% courtesy discount applied"
+  isWarranty           Boolean @default(false) // If true, the case is billed at $0.00 automatically.
 
   clinicId String?
   clinic   Clinic? @relation(fields: [clinicId], references: [id], onDelete: SetNull)
@@ -483,8 +480,8 @@ model CaseWorkItem {
   dentalCaseId String
   dentalCase   Case   @relation(fields: [dentalCaseId], references: [id], onDelete: Cascade)
 
-  casePricingPlanId String
-  casePricingPlan   CasePricingPlan @relation(fields: [casePricingPlanId], references: [id], onDelete: Cascade)
+  casePricingPlanId String?
+  casePricingPlan   CasePricingPlan? @relation(fields: [casePricingPlanId], references: [id], onDelete: SetNull)
   totalPrice        Decimal
 
   // In case of updating the related case pricing plan in future, we keep history of case pricing plan here as well
@@ -506,8 +503,7 @@ model CaseWorkItem {
   workTypeId String?
   workType   WorkType? @relation(fields: [workTypeId], references: [id], onDelete: SetNull)
 
-  addons        CaseWorkItemAddon[] 
-
+  addons CaseWorkItemAddon[]
 
   notes String? // per-item technician instructions
 
@@ -553,8 +549,8 @@ model CaseCategory {
   description String?
   imageUrl    String?
 
-  isActive    Boolean  @default(true) // Controls global visibility
-  isArchived  Boolean  @default(false) // 🔥 NEW: Soft-delete flag
+  isActive   Boolean @default(true) // Controls global visibility
+  isArchived Boolean @default(false) // 🔥 NEW: Soft-delete flag
 
   workTypes WorkType[]
   cases     Case[]
@@ -585,7 +581,7 @@ model WorkType {
   caseCategoryId String
   caseCategory   CaseCategory @relation(fields: [caseCategoryId], references: [id], onDelete: Cascade)
 
-  isArchived            Boolean  @default(false) // 🔥 NEW: Soft-delete flag
+  isArchived Boolean @default(false) // 🔥 NEW: Soft-delete flag
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -612,11 +608,10 @@ model Product {
 
   casePricingPlans CasePricingPlan[]
 
-  addons     ProductAddon[] // 🔥 NEW: Link to accessory catalog
+  addons ProductAddon[] // 🔥 NEW: Link to accessory catalog
 
   // isActive Boolean @default(true)
-  isArchived Boolean  @default(false) // 🔥 NEW: Soft-delete flag
-
+  isArchived Boolean @default(false) // 🔥 NEW: Soft-delete flag
 
   @@index([labId])
   @@index([workTypeId])
@@ -627,10 +622,10 @@ model CasePricingPlan {
   labId String
   lab   Lab    @relation(fields: [labId], references: [id], onDelete: Cascade)
 
-  name       String
-  isDefault  Boolean @default(false)
+  name      String
+  isDefault Boolean @default(false)
 
-  isArchived Boolean  @default(false) // 🔥 NEW: Soft-delete flag
+  isArchived Boolean @default(false) // 🔥 NEW: Soft-delete flag
 
   pricingStrategy PricingStrategy @default(BULK)
 
@@ -767,9 +762,9 @@ model CaseStaffAssignment {
   isPaid Boolean   @default(false)
   paidAt DateTime?
 
-   // Link to the specific paycheck
-  payoutId     String?
-  payout       StaffPayout? @relation(fields: [payoutId], references: [id], onDelete: SetNull)
+  // Link to the specific paycheck
+  payoutId String?
+  payout   StaffPayout? @relation(fields: [payoutId], references: [id], onDelete: SetNull)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -781,32 +776,31 @@ model CaseStaffAssignment {
   @@index([labId])
 }
 
-
 model StaffPayout {
-  id                  String                  @id @default(uuid())
-  payoutNumber        String                  // Sequential ID per lab: e.g. "PAY-2605-0012"
-  
-  labId               String
-  lab                 Lab                     @relation(fields: [labId], references: [id], onDelete: Cascade)
+  id           String @id @default(uuid())
+  payoutNumber String // Sequential ID per lab: e.g. "PAY-2605-0012"
 
-  staffId             String
-  staff               LabStaff                @relation(fields: [staffId], references: [id], onDelete: Cascade)
+  labId String
+  lab   Lab    @relation(fields: [labId], references: [id], onDelete: Cascade)
+
+  staffId String
+  staff   LabStaff @relation(fields: [staffId], references: [id], onDelete: Cascade)
 
   // Financials
-  amount              Decimal                 @db.Decimal(10, 2)
-  method              PaymentMethod           @default(CASH) // Reuses your Zain/Qi/Cash enum!
-  status              PayoutStatus            @default(PENDING_APPROVAL)
-  
+  amount Decimal       @db.Decimal(10, 2)
+  method PaymentMethod @default(CASH) // Reuses your Zain/Qi/Cash enum!
+  status PayoutStatus  @default(PENDING_APPROVAL)
+
   // Auditing
-  reference           String?                 // Zain Cash Transaction ID or Bank Reference
-  notes               String?                 // Memo ("April 2026 Payout")
+  reference String? // Zain Cash Transaction ID or Bank Reference
+  notes     String? // Memo ("April 2026 Payout")
 
   // The Links: Which specific cases are being paid by this paycheck?
-  caseAssignments     CaseStaffAssignment[]
+  caseAssignments CaseStaffAssignment[]
 
-  paidAt              DateTime?
-  createdAt           DateTime                @default(now())
-  updatedAt           DateTime                @updatedAt
+  paidAt    DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 
   @@unique([labId, payoutNumber])
   @@index([labId])
@@ -863,7 +857,7 @@ model Invoice {
   publicToken         String?   @unique @default(cuid())
   publicLinkExpiresAt DateTime?
 
-    isActive Boolean @default(true)
+  isActive Boolean @default(true)
 
   cases    InvoiceCase[]
   payments InvoicePayment[]
@@ -1004,24 +998,23 @@ model LabInvitation {
   @@index([email])
 }
 
-
 // 🔥 NEW MODEL: The catalog definition for product accessories (e.g. Z-Spring, Clasp, Rest)
 model ProductAddon {
-  id          String   @id @default(uuid())
-  productId   String
-  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
-  
-  labId       String
-  lab         Lab      @relation(fields: [labId], references: [id], onDelete: Cascade)
+  id        String  @id @default(uuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
-  name        String
-  price       Decimal  @db.Decimal(10, 2)
-  isArchived  Boolean  @default(false) // Soft-delete for addons
+  labId String
+  lab   Lab    @relation(fields: [labId], references: [id], onDelete: Cascade)
+
+  name       String
+  price      Decimal @db.Decimal(10, 2)
+  isArchived Boolean @default(false) // Soft-delete for addons
 
   caseWorkItemAddons CaseWorkItemAddon[]
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([productId])
   @@index([labId])
@@ -1033,16 +1026,16 @@ model CaseWorkItemAddon {
   caseWorkItemId String
   caseWorkItem   CaseWorkItem @relation(fields: [caseWorkItemId], references: [id], onDelete: Cascade)
 
-  addonId        String
-  addon          ProductAddon @relation(fields: [addonId], references: [id], onDelete: Cascade)
+  addonId String
+  addon   ProductAddon @relation(fields: [addonId], references: [id], onDelete: Cascade)
 
   // Price Snapshot — guarantees historical integrity even if the catalog price changes [2]
-  priceSnapshot  Decimal      @db.Decimal(10, 2) 
+  priceSnapshot Decimal @db.Decimal(10, 2)
 
-  labId          String
-  lab            Lab          @relation(fields: [labId], references: [id], onDelete: Cascade)
+  labId String
+  lab   Lab    @relation(fields: [labId], references: [id], onDelete: Cascade)
 
-  createdAt      DateTime     @default(now())
+  createdAt DateTime @default(now())
 
   @@unique([caseWorkItemId, addonId]) // One unique addon instance per case item
   @@index([caseWorkItemId])

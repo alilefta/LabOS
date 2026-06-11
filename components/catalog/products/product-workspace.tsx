@@ -5,15 +5,13 @@ import { ProductIdentityVitals } from './product-identity-vitals'
 import { ProductAddonsGrid } from './product-addons-grid'
 import { PricingPlanLedger } from './pricing-plan-ledger/pricing-plan-ledger'
 import { CatalogRenameModal } from '@/components/modals/catalog/catalog-rename-modal'
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import { dehydrate, useQueryClient } from '@tanstack/react-query'
+import { useCallback, useMemo, useState } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
 import { useSearchParams } from 'next/navigation'
 import dynamic from 'next/dynamic'
-import { getProductByIdAction } from '@/actions/catalog/products/get-product'
-import { QueryHydrationBoundary } from '@/providers/query-hydration-boundary'
+import { DeleteProductModal } from '@/components/modals/catalog/products/delete-product-modal'
+import { ArchiveProductModal } from '@/components/modals/catalog/products/archive-product-modal'
 
-const preloadEditorSheet = () =>
-	import('../../modals/catalog/products/product-editor-sheet')
 const ProductEditorSheet = dynamic(
 	() =>
 		import('../../modals/catalog/products/product-editor-sheet').then(
@@ -39,25 +37,28 @@ export function ProductWorkspace({
 	const [productEditId, setProductEditId] = useState<string | null>(null)
 	const [isEditorSheetOpen, setIsEditorSheetOpen] = useState(false)
 
+	const [productToArchive, setProductToArchive] = useState<{
+		id: string
+		name: string
+		isCurrentlyArchived: boolean
+	} | null>(null)
+
+	const [productToPermanentDelete, setProductToPermanentDelete] = useState<{
+		id: string
+		name: string
+	} | null>(null)
+
+	const [isArchiveProductModalOpen, setIsArchiveProductModalOpen] =
+		useState(false)
+
+	const [isDeleteProductModalOpen, setIsDeleteProductModalOpen] =
+		useState(false)
+
 	const [renameModal, setRenameModal] = useState(false)
 	const [prodToRename, setProdToRename] = useState<{
 		id: string
 		name: string
 	} | null>(null)
-
-	useEffect(() => {
-		preloadEditorSheet()
-	}, [])
-
-	queryClient.prefetchQuery({
-		queryKey: ['product-editor-details', productEditId],
-		queryFn: async () => {
-			if (!productEditId) return null
-			const res = await getProductByIdAction({ productId: productEditId })
-
-			return res.data?.product ?? null
-		},
-	})
 
 	const resolvedWorktypeId = useMemo(() => {
 		return workTypeId ?? searchParams.get('wt')
@@ -78,14 +79,46 @@ export function ProductWorkspace({
 
 	const handleEdit = useCallback((id: string) => {
 		setProductEditId(id)
-
 		setIsEditorSheetOpen(true)
 	}, [])
 
-	const handleCloseEditor = useCallback(() => {
+	const handleArchive = useCallback(
+		(id: string, name: string, isCurrentlyArchived: boolean) => {
+			setProductToArchive({
+				id,
+				name,
+				isCurrentlyArchived,
+			})
+			setIsArchiveProductModalOpen(true)
+		},
+		[],
+	)
+
+	const handlePermanentDelete = useCallback((id: string, name: string) => {
+		setProductToPermanentDelete({
+			id,
+			name,
+		})
+		setIsDeleteProductModalOpen(true)
+	}, [])
+
+	const handleCloseProductEditor = useCallback(() => {
 		setIsEditorSheetOpen(false)
 		setTimeout(() => {
 			setProductEditId(null)
+		}, 300)
+	}, [])
+
+	const handleCloseArchiveProductModal = useCallback(() => {
+		setIsArchiveProductModalOpen(false)
+		setTimeout(() => {
+			setProductToArchive(null)
+		}, 300)
+	}, [])
+	const handleClosePermanentDeleteProductModal = useCallback(() => {
+		setIsDeleteProductModalOpen(false)
+		setTimeout(() => {
+			setProductToPermanentDelete(null)
 		}, 300)
 	}, [])
 
@@ -103,10 +136,8 @@ export function ProductWorkspace({
 			<ProductIdentityVitals
 				productId={productId}
 				onEdit={handleEdit}
-				onArchiveToggle={(id, state) =>
-					console.log('Toggle Archive', id, state)
-				}
-				onDeleteClick={() => {}}
+				onArchiveToggle={handleArchive}
+				onDeleteClick={handlePermanentDelete}
 				onRename={handleRename}
 			/>
 
@@ -126,16 +157,22 @@ export function ProductWorkspace({
 			</div>
 
 			{resolvedWorktypeId && (
-				<QueryHydrationBoundary state={dehydrate(queryClient)}>
-					<ProductEditorSheet
-						isOpen={isEditorSheetOpen}
-						onClose={handleCloseEditor}
-						workTypeId={resolvedWorktypeId}
-						productIdToEdit={productEditId}
-						isEdit={!!productEditId}
-						key={productEditId ?? 'new'}
-					/>
-				</QueryHydrationBoundary>
+				<ProductEditorSheet
+					isOpen={isEditorSheetOpen}
+					onClose={handleCloseProductEditor}
+					workTypeId={resolvedWorktypeId}
+					productIdToEdit={productEditId}
+					isEdit={!!productEditId}
+					key={productEditId}
+					onSuccess={() => {
+						queryClient.invalidateQueries({
+							queryKey: ['catalog-products', labId, workTypeId],
+						})
+						queryClient.invalidateQueries({
+							queryKey: ['product-vitals', productId],
+						})
+					}}
+				/>
 			)}
 
 			{prodToRename && (
@@ -145,7 +182,6 @@ export function ProductWorkspace({
 					entityId={prodToRename.id}
 					entityType="PRODUCT"
 					initialName={prodToRename.name}
-					key={prodToRename.id}
 					onSuccess={() => {
 						queryClient.invalidateQueries({
 							queryKey: ['product-vitals', prodToRename.id],
@@ -155,6 +191,37 @@ export function ProductWorkspace({
 							queryKey: ['catalog-products', labId, resolvedWorktypeId],
 						})
 					}}
+				/>
+			)}
+
+			{productToArchive && (
+				<ArchiveProductModal
+					isOpen={isArchiveProductModalOpen}
+					onClose={handleCloseArchiveProductModal}
+					productId={productToArchive.id}
+					productName={productToArchive.name}
+					key={productToArchive.id}
+					onSuccess={() => {
+						queryClient.invalidateQueries({
+							queryKey: ['product-vitals', productToArchive.id],
+						})
+
+						queryClient.invalidateQueries({
+							queryKey: ['catalog-products', labId, resolvedWorktypeId],
+						})
+					}}
+					isCurrentlyArchived={productToArchive.isCurrentlyArchived}
+				/>
+			)}
+
+			{productToPermanentDelete && (
+				<DeleteProductModal
+					isOpen={isDeleteProductModalOpen}
+					onClose={handleClosePermanentDeleteProductModal}
+					productId={productToPermanentDelete.id}
+					productName={productToPermanentDelete.name}
+					key={productToPermanentDelete.id}
+					onSuccess={() => {}}
 				/>
 			)}
 		</div>

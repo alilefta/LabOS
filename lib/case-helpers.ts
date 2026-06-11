@@ -1,8 +1,8 @@
 // lib/case-helpers.ts
 
-import { CaseDetails, CaseDetailsUI, DraftCaseDTO } from "@/schema/composed/case.details";
-import { SaveDraftCaseInput } from "@/schema/composed/case.details";
-import { UpdateCaseInput } from "@/schema/composed/case.details";
+import { CaseDetailsUI, DraftCaseDTO } from '@/schema/composed/case.details'
+import { SaveDraftCaseInput } from '@/schema/composed/case.details'
+import { UpdateCaseInput } from '@/schema/composed/case.details'
 export function mapDraftToFormValues(draft: DraftCaseDTO): SaveDraftCaseInput {
 	return {
 		patientId: draft.patientId,
@@ -15,7 +15,7 @@ export function mapDraftToFormValues(draft: DraftCaseDTO): SaveDraftCaseInput {
 		caseWorkItems: draft.caseItems.map((item) => ({
 			productId: item.productId ?? undefined,
 			workTypeId: item.workTypeId ?? undefined,
-			casePricingPlanId: item.casePricingPlanId,
+			casePricingPlanId: item.casePricingPlanId ?? '',
 			jawType: item.jawType,
 			totalPrice: item.totalPrice, // already number
 			selectedTeeth: item.selectedTeeth.map((t) => ({
@@ -44,14 +44,16 @@ export function mapDraftToFormValues(draft: DraftCaseDTO): SaveDraftCaseInput {
 				assetFileType: f.assetFileType ?? undefined,
 				fileExtension: f.fileExtension ?? undefined,
 			})) ?? [],
-	};
+	}
 }
 
 /**
  * Transforms a fully hydrated Case object from the Database into
  * the flat shape required by the UpdateCaseInputSchema.
  */
-export function mapCaseToUpdateFormValues(dentalCase: CaseDetailsUI): UpdateCaseInput {
+export function mapCaseToUpdateFormValues(
+	dentalCase: CaseDetailsUI,
+): UpdateCaseInput {
 	return {
 		caseId: dentalCase.id,
 		caseCategoryId: dentalCase.caseCategoryId ?? undefined,
@@ -64,9 +66,9 @@ export function mapCaseToUpdateFormValues(dentalCase: CaseDetailsUI): UpdateCase
 		// 1. Map Work Items (Replace-All strategy)
 		caseWorkItems: dentalCase.caseItems
 			? dentalCase.caseItems.map((item) => ({
-					productId: item.productId ?? "",
-					workTypeId: item.workTypeId ?? "",
-					casePricingPlanId: item.casePricingPlanId,
+					productId: item.productId ?? '',
+					workTypeId: item.workTypeId ?? '',
+					casePricingPlanId: item.casePricingPlanId ?? '',
 					jawType: item.jawType,
 					// We map the object array of teeth back to the simple position array
 					selectedTeeth: item.selectedTeeth
@@ -100,10 +102,10 @@ export function mapCaseToUpdateFormValues(dentalCase: CaseDetailsUI): UpdateCase
 				isNew: false as const, // CRITICAL: Tells the server to "KEEP" this file
 				id: file.id,
 				// We include metadata for the UI preview even though the Update Schema only requires the ID
-				title: file.title ?? "Untitled File",
+				title: file.title ?? 'Untitled File',
 				assetFileType: file.assetFileType,
 				documentUrl: file.documentUrl,
 				fileExtension: file.fileExtension,
 			})) ?? [],
-	};
+	}
 }

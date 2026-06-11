@@ -3,10 +3,10 @@
 import { memo, useCallback } from 'react'
 import { toast } from 'sonner'
 import { Archive } from 'lucide-react'
-// import { useAction } from "next-safe-action/hooks";
 
 import { DestructiveActionModal } from '@/components/ui/custom/destructive-action-modal'
-// import { archiveProductAction } from "@/actions/catalog/products/archive-product";
+import { useAction } from 'next-safe-action/hooks'
+import { toggleArchiveProductAction } from '@/actions/catalog/products/archive-product'
 
 interface ArchiveProductModalProps {
 	isOpen: boolean
@@ -25,43 +25,36 @@ export const ArchiveProductModal = memo(function ArchiveProductModal({
 	isCurrentlyArchived,
 	onSuccess,
 }: ArchiveProductModalProps) {
-	// --- SERVER ACTION (Commented out for now) ---
-	const isExecuting = false
-
-	/*
-	const { executeAsync: toggleArchiveStatus, isExecuting } = useAction(archiveProductAction, {
-		onSuccess: () => {
-			toast.success(
-				isCurrentlyArchived 
-					? `${productName} restored to active catalog.` 
-					: `${productName} archived successfully.`
-			);
-			if (onSuccess) onSuccess();
-			onClose();
+	const { executeAsync: toggleArchiveStatus, isExecuting } = useAction(
+		toggleArchiveProductAction,
+		{
+			onSuccess: () => {
+				toast.success(
+					isCurrentlyArchived
+						? `${productName} restored to active catalog.`
+						: `${productName} archived successfully.`,
+				)
+				if (onSuccess) onSuccess()
+				onClose()
+			},
+			onError: ({ error }) => {
+				toast.error(
+					error.serverError?.message || 'Failed to update product status.',
+				)
+			},
 		},
-		onError: ({ error }) => {
-			toast.error(error.serverError?.message || "Failed to update product status.");
-		}
-	});
-	*/
+	)
 
 	const handleConfirm = useCallback(async () => {
 		console.log(
 			`Toggling archive status for product ${productId}. Current state: ${isCurrentlyArchived}`,
 		)
 
-		// MOCK EXECUTION
-		toast.success(
-			isCurrentlyArchived
-				? `${productName} restored to active catalog.`
-				: `${productName} archived successfully.`,
-		)
-		if (onSuccess) onSuccess()
-		onClose()
-
-		// REAL EXECUTION
-		// await toggleArchiveStatus({ id: productId, archive: !isCurrentlyArchived });
-	}, [productId, productName, isCurrentlyArchived, onSuccess, onClose])
+		await toggleArchiveStatus({
+			id: productId,
+			isArchived: !isCurrentlyArchived,
+		})
+	}, [productId, isCurrentlyArchived, toggleArchiveStatus])
 
 	// --- DYNAMIC CONTENT BASED ON STATE ---
 	const title = isCurrentlyArchived ? 'Restore Product' : 'Archive Product'

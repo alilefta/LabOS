@@ -14,7 +14,7 @@ import {
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 
-import { MoreVertical, Edit3, Archive, Type } from 'lucide-react'
+import { MoreVertical, Edit3, Archive, Type, RotateCcw } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 interface ProductItemProps {
@@ -23,14 +23,20 @@ interface ProductItemProps {
 	createProductLink: (id: string) => string
 	handleRename: (id: string, name: string) => void
 	handleEdit: (id: string) => void
+	onArchive: (id: string, name: string, isCurrentlyArchived: boolean) => void
 }
+
 export const ProductItem = memo(function productItem({
 	prod,
 	isActive,
 	handleRename,
 	createProductLink,
 	handleEdit,
+	onArchive,
 }: ProductItemProps) {
+	// Determine visual state based on archive status
+	const isArchived = prod.isArchived
+
 	return (
 		<div
 			key={prod.id}
@@ -39,6 +45,10 @@ export const ProductItem = memo(function productItem({
 				isActive
 					? 'bg-ai/10 dark:bg-ai/15'
 					: 'hover:bg-slate-100 dark:hover:bg-white/5',
+				// UX FIX: Lower opacity for archived items, unless they are currently active/selected
+				isArchived &&
+					!isActive &&
+					'opacity-60 grayscale hover:grayscale-0 hover:opacity-100',
 			)}
 		>
 			{/* The clickable area (Link) */}
@@ -58,19 +68,21 @@ export const ProductItem = memo(function productItem({
 				{/* Icon / Avatar */}
 				<div
 					className={cn(
-						'w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-colors shadow-sm',
+						'w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-colors shadow-sm relative overflow-hidden',
 						isActive
 							? 'bg-white dark:bg-[#121214] text-ai border border-ai/20'
 							: 'bg-white dark:bg-[#121214] text-muted-foreground border border-border group-hover:text-foreground',
 					)}
 				>
-					{/* NEW: Replaced img with Next.js Image component */}
 					{prod.imageUrl ? (
 						<Image
 							src={prod.imageUrl}
 							alt={prod.name}
 							fill
-							className="object-cover p-1 rounded-lg"
+							className={cn(
+								'object-cover p-1 rounded-lg transition-all',
+								isArchived && !isActive && 'opacity-50', // Fade image slightly if archived
+							)}
 							sizes="32px"
 						/>
 					) : (
@@ -80,16 +92,29 @@ export const ProductItem = memo(function productItem({
 					)}
 				</div>
 
-				{/* Text Details */}
-				<div className="flex flex-col min-w-0 flex-1">
-					<span
-						className={cn(
-							'text-xs font-bold truncate transition-colors',
-							isActive ? 'text-ai' : 'text-foreground group-hover:text-ai',
+				{/* Text Details & Badges */}
+				<div className="flex flex-col min-w-0 flex-1 gap-0.5">
+					<div className="flex items-center gap-2">
+						<span
+							className={cn(
+								'text-xs font-bold truncate transition-colors',
+								isActive ? 'text-ai' : 'text-foreground group-hover:text-ai',
+								isArchived &&
+									!isActive &&
+									'line-through decoration-rose-500/50', // Visual strike-through
+							)}
+						>
+							{prod.name}
+						</span>
+
+						{/* UX FIX: The explicit Archived Badge */}
+						{isArchived && (
+							<span className="px-1.5 py-0.5 rounded text-[8px] font-black uppercase tracking-widest bg-rose-500/10 text-rose-500 border border-rose-500/20 shrink-0">
+								Archived
+							</span>
 						)}
-					>
-						{prod.name}
-					</span>
+					</div>
+
 					{/* Show material/desc snippet if exists */}
 					<span className="text-[9px] text-muted-foreground truncate max-w-full">
 						{prod.description || 'No description'}
@@ -119,26 +144,47 @@ export const ProductItem = memo(function productItem({
 					className="w-48 rounded-xl border-border shadow-premium dark:bg-[#121214]"
 				>
 					<DropdownMenuLabel className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
-						Options
+						Product Actions
 					</DropdownMenuLabel>
+
 					<DropdownMenuItem
-						className="cursor-pointer font-medium text-xs py-2 hover:bg-primary/5"
+						className="cursor-pointer font-medium text-xs py-2 hover:bg-ai/5"
 						onClick={() => handleRename(prod.id, prod.name)}
 					>
-						<Type className="w-3.5 h-3.5 mr-2" /> Rename Product
+						<Type className="w-3.5 h-3.5 mr-2 text-slate-400" /> Rename Product
 					</DropdownMenuItem>
+
 					<DropdownMenuItem
 						className="cursor-pointer font-medium text-xs py-2 hover:bg-ai/5"
 						onClick={() => handleEdit(prod.id)}
 					>
-						<Edit3 className="w-3.5 h-3.5 mr-2" />
-						Edit
+						<Edit3 className="w-3.5 h-3.5 mr-2 text-slate-400" />
+						Edit Details
 					</DropdownMenuItem>
 
 					<DropdownMenuSeparator className="bg-border/50" />
 
-					<DropdownMenuItem className="cursor-pointer font-medium text-xs py-2 text-rose-600 focus:text-rose-500 focus:bg-rose-500/10">
-						<Archive className="w-3.5 h-3.5 mr-2" /> Archive Product
+					{/* UX FIX: Dynamic Archive/Restore Button */}
+					<DropdownMenuItem
+						className={cn(
+							'cursor-pointer font-medium text-xs py-2 focus:bg-rose-500/10',
+							isArchived
+								? 'text-amber-600 focus:text-amber-500'
+								: 'text-rose-600 focus:text-rose-500',
+						)}
+						onClick={() => {
+							onArchive(prod.id, prod.name, prod.isArchived)
+						}}
+					>
+						{isArchived ? (
+							<>
+								<RotateCcw className="w-3.5 h-3.5 mr-2" /> Restore Product
+							</>
+						) : (
+							<>
+								<Archive className="w-3.5 h-3.5 mr-2" /> Archive Product
+							</>
+						)}
 					</DropdownMenuItem>
 				</DropdownMenuContent>
 			</DropdownMenu>
