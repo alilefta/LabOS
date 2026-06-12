@@ -11,7 +11,7 @@ import {
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
-import { memo, useCallback, useEffect, useMemo, useState } from 'react'
+import { memo, useCallback, useMemo, useState } from 'react'
 
 // Zustand Store & Handlers
 import { handleSafeActionError } from '@/lib/safe-action-helpers'
@@ -20,6 +20,8 @@ import { PricingPlanLedgerCard } from './pricing-plan-ledger-card'
 import { PricingPlanDTO } from '@/schema/composed/catalog/pricing-plans.dtos'
 import dynamic from 'next/dynamic'
 import { CatalogRenameModal } from '@/components/modals/catalog/catalog-rename-modal'
+import { ArchivePricingPlanModal } from '@/components/modals/catalog/pricing-plans/archive-pricing-plan-modal'
+import { DeletePricingPlanModal } from '@/components/modals/catalog/pricing-plans/delete-pricing-plan-modal'
 
 interface Props {
 	productId?: string
@@ -52,7 +54,21 @@ export const PricingPlanLedger = memo(function PricingPlanLedger({
 
 	const [sheetPlan, setSheetPlan] = useState<SheetPlanDetails | null>(null)
 	const [isSheetOpen, setIsSheetOpen] = useState(false)
+	const [isPermanentDeleteModalOpen, setIsPermanentDeleteModalOpen] =
+		useState(false)
 
+	const [planToArchive, setPlanToArchive] = useState<{
+		id: string
+		name: string
+		isCurrentlyArchived: boolean
+	} | null>(null)
+
+	const [planToPermanentDelete, setPlanToPermanentDelete] = useState<{
+		id: string
+		name: string
+	} | null>(null)
+
+	const [isArchivePlanModalOpen, setIsArchivePlanModalOpen] = useState(false)
 	const [renameModal, setRenameModal] = useState(false)
 	const [planToRename, setPlanToRename] = useState<{
 		id: string
@@ -157,10 +173,29 @@ export const PricingPlanLedger = memo(function PricingPlanLedger({
 		[],
 	)
 
-	const handleClose = useCallback(() => {
+	const handleCloseEditor = useCallback(() => {
 		setIsSheetOpen(false)
 		setTimeout(() => {
 			setSheetPlan(null)
+		}, 300)
+	}, [])
+
+	const handlePlanPermanentDelete = useCallback(
+		(planId: string, name: string) => {
+			setPlanToPermanentDelete({
+				id: planId,
+				name,
+			})
+
+			setIsPermanentDeleteModalOpen(true)
+		},
+		[],
+	)
+
+	const handleClosePermanentDeleteModal = useCallback(() => {
+		setIsPermanentDeleteModalOpen(false)
+		setTimeout(() => {
+			setPlanToPermanentDelete(null)
 		}, 300)
 	}, [])
 
@@ -178,6 +213,25 @@ export const PricingPlanLedger = memo(function PricingPlanLedger({
 	const handleCloseRenameModal = useCallback(() => {
 		setRenameModal(false)
 		setPlanToRename(null)
+	}, [])
+
+	const handleArchive = useCallback(
+		(id: string, name: string, isCurrentlyArchived: boolean) => {
+			setPlanToArchive({
+				id,
+				name,
+				isCurrentlyArchived,
+			})
+			setIsArchivePlanModalOpen(true)
+		},
+		[],
+	)
+
+	const handleCloseArchiveProductModal = useCallback(() => {
+		setIsArchivePlanModalOpen(false)
+		setTimeout(() => {
+			setPlanToArchive(null)
+		}, 300)
 	}, [])
 
 	// --- 3. LOADING STATE ---
@@ -253,6 +307,8 @@ export const PricingPlanLedger = memo(function PricingPlanLedger({
 									isGlobalDefault={plan.isDefault}
 									onEdit={handleEdit}
 									onRename={handleRename}
+									onArchive={handleArchive}
+									onPermanentDelete={handlePlanPermanentDelete}
 								/>
 							))}
 						</div>
@@ -323,7 +379,7 @@ export const PricingPlanLedger = memo(function PricingPlanLedger({
 										</div>
 									</div>
 									{/* Embedded Grid just for this Clinic's custom deals */}
-									<div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+									<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
 										{group.plans.map((plan) => (
 											<PricingPlanLedgerCard
 												key={plan.id}
@@ -332,7 +388,9 @@ export const PricingPlanLedger = memo(function PricingPlanLedger({
 												onEdit={(id) =>
 													handleEdit(id, clinicId, group.clinicName)
 												}
+												onArchive={handleArchive}
 												onRename={handleRename}
+												onPermanentDelete={handlePlanPermanentDelete}
 											/>
 										))}
 									</div>
@@ -349,9 +407,14 @@ export const PricingPlanLedger = memo(function PricingPlanLedger({
 					clinicName={sheetPlan?.clinic?.name}
 					isOpen={isSheetOpen}
 					isEdit={!!planIdToEdit}
-					onClose={handleClose}
+					onClose={handleCloseEditor}
 					planIdToEdit={planIdToEdit}
 					key={sheetPlan?.planId ?? 'new'}
+					onSuccess={() => {
+						queryClient.invalidateQueries({
+							queryKey: ['catalog-pricing-plans', labId, productId],
+						})
+					}}
 				/>
 			)}
 			{planToRename && (
@@ -362,6 +425,34 @@ export const PricingPlanLedger = memo(function PricingPlanLedger({
 					entityType="PRICING_PLAN"
 					initialName={planToRename.name}
 					key={planToRename.id}
+					onSuccess={() => {
+						queryClient.invalidateQueries({
+							queryKey: ['catalog-pricing-plans', labId, productId],
+						})
+					}}
+				/>
+			)}
+			{planToArchive && (
+				<ArchivePricingPlanModal
+					isOpen={isArchivePlanModalOpen}
+					onClose={handleCloseArchiveProductModal}
+					isCurrentlyArchived={planToArchive?.isCurrentlyArchived}
+					pricingPlanId={planToArchive?.id}
+					pricingPlanName={planToArchive?.name}
+					onSuccess={() => {
+						queryClient.invalidateQueries({
+							queryKey: ['catalog-pricing-plans', labId, productId],
+						})
+					}}
+				/>
+			)}
+
+			{planToPermanentDelete && (
+				<DeletePricingPlanModal
+					isOpen={isPermanentDeleteModalOpen}
+					onClose={handleClosePermanentDeleteModal}
+					pricingPlanId={planToPermanentDelete.id}
+					pricingPlanName={planToPermanentDelete.name}
 					onSuccess={() => {
 						queryClient.invalidateQueries({
 							queryKey: ['catalog-pricing-plans', labId, productId],

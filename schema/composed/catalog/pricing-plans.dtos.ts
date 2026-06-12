@@ -6,6 +6,7 @@ export type PricingPlanDTO = {
 	id: string
 	name: string
 	isDefault: boolean
+	isArchived: boolean
 	pricingStrategy: PricingStrategy
 
 	// Normalized Decimals

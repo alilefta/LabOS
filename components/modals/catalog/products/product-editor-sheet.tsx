@@ -30,7 +30,6 @@ import {
 	CreateProductInputSchema,
 } from '@/schema/composed/product.details'
 import { createProductAction } from '@/actions/product'
-// Assume these two actions exist for the edit flow:
 
 import { handleSafeActionError } from '@/lib/safe-action-helpers'
 import { UpdateProductInput } from '@/schema/composed/catalog/product.schema'

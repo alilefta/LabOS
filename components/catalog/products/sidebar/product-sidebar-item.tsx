@@ -164,27 +164,12 @@ export const ProductItem = memo(function productItem({
 
 					<DropdownMenuSeparator className="bg-border/50" />
 
-					{/* UX FIX: Dynamic Archive/Restore Button */}
 					<DropdownMenuItem
-						className={cn(
-							'cursor-pointer font-medium text-xs py-2 focus:bg-rose-500/10',
-							isArchived
-								? 'text-amber-600 focus:text-amber-500'
-								: 'text-rose-600 focus:text-rose-500',
-						)}
-						onClick={() => {
-							onArchive(prod.id, prod.name, prod.isArchived)
-						}}
+						onClick={() => onArchive(prod.id, prod.name, prod.isArchived)}
+						className="cursor-pointer font-medium text-xs py-2 text-amber-600 dark:text-amber-500 focus:text-amber-600 dark:focus:text-amber-500 focus:bg-amber-500/10 transition-colors"
 					>
-						{isArchived ? (
-							<>
-								<RotateCcw className="w-3.5 h-3.5 mr-2" /> Restore Product
-							</>
-						) : (
-							<>
-								<Archive className="w-3.5 h-3.5 mr-2" /> Archive Product
-							</>
-						)}
+						<Archive className="w-3.5 h-3.5 mr-2" />
+						{prod.isArchived ? 'Restore Product' : 'Archive Product'}
 					</DropdownMenuItem>
 				</DropdownMenuContent>
 			</DropdownMenu>

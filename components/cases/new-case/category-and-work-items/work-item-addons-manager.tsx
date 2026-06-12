@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query'
 import { PackagePlus, Check } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { ProductAddonDTO } from '@/schema/composed/catalog/product.dtos'
-import { getProductAddonsAction } from '@/actions/catalog/products/get-product-addons'
+import { getProductAddonsAction } from '@/actions/catalog/product-addons/get-product-addons'
 
 interface Props {
 	productId: string | null

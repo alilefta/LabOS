@@ -6,6 +6,8 @@ import { Trash2 } from 'lucide-react'
 // import { useAction } from "next-safe-action/hooks";
 
 import { DestructiveActionModal } from '@/components/ui/custom/destructive-action-modal'
+import { useAction } from 'next-safe-action/hooks'
+import { deleteProductAction } from '@/actions/catalog/products/delete-product'
 // import { deleteProductAction } from "@/actions/catalog/products/delete-product";
 
 interface DeleteProductModalProps {
@@ -24,32 +26,24 @@ export const DeleteProductModal = memo(function DeleteProductModal({
 	onSuccess,
 }: DeleteProductModalProps) {
 	// --- SERVER ACTION (Commented out for now) ---
-	const isExecuting = false
 
-	/*
-	const { executeAsync: deleteProduct, isExecuting } = useAction(deleteProductAction, {
-		onSuccess: () => {
-			toast.success(`${productName} deleted permanently.`);
-			if (onSuccess) onSuccess();
-			onClose();
+	const { executeAsync: deleteProduct, isExecuting } = useAction(
+		deleteProductAction,
+		{
+			onSuccess: () => {
+				toast.success(`${productName} deleted permanently.`)
+				if (onSuccess) onSuccess()
+				onClose()
+			},
+			onError: ({ error }) => {
+				toast.error(error.serverError?.message || 'Failed to delete product.')
+			},
 		},
-		onError: ({ error }) => {
-			toast.error(error.serverError?.message || "Failed to delete product.");
-		}
-	});
-	*/
+	)
 
 	const handleConfirm = useCallback(async () => {
-		console.log(`Hard deleting product ${productId}.`)
-
-		// MOCK EXECUTION
-		toast.success(`"${productName}" has been permanently deleted.`)
-		if (onSuccess) onSuccess()
-		onClose()
-
-		// REAL EXECUTION
-		// await deleteProduct({ id: productId });
-	}, [productId, productName, onSuccess, onClose])
+		await deleteProduct({ id: productId })
+	}, [productId, deleteProduct])
 
 	return (
 		<DestructiveActionModal

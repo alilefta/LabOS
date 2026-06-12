@@ -1,9 +1,6 @@
 import { z } from 'zod'
 
-export const CreateProductAddonInputSchema = z.object({
-	// The parent product this accessory belongs to
-	productId: z.string().uuid('Parent product is required'),
-
+export const BaseProductAddonInputSchema = z.object({
 	name: z
 		.string()
 		.trim()
@@ -15,8 +12,24 @@ export const CreateProductAddonInputSchema = z.object({
 	isArchived: z.boolean().default(false).optional(),
 })
 
+export const CreateProductAddonInputSchema = BaseProductAddonInputSchema.extend(
+	{
+		productId: z.string().uuid('Product ID is required'),
+	},
+)
+
 export type CreateProductAddonInput = z.infer<
 	typeof CreateProductAddonInputSchema
+>
+
+// Update (Requires ID)
+export const UpdateProductAddonInputSchema = BaseProductAddonInputSchema.extend(
+	{
+		addonId: z.string().uuid('Addon ID is required'),
+	},
+)
+export type UpdateProductAddonInput = z.infer<
+	typeof UpdateProductAddonInputSchema
 >
 
 // Helper to convert empty strings to undefined

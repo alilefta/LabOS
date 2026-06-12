@@ -1,6 +1,6 @@
 'use client'
 
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import {
 	Plus,
 	Settings2,
@@ -8,6 +8,7 @@ import {
 	Edit3,
 	Archive,
 	DollarSign,
+	Trash2,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -23,30 +24,52 @@ import {
 // Replace with your actual server action
 import { handleSafeActionError } from '@/lib/safe-action-helpers'
 import { ProductAddonDTO } from '@/schema/composed/catalog/product.dtos'
-import { getProductAddonsAction } from '@/actions/catalog/products/get-product-addons'
+import { getProductAddonsAction } from '@/actions/catalog/product-addons/get-product-addons'
+import { ProductAddonEditorSheet } from '@/components/modals/catalog/product-addons/product-addon-editor-sheet'
+import { memo, useCallback, useState } from 'react'
+import { ArchiveProductAddonModal } from '@/components/modals/catalog/product-addons/archive-product-addon-modal'
+import { DeleteProductAddonModal } from '@/components/modals/catalog/product-addons/delete-product-addon-modal'
 
 interface Props {
 	productId: string
-	onAddAccessory: (productId: string) => void
-	onEditAccessory: (addonId: string) => void
-	onArchiveAccessory: (addonId: string, isArchived: boolean) => void
+	labId: string
 }
+const formatMoney = (val: number) =>
+	new Intl.NumberFormat('en-US', {
+		style: 'currency',
+		currency: 'USD',
+	}).format(val)
 
-export function ProductAddonsGrid({
+export const ProductAddonsGrid = memo(function ProductAddonsGrid({
 	productId,
-	onAddAccessory,
-	onEditAccessory,
-	onArchiveAccessory,
+	labId,
 }: Props) {
-	const formatMoney = (val: number) =>
-		new Intl.NumberFormat('en-US', {
-			style: 'currency',
-			currency: 'USD',
-		}).format(val)
+	const queryClient = useQueryClient()
+	const [isProductAddonEditorOpen, setIsProductAddonEditorOpen] =
+		useState(false)
+	const [isAddonArchiveModalOpen, setIsAddonArchiveModalOpen] = useState(false)
+	const [isAddonPermanentDeleteModalOpen, setIsAddonPermanentDeleteModalOpen] =
+		useState(false)
+
+	const [productAddonIdToEdit, setProductAddonIdToEdit] = useState<
+		string | null
+	>(null)
+
+	const [productAddonToArchive, setProductAddonToArchive] = useState<{
+		id: string
+		name: string
+		isArchived: boolean
+	} | null>(null)
+
+	const [productAddonToPermanentDelete, setProductAddonToPermanentDelete] =
+		useState<{
+			id: string
+			name: string
+		} | null>(null)
 
 	// --- DATA FETCHING ---
 	const { data: addons = [], isLoading } = useQuery({
-		queryKey: ['product-addons', productId],
+		queryKey: ['product-addons', labId, productId],
 		queryFn: async () => {
 			const res = await getProductAddonsAction({ productId })
 			if (res?.serverError || res?.validationErrors) {
@@ -61,6 +84,55 @@ export function ProductAddonsGrid({
 		enabled: !!productId,
 		staleTime: 1000 * 60 * 5,
 	})
+
+	const handleEditProductAddon = useCallback((addonId: string) => {
+		setProductAddonIdToEdit(addonId)
+		setIsProductAddonEditorOpen(true)
+	}, [])
+
+	const handlePermanentDeleteProductAddon = useCallback(
+		(addonId: string, name: string) => {
+			setProductAddonToPermanentDelete({
+				id: addonId,
+				name,
+			})
+			setIsAddonPermanentDeleteModalOpen(true)
+		},
+		[],
+	)
+
+	const handleCreateNewAddon = useCallback(() => {
+		setIsProductAddonEditorOpen(true)
+	}, [])
+
+	const handleCloseProductAddonEditorModal = useCallback(() => {
+		setIsProductAddonEditorOpen(false)
+		setTimeout(() => {
+			setProductAddonIdToEdit(null)
+		}, 300)
+	}, [])
+
+	const handleCloseProductAddonArchiveModal = useCallback(() => {
+		setIsAddonArchiveModalOpen(false)
+		setTimeout(() => {
+			setProductAddonToArchive(null)
+		}, 300)
+	}, [])
+
+	const handleClosePermanentDeleteModal = useCallback(() => {
+		setIsAddonPermanentDeleteModalOpen(false)
+		setTimeout(() => {
+			setProductAddonToPermanentDelete(null)
+		}, 300)
+	}, [])
+
+	const handleArchiveProductAddon = useCallback(
+		(addonId: string, name: string, isArchived: boolean) => {
+			setProductAddonToArchive({ id: addonId, name, isArchived })
+			setIsAddonArchiveModalOpen(true)
+		},
+		[],
+	)
 
 	if (isLoading) {
 		return (
@@ -102,7 +174,7 @@ export function ProductAddonsGrid({
 					variant="outline"
 					size="sm"
 					className="h-9 rounded-xl border-border bg-white dark:bg-white/5 hover:bg-slate-50 dark:hover:bg-white/10 text-primary font-bold shadow-sm transition-all"
-					onClick={() => onAddAccessory(productId)}
+					onClick={() => handleCreateNewAddon()}
 				>
 					<Plus className="w-4 h-4 mr-1.5" /> Add Accessory
 				</Button>
@@ -152,7 +224,7 @@ export function ProductAddonsGrid({
 									<Button
 										variant="ghost"
 										size="icon"
-										className="h-8 w-8 text-muted-foreground hover:text-foreground shrink-0 rounded-lg transition-colors"
+										className="h-8 w-8 text-muted-foreground hover:text-foreground shrink-0 rounded-lg transition-colors focus-visible:ring-1 focus-visible:ring-primary"
 									>
 										<MoreVertical className="w-4 h-4" />
 									</Button>
@@ -161,29 +233,42 @@ export function ProductAddonsGrid({
 									align="end"
 									className="w-48 rounded-xl border-border shadow-premium dark:bg-[#121214]"
 								>
+									{/* STANDARD ACTIONS */}
 									<DropdownMenuItem
-										onClick={() => onEditAccessory(addon.id)}
-										className="cursor-pointer font-medium text-xs py-2 hover:bg-primary/5"
+										onClick={() => handleEditProductAddon(addon.id)}
+										className="cursor-pointer font-medium text-xs py-2 hover:bg-primary/5 focus:bg-primary/5"
 									>
-										<Edit3 className="w-3.5 h-3.5 mr-2 text-slate-400" /> Edit
-										Pricing
+										<Edit3 className="w-3.5 h-3.5 mr-2 text-muted-foreground" />{' '}
+										Edit Pricing
 									</DropdownMenuItem>
+
 									<DropdownMenuSeparator className="bg-border/50" />
+
+									{/* SOFT-DELETE (Always Amber) */}
 									<DropdownMenuItem
 										onClick={() =>
-											onArchiveAccessory(addon.id, addon.isArchived)
+											handleArchiveProductAddon(
+												addon.id,
+												addon.name,
+												addon.isArchived,
+											)
 										}
-										className={cn(
-											'cursor-pointer font-medium text-xs py-2',
-											addon.isArchived
-												? 'text-amber-600 focus:text-amber-500 focus:bg-amber-500/10'
-												: 'text-rose-600 focus:text-rose-500 focus:bg-rose-500/10',
-										)}
+										className="cursor-pointer font-medium text-xs py-2 text-amber-600 dark:text-amber-500 focus:text-amber-600 dark:focus:text-amber-500 focus:bg-amber-500/10 transition-colors"
 									>
 										<Archive className="w-3.5 h-3.5 mr-2" />
 										{addon.isArchived
 											? 'Restore Accessory'
 											: 'Archive Accessory'}
+									</DropdownMenuItem>
+
+									{/* HARD-DELETE (Always Red) */}
+									<DropdownMenuItem
+										onClick={() =>
+											handlePermanentDeleteProductAddon(addon.id, addon.name)
+										}
+										className="cursor-pointer font-medium text-xs py-2 text-destructive focus:text-destructive focus:bg-destructive/10 transition-colors"
+									>
+										<Trash2 className="w-3.5 h-3.5 mr-2" /> Delete Permanently
 									</DropdownMenuItem>
 								</DropdownMenuContent>
 							</DropdownMenu>
@@ -191,6 +276,52 @@ export function ProductAddonsGrid({
 					))}
 				</div>
 			)}
+
+			<ProductAddonEditorSheet
+				isOpen={isProductAddonEditorOpen}
+				onClose={handleCloseProductAddonEditorModal}
+				productId={productId}
+				isEdit={!!productAddonIdToEdit}
+				addonIdToEdit={productAddonIdToEdit}
+				onSuccess={() => {
+					queryClient.invalidateQueries({
+						queryKey: ['product-addons', labId, productId],
+					})
+
+					queryClient.invalidateQueries({
+						queryKey: ['product-vitals', productId],
+					})
+				}}
+			/>
+
+			{productAddonToArchive && (
+				<ArchiveProductAddonModal
+					isOpen={isAddonArchiveModalOpen}
+					onClose={handleCloseProductAddonArchiveModal}
+					key={productAddonToArchive.id}
+					onSuccess={() => {
+						queryClient.invalidateQueries({
+							queryKey: ['product-vitals', productId],
+						})
+						queryClient.invalidateQueries({
+							queryKey: ['product-addons', labId, productId],
+						})
+					}}
+					isCurrentlyArchived={productAddonToArchive.isArchived}
+					addonId={productAddonToArchive.id}
+					addonName={productAddonToArchive.name}
+				/>
+			)}
+
+			{productAddonToPermanentDelete && (
+				<DeleteProductAddonModal
+					addonId={productAddonToPermanentDelete.id}
+					addonName={productAddonToPermanentDelete.name}
+					isOpen={isAddonPermanentDeleteModalOpen}
+					onClose={handleClosePermanentDeleteModal}
+					onSuccess={() => {}}
+				/>
+			)}
 		</div>
 	)
-}
+})

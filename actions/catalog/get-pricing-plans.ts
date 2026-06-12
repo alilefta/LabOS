@@ -1,7 +1,6 @@
 // actions/pricing-plan.ts
 'use server'
 
-import { z } from 'zod'
 import { actionClientWithLab } from '@/lib/safe-action'
 import { tenantPrisma } from '@/lib/prisma'
 import { APIError } from 'better-auth'
@@ -42,6 +41,7 @@ export const getPricingPlansByProductAction = actionClientWithLab
 					firstToothPrice: true,
 					additionalToothPrice: true,
 					teethCountToApplyBulkPrice: true,
+					isArchived: true,
 
 					// N+1 Prevention & Payload Minimization: Fetch ONLY clinic id and name
 					clinic: {
@@ -59,6 +59,7 @@ export const getPricingPlansByProductAction = actionClientWithLab
 				name: plan.name,
 				isDefault: plan.isDefault,
 				pricingStrategy: plan.pricingStrategy,
+				isArchived: plan.isArchived,
 
 				// Using your existing decimal normalizers
 				toothPrice: d(plan.toothPrice),

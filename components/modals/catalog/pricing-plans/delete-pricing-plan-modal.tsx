@@ -3,11 +3,10 @@
 import { memo, useCallback } from 'react'
 import { toast } from 'sonner'
 import { Trash2 } from 'lucide-react'
-// import { useAction } from "next-safe-action/hooks";
 
 import { DestructiveActionModal } from '@/components/ui/custom/destructive-action-modal'
 import { useAction } from 'next-safe-action/hooks'
-// import { deletePricingPlanAction } from "@/actions/catalog/pricing-plans/delete-pricing-plan";
+import { deletePricingPlanAction } from '@/actions/catalog/pricing-plans/delete-pricing-plan'
 
 interface DeletePricingPlanModalProps {
 	isOpen: boolean
@@ -25,28 +24,27 @@ export const DeletePricingPlanModal = memo(function DeletePricingPlanModal({
 	onSuccess,
 }: DeletePricingPlanModalProps) {
 	// --- SERVER ACTION (Commented out for now) ---
-	const isExecuting = false
-	// const { executeAsync: deletePricingPlan, isExecuting } = useAction(
-	// 	deletePricingPlanAction,
-	// 	{
-	// 		onSuccess: () => {
-	// 			toast.success(`Pricing plan "${pricingPlanName}" deleted permanently.`)
-	// 			if (onSuccess) onSuccess()
-	// 			onClose()
-	// 		},
-	// 		onError: ({ error }) => {
-	// 			toast.error(
-	// 				error.serverError?.message || 'Failed to delete pricing plan.',
-	// 			)
-	// 		},
-	// 	},
-	// )
+	const { executeAsync: deletePricingPlan, isExecuting } = useAction(
+		deletePricingPlanAction,
+		{
+			onSuccess: () => {
+				toast.success(`Pricing plan "${pricingPlanName}" deleted permanently.`)
+				if (onSuccess) onSuccess()
+				onClose()
+			},
+			onError: ({ error }) => {
+				toast.error(
+					error.serverError?.message || 'Failed to delete pricing plan.',
+				)
+			},
+		},
+	)
 
 	const handleConfirm = useCallback(async () => {
 		console.log(`Hard deleting pricing plan ${pricingPlanId}.`)
 
-		// await deletePricingPlan({ id: pricingPlanId });
-	}, [pricingPlanId, pricingPlanName, onSuccess, onClose])
+		await deletePricingPlan({ id: pricingPlanId })
+	}, [pricingPlanId, deletePricingPlan])
 
 	return (
 		<DestructiveActionModal

@@ -174,33 +174,39 @@ export const ProductIdentityVitals = memo(function ProductIdentityVitals({
 							<DropdownMenuLabel className="text-[10px] text-muted-foreground uppercase tracking-widest">
 								Configuration
 							</DropdownMenuLabel>
+
+							{/* STANDARD ACTIONS */}
 							<DropdownMenuItem
 								onClick={() => onEdit(product.id)}
-								className="cursor-pointer font-medium py-2 hover:bg-primary/5"
+								className="cursor-pointer font-medium text-xs py-2 hover:bg-primary/5 focus:bg-primary/5"
 							>
 								<Edit3 className="w-4 h-4 mr-2 text-muted-foreground" /> Edit
 								Profile
 							</DropdownMenuItem>
 							<DropdownMenuItem
 								onClick={() => onRename(product.id, product.name)}
-								className="cursor-pointer font-medium py-2 hover:bg-primary/5"
+								className="cursor-pointer font-medium text-xs py-2 hover:bg-primary/5 focus:bg-primary/5"
 							>
 								<Type className="w-4 h-4 mr-2 text-muted-foreground" /> Rename
 							</DropdownMenuItem>
-							<DropdownMenuSeparator className="bg-border" />
 
+							<DropdownMenuSeparator className="bg-border/50" />
+
+							{/* SOFT-DELETE (Always Amber) */}
 							<DropdownMenuItem
 								onClick={() =>
 									onArchiveToggle(product.id, product.name, product.isArchived)
 								}
-								className="cursor-pointer font-medium py-2 text-amber-600 focus:text-amber-600 focus:bg-amber-500/10"
+								className="cursor-pointer font-medium text-xs py-2 text-amber-600 dark:text-amber-500 focus:text-amber-600 dark:focus:text-amber-500 focus:bg-amber-500/10 transition-colors"
 							>
-								<Archive className="w-4 h-4 mr-2" />{' '}
+								<Archive className="w-4 h-4 mr-2" />
 								{product.isArchived ? 'Restore to Catalog' : 'Archive Product'}
 							</DropdownMenuItem>
+
+							{/* HARD-DELETE (Always Red) */}
 							<DropdownMenuItem
 								onClick={() => onDeleteClick(product.id, product.name)}
-								className="cursor-pointer font-medium py-2 text-destructive focus:text-destructive focus:bg-destructive/10"
+								className="cursor-pointer font-medium text-xs py-2 text-destructive focus:text-destructive focus:bg-destructive/10 transition-colors"
 							>
 								<Trash2 className="w-4 h-4 mr-2" /> Delete Permanently
 							</DropdownMenuItem>

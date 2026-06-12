@@ -58,6 +58,7 @@ interface Props {
 	planIdToEdit: string | null
 	isEdit: boolean
 	activeProductId?: string
+	onSuccess?: () => void
 }
 
 export const PricingPlanEditorSheet = memo(function PricingPlanEditorSheet({
@@ -68,6 +69,7 @@ export const PricingPlanEditorSheet = memo(function PricingPlanEditorSheet({
 	planIdToEdit,
 	isEdit = false,
 	activeProductId,
+	onSuccess,
 }: Props) {
 	const queryClient = useQueryClient()
 	const [showCustomBulkCap, setShowCustomBulkCap] = useState(false)
@@ -195,6 +197,10 @@ export const PricingPlanEditorSheet = memo(function PricingPlanEditorSheet({
 				queryClient.invalidateQueries({
 					queryKey: ['catalog-pricing-plans', activeProductId],
 				})
+				if (onSuccess) {
+					onSuccess()
+				}
+
 				onClose()
 			},
 			onError: ({ error }) => handleSafeActionError(error),
@@ -218,7 +224,9 @@ export const PricingPlanEditorSheet = memo(function PricingPlanEditorSheet({
 						queryKey: ['clinic-pricing', clinicId],
 					})
 				}
-
+				if (onSuccess) {
+					onSuccess()
+				}
 				onClose()
 			},
 			onError: ({ error }) => handleSafeActionError(error),

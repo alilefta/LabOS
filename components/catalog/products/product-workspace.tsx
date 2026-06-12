@@ -7,7 +7,7 @@ import { PricingPlanLedger } from './pricing-plan-ledger/pricing-plan-ledger'
 import { CatalogRenameModal } from '@/components/modals/catalog/catalog-rename-modal'
 import { useCallback, useMemo, useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
-import { useSearchParams } from 'next/navigation'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import dynamic from 'next/dynamic'
 import { DeleteProductModal } from '@/components/modals/catalog/products/delete-product-modal'
 import { ArchiveProductModal } from '@/components/modals/catalog/products/archive-product-modal'
@@ -33,9 +33,18 @@ export function ProductWorkspace({
 }) {
 	const queryClient = useQueryClient()
 	const searchParams = useSearchParams()
+	const pathName = usePathname()
+	const router = useRouter()
 
 	const [productEditId, setProductEditId] = useState<string | null>(null)
 	const [isEditorSheetOpen, setIsEditorSheetOpen] = useState(false)
+	const [isArchiveProductModalOpen, setIsArchiveProductModalOpen] =
+		useState(false)
+
+	const [isDeleteProductModalOpen, setIsDeleteProductModalOpen] =
+		useState(false)
+
+	const [isRenameModalOpen, setIsRenameModalOpen] = useState(false)
 
 	const [productToArchive, setProductToArchive] = useState<{
 		id: string
@@ -48,13 +57,6 @@ export function ProductWorkspace({
 		name: string
 	} | null>(null)
 
-	const [isArchiveProductModalOpen, setIsArchiveProductModalOpen] =
-		useState(false)
-
-	const [isDeleteProductModalOpen, setIsDeleteProductModalOpen] =
-		useState(false)
-
-	const [renameModal, setRenameModal] = useState(false)
 	const [prodToRename, setProdToRename] = useState<{
 		id: string
 		name: string
@@ -69,11 +71,11 @@ export function ProductWorkspace({
 			id,
 			name,
 		})
-		setRenameModal(true)
+		setIsRenameModalOpen(true)
 	}, [])
 
 	const handleCloseRenameModal = useCallback(() => {
-		setRenameModal(false)
+		setIsRenameModalOpen(false)
 		setProdToRename(null)
 	}, [])
 
@@ -142,14 +144,7 @@ export function ProductWorkspace({
 			/>
 
 			{/* ZONE B: Accessories */}
-			<ProductAddonsGrid
-				productId={productId}
-				onAddAccessory={(id) => console.log('Open Addon Modal', id)}
-				onEditAccessory={(id) => console.log('Edit Addon', id)}
-				onArchiveAccessory={(id, state) =>
-					console.log('Archive Addon', id, state)
-				}
-			/>
+			<ProductAddonsGrid productId={productId} labId={labId} />
 
 			{/* ZONE C: The Financial Ledger (Spacing added automatically via padding) */}
 			<div className="pt-10">
@@ -177,7 +172,7 @@ export function ProductWorkspace({
 
 			{prodToRename && (
 				<CatalogRenameModal
-					isOpen={renameModal}
+					isOpen={isRenameModalOpen}
 					onClose={handleCloseRenameModal}
 					entityId={prodToRename.id}
 					entityType="PRODUCT"
@@ -221,7 +216,9 @@ export function ProductWorkspace({
 					productId={productToPermanentDelete.id}
 					productName={productToPermanentDelete.name}
 					key={productToPermanentDelete.id}
-					onSuccess={() => {}}
+					onSuccess={() => {
+						router.push(pathName + `?wt=` + workTypeId)
+					}}
 				/>
 			)}
 		</div>
