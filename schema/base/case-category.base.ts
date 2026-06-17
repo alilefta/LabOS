@@ -5,7 +5,7 @@ export const CaseCategoryBaseSchema = z.object({
 	name: z.string(),
 	description: z.string().nullable(),
 	imageUrl: z.string().nullable(),
-	isActive: z.boolean(),
+	// isActive: z.boolean(), deleted and replaced with isArchived for consistency
 	isArchived: z.boolean(),
 
 	labId: z.string(),

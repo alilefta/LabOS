@@ -7,7 +7,6 @@ const makeSchema = () => z.object({
   name: SortOrderSchema.optional(),
   description: SortOrderSchema.optional(),
   imageUrl: SortOrderSchema.optional(),
-  isActive: SortOrderSchema.optional(),
   isArchived: SortOrderSchema.optional(),
   labId: SortOrderSchema.optional(),
   createdAt: SortOrderSchema.optional(),

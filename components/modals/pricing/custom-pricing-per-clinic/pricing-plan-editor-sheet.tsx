@@ -16,6 +16,7 @@ import {
 	Globe,
 	Building2,
 	Lock,
+	AlertTriangle,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
@@ -254,6 +255,11 @@ export const PricingPlanEditorSheet = memo(function PricingPlanEditorSheet({
 	)
 
 	const isProcessing = isCreating || isUpdating
+
+	const isDefaultSelected = useWatch({
+		control: form.control,
+		name: 'isDefault',
+	})
 
 	// Is the clinical scope configured?
 	// If custom clinic scope is active, they MUST have a clinicId selected to proceed
@@ -510,15 +516,29 @@ export const PricingPlanEditorSheet = memo(function PricingPlanEditorSheet({
 
 								{/* --- 4. THE GENERAL DEFAULT TOGGLE (Only if General Scope) --- */}
 								{pricingScope === 'GENERAL' && (
-									<div className="pt-2 animate-in fade-in duration-300">
-										<div className="flex items-center justify-between p-4 rounded-xl bg-slate-50 dark:bg-white/2 border border-border shadow-sm">
+									<div className="pt-2 animate-in fade-in duration-300 space-y-3">
+										<div
+											className={cn(
+												'flex items-center justify-between p-4 rounded-xl border transition-all duration-300 shadow-sm',
+												isDefaultSelected
+													? 'bg-emerald-500/10 border-emerald-500/30 ring-1 ring-emerald-500/20'
+													: 'bg-slate-50 dark:bg-white/2 border-border',
+											)}
+										>
 											<div className="flex flex-col gap-0.5 pr-4">
-												<span className="text-[13px] font-bold text-foreground">
+												<span
+													className={cn(
+														'text-[13px] font-bold',
+														isDefaultSelected
+															? 'text-emerald-700 dark:text-emerald-500'
+															: 'text-foreground',
+													)}
+												>
 													Set as Catalog Default
 												</span>
 												<span className="text-[10px] text-muted-foreground leading-snug">
 													If enabled, this rate applies automatically to all
-													clinics without custom contracts.
+													clinics.
 												</span>
 											</div>
 											<Controller
@@ -533,6 +553,20 @@ export const PricingPlanEditorSheet = memo(function PricingPlanEditorSheet({
 												)}
 											/>
 										</div>
+
+										{/* THE UX WARNING BANNER */}
+										{isDefaultSelected && (
+											<div className="flex gap-3 p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/20 animate-in fade-in slide-in-from-top-2">
+												<AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-500 shrink-0 mt-0.5 animate-pulse" />
+												<p className="text-[11px] font-medium text-amber-700 dark:text-amber-400 leading-relaxed">
+													<strong className="uppercase tracking-widest block mb-0.5 text-[9px]">
+														Global Override
+													</strong>
+													Saving this plan will immediately remove the default
+													status from the previously active standard rate.
+												</p>
+											</div>
+										)}
 									</div>
 								)}
 

@@ -1,36 +1,37 @@
-import { LabRole, StaffRoleCategory } from "@/schema/base/enums.base";
-import { ERRORS } from "../errors";
+import { LabRole, StaffRoleCategory } from '@/schema/base/enums.base'
+import { ERRORS } from '../errors'
 
 // 1. Define what parts of the system we are protecting
 export enum Resource {
-	CASE_DETAILS = "CASE_DETAILS",
-	FINANCIALS = "FINANCIALS", // Prices, Grand Totals, Invoices
-	COMMISSIONS = "COMMISSIONS", // How much staff earned
-	STAFF_MANAGEMENT = "STAFF_MANAGEMENT", // Invite/Delete members
-	CLINICAL_EDIT = "CLINICAL_EDIT", // Changing teeth/materials
-	BILLING_SETTINGS = "BILLING_SETTINGS", // Lab subscription/Stripe
+	CASE_DETAILS = 'CASE_DETAILS',
+	FINANCIALS = 'FINANCIALS', // Prices, Grand Totals, Invoices
+	COMMISSIONS = 'COMMISSIONS', // How much staff earned
+	STAFF_MANAGEMENT = 'STAFF_MANAGEMENT', // Invite/Delete members
+	CLINICAL_EDIT = 'CLINICAL_EDIT', // Changing teeth/materials
+	BILLING_SETTINGS = 'BILLING_SETTINGS', // Lab subscription/Stripe
 }
 
 // 2. Define a clean interface for the user context
 export interface UserContext {
-	role: LabRole;
-	staffCategory?: StaffRoleCategory | null;
-	staffId?: string | null;
-	labId?: string | null;
+	role: LabRole
+	staffCategory?: StaffRoleCategory | null
+	staffId?: string | null
+	labId?: string | null
 }
 
 export function getPermissions(user: UserContext) {
-	const { role, staffCategory, staffId, labId } = user;
+	const { role, staffCategory, staffId, labId } = user
 
 	// --- HELPER GROUPS ---
-	const isOwner = role === "OWNER";
-	const isManagement = ["OWNER", "MANAGER", "ADMIN"].includes(role);
-	const isOffice = ["OWNER", "MANAGER", "ADMIN"].includes(role);
+	const isOwner = role === 'OWNER'
+	const isManagement = ['OWNER', 'MANAGER', 'ADMIN'].includes(role)
+	const isOffice = ['OWNER', 'MANAGER', 'ADMIN'].includes(role)
 
 	// Operational specific checks
-	const isAccountant = staffCategory === "ACCOUNTANT";
-	const isSalesRep = staffCategory === "SALES_REP" || staffCategory === "ACCOUNT_MANAGER";
-	const isReception = staffCategory === "RECEPTIONIST";
+	const isAccountant = staffCategory === 'ACCOUNTANT'
+	const isSalesRep =
+		staffCategory === 'SALES_REP' || staffCategory === 'ACCOUNT_MANAGER'
+	const isReception = staffCategory === 'RECEPTIONIST'
 
 	return {
 		// 1. Who can see the money?
@@ -48,11 +49,13 @@ export function getPermissions(user: UserContext) {
 		// 4. Who can manage the team?
 		canManageStaff: isManagement,
 
+		canManageCatalog: isManagement,
+
 		// 5. Who can change the Lab's own subscription/Stripe?
 		canManageBilling: isOwner,
 
 		// 6. Who can delete a case? (Very dangerous)
-		canDeleteCase: isOwner || (isManagement && role === "MANAGER"),
+		canDeleteCase: isOwner || (isManagement && role === 'MANAGER'),
 
 		// 7. Who can advance a case status?
 		canAdvanceStatus: isOffice || isManagement || !!staffCategory, // Techs can advance their own
@@ -65,22 +68,22 @@ export function getPermissions(user: UserContext) {
 
 		role,
 		staffCategory: staffCategory || null,
-	};
+	}
 }
 
 export const authorize = (user: UserContext) => {
-	const p = getPermissions(user);
+	const p = getPermissions(user)
 
 	return {
 		throwIfCannot: (action: keyof ReturnType<typeof getPermissions>) => {
 			if (!p[action]) {
 				// You can import your standard ERRORS.FORBIDDEN here
-				throw ERRORS.FORBIDDEN;
+				throw ERRORS.FORBIDDEN
 			}
 		},
 		...p,
-	};
-};
+	}
+}
 
 // =====================
 // How to use this in a Server Action

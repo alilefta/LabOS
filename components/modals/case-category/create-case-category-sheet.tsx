@@ -1,66 +1,95 @@
-"use client";
+'use client'
 
-import { useForm, Controller, FormProvider } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Shapes, Loader2, Info, LayoutGrid, Layers, Package } from "lucide-react";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFooter } from "@/components/ui/sheet";
-import { Button } from "@/components/ui/button";
-import { InputWithLabel } from "@/components/ui/custom/input-with-label";
-import { CustomFieldWithLabel } from "@/components/ui/custom/custom-field-with-label";
-import { Switch } from "@/components/ui/switch";
-import { toast } from "sonner";
-import { useAction } from "next-safe-action/hooks";
-import { createCaseCategoryAction } from "@/actions/case-category"; // Assuming your action name
-import { handleSafeActionError } from "@/lib/safe-action-helpers";
-import { CaseCategoryDetailsUI, CreateCaseCategoryInput, CreateCaseCategoryInputSchema } from "@/schema/composed/case-category.details";
-import { CategoryIconUpload } from "./category-icon-upload";
-import { memo } from "react";
-import { useQueryClient } from "@tanstack/react-query";
+import { useForm, Controller, FormProvider } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import {
+	Shapes,
+	Loader2,
+	Info,
+	LayoutGrid,
+	Layers,
+	Package,
+	Archive,
+} from 'lucide-react'
+import {
+	Sheet,
+	SheetContent,
+	SheetHeader,
+	SheetTitle,
+	SheetDescription,
+	SheetFooter,
+} from '@/components/ui/sheet'
+import { Button } from '@/components/ui/button'
+import { InputWithLabel } from '@/components/ui/custom/input-with-label'
+import { CustomFieldWithLabel } from '@/components/ui/custom/custom-field-with-label'
+import { Switch } from '@/components/ui/switch'
+import { toast } from 'sonner'
+import { useAction } from 'next-safe-action/hooks'
+import { createCaseCategoryAction } from '@/actions/case-category' // Assuming your action name
+import { handleSafeActionError } from '@/lib/safe-action-helpers'
+import {
+	CaseCategoryDetailsUI,
+	CreateCaseCategoryInput,
+	CreateCaseCategoryInputSchema,
+} from '@/schema/composed/case-category.details'
+import { CategoryIconUpload } from './category-icon-upload'
+import { memo } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
 
 interface Props {
-	isOpen: boolean;
-	onClose: () => void;
-	onCategoryCreated?: (newCategory: CaseCategoryDetailsUI) => void;
+	isOpen: boolean
+	onClose: () => void
+	onCategoryCreated?: (newCategory: CaseCategoryDetailsUI) => void
 }
-type QueryDataShape = CaseCategoryDetailsUI[];
-export const CreateCategorySheet = memo(function CreateCategorySheet({ isOpen, onClose, onCategoryCreated }: Props) {
+type QueryDataShape = CaseCategoryDetailsUI[]
+export const CreateCategorySheet = memo(function CreateCategorySheet({
+	isOpen,
+	onClose,
+	onCategoryCreated,
+}: Props) {
 	const form = useForm<CreateCaseCategoryInput>({
 		resolver: zodResolver(CreateCaseCategoryInputSchema),
 		defaultValues: {
-			name: "",
-			description: "",
-			isActive: true,
+			name: '',
+			description: '',
+			isArchived: true,
 		},
-		mode: "onBlur",
-	});
+		mode: 'onBlur',
+	})
 
-	const queryClient = useQueryClient();
-	const { executeAsync: createCategory, isExecuting } = useAction(createCaseCategoryAction, {
-		onSuccess: ({ data }) => {
-			toast.success("Clinical category created successfully");
+	const queryClient = useQueryClient()
+	const { executeAsync: createCategory, isExecuting } = useAction(
+		createCaseCategoryAction,
+		{
+			onSuccess: ({ data }) => {
+				toast.success('Clinical category created successfully')
 
-			if (onCategoryCreated) onCategoryCreated(data.category);
+				if (onCategoryCreated) onCategoryCreated(data.category)
 
-			// --- CRITICAL BUG FIX: Duplicate Key Prevention ---
-			queryClient.setQueryData<QueryDataShape>(["categories"], (old: QueryDataShape | undefined) => {
-				if (!old) return [data.category];
+				// --- CRITICAL BUG FIX: Duplicate Key Prevention ---
+				queryClient.setQueryData<QueryDataShape>(
+					['categories'],
+					(old: QueryDataShape | undefined) => {
+						if (!old) return [data.category]
 
-				// Safely check if the background fetch already pulled this new item in
-				const exists = old.some((c) => c.id === data.category.id);
-				if (exists) return old;
+						// Safely check if the background fetch already pulled this new item in
+						const exists = old.some((c) => c.id === data.category.id)
+						if (exists) return old
 
-				return [...old, data.category];
-			});
+						return [...old, data.category]
+					},
+				)
 
-			onClose();
-			form.reset();
+				onClose()
+				form.reset()
+			},
+			onError: ({ error }) => handleSafeActionError(error),
 		},
-		onError: ({ error }) => handleSafeActionError(error),
-	});
+	)
 
 	const onSubmit = async (data: CreateCaseCategoryInput) => {
-		await createCategory(data);
-	};
+		await createCategory(data)
+	}
 
 	return (
 		<Sheet open={isOpen} onOpenChange={onClose}>
@@ -74,8 +103,13 @@ export const CreateCategorySheet = memo(function CreateCategorySheet({ isOpen, o
 					<div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary mb-4 shadow-ai-glow-light">
 						<LayoutGrid className="w-6 h-6" />
 					</div>
-					<SheetTitle className="text-2xl font-bold tracking-tight text-foreground">Create clinical category</SheetTitle>
-					<SheetDescription className="text-sm text-muted-foreground font-medium">Organize your dental lab workflow by defining high-level production departments.</SheetDescription>
+					<SheetTitle className="text-2xl font-bold tracking-tight text-foreground">
+						Create clinical category
+					</SheetTitle>
+					<SheetDescription className="text-sm text-muted-foreground font-medium">
+						Organize your dental lab workflow by defining high-level production
+						departments.
+					</SheetDescription>
 				</SheetHeader>
 
 				{/* --- FORM BODY --- */}
@@ -84,7 +118,9 @@ export const CreateCategorySheet = memo(function CreateCategorySheet({ isOpen, o
 					<div className="p-5 rounded-3xl bg-slate-50 dark:bg-white/2 border border-border space-y-4 shadow-sm">
 						<div className="flex items-center gap-2 mb-2">
 							<Info className="w-4 h-4 text-primary" />
-							<span className="text-[11px] font-bold uppercase tracking-widest text-foreground">Understanding hierarchy</span>
+							<span className="text-[11px] font-bold uppercase tracking-widest text-foreground">
+								Understanding hierarchy
+							</span>
 						</div>
 
 						{/* Visual Tree Representation */}
@@ -96,8 +132,12 @@ export const CreateCategorySheet = memo(function CreateCategorySheet({ isOpen, o
 									<LayoutGrid className="w-3 h-3" />
 								</div>
 								<div className="flex flex-col mt-0.5">
-									<span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground leading-none mb-1">Category (Current)</span>
-									<span className="text-xs font-bold text-foreground">e.g. Fixed Prosthetics</span>
+									<span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground leading-none mb-1">
+										Category (Current)
+									</span>
+									<span className="text-xs font-bold text-foreground">
+										e.g. Fixed Prosthetics
+									</span>
 								</div>
 							</div>
 
@@ -106,8 +146,12 @@ export const CreateCategorySheet = memo(function CreateCategorySheet({ isOpen, o
 									<Layers className="w-3 h-3 text-slate-500" />
 								</div>
 								<div className="flex flex-col mt-0.5">
-									<span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground leading-none mb-1">Work type</span>
-									<span className="text-xs font-bold text-foreground">e.g. Crowns & Bridges</span>
+									<span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground leading-none mb-1">
+										Work type
+									</span>
+									<span className="text-xs font-bold text-foreground">
+										e.g. Crowns & Bridges
+									</span>
 								</div>
 							</div>
 
@@ -116,19 +160,33 @@ export const CreateCategorySheet = memo(function CreateCategorySheet({ isOpen, o
 									<Package className="w-3 h-3 text-slate-500" />
 								</div>
 								<div className="flex flex-col mt-0.5">
-									<span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground leading-none mb-1">Product</span>
-									<span className="text-xs font-bold text-foreground">e.g. Zirconia Multi-layer</span>
+									<span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground leading-none mb-1">
+										Product
+									</span>
+									<span className="text-xs font-bold text-foreground">
+										e.g. Zirconia Multi-layer
+									</span>
 								</div>
 							</div>
 						</div>
 					</div>
 					<FormProvider {...form}>
-						<form id="create-category-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+						<form
+							id="create-category-form"
+							onSubmit={form.handleSubmit(onSubmit)}
+							className="space-y-6"
+						>
 							<Controller
 								control={form.control}
 								name="name"
 								render={({ field, fieldState }) => (
-									<InputWithLabel field={field} fieldState={fieldState} fieldTitle="Category name" nameInSchema="name" placeholder="e.g. Implants, Removables..." />
+									<InputWithLabel
+										field={field}
+										fieldState={fieldState}
+										fieldTitle="Category name"
+										nameInSchema="name"
+										placeholder="e.g. Implants, Removables..."
+									/>
 								)}
 							/>
 
@@ -139,10 +197,16 @@ export const CreateCategorySheet = memo(function CreateCategorySheet({ isOpen, o
 								control={form.control}
 								name="description"
 								render={({ field, fieldState }) => (
-									<CustomFieldWithLabel field={field} fieldState={fieldState} nameInSchema="description" fieldTitle="Category description" isOptional>
+									<CustomFieldWithLabel
+										field={field}
+										fieldState={fieldState}
+										nameInSchema="description"
+										fieldTitle="Category description"
+										isOptional
+									>
 										<textarea
 											{...field}
-											value={field.value ?? ""}
+											value={field.value ?? ''}
 											placeholder="Describe the clinical scope of this category..."
 											className="w-full min-h-24 p-3 bg-white dark:bg-[#121214] border border-border rounded-xl text-sm focus:ring-1 focus:ring-primary outline-none transition-all resize-none"
 										/>
@@ -150,17 +214,33 @@ export const CreateCategorySheet = memo(function CreateCategorySheet({ isOpen, o
 								)}
 							/>
 
-							{/* Visibility Toggle */}
-							<div className="pt-4 flex items-center justify-between p-4 rounded-2xl bg-slate-50 dark:bg-white/2 border border-border">
-								<div className="flex flex-col gap-1">
-									<span className="text-sm font-bold text-foreground">Active status</span>
-									<span className="text-[11px] text-muted-foreground">Allow cases to be registered under this category.</span>
+							{/* Archival Toggle */}
+							<div className="pt-2">
+								<div className="flex items-center justify-between p-4 rounded-2xl bg-slate-50 dark:bg-white/2 border border-border shadow-sm transition-colors focus-within:border-amber-500/30 hover:border-amber-500/30">
+									<div className="flex flex-col gap-1 pr-4">
+										<span className="text-sm font-bold text-foreground flex items-center gap-2">
+											<Archive className="w-4 h-4 text-amber-500" />
+											Archive Category
+										</span>
+										<span className="text-[11px] text-muted-foreground leading-relaxed">
+											Hide this category and all nested products from the New
+											Case screen. Existing active cases and historical invoices
+											will remain completely unaffected.
+										</span>
+									</div>
+									<Controller
+										control={form.control}
+										name="isArchived"
+										render={({ field }) => (
+											<Switch
+												checked={field.value}
+												onCheckedChange={field.onChange}
+												// UX FIX: Turning this ON is a soft-delete, so we use Amber instead of Primary
+												className="data-[state=checked]:bg-amber-500 shrink-0 shadow-sm"
+											/>
+										)}
+									/>
 								</div>
-								<Controller
-									control={form.control}
-									name="isActive"
-									render={({ field }) => <Switch checked={field.value} onCheckedChange={field.onChange} className="data-[state=checked]:bg-primary" />}
-								/>
 							</div>
 						</form>
 					</FormProvider>
@@ -168,7 +248,11 @@ export const CreateCategorySheet = memo(function CreateCategorySheet({ isOpen, o
 
 				{/* --- FOOTER --- */}
 				<SheetFooter className="p-8 border-t border-border bg-slate-50/30 dark:bg-white/1">
-					<Button variant="ghost" onClick={onClose} className="rounded-xl h-11! px-6 font-semibold">
+					<Button
+						variant="ghost"
+						onClick={onClose}
+						className="rounded-xl h-11! px-6 font-semibold"
+					>
 						Cancel
 					</Button>
 					<Button
@@ -177,10 +261,14 @@ export const CreateCategorySheet = memo(function CreateCategorySheet({ isOpen, o
 						form="create-category-form"
 						className="rounded-xl flex items-center justify-center gap-2 h-11 bg-primary shadow-premium font-bold hover:bg-primary/90 transition-all "
 					>
-						{isExecuting ? <Loader2 className="animate-spin w-4 h-4" /> : "Create category"}
+						{isExecuting ? (
+							<Loader2 className="animate-spin w-4 h-4" />
+						) : (
+							'Create category'
+						)}
 					</Button>
 				</SheetFooter>
 			</SheetContent>
 		</Sheet>
-	);
-});
+	)
+})

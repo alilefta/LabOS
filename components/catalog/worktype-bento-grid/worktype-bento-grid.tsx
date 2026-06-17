@@ -10,25 +10,66 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { handleSafeActionError } from '@/lib/safe-action-helpers'
 import { WorkTypeBentoGridCard } from './worktype-bento-grid-card'
 import { getWorkTypesByCategoryAction } from '@/actions/catalog/get-worktypes-by-category'
-import { useCallback, useState } from 'react'
+import { memo, useCallback, useState } from 'react'
 import { CatalogRenameModal } from '@/components/modals/catalog/catalog-rename-modal'
+import { ArchiveWorkTypeModal } from '@/components/modals/catalog/work-types/archive-worktype-modal'
+import { DeleteWorkTypeModal } from '@/components/modals/catalog/work-types/delete-work-type-modal'
+import dynamic from 'next/dynamic'
+import { MoveWorkTypeModal } from '@/components/modals/catalog/work-types/move-work-type-modal'
 
 interface Props {
 	categoryId: string
 	labId: string
 }
-
-export function WorkTypeBentoGrid({ categoryId, labId }: Props) {
+const WorkTypeEditorSheet = dynamic(
+	() =>
+		import('../../modals/catalog/work-types/work-type-editor-sheet').then(
+			(m) => m.WorkTypeEditorSheet,
+		),
+	{
+		ssr: false,
+	},
+)
+export const WorkTypeBentoGrid = memo(function WorkTypeBentoGrid({
+	categoryId,
+	labId,
+}: Props) {
 	const router = useRouter()
 	const pathname = usePathname()
 	const searchParams = useSearchParams()
 	const queryClient = useQueryClient()
 
-	const [renameModal, setRenameModal] = useState(false)
+	const [isRenameModalOpen, setIsRenameModalOpen] = useState(false)
+	const [isMoveWorkTypeModalOpen, setIsMoveWorkTypeModalOpen] = useState(false)
+	const [isEditorSheetOpen, setIsEditorSheetOpen] = useState(false)
+	const [isArchiveWorkTypeModalOpen, setIsArchiveWorkTypeModalOpen] =
+		useState(false)
+
+	const [isDeleteWorkTypeModalOpen, setIsDeleteWorkTypeModalOpen] =
+		useState(false)
+
+	const [workTypeToPermanentDelete, setWorkTypeToPermanentDelete] = useState<{
+		id: string
+		name: string
+	} | null>(null)
 	const [workTypeToRename, setWorkTypeToRename] = useState<{
 		id: string
 		name: string
 	} | null>(null)
+
+	const [workTypeToArchive, setWorkTypeToArchive] = useState<{
+		id: string
+		name: string
+		isCurrentlyArchived: boolean
+	} | null>(null)
+
+	const [workTypeToMove, setWorkTypeToMove] = useState<{
+		id: string
+		name: string
+		categoryId: string
+	} | null>(null)
+
+	const [worktypeIdToEdit, setWorkTypeIdToEdit] = useState<string | null>(null)
 
 	// --- 1. DATA FETCHING ---
 	const { data: workTypes = [], isLoading } = useQuery({
@@ -37,6 +78,7 @@ export function WorkTypeBentoGrid({ categoryId, labId }: Props) {
 			const res = await getWorkTypesByCategoryAction({
 				caseCategoryId: categoryId,
 				limit: 50,
+				showArchived: true,
 			})
 			if (res?.serverError || res?.validationErrors) {
 				handleSafeActionError({
@@ -66,12 +108,82 @@ export function WorkTypeBentoGrid({ categoryId, labId }: Props) {
 			id,
 			name,
 		})
-		setRenameModal(true)
+		setIsRenameModalOpen(true)
 	}, [])
 
 	const handleCloseRenameModal = useCallback(() => {
-		setRenameModal(false)
+		setIsRenameModalOpen(false)
 		setWorkTypeToRename(null)
+	}, [])
+
+	const handleCloseEditorSheet = useCallback(() => {
+		setIsEditorSheetOpen(false)
+		setTimeout(() => {
+			setWorkTypeIdToEdit(null)
+		}, 300)
+	}, [])
+
+	const handleCreateNewWorkType = useCallback(() => {
+		setWorkTypeIdToEdit(null)
+		setIsEditorSheetOpen(true)
+	}, [])
+
+	const handleEditWorkType = useCallback((id: string) => {
+		setWorkTypeIdToEdit(id)
+		setIsEditorSheetOpen(true)
+	}, [])
+
+	const handleArchiveWorkType = useCallback(
+		(id: string, name: string, isCurrentlyArchived: boolean) => {
+			setWorkTypeToArchive({
+				id,
+				name,
+				isCurrentlyArchived,
+			})
+			setIsArchiveWorkTypeModalOpen(true)
+		},
+		[],
+	)
+
+	const handlePermanentDelete = useCallback((id: string, name: string) => {
+		setWorkTypeToPermanentDelete({
+			id,
+			name,
+		})
+		setIsDeleteWorkTypeModalOpen(true)
+	}, [])
+
+	const handleMoveWorkType = useCallback(
+		(id: string, name: string) => {
+			setWorkTypeToMove({
+				id,
+				name,
+				categoryId,
+			})
+			setIsMoveWorkTypeModalOpen(true)
+		},
+		[categoryId],
+	)
+
+	const handleCloseArchiveWorkTypeModal = useCallback(() => {
+		setIsArchiveWorkTypeModalOpen(false)
+		setTimeout(() => {
+			setWorkTypeToArchive(null)
+		}, 300)
+	}, [])
+
+	const handleCloseMoveWorkTypeModal = useCallback(() => {
+		setIsMoveWorkTypeModalOpen(false)
+		setTimeout(() => {
+			setWorkTypeToMove(null)
+		}, 300)
+	}, [])
+
+	const handleClosePermanentDeleteWorkTypeModal = useCallback(() => {
+		setIsDeleteWorkTypeModalOpen(false)
+		setTimeout(() => {
+			setWorkTypeToPermanentDelete(null)
+		}, 300)
 	}, [])
 
 	// --- 3. LOADING STATE ---
@@ -90,6 +202,9 @@ export function WorkTypeBentoGrid({ categoryId, labId }: Props) {
 			</div>
 		)
 	}
+
+	const categoryName =
+		workTypes && workTypes.length > 0 ? workTypes[0].categoryName : 'N/A'
 
 	return (
 		<div className="flex flex-col h-full overflow-y-auto custom-scrollbar p-6 lg:p-10 animate-in fade-in duration-500 relative">
@@ -112,11 +227,7 @@ export function WorkTypeBentoGrid({ categoryId, labId }: Props) {
 
 				<Button
 					className="h-10 rounded-xl bg-primary text-white shadow-premium font-bold hover:bg-primary/90 transition-all shrink-0"
-					onClick={() => {
-						// Open your existing CreateWorkTypeSheet!
-						// It should be wired to use the active `categoryId` from the URL.
-						console.log('Open Create WorkType Sheet')
-					}}
+					onClick={handleCreateNewWorkType}
 				>
 					<Plus className="w-4 h-4 mr-2" /> New Work Type
 				</Button>
@@ -139,6 +250,7 @@ export function WorkTypeBentoGrid({ categoryId, labId }: Props) {
 					<Button
 						variant="outline"
 						className="rounded-xl h-11 px-6 font-bold border-border shadow-sm"
+						onClick={handleCreateNewWorkType}
 					>
 						<Plus className="w-4 h-4 mr-2 text-primary" /> Create First Work
 						Type
@@ -153,19 +265,35 @@ export function WorkTypeBentoGrid({ categoryId, labId }: Props) {
 							workType={wt} // Passes the exact object from the new server action
 							onManageProducts={navigateToProducts} // Use the routing function you built!
 							// These will be wired to your Zustand store or local state later
-							onEdit={(id) => console.log('Edit WT', id)}
-							onMoveCategory={(id) => console.log('Move WT', id)}
-							onArchive={(id) => console.log('Archive WT', id)}
-							onHardDelete={(id) => console.log('Hard Delete WT', id)}
+							onEdit={handleEditWorkType}
+							onMoveCategory={handleMoveWorkType}
+							onArchive={handleArchiveWorkType}
+							onHardDelete={handlePermanentDelete}
 							onRename={handleRename}
 						/>
 					))}
 				</div>
 			)}
 
+			<WorkTypeEditorSheet
+				isOpen={isEditorSheetOpen}
+				onClose={handleCloseEditorSheet}
+				// productIdToEdit={productEditId}
+				isEdit={!!worktypeIdToEdit}
+				key={worktypeIdToEdit}
+				onSuccess={() => {
+					queryClient.invalidateQueries({
+						queryKey: ['catalog-work-types', labId, categoryId],
+					})
+				}}
+				categoryId={categoryId}
+				categoryName={categoryName}
+				workTypeIdToEdit={worktypeIdToEdit}
+			/>
+
 			{workTypeToRename && (
 				<CatalogRenameModal
-					isOpen={renameModal}
+					isOpen={isRenameModalOpen}
 					onClose={handleCloseRenameModal}
 					entityId={workTypeToRename.id}
 					entityType="WORKTYPE"
@@ -178,6 +306,51 @@ export function WorkTypeBentoGrid({ categoryId, labId }: Props) {
 					}}
 				/>
 			)}
+
+			{workTypeToArchive && (
+				<ArchiveWorkTypeModal
+					isOpen={isArchiveWorkTypeModalOpen}
+					onClose={handleCloseArchiveWorkTypeModal}
+					workTypeId={workTypeToArchive.id}
+					workTypeName={workTypeToArchive.name}
+					key={workTypeToArchive.id}
+					onSuccess={() => {
+						queryClient.invalidateQueries({
+							queryKey: ['catalog-work-types', labId, categoryId],
+						})
+					}}
+					isCurrentlyArchived={workTypeToArchive.isCurrentlyArchived}
+				/>
+			)}
+
+			{workTypeToPermanentDelete && (
+				<DeleteWorkTypeModal
+					isOpen={isDeleteWorkTypeModalOpen}
+					onClose={handleClosePermanentDeleteWorkTypeModal}
+					workTypeId={workTypeToPermanentDelete.id}
+					workTypeName={workTypeToPermanentDelete.name}
+					key={workTypeToPermanentDelete.id}
+					onSuccess={() => {
+						// router.push(pathName + `?wt=` + workTypeId)
+					}}
+				/>
+			)}
+
+			{workTypeToMove && (
+				<MoveWorkTypeModal
+					isOpen={isMoveWorkTypeModalOpen}
+					onClose={handleCloseMoveWorkTypeModal}
+					workTypeId={workTypeToMove.id}
+					workTypeName={workTypeToMove.name}
+					currentCategoryId={categoryId}
+					currentCategoryName={categoryName}
+					onSuccess={() => {
+						queryClient.invalidateQueries({
+							queryKey: ['catalog-work-types', labId, categoryId],
+						})
+					}}
+				/>
+			)}
 		</div>
 	)
-}
+})

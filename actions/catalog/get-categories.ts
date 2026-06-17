@@ -37,7 +37,6 @@ export const getCatalogCategoriesAction = actionClientWithLab
 					id: true,
 					name: true,
 					imageUrl: true,
-					isActive: true,
 					isArchived: true,
 				},
 				orderBy: {

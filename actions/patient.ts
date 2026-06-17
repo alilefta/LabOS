@@ -1,22 +1,23 @@
-"use server";
+'use server'
 
-import { tenantPrisma } from "@/lib/prisma";
-import { actionClientWithLab } from "@/lib/safe-action";
-import { CaseBase } from "@/schema/base/case.base";
-import { CreatePatientInputSchema } from "@/schema/composed/patient.details";
-import { SearchInputSchema } from "@/schema/composed/shared-schema";
-import { APIError } from "better-auth";
+import { d } from '@/lib/mappers/normalizers'
+import { tenantPrisma } from '@/lib/prisma'
+import { actionClientWithLab } from '@/lib/safe-action'
+import { CaseBase } from '@/schema/base/case.base'
+import { CreatePatientInputSchema } from '@/schema/composed/patient.details'
+import { SearchInputSchema } from '@/schema/composed/shared-schema'
+import { APIError } from 'better-auth'
 
 export const createPatientAction = actionClientWithLab
 	.metadata({
-		actionName: "Create-New-Patient-Action",
-		requiredLabRole: "ADMIN",
+		actionName: 'Create-New-Patient-Action',
+		requiredLabRole: 'STAFF',
 	})
 	.inputSchema(CreatePatientInputSchema)
 	.action(async ({ parsedInput, ctx }) => {
-		const { name, age, notes, description, gender } = parsedInput;
+		const { name, age, notes, description, gender } = parsedInput
 
-		const { labId } = ctx;
+		const { labId } = ctx
 
 		try {
 			// maybe there is a lab user but the lab ID is not set to that user
@@ -34,28 +35,28 @@ export const createPatientAction = actionClientWithLab
 				include: {
 					lab: true,
 				},
-			});
+			})
 
 			return {
 				patient: { ...patient, cases: [] as CaseBase[] },
-			};
+			}
 		} catch (e) {
 			if (e instanceof APIError || e instanceof Error) {
-				console.error("[Create-Patient-Action] Error", e.message);
+				console.error('[Create-Patient-Action] Error', e.message)
 			}
-			throw e;
+			throw e
 		}
-	});
+	})
 
 export const getPatientsBySearchQueryAction = actionClientWithLab
 	.metadata({
-		actionName: "Get-Patients-By-Search-Query-Action",
-		requiredLabRole: "ADMIN",
+		actionName: 'Get-Patients-By-Search-Query-Action',
+		requiredLabRole: 'STAFF',
 	})
 	.inputSchema(SearchInputSchema)
 	.action(async ({ parsedInput, ctx }) => {
-		const { searchQuery } = parsedInput;
-		const { labId } = ctx;
+		const { searchQuery } = parsedInput
+		const { labId } = ctx
 
 		try {
 			const patients = await (
@@ -68,39 +69,42 @@ export const getPatientsBySearchQueryAction = actionClientWithLab
 					},
 				},
 				orderBy: {
-					createdAt: "desc",
+					createdAt: 'desc',
 				},
 				take: 10,
 				include: {
 					lab: true,
 					cases: true,
 				},
-			});
+			})
 
 			return {
 				patients: patients.map((p) => ({
 					...p,
 					cases: p.cases.map((c) => ({
 						...c,
-						grandTotal: Number(c.grandTotal),
+						grandTotal: c.grandTotal ? d(c.grandTotal) : null,
+						manualDiscountAmount: c.manualDiscountAmount
+							? d(c.manualDiscountAmount)
+							: 0,
 					})),
 				})),
-			};
+			}
 		} catch (e) {
 			if (e instanceof APIError || e instanceof Error) {
-				console.error("[Get-Patients-By-Search-Query-Action] Error", e.message);
+				console.error('[Get-Patients-By-Search-Query-Action] Error', e.message)
 			}
-			throw e;
+			throw e
 		}
-	});
+	})
 
 export const getPatientsForListAction = actionClientWithLab
 	.metadata({
-		actionName: "Get-Patients-For-List-Action",
-		requiredLabRole: "ADMIN",
+		actionName: 'Get-Patients-For-List-Action',
+		requiredLabRole: 'STAFF',
 	})
 	.action(async ({ ctx }) => {
-		const { labId } = ctx;
+		const { labId } = ctx
 
 		try {
 			const patients = await (
@@ -110,21 +114,30 @@ export const getPatientsForListAction = actionClientWithLab
 					labId: labId,
 				},
 				orderBy: {
-					createdAt: "desc",
+					createdAt: 'desc',
 				},
 				take: 10,
 				include: {
 					cases: true,
 				},
-			});
+			})
 
 			return {
-				patients,
-			};
+				patients: patients.map((p) => ({
+					...p,
+					cases: p.cases.map((c) => ({
+						...c,
+						grandTotal: c.grandTotal ? d(c.grandTotal) : null,
+						manualDiscountAmount: c.manualDiscountAmount
+							? d(c.manualDiscountAmount)
+							: 0,
+					})),
+				})),
+			}
 		} catch (e) {
 			if (e instanceof APIError || e instanceof Error) {
-				console.error("[Get-Patients-Action] Error", e.message);
+				console.error('[Get-Patients-Action] Error', e.message)
 			}
-			throw e;
+			throw e
 		}
-	});
+	})

@@ -4,7 +4,6 @@ export const CaseCategoryFindUniqueResultSchema = z.nullable(z.object({
   name: z.string(),
   description: z.string().optional(),
   imageUrl: z.string().optional(),
-  isActive: z.boolean(),
   isArchived: z.boolean(),
   workTypes: z.array(z.unknown()),
   cases: z.array(z.unknown()),

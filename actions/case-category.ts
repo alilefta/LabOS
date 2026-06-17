@@ -12,11 +12,11 @@ import { APIError } from 'better-auth'
 export const createCaseCategoryAction = actionClientWithLab
 	.metadata({
 		actionName: 'Create-New-CaseCategory-Action',
-		requiredLabRole: 'STAFF',
+		requiredLabRole: 'ADMIN',
 	})
 	.inputSchema(CreateCaseCategoryInputSchema)
 	.action(async ({ parsedInput, ctx }) => {
-		const { name, description, imageUrl, isActive } = parsedInput
+		const { name, description, imageUrl, isArchived } = parsedInput
 		const { labId } = ctx
 
 		try {
@@ -27,7 +27,7 @@ export const createCaseCategoryAction = actionClientWithLab
 					name,
 					description: description ?? null,
 					imageUrl: imageUrl ?? null,
-					isActive: isActive ?? true,
+					isArchived: isArchived ?? true,
 					labId: labId,
 				},
 				include: {
@@ -107,9 +107,6 @@ export const getCaseCategoriesAction = actionClientWithLab
 					createdAt: 'desc',
 				},
 				take: limit,
-				include: {
-					lab: true,
-				},
 			})
 
 			return {

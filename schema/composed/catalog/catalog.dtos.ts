@@ -20,7 +20,6 @@ export type CatalogCategoryDTO = {
 	name: string
 	imageUrl: string | null
 	isArchived: boolean
-	isActive: boolean
 }
 
 export type CatalogProductDTO = {

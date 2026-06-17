@@ -11,7 +11,6 @@ const makeSchema = () => z.object({
   name: SortOrderSchema.optional(),
   description: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
   imageUrl: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
-  isActive: SortOrderSchema.optional(),
   isArchived: SortOrderSchema.optional(),
   labId: SortOrderSchema.optional(),
   createdAt: SortOrderSchema.optional(),

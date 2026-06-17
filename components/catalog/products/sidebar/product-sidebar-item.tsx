@@ -14,7 +14,7 @@ import {
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 
-import { MoreVertical, Edit3, Archive, Type, RotateCcw } from 'lucide-react'
+import { MoreVertical, Edit3, Archive, Type } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 interface ProductItemProps {

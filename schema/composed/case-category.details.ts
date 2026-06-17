@@ -14,7 +14,7 @@ export const CaseCategoryDetailsSchema = CaseCategoryBaseSchema.extend({
 export type CaseCategoryDetails = z.infer<typeof CaseCategoryDetailsSchema>
 
 export const CaseCategoryDetailsUISchema = CaseCategoryBaseSchema.extend({
-	lab: LabBaseSchema,
+	lab: LabBaseSchema.optional(),
 	workTypes: z.array(WorkTypeBaseSchema).optional(),
 	cases: z.array(CaseBaseSchema).optional(),
 })
@@ -46,9 +46,19 @@ export const CreateCaseCategoryInputSchema = z.object({
 		])
 		.transform(emptyToUndefinedTransformer)
 		.optional(),
-	isActive: z.boolean().default(true).optional(),
+	isArchived: z.boolean().default(false).optional(),
 })
 
 export type CreateCaseCategoryInput = z.infer<
 	typeof CreateCaseCategoryInputSchema
+>
+
+// We make the payload fields optional (partial), but the ID is strictly required.
+export const UpdateCaseCategoryInputSchema =
+	CreateCaseCategoryInputSchema.extend({
+		categoryId: z.string().uuid('Invalid category ID'),
+	})
+
+export type UpdateCaseCategoryInput = z.infer<
+	typeof UpdateCaseCategoryInputSchema
 >

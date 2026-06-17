@@ -2,7 +2,7 @@
 
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import Link from 'next/link'
-import { usePathname, useSearchParams, useRouter } from 'next/navigation'
+import { usePathname, useSearchParams } from 'next/navigation'
 import {
 	LayoutGrid,
 	MoreVertical,
@@ -11,6 +11,7 @@ import {
 	Archive,
 	Edit3,
 	Type,
+	Trash2,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -30,19 +31,49 @@ import { handleSafeActionError } from '@/lib/safe-action-helpers'
 import { getCatalogCategoriesAction } from '@/actions/catalog/get-categories'
 import { CatalogCategoryDTO } from '@/schema/composed/catalog/catalog.dtos'
 import { CatalogRenameModal } from '../modals/catalog/catalog-rename-modal'
+import { CategoryEditorSheet } from '../modals/catalog/categories/category-editor-sheet'
+import { ArchiveCategoryModal } from '../modals/catalog/categories/archive-category-modal'
+import { DeleteCategoryModal } from '../modals/catalog/categories/delete-category-modal'
+import { usePermissions } from '@/providers/permissions-provider'
+import Image from 'next/image'
 
 interface Props {
 	labId: string
 	activeCategoryId?: string
 }
 
-export function CategorySidebar({ labId, activeCategoryId }: Props) {
+export const CategorySidebar = memo(function CategorySidebar({
+	labId,
+	activeCategoryId,
+}: Props) {
 	const pathname = usePathname()
 	const searchParams = useSearchParams()
 	const queryClient = useQueryClient()
 
 	const [renameModal, setRenameModal] = useState(false)
+	const [isEditorSheetOpen, setIsEditorSheetOpen] = useState(false)
+
+	const [isArchiveModalOpen, setIsArchiveModalOpen] = useState(false)
+	const [isPermanentDeleteModalOpen, setIsPermanentDeleteModalOpen] =
+		useState(false)
+
 	const [catToRename, setCatToRename] = useState<{
+		id: string
+		name: string
+	} | null>(null)
+
+	const [catToEdit, setCatToEdit] = useState<{
+		id: string
+		name: string
+	} | null>(null)
+
+	const [catToArchive, setCatToArchive] = useState<{
+		id: string
+		name: string
+		isArchived: boolean
+	} | null>(null)
+
+	const [catToPermanentDelete, setCatToPermanentDelete] = useState<{
 		id: string
 		name: string
 	} | null>(null)
@@ -56,7 +87,7 @@ export function CategorySidebar({ labId, activeCategoryId }: Props) {
 		queryKey: ['catalog-categories', labId],
 		queryFn: async () => {
 			const res = await getCatalogCategoriesAction({
-				showArchivedCategories: false,
+				showArchivedCategories: true,
 			}) // Ensure this action fetches categories for the lab
 			if (res?.serverError || res?.validationErrors) {
 				handleSafeActionError({
@@ -98,6 +129,56 @@ export function CategorySidebar({ labId, activeCategoryId }: Props) {
 		setCatToRename(null)
 	}, [])
 
+	const handleCloseEditorSheet = useCallback(() => {
+		setIsEditorSheetOpen(false)
+		setCatToEdit(null)
+	}, [])
+
+	const handleCloseArchiveModal = useCallback(() => {
+		setIsArchiveModalOpen(false)
+		setCatToArchive(null)
+	}, [])
+
+	const handleClosePermanentDeleteModal = useCallback(() => {
+		setIsPermanentDeleteModalOpen(false)
+		setCatToPermanentDelete(null)
+	}, [])
+
+	const handleCreateNewCategory = useCallback(() => {
+		setIsEditorSheetOpen(true)
+		setCatToEdit(null)
+	}, [])
+
+	const handleEditCategory = useCallback((id: string, name: string) => {
+		setIsEditorSheetOpen(true)
+		setCatToEdit({
+			id,
+			name,
+		})
+	}, [])
+
+	const handleArchiveCategory = useCallback(
+		(id: string, name: string, isArchived: boolean) => {
+			setIsArchiveModalOpen(true)
+			setCatToArchive({
+				id,
+				name,
+				isArchived,
+			})
+		},
+		[],
+	)
+
+	const handlePermanentDeleteCategory = useCallback(
+		(id: string, name: string) => {
+			setIsPermanentDeleteModalOpen(true)
+			setCatToPermanentDelete({
+				id,
+				name,
+			})
+		},
+		[],
+	)
 	return (
 		<div className="flex flex-col h-full bg-slate-50/30 dark:bg-black/10 animate-in fade-in duration-500">
 			{/* --- HEADER --- */}
@@ -112,15 +193,12 @@ export function CategorySidebar({ labId, activeCategoryId }: Props) {
 						</h2>
 					</div>
 
-					{/* Add Category Button (Triggers your existing Sheet!) */}
+					{/* Add Category Button */}
 					<Button
 						size="icon"
 						variant="ghost"
 						className="h-8 w-8 rounded-lg text-primary hover:bg-primary/10 hover:text-primary transition-colors"
-						onClick={() => {
-							// Open your existing CreateCategorySheet via global store or prop
-							console.log('Open Create Category Sheet')
-						}}
+						onClick={handleCreateNewCategory}
 					>
 						<Plus className="w-4 h-4" />
 					</Button>
@@ -140,24 +218,24 @@ export function CategorySidebar({ labId, activeCategoryId }: Props) {
 			</div>
 
 			{/* --- LIST BODY --- */}
-			<div className="flex-1 overflow-y-auto custom-scrollbar p-3 space-y-1">
+			<div className="flex-1 overflow-y-auto custom-scrollbar p-3 space-y-1 relative">
 				{isLoading ? (
 					// Skeleton Loading State
 					Array.from({ length: 5 }).map((_, i) => (
 						<div
 							key={i}
-							className="h-12 w-full bg-slate-100 dark:bg-white/5 rounded-xl animate-pulse mb-1.5"
+							className="h-12 w-full bg-slate-100 dark:bg-white/2 rounded-xl animate-pulse mb-1.5"
 						/>
 					))
 				) : filteredCategories.length === 0 ? (
 					// Empty State
-					<div className="flex flex-col items-center justify-center text-center p-8 opacity-60">
+					<div className="absolute inset-0 flex flex-col items-center justify-center text-center p-8 opacity-60 animate-in fade-in zoom-in-95 duration-300">
 						<LayoutGrid className="w-8 h-8 text-muted-foreground mb-3" />
 						<p className="text-xs font-bold text-foreground">
 							No categories found
 						</p>
 						{searchQuery && (
-							<p className="text-[10px] text-muted-foreground mt-1">
+							<p className="text-[10px] text-muted-foreground mt-1 animate-pulse">
 								Clear your search to see all items.
 							</p>
 						)}
@@ -174,12 +252,16 @@ export function CategorySidebar({ labId, activeCategoryId }: Props) {
 								createCategoryLink={createCategoryLink}
 								handleRename={handleRename}
 								isActive={isActive}
+								handleEdit={handleEditCategory}
+								handleArchive={handleArchiveCategory}
+								handlePermanentDelete={handlePermanentDeleteCategory}
 							/>
 						)
 					})
 				)}
 			</div>
 
+			{/* --- MODALS --- */}
 			{catToRename && (
 				<CatalogRenameModal
 					isOpen={renameModal}
@@ -192,29 +274,93 @@ export function CategorySidebar({ labId, activeCategoryId }: Props) {
 						queryClient.invalidateQueries({
 							queryKey: ['catalog-categories', labId],
 						})
-
 						queryClient.invalidateQueries({
 							queryKey: ['catalog-work-types', labId, catToRename.id],
 						})
 					}}
 				/>
 			)}
+
+			<CategoryEditorSheet
+				isOpen={isEditorSheetOpen}
+				onClose={handleCloseEditorSheet}
+				categoryIdToEdit={catToEdit?.id}
+				isEdit={!!catToEdit}
+				onSuccess={() => {
+					queryClient.invalidateQueries({
+						queryKey: ['catalog-categories', labId],
+					})
+				}}
+			/>
+
+			{catToArchive && (
+				<ArchiveCategoryModal
+					categoryId={catToArchive.id}
+					categoryName={catToArchive.name}
+					isCurrentlyArchived={catToArchive.isArchived}
+					isOpen={isArchiveModalOpen}
+					onClose={handleCloseArchiveModal}
+					onSuccess={() => {
+						queryClient.invalidateQueries({
+							queryKey: ['catalog-categories', labId],
+						})
+					}}
+				/>
+			)}
+
+			{catToPermanentDelete && (
+				<DeleteCategoryModal
+					categoryId={catToPermanentDelete.id}
+					categoryName={catToPermanentDelete.name}
+					isOpen={isPermanentDeleteModalOpen}
+					onClose={handleClosePermanentDeleteModal}
+					onSuccess={() => {
+						queryClient.invalidateQueries({
+							queryKey: ['catalog-categories', labId],
+						})
+					}}
+				/>
+			)}
 		</div>
 	)
-}
-
+})
 interface CategoryItemProps {
 	isActive: boolean
 	createCategoryLink: (id: string) => string
 	cat: CatalogCategoryDTO
 	handleRename: (id: string, name: string) => void
+	handleEdit: (id: string, name: string) => void
+	handlePermanentDelete: (id: string, name: string) => void
+	handleArchive: (id: string, name: string, isArchived: boolean) => void
 }
 const CategoryItem = memo(function CategoryItem({
 	cat,
 	createCategoryLink,
 	isActive,
 	handleRename,
+	handleEdit,
+	handleArchive,
+	handlePermanentDelete,
 }: CategoryItemProps) {
+	const { canManageCatalog } = usePermissions()
+
+	const handleRenameCategory = useCallback(
+		() => handleRename(cat.id, cat.name),
+		[handleRename, cat.id, cat.name],
+	)
+	const handleEditCategory = useCallback(
+		() => handleEdit(cat.id, cat.name),
+		[handleEdit, cat.id, cat.name],
+	)
+	const handleArchiveCategory = useCallback(
+		() => handleArchive(cat.id, cat.name, cat.isArchived),
+		[handleArchive, cat.id, cat.name, cat.isArchived],
+	)
+	const handlePermanentDeleteCategory = useCallback(
+		() => handlePermanentDelete(cat.id, cat.name),
+		[handlePermanentDelete, cat.id, cat.name],
+	)
+
 	return (
 		<div
 			key={cat.id}
@@ -242,18 +388,19 @@ const CategoryItem = memo(function CategoryItem({
 				{/* Category Icon (If exists, else fallback) */}
 				<div
 					className={cn(
-						'w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-colors shadow-sm',
+						'w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-colors shadow-sm relative overflow-hidden', // Added overflow-hidden to constrain Image
 						isActive
 							? 'bg-white dark:bg-[#121214] text-primary border border-primary/20'
 							: 'bg-white dark:bg-[#121214] text-muted-foreground border border-border group-hover:text-foreground',
 					)}
 				>
-					{/* Fallback to text initials if no image is uploaded */}
 					{cat.imageUrl ? (
-						<img
+						<Image
 							src={cat.imageUrl}
 							alt={cat.name}
-							className="w-5 h-5 object-contain"
+							fill
+							sizes="32px"
+							className="object-contain p-1" // Added padding so it doesn't touch the borders
 						/>
 					) : (
 						<span className="text-xs font-bold font-mono">
@@ -290,7 +437,7 @@ const CategoryItem = memo(function CategoryItem({
 						variant="ghost"
 						size="icon"
 						className={cn(
-							'h-7 w-7 rounded-lg transition-opacity shrink-0',
+							'h-7 w-7 rounded-lg transition-opacity shrink-0 focus-visible:ring-1 focus-visible:ring-primary',
 							isActive
 								? 'opacity-100 text-primary hover:bg-primary/20'
 								: 'opacity-0 group-hover:opacity-100 text-muted-foreground hover:bg-slate-200 dark:hover:bg-white/10',
@@ -308,21 +455,44 @@ const CategoryItem = memo(function CategoryItem({
 						Options
 					</DropdownMenuLabel>
 
+					{/* Standard Actions */}
 					<DropdownMenuItem
-						className="cursor-pointer font-medium text-xs py-2 hover:bg-primary/5"
-						onClick={() => handleRename(cat.id, cat.name)}
+						className="cursor-pointer font-medium text-xs py-2 hover:bg-primary/5 focus:bg-primary/5"
+						onClick={handleRenameCategory}
 					>
-						<Type className="w-3.5 h-3.5 mr-2" /> Rename Category
+						<Type className="w-3.5 h-3.5 mr-2 text-muted-foreground" /> Rename
+						Category
 					</DropdownMenuItem>
-					<DropdownMenuItem className="cursor-pointer font-medium text-xs py-2 hover:bg-primary/5">
-						<Edit3 className="w-3.5 h-3.5 mr-2" /> Edit Category
+					<DropdownMenuItem
+						className="cursor-pointer font-medium text-xs py-2 hover:bg-primary/5 focus:bg-primary/5"
+						onClick={handleEditCategory}
+					>
+						<Edit3 className="w-3.5 h-3.5 mr-2 text-muted-foreground" /> Edit
+						Category
 					</DropdownMenuItem>
 
 					<DropdownMenuSeparator className="bg-border/50" />
 
-					<DropdownMenuItem className="cursor-pointer font-medium text-xs py-2 text-rose-600 focus:text-rose-500 focus:bg-rose-500/10">
-						<Archive className="w-3.5 h-3.5 mr-2" /> Archive Category
-					</DropdownMenuItem>
+					{/* Soft Delete (Amber) */}
+					{canManageCatalog && (
+						<DropdownMenuItem
+							onClick={handleArchiveCategory}
+							className="cursor-pointer font-medium text-xs py-2 text-amber-600 dark:text-amber-500 focus:text-amber-600 dark:focus:text-amber-500 focus:bg-amber-500/10 transition-colors"
+						>
+							<Archive className="w-3.5 h-3.5 mr-2" />
+							{cat.isArchived ? 'Restore Category' : 'Archive Category'}
+						</DropdownMenuItem>
+					)}
+
+					{/* HARD-DELETE (Always Red) */}
+					{canManageCatalog && (
+						<DropdownMenuItem
+							onClick={handlePermanentDeleteCategory}
+							className="cursor-pointer font-medium text-xs py-2 text-destructive focus:text-destructive focus:bg-destructive/10 transition-colors"
+						>
+							<Trash2 className="w-3.5 h-3.5 mr-2" /> Delete Permanently
+						</DropdownMenuItem>
+					)}
 				</DropdownMenuContent>
 			</DropdownMenu>
 		</div>

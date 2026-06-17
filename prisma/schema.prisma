@@ -549,7 +549,7 @@ model CaseCategory {
   description String?
   imageUrl    String?
 
-  isActive   Boolean @default(true) // Controls global visibility
+  // isActive   Boolean @default(true) // Removed and replaced with isArchived
   isArchived Boolean @default(false) // 🔥 NEW: Soft-delete flag
 
   workTypes WorkType[]

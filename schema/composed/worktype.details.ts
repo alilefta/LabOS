@@ -40,10 +40,16 @@ export const CreateWorkTypeInputSchema = z.object({
 		.optional(),
 	requireTeethSelection: z.boolean().default(true).optional(),
 	caseCategoryId: z.string(),
-	// product: CreateProductInputSchema,
 })
 
 export type CreateWorkTypeInput = z.infer<typeof CreateWorkTypeInputSchema>
+
+// --- THE NEW UPDATE SCHEMA ---
+export const UpdateWorkTypeInputSchema = CreateWorkTypeInputSchema.extend({
+	workTypeId: z.string().uuid('Invalid Work Type ID'), // CRITICAL: The target entity
+})
+
+export type UpdateWorkTypeInput = z.infer<typeof UpdateWorkTypeInputSchema>
 
 export const GetProductsByWorkTypeInputSchema = z.object({
 	workTypeId: z.string(),

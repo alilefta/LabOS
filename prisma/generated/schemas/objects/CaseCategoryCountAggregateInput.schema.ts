@@ -7,7 +7,6 @@ const makeSchema = () => z.object({
   name: z.literal(true).optional(),
   description: z.literal(true).optional(),
   imageUrl: z.literal(true).optional(),
-  isActive: z.literal(true).optional(),
   isArchived: z.literal(true).optional(),
   labId: z.literal(true).optional(),
   createdAt: z.literal(true).optional(),

@@ -58,6 +58,12 @@ export const getWorkTypesByCategoryAction = actionClientWithLab
 						where: { createdAt: { gte: thirtyDaysAgo } },
 						select: { id: true },
 					},
+					caseCategory: {
+						select: {
+							name: true,
+							id: true,
+						},
+					},
 				},
 			})
 
@@ -73,6 +79,7 @@ export const getWorkTypesByCategoryAction = actionClientWithLab
 					caseWorkItems: wt._count.caseWorkItems,
 				},
 				casesL30D: wt.caseWorkItems.length, // Calculate the array length on the server
+				categoryName: wt.caseCategory.name,
 			}))
 
 			return { workTypes }
