@@ -44,7 +44,7 @@ interface MoveWorkTypeModalProps {
 	workTypeName: string
 	currentCategoryId: string
 	currentCategoryName: string
-	onSuccess?: () => void
+	onSuccess?: (newCatId: string) => void
 }
 
 export const MoveWorkTypeModal = memo(function MoveWorkTypeModal({
@@ -100,9 +100,9 @@ export const MoveWorkTypeModal = memo(function MoveWorkTypeModal({
 	const { executeAsync: moveWorkType, isExecuting } = useAction(
 		moveWorkTypeAction,
 		{
-			onSuccess: () => {
+			onSuccess: ({ data }) => {
 				toast.success(`${workTypeName} successfully moved.`)
-				if (onSuccess) onSuccess()
+				if (onSuccess) onSuccess(data.workType.caseCategoryId)
 				handleOpenChange(false)
 			},
 			onError: ({ error }) => {

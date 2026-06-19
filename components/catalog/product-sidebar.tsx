@@ -247,11 +247,11 @@ export const ProductSidebar = memo(function ProductSidebar({
 				workTypeId={workTypeId}
 				productIdToEdit={productEditId}
 				isEdit={!!productEditId}
-				key={productEditId ?? 'new'}
 				onSuccess={() => {
 					queryClient.invalidateQueries({
 						queryKey: ['catalog-products', labId, workTypeId],
 					})
+
 					queryClient.invalidateQueries({
 						queryKey: ['product-vitals', activeProductId],
 					})

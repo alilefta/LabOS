@@ -4,6 +4,7 @@ import { z } from 'zod'
 import { tenantPrisma } from '@/lib/prisma'
 import { actionClientWithLab } from '@/lib/safe-action'
 import { ERRORS } from '@/lib/errors'
+import { revalidatePath } from 'next/cache'
 
 const MoveWorkTypeInputSchema = z.object({
 	workTypeId: z.string().uuid('Invalid Work Type ID'),
@@ -59,7 +60,6 @@ export const moveWorkTypeAction = actionClientWithLab
 					caseCategoryId: true,
 				},
 			})
-
 			return { success: true, workType: updatedWorkType } // Map to DTO if needed, or just return success
 		} catch (error) {
 			console.error('[Move-WorkType-Action] Error:', error)

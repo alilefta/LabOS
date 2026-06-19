@@ -344,9 +344,13 @@ export const WorkTypeBentoGrid = memo(function WorkTypeBentoGrid({
 					workTypeName={workTypeToMove.name}
 					currentCategoryId={categoryId}
 					currentCategoryName={categoryName}
-					onSuccess={() => {
+					onSuccess={(newCatId) => {
 						queryClient.invalidateQueries({
 							queryKey: ['catalog-work-types', labId, categoryId],
+						})
+
+						queryClient.invalidateQueries({
+							queryKey: ['catalog-work-types', labId, newCatId],
 						})
 					}}
 				/>
