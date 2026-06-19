@@ -3,7 +3,7 @@
 import { memo, useEffect } from 'react'
 import { useForm, Controller, FormProvider, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { useAction } from 'next-safe-action/hooks'
 import { toast } from 'sonner'
 import {
@@ -41,7 +41,6 @@ import {
 	CreateWorkTypeInput,
 	CreateWorkTypeInputSchema,
 	UpdateWorkTypeInput,
-	UpdateWorkTypeInputSchema,
 } from '@/schema/composed/worktype.details'
 
 // --- ASSUMED ACTION IMPORTS ---
@@ -56,7 +55,7 @@ interface Props {
 	categoryName: string | null
 	workTypeIdToEdit?: string | null
 	isEdit?: boolean
-	onSuccess?: (workTypeId: string) => void
+	onSuccess?: (workTypeId?: string) => void
 }
 
 const FORM_DEFAULT_VALUES = {
@@ -76,13 +75,11 @@ export const WorkTypeEditorSheet = memo(function WorkTypeEditorSheet({
 	isEdit = false,
 	onSuccess,
 }: Props) {
-	const queryClient = useQueryClient()
+	// const queryClient = useQueryClient()
 
 	// ── 1. FORM SETUP ─────────────────────────────────────────────────────────
 	const form = useForm<CreateWorkTypeInput>({
-		resolver: zodResolver(
-			isEdit ? UpdateWorkTypeInputSchema : CreateWorkTypeInputSchema,
-		),
+		resolver: zodResolver(CreateWorkTypeInputSchema),
 		defaultValues: FORM_DEFAULT_VALUES,
 		mode: 'onBlur',
 	})
@@ -136,18 +133,8 @@ export const WorkTypeEditorSheet = memo(function WorkTypeEditorSheet({
 	const { executeAsync: createWorkType, isExecuting: isCreating } = useAction(
 		createWorkTypeAction,
 		{
-			onSuccess: ({ data }) => {
+			onSuccess: () => {
 				toast.success('Work type department created successfully.')
-
-				if (data.worktype?.id && onSuccess) {
-					onSuccess(data.worktype.id)
-				}
-
-				// Invalidate specific cache and global tree
-				queryClient.invalidateQueries({ queryKey: ['catalog-tree'] })
-				queryClient.invalidateQueries({
-					queryKey: ['catalog-work-types', data.worktype.caseCategoryId],
-				})
 
 				onClose()
 				form.reset(FORM_DEFAULT_VALUES)
@@ -159,16 +146,8 @@ export const WorkTypeEditorSheet = memo(function WorkTypeEditorSheet({
 	const { executeAsync: updateWorkType, isExecuting: isUpdating } = useAction(
 		updateWorkTypeAction,
 		{
-			onSuccess: ({ data }) => {
+			onSuccess: () => {
 				toast.success('Department details updated.')
-
-				queryClient.invalidateQueries({ queryKey: ['catalog-tree'] })
-				queryClient.invalidateQueries({
-					queryKey: ['catalog-work-types', data.worktype.caseCategoryId],
-				})
-				queryClient.invalidateQueries({
-					queryKey: ['worktype-details', workTypeIdToEdit],
-				})
 
 				onClose()
 			},
@@ -184,6 +163,10 @@ export const WorkTypeEditorSheet = memo(function WorkTypeEditorSheet({
 			} as UpdateWorkTypeInput)
 		} else {
 			await createWorkType(data)
+		}
+
+		if (onSuccess) {
+			onSuccess()
 		}
 	}
 

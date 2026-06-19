@@ -299,7 +299,7 @@ export const PricingPlanLedger = memo(function PricingPlanLedger({
 							</p>
 						</div>
 					) : (
-						<div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+						<div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mx-1">
 							{generalPlans.map((plan) => (
 								<PricingPlanLedgerCard
 									key={plan.id}

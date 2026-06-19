@@ -63,11 +63,11 @@ export default async function CatalogPage({ searchParams }: Props) {
 				<AmbientBgGlow variant="primary" />
 
 				{/* THE SPLIT-SCREEN CANVAS */}
-				<div className="flex h-full w-full max-w-[2000px] mx-auto border-t border-border/50">
+				<div className="flex h-full w-full max-w-500 mx-auto border-t border-border/50">
 					{/* ── LEFT PANE: The Directory (30%) ── */}
 					<div
 						className={cn(
-							'w-full lg:w-[320px] xl:w-[380px] shrink-0 border-r border-border h-full bg-slate-50/30 dark:bg-black/10',
+							'w-full lg:w-[320px] xl:w-95 shrink-0 border-r border-border h-full bg-slate-50/30 dark:bg-black/10',
 							// Responsive Logic: Always flex on LG. On mobile, flex ONLY if it's the active view.
 							showLeftPaneOnMobile
 								? 'flex flex-col'

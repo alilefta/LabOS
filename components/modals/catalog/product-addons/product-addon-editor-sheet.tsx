@@ -3,7 +3,7 @@
 import { memo, useEffect } from 'react'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { useAction } from 'next-safe-action/hooks'
 import { toast } from 'sonner'
 import {
@@ -55,8 +55,6 @@ export const ProductAddonEditorSheet = memo(function ProductAddonEditorSheet({
 	isEdit,
 	onSuccess,
 }: Props) {
-	const queryClient = useQueryClient()
-
 	// ── 1. FORM SETUP ─────────────────────────────────────────────────────────
 	const form = useForm<CreateProductAddonInput>({
 		resolver: zodResolver(CreateProductAddonInputSchema),
@@ -110,12 +108,7 @@ export const ProductAddonEditorSheet = memo(function ProductAddonEditorSheet({
 		{
 			onSuccess: () => {
 				toast.success('Accessory added to catalog.')
-				queryClient.invalidateQueries({
-					queryKey: ['product-addons', productId],
-				})
-				if (onSuccess) {
-					onSuccess()
-				}
+
 				onClose()
 			},
 			onError: ({ error }) => handleSafeActionError(error),
@@ -128,9 +121,6 @@ export const ProductAddonEditorSheet = memo(function ProductAddonEditorSheet({
 			onSuccess: () => {
 				toast.success('Accessory updated.')
 
-				if (onSuccess) {
-					onSuccess()
-				}
 				onClose()
 			},
 			onError: ({ error }) => handleSafeActionError(error),
@@ -147,6 +137,10 @@ export const ProductAddonEditorSheet = memo(function ProductAddonEditorSheet({
 			})
 		} else {
 			await createAddon(data)
+		}
+
+		if (onSuccess) {
+			onSuccess()
 		}
 	}
 

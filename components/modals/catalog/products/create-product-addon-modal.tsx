@@ -140,7 +140,7 @@ export function CreateAddonSheet({ isOpen, onClose, productId }: Props) {
 									/>
 								)}
 							/>
-							<div className="p-3 rounded-xl bg-slate-50 dark:bg-white/[0.02] border border-border mt-2">
+							<div className="p-3 rounded-xl bg-slate-50 dark:bg-white/2 border border-border mt-2">
 								<p className="text-[10px] text-muted-foreground leading-relaxed">
 									This amount will be added to the final invoice automatically
 									whenever a technician attaches this accessory to the product

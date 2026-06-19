@@ -6,7 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Loader2, Package, Box, Edit3, Plus, Check } from 'lucide-react'
 import { toast } from 'sonner'
 import { useAction } from 'next-safe-action/hooks'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { cn } from '@/lib/utils'
 
 // Components
@@ -42,7 +42,7 @@ interface Props {
 	workTypeId: string // The structural parent
 	productIdToEdit?: string | null // Pass an ID to enter Edit Mode
 	isEdit?: boolean
-	onSuccess?: (productId: string) => void // Optional callback for the parent
+	onSuccess?: (productId?: string) => void // Optional callback for the parent
 }
 
 export const ProductEditorSheet = memo(function ProductEditorSheet({
@@ -53,8 +53,6 @@ export const ProductEditorSheet = memo(function ProductEditorSheet({
 	isEdit = false,
 	onSuccess,
 }: Props) {
-	const queryClient = useQueryClient()
-
 	// ── 1. FORM SETUP ─────────────────────────────────────────────────────────
 	const form = useForm<CreateProductInput>({
 		resolver: zodResolver(CreateProductInputSchema),
@@ -111,17 +109,8 @@ export const ProductEditorSheet = memo(function ProductEditorSheet({
 	const { executeAsync: createProduct, isExecuting: isCreating } = useAction(
 		createProductAction,
 		{
-			onSuccess: ({ data }) => {
+			onSuccess: () => {
 				toast.success('Catalog item created successfully.')
-
-				// Invalidate the product list for this specific WorkType
-				queryClient.invalidateQueries({
-					queryKey: ['catalog-products', workTypeId],
-				})
-
-				if (onSuccess && data?.product?.id) {
-					onSuccess(data.product.id)
-				}
 				onClose()
 			},
 			onError: ({ error }) => handleSafeActionError(error),
@@ -133,12 +122,7 @@ export const ProductEditorSheet = memo(function ProductEditorSheet({
 		{
 			onSuccess: () => {
 				toast.success('Product details updated.')
-				queryClient.invalidateQueries({
-					queryKey: ['catalog-products', workTypeId],
-				})
-				queryClient.invalidateQueries({
-					queryKey: ['product-details', productIdToEdit],
-				}) // Clear old cache
+
 				onClose()
 			},
 			onError: ({ error }) => handleSafeActionError(error),
@@ -156,6 +140,7 @@ export const ProductEditorSheet = memo(function ProductEditorSheet({
 		} else {
 			await createProduct(data)
 		}
+		if (onSuccess) onSuccess()
 	}
 
 	const isProcessing = isCreating || isUpdating

@@ -182,9 +182,7 @@ export const ProductSidebar = memo(function ProductSidebar({
 						size="icon"
 						variant="ghost"
 						className="h-8 w-8 rounded-lg text-ai hover:bg-ai/10 hover:text-ai transition-colors"
-						onClick={() => {
-							handleCreateNew()
-						}}
+						onClick={handleCreateNew}
 					>
 						<Plus className="w-4 h-4" />
 					</Button>

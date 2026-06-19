@@ -19,7 +19,6 @@ import {
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { useQuery } from '@tanstack/react-query'
-import { getCaseCategoriesAction } from '@/actions/case-category' // You'll need this simple fetcher
 import { handleSafeActionError } from '@/lib/safe-action-helpers'
 import { getCatalogCategoriesAction } from '@/actions/catalog/get-categories'
 import { FieldError } from 'react-hook-form'
