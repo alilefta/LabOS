@@ -1,37 +1,50 @@
-import { headers } from "next/headers";
-import { auth } from "./auth";
-import { cache } from "react";
-import { tenantPrisma } from "./prisma";
+import { headers } from 'next/headers'
+import { auth } from './auth'
+import { cache } from 'react'
+import { tenantPrisma } from './prisma'
+import { isAPIError } from 'better-auth/api'
 
 export const getServerSession = cache(async () => {
-	return await auth.api.getSession({ headers: await headers() });
-});
+	try {
+		const session = await auth.api.getSession({ headers: await headers() })
+		return session
+	} catch (e) {
+		if (isAPIError(e)) {
+			console.log('Better Auth Error++++', e)
+			return null
+		}
+	}
+})
 
 export const getLabIdSession = cache(async () => {
-	const session = await auth.api.getSession({ headers: await headers() });
-	if (!session) return null;
+	const session = await auth.api.getSession({ headers: await headers() })
+	if (!session) return null
 
-	if (!session.user.labId) return null;
+	if (!session.user.labId) return null
 
-	return session.user.labId;
-});
+	return session.user.labId
+})
 
-export type LabIsolationFnReturnType = Promise<"OK" | "NO_USER" | "NO_LAB_EXIST" | "NO_SESSION" | "LAB_ID_CONFLICT">;
+export type LabIsolationFnReturnType = Promise<
+	'OK' | 'NO_USER' | 'NO_LAB_EXIST' | 'NO_SESSION' | 'LAB_ID_CONFLICT'
+>
 
-export const CheckLabIsolation = async (labId?: string): LabIsolationFnReturnType => {
-	const session = await getServerSession();
+export const CheckLabIsolation = async (
+	labId?: string,
+): LabIsolationFnReturnType => {
+	const session = await getServerSession()
 
 	if (!session) {
-		return "NO_SESSION";
+		return 'NO_SESSION'
 	}
-	const user = session.user;
+	const user = session.user
 	if (!user) {
-		return "NO_USER";
+		return 'NO_USER'
 	}
 
 	if (labId) {
 		if (user.labId !== labId) {
-			return "LAB_ID_CONFLICT";
+			return 'LAB_ID_CONFLICT'
 		}
 
 		const authLab = await (
@@ -40,12 +53,12 @@ export const CheckLabIsolation = async (labId?: string): LabIsolationFnReturnTyp
 			where: {
 				id: labId,
 			},
-		});
+		})
 
 		if (!authLab) {
-			return "NO_LAB_EXIST";
+			return 'NO_LAB_EXIST'
 		}
 	}
 
-	return "OK";
-};
+	return 'OK'
+}

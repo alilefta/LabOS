@@ -1,75 +1,85 @@
-import "dotenv/config";
-import { PrismaPg } from "@prisma/adapter-pg";
-import { PrismaClient } from "../generated/prisma/client";
+import 'dotenv/config'
+import { PrismaPg } from '@prisma/adapter-pg'
+import { PrismaClient } from '../generated/prisma/client'
 
-const connectionString = process.env.DATABASE_URL!;
+const connectionString = process.env.DATABASE_URL!
 
 const prismaClientSingleton = () => {
-	const adapter = new PrismaPg({ connectionString });
-	return new PrismaClient({ adapter });
-};
-
-declare global {
-	var prismaGlobal: ReturnType<typeof prismaClientSingleton> | undefined;
+	const adapter = new PrismaPg({ connectionString })
+	return new PrismaClient({ adapter, log: ['query'] })
 }
 
-const prisma = globalThis.prismaGlobal ?? prismaClientSingleton();
+declare global {
+	var prismaGlobal: ReturnType<typeof prismaClientSingleton> | undefined
+}
 
-const tenantPrismaCache = new Map<string, ReturnType<typeof createTenantPrisma>>();
+const prisma = globalThis.prismaGlobal ?? prismaClientSingleton()
+
+const tenantPrismaCache = new Map<
+	string,
+	ReturnType<typeof createTenantPrisma>
+>()
 
 const createTenantPrisma = async (labId: string) =>
 	prisma.$extends({
 		query: {
 			$allModels: {
 				async $allOperations({ model, operation, args, query }) {
-					if (model === "Lab" || model === "SuperUser") {
-						return query(args);
+					if (model === 'Lab' || model === 'SuperUser') {
+						return query(args)
 					}
-					if (operation !== "create" && operation !== "createMany" && operation !== "createManyAndReturn") {
+					if (
+						operation !== 'create' &&
+						operation !== 'createMany' &&
+						operation !== 'createManyAndReturn'
+					) {
 						args.where = {
 							...args.where,
 							labId,
-						};
-						return query(args);
+						}
+						return query(args)
 					}
 
-					if (operation === "create") {
-						if ("lab" in args.data) {
+					if (operation === 'create') {
+						if ('lab' in args.data) {
 							// If relation is used → don't inject labId
-							return query(args);
+							return query(args)
 						}
 						args.data = {
 							...args.data,
 							labId,
-						};
-						return query(args);
+						}
+						return query(args)
 					}
 
-					if (operation === "createMany" || operation === "createManyAndReturn") {
+					if (
+						operation === 'createMany' ||
+						operation === 'createManyAndReturn'
+					) {
 						if (Array.isArray(args.data)) {
-							args.data = args.data.map((item) => ({ ...item, labId }));
+							args.data = args.data.map((item) => ({ ...item, labId }))
 						} else {
-							args.data = { ...args.data, labId };
+							args.data = { ...args.data, labId }
 						}
-						return query(args);
+						return query(args)
 					}
 				},
 			},
 		},
-	});
+	})
 
 const tenantPrisma = (labId: string) => {
 	if (!tenantPrismaCache.has(labId)) {
-		tenantPrismaCache.set(labId, createTenantPrisma(labId));
+		tenantPrismaCache.set(labId, createTenantPrisma(labId))
 	}
-	return tenantPrismaCache.get(labId)!;
-};
+	return tenantPrismaCache.get(labId)!
+}
 
-export { tenantPrisma, prisma as generalPrisma };
+export { tenantPrisma, prisma as generalPrisma }
 
 // cache in development
-if (process.env.NODE_ENV !== "production") {
-	globalThis.prismaGlobal = prisma;
+if (process.env.NODE_ENV !== 'production') {
+	globalThis.prismaGlobal = prisma
 }
-export type TenantPrisma = typeof tenantPrisma;
-export type TenantPrismaRReturnType = ReturnType<typeof tenantPrisma>;
+export type TenantPrisma = typeof tenantPrisma
+export type TenantPrismaRReturnType = ReturnType<typeof tenantPrisma>
