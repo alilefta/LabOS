@@ -1,21 +1,27 @@
-import { DashboardKpiCards } from "@/components/dashboard/overview/dashboard-kpi-cards";
-import { DashboardAiInsight } from "@/components/dashboard/overview/dashboard-ai-insight";
-import { DashboardProductionChart } from "@/components/dashboard/overview/dashboard-production-chart";
-import { DashboardRecentCases } from "@/components/dashboard/overview/dashboard-recent-cases";
+import { DashboardKpiCards } from '@/components/dashboard/overview/dashboard-kpi-cards'
+import { DashboardAiInsight } from '@/components/dashboard/overview/dashboard-ai-insight'
+import { DashboardProductionChart } from '@/components/dashboard/overview/dashboard-production-chart'
+import { DashboardRecentCases } from '@/components/dashboard/overview/dashboard-recent-cases'
 
 export const metadata = {
-	title: "Overview | LabOS",
-};
+	title: 'Overview | LabOS',
+}
 
 export default function DashboardPage() {
 	return (
-		<div className="flex flex-col gap-8 pb-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+		<div className="flex flex-col pb-8 animate-in fade-in slide-in-from-bottom-4 duration-700 gap-8 h-full max-w-500 mx-auto px-4 sm:px-6 lg:px-8">
 			{/* Page Header */}
 			<div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mt-2">
 				<div>
-					<h1 className="text-3xl font-bold tracking-tight text-foreground">Good Morning, Sarah</h1>
+					<h1 className="text-3xl font-bold tracking-tight text-foreground">
+						Good Morning, Sarah
+					</h1>
 					<p className="text-muted-foreground mt-1">
-						Here is what&apos;s happening in your lab today, <span className="text-foreground font-medium">Sunday, March 22, 2026</span>.
+						Here is what&apos;s happening in your lab today,{' '}
+						<span className="text-foreground font-medium">
+							Sunday, March 22, 2026
+						</span>
+						.
 					</p>
 				</div>
 			</div>
@@ -39,5 +45,5 @@ export default function DashboardPage() {
 			{/* Bottom Row: Recent Urgent Cases */}
 			<DashboardRecentCases />
 		</div>
-	);
+	)
 }

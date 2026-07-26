@@ -6,7 +6,7 @@ const connectionString = process.env.DATABASE_URL!
 
 const prismaClientSingleton = () => {
 	const adapter = new PrismaPg({ connectionString })
-	return new PrismaClient({ adapter, log: ['query'] })
+	return new PrismaClient({ adapter }) // , log: ['query'] for logging
 }
 
 declare global {
