@@ -2,31 +2,23 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { LayoutDashboard, FolderOpen, Users, Package, CreditCard, AlertCircle, Sparkles, Settings, LogOut, Menu, ChevronsUpDown } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import { Settings, LogOut, Menu, ChevronsUpDown } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-
-// We keep the same navigation data to ensure consistency with the desktop sidebar
-const mainNav = [
-	{ title: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-	{ title: "Cases", href: "/cases", icon: FolderOpen, badge: "5k+" },
-	{ title: "Clinics", href: "/clinics", icon: Users },
-	{ title: "Materials", href: "/materials", icon: Package },
-	{ title: "Billing", href: "/billing", icon: CreditCard },
-];
-
-const smartViews = [
-	{ title: "AI Insights", href: "/insights", icon: Sparkles, isAi: true },
-	{ title: "Urgent Remakes", href: "/cases?filter=urgent", icon: AlertCircle, isDanger: true },
-];
+import {
+	dashboardMainNavigation,
+	dashboardSettingsHref,
+	dashboardSmartNavigation,
+} from "@/lib/dashboard-navigation";
 
 export function DashboardMobileNav() {
 	const pathname = usePathname();
+	const router = useRouter();
 	const [isOpen, setIsOpen] = useState(false);
 
 	return (
@@ -79,7 +71,7 @@ export function DashboardMobileNav() {
 					<div>
 						<p className="text-[11px] font-bold text-slate-400 dark:text-zinc-500 uppercase tracking-wider mb-3 px-2">Main Menu</p>
 						<nav className="space-y-1.5">
-							{mainNav.map((item) => {
+							{dashboardMainNavigation.map((item) => {
 								const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
 								return (
 									<Link
@@ -117,20 +109,18 @@ export function DashboardMobileNav() {
 					<div>
 						<p className="text-[11px] font-bold text-slate-400 dark:text-zinc-500 uppercase tracking-wider mb-3 px-2">Smart Views</p>
 						<nav className="space-y-1.5">
-							{smartViews.map((item) => (
+							{dashboardSmartNavigation.map((item) => (
 								<Link
 									key={item.title}
 									href={item.href}
 									onClick={() => setIsOpen(false)} // Close drawer on click
 									className={cn(
 										"flex items-center gap-3 px-3 py-3 rounded-xl text-[15px] font-medium transition-all duration-200 group active:scale-[0.98]",
-										item.isAi
-											? "hover:bg-ai/10 text-slate-600 dark:text-zinc-400 hover:text-ai"
-											: "text-slate-600 dark:text-zinc-400 hover:bg-slate-50 dark:hover:bg-white/5 hover:text-foreground",
+									"text-slate-600 dark:text-zinc-400 hover:bg-slate-50 dark:hover:bg-white/5 hover:text-foreground",
 									)}
 								>
-									<item.icon className={cn("w-5 h-5", item.isAi ? "text-ai/70" : item.isDanger ? "text-destructive/70" : "text-slate-400")} />
-									<span className={cn(item.isAi && "text-glow-ai transition-all")}>{item.title}</span>
+									<item.icon className={cn("w-5 h-5", item.isDanger ? "text-destructive/70" : "text-slate-400")} />
+									<span>{item.title}</span>
 								</Link>
 							))}
 						</nav>
@@ -151,7 +141,10 @@ export function DashboardMobileNav() {
 							</div>
 						</DropdownMenuTrigger>
 						<DropdownMenuContent align="end" className="w-[calc(100vw-2rem)] sm:w-64 rounded-xl border-border shadow-premium dark:bg-[#121214] mb-2">
-							<DropdownMenuItem className="rounded-lg cursor-pointer py-3">
+						<DropdownMenuItem className="rounded-lg cursor-pointer py-3" onClick={() => {
+							setIsOpen(false);
+							router.push(dashboardSettingsHref);
+						}}>
 								<Settings className="w-4 h-4 mr-2" /> Settings
 							</DropdownMenuItem>
 							<DropdownMenuSeparator className="bg-border" />

@@ -22,45 +22,50 @@ export interface UserContext {
 export function getPermissions(user: UserContext) {
 	const { role, staffCategory, staffId, labId } = user
 
-	// --- HELPER GROUPS ---
+	// V1 uses only two authorization categories. StaffRoleCategory remains
+	// operational metadata and must not grant additional application access.
 	const isOwner = role === 'OWNER'
 	const isManagement = ['OWNER', 'MANAGER', 'ADMIN'].includes(role)
-	const isOffice = ['OWNER', 'MANAGER', 'ADMIN'].includes(role)
+	const isStaff = role === 'STAFF'
 
-	// Operational specific checks
-	const isAccountant = staffCategory === 'ACCOUNTANT'
-	const isSalesRep =
-		staffCategory === 'SALES_REP' || staffCategory === 'ACCOUNT_MANAGER'
-	const isReception = staffCategory === 'RECEPTIONIST'
+	// Record-level checks remain the responsibility of the caller. For example,
+	// Staff may update a case only after the action verifies their assignment.
+	const canUpdateAssignedCaseStatus = isManagement || isStaff
 
 	return {
-		// 1. Who can see the money?
-		canViewFinancials: isOffice || isAccountant || isSalesRep || isReception,
-		// 2. Who can see specific commission breakdowns?
-		canViewCommissions: isManagement || isAccountant,
-
-		// 3. Who can edit clinical work (Teeth/Materials)?
-		// Usually Office (Receptionists) and Management. Technicians only see, they don't change.
-		canEditClinical: isOffice || isManagement,
-
-		// Who can see the STRATEGY and the MATH? (Financial roles only)
-		canViewDetailedFinancials: isOffice || isAccountant,
-
-		// 4. Who can manage the team?
-		canManageStaff: isManagement,
-
+		// V1 matrix: management-only capabilities.
+		canViewManagementDashboard: isManagement,
+		canCreateCases: isManagement,
+		canEditCaseOrder: isManagement,
+		canAssignCaseStaff: isManagement,
+		canManageClinics: isManagement,
 		canManageCatalog: isManagement,
-
-		// 5. Who can change the Lab's own subscription/Stripe?
+		canViewFinancials: isManagement,
+		canManageFinancials: isManagement,
+		canManageTeam: isManagement,
+		canManageLabSettings: isManagement,
 		canManageBilling: isOwner,
+		canArchiveCase: isManagement,
+		canArchivePatient: isManagement,
 
-		// 6. Who can delete a case? (Very dangerous)
-		canDeleteCase: isOwner || (isManagement && role === 'MANAGER'),
+		// V1 matrix: assigned-work capability. The associated action must still
+		// verify the current user is assigned to the specific case.
+		canViewAssignedWork: true,
+		canUpdateAssignedCaseStatus,
 
-		// 7. Who can advance a case status?
-		canAdvanceStatus: isOffice || isManagement || !!staffCategory, // Techs can advance their own
+		// Existing names retained while callers migrate to the V1 matrix.
+		canViewCommissions: isManagement,
+		canEditClinical: isManagement,
+		canViewDetailedFinancials: isManagement,
+		canManageStaff: isManagement,
+		canAdvanceStatus: canUpdateAssignedCaseStatus,
+
+		// V1 never hard-deletes cases. Use canArchiveCase for the audited,
+		// isArchived-based record-retention flow.
+		canDeleteCase: false,
 
 		isManagement,
+		isStaff,
 
 		// --- NEW: Pass these through so any component can access the user's raw identity ---
 		staffId: staffId || null,

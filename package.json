@@ -7,6 +7,8 @@
 		"build": "next build",
 		"start": "next start",
 		"lint": "eslint",
+		"test": "vitest",
+		"test:run": "vitest run",
 		"migrate": "pnpx prisma migrate dev",
 		"generate": "pnpx prisma generate"
 	},
@@ -70,6 +72,7 @@
 		"eslint-plugin-jsx-a11y": "^6.10.2",
 		"prisma": "^7.5.0",
 		"tailwindcss": "^4",
-		"typescript": "^5"
+		"typescript": "^5",
+		"vitest": "^4.1.10"
 	}
 }

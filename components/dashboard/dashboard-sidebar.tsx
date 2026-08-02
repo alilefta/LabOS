@@ -2,15 +2,8 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { usePathname, useRouter } from 'next/navigation'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import {
-	LayoutDashboard,
-	FolderOpen,
-	Users,
-	Package,
-	CreditCard,
-	AlertCircle,
-	Sparkles,
 	Settings,
 	ChevronsUpDown,
 	LogOut,
@@ -34,27 +27,15 @@ import {
 } from '@/components/ui/tooltip'
 import { Button } from '@/components/ui/button'
 import { signOut } from '@/lib/auth-client'
-
-const mainNav = [
-	{ title: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-	{ title: 'Cases', href: '/cases', icon: FolderOpen, badge: '5k+' },
-	{ title: 'Clinics', href: '/clinics', icon: Users },
-	{ title: 'Materials', href: '/materials', icon: Package },
-	{ title: 'Billing', href: '/billing', icon: CreditCard },
-]
-
-const smartViews = [
-	{ title: 'AI Insights', href: '/insights', icon: Sparkles, isAi: true },
-	{
-		title: 'Urgent Remakes',
-		href: '/cases?filter=urgent',
-		icon: AlertCircle,
-		isDanger: true,
-	},
-]
+import {
+	dashboardMainNavigation,
+	dashboardSettingsHref,
+	dashboardSmartNavigation,
+} from '@/lib/dashboard-navigation'
 
 export function DashboardSidebar() {
 	const pathname = usePathname()
+	const searchParams = useSearchParams()
 	const router = useRouter()
 
 	// State for collapsing the sidebar
@@ -153,7 +134,7 @@ export function DashboardSidebar() {
 					)}
 
 					<nav className="space-y-1.5">
-						{mainNav.map((item) => {
+						{dashboardMainNavigation.map((item) => {
 							const isActive =
 								pathname === item.href || pathname.startsWith(item.href + '/')
 
@@ -230,8 +211,11 @@ export function DashboardSidebar() {
 					)}
 
 					<nav className="space-y-1.5">
-						{smartViews.map((item) => {
-							const isActive = pathname === item.href
+						{dashboardSmartNavigation.map((item) => {
+							const [itemPath, itemQuery] = item.href.split('?')
+							const isActive =
+								pathname === itemPath &&
+								(!itemQuery || searchParams.toString() === itemQuery)
 
 							return (
 								<Tooltip key={item.title}>
@@ -245,27 +229,21 @@ export function DashboardSidebar() {
 													: 'gap-3 px-3 py-2.5',
 												isActive
 													? 'bg-slate-100 dark:bg-white/10 text-foreground'
-													: item.isAi
-														? 'hover:bg-ai/10 text-slate-600 dark:text-zinc-400 hover:text-ai'
-														: 'text-slate-600 dark:text-zinc-400 hover:bg-slate-50 dark:hover:bg-white/5 hover:text-foreground',
+												: 'text-slate-600 dark:text-zinc-400 hover:bg-slate-50 dark:hover:bg-white/5 hover:text-foreground',
 											)}
 										>
 											<item.icon
 												className={cn(
 													'w-4 h-4 shrink-0 transition-colors',
-													item.isAi
-														? 'text-ai/70 group-hover:text-ai'
-														: item.isDanger
-															? 'text-destructive/70 group-hover:text-destructive'
-															: 'text-slate-400 group-hover:text-foreground',
+											item.isDanger
+													? 'text-destructive/70 group-hover:text-destructive'
+													: 'text-slate-400 group-hover:text-foreground',
 												)}
 											/>
 											{!isCollapsed && (
 												<span
 													className={cn(
 														'animate-in fade-in duration-300',
-														item.isAi &&
-															'group-hover:text-glow-ai transition-all',
 													)}
 												>
 													{item.title}
@@ -323,7 +301,7 @@ export function DashboardSidebar() {
 					>
 						<DropdownMenuItem
 							className="rounded-lg cursor-pointer py-2"
-							onClick={() => router.push('/settings')}
+							onClick={() => router.push(dashboardSettingsHref)}
 						>
 							<Settings className="w-4 h-4 mr-2 text-muted-foreground" />{' '}
 							Settings & Preferences

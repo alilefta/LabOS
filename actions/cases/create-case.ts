@@ -95,7 +95,7 @@ export const createDentalCaseAction = actionClientWithLab
 				caseCategoryId
 					? prisma.caseCategory.findUnique({
 							where: { id: caseCategoryId, labId },
-							select: { id: true, isActive: true },
+							select: { id: true, isArchived: true },
 						})
 					: Promise.resolve(null),
 
@@ -175,7 +175,7 @@ export const createDentalCaseAction = actionClientWithLab
 		// Category must exist and be active
 		if (caseCategoryId) {
 			if (!category) throw ERRORS.NOT_FOUND
-			if (!category.isActive) throw ERRORS.OPERATION_NOT_ALLOWED
+			if (!category.isArchived) throw ERRORS.OPERATION_NOT_ALLOWED
 		}
 
 		// Every pricing plan ID must resolve to a record in this lab
@@ -684,7 +684,7 @@ export const saveDraftCaseAction = actionClientWithLab
 			caseCategoryId
 				? prisma.caseCategory.findUnique({
 						where: { id: caseCategoryId, labId },
-						select: { id: true, isActive: true },
+						select: { id: true, isArchived: true },
 					})
 				: Promise.resolve(null),
 		])
