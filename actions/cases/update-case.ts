@@ -1,4 +1,4 @@
-"use server";
+'use server'
 
 // actions/cases/update-case.ts
 // ─────────────────────────────────────────────────────────────────────────────
@@ -13,10 +13,14 @@
 //   - Role requirements are enforced per action via requiredLabRole metadata
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { actionClientWithLab } from "@/lib/safe-action";
-import { ActionError, ERRORS } from "@/lib/errors";
-import { tenantPrisma } from "@/lib/prisma";
-import { CaseStatus, StaffRoleCategory, CommissionType } from "@/schema/base/enums.base";
+import { actionClientWithLab } from '@/lib/safe-action'
+import { ActionError, ERRORS } from '@/lib/errors'
+import { tenantPrisma } from '@/lib/prisma'
+import {
+	CaseStatus,
+	StaffRoleCategory,
+	CommissionType,
+} from '@/schema/base/enums.base'
 import {
 	AddCaseAssetFilesSchema,
 	AssignCaseStaffSchema,
@@ -25,10 +29,13 @@ import {
 	UpdateCaseDeadlineSchema,
 	UpdateCaseNotesSchema,
 	UpdateCaseStatusSchema,
-} from "@/schema/composed/cases/edit-schemas/case.edit.details";
-import { revalidatePath } from "next/cache";
-import { buildLogEntry, resolveActorName } from "@/data/activity-logs/build-activity-log";
-import z from "zod";
+} from '@/schema/composed/cases/edit-schemas/case.edit.details'
+import { revalidatePath } from 'next/cache'
+import {
+	buildLogEntry,
+	resolveActorName,
+} from '@/data/activity-logs/build-activity-log'
+import z from 'zod'
 import {
 	DeadlineChangedPayloadSchema,
 	FileDeletedPayloadSchema,
@@ -37,7 +44,7 @@ import {
 	StaffAssignedPayloadSchema,
 	StaffRemovedPayloadSchema,
 	StatusChangedPayloadSchema,
-} from "@/schema/composed/case-activity-logs.details";
+} from '@/schema/composed/case-activity-logs.details'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Shared helpers
@@ -45,29 +52,33 @@ import {
 
 // Valid status transitions — enforced server-side, not just in the UI
 const VALID_TRANSITIONS: Record<CaseStatus, CaseStatus[]> = {
-	DRAFT: ["NEW"],
-	NEW: ["ASSIGNED", "PROCESSING", "FAILED"],
-	ASSIGNED: ["PROCESSING", "FAILED"],
-	PROCESSING: ["COMPLETED", "FAILED"],
-	COMPLETED: ["DELIVERED"],
+	DRAFT: ['NEW'],
+	NEW: ['ASSIGNED', 'PROCESSING', 'FAILED'],
+	ASSIGNED: ['PROCESSING', 'FAILED'],
+	PROCESSING: ['COMPLETED', 'FAILED'],
+	COMPLETED: ['DELIVERED'],
 	DELIVERED: [],
 	FAILED: [],
-};
+}
 
 // Verify a case exists and belongs to this lab.
 // Returns the case or throws — never returns null.
-async function requireCase(prisma: Awaited<ReturnType<typeof tenantPrisma>>, caseId: string, labId: string) {
+async function requireCase(
+	prisma: Awaited<ReturnType<typeof tenantPrisma>>,
+	caseId: string,
+	labId: string,
+) {
 	const dentalCase = await prisma.case.findUnique({
 		where: { id: caseId, labId },
 		select: { id: true, status: true, labId: true },
-	});
+	})
 
-	if (!dentalCase) throw ERRORS.CASE_NOT_FOUND;
+	if (!dentalCase) throw ERRORS.CASE_NOT_FOUND
 	// Belt-and-suspenders: tenantPrisma injects labId in the where clause,
 	// but we double-check here explicitly for auditability.
-	if (dentalCase.labId !== labId) throw ERRORS.FORBIDDEN;
+	if (dentalCase.labId !== labId) throw ERRORS.FORBIDDEN
 
-	return dentalCase;
+	return dentalCase
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -75,21 +86,27 @@ async function requireCase(prisma: Awaited<ReturnType<typeof tenantPrisma>>, cas
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const updateCaseDeadlineAction = actionClientWithLab
-	.metadata({ actionName: "Update-Case-Deadline-Action", requiredLabRole: "ADMIN" })
+	.metadata({
+		actionName: 'Update-Case-Deadline-Action',
+		requiredLabRole: 'ADMIN',
+	})
 	.inputSchema(UpdateCaseDeadlineSchema)
 	.action(async ({ ctx, parsedInput }) => {
-		const { labId, labUser } = ctx;
-		const { caseId, deadline } = parsedInput;
+		const { labId, labUser } = ctx
+		const { caseId, deadline } = parsedInput
 
-		const prisma = await tenantPrisma(labId);
-		const dentalCase = await requireCase(prisma, caseId, labId);
+		const prisma = await tenantPrisma(labId)
+		const dentalCase = await requireCase(prisma, caseId, labId)
 
 		// Completed or delivered cases should not have deadlines shifted
-		if (dentalCase.status === "COMPLETED" || dentalCase.status === "DELIVERED") {
-			throw ERRORS.CASE_ALREADY_COMPLETED;
+		if (
+			dentalCase.status === 'COMPLETED' ||
+			dentalCase.status === 'DELIVERED'
+		) {
+			throw ERRORS.CASE_ALREADY_COMPLETED
 		}
 
-		const actorName = await resolveActorName(labUser.id, labId);
+		const actorName = await resolveActorName(labUser.id, labId)
 
 		const [updatedCase] = await prisma.$transaction([
 			prisma.case.update({
@@ -103,45 +120,55 @@ export const updateCaseDeadlineAction = actionClientWithLab
 					labId,
 					actorId: labUser.id,
 					actorName,
-					type: "DEADLINE_CHANGED",
+					type: 'DEADLINE_CHANGED',
 					summary: `Deadline updated to ${deadline.toDateString()}`,
-					payload: { from: null, to: deadline.toISOString() } as z.infer<typeof DeadlineChangedPayloadSchema>,
+					payload: { from: null, to: deadline.toISOString() } as z.infer<
+						typeof DeadlineChangedPayloadSchema
+					>,
 				}),
 			}),
-		]);
+		])
 
-		return { updatedCase };
-	});
+		return { updatedCase }
+	})
 
 // ─────────────────────────────────────────────────────────────────────────────
 // 2. updateCaseStatusAction
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const updateCaseStatusAction = actionClientWithLab
-	.metadata({ actionName: "updateCaseStatus", requiredLabRole: "STAFF" }) // all active members
+	.metadata({ actionName: 'updateCaseStatus', requiredLabRole: 'STAFF' }) // all active members
 	.inputSchema(UpdateCaseStatusSchema)
 	.action(async ({ ctx, parsedInput }) => {
-		const { labId, labUser } = ctx;
-		const { caseId, newStatus } = parsedInput;
+		const { labId, labUser } = ctx
+		const { caseId, newStatus } = parsedInput
 
-		const prisma = await tenantPrisma(labId);
-		const dentalCase = await requireCase(prisma, caseId, labId);
+		const prisma = await tenantPrisma(labId)
+		const dentalCase = await requireCase(prisma, caseId, labId)
 
-		const currentStatus = dentalCase.status as CaseStatus;
-		const allowedNext = VALID_TRANSITIONS[currentStatus];
+		const currentStatus = dentalCase.status as CaseStatus
+		const allowedNext = VALID_TRANSITIONS[currentStatus]
 
 		if (!allowedNext.includes(newStatus)) {
-			throw new ActionError(`Cannot transition from ${currentStatus} to ${newStatus}`, "INVALID_CASE_STATUS_TRANSITION", 400);
+			throw new ActionError(
+				`Cannot transition from ${currentStatus} to ${newStatus}`,
+				'INVALID_CASE_STATUS_TRANSITION',
+				400,
+			)
 		}
 
 		// Fetch actor name for the log — labUser.role is not a name,
 		// so we pull the LabUser record for the display name
-		const actorName = await resolveActorName(labUser.id, labId);
+		const actorName = await resolveActorName(labUser.id, labId)
 
 		const [updatedCase] = await prisma.$transaction([
 			prisma.case.update({
 				where: { id: caseId, labId },
-				data: { status: newStatus, completedAt: newStatus === "COMPLETED" ? new Date() : null, deliveredAt: newStatus === "DELIVERED" ? new Date() : null },
+				data: {
+					status: newStatus,
+					completedAt: newStatus === 'COMPLETED' ? new Date() : null,
+					deliveredAt: newStatus === 'DELIVERED' ? new Date() : null,
+				},
 				select: { id: true, caseNumber: true, status: true },
 			}),
 			prisma.caseActivityLog.create({
@@ -150,64 +177,91 @@ export const updateCaseStatusAction = actionClientWithLab
 					labId,
 					actorId: labUser.id,
 					actorName,
-					type: "STATUS_CHANGED",
+					type: 'STATUS_CHANGED',
 					summary: `Status changed from ${currentStatus} to ${newStatus}`,
-					payload: { from: currentStatus, to: newStatus } as z.infer<typeof StatusChangedPayloadSchema>,
+					payload: { from: currentStatus, to: newStatus } as z.infer<
+						typeof StatusChangedPayloadSchema
+					>,
 				}),
 			}),
-		]);
+		])
 
-		return { updatedCase };
-	});
+		return { updatedCase }
+	})
 
 // ─────────────────────────────────────────────────────────────────────────────
 // 3. assignCaseStaffAction
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const assignCaseStaffAction = actionClientWithLab
-	.metadata({ actionName: "assignCaseStaff", requiredLabRole: "ADMIN" })
+	.metadata({ actionName: 'assignCaseStaff', requiredLabRole: 'ADMIN' })
 	.inputSchema(AssignCaseStaffSchema)
 	.action(async ({ ctx, parsedInput }) => {
-		const { labId, labUser } = ctx;
-		const { caseId, staffId, roleCategory, commissionType, commissionValue } = parsedInput;
+		const { labId, labUser } = ctx
+		const { caseId, staffId, roleCategory, commissionType, commissionValue } =
+			parsedInput
 
-		const prisma = await tenantPrisma(labId);
+		const prisma = await tenantPrisma(labId)
 
 		// Verify case ownership
-		const dentalCase = await requireCase(prisma, caseId, labId);
+		const dentalCase = await requireCase(prisma, caseId, labId)
 
-		if (dentalCase.status === "COMPLETED" || dentalCase.status === "DELIVERED" || dentalCase.status === "FAILED") {
-			throw new ActionError("Cannot assign staff to a case that is completed, delivered, or failed", "OPERATION_NOT_ALLOWED", 400);
+		if (
+			dentalCase.status === 'COMPLETED' ||
+			dentalCase.status === 'DELIVERED' ||
+			dentalCase.status === 'FAILED'
+		) {
+			throw new ActionError(
+				'Cannot assign staff to a case that is completed, delivered, or failed',
+				'OPERATION_NOT_ALLOWED',
+				400,
+			)
 		}
 
 		// Verify staff belongs to this lab — critical security check
 		// tenantPrisma injects labId but we verify explicitly for auditability
 		const staff = await prisma.labStaff.findUnique({
 			where: { id: staffId, labId },
-			select: { id: true, firstName: true, lastName: true, labId: true, isActive: true },
-		});
+			select: {
+				id: true,
+				firstName: true,
+				lastName: true,
+				labId: true,
+				isActive: true,
+			},
+		})
 
-		if (!staff) throw ERRORS.NOT_FOUND;
-		if (staff.labId !== labId) throw ERRORS.FORBIDDEN;
+		if (!staff) throw ERRORS.NOT_FOUND
+		if (staff.labId !== labId) throw ERRORS.FORBIDDEN
 		if (!staff.isActive) {
-			throw new ActionError("Cannot assign an inactive staff member", "OPERATION_NOT_ALLOWED", 400);
+			throw new ActionError(
+				'Cannot assign an inactive staff member',
+				'OPERATION_NOT_ALLOWED',
+				400,
+			)
 		}
 
 		// Check for duplicate assignment (same staff, same role on same case)
 		const existing = await prisma.caseStaffAssignment.findUnique({
 			where: { caseId_staffId: { caseId, staffId } },
 			select: { id: true },
-		});
+		})
 
 		if (existing) {
-			throw new ActionError("This staff member is already assigned to this case", "DUPLICATE_ENTRY", 409);
+			throw new ActionError(
+				'This staff member is already assigned to this case',
+				'DUPLICATE_ENTRY',
+				409,
+			)
 		}
 
 		// Fetch actor name for the log
-		const actorName = await resolveActorName(labUser.id, labId);
+		const actorName = await resolveActorName(labUser.id, labId)
 
 		// Determine next status: if assigning a technician and case is NEW → ASSIGNED
-		const shouldAutoAssign = dentalCase.status === "NEW" && (roleCategory === "TECHNICIAN" || roleCategory === "SENIOR_TECHNICIAN");
+		const shouldAutoAssign =
+			dentalCase.status === 'NEW' &&
+			(roleCategory === 'TECHNICIAN' || roleCategory === 'SENIOR_TECHNICIAN')
 
 		const [assignment] = await prisma.$transaction([
 			prisma.caseStaffAssignment.create({
@@ -232,7 +286,7 @@ export const assignCaseStaffAction = actionClientWithLab
 				? [
 						prisma.case.update({
 							where: { id: caseId, labId },
-							data: { status: "ASSIGNED" },
+							data: { status: 'ASSIGNED' },
 						}),
 					]
 				: []),
@@ -243,40 +297,48 @@ export const assignCaseStaffAction = actionClientWithLab
 					labId,
 					actorId: labUser.id,
 					actorName,
-					type: "STAFF_ASSIGNED",
-					summary: `${staff.firstName} ${staff.lastName} assigned as ${roleCategory.toLowerCase().replace(/_/g, " ")}`,
+					type: 'STAFF_ASSIGNED',
+					summary: `${staff.firstName} ${staff.lastName} assigned as ${roleCategory.toLowerCase().replace(/_/g, ' ')}`,
 					payload: {
 						staffId: staff.id,
 						staffName: `${staff.firstName} ${staff.lastName}`,
 						roleCategory,
-						...(shouldAutoAssign && { autoStatusChange: "NEW → ASSIGNED" }),
+						...(shouldAutoAssign && { autoStatusChange: 'NEW → ASSIGNED' }),
 					} as z.infer<typeof StaffAssignedPayloadSchema>,
 				}),
 			}),
-		]);
+		])
 
-		revalidatePath("/cases/[id]");
+		revalidatePath('/cases/[id]')
 
-		return { assignment };
-	});
+		return { assignment }
+	})
 
 // ─────────────────────────────────────────────────────────────────────────────
 // 4. removeCaseStaffAction
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const removeCaseStaffAction = actionClientWithLab
-	.metadata({ actionName: "removeCaseStaff", requiredLabRole: "ADMIN" })
+	.metadata({ actionName: 'removeCaseStaff', requiredLabRole: 'ADMIN' })
 	.inputSchema(RemoveCaseStaffSchema)
 	.action(async ({ ctx, parsedInput }) => {
-		const { labId, labUser } = ctx;
-		const { caseId, staffId } = parsedInput;
+		const { labId, labUser } = ctx
+		const { caseId, staffId } = parsedInput
 
-		const prisma = await tenantPrisma(labId);
-		const dentalCase = await requireCase(prisma, caseId, labId);
+		const prisma = await tenantPrisma(labId)
+		const dentalCase = await requireCase(prisma, caseId, labId)
 
 		// Cannot remove staff from terminal cases
-		if (dentalCase.status === "COMPLETED" || dentalCase.status === "DELIVERED" || dentalCase.status === "FAILED") {
-			throw new ActionError("Cannot modify staff on a completed, delivered, or failed case", "OPERATION_NOT_ALLOWED", 400);
+		if (
+			dentalCase.status === 'COMPLETED' ||
+			dentalCase.status === 'DELIVERED' ||
+			dentalCase.status === 'FAILED'
+		) {
+			throw new ActionError(
+				'Cannot modify staff on a completed, delivered, or failed case',
+				'OPERATION_NOT_ALLOWED',
+				400,
+			)
 		}
 
 		// Verify the assignment exists and belongs to this lab
@@ -288,23 +350,27 @@ export const removeCaseStaffAction = actionClientWithLab
 				labId: true,
 				staff: { select: { firstName: true, lastName: true } },
 			},
-		});
+		})
 
-		if (!assignment) throw ERRORS.NOT_FOUND;
-		if (assignment.labId !== labId) throw ERRORS.FORBIDDEN;
+		if (!assignment) throw ERRORS.NOT_FOUND
+		if (assignment.labId !== labId) throw ERRORS.FORBIDDEN
 
-		const actorName = await resolveActorName(labUser.id, labId);
+		const actorName = await resolveActorName(labUser.id, labId)
 
 		// After removal, check if any technician remains — if not, revert to NEW
 		const remainingTechCount = await prisma.caseStaffAssignment.count({
 			where: {
 				caseId,
 				staffId: { not: staffId }, // exclude the one we're removing
-				roleCategory: { in: ["TECHNICIAN", "SENIOR_TECHNICIAN"] },
+				roleCategory: { in: ['TECHNICIAN', 'SENIOR_TECHNICIAN'] },
 			},
-		});
+		})
 
-		const shouldRevertToNew = dentalCase.status === "ASSIGNED" && (assignment.roleCategory === "TECHNICIAN" || assignment.roleCategory === "SENIOR_TECHNICIAN") && remainingTechCount === 0;
+		const shouldRevertToNew =
+			dentalCase.status === 'ASSIGNED' &&
+			(assignment.roleCategory === 'TECHNICIAN' ||
+				assignment.roleCategory === 'SENIOR_TECHNICIAN') &&
+			remainingTechCount === 0
 
 		await prisma.$transaction([
 			prisma.caseStaffAssignment.delete({
@@ -316,7 +382,7 @@ export const removeCaseStaffAction = actionClientWithLab
 				? [
 						prisma.case.update({
 							where: { id: caseId, labId },
-							data: { status: "NEW" },
+							data: { status: 'NEW' },
 						}),
 					]
 				: []),
@@ -327,36 +393,39 @@ export const removeCaseStaffAction = actionClientWithLab
 					labId,
 					actorId: labUser.id,
 					actorName,
-					type: "STAFF_REMOVED",
+					type: 'STAFF_REMOVED',
 					summary: `${assignment.staff.firstName} ${assignment.staff.lastName} removed from case`,
 					payload: {
 						staffId,
 						staffName: `${assignment.staff.firstName} ${assignment.staff.lastName}`,
 						roleCategory: assignment.roleCategory,
-						...(shouldRevertToNew && { autoStatusChange: "ASSIGNED → NEW" }),
+						...(shouldRevertToNew && { autoStatusChange: 'ASSIGNED → NEW' }),
 					} as z.infer<typeof StaffRemovedPayloadSchema>,
 				}),
 			}),
-		]);
+		])
 
-		return { removed: true };
-	});
+		return { removed: true }
+	})
 
 // ─────────────────────────────────────────────────────────────────────────────
 // 5. addCaseAssetFilesAction
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const addCaseAssetFilesAction = actionClientWithLab
-	.metadata({ actionName: "Add-Case-Asset-Files-Action", requiredLabRole: "STAFF" })
+	.metadata({
+		actionName: 'Add-Case-Asset-Files-Action',
+		requiredLabRole: 'STAFF',
+	})
 	.inputSchema(AddCaseAssetFilesSchema)
 	.action(async ({ ctx, parsedInput }) => {
-		const { labId, labUser } = ctx;
-		const { caseId, files } = parsedInput;
+		const { labId, labUser } = ctx
+		const { caseId, files } = parsedInput
 
-		const prisma = await tenantPrisma(labId);
-		await requireCase(prisma, caseId, labId);
+		const prisma = await tenantPrisma(labId)
+		await requireCase(prisma, caseId, labId)
 
-		const actorName = await resolveActorName(labUser.id, labId);
+		const actorName = await resolveActorName(labUser.id, labId)
 
 		const [createdFiles] = await prisma.$transaction([
 			prisma.caseAssetFile.createManyAndReturn({
@@ -370,7 +439,12 @@ export const addCaseAssetFilesAction = actionClientWithLab
 					assetFileType: f.assetFileType,
 					fileExtension: f.fileExtension,
 				})),
-				select: { id: true, documentUrl: true, assetFileType: true, title: true },
+				select: {
+					id: true,
+					documentUrl: true,
+					assetFileType: true,
+					title: true,
+				},
 			}),
 
 			prisma.caseActivityLog.create({
@@ -379,8 +453,8 @@ export const addCaseAssetFilesAction = actionClientWithLab
 					labId,
 					actorId: labUser.id,
 					actorName,
-					type: "FILE_UPLOADED",
-					summary: `${files.length} file${files.length > 1 ? "s" : ""} uploaded`,
+					type: 'FILE_UPLOADED',
+					summary: `${files.length} file${files.length > 1 ? 's' : ''} uploaded`,
 					payload: {
 						count: files.length,
 						files: files.map((f) => ({
@@ -390,46 +464,55 @@ export const addCaseAssetFilesAction = actionClientWithLab
 					} as z.infer<typeof FileUploadedPayloadSchema>,
 				}),
 			}),
-		]);
+		])
 
-		return { createdFiles };
-	});
+		return { createdFiles }
+	})
 
 // ─────────────────────────────────────────────────────────────────────────────
 // 6. deleteCaseAssetFileAction
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const deleteCaseAssetFileAction = actionClientWithLab
-	.metadata({ actionName: "Delete-Case-Asset-Files-Action", requiredLabRole: "ADMIN" })
+	.metadata({
+		actionName: 'Delete-Case-Asset-Files-Action',
+		requiredLabRole: 'ADMIN',
+	})
 	.inputSchema(DeleteCaseAssetFileSchema)
 	.action(async ({ ctx, parsedInput }) => {
-		const { labId, labUser } = ctx;
-		const { caseId, fileId } = parsedInput;
+		const { labId, labUser } = ctx
+		const { caseId, fileId } = parsedInput
 
-		const prisma = await tenantPrisma(labId);
-		await requireCase(prisma, caseId, labId);
+		const prisma = await tenantPrisma(labId)
+		await requireCase(prisma, caseId, labId)
 
 		// Verify the file belongs to this case AND this lab
 		// This is the critical ownership check — prevents deleting another lab's files
 		const file = await prisma.caseAssetFile.findUnique({
 			where: { id: fileId },
-			select: { id: true, labId: true, dentalCaseId: true, title: true, assetFileType: true },
-		});
+			select: {
+				id: true,
+				labId: true,
+				dentalCaseId: true,
+				title: true,
+				assetFileType: true,
+			},
+		})
 
-		if (!file) throw ERRORS.FILE_NOT_FOUND;
-		if (file.labId !== labId) throw ERRORS.FORBIDDEN;
+		if (!file) throw ERRORS.FILE_NOT_FOUND
+		if (file.labId !== labId) throw ERRORS.FORBIDDEN
 		if (file.dentalCaseId !== caseId) {
 			// File exists but belongs to a different case — possible IDOR attempt
-			console.error("[Security] File-case mismatch on delete", {
+			console.error('[Security] File-case mismatch on delete', {
 				fileId,
 				fileCaseId: file.dentalCaseId,
 				requestedCaseId: caseId,
 				labId,
-			});
-			throw ERRORS.FORBIDDEN;
+			})
+			throw ERRORS.FORBIDDEN
 		}
 
-		const actorName = await resolveActorName(labUser.id, labId);
+		const actorName = await resolveActorName(labUser.id, labId)
 
 		await prisma.$transaction([
 			prisma.caseAssetFile.delete({
@@ -442,7 +525,7 @@ export const deleteCaseAssetFileAction = actionClientWithLab
 					labId,
 					actorId: labUser.id,
 					actorName,
-					type: "FILE_DELETED",
+					type: 'FILE_DELETED',
 					summary: `File "${file.title ?? file.assetFileType}" deleted`,
 					payload: {
 						fileId,
@@ -451,26 +534,29 @@ export const deleteCaseAssetFileAction = actionClientWithLab
 					} as z.infer<typeof FileDeletedPayloadSchema>,
 				}),
 			}),
-		]);
+		])
 
-		return { deleted: true };
-	});
+		return { deleted: true }
+	})
 
 // ─────────────────────────────────────────────────────────────────────────────
 // 7. updateCaseNotesAction
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const updateCaseNotesAction = actionClientWithLab
-	.metadata({ actionName: "Update-Case-Notes-Action", requiredLabRole: "STAFF" })
+	.metadata({
+		actionName: 'Update-Case-Notes-Action',
+		requiredLabRole: 'ADMIN',
+	})
 	.inputSchema(UpdateCaseNotesSchema)
 	.action(async ({ ctx, parsedInput }) => {
-		const { labId, labUser } = ctx;
-		const { caseId, notes } = parsedInput;
+		const { labId, labUser } = ctx
+		const { caseId, notes } = parsedInput
 
-		const prisma = await tenantPrisma(labId);
-		await requireCase(prisma, caseId, labId);
+		const prisma = await tenantPrisma(labId)
+		await requireCase(prisma, caseId, labId)
 
-		const actorName = await resolveActorName(labUser.id, labId);
+		const actorName = await resolveActorName(labUser.id, labId)
 
 		const [updatedCase] = await prisma.$transaction([
 			prisma.case.update({
@@ -485,17 +571,19 @@ export const updateCaseNotesAction = actionClientWithLab
 					labId,
 					actorId: labUser.id,
 					actorName,
-					type: "NOTE_ADDED",
-					summary: notes ? "Clinical notes updated" : "Clinical notes cleared",
+					type: 'NOTE_ADDED',
+					summary: notes ? 'Clinical notes updated' : 'Clinical notes cleared',
 					payload: {
 						// Don't store the full note content in the payload —
 						// notes can be long and are already on the Case record.
 						// Store a truncated preview only.
-						note: notes ? notes.slice(0, 100) + (notes.length > 100 ? "…" : "") : null,
+						note: notes
+							? notes.slice(0, 100) + (notes.length > 100 ? '…' : '')
+							: null,
 					} as z.infer<typeof NoteAddedPayloadSchema>,
 				}),
 			}),
-		]);
+		])
 
-		return { updatedCase };
-	});
+		return { updatedCase }
+	})

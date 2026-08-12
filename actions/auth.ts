@@ -14,7 +14,6 @@ import { ActionError, ERROR_CODES, ERRORS } from '@/lib/errors'
 export const signInAction = actionClient
 	.metadata({
 		actionName: 'Sign-In-Action',
-		requiredLabRole: null,
 	})
 	.inputSchema(SignInUserInputSchema)
 	.action(async ({ ctx, parsedInput }) => {
@@ -53,7 +52,6 @@ export const signInAction = actionClient
 export const signUpAction = actionClient
 	.metadata({
 		actionName: 'Sign-Up-Action',
-		requiredLabRole: null,
 	})
 	.inputSchema(SignUpUserInputSchema)
 	.action(async ({ ctx, parsedInput }) => {

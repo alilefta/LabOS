@@ -22,7 +22,7 @@ import z from 'zod/v3'
 export const createDentalCaseAction = actionClientWithLab
 	.metadata({
 		actionName: 'Create-New-Dental-Case-Action',
-		requiredLabRole: null,
+		requiredLabRole: 'ADMIN',
 	})
 	.inputSchema(CreateCaseInputSchema)
 	.action(async ({ parsedInput, ctx }) => {
@@ -618,7 +618,7 @@ export const createDentalCaseAction = actionClientWithLab
 export const saveDraftCaseAction = actionClientWithLab
 	.metadata({
 		actionName: 'Save-Draft-Case-Action',
-		requiredLabRole: null, // any lab member can save a draft
+		requiredLabRole: 'ADMIN', // any lab member can save a draft
 	})
 	.inputSchema(SaveDraftCaseInputSchema)
 	.action(async ({ parsedInput, ctx }) => {
@@ -1005,7 +1005,7 @@ export const saveDraftCaseAction = actionClientWithLab
 export const getRecentDraftsAction = actionClientWithLab
 	.metadata({
 		actionName: 'Get-Recent-Drafts-Action',
-		requiredLabRole: null,
+		requiredLabRole: 'ADMIN',
 	})
 	.inputSchema(z.object({ limit: z.number().min(1).max(20).default(5) }))
 	.action(async ({ parsedInput, ctx }) => {
@@ -1095,7 +1095,7 @@ export const getRecentDraftsAction = actionClientWithLab
 export const getDraftByPatientAction = actionClientWithLab
 	.metadata({
 		actionName: 'Get-Draft-By-Patient-Action',
-		requiredLabRole: null,
+		requiredLabRole: 'ADMIN',
 	})
 	.inputSchema(z.object({ patientId: z.string().min(1) }))
 	.action(async ({ parsedInput, ctx }) => {
@@ -1151,7 +1151,7 @@ export const getDraftByPatientAction = actionClientWithLab
 export const loadDraftByIdAction = actionClientWithLab
 	.metadata({
 		actionName: 'Load-Draft-By-Id-Action',
-		requiredLabRole: null,
+		requiredLabRole: 'ADMIN',
 	})
 	.inputSchema(z.object({ draftId: z.string().min(1) }))
 	.action(async ({ parsedInput, ctx }) => {
