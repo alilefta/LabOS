@@ -9,6 +9,7 @@ This folder holds durable project-control records. Live ticket status belongs on
 | Architecture and module contracts | `notes/architecture/platform-architecture-plan.md` and `platform-modules/` |
 | Work status, owner, priority, blockers | Trello/project board |
 | Milestone exit gates | `milestones.md` |
+| Current Authorization V1 delivery plan | `authorization-v1-rbac-plan.md` |
 | Program risks | `risk-register.md` |
 | Sprint goal/review/retrospective | `sprints/YYYY-SNN.md` |
 | Architecture decisions | ADR section in the platform plan, later individual ADR files if detail grows |
