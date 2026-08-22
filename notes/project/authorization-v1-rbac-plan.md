@@ -29,12 +29,14 @@ Routes, pages, readers, services, file access, and UI-only checks still require 
 4. Server enforcement precedes UI changes.
 5. M4 deletes no legacy authorization file or schema field.
 6. No migration is expected. If one becomes necessary, stop and request explicit approval.
+7. The reusable kernel contains Organization identity only; `labId`, `staffId`, and domain facts stay in the LabOS adapter.
+8. Better Auth-owned Organization mutations require both LabOS V1 and Better Auth authorization.
 
 ## Branch sequence
 
 ### 1. `feat/platform-authorization-core`
 
-Scope: permission constants/types, role normalization, explicit bundles, default-deny service, errors, monitoring, and unit tests. No behavior cutover.
+Scope: domain-independent kernel, trusted permission definitions, role normalization, explicit bundles, default-deny service, errors, monitoring, and unit tests. No behavior cutover.
 
 Suggested commits:
 
@@ -47,17 +49,22 @@ Exit:
 
 - [ ] Matrix approved and completely tested.
 - [ ] Unknown roles grant nothing.
+- [ ] Kernel contracts contain no `labId`, `staffId`, Prisma, or LabOS types.
+- [ ] `member → staff` exists only as measured temporary compatibility.
 - [ ] Role-only decisions require no database query.
 - [ ] No consumer behavior changes.
 
 ### 2. `feat/platform-authorization-adapters`
 
-Scope: resource-policy registry, safe-action/route/UI adapters, correlation IDs, shadow evaluation, and architecture guard.
+Scope: typed target resolvers/fact loaders, fail-closed policy registry, safe-action/route/UI adapters, correlation IDs, shadow evaluation, and architecture guard.
 
 Exit:
 
 - [ ] Middleware follows verified tenant resolution.
 - [ ] Tenant mismatch denies before domain policy.
+- [ ] Permission definitions—not callers—require resources and policies.
+- [ ] Missing required target resolver or policy denies with high-severity telemetry.
+- [ ] Policy composition requires every policy to allow.
 - [ ] Denial prevents handler execution.
 - [ ] Public/session-only actions remain distinct.
 - [ ] New legacy gates fail an architecture test.
@@ -66,12 +73,14 @@ Exit:
 
 Scope: enforce `staff.access.invite`, `staff.access.revoke`, `membership.read`, `membership.role.update`, and `membership.remove`.
 
-Policies: same Organization/Lab, only owner affects owner, last-owner invariant, explicit self-target behavior, and valid staff-member linkage.
+Policies: same Organization/Lab, only owner affects owner, last-owner invariant, explicit self-target behavior, and valid staff-member linkage. Last-owner and ownership-role facts are revalidated with concurrency-safe mutation handling.
 
 Exit:
 
 - [ ] Invitation, role change, revocation, and staff linkage use V1.
 - [ ] Two-Organization, owner, last-owner, and self-target tests pass.
+- [ ] Concurrent owner removal/demotion cannot produce zero owners.
+- [ ] LabOS and Better Auth role/API authorization compatibility tests pass.
 - [ ] High-risk events are audit-ready.
 
 ### 4. `feat/platform-authorization-financials`
@@ -104,7 +113,7 @@ Exit:
 
 - [ ] All 131 baseline declarations are migrated or classified public/session-only.
 - [ ] Non-action boundaries are protected.
-- [ ] Shadow divergence is zero or approved.
+- [ ] Both divergence directions are classified and every privilege expansion is approved.
 - [ ] Role hierarchy, compatibility mapping, and obsolete access control have zero runtime consumers.
 - [ ] Legacy artifacts remain for M5 removal.
 
@@ -113,24 +122,26 @@ Exit:
 ### Inventory and design
 
 - [ ] Generate a machine-readable server-boundary inventory.
-- [ ] Assign permission, resource type/ID source, policy, sensitivity, and owner.
+- [ ] Assign permission, trusted scope, target type/ID source, required policies, sensitivity, and owner.
 - [ ] Record intentional behavior changes for approval.
 - [ ] Review the role matrix with product/security stakeholders.
 
 ### Kernel and policies
 
 - [ ] Implement literal permissions and immutable role bundles.
-- [ ] Normalize multiple/unknown Better Auth roles safely.
-- [ ] Implement typed decisions, errors, `can`, `require`, and capabilities.
-- [ ] Implement tenant, assigned-Case, Staff-target, membership/owner, financial, and draft-state policies.
-- [ ] Document transaction-time revalidation for mutable facts.
+- [ ] Normalize multiple/unknown Better Auth roles safely and isolate temporary `member` compatibility.
+- [ ] Implement typed decisions, errors, `can`, `require`, and non-authoritative `roleCapabilities`.
+- [ ] Implement a trusted permission-definition and required-policy registry.
+- [ ] Implement identifier-only targets plus typed target resolvers and policy-owned fact loaders.
+- [ ] Implement Organization boundary, assigned-Case, Staff-target, membership/owner, financial, and draft-state policies.
+- [ ] Require transaction-time revalidation for critical mutable invariants.
 
 ### Adapters and cutover
 
 - [ ] Add permission-aware safe-action middleware.
 - [ ] Add route and UI adapters.
 - [ ] Freeze the legacy baseline in an architecture test.
-- [ ] Add shadow comparison and divergence telemetry.
+- [ ] Add separate `LEGACY_ALLOW_V1_DENY` and `LEGACY_DENY_V1_ALLOW` telemetry.
 - [ ] Migrate membership, finance, operations, then remaining reads/settings.
 - [ ] Prove zero legacy runtime consumers without deleting files.
 
@@ -140,6 +151,9 @@ Exit:
 - [ ] Two-Organization and cross-linked-resource tests.
 - [ ] Assigned/unassigned/inactive Staff tests.
 - [ ] Owner/last-owner/self-target tests.
+- [ ] Concurrent owner mutation tests.
+- [ ] Better Auth dual-authorization compatibility tests.
+- [ ] Missing permission definition/target resolver/policy registration fail-closed tests.
 - [ ] Adapter short-circuit and role-change tests.
 - [ ] Redaction tests for patient, invitation, credential, and financial data.
 - [ ] Outcome, denial, unknown-role, tenant-mismatch, divergence, and latency metrics.
@@ -150,7 +164,7 @@ Exit:
 | Checkpoint | Evidence | Rollback |
 |---|---|---|
 | Core | Unit tests; no consumers | Remove unused integration |
-| Shadow | Divergence by action/role | Disable shadow evaluation |
+| Shadow | Both divergence directions by action/role; privilege expansions reviewed | Disable shadow evaluation |
 | Membership | Isolation/owner tests | Restore legacy membership slice |
 | Financial | Policy/redaction tests | Restore legacy financial slice |
 | Operations | Assignment/tenant tests | Restore legacy operation group |
@@ -164,9 +178,12 @@ Rollback must never disable both V1 and legacy enforcement.
 |---|---|
 | Hierarchy reintroduced | Explicit sets and full matrix tests |
 | Malformed roles | Known-role normalization; empty set denies |
+| Default `member` silently grants Staff | Isolated measured compatibility mapping with removal gate |
 | UI treated as security | Mandatory server enforcement |
 | IDOR/cross-tenant IDs | Tenant policy plus tenant-scoped mutations |
-| Authorization/mutation race | Transactional fact revalidation where practical |
+| Missing policy registration | Fail closed plus high-severity telemetry |
+| Authorization/mutation race | Mandatory atomic revalidation for critical invariants |
+| Better Auth/product policy mismatch | Dual-allow rule and configuration compatibility tests |
 | Policy query overhead | Minimal projections, request reuse, latency metrics |
 | Sensitive logging | Allowlisted event schema and redaction tests |
 | Big-bang regression | Vertical branches, shadow mode, per-slice rollback |
@@ -178,7 +195,7 @@ Rollback must never disable both V1 and legacy enforcement.
 - [ ] Every protected server boundary inventoried.
 - [ ] All covered operations use the central evaluator.
 - [ ] Policy, isolation, and redaction suites pass.
-- [ ] Divergence is zero or explicitly approved.
+- [ ] Both divergence directions are measured; privilege expansions and intentional differences are approved.
 - [ ] Monitoring is operational.
 - [ ] No runtime code depends on hierarchy or UI-only authorization.
 - [ ] Legacy artifacts are preserved for M5.
