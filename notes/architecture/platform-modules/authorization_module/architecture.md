@@ -1,6 +1,6 @@
 # Authorization V1 and RBAC architecture
 
-**Status:** Proposed for implementation
+**Status:** Implementation in progress — kernel complete, adapters pending
 **Milestone:** M4 — Authorization V1
 **Style:** Fixed-role RBAC plus tenant-aware resource policies
 **Reviewed:** 2026-08-22
@@ -253,9 +253,9 @@ This matrix remains private to the policy module and is exposed through an evalu
 
 ## Error and monitoring contract
 
-Internal reasons are `AUTHZ_ACTOR_INVALID`, `AUTHZ_ROLE_UNRECOGNIZED`, `AUTHZ_PERMISSION_NOT_GRANTED`, `AUTHZ_PERMISSION_DEFINITION_MISSING`, `AUTHZ_RESOURCE_REQUIRED`, `AUTHZ_TARGET_RESOLVER_MISSING`, `AUTHZ_TENANT_MISMATCH`, `AUTHZ_POLICY_NOT_REGISTERED`, `AUTHZ_POLICY_DENIED`, `AUTHZ_POLICY_FACT_MISSING`, `AUTHZ_POLICY_FAILED`, and `AUTHZ_OWNER_INVARIANT`.
+Internal reasons are `AUTHZ_ACTOR_INVALID`, `AUTHZ_ROLE_UNRECOGNIZED`, `AUTHZ_PERMISSION_NOT_GRANTED`, `AUTHZ_PERMISSION_DEFINITION_MISSING`, `AUTHZ_RESOURCE_REQUIRED`, `AUTHZ_RESOURCE_UNEXPECTED`, `AUTHZ_TARGET_TYPE_MISMATCH`, `AUTHZ_TARGET_RESOLVER_MISSING`, `AUTHZ_TARGET_NOT_FOUND`, `AUTHZ_TARGET_RESOLUTION_FAILED`, `AUTHZ_TENANT_MISMATCH`, `AUTHZ_POLICY_NOT_REGISTERED`, `AUTHZ_POLICY_DENIED`, `AUTHZ_POLICY_FACT_MISSING`, `AUTHZ_POLICY_FAILED`, and `AUTHZ_OWNER_INVARIANT`.
 
-Emit `platform.authorization.decision` with outcome, reason, permission, normalized roles, Organization ID, target type, correlation ID, and duration. The LabOS adapter may add Lab ID as integration telemetry, not as a kernel field. Never record resource payloads, patient data, invitation tokens, credentials, financial amounts, or free-form input.
+Emit `platform.authorization.decision` with outcome, severity, reason, permission, normalized roles, unknown-role count, Organization ID, target type, correlation ID, and duration. Missing trusted definitions/resolvers/policies and resolver/policy failures are high severity. The LabOS adapter may add Lab ID as integration telemetry, not as a kernel field. Never record target IDs, user/member IDs, resource payloads, patient data, invitation tokens, credentials, financial amounts, provider errors, or free-form input.
 
 Shadow divergence has separate categories: `LEGACY_ALLOW_V1_DENY` and the higher-risk `LEGACY_DENY_V1_ALLOW`. Every privilege expansion requires explicit review before enforcement. Approved differences are recorded; zero divergence is not required when removing the old hierarchy is intentional.
 

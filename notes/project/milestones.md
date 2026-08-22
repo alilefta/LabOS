@@ -8,7 +8,7 @@ Status values: `Not started`, `Discovery`, `In progress`, `At risk`, `Complete`.
 | M1 | Organization foundation | Unassigned | In progress | Medium | TBD | [x] schema [x] idempotent service [x] new-onboarding cutover [ ] deterministic backfill [ ] reconciliation [ ] login regression tests |
 | M2 | Tenant-context cutover | Unassigned | In progress | High | TBD | [x] canonical resolver [x] safe-action middleware [x] main layout guard [x] direct page/data consumers [ ] multi-org switching [ ] cache isolation verification |
 | M3 | Membership replacement | Unassigned | In progress | High | TBD | [x] onboarding [x] staff schema migrated [x] guarded link service [x] tenant-context staff identity [x] invitation code/tests [x] intent migration [x] membership revocation [x] legacy writes stopped [ ] email delivery [ ] legacy reconciliation |
-| M4 | Authorization V1 | Unassigned | Discovery | Medium | TBD | [ ] vocabulary approved [ ] bundles tested [ ] service default-deny [ ] policies verified [ ] 131 action gates plus non-action boundaries migrated [ ] telemetry operational |
+| M4 | Authorization V1 | Unassigned | In progress | Medium | TBD | [x] vocabulary approved [x] bundles tested [x] service default-deny [ ] policies verified [ ] 131 action gates plus non-action boundaries migrated [ ] telemetry operational |
 | M5 | Legacy removal | Unassigned | Not started | Low | TBD | [ ] zero fallback window [ ] rehearsal [ ] backup [ ] obsolete schema removal |
 | M6 | Events and audit | Unassigned | Not started | Low | TBD | [ ] outbox [ ] worker [ ] audit [ ] Case Activity parity |
 | M7 | Workflow V1 | Unassigned | Not started | Low | TBD | [ ] versioned engine [ ] Case adapter [ ] concurrency [ ] reconciliation |

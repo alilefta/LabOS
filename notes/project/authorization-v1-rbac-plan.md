@@ -49,12 +49,12 @@ Suggested commits:
 
 Exit:
 
-- [ ] Matrix approved and completely tested.
-- [ ] Unknown roles grant nothing.
-- [ ] Kernel contracts contain no `labId`, `staffId`, Prisma, or LabOS types.
+- [x] Matrix approved and completely tested.
+- [x] Unknown roles grant nothing.
+- [x] Kernel contracts contain no `labId`, `staffId`, Prisma, or LabOS types.
 - [ ] `member → staff` exists only as measured temporary compatibility.
-- [ ] Role-only decisions require no database query.
-- [ ] No consumer behavior changes.
+- [x] Role-only decisions require no database query.
+- [x] No consumer behavior changes.
 
 ### 2. `feat/platform-authorization-adapters`
 
@@ -130,10 +130,10 @@ Exit:
 
 ### Kernel and policies
 
-- [ ] Implement literal permissions and immutable role bundles.
-- [ ] Normalize multiple/unknown Better Auth roles safely and isolate temporary `member` compatibility.
-- [ ] Implement typed decisions, errors, `can`, `require`, and non-authoritative `roleCapabilities`.
-- [ ] Implement a trusted permission-definition and required-policy registry.
+- [x] Implement literal permissions and immutable role bundles.
+- [x] Normalize multiple/unknown Better Auth roles safely; temporary `member` compatibility remains outside the kernel.
+- [x] Implement typed decisions, errors, `can`, `require`, and non-authoritative `roleCapabilities`.
+- [x] Implement a trusted permission-definition and required-policy registry.
 - [ ] Implement identifier-only targets plus typed target resolvers and policy-owned fact loaders.
 - [ ] Implement Organization boundary, assigned-Case, Staff-target, membership/owner, role-assignment ceiling, financial, and draft-state policies.
 - [ ] Require transaction-time revalidation for critical mutable invariants.
@@ -149,17 +149,19 @@ Exit:
 
 ### Verification and monitoring
 
-- [ ] Full bundle/normalization/default-deny tests.
+- [x] Full bundle/normalization/default-deny tests.
 - [ ] Two-Organization and cross-linked-resource tests.
 - [ ] Assigned/unassigned/inactive Staff tests.
 - [ ] Owner/last-owner/self-target tests.
 - [ ] Concurrent owner mutation tests.
 - [ ] Better Auth dual-authorization compatibility tests.
-- [ ] Missing permission definition/target resolver/policy registration fail-closed tests.
+- [x] Missing permission definition/target resolver/policy registration fail-closed tests.
 - [ ] Adapter short-circuit and role-change tests.
 - [ ] Redaction tests for patient, invitation, credential, and financial data.
 - [ ] Outcome, denial, unknown-role, tenant-mismatch, divergence, and latency metrics.
 - [ ] Temporary operational dashboard before broad enforcement.
+
+Current validation note: the authorization test/lint scope is green. Repository-wide `tsc --noEmit` remains blocked by the previously documented Decimal DTO and missing Case work-item `addons` mismatches outside Authorization V1; no current compiler error originates under `platform/authorization`, `modules/labos-authorization`, or their tests.
 
 ## Rollout and rollback
 
