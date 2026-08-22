@@ -1,146 +1,74 @@
 'use server'
 
-import { auth } from '@/lib/auth'
 import { ERRORS } from '@/lib/errors'
-import { generalPrisma } from '@/lib/prisma'
 import { actionClientWithSession } from '@/lib/safe-action'
-import { CreateLabAndLabUserInputSchema } from '@/schema/composed/lab.details'
-import { APIError } from 'better-auth'
-import { headers } from 'next/headers'
+import {
+	onboardCurrentUserOrganizationAndLab,
+	ORGANIZATION_ONBOARDING_ERROR_CODES,
+	OrganizationOnboardingError,
+} from '@/platform/organizations'
+import { CreateLabWorkspaceInputSchema } from '@/schema/composed/lab.details'
 
-export const createLabAndLabUser = actionClientWithSession
+function mapOnboardingError(error: OrganizationOnboardingError): never {
+	switch (error.code) {
+		case ORGANIZATION_ONBOARDING_ERROR_CODES.UNAUTHENTICATED:
+			throw ERRORS.UNAUTHORIZED
+		case ORGANIZATION_ONBOARDING_ERROR_CODES.SLUG_CONFLICT:
+			throw ERRORS.LAB_SLUG_TAKEN
+		default:
+			// Provider/database causes remain server-side. Safe actions return a
+			// stable generic failure instead of leaking provisioning internals.
+			throw ERRORS.INTERNAL_SERVER_ERROR
+	}
+}
+
+/**
+ * Creates or resumes the current user's Organization-backed LabOS workspace.
+ *
+ * New onboarding intentionally creates no legacy LabUser/LabStaff record and
+ * never writes AuthUser.labId. Better Auth creates the owner Member, while the
+ * platform service creates the linked Lab and default LabSettings, selects the
+ * active Organization, and handles idempotent retries.
+ */
+export const createLabWorkspace = actionClientWithSession
 	.metadata({
-		actionName: 'Create-Lab-And-Lab-User',
-		requiredLabRole: 'STAFF',
+		actionName: 'Create-Lab-Workspace',
+		requiredLabRole: null,
 	})
-	.inputSchema(CreateLabAndLabUserInputSchema)
-	.action(async ({ parsedInput, ctx }) => {
-		const { lab, labUser } = parsedInput
-
-		const { user } = ctx
-
-		if (user.labId) {
-			const existing = await generalPrisma.lab.findUnique({
-				where: { id: user.labId },
-			})
-			if (existing) throw ERRORS.LAB_ALREADY_EXISTS
-		}
-
-		// Split the Better-Auth name into First/Last for LabStaff
-		const nameParts = user.name.split(' ')
-		const firstName = nameParts[0] || 'Owner'
-		const lastName = nameParts.slice(1).join(' ') || 'Member'
-
-		// Maybe there is a lab user but the lab ID is not set to the auth user yet
-		const labUserEntity = await generalPrisma.labUser.findFirst({
-			where: {
-				authUserId: user.id,
-			},
-			include: {
-				lab: true,
-			},
-		})
-
-		// If it exists, sync Better-Auth and return early
-		if (labUserEntity?.labId) {
-			await auth.api.updateUser({
-				body: {
-					labId: labUserEntity.labId,
-				},
-				headers: await headers(),
-			})
-
-			return {
-				alreadyExists: true,
-				lab: labUserEntity.lab,
-				labUser: labUserEntity,
-			}
-		}
-
+	.inputSchema(CreateLabWorkspaceInputSchema)
+	.action(async ({ parsedInput }) => {
 		try {
-			// THE MASTER TRANSACTION
-			const results = await generalPrisma.$transaction(async (tx) => {
-				// A. Create the Lab AND its isolated configuration settings
-				const createdLab = await tx.lab.create({
-					data: {
-						title: lab.title,
-						subtitle: lab.subtitle,
-						slug: lab.slug,
-						brandAvatarUrl: lab.brandAvatarUrl,
-
-						// 🔥 NEW: Instantly generate default settings for the new tenant
-						settings: {
-							create: {
-								currency: 'IQD', // Defaulting to Iraqi Dinar for MENA market
-								language: 'EN', // UI Language
-								timezone: 'Asia/Baghdad', // Default timezone
-								taxRatePercentage: 0,
-								invoicePrefix: 'INV-', // Standard prefix
-							},
-						},
-					},
-					select: {
-						id: true,
-						title: true,
-					},
-				})
-
-				// B. Create the Human Resource (LabStaff)
-				// This holds the physical address and phone from the form
-				const ownerStaffRecord = await tx.labStaff.create({
-					data: {
-						labId: createdLab.id,
-						firstName,
-						lastName,
-						phoneNumber: labUser.phoneNumber,
-						avatarUrl: user.image ?? lab.brandAvatarUrl,
-						city: labUser.city,
-						address1: labUser.address1,
-						address2: labUser.address2,
-						zipcode: labUser.zipcode,
-						roleCategory: 'MANAGER', // Owners act as Managers operationally on the floor
-						commissionType: 'PERCENTAGE',
-						commissionValue: 0,
-					},
-					select: {
-						id: true,
-					},
-				})
-
-				// C. Create the System Seat (LabUser)
-				// Linked to BOTH the human record and the auth account
-				const createdLabUser = await tx.labUser.create({
-					data: {
-						labId: createdLab.id,
-						authUserId: user.id,
-						labStaffId: ownerStaffRecord.id, // THE LINK
-						role: 'OWNER', // Permissions role
-						isAccountOwner: true, // 🔥 NEW: Flags them as the ultimate billing authority
-					},
-					select: {
-						id: true,
-					},
-				})
-
-				return { createdLab, createdLabUser }
-			})
-
-			// Sync the newly created Lab ID back to the Better-Auth session
-			await auth.api.updateUser({
-				body: {
-					labId: results.createdLab.id,
+			const result = await onboardCurrentUserOrganizationAndLab({
+				organization: {
+					name: parsedInput.lab.title,
+					slug: parsedInput.lab.slug,
+					logo: parsedInput.lab.brandAvatarUrl,
 				},
-				headers: await headers(),
+				lab: {
+					title: parsedInput.lab.title,
+					slug: parsedInput.lab.slug,
+					brandAvatarUrl: parsedInput.lab.brandAvatarUrl,
+					subtitle: parsedInput.lab.subtitle,
+				},
 			})
 
 			return {
-				lab: results.createdLab,
-				alreadyExists: false,
+				alreadyExists: result.status === 'existing',
+				status: result.status,
+				organizationId: result.organization.id,
+				lab: result.lab,
 			}
-		} catch (e) {
-			if (e instanceof APIError || e instanceof Error) {
-				console.error('[Sign-Up-Action] Error', e.message)
+		} catch (error) {
+			if (error instanceof OrganizationOnboardingError) {
+				mapOnboardingError(error)
 			}
-			throw e
+
+			throw error
 		}
 	})
+
+/**
+ * @deprecated Use `createLabWorkspace`. Kept temporarily so external callers
+ * do not break while the onboarding name is migrated.
+ */
+export const createLabAndLabUser = createLabWorkspace

@@ -5,7 +5,9 @@ import { BoolWithAggregatesFilterObjectSchema as BoolWithAggregatesFilterObjectS
 import { StringNullableWithAggregatesFilterObjectSchema as StringNullableWithAggregatesFilterObjectSchema } from './StringNullableWithAggregatesFilter.schema';
 import { DateTimeWithAggregatesFilterObjectSchema as DateTimeWithAggregatesFilterObjectSchema } from './DateTimeWithAggregatesFilter.schema';
 import { EnumAuthUserRoleWithAggregatesFilterObjectSchema as EnumAuthUserRoleWithAggregatesFilterObjectSchema } from './EnumAuthUserRoleWithAggregatesFilter.schema';
-import { AuthUserRoleSchema } from '../enums/AuthUserRole.schema'
+import { AuthUserRoleSchema } from '../enums/AuthUserRole.schema';
+import { BoolNullableWithAggregatesFilterObjectSchema as BoolNullableWithAggregatesFilterObjectSchema } from './BoolNullableWithAggregatesFilter.schema';
+import { DateTimeNullableWithAggregatesFilterObjectSchema as DateTimeNullableWithAggregatesFilterObjectSchema } from './DateTimeNullableWithAggregatesFilter.schema'
 
 const authuserscalarwherewithaggregatesinputSchema = z.object({
   AND: z.union([z.lazy(() => AuthUserScalarWhereWithAggregatesInputObjectSchema), z.lazy(() => AuthUserScalarWhereWithAggregatesInputObjectSchema).array()]).optional(),
@@ -19,7 +21,10 @@ const authuserscalarwherewithaggregatesinputSchema = z.object({
   createdAt: z.union([z.lazy(() => DateTimeWithAggregatesFilterObjectSchema), z.coerce.date()]).optional(),
   updatedAt: z.union([z.lazy(() => DateTimeWithAggregatesFilterObjectSchema), z.coerce.date()]).optional(),
   role: z.union([z.lazy(() => EnumAuthUserRoleWithAggregatesFilterObjectSchema), AuthUserRoleSchema]).optional(),
-  labId: z.union([z.lazy(() => StringNullableWithAggregatesFilterObjectSchema), z.string()]).optional().nullable()
+  labId: z.union([z.lazy(() => StringNullableWithAggregatesFilterObjectSchema), z.string()]).optional().nullable(),
+  banned: z.union([z.lazy(() => BoolNullableWithAggregatesFilterObjectSchema), z.boolean()]).optional().nullable(),
+  banReason: z.union([z.lazy(() => StringNullableWithAggregatesFilterObjectSchema), z.string()]).optional().nullable(),
+  banExpires: z.union([z.lazy(() => DateTimeNullableWithAggregatesFilterObjectSchema), z.coerce.date()]).optional().nullable()
 }).strict();
 export const AuthUserScalarWhereWithAggregatesInputObjectSchema: z.ZodType<Prisma.AuthUserScalarWhereWithAggregatesInput> = authuserscalarwherewithaggregatesinputSchema as unknown as z.ZodType<Prisma.AuthUserScalarWhereWithAggregatesInput>;
 export const AuthUserScalarWhereWithAggregatesInputObjectZodSchema = authuserscalarwherewithaggregatesinputSchema;

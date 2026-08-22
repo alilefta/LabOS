@@ -1,11 +1,9 @@
 // app/(main)/catalog/page.tsx
 
-import { redirect, notFound } from 'next/navigation'
+import { redirect } from 'next/navigation'
 import { Layers } from 'lucide-react'
 import { z } from 'zod'
 
-import { getServerSession } from '@/lib/get-session'
-import { getCurrentLabUserRoleByAuthUserId } from '@/data/lab'
 
 // Data Access (Tree Only!) [3]
 import { getCatalogTree } from '@/data/catalog/get-catalog'
@@ -19,6 +17,8 @@ import { CatalogProductDTO } from '@/schema/composed/catalog/catalog.dtos'
 import { getProductsByWorkTypeAction } from '@/actions/catalog/get-products'
 import { QueryHydrationBoundary } from '@/providers/query-hydration-boundary'
 import { dehydrate } from '@tanstack/react-query'
+import { requireTenantContext } from '@/platform/organizations/tenant-context'
+import { toLegacyLabRole } from '@/platform/organizations/legacy-role-compatibility'
 
 export const metadata = {
 	title: 'Catalog & Pricing Matrix | LabOS',
@@ -36,18 +36,13 @@ export default async function CatalogPage({
 	searchParams: Promise<{ workTypeId?: string }>
 }) {
 	// --- 1. SECURITY & TENANT ---
-	const session = await getServerSession()
-	if (!session) redirect('/sign-in')
-
-	const labUser = await getCurrentLabUserRoleByAuthUserId()
-	if (!labUser) redirect('/onboarding')
-
-	if (labUser.role !== 'OWNER' && labUser.role !== 'MANAGER') {
+	const tenant = await requireTenantContext()
+	const legacyRole = toLegacyLabRole(tenant.memberRole)
+	if (legacyRole !== 'OWNER' && legacyRole !== 'MANAGER') {
 		redirect('/dashboard?error=unauthorized_catalog')
 	}
 
-	const labId = session.user.labId
-	if (!labId) redirect('/onboarding')
+	const { labId } = tenant
 
 	// --- 2. PARAM RESOLUTION ---
 	const params = await searchParams

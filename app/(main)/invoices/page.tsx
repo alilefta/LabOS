@@ -1,7 +1,5 @@
-import { redirect } from "next/navigation";
 import { Plus, Receipt, FileDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { getServerSession } from "@/lib/get-session";
 import { AmbientBgGlow } from "@/components/ui/ui-utils/animated-ambient-bg-glow";
 import { UninvoicedClinicsQuickBar } from "@/components/invoices/invoices-page/uninvoiced-clinics-quick-bar";
 import { InvoicesDashboardClient } from "@/components/invoices/invoices-page/invoices-dashboard-client";
@@ -19,6 +17,7 @@ import { getArRiskClinicsAction } from "@/actions/invoices/get-risk-clinics";
 import { getUninvoicedClinicsSummary } from "@/data/invoices/get-invoices";
 import Link from "next/link";
 import { SyncLedgerButton } from "@/components/invoices/invoices-page/sync-ledge-button";
+import { requireTenantContext } from "@/platform/organizations/tenant-context";
 
 export const metadata = {
 	title: "Accounts Receivable | LabOS",
@@ -26,11 +25,7 @@ export const metadata = {
 
 export default async function InvoicesDashboardPage({ searchParams }: { searchParams: Promise<{ period?: string }> }) {
 	const queryClient = getQueryClient();
-	const session = await getServerSession();
-	if (!session) redirect("/sign-in");
-
-	const labId = session.user.labId;
-	if (!labId) redirect("/onboarding");
+	const { labId } = await requireTenantContext();
 
 	const { period } = await searchParams;
 	const parsedPeriod = GlobalTimeFramePeriodSchema.safeParse(period);

@@ -4,6 +4,8 @@ import { StaffRoleCategorySchema } from '../enums/StaffRoleCategory.schema';
 import { CommissionTypeSchema } from '../enums/CommissionType.schema';
 import { LabStaffCreateworkingDaysInputObjectSchema as LabStaffCreateworkingDaysInputObjectSchema } from './LabStaffCreateworkingDaysInput.schema';
 import { WeekdaySchema } from '../enums/Weekday.schema';
+import { MemberCreateNestedOneWithoutLabStaffInputObjectSchema as MemberCreateNestedOneWithoutLabStaffInputObjectSchema } from './MemberCreateNestedOneWithoutLabStaffInput.schema';
+import { LabStaffInvitationIntentCreateNestedOneWithoutLabStaffInputObjectSchema as LabStaffInvitationIntentCreateNestedOneWithoutLabStaffInputObjectSchema } from './LabStaffInvitationIntentCreateNestedOneWithoutLabStaffInput.schema';
 import { LabUserCreateNestedOneWithoutLabStaffInputObjectSchema as LabUserCreateNestedOneWithoutLabStaffInputObjectSchema } from './LabUserCreateNestedOneWithoutLabStaffInput.schema';
 import { LabInvitationCreateNestedOneWithoutLabStaffInputObjectSchema as LabInvitationCreateNestedOneWithoutLabStaffInputObjectSchema } from './LabInvitationCreateNestedOneWithoutLabStaffInput.schema';
 import { CaseStaffAssignmentCreateNestedManyWithoutStaffInputObjectSchema as CaseStaffAssignmentCreateNestedManyWithoutStaffInputObjectSchema } from './CaseStaffAssignmentCreateNestedManyWithoutStaffInput.schema';
@@ -36,6 +38,8 @@ const makeSchema = () => z.object({
   workingDays: z.union([z.lazy(() => LabStaffCreateworkingDaysInputObjectSchema), WeekdaySchema.array()]).optional(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
+  member: z.lazy(() => MemberCreateNestedOneWithoutLabStaffInputObjectSchema).optional(),
+  organizationInvitationIntent: z.lazy(() => LabStaffInvitationIntentCreateNestedOneWithoutLabStaffInputObjectSchema).optional(),
   labUser: z.lazy(() => LabUserCreateNestedOneWithoutLabStaffInputObjectSchema).optional(),
   labInvitation: z.lazy(() => LabInvitationCreateNestedOneWithoutLabStaffInputObjectSchema).optional(),
   caseAssignments: z.lazy(() => CaseStaffAssignmentCreateNestedManyWithoutStaffInputObjectSchema).optional(),

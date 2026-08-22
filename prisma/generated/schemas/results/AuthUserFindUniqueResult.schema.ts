@@ -10,7 +10,12 @@ export const AuthUserFindUniqueResultSchema = z.nullable(z.object({
   role: z.unknown(),
   sessions: z.array(z.unknown()),
   accounts: z.array(z.unknown()),
+  members: z.array(z.unknown()),
+  invitations: z.array(z.unknown()),
   labUser: z.unknown().optional(),
   superUser: z.unknown().optional(),
-  labId: z.string().optional()
+  labId: z.string().optional(),
+  banned: z.boolean().optional(),
+  banReason: z.string().optional(),
+  banExpires: z.date().optional()
 }));

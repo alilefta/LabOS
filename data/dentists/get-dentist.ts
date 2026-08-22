@@ -1,22 +1,14 @@
 import { daError, daSuccess } from "@/lib/data-access-errors";
 import { ERRORS } from "@/lib/errors";
-import { getServerSession } from "@/lib/get-session";
+import { getDataTenantContext } from "@/lib/data-tenant-context";
 import { tenantPrisma } from "@/lib/prisma";
 import { DentistPersonaDTO, GetClinicDentistPersonasInput } from "@/schema/composed/clinics/clinic-dentists.dtos";
 import { startOfDay, subDays } from "date-fns";
 
 export async function getClinicDentistPersonas({ clinicId, limit, searchQuery }: GetClinicDentistPersonasInput) {
-	const session = await getServerSession();
-
-	if (!session) {
-		return daError(ERRORS.UNAUTHORIZED.toJSON());
-	}
-
-	const labId = session.user.labId;
-
-	if (!labId) {
-		return daError(ERRORS.LAB_NOT_FOUND.toJSON());
-	}
+	const tenantResult = await getDataTenantContext();
+	if (!tenantResult.success) return daError(tenantResult.error);
+	const { labId } = tenantResult.data;
 
 	if (!clinicId) {
 		return daError(ERRORS.NOT_FOUND.toJSON());

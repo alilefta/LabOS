@@ -3,6 +3,8 @@ import type { Prisma } from '../../../../generated/prisma/client';
 import { AuthUserRoleSchema } from '../enums/AuthUserRole.schema';
 import { SessionUncheckedCreateNestedManyWithoutAuthuserInputObjectSchema as SessionUncheckedCreateNestedManyWithoutAuthuserInputObjectSchema } from './SessionUncheckedCreateNestedManyWithoutAuthuserInput.schema';
 import { AccountUncheckedCreateNestedManyWithoutAuthuserInputObjectSchema as AccountUncheckedCreateNestedManyWithoutAuthuserInputObjectSchema } from './AccountUncheckedCreateNestedManyWithoutAuthuserInput.schema';
+import { MemberUncheckedCreateNestedManyWithoutAuthuserInputObjectSchema as MemberUncheckedCreateNestedManyWithoutAuthuserInputObjectSchema } from './MemberUncheckedCreateNestedManyWithoutAuthuserInput.schema';
+import { InvitationUncheckedCreateNestedManyWithoutAuthuserInputObjectSchema as InvitationUncheckedCreateNestedManyWithoutAuthuserInputObjectSchema } from './InvitationUncheckedCreateNestedManyWithoutAuthuserInput.schema';
 import { LabUserUncheckedCreateNestedOneWithoutAuthUserInputObjectSchema as LabUserUncheckedCreateNestedOneWithoutAuthUserInputObjectSchema } from './LabUserUncheckedCreateNestedOneWithoutAuthUserInput.schema'
 
 const makeSchema = () => z.object({
@@ -15,8 +17,13 @@ const makeSchema = () => z.object({
   updatedAt: z.coerce.date().optional(),
   role: AuthUserRoleSchema.optional(),
   labId: z.string().optional().nullable(),
+  banned: z.boolean().optional().nullable(),
+  banReason: z.string().optional().nullable(),
+  banExpires: z.coerce.date().optional().nullable(),
   sessions: z.lazy(() => SessionUncheckedCreateNestedManyWithoutAuthuserInputObjectSchema).optional(),
   accounts: z.lazy(() => AccountUncheckedCreateNestedManyWithoutAuthuserInputObjectSchema).optional(),
+  members: z.lazy(() => MemberUncheckedCreateNestedManyWithoutAuthuserInputObjectSchema).optional(),
+  invitations: z.lazy(() => InvitationUncheckedCreateNestedManyWithoutAuthuserInputObjectSchema).optional(),
   labUser: z.lazy(() => LabUserUncheckedCreateNestedOneWithoutAuthUserInputObjectSchema).optional()
 }).strict();
 export const AuthUserUncheckedCreateWithoutSuperUserInputObjectSchema: z.ZodType<Prisma.AuthUserUncheckedCreateWithoutSuperUserInput> = makeSchema() as unknown as z.ZodType<Prisma.AuthUserUncheckedCreateWithoutSuperUserInput>;

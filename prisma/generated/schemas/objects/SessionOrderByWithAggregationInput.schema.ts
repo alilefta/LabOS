@@ -15,6 +15,8 @@ const makeSchema = () => z.object({
   ipAddress: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
   userAgent: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
   userId: SortOrderSchema.optional(),
+  impersonatedBy: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
+  activeOrganizationId: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
   _count: z.lazy(() => SessionCountOrderByAggregateInputObjectSchema).optional(),
   _max: z.lazy(() => SessionMaxOrderByAggregateInputObjectSchema).optional(),
   _min: z.lazy(() => SessionMinOrderByAggregateInputObjectSchema).optional()

@@ -1,97 +1,155 @@
 // actions/team/staff-settings/update-staff-identity.ts
-"use server";
+'use server'
 
-import { actionClientWithLab } from "@/lib/safe-action";
-import { tenantPrisma } from "@/lib/prisma";
-import { ERRORS } from "@/lib/errors";
-import { UpdateStaffIdentityInputSchema } from "@/schema/composed/team/staff-settings.schema";
-import { normalizeLabStaff } from "@/lib/mappers"; // Assuming this is your mapper utility
+import { headers } from 'next/headers'
 
+import { auth } from '@/lib/auth'
+import { ERRORS } from '@/lib/errors'
+import { normalizeLabStaff } from '@/lib/mappers'
+import { generalPrisma } from '@/lib/prisma'
+import { actionClientWithLab } from '@/lib/safe-action'
+import {
+	assertStaffAccessRevocationAllowed,
+	revokeStaffOrganizationAccess,
+} from '@/lib/staff-access-revocation'
+import { cleanupStaffInvitationIntent } from '@/lib/staff-invitation'
+import { UpdateStaffIdentityInputSchema } from '@/schema/composed/team/staff-settings.schema'
+
+/** Throws when operational deactivation would strand active case work. */
+async function requireNoActiveWorkload(staffId: string, labId: string) {
+	const activeCasesCount = await generalPrisma.caseStaffAssignment.count({
+		where: {
+			staffId,
+			labId,
+			dentalCase: { status: { in: ['ASSIGNED', 'PROCESSING'] } },
+		},
+	})
+
+	if (activeCasesCount > 0) {
+		throw new Error(
+			`Cannot deactivate. This employee still has ${activeCasesCount} active cases assigned on their bench. Reassign their workload first.`,
+		)
+	}
+}
+
+/**
+ * Updates operational staff identity without mutating legacy membership.
+ * Deactivation revokes a linked Better Auth Organization Member, or cancels a
+ * pending Better Auth invitation, before marking the staff record inactive.
+ * Global AuthUser identity and sessions for other Organizations are preserved.
+ */
 export const updateStaffIdentityAction = actionClientWithLab
 	.metadata({
-		actionName: "Update-Staff-Identity-Action",
-		// Security: Enforced at the middleware level. No manual database queries needed [1].
-		requiredLabRole: "MANAGER",
+		actionName: 'Update-Staff-Identity-Action',
+		requiredLabRole: 'MANAGER',
 	})
 	.inputSchema(UpdateStaffIdentityInputSchema)
 	.action(async ({ parsedInput, ctx }) => {
-		const { staffId, firstName, lastName, phoneNumber, jobTitle, specialization, roleCategory, isActive } = parsedInput;
-		const { labId } = ctx; // Scoped securely by safe-action context
+		const {
+			staffId,
+			firstName,
+			lastName,
+			phoneNumber,
+			jobTitle,
+			specialization,
+			roleCategory,
+			isActive,
+		} = parsedInput
 
-		try {
-			const prisma = await tenantPrisma(labId);
-
-			// ── ATOMIC TRANSACTION (DEACTIVATION & SESSION TERMINATION) ──────
-			const updatedStaff = await prisma.$transaction(
-				async (tx) => {
-					// A. Business Rule: Block deactivation if they have active workload
-					if (!isActive) {
-						const activeCasesCount = await tx.caseStaffAssignment.count({
-							where: {
-								staffId,
-								dentalCase: {
-									status: { in: ["ASSIGNED", "PROCESSING"] },
-								},
-							},
-						});
-
-						if (activeCasesCount > 0) {
-							throw new Error(`Cannot deactivate. This employee still has ${activeCasesCount} active cases assigned on their bench. Reassign their workload first.`);
-						}
-					}
-
-					// B. Perform the actual LabStaff update
-					const staff = await tx.labStaff.update({
-						where: { id: staffId },
-						data: {
-							firstName,
-							lastName,
-							phoneNumber,
-							jobTitle: jobTitle || null,
-							specialization: specialization || null,
-							roleCategory,
-							isActive,
+		const existingStaff = await generalPrisma.labStaff.findFirst({
+			where: { id: staffId, labId: ctx.labId },
+			select: {
+				member: {
+					select: { id: true, userId: true, role: true, organizationId: true },
+				},
+				organizationInvitationIntent: {
+					select: {
+						invitationId: true,
+						invitation: {
+							select: { organizationId: true, status: true },
 						},
-					});
-
-					// C. SECURITY HANDSHAKE: Session Purging & Login Lockout [2]
-					if (!isActive) {
-						// 1. Locate their connected AuthUser ID via the LabUser relation [2]
-						const linkedUser = await tx.labUser.findUnique({
-							where: { labStaffId: staffId, labId },
-							select: { authUserId: true },
-						});
-
-						if (linkedUser) {
-							// 2. Deactivate their software login seat [2]
-							await tx.labUser.update({
-								where: { labStaffId: staffId },
-								data: { isActive: false },
-							});
-
-							// 3. FORCE LOGOUT: Instantly delete all active sessions from the database [2]
-							// This immediately revokes their JWT/Session tokens across all active devices.
-							await tx.session.deleteMany({
-								where: { userId: linkedUser.authUserId },
-							});
-						}
-					}
-
-					return staff;
+					},
 				},
-				{
-					maxWait: 5000,
-					timeout: 10000, // 10s timeout to handle session deletion joins safely
-				},
-			);
+			},
+		})
+		if (!existingStaff) throw ERRORS.NOT_FOUND
 
-			return {
-				success: true,
-				staff: normalizeLabStaff(updatedStaff), // Returns the sanitized, pristine object [3]
-			};
-		} catch (error: any) {
-			console.error("[Update-Staff-Identity-Action] Error:", error.message);
-			if (error instanceof Error) throw error;
-			throw ERRORS.OPERATION_NOT_ALLOWED;
+		if (!isActive) {
+			// Preflight before any access change; the transaction below repeats this
+			// check to close the normal concurrent-assignment window.
+			await requireNoActiveWorkload(staffId, ctx.labId)
+			const requestHeaders = await headers()
+
+			if (existingStaff.member) {
+				if (existingStaff.member.organizationId !== ctx.organizationId) {
+					throw ERRORS.OPERATION_NOT_ALLOWED
+				}
+				assertStaffAccessRevocationAllowed({
+					actorUserId: ctx.user.id,
+					actorMemberRole: ctx.memberRole,
+					targetUserId: existingStaff.member.userId,
+					targetMemberRole: existingStaff.member.role,
+				})
+				await revokeStaffOrganizationAccess({
+					tenant: {
+						organizationId: ctx.organizationId,
+						labId: ctx.labId,
+					},
+					staffId,
+					memberId: existingStaff.member.id,
+					requestHeaders,
+				})
+			} else if (existingStaff.organizationInvitationIntent) {
+				const intent = existingStaff.organizationInvitationIntent
+				if (intent.invitation.organizationId !== ctx.organizationId) {
+					throw ERRORS.OPERATION_NOT_ALLOWED
+				}
+				if (intent.invitation.status === 'pending') {
+					await auth.api.cancelInvitation({
+						body: { invitationId: intent.invitationId },
+						headers: requestHeaders,
+					})
+				}
+				await cleanupStaffInvitationIntent(intent.invitationId)
+			}
 		}
-	});
+
+		const updatedStaff = await generalPrisma.$transaction(async (tx) => {
+			if (!isActive) {
+				const activeCasesCount = await tx.caseStaffAssignment.count({
+					where: {
+						staffId,
+						labId: ctx.labId,
+						dentalCase: { status: { in: ['ASSIGNED', 'PROCESSING'] } },
+					},
+				})
+				if (activeCasesCount > 0) {
+					throw new Error(
+						`Cannot deactivate. This employee now has ${activeCasesCount} active cases. Reassign their workload first. Organization access has already been revoked for safety.`,
+					)
+				}
+			}
+
+			const update = await tx.labStaff.updateMany({
+				where: { id: staffId, labId: ctx.labId },
+				data: {
+					firstName,
+					lastName,
+					phoneNumber,
+					jobTitle: jobTitle || null,
+					specialization: specialization || null,
+					roleCategory,
+					isActive,
+				},
+			})
+			if (update.count !== 1) throw ERRORS.NOT_FOUND
+
+			const staff = await tx.labStaff.findFirst({
+				where: { id: staffId, labId: ctx.labId },
+			})
+			if (!staff) throw ERRORS.NOT_FOUND
+			return staff
+		})
+
+		return { success: true, staff: normalizeLabStaff(updatedStaff) }
+	})

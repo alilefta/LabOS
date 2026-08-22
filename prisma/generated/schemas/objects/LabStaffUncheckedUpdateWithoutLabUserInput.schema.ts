@@ -11,6 +11,7 @@ import { NullableDecimalFieldUpdateOperationsInputObjectSchema as NullableDecima
 import { LabStaffUpdateworkingDaysInputObjectSchema as LabStaffUpdateworkingDaysInputObjectSchema } from './LabStaffUpdateworkingDaysInput.schema';
 import { WeekdaySchema } from '../enums/Weekday.schema';
 import { DateTimeFieldUpdateOperationsInputObjectSchema as DateTimeFieldUpdateOperationsInputObjectSchema } from './DateTimeFieldUpdateOperationsInput.schema';
+import { LabStaffInvitationIntentUncheckedUpdateOneWithoutLabStaffNestedInputObjectSchema as LabStaffInvitationIntentUncheckedUpdateOneWithoutLabStaffNestedInputObjectSchema } from './LabStaffInvitationIntentUncheckedUpdateOneWithoutLabStaffNestedInput.schema';
 import { LabInvitationUncheckedUpdateOneWithoutLabStaffNestedInputObjectSchema as LabInvitationUncheckedUpdateOneWithoutLabStaffNestedInputObjectSchema } from './LabInvitationUncheckedUpdateOneWithoutLabStaffNestedInput.schema';
 import { CaseStaffAssignmentUncheckedUpdateManyWithoutStaffNestedInputObjectSchema as CaseStaffAssignmentUncheckedUpdateManyWithoutStaffNestedInputObjectSchema } from './CaseStaffAssignmentUncheckedUpdateManyWithoutStaffNestedInput.schema';
 import { StaffPayoutUncheckedUpdateManyWithoutStaffNestedInputObjectSchema as StaffPayoutUncheckedUpdateManyWithoutStaffNestedInputObjectSchema } from './StaffPayoutUncheckedUpdateManyWithoutStaffNestedInput.schema'
@@ -40,9 +41,11 @@ const makeSchema = () => z.object({
 ]).refine((v) => isValidDecimalInput(v), {
   message: "Field 'commissionValue' must be a Decimal",
 }), z.lazy(() => NullableDecimalFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
+  memberId: z.union([z.string(), z.lazy(() => NullableStringFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
   workingDays: z.union([z.lazy(() => LabStaffUpdateworkingDaysInputObjectSchema), WeekdaySchema.array()]).optional(),
   createdAt: z.union([z.coerce.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputObjectSchema)]).optional(),
   updatedAt: z.union([z.coerce.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputObjectSchema)]).optional(),
+  organizationInvitationIntent: z.lazy(() => LabStaffInvitationIntentUncheckedUpdateOneWithoutLabStaffNestedInputObjectSchema).optional(),
   labInvitation: z.lazy(() => LabInvitationUncheckedUpdateOneWithoutLabStaffNestedInputObjectSchema).optional(),
   caseAssignments: z.lazy(() => CaseStaffAssignmentUncheckedUpdateManyWithoutStaffNestedInputObjectSchema).optional(),
   staffPayouts: z.lazy(() => StaffPayoutUncheckedUpdateManyWithoutStaffNestedInputObjectSchema).optional()

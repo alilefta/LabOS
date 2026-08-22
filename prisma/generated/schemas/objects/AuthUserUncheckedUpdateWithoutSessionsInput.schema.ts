@@ -6,7 +6,11 @@ import { NullableStringFieldUpdateOperationsInputObjectSchema as NullableStringF
 import { DateTimeFieldUpdateOperationsInputObjectSchema as DateTimeFieldUpdateOperationsInputObjectSchema } from './DateTimeFieldUpdateOperationsInput.schema';
 import { AuthUserRoleSchema } from '../enums/AuthUserRole.schema';
 import { EnumAuthUserRoleFieldUpdateOperationsInputObjectSchema as EnumAuthUserRoleFieldUpdateOperationsInputObjectSchema } from './EnumAuthUserRoleFieldUpdateOperationsInput.schema';
+import { NullableBoolFieldUpdateOperationsInputObjectSchema as NullableBoolFieldUpdateOperationsInputObjectSchema } from './NullableBoolFieldUpdateOperationsInput.schema';
+import { NullableDateTimeFieldUpdateOperationsInputObjectSchema as NullableDateTimeFieldUpdateOperationsInputObjectSchema } from './NullableDateTimeFieldUpdateOperationsInput.schema';
 import { AccountUncheckedUpdateManyWithoutAuthuserNestedInputObjectSchema as AccountUncheckedUpdateManyWithoutAuthuserNestedInputObjectSchema } from './AccountUncheckedUpdateManyWithoutAuthuserNestedInput.schema';
+import { MemberUncheckedUpdateManyWithoutAuthuserNestedInputObjectSchema as MemberUncheckedUpdateManyWithoutAuthuserNestedInputObjectSchema } from './MemberUncheckedUpdateManyWithoutAuthuserNestedInput.schema';
+import { InvitationUncheckedUpdateManyWithoutAuthuserNestedInputObjectSchema as InvitationUncheckedUpdateManyWithoutAuthuserNestedInputObjectSchema } from './InvitationUncheckedUpdateManyWithoutAuthuserNestedInput.schema';
 import { LabUserUncheckedUpdateOneWithoutAuthUserNestedInputObjectSchema as LabUserUncheckedUpdateOneWithoutAuthUserNestedInputObjectSchema } from './LabUserUncheckedUpdateOneWithoutAuthUserNestedInput.schema';
 import { SuperUserUncheckedUpdateOneWithoutAuthUserNestedInputObjectSchema as SuperUserUncheckedUpdateOneWithoutAuthUserNestedInputObjectSchema } from './SuperUserUncheckedUpdateOneWithoutAuthUserNestedInput.schema'
 
@@ -20,7 +24,12 @@ const makeSchema = () => z.object({
   updatedAt: z.union([z.coerce.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputObjectSchema)]).optional(),
   role: z.union([AuthUserRoleSchema, z.lazy(() => EnumAuthUserRoleFieldUpdateOperationsInputObjectSchema)]).optional(),
   labId: z.union([z.string(), z.lazy(() => NullableStringFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
+  banned: z.union([z.boolean(), z.lazy(() => NullableBoolFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
+  banReason: z.union([z.string(), z.lazy(() => NullableStringFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
+  banExpires: z.union([z.coerce.date(), z.lazy(() => NullableDateTimeFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
   accounts: z.lazy(() => AccountUncheckedUpdateManyWithoutAuthuserNestedInputObjectSchema).optional(),
+  members: z.lazy(() => MemberUncheckedUpdateManyWithoutAuthuserNestedInputObjectSchema).optional(),
+  invitations: z.lazy(() => InvitationUncheckedUpdateManyWithoutAuthuserNestedInputObjectSchema).optional(),
   labUser: z.lazy(() => LabUserUncheckedUpdateOneWithoutAuthUserNestedInputObjectSchema).optional(),
   superUser: z.lazy(() => SuperUserUncheckedUpdateOneWithoutAuthUserNestedInputObjectSchema).optional()
 }).strict();

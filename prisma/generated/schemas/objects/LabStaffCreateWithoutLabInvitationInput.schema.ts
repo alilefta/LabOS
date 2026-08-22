@@ -5,6 +5,8 @@ import { CommissionTypeSchema } from '../enums/CommissionType.schema';
 import { LabStaffCreateworkingDaysInputObjectSchema as LabStaffCreateworkingDaysInputObjectSchema } from './LabStaffCreateworkingDaysInput.schema';
 import { WeekdaySchema } from '../enums/Weekday.schema';
 import { LabCreateNestedOneWithoutStaffInputObjectSchema as LabCreateNestedOneWithoutStaffInputObjectSchema } from './LabCreateNestedOneWithoutStaffInput.schema';
+import { MemberCreateNestedOneWithoutLabStaffInputObjectSchema as MemberCreateNestedOneWithoutLabStaffInputObjectSchema } from './MemberCreateNestedOneWithoutLabStaffInput.schema';
+import { LabStaffInvitationIntentCreateNestedOneWithoutLabStaffInputObjectSchema as LabStaffInvitationIntentCreateNestedOneWithoutLabStaffInputObjectSchema } from './LabStaffInvitationIntentCreateNestedOneWithoutLabStaffInput.schema';
 import { LabUserCreateNestedOneWithoutLabStaffInputObjectSchema as LabUserCreateNestedOneWithoutLabStaffInputObjectSchema } from './LabUserCreateNestedOneWithoutLabStaffInput.schema';
 import { CaseStaffAssignmentCreateNestedManyWithoutStaffInputObjectSchema as CaseStaffAssignmentCreateNestedManyWithoutStaffInputObjectSchema } from './CaseStaffAssignmentCreateNestedManyWithoutStaffInput.schema';
 import { StaffPayoutCreateNestedManyWithoutStaffInputObjectSchema as StaffPayoutCreateNestedManyWithoutStaffInputObjectSchema } from './StaffPayoutCreateNestedManyWithoutStaffInput.schema'
@@ -37,6 +39,8 @@ const makeSchema = () => z.object({
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
   lab: z.lazy(() => LabCreateNestedOneWithoutStaffInputObjectSchema),
+  member: z.lazy(() => MemberCreateNestedOneWithoutLabStaffInputObjectSchema).optional(),
+  organizationInvitationIntent: z.lazy(() => LabStaffInvitationIntentCreateNestedOneWithoutLabStaffInputObjectSchema).optional(),
   labUser: z.lazy(() => LabUserCreateNestedOneWithoutLabStaffInputObjectSchema).optional(),
   caseAssignments: z.lazy(() => CaseStaffAssignmentCreateNestedManyWithoutStaffInputObjectSchema).optional(),
   staffPayouts: z.lazy(() => StaffPayoutCreateNestedManyWithoutStaffInputObjectSchema).optional()

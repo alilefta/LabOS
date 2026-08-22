@@ -6,7 +6,11 @@ import { NullableStringFieldUpdateOperationsInputObjectSchema as NullableStringF
 import { DateTimeFieldUpdateOperationsInputObjectSchema as DateTimeFieldUpdateOperationsInputObjectSchema } from './DateTimeFieldUpdateOperationsInput.schema';
 import { AuthUserRoleSchema } from '../enums/AuthUserRole.schema';
 import { EnumAuthUserRoleFieldUpdateOperationsInputObjectSchema as EnumAuthUserRoleFieldUpdateOperationsInputObjectSchema } from './EnumAuthUserRoleFieldUpdateOperationsInput.schema';
+import { NullableBoolFieldUpdateOperationsInputObjectSchema as NullableBoolFieldUpdateOperationsInputObjectSchema } from './NullableBoolFieldUpdateOperationsInput.schema';
+import { NullableDateTimeFieldUpdateOperationsInputObjectSchema as NullableDateTimeFieldUpdateOperationsInputObjectSchema } from './NullableDateTimeFieldUpdateOperationsInput.schema';
 import { SessionUpdateManyWithoutAuthuserNestedInputObjectSchema as SessionUpdateManyWithoutAuthuserNestedInputObjectSchema } from './SessionUpdateManyWithoutAuthuserNestedInput.schema';
+import { MemberUpdateManyWithoutAuthuserNestedInputObjectSchema as MemberUpdateManyWithoutAuthuserNestedInputObjectSchema } from './MemberUpdateManyWithoutAuthuserNestedInput.schema';
+import { InvitationUpdateManyWithoutAuthuserNestedInputObjectSchema as InvitationUpdateManyWithoutAuthuserNestedInputObjectSchema } from './InvitationUpdateManyWithoutAuthuserNestedInput.schema';
 import { LabUserUpdateOneWithoutAuthUserNestedInputObjectSchema as LabUserUpdateOneWithoutAuthUserNestedInputObjectSchema } from './LabUserUpdateOneWithoutAuthUserNestedInput.schema';
 import { SuperUserUpdateOneWithoutAuthUserNestedInputObjectSchema as SuperUserUpdateOneWithoutAuthUserNestedInputObjectSchema } from './SuperUserUpdateOneWithoutAuthUserNestedInput.schema'
 
@@ -20,7 +24,12 @@ const makeSchema = () => z.object({
   updatedAt: z.union([z.coerce.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputObjectSchema)]).optional(),
   role: z.union([AuthUserRoleSchema, z.lazy(() => EnumAuthUserRoleFieldUpdateOperationsInputObjectSchema)]).optional(),
   labId: z.union([z.string(), z.lazy(() => NullableStringFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
+  banned: z.union([z.boolean(), z.lazy(() => NullableBoolFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
+  banReason: z.union([z.string(), z.lazy(() => NullableStringFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
+  banExpires: z.union([z.coerce.date(), z.lazy(() => NullableDateTimeFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
   sessions: z.lazy(() => SessionUpdateManyWithoutAuthuserNestedInputObjectSchema).optional(),
+  members: z.lazy(() => MemberUpdateManyWithoutAuthuserNestedInputObjectSchema).optional(),
+  invitations: z.lazy(() => InvitationUpdateManyWithoutAuthuserNestedInputObjectSchema).optional(),
   labUser: z.lazy(() => LabUserUpdateOneWithoutAuthUserNestedInputObjectSchema).optional(),
   superUser: z.lazy(() => SuperUserUpdateOneWithoutAuthUserNestedInputObjectSchema).optional()
 }).strict();

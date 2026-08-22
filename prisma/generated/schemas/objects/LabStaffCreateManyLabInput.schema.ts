@@ -29,6 +29,7 @@ const makeSchema = () => z.object({
 ]).refine((v) => isValidDecimalInput(v), {
   message: "Field 'commissionValue' must be a Decimal",
 }).optional().nullable(),
+  memberId: z.string().optional().nullable(),
   workingDays: z.union([z.lazy(() => LabStaffCreateworkingDaysInputObjectSchema), WeekdaySchema.array()]).optional(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional()

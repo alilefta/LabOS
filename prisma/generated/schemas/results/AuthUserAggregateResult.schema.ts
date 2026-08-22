@@ -10,9 +10,14 @@ export const AuthUserAggregateResultSchema = z.object({  _count: z.object({
     role: z.number(),
     sessions: z.number(),
     accounts: z.number(),
+    members: z.number(),
+    invitations: z.number(),
     labUser: z.number(),
     superUser: z.number(),
-    labId: z.number()
+    labId: z.number(),
+    banned: z.number(),
+    banReason: z.number(),
+    banExpires: z.number()
   }).optional(),
   _min: z.object({
     id: z.string().nullable(),
@@ -21,7 +26,9 @@ export const AuthUserAggregateResultSchema = z.object({  _count: z.object({
     image: z.string().nullable(),
     createdAt: z.date().nullable(),
     updatedAt: z.date().nullable(),
-    labId: z.string().nullable()
+    labId: z.string().nullable(),
+    banReason: z.string().nullable(),
+    banExpires: z.date().nullable()
   }).nullable().optional(),
   _max: z.object({
     id: z.string().nullable(),
@@ -30,5 +37,7 @@ export const AuthUserAggregateResultSchema = z.object({  _count: z.object({
     image: z.string().nullable(),
     createdAt: z.date().nullable(),
     updatedAt: z.date().nullable(),
-    labId: z.string().nullable()
+    labId: z.string().nullable(),
+    banReason: z.string().nullable(),
+    banExpires: z.date().nullable()
   }).nullable().optional()});

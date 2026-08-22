@@ -12,9 +12,14 @@ export const AuthUserResultSchema = z.object({
     role: AuthUserRoleSchema,
     sessions: z.array(z.unknown()),
     accounts: z.array(z.unknown()),
+    members: z.array(z.unknown()),
+    invitations: z.array(z.unknown()),
     labUser: z.unknown().nullable(),
     superUser: z.unknown().nullable(),
-    labId: z.string().nullable()
+    labId: z.string().nullable(),
+    banned: z.boolean().nullable(),
+    banReason: z.string().nullable(),
+    banExpires: z.date().nullable()
 }).strict();
 
 export type AuthUserResultType = z.infer<typeof AuthUserResultSchema>;

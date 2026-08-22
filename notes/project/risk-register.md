@@ -1,0 +1,20 @@
+# Platform migration risk register
+
+Score probability and impact from 1–5; exposure is their product. Review high exposure (12+) at least weekly.
+
+| ID | Risk | Probability | Impact | Exposure | Trigger/evidence | Mitigation | Contingency | Owner | Review date | Status |
+|---|---|---:|---:|---:|---|---|---|---|---|---|
+| R-001 | Legacy and new membership systems diverge | 4 | 5 | 20 | Reconciliation mismatch or fallback count stops declining | Deterministic backfill, dual-read telemetry, short exit window | Freeze rollout; repair from mapping report | Unassigned | TBD | Open |
+| R-002 | Organization exists without its Lab or vice versa | 3 | 5 | 15 | Partial onboarding/provisioning result | Idempotency key, provisioning state, unique constraint | Retry missing step or narrowly compensate empty Organization | Unassigned | TBD | Open |
+| R-003 | Cross-tenant relationship or cache leak | 3 | 5 | 15 | Hostile two-tenant test or mismatched IDs | Scoped context, cache keys, composite constraints, policy checks | Disable affected path; data-access audit and repair | Unassigned | TBD | Open |
+| R-004 | Production membership backfill assigns wrong role | 3 | 5 | 15 | Role/count reconciliation mismatch | Snapshot rehearsal, deterministic mapping, manual orphan report | Roll back migration; restore and rerun corrected mapping | Unassigned | TBD | Open |
+| R-005 | Workflow abstraction expands beyond Case needs | 3 | 4 | 12 | DSL/editor/custom-code requests enter V1 | Enforce module scope and ADR review | Defer work; ship current-lifecycle slice only | Unassigned | TBD | Open |
+| R-006 | Case status and workflow instance drift | 3 | 5 | 15 | Reconciliation metric is non-zero | One transaction, forbid direct writes, optimistic locking | Pause transitions; repair with audited reconciliation | Unassigned | TBD | Open |
+| R-007 | Outbox duplicates external side effects | 3 | 4 | 12 | Repeated notification/payment-adjacent effect | Per-consumer idempotency key and unique processing record | Disable consumer; reconcile and replay safe events | Unassigned | TBD | Open |
+| R-008 | Obsolete access-control remains active unnoticed | 4 | 4 | 16 | New code imports legacy permission helper | Import checks, migration inventory, permission adapter | Block merge; restore central authorization call | Unassigned | TBD | Open |
+| R-009 | Organization deletion cascades into permanent Lab/domain deletion | 3 | 5 | 15 | Organization deletion endpoint or admin operation is introduced | Require dedicated destructive permission, impact preview, typed confirmation, audit, and recoverable backup | Disable deletion; restore Lab/domain data and Organization mapping from backup | Unassigned | TBD | Open |
+| R-010 | Invitation is created but never delivered or staff linking remains pending | 3 | 4 | 12 | Delivery adapter failure, retained accepted intent, or reconciliation count is non-zero | Delivery telemetry/retries, idempotent acceptance retry, retained intent, scheduled reconciliation | Reissue invitation or manually reconcile verified Member-to-Staff link | Unassigned | TBD | Open |
+
+## Adding a risk
+
+State an uncertain future event, not a current defect. Include evidence/trigger, preventive mitigation, fallback contingency, one accountable owner, and the next review date. Current defects belong on the board and may reference the related risk.

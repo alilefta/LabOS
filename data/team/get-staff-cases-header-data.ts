@@ -1,6 +1,6 @@
 import { daError, DAResult, daSuccess, toDAError } from "@/lib/data-access-errors";
 import { ERRORS } from "@/lib/errors";
-import { getServerSession } from "@/lib/get-session";
+import { getDataTenantContext } from "@/lib/data-tenant-context";
 import { tenantPrisma } from "@/lib/prisma";
 import z from "zod";
 
@@ -13,11 +13,9 @@ export async function getStaffCasesHeaderData(staffId: string): Promise<
 	}>
 > {
 	try {
-		const session = await getServerSession();
-		if (!session) return daError(ERRORS.UNAUTHORIZED.toJSON());
-
-		const labId = session.user.labId;
-		if (!labId) return daError(ERRORS.LAB_NOT_FOUND.toJSON());
+		const tenantResult = await getDataTenantContext();
+		if (!tenantResult.success) return daError(tenantResult.error);
+		const { labId } = tenantResult.data;
 
 		const results = z.string().uuid().safeParse(staffId);
 		if (!results.success) return daError(ERRORS.INVALID_INPUT.toJSON());

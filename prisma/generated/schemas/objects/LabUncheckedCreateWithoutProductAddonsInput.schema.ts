@@ -26,6 +26,7 @@ import { CaseWorkItemAddonUncheckedCreateNestedManyWithoutLabInputObjectSchema a
 
 const makeSchema = () => z.object({
   id: z.string().optional(),
+  organizationId: z.string().optional().nullable(),
   title: z.string(),
   slug: z.string().optional().nullable(),
   brandAvatarUrl: z.string().optional().nullable(),

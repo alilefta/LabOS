@@ -1,9 +1,7 @@
-import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import Link from "next/link";
 import { Users2, FileDown, Plus } from "lucide-react";
 
-import { getCurrentLabUserRoleByAuthUserId } from "@/data/lab";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TeamClientWrapper } from "@/components/team/team-page/team-client-wrapper";
@@ -14,6 +12,7 @@ import { QueryHydrationBoundary } from "@/providers/query-hydration-boundary";
 import { AmbientBgGlow } from "@/components/ui/ui-utils/animated-ambient-bg-glow";
 import { DEFAULT_TEAM_FILTERS } from "@/schema/composed/team/team-filters";
 import { getStaffRosterAction } from "@/actions/team/get-staff-roster-action";
+import { requireTenantContext } from "@/platform/organizations/tenant-context";
 
 interface Props {
 	searchParams: Promise<{ action?: string }>;
@@ -28,14 +27,13 @@ export default async function TeamPage({ searchParams }: Props) {
 	// Parse the search param to determine if the sheet should be open on load
 	const { action } = await searchParams;
 
-	const user = await getCurrentLabUserRoleByAuthUserId();
-	if (!user) redirect("/onboarding");
+	const { labId } = await requireTenantContext();
 
 	const queryClient = getQueryClient();
 
 	// Prefetch the vital statistics for instant client rendering
 	await queryClient.prefetchQuery({
-		queryKey: ["staff-vitals", user.labId],
+		queryKey: ["staff-vitals", labId],
 		queryFn: async () => {
 			const res = await getStaffVitalsAction();
 			return res?.data ?? null;
@@ -44,7 +42,7 @@ export default async function TeamPage({ searchParams }: Props) {
 	});
 
 	await queryClient.prefetchQuery({
-		queryKey: ["staff-roster", user.labId, "", DEFAULT_TEAM_FILTERS],
+		queryKey: ["staff-roster", labId, "", DEFAULT_TEAM_FILTERS],
 		queryFn: async () => {
 			const res = await getStaffRosterAction({
 				searchQuery: "",

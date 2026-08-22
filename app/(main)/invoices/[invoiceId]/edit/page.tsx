@@ -1,12 +1,11 @@
 // app/(main)/invoices/[invoiceId]/edit/page.tsx
 
 import { notFound, redirect } from "next/navigation";
-import { getServerSession } from "@/lib/get-session";
-import { getCurrentLabUserRoleByAuthUserId } from "@/data/lab";
 import { getDraftInvoiceForEdit } from "@/data/invoices/get-draft-invoice";
 import { DraftInvoiceHydrationDTO } from "@/schema/composed/invoices/draft-invoice.dtos";
 import { EditInvoiceClient } from "@/components/invoices/edit-invoice/edit-invoice-client";
 import { Metadata } from "next";
+import { requireTenantContext } from "@/platform/organizations/tenant-context";
 
 interface Props {
 	params: Promise<{ invoiceId: string }>;
@@ -14,14 +13,7 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
 	const { invoiceId } = await params;
-	const session = await getServerSession();
-	if (!session) redirect("/sign-in");
-
-	const labUser = await getCurrentLabUserRoleByAuthUserId();
-	if (!labUser) redirect("/onboarding");
-
-	const labId = session.user.labId;
-	if (!labId) redirect("/onboarding");
+	const { labId } = await requireTenantContext();
 	// fetch post information
 	const result = await getDraftInvoiceForEdit(invoiceId, labId);
 
@@ -40,14 +32,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function EditInvoicePage({ params }: Props) {
 	const { invoiceId } = await params;
 
-	const session = await getServerSession();
-	if (!session) redirect("/sign-in");
-
-	const labUser = await getCurrentLabUserRoleByAuthUserId();
-	if (!labUser) redirect("/onboarding");
-
-	const labId = session.user.labId;
-	if (!labId) redirect("/onboarding");
+	const { labId } = await requireTenantContext();
 
 	const result = await getDraftInvoiceForEdit(invoiceId, labId);
 

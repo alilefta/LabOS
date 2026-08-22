@@ -8,10 +8,13 @@ import {
 	sanitizeInput,
 	toPayload,
 } from './safe-action-helpers'
-import { generalPrisma } from './prisma'
-import { AuthUser } from './auth'
 import { LabRole, LabRoleSchema } from '@/schema/base/enums.base'
-import { cache } from 'react'
+import {
+	requireTenantContext,
+	resolveTenantActorCompatibility,
+	TENANT_CONTEXT_ERROR_CODES,
+	TenantContextError,
+} from '@/platform/organizations'
 
 // ----------------------------------------
 // Base Client - For Auth only
@@ -75,8 +78,8 @@ export const actionClient = createSafeActionClient({
 // ----------------------------------------
 // Tenant Client for everything else
 // ----------------------------------------
-// Separate base for anything past requireLabMiddleware — role becomes required, non-nullable
-export const labScopedClient = createSafeActionClient({
+// Separate base for anything past requireTenantMiddleware.
+export const tenantScopedClient = createSafeActionClient({
 	defineMetadataSchema() {
 		return z.object({
 			actionName: z.string(),
@@ -191,68 +194,72 @@ export const requireUserMiddleware = createMiddleware<{
 	})
 })
 
-export const requireLabMiddleware = createMiddleware<{
+function mapTenantContextError(error: TenantContextError): never {
+	switch (error.code) {
+		case TENANT_CONTEXT_ERROR_CODES.UNAUTHENTICATED:
+			throw ERRORS.UNAUTHORIZED
+		case TENANT_CONTEXT_ERROR_CODES.MEMBERSHIP_REQUIRED:
+			throw ERRORS.NOT_MEMBER
+		case TENANT_CONTEXT_ERROR_CODES.ORGANIZATION_NOT_FOUND:
+		case TENANT_CONTEXT_ERROR_CODES.ACTIVE_ORGANIZATION_REQUIRED:
+		case TENANT_CONTEXT_ERROR_CODES.LAB_NOT_LINKED:
+			throw ERRORS.LAB_NOT_FOUND
+	}
+}
+
+/**
+ * Thin safe-action adapter around the canonical platform tenant resolver.
+ * Tenancy is established exclusively by active Organization, verified Member,
+ * and Organization-linked Lab. The optional legacy actor lookup exists only
+ * for old audit foreign keys and never influences tenant authorization.
+ */
+export const requireTenantMiddleware = createMiddleware<{
 	metadata: { actionName: string; requiredLabRole: LabRole | null }
 }>().define(async ({ next, ctx }) => {
-	const { user } = ctx as { user: AuthUser }
+	const { user } = ctx as { user: { id: string; name: string } }
 
-	// 1. Session must have labId
-	if (!user.labId) {
-		throw ERRORS.UNAUTHORIZED
+	let tenant
+	try {
+		tenant = await requireTenantContext()
+	} catch (error) {
+		if (error instanceof TenantContextError) mapTenantContextError(error)
+		throw error
 	}
 
-	// 2. Verify lab actually exists in DB — don't trust session alone
-	const getVerifiedLab = cache(async (labId: string) => {
-		return generalPrisma.lab.findUnique({
-			where: { id: labId },
-			select: { id: true, title: true, slug: true },
-		})
-	})
-
-	const lab = await getVerifiedLab(user.labId)
-
-	if (!lab) {
-		throw ERRORS.LAB_NOT_FOUND
-	}
-
-	// 3. Verify LabUser record exists and belongs to this lab
-	const getVerifiedLabUser = cache(async (userId: string) => {
-		return generalPrisma.labUser.findUnique({
-			where: { authUserId: userId },
-			select: { id: true, labId: true, role: true, isActive: true },
-		})
-	})
-	const labUser = await getVerifiedLabUser(user.id)
-
-	if (!labUser) {
-		throw ERRORS.NOT_MEMBER
-	}
-
-	// 4. Cross-check session labId matches DB labUser.labId
-	// This is the tamper-proof check
-	if (labUser.labId !== user.labId) {
-		console.error('[Security] labId mismatch', {
-			sessionLabId: user.labId,
-			dbLabId: labUser.labId,
-			userId: user.id,
+	if (tenant.userId !== user.id) {
+		console.error('[Security] tenant actor mismatch', {
+			contextUserId: tenant.userId,
+			actionUserId: user.id,
 		})
 		throw ERRORS.FORBIDDEN
 	}
 
-	// 5. Account must be active
-	if (!labUser.isActive) {
-		throw ERRORS.FORBIDDEN
-	}
+	const actor = await resolveTenantActorCompatibility({
+		tenant,
+		displayName: user.name,
+	})
 
 	return next({
 		ctx: {
-			user,
-			lab, // verified lab
-			labUser, // verified lab membership with role
-			labId: lab.id, // convenience shorthand
+			...ctx,
+			...tenant,
+			actor,
+			/**
+			 * @deprecated Transitional alias for unmigrated actions. Its role is
+			 * derived from Member; its nullable ID is only for the legacy audit FK.
+			 */
+			labUser: {
+				id: actor.legacyLabUserId,
+				labId: tenant.labId,
+				role: actor.legacyRole,
+				isActive: true,
+			},
 		},
 	})
 })
+
+/** @deprecated Use `requireTenantMiddleware`. */
+export const requireLabMiddleware = requireTenantMiddleware
 
 // the shape of LabRole: type LabRole = "OWNER" | "MANAGER" | "ADMIN" | "STAFF"
 
@@ -266,13 +273,13 @@ const ROLE_HIERARCHY: Record<LabRole, number> = {
 export const requireRoleMiddleware = createMiddleware<{
 	metadata: { actionName: string; requiredLabRole: LabRole | null }
 }>().define(async ({ next, ctx, metadata }) => {
-	const { labUser } = ctx as { labUser: { role: LabRole } }
+	const { actor } = ctx as { actor: { legacyRole: LabRole } }
 
 	if (!metadata.requiredLabRole) {
 		return next({ ctx })
 	}
 
-	const userLevel = ROLE_HIERARCHY[labUser.role]
+	const userLevel = ROLE_HIERARCHY[actor.legacyRole]
 	const requiredLevel = ROLE_HIERARCHY[metadata.requiredLabRole]
 
 	if (userLevel < requiredLevel) {
@@ -283,13 +290,13 @@ export const requireRoleMiddleware = createMiddleware<{
 })
 
 // Requires valid session only (for onboarding actions)
-export const actionClientWithSession = labScopedClient
+export const actionClientWithSession = tenantScopedClient
 	.use(loggingMiddleware)
 	.use(requireUserMiddleware)
 
 // Requires session + verified lab + optional role check
-export const actionClientWithLab = labScopedClient
+export const actionClientWithLab = tenantScopedClient
 	.use(loggingMiddleware)
 	.use(requireUserMiddleware)
-	.use(requireLabMiddleware)
+	.use(requireTenantMiddleware)
 	.use(requireRoleMiddleware)

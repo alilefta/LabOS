@@ -2,6 +2,8 @@ import * as z from 'zod';
 import type { Prisma } from '../../../../generated/prisma/client';
 import { AuthUserRoleSchema } from '../enums/AuthUserRole.schema';
 import { AccountCreateNestedManyWithoutAuthuserInputObjectSchema as AccountCreateNestedManyWithoutAuthuserInputObjectSchema } from './AccountCreateNestedManyWithoutAuthuserInput.schema';
+import { MemberCreateNestedManyWithoutAuthuserInputObjectSchema as MemberCreateNestedManyWithoutAuthuserInputObjectSchema } from './MemberCreateNestedManyWithoutAuthuserInput.schema';
+import { InvitationCreateNestedManyWithoutAuthuserInputObjectSchema as InvitationCreateNestedManyWithoutAuthuserInputObjectSchema } from './InvitationCreateNestedManyWithoutAuthuserInput.schema';
 import { LabUserCreateNestedOneWithoutAuthUserInputObjectSchema as LabUserCreateNestedOneWithoutAuthUserInputObjectSchema } from './LabUserCreateNestedOneWithoutAuthUserInput.schema';
 import { SuperUserCreateNestedOneWithoutAuthUserInputObjectSchema as SuperUserCreateNestedOneWithoutAuthUserInputObjectSchema } from './SuperUserCreateNestedOneWithoutAuthUserInput.schema'
 
@@ -15,7 +17,12 @@ const makeSchema = () => z.object({
   updatedAt: z.coerce.date().optional(),
   role: AuthUserRoleSchema.optional(),
   labId: z.string().optional().nullable(),
+  banned: z.boolean().optional().nullable(),
+  banReason: z.string().optional().nullable(),
+  banExpires: z.coerce.date().optional().nullable(),
   accounts: z.lazy(() => AccountCreateNestedManyWithoutAuthuserInputObjectSchema).optional(),
+  members: z.lazy(() => MemberCreateNestedManyWithoutAuthuserInputObjectSchema).optional(),
+  invitations: z.lazy(() => InvitationCreateNestedManyWithoutAuthuserInputObjectSchema).optional(),
   labUser: z.lazy(() => LabUserCreateNestedOneWithoutAuthUserInputObjectSchema).optional(),
   superUser: z.lazy(() => SuperUserCreateNestedOneWithoutAuthUserInputObjectSchema).optional()
 }).strict();

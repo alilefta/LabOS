@@ -1,5 +1,6 @@
 import * as z from 'zod';
 import type { Prisma } from '../../../../generated/prisma/client';
+import { OrganizationArgsObjectSchema as OrganizationArgsObjectSchema } from './OrganizationArgs.schema';
 import { LabSubscriptionPlanArgsObjectSchema as LabSubscriptionPlanArgsObjectSchema } from './LabSubscriptionPlanArgs.schema';
 import { ClinicFindManySchema as ClinicFindManySchema } from '../findManyClinic.schema';
 import { CaseFindManySchema as CaseFindManySchema } from '../findManyCase.schema';
@@ -28,6 +29,8 @@ import { LabCountOutputTypeArgsObjectSchema as LabCountOutputTypeArgsObjectSchem
 
 const makeSchema = () => z.object({
   id: z.boolean().optional(),
+  organizationId: z.boolean().optional(),
+  organization: z.union([z.boolean(), z.lazy(() => OrganizationArgsObjectSchema)]).optional(),
   title: z.boolean().optional(),
   slug: z.boolean().optional(),
   brandAvatarUrl: z.boolean().optional(),

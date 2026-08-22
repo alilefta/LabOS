@@ -1,5 +1,5 @@
 import { tenantPrisma } from "@/lib/prisma";
-import { getServerSession } from "@/lib/get-session";
+import { getDataTenantContext } from "@/lib/data-tenant-context";
 import { ERRORS } from "@/lib/errors";
 import { daError, daSuccess, toDAError, DAResult } from "@/lib/data-access-errors";
 import { EligibleClinicDTO, NewInvoiceOnboardingData, UnbilledCaseDTO } from "@/schema/composed/invoices/new.invoice.dtos";
@@ -7,15 +7,9 @@ import { EligibleClinicDTO, NewInvoiceOnboardingData, UnbilledCaseDTO } from "@/
 export async function getNewInvoiceOnboardingData(clinicId?: string): Promise<DAResult<NewInvoiceOnboardingData>> {
 	try {
 		// 1. SECURE TENANT ISOLATION
-		const session = await getServerSession();
-		if (!session) {
-			return daError(ERRORS.UNAUTHORIZED.toJSON());
-		}
-
-		const labId = session.user.labId;
-		if (!labId) {
-			return daError(ERRORS.LAB_NOT_FOUND.toJSON());
-		}
+		const tenantResult = await getDataTenantContext();
+		if (!tenantResult.success) return daError(tenantResult.error);
+		const { labId } = tenantResult.data;
 
 		const prisma = await tenantPrisma(labId);
 

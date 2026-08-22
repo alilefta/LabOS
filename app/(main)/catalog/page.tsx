@@ -1,7 +1,5 @@
 import { Suspense } from 'react'
-import { redirect } from 'next/navigation'
 import { z } from 'zod'
-import { getServerSession } from '@/lib/get-session'
 import { cn } from '@/lib/utils'
 import { AmbientBgGlow } from '@/components/ui/ui-utils/animated-ambient-bg-glow'
 
@@ -10,6 +8,7 @@ import { ProductSidebar } from '@/components/catalog/product-sidebar'
 import { WorkTypeBentoGrid } from '@/components/catalog/worktype-bento-grid/worktype-bento-grid'
 import { CatalogEmptyState } from '@/components/catalog/catalog-empty-state'
 import { ProductWorkspace } from '@/components/catalog/products/product-workspace'
+import { requireTenantContext } from '@/platform/organizations/tenant-context'
 
 // --- VALIDATION SCHEMA FOR URL STATE ---
 // This ensures that if a user tampers with the URL (e.g., ?category=junk),
@@ -26,12 +25,7 @@ interface Props {
 
 export default async function CatalogPage({ searchParams }: Props) {
 	// 1. Session & Auth Guard
-	const session = await getServerSession()
-	if (!session || !session.user.labId) {
-		redirect('/sign-in')
-	}
-
-	const labId = session.user.labId
+	const { labId } = await requireTenantContext()
 
 	// 2. Resolve and Validate URL Parameters
 	const params = await searchParams

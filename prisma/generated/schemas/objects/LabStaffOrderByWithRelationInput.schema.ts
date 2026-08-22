@@ -3,6 +3,8 @@ import type { Prisma } from '../../../../generated/prisma/client';
 import { SortOrderSchema } from '../enums/SortOrder.schema';
 import { SortOrderInputObjectSchema as SortOrderInputObjectSchema } from './SortOrderInput.schema';
 import { LabOrderByWithRelationInputObjectSchema as LabOrderByWithRelationInputObjectSchema } from './LabOrderByWithRelationInput.schema';
+import { MemberOrderByWithRelationInputObjectSchema as MemberOrderByWithRelationInputObjectSchema } from './MemberOrderByWithRelationInput.schema';
+import { LabStaffInvitationIntentOrderByWithRelationInputObjectSchema as LabStaffInvitationIntentOrderByWithRelationInputObjectSchema } from './LabStaffInvitationIntentOrderByWithRelationInput.schema';
 import { LabUserOrderByWithRelationInputObjectSchema as LabUserOrderByWithRelationInputObjectSchema } from './LabUserOrderByWithRelationInput.schema';
 import { LabInvitationOrderByWithRelationInputObjectSchema as LabInvitationOrderByWithRelationInputObjectSchema } from './LabInvitationOrderByWithRelationInput.schema';
 import { CaseStaffAssignmentOrderByRelationAggregateInputObjectSchema as CaseStaffAssignmentOrderByRelationAggregateInputObjectSchema } from './CaseStaffAssignmentOrderByRelationAggregateInput.schema';
@@ -25,10 +27,13 @@ const makeSchema = () => z.object({
   specialization: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
   commissionType: SortOrderSchema.optional(),
   commissionValue: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
+  memberId: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
   workingDays: SortOrderSchema.optional(),
   createdAt: SortOrderSchema.optional(),
   updatedAt: SortOrderSchema.optional(),
   lab: z.lazy(() => LabOrderByWithRelationInputObjectSchema).optional(),
+  member: z.lazy(() => MemberOrderByWithRelationInputObjectSchema).optional(),
+  organizationInvitationIntent: z.lazy(() => LabStaffInvitationIntentOrderByWithRelationInputObjectSchema).optional(),
   labUser: z.lazy(() => LabUserOrderByWithRelationInputObjectSchema).optional(),
   labInvitation: z.lazy(() => LabInvitationOrderByWithRelationInputObjectSchema).optional(),
   caseAssignments: z.lazy(() => CaseStaffAssignmentOrderByRelationAggregateInputObjectSchema).optional(),

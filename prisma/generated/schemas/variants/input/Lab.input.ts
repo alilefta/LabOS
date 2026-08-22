@@ -2,6 +2,8 @@ import * as z from 'zod';
 // prettier-ignore
 export const LabInputSchema = z.object({
     id: z.string(),
+    organizationId: z.string().optional().nullable(),
+    organization: z.unknown().optional().nullable(),
     title: z.string(),
     slug: z.string().optional().nullable(),
     brandAvatarUrl: z.string().optional().nullable(),

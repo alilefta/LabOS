@@ -10,6 +10,7 @@ import { LabSumOrderByAggregateInputObjectSchema as LabSumOrderByAggregateInputO
 
 const makeSchema = () => z.object({
   id: SortOrderSchema.optional(),
+  organizationId: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
   title: SortOrderSchema.optional(),
   slug: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
   brandAvatarUrl: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),

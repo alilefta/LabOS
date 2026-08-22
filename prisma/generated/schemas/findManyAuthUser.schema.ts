@@ -20,9 +20,14 @@ export const AuthUserFindManySelectSchema: z.ZodType<Prisma.AuthUserSelect> = z.
     role: z.boolean().optional(),
     sessions: z.boolean().optional(),
     accounts: z.boolean().optional(),
+    members: z.boolean().optional(),
+    invitations: z.boolean().optional(),
     labUser: z.boolean().optional(),
     superUser: z.boolean().optional(),
     labId: z.boolean().optional(),
+    banned: z.boolean().optional(),
+    banReason: z.boolean().optional(),
+    banExpires: z.boolean().optional(),
     _count: z.boolean().optional()
   }).strict() as unknown as z.ZodType<Prisma.AuthUserSelect>;
 
@@ -37,9 +42,14 @@ export const AuthUserFindManySelectZodSchema = z.object({
     role: z.boolean().optional(),
     sessions: z.boolean().optional(),
     accounts: z.boolean().optional(),
+    members: z.boolean().optional(),
+    invitations: z.boolean().optional(),
     labUser: z.boolean().optional(),
     superUser: z.boolean().optional(),
     labId: z.boolean().optional(),
+    banned: z.boolean().optional(),
+    banReason: z.boolean().optional(),
+    banExpires: z.boolean().optional(),
     _count: z.boolean().optional()
   }).strict();
 

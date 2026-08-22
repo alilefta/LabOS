@@ -8,6 +8,8 @@ export const SessionGroupByResultSchema = z.array(z.object({
   ipAddress: z.string(),
   userAgent: z.string(),
   userId: z.string(),
+  impersonatedBy: z.string(),
+  activeOrganizationId: z.string(),
   _count: z.object({
     id: z.number(),
     expiresAt: z.number(),
@@ -17,7 +19,9 @@ export const SessionGroupByResultSchema = z.array(z.object({
     ipAddress: z.number(),
     userAgent: z.number(),
     userId: z.number(),
-    authuser: z.number()
+    authuser: z.number(),
+    impersonatedBy: z.number(),
+    activeOrganizationId: z.number()
   }).optional(),
   _min: z.object({
     id: z.string().nullable(),
@@ -27,7 +31,9 @@ export const SessionGroupByResultSchema = z.array(z.object({
     updatedAt: z.date().nullable(),
     ipAddress: z.string().nullable(),
     userAgent: z.string().nullable(),
-    userId: z.string().nullable()
+    userId: z.string().nullable(),
+    impersonatedBy: z.string().nullable(),
+    activeOrganizationId: z.string().nullable()
   }).nullable().optional(),
   _max: z.object({
     id: z.string().nullable(),
@@ -37,6 +43,8 @@ export const SessionGroupByResultSchema = z.array(z.object({
     updatedAt: z.date().nullable(),
     ipAddress: z.string().nullable(),
     userAgent: z.string().nullable(),
-    userId: z.string().nullable()
+    userId: z.string().nullable(),
+    impersonatedBy: z.string().nullable(),
+    activeOrganizationId: z.string().nullable()
   }).nullable().optional()
 }));

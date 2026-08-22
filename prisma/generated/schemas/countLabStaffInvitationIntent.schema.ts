@@ -1,0 +1,10 @@
+import type { Prisma } from '../../../generated/prisma/client';
+import * as z from 'zod';
+import { LabStaffInvitationIntentOrderByWithRelationInputObjectSchema as LabStaffInvitationIntentOrderByWithRelationInputObjectSchema } from './objects/LabStaffInvitationIntentOrderByWithRelationInput.schema';
+import { LabStaffInvitationIntentWhereInputObjectSchema as LabStaffInvitationIntentWhereInputObjectSchema } from './objects/LabStaffInvitationIntentWhereInput.schema';
+import { LabStaffInvitationIntentWhereUniqueInputObjectSchema as LabStaffInvitationIntentWhereUniqueInputObjectSchema } from './objects/LabStaffInvitationIntentWhereUniqueInput.schema';
+import { LabStaffInvitationIntentCountAggregateInputObjectSchema as LabStaffInvitationIntentCountAggregateInputObjectSchema } from './objects/LabStaffInvitationIntentCountAggregateInput.schema';
+
+export const LabStaffInvitationIntentCountSchema: z.ZodType<Prisma.LabStaffInvitationIntentCountArgs> = z.object({ orderBy: z.union([LabStaffInvitationIntentOrderByWithRelationInputObjectSchema, LabStaffInvitationIntentOrderByWithRelationInputObjectSchema.array()]).optional(), where: LabStaffInvitationIntentWhereInputObjectSchema.optional(), cursor: LabStaffInvitationIntentWhereUniqueInputObjectSchema.optional(), take: z.number().optional(), skip: z.number().optional(), select: z.union([ z.literal(true), LabStaffInvitationIntentCountAggregateInputObjectSchema ]).optional() }).strict() as unknown as z.ZodType<Prisma.LabStaffInvitationIntentCountArgs>;
+
+export const LabStaffInvitationIntentCountZodSchema = z.object({ orderBy: z.union([LabStaffInvitationIntentOrderByWithRelationInputObjectSchema, LabStaffInvitationIntentOrderByWithRelationInputObjectSchema.array()]).optional(), where: LabStaffInvitationIntentWhereInputObjectSchema.optional(), cursor: LabStaffInvitationIntentWhereUniqueInputObjectSchema.optional(), take: z.number().optional(), skip: z.number().optional(), select: z.union([ z.literal(true), LabStaffInvitationIntentCountAggregateInputObjectSchema ]).optional() }).strict();

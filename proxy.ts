@@ -19,7 +19,7 @@ export default async function proxy(request: NextRequest) {
 	// route groups
 	// Route groups
 	const exactPublicRoutes = ['/', '/pricing', '/about', '/contact']
-	const dynamicPublicRoutes = ['/statement', '/paystub'] // Add paths that have dynamic slugs here
+	const dynamicPublicRoutes = ['/statement', '/paystub', '/invite']
 
 	const authRoutes = ['/sign-in', '/sign-up']
 	const onboardingRoute = '/onboarding'
@@ -65,7 +65,9 @@ export default async function proxy(request: NextRequest) {
 	})
 
 	const hasSession = !!session
-	const hasOnboarded = !!session?.user.labId
+	// This is only a routing hint. Protected layouts and request handlers still
+	// perform authoritative membership + Organization-to-Lab validation.
+	const hasOnboarded = Boolean(session?.session.activeOrganizationId)
 
 	// -------------------------
 	// NOT AUTHENTICATED

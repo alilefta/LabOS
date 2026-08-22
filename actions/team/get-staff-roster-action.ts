@@ -6,6 +6,7 @@ import { tenantPrisma } from "@/lib/prisma";
 import { SystemAccessState, TeamFiltersSchema, CapacityBand, QualityRiskBand } from "@/schema/composed/team/team-filters";
 import { LabStaffWhereInput } from "@/generated/prisma/models";
 import { StaffMemberDTO } from "@/schema/composed/team/team.dtos";
+import { toLegacyLabRole } from "@/platform/organizations/legacy-role-compatibility";
 
 export const getStaffRosterAction = actionClientWithLab
 	.metadata({
@@ -71,12 +72,13 @@ export const getStaffRosterAction = actionClientWithLab
 				commissionValue: true,
 				isActive: true,
 
-				// Relation 1: System Access
-				labUser: { select: { role: true } },
-
-				// Relation 2: The Invitation System
-				labInvitation: {
-					select: { email: true, roleToGrant: true, expiresAt: true },
+				member: { select: { role: true } },
+				organizationInvitationIntent: {
+					select: {
+						invitation: {
+							select: { email: true, role: true, status: true, expiresAt: true },
+						},
+					},
 				},
 
 				// Operational N+1 Prevention: Aggregated active case count
@@ -112,14 +114,19 @@ export const getStaffRosterAction = actionClientWithLab
 			let systemRole = null;
 			let inviteEmail = null;
 
-			if (staff.labUser) {
+			if (staff.member) {
 				accessState = "ACTIVE_USER";
-				systemRole = staff.labUser.role;
-			} else if (staff.labInvitation && staff.labInvitation.expiresAt > now) {
+				systemRole = toLegacyLabRole(staff.member.role);
+			} else if (
+				staff.organizationInvitationIntent?.invitation.status === "pending" &&
+				staff.organizationInvitationIntent.invitation.expiresAt > now
+			) {
 				// The invite is active and hasn't expired yet!
 				accessState = "PENDING_INVITE";
-				systemRole = staff.labInvitation.roleToGrant;
-				inviteEmail = staff.labInvitation.email;
+				systemRole = staff.organizationInvitationIntent.invitation.role
+					? toLegacyLabRole(staff.organizationInvitationIntent.invitation.role)
+					: null;
+				inviteEmail = staff.organizationInvitationIntent.invitation.email;
 			}
 
 			// --- Determine Capacity Band ---

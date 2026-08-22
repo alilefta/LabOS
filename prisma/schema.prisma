@@ -228,6 +228,10 @@ enum SupportedLanguage {
 model Lab {
   id String @id @default(uuid())
 
+  // Nullable during the expand/backfill phase; make required after every Lab is linked.
+  organizationId String?       @unique
+  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
   title          String
   slug           String?
   brandAvatarUrl String?
@@ -374,9 +378,10 @@ model Dentist {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  // New index to speed up filtering active vs inactive
   @@index([clinicId])
   @@index([labId])
-  @@index([clinicId, isActive]) // New index to speed up filtering active vs inactive
+  @@index([clinicId, isActive])
 }
 
 model Case {
@@ -435,10 +440,10 @@ model Case {
   completedAt DateTime? // Timestamp when status hits COMPLETED (Milling/QC finished)
   deliveredAt DateTime? // Timestamp when status hits DELIVERED (Courier dropped it off)
 
+  // new
   @@unique([labId, caseNumber])
   @@index([labId])
   @@index([clinicId])
-  // new
   @@index([labId, deadline])
   @@index([labId, status])
 }
@@ -673,6 +678,7 @@ model SelectedTooth {
 /// THE HUMAN RESOURCE (Internal Operational)
 /// Managed by the Lab Admin. 
 /// This is the source of truth for "Who is physically doing the work?".
+
 model LabStaff {
   id    String @id @default(uuid())
   labId String
@@ -703,6 +709,13 @@ model LabStaff {
   commissionType  CommissionType @default(PERCENTAGE)
   commissionValue Decimal?       @db.Decimal(10, 2) // % or fixed amount
 
+  // Optional tenant-aware digital account link. Member is Organization-scoped,
+  // so one AuthUser can have a different LabStaff persona in each Organization.
+  memberId String? @unique
+  member   Member? @relation(fields: [memberId], references: [id], onDelete: SetNull)
+
+  organizationInvitationIntent LabStaffInvitationIntent?
+
   // THE LINK: 1:1 Optional relationship to a System Account
   labUser       LabUser? // Defined on the other side
   labInvitation LabInvitation? // NEW: Track if they have a pending invite
@@ -718,6 +731,7 @@ model LabStaff {
   updatedAt DateTime @updatedAt
 
   @@index([labId])
+  @@unique([id, labId])
   @@index([labId, roleCategory])
   @@index([labId, isActive])
 }
@@ -740,6 +754,7 @@ model LabStaff {
 /// each LabStaff record already encodes a single role. If a lab needs the same
 /// person in two roles, they create two LabStaff records. The UI warns on
 /// duplicate phone numbers during staff registration to make this explicit.
+
 model CaseStaffAssignment {
   id         String @id @default(uuid())
   caseId     String
@@ -770,9 +785,10 @@ model CaseStaffAssignment {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@unique([caseId, staffId]) // one assignment per staff per case
+  // one assignment per staff per case
   // new field to match the workflow
   // NO 2 LabStaff persons for the same role for the case
+  @@unique([caseId, staffId])
   @@index([caseId, roleCategory])
   @@index([labId])
 }
@@ -809,6 +825,7 @@ model StaffPayout {
 }
 
 // new to add
+
 model CaseActivityLog {
   id         String @id @default(uuid())
   caseId     String
@@ -873,6 +890,7 @@ model Invoice {
 }
 
 // Junction — @unique on caseId prevents double-billing
+
 model InvoiceCase {
   invoiceId String
   invoice   Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
@@ -936,6 +954,7 @@ model LabSubscriptionPlan {
 /// THE SYSTEM SEAT (Internal Permission)
 /// Managed by the Lab Admin. 
 /// This is the source of truth for "What can this login do in the app?".
+
 model LabUser {
   id    String @id @default(uuid())
   labId String
@@ -977,6 +996,7 @@ model LabUser {
 
 /// THE INVITATION SYSTEM
 /// Manages pending secure links sent to staff to join the software.
+
 model LabInvitation {
   id    String @id @default(uuid())
   token String @unique @default(uuid()) // Secure token for the URL (e.g. /invite/[token])
@@ -1000,6 +1020,7 @@ model LabInvitation {
 }
 
 // 🔥 NEW MODEL: The catalog definition for product accessories (e.g. Z-Spring, Clasp, Rest)
+
 model ProductAddon {
   id        String  @id @default(uuid())
   productId String
@@ -1022,6 +1043,7 @@ model ProductAddon {
 }
 
 // 🔥 NEW MODEL: The transactional junction table holding the PRICE SNAPSHOT
+
 model CaseWorkItemAddon {
   id             String       @id @default(uuid())
   caseWorkItemId String
@@ -1038,7 +1060,8 @@ model CaseWorkItemAddon {
 
   createdAt DateTime @default(now())
 
-  @@unique([caseWorkItemId, addonId]) // One unique addon instance per case item
+  // One unique addon instance per case item
+  @@unique([caseWorkItemId, addonId])
   @@index([caseWorkItemId])
   @@index([addonId])
   @@index([labId])
@@ -1074,6 +1097,7 @@ model SuperUser {
 /// THE PERSONAL IDENTITY (External)
 /// Managed by the user via Better-Auth. 
 /// This is the source of truth for "Login Credentials".
+
 model AuthUser {
   id            String       @id
   name          String // Mustafa's personal name
@@ -1086,12 +1110,18 @@ model AuthUser {
   // labId         String?
   sessions      Session[]
   accounts      Account[]
+  members       Member[]
+  invitations   Invitation[]
 
   // Back-link to the Lab Seat
   labUser   LabUser?
   superUser SuperUser?
 
   labId String?
+
+  banned     Boolean?  @default(false)
+  banReason  String?
+  banExpires DateTime?
 
   @@unique([email])
   @@map("AuthUser")
@@ -1109,6 +1139,10 @@ model Session {
   authuser  AuthUser @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   // labId String?
+
+  impersonatedBy String?
+
+  activeOrganizationId String?
 
   @@unique([token])
   @@index([userId])
@@ -1145,4 +1179,71 @@ model Verification {
 
   @@index([identifier])
   @@map("verification")
+}
+
+model Organization {
+  id          String       @id
+  name        String
+  slug        String
+  logo        String?
+  createdAt   DateTime
+  metadata    String?
+  members     Member[]
+  invitations Invitation[]
+  lab         Lab?
+
+  @@unique([slug])
+  @@map("organization")
+}
+
+model Member {
+  id             String       @id
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  userId         String
+  authuser       AuthUser     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role           String       @default("member")
+  createdAt      DateTime
+  labStaff       LabStaff?
+
+  @@index([organizationId])
+  @@index([userId])
+  @@map("member")
+}
+
+model Invitation {
+  id             String       @id
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  email          String
+  role           String?
+  status         String       @default("pending")
+  expiresAt      DateTime
+  createdAt      DateTime     @default(now())
+  inviterId      String
+  authuser       AuthUser     @relation(fields: [inviterId], references: [id], onDelete: Cascade)
+  labStaffIntent LabStaffInvitationIntent?
+
+  @@index([organizationId])
+  @@index([email])
+  @@map("invitation")
+}
+
+/// LabOS-owned optional intent attached to Better Auth's invitation lifecycle.
+/// Better Auth remains authoritative for email, role, status, and expiry.
+model LabStaffInvitationIntent {
+  id String @id @default(uuid())
+
+  invitationId String     @unique
+  invitation   Invitation @relation(fields: [invitationId], references: [id], onDelete: Cascade)
+
+  labId      String
+  labStaffId String
+  labStaff   LabStaff @relation(fields: [labStaffId, labId], references: [id, labId], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([labId])
+  @@unique([labStaffId, labId])
 }

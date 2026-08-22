@@ -11,7 +11,10 @@ const makeSchema = () => z.object({
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
   role: AuthUserRoleSchema.optional(),
-  labId: z.string().optional().nullable()
+  labId: z.string().optional().nullable(),
+  banned: z.boolean().optional().nullable(),
+  banReason: z.string().optional().nullable(),
+  banExpires: z.coerce.date().optional().nullable()
 }).strict();
 export const AuthUserCreateManyInputObjectSchema: z.ZodType<Prisma.AuthUserCreateManyInput> = makeSchema() as unknown as z.ZodType<Prisma.AuthUserCreateManyInput>;
 export const AuthUserCreateManyInputObjectZodSchema = makeSchema();

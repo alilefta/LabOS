@@ -12,6 +12,8 @@ import { LabStaffUpdateworkingDaysInputObjectSchema as LabStaffUpdateworkingDays
 import { WeekdaySchema } from '../enums/Weekday.schema';
 import { DateTimeFieldUpdateOperationsInputObjectSchema as DateTimeFieldUpdateOperationsInputObjectSchema } from './DateTimeFieldUpdateOperationsInput.schema';
 import { LabUpdateOneRequiredWithoutStaffNestedInputObjectSchema as LabUpdateOneRequiredWithoutStaffNestedInputObjectSchema } from './LabUpdateOneRequiredWithoutStaffNestedInput.schema';
+import { MemberUpdateOneWithoutLabStaffNestedInputObjectSchema as MemberUpdateOneWithoutLabStaffNestedInputObjectSchema } from './MemberUpdateOneWithoutLabStaffNestedInput.schema';
+import { LabStaffInvitationIntentUpdateOneWithoutLabStaffNestedInputObjectSchema as LabStaffInvitationIntentUpdateOneWithoutLabStaffNestedInputObjectSchema } from './LabStaffInvitationIntentUpdateOneWithoutLabStaffNestedInput.schema';
 import { LabUserUpdateOneWithoutLabStaffNestedInputObjectSchema as LabUserUpdateOneWithoutLabStaffNestedInputObjectSchema } from './LabUserUpdateOneWithoutLabStaffNestedInput.schema';
 import { CaseStaffAssignmentUpdateManyWithoutStaffNestedInputObjectSchema as CaseStaffAssignmentUpdateManyWithoutStaffNestedInputObjectSchema } from './CaseStaffAssignmentUpdateManyWithoutStaffNestedInput.schema';
 import { StaffPayoutUpdateManyWithoutStaffNestedInputObjectSchema as StaffPayoutUpdateManyWithoutStaffNestedInputObjectSchema } from './StaffPayoutUpdateManyWithoutStaffNestedInput.schema'
@@ -44,6 +46,8 @@ const makeSchema = () => z.object({
   createdAt: z.union([z.coerce.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputObjectSchema)]).optional(),
   updatedAt: z.union([z.coerce.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputObjectSchema)]).optional(),
   lab: z.lazy(() => LabUpdateOneRequiredWithoutStaffNestedInputObjectSchema).optional(),
+  member: z.lazy(() => MemberUpdateOneWithoutLabStaffNestedInputObjectSchema).optional(),
+  organizationInvitationIntent: z.lazy(() => LabStaffInvitationIntentUpdateOneWithoutLabStaffNestedInputObjectSchema).optional(),
   labUser: z.lazy(() => LabUserUpdateOneWithoutLabStaffNestedInputObjectSchema).optional(),
   caseAssignments: z.lazy(() => CaseStaffAssignmentUpdateManyWithoutStaffNestedInputObjectSchema).optional(),
   staffPayouts: z.lazy(() => StaffPayoutUpdateManyWithoutStaffNestedInputObjectSchema).optional()

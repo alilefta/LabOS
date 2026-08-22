@@ -4,6 +4,12 @@ import { generalPrisma } from './prisma'
 import { LabUserBase } from '@/schema/base/lab-user.base'
 import { SuperUserBase } from '@/schema/base/super-user.base'
 import { nextCookies } from 'better-auth/next-js'
+import { admin, organization } from 'better-auth/plugins'
+import { organizationAccess } from '@/platform/auth/organization-access'
+import {
+	cleanupStaffInvitationIntent,
+	processAcceptedStaffInvitation,
+} from '@/lib/staff-invitation/accept-staff-invitation.service'
 
 export const auth = betterAuth({
 	database: prismaAdapter(generalPrisma, {
@@ -22,6 +28,9 @@ export const auth = betterAuth({
 			labId: {
 				type: 'string',
 				required: false,
+				// Legacy compatibility field: readable until schema removal, but no
+				// Better Auth sign-up/update input may write it.
+				input: false,
 			},
 			role: {
 				type: ['LAB_USER', 'SYSTEM_USER'],
@@ -32,12 +41,64 @@ export const auth = betterAuth({
 	},
 	onAPIError: {
 		throw: true,
-		onError(error, ctx) {
-			console.log('ERROR OBJECT FROM lib/auth.js', error)
+		onError(error) {
+			// Authentication errors may contain request or identity details. Keep
+			// default telemetry deliberately coarse until the tracing adapter lands.
+			console.error('[BetterAuth] API request failed', {
+				errorName: error instanceof Error ? error.name : 'UnknownError',
+			})
 		},
 	},
 
-	plugins: [nextCookies()],
+	plugins: [
+		admin(),
+		organization({
+			...organizationAccess,
+			invitationExpiresIn: 60 * 60 * 48,
+			cancelPendingInvitationsOnReInvite: true,
+			organizationHooks: {
+				async afterAcceptInvitation({ invitation, member }) {
+					try {
+						await processAcceptedStaffInvitation({
+							invitationId: invitation.id,
+							organizationId: invitation.organizationId,
+							memberId: member.id,
+						})
+					} catch (error) {
+						// Membership is already committed by Better Auth. Keep the intent
+						// for retry/reconciliation and never log invitation email or token.
+						console.error('[StaffInvitation] post-accept link pending', {
+							invitationId: invitation.id,
+							organizationId: invitation.organizationId,
+							errorCode:
+								error instanceof Error && 'code' in error
+									? error.code
+									: 'STAFF_INVITATION_ACCEPTANCE_LINK_FAILED',
+						})
+					}
+				},
+				async afterCancelInvitation({ invitation }) {
+					try {
+						await cleanupStaffInvitationIntent(invitation.id)
+					} catch {
+						console.warn('[StaffInvitation] canceled intent cleanup pending', {
+							invitationId: invitation.id,
+						})
+					}
+				},
+				async afterRejectInvitation({ invitation }) {
+					try {
+						await cleanupStaffInvitationIntent(invitation.id)
+					} catch {
+						console.warn('[StaffInvitation] rejected intent cleanup pending', {
+							invitationId: invitation.id,
+						})
+					}
+				},
+			},
+		}),
+		nextCookies(),
+	],
 })
 
 export type AuthUser = typeof auth.$Infer.Session.user & {
