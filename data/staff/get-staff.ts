@@ -1,21 +1,12 @@
 import { daError, daSuccess, toDAError } from "@/lib/data-access-errors";
-import { ERRORS } from "@/lib/errors";
-import { getServerSession } from "@/lib/get-session";
+import { getDataTenantContext } from "@/lib/data-tenant-context";
 import { normalizeLabStaff } from "@/lib/mappers";
 import { tenantPrisma } from "@/lib/prisma";
 
 export async function getActiveLabStaff() {
-	const session = await getServerSession();
-
-	if (!session) {
-		return daError(ERRORS.UNAUTHORIZED.toJSON());
-	}
-
-	const labId = session.user.labId;
-
-	if (!labId) {
-		return daError(ERRORS.LAB_NOT_FOUND.toJSON());
-	}
+	const tenantResult = await getDataTenantContext();
+	if (!tenantResult.success) return daError(tenantResult.error);
+	const { labId } = tenantResult.data;
 	try {
 		const prisma = await tenantPrisma(labId);
 		const staffMembers = await prisma.labStaff.findMany({

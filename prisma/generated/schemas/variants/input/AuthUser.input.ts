@@ -12,9 +12,14 @@ export const AuthUserInputSchema = z.object({
     role: AuthUserRoleSchema,
     sessions: z.array(z.unknown()),
     accounts: z.array(z.unknown()),
+    members: z.array(z.unknown()),
+    invitations: z.array(z.unknown()),
     labUser: z.unknown().optional().nullable(),
     superUser: z.unknown().optional().nullable(),
-    labId: z.string().optional().nullable()
+    labId: z.string().optional().nullable(),
+    banned: z.boolean().optional().nullable(),
+    banReason: z.string().optional().nullable(),
+    banExpires: z.date().optional().nullable()
 }).strict();
 
 export type AuthUserInputType = z.infer<typeof AuthUserInputSchema>;

@@ -2,13 +2,13 @@ import { notFound, redirect } from "next/navigation";
 import { getNewInvoiceOnboardingData } from "@/data/invoices/get-new-invoice-data";
 import { NewInvoiceClient } from "@/components/invoices/new-invoice/new-invoice-client";
 import z from "zod";
-import { getServerSession } from "@/lib/get-session";
 import { Metadata } from "next";
 import { getQueryClient } from "@/providers/get-query-client";
 import { getBaseClinicsBySearchQueryAction } from "@/actions/clinics/get-clinics";
 import { ClinicDetailsUI } from "@/schema/composed/clinic.details";
 import { QueryHydrationBoundary } from "@/providers/query-hydration-boundary";
 import { dehydrate } from "@tanstack/react-query";
+import { requireTenantContext } from "@/platform/organizations/tenant-context";
 
 const QueryParamSchema = z.object({
 	clinicId: z.uuid().optional(),
@@ -24,11 +24,7 @@ export default async function NewInvoicePage({ searchParams }: { searchParams: P
 	const parsedParams = QueryParamSchema.safeParse(params);
 	const clinicId = parsedParams.success ? parsedParams.data.clinicId : undefined;
 
-	const session = await getServerSession();
-	if (!session) redirect("/sign-in");
-
-	const labId = session.user.labId;
-	if (!labId) redirect("/onboarding");
+	const { labId } = await requireTenantContext();
 
 	// 2. Execute Secure Data Access Function
 	const result = await getNewInvoiceOnboardingData(clinicId);

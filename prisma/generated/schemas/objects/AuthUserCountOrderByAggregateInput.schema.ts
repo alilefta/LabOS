@@ -11,7 +11,10 @@ const makeSchema = () => z.object({
   createdAt: SortOrderSchema.optional(),
   updatedAt: SortOrderSchema.optional(),
   role: SortOrderSchema.optional(),
-  labId: SortOrderSchema.optional()
+  labId: SortOrderSchema.optional(),
+  banned: SortOrderSchema.optional(),
+  banReason: SortOrderSchema.optional(),
+  banExpires: SortOrderSchema.optional()
 }).strict();
 export const AuthUserCountOrderByAggregateInputObjectSchema: z.ZodType<Prisma.AuthUserCountOrderByAggregateInput> = makeSchema() as unknown as z.ZodType<Prisma.AuthUserCountOrderByAggregateInput>;
 export const AuthUserCountOrderByAggregateInputObjectZodSchema = makeSchema();

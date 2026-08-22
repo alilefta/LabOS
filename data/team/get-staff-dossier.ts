@@ -1,26 +1,21 @@
 // data/team/get-staff-dossier.ts
 
 import { tenantPrisma } from "@/lib/prisma";
-import { getServerSession } from "@/lib/get-session";
+import { getDataTenantContext } from "@/lib/data-tenant-context";
 import { ERRORS } from "@/lib/errors";
 import { daError, daSuccess, toDAError, DAResult } from "@/lib/data-access-errors";
 import { StaffDossierDTO, StaffHeaderDTO, StaffMetadataDTO, SystemAccessState } from "@/schema/composed/team/staff-dossier.dtos"; // Adjust path
 import z from "zod";
+import { toLegacyLabRole } from "@/platform/organizations/legacy-role-compatibility";
 
 const InputSchema = z.string().uuid("Invalid Staff ID format");
 
 export async function getStaffDossierData(staffId: string): Promise<DAResult<StaffDossierDTO>> {
 	try {
 		// ── 1. SECURITY GATES ───────────────────────────────────────────────
-		const session = await getServerSession();
-		if (!session) {
-			return daError(ERRORS.UNAUTHORIZED.toJSON());
-		}
-
-		const labId = session.user.labId;
-		if (!labId) {
-			return daError(ERRORS.LAB_NOT_FOUND.toJSON());
-		}
+		const tenantResult = await getDataTenantContext();
+		if (!tenantResult.success) return daError(tenantResult.error);
+		const { labId } = tenantResult.data;
 
 		const parsedStaffId = InputSchema.safeParse(staffId);
 		if (!parsedStaffId.success) {
@@ -37,8 +32,12 @@ export async function getStaffDossierData(staffId: string): Promise<DAResult<Sta
 			prisma.labStaff.findUnique({
 				where: { id: parsedStaffId.data, labId },
 				include: {
-					labUser: { select: { id: true, role: true } },
-					labInvitation: { select: { token: true, email: true, roleToGrant: true, expiresAt: true } },
+					member: { select: { id: true, role: true } },
+					organizationInvitationIntent: {
+						select: {
+							invitation: { select: { id: true, email: true, role: true, status: true, expiresAt: true } },
+						},
+					},
 					caseAssignments: {
 						where: {
 							dentalCase: { status: { in: ["ASSIGNED", "PROCESSING"] } },
@@ -116,14 +115,19 @@ export async function getStaffDossierData(staffId: string): Promise<DAResult<Sta
 		let inviteEmail = null;
 		let inviteToken = null;
 
-		if (staff.labUser) {
+		if (staff.member) {
 			accessState = "ACTIVE_USER";
-			systemRole = staff.labUser.role;
-		} else if (staff.labInvitation && staff.labInvitation.expiresAt > now) {
+			systemRole = toLegacyLabRole(staff.member.role);
+		} else if (
+			staff.organizationInvitationIntent?.invitation.status === "pending" &&
+			staff.organizationInvitationIntent.invitation.expiresAt > now
+		) {
 			accessState = "PENDING_INVITE";
-			systemRole = staff.labInvitation.roleToGrant;
-			inviteEmail = staff.labInvitation.email;
-			inviteToken = staff.labInvitation.token;
+			systemRole = staff.organizationInvitationIntent.invitation.role
+				? toLegacyLabRole(staff.organizationInvitationIntent.invitation.role)
+				: null;
+			inviteEmail = staff.organizationInvitationIntent.invitation.email;
+			inviteToken = staff.organizationInvitationIntent.invitation.id;
 		}
 
 		// ── 5. MAP TO SECURE, SANITIZED DTO ────────────────────────────────
@@ -163,11 +167,9 @@ export async function getStaffDossierData(staffId: string): Promise<DAResult<Sta
 // ── DAF 1: GET STAFF METADATA (Blistering Fast PK Select) ───────────────────
 export async function getStaffMetadata(staffId: string): Promise<DAResult<StaffMetadataDTO>> {
 	try {
-		const session = await getServerSession();
-		if (!session) return daError(ERRORS.UNAUTHORIZED.toJSON());
-
-		const labId = session.user.labId;
-		if (!labId) return daError(ERRORS.LAB_NOT_FOUND.toJSON());
+		const tenantResult = await getDataTenantContext();
+		if (!tenantResult.success) return daError(tenantResult.error);
+		const { labId } = tenantResult.data;
 
 		const parsedStaffId = InputSchema.safeParse(staffId);
 		if (!parsedStaffId.success) return daError(ERRORS.INVALID_INPUT.toJSON());
@@ -194,11 +196,9 @@ export async function getStaffMetadata(staffId: string): Promise<DAResult<StaffM
 // ── DAF 2: GET STAFF HEADER DATA (Zero Relational Aggregations) ──────────────
 export async function getStaffHeaderData(staffId: string): Promise<DAResult<StaffHeaderDTO>> {
 	try {
-		const session = await getServerSession();
-		if (!session) return daError(ERRORS.UNAUTHORIZED.toJSON());
-
-		const labId = session.user.labId;
-		if (!labId) return daError(ERRORS.LAB_NOT_FOUND.toJSON());
+		const tenantResult = await getDataTenantContext();
+		if (!tenantResult.success) return daError(tenantResult.error);
+		const { labId } = tenantResult.data;
 
 		const parsedStaffId = InputSchema.safeParse(staffId);
 		if (!parsedStaffId.success) return daError(ERRORS.INVALID_INPUT.toJSON());
@@ -217,11 +217,13 @@ export async function getStaffHeaderData(staffId: string): Promise<DAResult<Staf
 				jobTitle: true,
 				specialization: true,
 				isActive: true,
-				labUser: {
+				member: {
 					select: { role: true },
 				},
-				labInvitation: {
-					select: { email: true, roleToGrant: true, expiresAt: true },
+				organizationInvitationIntent: {
+					select: {
+						invitation: { select: { email: true, role: true, status: true, expiresAt: true } },
+					},
 				},
 			},
 		});
@@ -233,13 +235,18 @@ export async function getStaffHeaderData(staffId: string): Promise<DAResult<Staf
 		let systemRole = null;
 		let inviteEmail = null;
 
-		if (staff.labUser) {
+		if (staff.member) {
 			accessState = "ACTIVE_USER";
-			systemRole = staff.labUser.role;
-		} else if (staff.labInvitation && staff.labInvitation.expiresAt > now) {
+			systemRole = toLegacyLabRole(staff.member.role);
+		} else if (
+			staff.organizationInvitationIntent?.invitation.status === "pending" &&
+			staff.organizationInvitationIntent.invitation.expiresAt > now
+		) {
 			accessState = "PENDING_INVITE";
-			systemRole = staff.labInvitation.roleToGrant;
-			inviteEmail = staff.labInvitation.email;
+			systemRole = staff.organizationInvitationIntent.invitation.role
+				? toLegacyLabRole(staff.organizationInvitationIntent.invitation.role)
+				: null;
+			inviteEmail = staff.organizationInvitationIntent.invitation.email;
 		}
 
 		return daSuccess({

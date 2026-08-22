@@ -1,31 +1,31 @@
-import { Case } from "@/generated/prisma/client";
-import { daError, DAResult, daSuccess, toDAError } from "@/lib/data-access-errors";
-import { ERRORS } from "@/lib/errors";
-import { getServerSession } from "@/lib/get-session";
-import { composeCaseDTO } from "@/lib/mappers";
-import { tenantPrisma } from "@/lib/prisma";
-import { CaseBase } from "@/schema/base/case.base";
-import { CaseDetailsUI } from "@/schema/composed/case.details";
+import { Case } from '@/generated/prisma/client'
+import {
+	daError,
+	DAResult,
+	daSuccess,
+	toDAError,
+} from '@/lib/data-access-errors'
+import { ERRORS } from '@/lib/errors'
+import { getDataTenantContext } from '@/lib/data-tenant-context'
+import { composeCaseDTO } from '@/lib/mappers'
+import { tenantPrisma } from '@/lib/prisma'
+import { CaseBase } from '@/schema/base/case.base'
+import { CaseDetailsUI } from '@/schema/composed/case.details'
 
-export async function getCases(page: number, limit: number): Promise<DAResult<CaseBase[]>> {
+export async function getCases(
+	page: number,
+	limit: number,
+): Promise<DAResult<CaseBase[]>> {
 	try {
-		const session = await getServerSession();
+		const tenantResult = await getDataTenantContext()
+		if (!tenantResult.success) return daError(tenantResult.error)
+		const { labId } = tenantResult.data
 
-		if (!session) {
-			return daError(ERRORS.UNAUTHORIZED.toJSON());
-		}
-
-		const labId = session.user.labId;
-
-		if (!labId) {
-			return daError(ERRORS.LAB_NOT_FOUND.toJSON());
-		}
-
-		const prisma = await tenantPrisma(labId);
+		const prisma = await tenantPrisma(labId)
 
 		const cases = await prisma.case.findMany({
 			where: { labId },
-			orderBy: { createdAt: "desc" },
+			orderBy: { createdAt: 'desc' },
 			include: {
 				staffAssignments: true,
 				clinic: true,
@@ -34,32 +34,24 @@ export async function getCases(page: number, limit: number): Promise<DAResult<Ca
 			},
 			take: limit,
 			skip: (page - 1) * limit,
-		});
+		})
 
-		return daSuccess(rawCaseToCaseBaseMapper(cases));
+		return daSuccess(rawCaseToCaseBaseMapper(cases))
 	} catch (e) {
-		return toDAError(e);
+		return toDAError(e)
 	}
 }
 
 export async function getDentalCaseById(caseId: string) {
-	const session = await getServerSession();
-
-	if (!session) {
-		return daError(ERRORS.UNAUTHORIZED.toJSON());
-	}
-
-	const labId = session.user.labId;
-
-	if (!labId) {
-		return daError(ERRORS.LAB_NOT_FOUND.toJSON());
-	}
+	const tenantResult = await getDataTenantContext()
+	if (!tenantResult.success) return daError(tenantResult.error)
+	const { labId } = tenantResult.data
 
 	if (!caseId) {
-		return daError(ERRORS.NOT_FOUND.toJSON());
+		return daError(ERRORS.NOT_FOUND.toJSON())
 	}
 
-	const prisma = await tenantPrisma(labId);
+	const prisma = await tenantPrisma(labId)
 
 	const dentalCase = await prisma.case.findUnique({
 		where: {
@@ -94,16 +86,16 @@ export async function getDentalCaseById(caseId: string) {
 			remakes: true,
 			originalCase: true,
 		},
-	});
+	})
 	if (!dentalCase) {
-		return daError(ERRORS.NOT_FOUND.toJSON());
+		return daError(ERRORS.NOT_FOUND.toJSON())
 	}
 
-	return daSuccess<CaseDetailsUI | null>(composeCaseDTO(dentalCase));
+	return daSuccess<CaseDetailsUI | null>(composeCaseDTO(dentalCase))
 }
 export const rawCaseToCaseBaseMapper = (data: Case[]): CaseBase[] => {
 	return data.map((c) => ({
 		...c,
 		grandTotal: Number(c.grandTotal),
-	}));
-};
+	}))
+}

@@ -1,7 +1,7 @@
 import { ClinicSelectScalar } from "@/generated/prisma/models";
 import { daError, daSuccess } from "@/lib/data-access-errors";
 import { ERRORS } from "@/lib/errors";
-import { getServerSession } from "@/lib/get-session";
+import { getDataTenantContext } from "@/lib/data-tenant-context";
 import { normalizeClinic } from "@/lib/mappers";
 import { composeClinicBase } from "@/lib/mappers/composers";
 import { tenantPrisma } from "@/lib/prisma";
@@ -9,17 +9,9 @@ import { ClinicBase } from "@/schema/base/clinic.base";
 import { cache } from "react";
 
 export const getClinicDetailsById = cache(async function getClinicDetailsById(clinicId: string) {
-	const session = await getServerSession();
-
-	if (!session) {
-		return daError(ERRORS.UNAUTHORIZED.toJSON());
-	}
-
-	const labId = session.user.labId;
-
-	if (!labId) {
-		return daError(ERRORS.LAB_NOT_FOUND.toJSON());
-	}
+	const tenantResult = await getDataTenantContext();
+	if (!tenantResult.success) return daError(tenantResult.error);
+	const { labId } = tenantResult.data;
 
 	if (!clinicId) {
 		return daError(ERRORS.NOT_FOUND.toJSON());
@@ -63,17 +55,9 @@ export const getClinicDetailsById = cache(async function getClinicDetailsById(cl
 });
 
 export async function getClinicById(clinicId: string) {
-	const session = await getServerSession();
-
-	if (!session) {
-		return daError(ERRORS.UNAUTHORIZED.toJSON());
-	}
-
-	const labId = session.user.labId;
-
-	if (!labId) {
-		return daError(ERRORS.LAB_NOT_FOUND.toJSON());
-	}
+	const tenantResult = await getDataTenantContext();
+	if (!tenantResult.success) return daError(tenantResult.error);
+	const { labId } = tenantResult.data;
 
 	if (!clinicId) {
 		return daError(ERRORS.NOT_FOUND.toJSON());
@@ -96,17 +80,9 @@ export async function getClinicById(clinicId: string) {
 }
 
 export async function getClinicSelectiveFieldById(clinicId: string, fields: ClinicSelectScalar) {
-	const session = await getServerSession();
-
-	if (!session) {
-		return daError(ERRORS.UNAUTHORIZED.toJSON());
-	}
-
-	const labId = session.user.labId;
-
-	if (!labId) {
-		return daError(ERRORS.LAB_NOT_FOUND.toJSON());
-	}
+	const tenantResult = await getDataTenantContext();
+	if (!tenantResult.success) return daError(tenantResult.error);
+	const { labId } = tenantResult.data;
 
 	if (!clinicId) {
 		return daError(ERRORS.NOT_FOUND.toJSON());

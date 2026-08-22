@@ -1,6 +1,8 @@
 import * as z from 'zod';
 import type { Prisma } from '../../../../generated/prisma/client';
 import { LabArgsObjectSchema as LabArgsObjectSchema } from './LabArgs.schema';
+import { MemberArgsObjectSchema as MemberArgsObjectSchema } from './MemberArgs.schema';
+import { LabStaffInvitationIntentArgsObjectSchema as LabStaffInvitationIntentArgsObjectSchema } from './LabStaffInvitationIntentArgs.schema';
 import { LabUserArgsObjectSchema as LabUserArgsObjectSchema } from './LabUserArgs.schema';
 import { LabInvitationArgsObjectSchema as LabInvitationArgsObjectSchema } from './LabInvitationArgs.schema';
 import { CaseStaffAssignmentFindManySchema as CaseStaffAssignmentFindManySchema } from '../findManyCaseStaffAssignment.schema';
@@ -25,6 +27,9 @@ const makeSchema = () => z.object({
   specialization: z.boolean().optional(),
   commissionType: z.boolean().optional(),
   commissionValue: z.boolean().optional(),
+  memberId: z.boolean().optional(),
+  member: z.union([z.boolean(), z.lazy(() => MemberArgsObjectSchema)]).optional(),
+  organizationInvitationIntent: z.union([z.boolean(), z.lazy(() => LabStaffInvitationIntentArgsObjectSchema)]).optional(),
   labUser: z.union([z.boolean(), z.lazy(() => LabUserArgsObjectSchema)]).optional(),
   labInvitation: z.union([z.boolean(), z.lazy(() => LabInvitationArgsObjectSchema)]).optional(),
   caseAssignments: z.union([z.boolean(), z.lazy(() => CaseStaffAssignmentFindManySchema)]).optional(),

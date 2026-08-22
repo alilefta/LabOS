@@ -12,6 +12,10 @@ import { EnumWeekdayNullableListFilterObjectSchema as EnumWeekdayNullableListFil
 import { DateTimeFilterObjectSchema as DateTimeFilterObjectSchema } from './DateTimeFilter.schema';
 import { LabScalarRelationFilterObjectSchema as LabScalarRelationFilterObjectSchema } from './LabScalarRelationFilter.schema';
 import { LabWhereInputObjectSchema as LabWhereInputObjectSchema } from './LabWhereInput.schema';
+import { MemberNullableScalarRelationFilterObjectSchema as MemberNullableScalarRelationFilterObjectSchema } from './MemberNullableScalarRelationFilter.schema';
+import { MemberWhereInputObjectSchema as MemberWhereInputObjectSchema } from './MemberWhereInput.schema';
+import { LabStaffInvitationIntentNullableScalarRelationFilterObjectSchema as LabStaffInvitationIntentNullableScalarRelationFilterObjectSchema } from './LabStaffInvitationIntentNullableScalarRelationFilter.schema';
+import { LabStaffInvitationIntentWhereInputObjectSchema as LabStaffInvitationIntentWhereInputObjectSchema } from './LabStaffInvitationIntentWhereInput.schema';
 import { LabUserNullableScalarRelationFilterObjectSchema as LabUserNullableScalarRelationFilterObjectSchema } from './LabUserNullableScalarRelationFilter.schema';
 import { LabUserWhereInputObjectSchema as LabUserWhereInputObjectSchema } from './LabUserWhereInput.schema';
 import { LabInvitationNullableScalarRelationFilterObjectSchema as LabInvitationNullableScalarRelationFilterObjectSchema } from './LabInvitationNullableScalarRelationFilter.schema';
@@ -47,10 +51,13 @@ const labstaffwhereinputSchema = z.object({
 ]).refine((v) => isValidDecimalInput(v), {
   message: "Field 'commissionValue' must be a Decimal",
 })]).optional().nullable(),
+  memberId: z.union([z.lazy(() => StringNullableFilterObjectSchema), z.string()]).optional().nullable(),
   workingDays: z.lazy(() => EnumWeekdayNullableListFilterObjectSchema).optional(),
   createdAt: z.union([z.lazy(() => DateTimeFilterObjectSchema), z.coerce.date()]).optional(),
   updatedAt: z.union([z.lazy(() => DateTimeFilterObjectSchema), z.coerce.date()]).optional(),
   lab: z.union([z.lazy(() => LabScalarRelationFilterObjectSchema), z.lazy(() => LabWhereInputObjectSchema)]).optional(),
+  member: z.union([z.lazy(() => MemberNullableScalarRelationFilterObjectSchema), z.lazy(() => MemberWhereInputObjectSchema)]).optional(),
+  organizationInvitationIntent: z.union([z.lazy(() => LabStaffInvitationIntentNullableScalarRelationFilterObjectSchema), z.lazy(() => LabStaffInvitationIntentWhereInputObjectSchema)]).optional(),
   labUser: z.union([z.lazy(() => LabUserNullableScalarRelationFilterObjectSchema), z.lazy(() => LabUserWhereInputObjectSchema)]).optional(),
   labInvitation: z.union([z.lazy(() => LabInvitationNullableScalarRelationFilterObjectSchema), z.lazy(() => LabInvitationWhereInputObjectSchema)]).optional(),
   caseAssignments: z.lazy(() => CaseStaffAssignmentListRelationFilterObjectSchema).optional(),

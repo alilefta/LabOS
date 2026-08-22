@@ -19,6 +19,7 @@ const makeSchema = () => z.object({
   specialization: z.literal(true).optional(),
   commissionType: z.literal(true).optional(),
   commissionValue: z.literal(true).optional(),
+  memberId: z.literal(true).optional(),
   workingDays: z.literal(true).optional(),
   createdAt: z.literal(true).optional(),
   updatedAt: z.literal(true).optional(),

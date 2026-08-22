@@ -1,46 +1,39 @@
 // Used by server components only!
 "use server";
-import { ERRORS } from "@/lib/errors";
-import { getServerSession } from "@/lib/get-session";
 import { tenantPrisma } from "@/lib/prisma";
+import { requireTenantContext } from "@/platform/organizations/tenant-context";
+import { toLegacyLabRole } from "@/platform/organizations/legacy-role-compatibility";
 
+/** Loads the Lab linked to the active, verified Organization membership. */
 export async function getLabInfo() {
-	const session = await getServerSession();
-	if (!session) throw ERRORS.UNAUTHORIZED;
-
-	if (!session.user.labId) {
-		throw ERRORS.UNAUTHORIZED;
-	}
-	const lab = await (
-		await tenantPrisma(session.user.labId)
-	).lab.findUnique({
+	const tenant = await requireTenantContext();
+	const lab = await (await tenantPrisma(tenant.labId)).lab.findUnique({
 		where: {
-			id: session.user.labId,
+			id: tenant.labId,
 		},
 	});
 
 	return lab;
 }
 
+/**
+ * @deprecated Transitional page adapter. It returns the legacy display shape
+ * from canonical Member and optional LabStaff context without reading LabUser.
+ * Authorization V1 consumers must use permissions instead.
+ */
 export async function getCurrentLabUserRoleByAuthUserId() {
-	const session = await getServerSession();
-	// Use a redirect or a proper Error throw here
-	if (!session || !session.user.labId) throw new Error("UNAUTHORIZED");
+	const tenant = await requireTenantContext();
+	const prisma = await tenantPrisma(tenant.labId);
+	const labStaff = tenant.staffId
+		? await prisma.labStaff.findFirst({
+				where: { id: tenant.staffId, labId: tenant.labId, isActive: true },
+				select: { id: true, roleCategory: true },
+			})
+		: null;
 
-	const prisma = await tenantPrisma(session.user.labId);
-
-	return await prisma.labUser.findUnique({
-		where: { authUserId: session.user.id },
-		// We only need these specific fields for the permissions context
-		select: {
-			role: true,
-			labId: true,
-			labStaff: {
-				select: {
-					roleCategory: true,
-					id: true,
-				},
-			},
-		},
-	});
+	return {
+		role: toLegacyLabRole(tenant.memberRole),
+		labId: tenant.labId,
+		labStaff,
+	};
 }

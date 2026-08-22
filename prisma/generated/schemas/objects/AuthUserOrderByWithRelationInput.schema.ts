@@ -4,6 +4,8 @@ import { SortOrderSchema } from '../enums/SortOrder.schema';
 import { SortOrderInputObjectSchema as SortOrderInputObjectSchema } from './SortOrderInput.schema';
 import { SessionOrderByRelationAggregateInputObjectSchema as SessionOrderByRelationAggregateInputObjectSchema } from './SessionOrderByRelationAggregateInput.schema';
 import { AccountOrderByRelationAggregateInputObjectSchema as AccountOrderByRelationAggregateInputObjectSchema } from './AccountOrderByRelationAggregateInput.schema';
+import { MemberOrderByRelationAggregateInputObjectSchema as MemberOrderByRelationAggregateInputObjectSchema } from './MemberOrderByRelationAggregateInput.schema';
+import { InvitationOrderByRelationAggregateInputObjectSchema as InvitationOrderByRelationAggregateInputObjectSchema } from './InvitationOrderByRelationAggregateInput.schema';
 import { LabUserOrderByWithRelationInputObjectSchema as LabUserOrderByWithRelationInputObjectSchema } from './LabUserOrderByWithRelationInput.schema';
 import { SuperUserOrderByWithRelationInputObjectSchema as SuperUserOrderByWithRelationInputObjectSchema } from './SuperUserOrderByWithRelationInput.schema'
 
@@ -17,8 +19,13 @@ const makeSchema = () => z.object({
   updatedAt: SortOrderSchema.optional(),
   role: SortOrderSchema.optional(),
   labId: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
+  banned: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
+  banReason: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
+  banExpires: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
   sessions: z.lazy(() => SessionOrderByRelationAggregateInputObjectSchema).optional(),
   accounts: z.lazy(() => AccountOrderByRelationAggregateInputObjectSchema).optional(),
+  members: z.lazy(() => MemberOrderByRelationAggregateInputObjectSchema).optional(),
+  invitations: z.lazy(() => InvitationOrderByRelationAggregateInputObjectSchema).optional(),
   labUser: z.lazy(() => LabUserOrderByWithRelationInputObjectSchema).optional(),
   superUser: z.lazy(() => SuperUserOrderByWithRelationInputObjectSchema).optional()
 }).strict();

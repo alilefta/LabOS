@@ -1,20 +1,18 @@
-import { redirect } from "next/navigation";
-import { getCurrentLabUserRoleByAuthUserId } from "@/data/lab";
 import { ClinicsClientWrapper } from "@/components/clinics/clinics-list/clinics-client-wrapper-page";
 import { getQueryClient } from "@/providers/get-query-client";
 import { ClinicPulseStats, DEFAULT_CLINICS_FILTERS, GetClinicsListResult } from "@/schema/composed/clinic.details";
 import { getClinicsListAction, getClinicsPulseAction, getClinicsRevenueAction } from "@/actions/clinics/get-clinics";
 import { QueryHydrationBoundary } from "@/providers/query-hydration-boundary";
 import { dehydrate } from "@tanstack/react-query";
+import { requireTenantContext } from "@/platform/organizations/tenant-context";
 
 export default async function ClinicsListPage() {
-	const user = await getCurrentLabUserRoleByAuthUserId();
-	if (!user) redirect("/onboarding");
+	const { labId } = await requireTenantContext();
 
 	const queryClient = getQueryClient();
 
 	await queryClient.prefetchInfiniteQuery({
-		queryKey: ["clinics-list", user.labId, "", DEFAULT_CLINICS_FILTERS],
+		queryKey: ["clinics-list", labId, "", DEFAULT_CLINICS_FILTERS],
 		queryFn: async ({ pageParam }: { pageParam: string | undefined }): Promise<GetClinicsListResult> => {
 			const res = await getClinicsListAction({
 				cursor: pageParam as string | undefined,
@@ -29,7 +27,7 @@ export default async function ClinicsListPage() {
 	});
 
 	await queryClient.prefetchQuery({
-		queryKey: ["clinics-revenue", user.labId],
+		queryKey: ["clinics-revenue", labId],
 		queryFn: async () => {
 			const res = await getClinicsRevenueAction();
 			return res?.data ?? null;
@@ -47,7 +45,7 @@ export default async function ClinicsListPage() {
 
 	return (
 		<QueryHydrationBoundary state={dehydrate(queryClient)}>
-			<ClinicsClientWrapper labId={user.labId} />
+			<ClinicsClientWrapper labId={labId} />
 		</QueryHydrationBoundary>
 	);
 }

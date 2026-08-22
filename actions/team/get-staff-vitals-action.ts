@@ -30,8 +30,11 @@ export const getStaffVitalsAction = actionClientWithLab
 				}),
 
 				// 2. Pending Software Invites
-				prisma.labInvitation.count({
-					where: { labId, expiresAt: { gte: now } },
+				prisma.labStaffInvitationIntent.count({
+					where: {
+						labId,
+						invitation: { status: "pending", expiresAt: { gte: now } },
+					},
 				}),
 
 				// 3. Active Case Assignments on the Floor

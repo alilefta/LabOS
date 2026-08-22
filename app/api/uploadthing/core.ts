@@ -2,6 +2,10 @@ import { createUploadthing, type FileRouter } from "uploadthing/next";
 import { UploadedFileData } from "uploadthing/types";
 import { UploadThingError } from "uploadthing/server";
 import { getServerSession } from "@/lib/get-session";
+import {
+	requireTenantContext,
+	TenantContextError,
+} from "@/platform/organizations/tenant-context";
 
 const f = createUploadthing();
 
@@ -15,17 +19,24 @@ const handleAuth = async (requireLab: boolean = true) => {
 	// 1. Basic Auth check - Must always be logged in
 	if (!session || !session.user) throw new UploadThingError("Unauthorized");
 
-	const labId = session.user.labId;
-
-	// 2. Conditional Lab ID check
-	// If we are in onboarding, labId will be null/undefined. We allow this only if requireLab is false.
-	if (requireLab && !labId) {
-		throw new UploadThingError("Action requires an active Lab Workspace");
+	let labId = "onboarding_pending";
+	if (requireLab) {
+		try {
+			const tenant = await requireTenantContext();
+			if (tenant.userId !== session.user.id) throw new UploadThingError("Unauthorized");
+			labId = tenant.labId;
+		} catch (error) {
+			if (error instanceof UploadThingError) throw error;
+			if (error instanceof TenantContextError) {
+				throw new UploadThingError("Action requires an active Lab Workspace");
+			}
+			throw error;
+		}
 	}
 
 	return {
 		userId: session.user.id,
-		labId: labId || "onboarding_pending", // Provide a fallback metadata value
+		labId,
 	};
 };
 type UploadCompleteResults = {
@@ -39,8 +50,8 @@ type UploadCompleteResults = {
 	fileRouteName: string;
 };
 
-const uploadComplete = ({ data, fileRouteName }: UploadCompleteResults) => {
-	const { metadata, file } = data;
+const uploadComplete = ({ data }: UploadCompleteResults) => {
+	const { metadata } = data;
 	// This code RUNS ON YOUR SERVER after upload
 	// console.log(`Upload ${fileRouteName} complete for userId:`, metadata.userId);
 

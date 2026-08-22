@@ -33,3 +33,7 @@ export { AuthUserInputSchema } from './AuthUser.input';
 export { SessionInputSchema } from './Session.input';
 export { AccountInputSchema } from './Account.input';
 export { VerificationInputSchema } from './Verification.input';
+export { OrganizationInputSchema } from './Organization.input';
+export { MemberInputSchema } from './Member.input';
+export { InvitationInputSchema } from './Invitation.input';
+export { LabStaffInvitationIntentInputSchema } from './LabStaffInvitationIntent.input';

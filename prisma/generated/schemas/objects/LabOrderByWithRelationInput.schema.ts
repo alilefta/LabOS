@@ -2,6 +2,7 @@ import * as z from 'zod';
 import type { Prisma } from '../../../../generated/prisma/client';
 import { SortOrderSchema } from '../enums/SortOrder.schema';
 import { SortOrderInputObjectSchema as SortOrderInputObjectSchema } from './SortOrderInput.schema';
+import { OrganizationOrderByWithRelationInputObjectSchema as OrganizationOrderByWithRelationInputObjectSchema } from './OrganizationOrderByWithRelationInput.schema';
 import { LabSubscriptionPlanOrderByWithRelationInputObjectSchema as LabSubscriptionPlanOrderByWithRelationInputObjectSchema } from './LabSubscriptionPlanOrderByWithRelationInput.schema';
 import { ClinicOrderByRelationAggregateInputObjectSchema as ClinicOrderByRelationAggregateInputObjectSchema } from './ClinicOrderByRelationAggregateInput.schema';
 import { CaseOrderByRelationAggregateInputObjectSchema as CaseOrderByRelationAggregateInputObjectSchema } from './CaseOrderByRelationAggregateInput.schema';
@@ -29,6 +30,7 @@ import { ProductAddonOrderByRelationAggregateInputObjectSchema as ProductAddonOr
 
 const makeSchema = () => z.object({
   id: SortOrderSchema.optional(),
+  organizationId: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
   title: SortOrderSchema.optional(),
   slug: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
   brandAvatarUrl: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
@@ -38,6 +40,7 @@ const makeSchema = () => z.object({
   nextInvoiceNumber: SortOrderSchema.optional(),
   createdAt: SortOrderSchema.optional(),
   updatedAt: SortOrderSchema.optional(),
+  organization: z.lazy(() => OrganizationOrderByWithRelationInputObjectSchema).optional(),
   labSubscriptionPlan: z.lazy(() => LabSubscriptionPlanOrderByWithRelationInputObjectSchema).optional(),
   clinics: z.lazy(() => ClinicOrderByRelationAggregateInputObjectSchema).optional(),
   cases: z.lazy(() => CaseOrderByRelationAggregateInputObjectSchema).optional(),

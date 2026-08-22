@@ -1,12 +1,14 @@
 import { SignupForm } from "@/components/auth/sign-up-form";
 import { CheckCircle2, Network, Cpu, Shield } from "lucide-react";
+import { safeRelativeCallbackUrl } from "@/lib/urls";
 
 export const metadata = {
 	title: "Request Access | LabOS Command Center",
 	description: "Join the next generation of dental laboratories. Sign up for LabOS today.",
 };
 
-export default async function SignUpPage() {
+export default async function SignUpPage({ searchParams }: { searchParams: Promise<{ callbackUrl?: string }> }) {
+	const callbackUrl = safeRelativeCallbackUrl((await searchParams).callbackUrl);
 	return (
 		<main className="relative min-h-screen w-full overflow-hidden bg-background flex selection:bg-primary/30">
 			{/* --- UNIFIED AMBIENT BACKGROUND ARTWORK --- */}
@@ -75,7 +77,7 @@ export default async function SignUpPage() {
 			{/* --- RIGHT PANEL: The Frosted Glass Form --- */}
 			<div className="flex-1 flex items-center justify-center p-6 sm:p-12 relative z-10">
 				<div className="w-full max-w-110">
-					<SignupForm />
+					<SignupForm callbackUrl={callbackUrl} />
 				</div>
 			</div>
 		</main>

@@ -1,0 +1,13 @@
+import type { Prisma } from '../../../generated/prisma/client';
+import * as z from 'zod';
+import { LabStaffInvitationIntentSelectObjectSchema as LabStaffInvitationIntentSelectObjectSchema } from './objects/LabStaffInvitationIntentSelect.schema';
+import { LabStaffInvitationIntentIncludeObjectSchema as LabStaffInvitationIntentIncludeObjectSchema } from './objects/LabStaffInvitationIntentInclude.schema';
+import { LabStaffInvitationIntentWhereUniqueInputObjectSchema as LabStaffInvitationIntentWhereUniqueInputObjectSchema } from './objects/LabStaffInvitationIntentWhereUniqueInput.schema';
+import { LabStaffInvitationIntentCreateInputObjectSchema as LabStaffInvitationIntentCreateInputObjectSchema } from './objects/LabStaffInvitationIntentCreateInput.schema';
+import { LabStaffInvitationIntentUncheckedCreateInputObjectSchema as LabStaffInvitationIntentUncheckedCreateInputObjectSchema } from './objects/LabStaffInvitationIntentUncheckedCreateInput.schema';
+import { LabStaffInvitationIntentUpdateInputObjectSchema as LabStaffInvitationIntentUpdateInputObjectSchema } from './objects/LabStaffInvitationIntentUpdateInput.schema';
+import { LabStaffInvitationIntentUncheckedUpdateInputObjectSchema as LabStaffInvitationIntentUncheckedUpdateInputObjectSchema } from './objects/LabStaffInvitationIntentUncheckedUpdateInput.schema';
+
+export const LabStaffInvitationIntentUpsertOneSchema: z.ZodType<Prisma.LabStaffInvitationIntentUpsertArgs> = z.object({ select: LabStaffInvitationIntentSelectObjectSchema.optional(), include: LabStaffInvitationIntentIncludeObjectSchema.optional(), where: LabStaffInvitationIntentWhereUniqueInputObjectSchema, create: z.union([ LabStaffInvitationIntentCreateInputObjectSchema, LabStaffInvitationIntentUncheckedCreateInputObjectSchema ]), update: z.union([ LabStaffInvitationIntentUpdateInputObjectSchema, LabStaffInvitationIntentUncheckedUpdateInputObjectSchema ]) }).strict() as unknown as z.ZodType<Prisma.LabStaffInvitationIntentUpsertArgs>;
+
+export const LabStaffInvitationIntentUpsertOneZodSchema = z.object({ select: LabStaffInvitationIntentSelectObjectSchema.optional(), include: LabStaffInvitationIntentIncludeObjectSchema.optional(), where: LabStaffInvitationIntentWhereUniqueInputObjectSchema, create: z.union([ LabStaffInvitationIntentCreateInputObjectSchema, LabStaffInvitationIntentUncheckedCreateInputObjectSchema ]), update: z.union([ LabStaffInvitationIntentUpdateInputObjectSchema, LabStaffInvitationIntentUncheckedUpdateInputObjectSchema ]) }).strict();

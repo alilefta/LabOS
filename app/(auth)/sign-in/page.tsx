@@ -1,12 +1,14 @@
 import { SignInForm } from "@/components/auth/sign-in-form";
 import { Quote } from "lucide-react";
+import { safeRelativeCallbackUrl } from "@/lib/urls";
 
 export const metadata = {
 	title: "Sign In | LabOS Command Center",
 	description: "Access your dental laboratory dashboard, manage cases, and view AI insights.",
 };
 
-export default async function SignInPage() {
+export default async function SignInPage({ searchParams }: { searchParams: Promise<{ callbackUrl?: string }> }) {
+	const callbackUrl = safeRelativeCallbackUrl((await searchParams).callbackUrl);
 	return (
 		<main className="relative min-h-screen w-full overflow-hidden bg-background flex selection:bg-primary/30">
 			{/* --- UNIFIED AMBIENT BACKGROUND ARTWORK --- */}
@@ -52,7 +54,7 @@ export default async function SignInPage() {
 			{/* --- RIGHT PANEL: The Form Container --- */}
 			<div className="flex-1 flex items-center justify-center p-6 sm:p-12 relative z-10">
 				<div className="w-full max-w-110">
-					<SignInForm />
+					<SignInForm callbackUrl={callbackUrl} />
 				</div>
 			</div>
 		</main>

@@ -16,6 +16,9 @@ const makeSchema = () => z.object({
   updatedAt: SortOrderSchema.optional(),
   role: SortOrderSchema.optional(),
   labId: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
+  banned: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
+  banReason: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
+  banExpires: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
   _count: z.lazy(() => AuthUserCountOrderByAggregateInputObjectSchema).optional(),
   _max: z.lazy(() => AuthUserMaxOrderByAggregateInputObjectSchema).optional(),
   _min: z.lazy(() => AuthUserMinOrderByAggregateInputObjectSchema).optional()

@@ -18,7 +18,7 @@ import { Button } from "@/components/ui/button";
 import { InputWithLabel } from "../ui/custom/input-with-label";
 import { PasswordInputWithLabel } from "../ui/custom/password-input-with-label";
 
-export function SignupForm() {
+export function SignupForm({ callbackUrl }: { callbackUrl?: string | null }) {
 	const router = useRouter();
 
 	const form = useForm<SignUpUserInput>({
@@ -31,7 +31,7 @@ export function SignupForm() {
 		onSuccess: ({ data }) => {
 			if (data) {
 				toast.success("Account created successfully!");
-				router.push(SIGN_UP_CALLBACK_URL);
+				router.push(callbackUrl ?? SIGN_UP_CALLBACK_URL);
 			}
 		},
 		onError: ({ error }) => {
@@ -55,14 +55,14 @@ export function SignupForm() {
 
 	async function SignInWithProvider(provider: "github" | "google") {
 		await authClient.signIn.social(
-			{ provider },
+			{ provider, callbackURL: callbackUrl ?? '/dashboard' },
 			{
 				onError(ctx) {
 					toast.error(ctx.error.message);
 				},
 				onSuccess() {
 					toast.success(`Registered successfully via ${provider === "github" ? "GitHub" : "Google"}`);
-					router.push("/dashboard");
+					router.push(callbackUrl ?? "/dashboard");
 				},
 			},
 		);
@@ -168,7 +168,10 @@ export function SignupForm() {
 			<div className="mt-8 text-center">
 				<p className="text-[13px] text-muted-foreground">
 					Already have an account?{" "}
-					<Link href="/sign-in" className="font-semibold text-foreground hover:text-primary transition-colors">
+					<Link
+						href={callbackUrl ? `/sign-in?callbackUrl=${encodeURIComponent(callbackUrl)}` : "/sign-in"}
+						className="font-semibold text-foreground hover:text-primary transition-colors"
+					>
 						Sign In
 					</Link>
 				</p>

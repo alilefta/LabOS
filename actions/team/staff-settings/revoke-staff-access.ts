@@ -1,80 +1,94 @@
-// actions/team/revoke-staff-access.ts
+// actions/team/staff-settings/revoke-staff-access.ts
 'use server'
 
-import { actionClientWithLab } from '@/lib/safe-action'
-import { tenantPrisma } from '@/lib/prisma'
+import { headers } from 'next/headers'
+
+import { auth } from '@/lib/auth'
 import { ERRORS } from '@/lib/errors'
+import { generalPrisma } from '@/lib/prisma'
+import { actionClientWithLab } from '@/lib/safe-action'
+import {
+	assertStaffAccessRevocationAllowed,
+	revokeStaffOrganizationAccess,
+} from '@/lib/staff-access-revocation'
+import { cleanupStaffInvitationIntent } from '@/lib/staff-invitation'
 import { RevokeStaffSystemAccessInputSchema } from '@/schema/composed/team/staff-settings.schema'
 
+/**
+ * Revokes only tenant-scoped digital access for a LabStaff record.
+ * Pending access cancels its Better Auth invitation; active access removes the
+ * Organization Member. The global AuthUser and sessions for other tenants are
+ * deliberately preserved.
+ */
 export const revokeStaffSystemAccessAction = actionClientWithLab
 	.metadata({
 		actionName: 'Revoke-Staff-System-Access',
-		requiredLabRole: 'MANAGER', // Scopes via middleware to OWNER/MANAGER minimum
+		// Temporary compatibility gate; Better Auth performs the authoritative
+		// invitation/member permission check for the active Organization.
+		requiredLabRole: 'ADMIN',
 	})
 	.inputSchema(RevokeStaffSystemAccessInputSchema)
 	.action(async ({ parsedInput, ctx }) => {
-		const { staffId } = parsedInput
-		const { labId, labUser, user } = ctx
+		const staff = await generalPrisma.labStaff.findFirst({
+			where: { id: parsedInput.staffId, labId: ctx.labId },
+			select: {
+				member: {
+					select: { id: true, userId: true, role: true, organizationId: true },
+				},
+				organizationInvitationIntent: {
+					select: {
+						invitationId: true,
+						invitation: {
+							select: { organizationId: true, status: true },
+						},
+					},
+				},
+			},
+		})
 
-		try {
-			const prisma = await tenantPrisma(labId)
+		if (!staff) throw ERRORS.NOT_FOUND
+		const requestHeaders = await headers()
 
-			// ── 1. DEFENSE IN DEPTH: ROLE VERIFICATION ──────────────────────────
-			// FIX 1: Explicitly allow the ADMIN role to revoke credentials
-			if (
-				labUser.role !== 'OWNER' &&
-				labUser.role !== 'MANAGER' &&
-				labUser.role !== 'ADMIN'
-			) {
-				throw new Error(
-					'Unauthorized. You do not have the required administrative permissions.',
-				)
+		if (staff.member) {
+			if (staff.member.organizationId !== ctx.organizationId) {
+				throw ERRORS.OPERATION_NOT_ALLOWED
 			}
-
-			// ── 2. ATOMIC DELETION TRANSACTION ────────────────────────────────
-			await prisma.$transaction(async (tx) => {
-				// Locate the linked LabUser record [1]
-				const targetUser = await tx.labUser.findUnique({
-					where: { labStaffId: staffId, labId },
-					select: { id: true, authUserId: true, role: true },
-				})
-
-				if (!targetUser) {
-					throw new Error('No system access record found for this employee.')
-				}
-
-				// SECURITY: Prevent Self-Lockout [2]
-				if (targetUser.authUserId === user.id) {
-					throw new Error(
-						'Self-lockout prevented. You cannot revoke your own system credentials.',
-					)
-				}
-
-				// SECURITY: Protect the Owner Seat
-				if (targetUser.role === 'OWNER' && labUser.role !== 'OWNER') {
-					throw new Error(
-						"Permission Denied. Only a Lab Owner can revoke another Owner's credentials.",
-					)
-				}
-
-				// ── FIX 2: SAFE MULTI-TENANT DELETION [2] ─────────────────────
-				// Instead of deleting the global AuthUser, we:
-				// 1. Delete the tenant-specific LabUser link (revoking access to this lab) [2]
-				// 2. Delete all active sessions to force an instant logout [2]
-				// 3. Keep the global AuthUser intact [2]
-				await tx.labUser.delete({
-					where: { id: targetUser.id },
-				})
-
-				await tx.session.deleteMany({
-					where: { userId: targetUser.authUserId },
-				})
+			assertStaffAccessRevocationAllowed({
+				actorUserId: ctx.user.id,
+				actorMemberRole: ctx.memberRole,
+				targetUserId: staff.member.userId,
+				targetMemberRole: staff.member.role,
 			})
 
-			return { success: true }
-		} catch (error: any) {
-			console.error('[Revoke-Staff-System-Access-Action] Error:', error.message)
-			if (error instanceof Error) throw error
-			throw ERRORS.OPERATION_NOT_ALLOWED
+			const result = await revokeStaffOrganizationAccess({
+				tenant: {
+					organizationId: ctx.organizationId,
+					labId: ctx.labId,
+				},
+				staffId: parsedInput.staffId,
+				memberId: staff.member.id,
+				requestHeaders,
+			})
+			return { success: true, ...result }
 		}
+
+		const intent = staff.organizationInvitationIntent
+		if (intent) {
+			if (intent.invitation.organizationId !== ctx.organizationId) {
+				throw ERRORS.OPERATION_NOT_ALLOWED
+			}
+
+			if (intent.invitation.status === 'pending') {
+				await auth.api.cancelInvitation({
+					body: { invitationId: intent.invitationId },
+					headers: requestHeaders,
+				})
+			}
+			// Retry cleanup explicitly because a post-cancel hook failure is logged
+			// and retained for reconciliation instead of failing Better Auth.
+			await cleanupStaffInvitationIntent(intent.invitationId)
+			return { success: true, status: 'invitation_canceled' as const }
+		}
+
+		throw new Error('No Organization access or pending invitation was found.')
 	})

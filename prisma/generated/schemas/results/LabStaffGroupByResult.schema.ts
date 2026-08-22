@@ -14,6 +14,7 @@ export const LabStaffGroupByResultSchema = z.array(z.object({
   jobTitle: z.string(),
   specialization: z.string(),
   commissionValue: z.number(),
+  memberId: z.string(),
   createdAt: z.date(),
   updatedAt: z.date(),
   _count: z.object({
@@ -34,6 +35,9 @@ export const LabStaffGroupByResultSchema = z.array(z.object({
     specialization: z.number(),
     commissionType: z.number(),
     commissionValue: z.number(),
+    memberId: z.number(),
+    member: z.number(),
+    organizationInvitationIntent: z.number(),
     labUser: z.number(),
     labInvitation: z.number(),
     caseAssignments: z.number(),
@@ -62,6 +66,7 @@ export const LabStaffGroupByResultSchema = z.array(z.object({
     jobTitle: z.string().nullable(),
     specialization: z.string().nullable(),
     commissionValue: z.number().nullable(),
+    memberId: z.string().nullable(),
     createdAt: z.date().nullable(),
     updatedAt: z.date().nullable()
   }).nullable().optional(),
@@ -79,6 +84,7 @@ export const LabStaffGroupByResultSchema = z.array(z.object({
     jobTitle: z.string().nullable(),
     specialization: z.string().nullable(),
     commissionValue: z.number().nullable(),
+    memberId: z.string().nullable(),
     createdAt: z.date().nullable(),
     updatedAt: z.date().nullable()
   }).nullable().optional()

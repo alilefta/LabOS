@@ -1,7 +1,7 @@
 // data/invoices/get-invoice-dossier.ts
 
 import { tenantPrisma } from "@/lib/prisma";
-import { getServerSession } from "@/lib/get-session";
+import { getDataTenantContext } from "@/lib/data-tenant-context";
 import { ERRORS } from "@/lib/errors";
 import { daError, daSuccess, toDAError, DAResult } from "@/lib/data-access-errors";
 import { startOfDay, differenceInDays } from "date-fns";
@@ -14,17 +14,9 @@ export async function getInvoiceDossierData(invoiceId: string): Promise<DAResult
 	try {
 		// ── 1. SECURITY GUARDS ───────────────────────────────────────────────
 		// Resolve the session and labId internally to guarantee tenant isolation [1].
-		const session = await getServerSession();
-
-		if (!session) {
-			return daError(ERRORS.UNAUTHORIZED.toJSON());
-		}
-
-		const labId = session.user.labId;
-
-		if (!labId) {
-			return daError(ERRORS.LAB_NOT_FOUND.toJSON());
-		}
+		const tenantResult = await getDataTenantContext();
+		if (!tenantResult.success) return daError(tenantResult.error);
+		const { labId } = tenantResult.data;
 
 		// Sanitize input
 		const parsedId = InputSchema.safeParse(invoiceId);

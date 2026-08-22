@@ -1,8 +1,7 @@
 // data-access/invoices/get-uninvoiced-summary.ts
 
 import { tenantPrisma } from "@/lib/prisma";
-import { getServerSession } from "@/lib/get-session";
-import { ERRORS } from "@/lib/errors";
+import { getDataTenantContext } from "@/lib/data-tenant-context";
 import { daError, DAResult, daSuccess, toDAError } from "@/lib/data-access-errors";
 import { UninvoicedClinicsSummary } from "@/schema/composed/invoices/invoices.dtos";
 
@@ -13,17 +12,9 @@ export async function getUninvoicedClinicsSummary(): Promise<DAResult<Uninvoiced
 		// Resolve the tenant context strictly from the server session [1].
 		// This mathematically prevents cross-tenant data leaks [2].
 		// ─────────────────────────────────────────────────────────────────
-		const session = await getServerSession();
-
-		if (!session) {
-			return daError(ERRORS.UNAUTHORIZED.toJSON());
-		}
-
-		const labId = session.user.labId;
-
-		if (!labId) {
-			return daError(ERRORS.LAB_NOT_FOUND.toJSON());
-		}
+		const tenantResult = await getDataTenantContext();
+		if (!tenantResult.success) return daError(tenantResult.error);
+		const { labId } = tenantResult.data;
 
 		const prisma = await tenantPrisma(labId);
 

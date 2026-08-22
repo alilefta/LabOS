@@ -1,36 +1,33 @@
 'use client'
 
-import { createLabAndLabUser } from '@/actions/lab'
-import {
-	CreateLabAndLabUserInput,
-	CreateLabAndLabUserInputSchema,
-} from '@/schema/composed/lab.details'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { Building, Loader2 } from 'lucide-react'
 import { useAction } from 'next-safe-action/hooks'
-import { Controller, FormProvider, useForm } from 'react-hook-form'
-import { InputWithLabel } from '../ui/custom/input-with-label'
-import { Button } from '../ui/button'
-import {
-	ArrowLeft,
-	ArrowRight,
-	Building,
-	Loader2,
-	MapPin,
-	UserCircle,
-} from 'lucide-react'
-import { memo, useState } from 'react'
-import { LabLogoUpload } from './lab-logo-upload'
-import { handleSafeActionError } from '@/lib/safe-action-helpers'
-import { toast } from 'sonner'
 import { useRouter } from 'next/navigation'
+import { memo } from 'react'
+import { Controller, FormProvider, useForm } from 'react-hook-form'
+import { toast } from 'sonner'
 
+import { createLabWorkspace } from '@/actions/lab'
+import { handleSafeActionError } from '@/lib/safe-action-helpers'
+import {
+	CreateLabWorkspaceInputSchema,
+	type CreateLabWorkspaceInput,
+} from '@/schema/composed/lab.details'
+
+import { Button } from '../ui/button'
+import { InputWithLabel } from '../ui/custom/input-with-label'
+import { LabLogoUpload } from './lab-logo-upload'
+
+/**
+ * Collects only the Lab workspace data required by Organization-backed
+ * onboarding. Operational staff details are intentionally excluded because an
+ * Organization owner does not necessarily have a LabStaff persona.
+ */
 export const OnboardingForm = memo(function OnboardingForm() {
-	const [step, setStep] = useState<1 | 2>(1)
-
 	const router = useRouter()
-
-	const form = useForm<CreateLabAndLabUserInput>({
-		resolver: zodResolver(CreateLabAndLabUserInputSchema),
+	const form = useForm<CreateLabWorkspaceInput>({
+		resolver: zodResolver(CreateLabWorkspaceInputSchema),
 		defaultValues: {
 			lab: {
 				title: '',
@@ -38,362 +35,124 @@ export const OnboardingForm = memo(function OnboardingForm() {
 				brandAvatarUrl: '',
 				subtitle: '',
 			},
-			labUser: {
-				avatarUrl: '',
-				address1: '',
-				address2: '',
-				city: '',
-				role: 'OWNER',
-				phoneNumber: '',
-				secondaryEmail: '',
-				zipcode: '',
-			},
 		},
-
 		mode: 'onBlur',
 	})
 
-	const { executeAsync: createLab, isExecuting: isCreatingLab } = useAction(
-		createLabAndLabUser,
+	const { executeAsync: createWorkspace, isExecuting } = useAction(
+		createLabWorkspace,
 		{
 			onSuccess: ({ data }) => {
 				if (data.alreadyExists) {
-					toast.message('You already have a lab, redirecting...')
-					router.push('/dashboard')
-					return
+					toast.message('Your workspace already exists, redirecting...')
+				} else {
+					toast.success(`Workspace “${data.lab.title}” is ready.`)
 				}
-				toast.message(
-					`Congrats '${data.lab.title}' created successfully, redirecting...`,
-				)
 				router.push('/dashboard')
+				router.refresh()
 			},
 			onError: ({ error }) => {
-				if (error.validationErrors) {
-					const { lab, labUser } = error.validationErrors
+				if (error.validationErrors?.lab) {
+					const { lab } = error.validationErrors
 
-					if (lab) {
-						if (lab.title) {
-							form.setError('lab.title', {
-								message: lab.title._errors?.join(', '),
-							})
-						}
-						if (lab.brandAvatarUrl) {
-							form.setError('lab.brandAvatarUrl', {
-								message: lab.brandAvatarUrl._errors?.join(', '),
-							})
-						}
-						if (lab.slug) {
-							form.setError('lab.slug', {
-								message: lab.slug._errors?.join(', '),
-							})
-						}
+					if (lab.title) {
+						form.setError('lab.title', {
+							message: lab.title._errors?.join(', '),
+						})
 					}
-
-					if (labUser) {
-						if (labUser.address1) {
-							form.setError('labUser.address1', {
-								message: labUser.address1._errors?.join(', '),
-							})
-						}
-						if (labUser.city) {
-							form.setError('labUser.city', {
-								message: labUser.city._errors?.join(', '),
-							})
-						}
-						if (labUser.zipcode) {
-							form.setError('labUser.zipcode', {
-								message: labUser.zipcode._errors?.join(', '),
-							})
-						}
-						if (labUser.phoneNumber) {
-							form.setError('labUser.phoneNumber', {
-								message: labUser.phoneNumber._errors?.join(', '),
-							})
-						}
+					if (lab.brandAvatarUrl) {
+						form.setError('lab.brandAvatarUrl', {
+							message: lab.brandAvatarUrl._errors?.join(', '),
+						})
+					}
+					if (lab.slug) {
+						form.setError('lab.slug', {
+							message: lab.slug._errors?.join(', '),
+						})
 					}
 				}
 
-				if (error.thrownError) {
-					toast.error(error.thrownError.message)
-					router.refresh()
-
-					// Todo  _logger.logError(some error message to be sent to my audit)
-				}
-				// ── 2. Server errors: handle specific codes first ─────────────
 				if (error.serverError) {
-					const { code, statusCode } = error.serverError
-
-					if (code === 'LAB_ALREADY_EXISTS') {
-						toast.message('You already have a lab, redirecting...')
-						router.push('/dashboard')
-						return
-					}
-
-					if (statusCode === 401) {
+					if (error.serverError.statusCode === 401) {
 						router.push('/sign-in')
 						return
 					}
-
-					// Set root form error for anything else
 					form.setError('root', { message: error.serverError.message })
 				}
 
-				// ── 3. Fall through to generic handler for everything else ────
 				handleSafeActionError(error)
 			},
 		},
 	)
 
-	const onSubmit = async (data: CreateLabAndLabUserInput) => {
-		await createLab(data)
-	}
-
-	const nextStep = async () => {
-		const isStep1Valid = await form.trigger([
-			'lab.title',
-			'lab.slug',
-			'lab.brandAvatarUrl',
-		])
-		if (isStep1Valid) setStep(2)
-	}
-
-	const isProfileDirty =
-		form.formState.dirtyFields.labUser?.city &&
-		form.formState.dirtyFields.labUser?.phoneNumber
-
-	const prevStep = () => setStep(1)
 	return (
 		<div className="w-full max-w-xl">
-			{/* Mobile-only header fallback */}
 			<div className="mb-8 lg:hidden">
-				<div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-white font-bold text-xl mb-6 shadow-ai-glow">
+				<div className="mb-6 flex size-10 items-center justify-center rounded-xl bg-primary text-xl font-bold text-white shadow-ai-glow">
 					L
 				</div>
-				<h1 className="text-3xl font-bold text-foreground tracking-tight">
-					Setup your Lab
+				<h1 className="text-3xl font-bold tracking-tight text-foreground">
+					Set up your Lab
 				</h1>
 			</div>
 
-			{/* lab-card provides the pure white (Light) or inner-lit lip (Dark) styling */}
 			<div className="lab-card overflow-hidden">
-				{/* Interactive Progress Bar Header */}
-				<div className="bg-slate-50 dark:bg-white/5 border-b border-border px-8 py-4 flex items-center justify-between">
-					<div
-						className={`flex items-center gap-2 text-sm font-semibold transition-colors ${step === 1 ? 'text-primary' : 'text-muted-foreground'}`}
-					>
-						<Building className="w-4 h-4" /> Workspace
-					</div>
-					<div className="flex-1 h-px bg-border mx-4"></div>
-					<div
-						className={`flex items-center gap-2 text-sm font-semibold transition-colors ${step === 2 ? 'text-primary' : 'text-muted-foreground'}`}
-					>
-						<UserCircle className="w-4 h-4" /> Administrator
-					</div>
+				<div className="flex items-center gap-2 border-b border-border bg-slate-50 px-8 py-4 text-sm font-semibold text-primary dark:bg-white/5">
+					<Building className="size-4" /> Workspace
 				</div>
 
 				<div className="p-8 sm:p-10">
 					<FormProvider {...form}>
 						<form
-							onSubmit={form.handleSubmit(onSubmit)}
+							onSubmit={form.handleSubmit((data) => createWorkspace(data))}
 							className="space-y-6"
-							id="oboarding-form"
 						>
-							{/* --- STEP 1: LAB DETAILS --- */}
-							<div
-								className={
-									step === 1
-										? 'block animate-in slide-in-from-right-4 fade-in duration-500'
-										: 'hidden'
-								}
-							>
-								<div className="mb-8 text-center">
-									<h2 className="text-2xl font-bold text-foreground tracking-tight">
-										Workspace Info
-									</h2>
-									<p className="text-sm text-muted-foreground mt-1">
-										This is how clinics will identify your lab.
-									</p>
-								</div>
-
-								{/* THE NEW UPLOAD COMPONENT */}
-								<LabLogoUpload />
-
-								<div className="space-y-5">
-									<Controller
-										control={form.control}
-										name="lab.title"
-										render={({ field, fieldState }) => (
-											<InputWithLabel
-												field={field}
-												fieldState={fieldState}
-												fieldTitle="Lab Name"
-												nameInSchema="lab.title"
-												placeholder="e.g. DentaFusion Labs"
-											/>
-										)}
-									/>
-
-									<Controller
-										control={form.control}
-										name="lab.subtitle"
-										render={({ field, fieldState }) => (
-											<InputWithLabel
-												field={field}
-												fieldState={fieldState}
-												fieldTitle="Subtitle"
-												nameInSchema="lab.subtitle"
-												placeholder="Premium Dental Restorations"
-												isOptional={true}
-											/>
-										)}
-									/>
-
-									<Controller
-										control={form.control}
-										name="lab.slug"
-										render={({ field, fieldState }) => (
-											<InputWithLabel
-												field={field}
-												fieldState={fieldState}
-												fieldTitle="Portal URL Slug"
-												nameInSchema="lab.slug"
-												placeholder="dentafusion"
-											/>
-										)}
-									/>
-								</div>
-
-								<div className="mt-10 flex justify-end">
-									<Button
-										type="button"
-										onClick={nextStep}
-										className="rounded-xl px-8 shadow-premium group h-11 bg-primary text-primary-foreground hover:bg-primary/90"
-									>
-										Continue to Profile
-										<ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
-									</Button>
-								</div>
+							<div className="mb-8 text-center">
+								<h2 className="text-2xl font-bold tracking-tight text-foreground">
+									Workspace information
+								</h2>
+								<p className="mt-1 text-sm text-muted-foreground">
+									This is how clinics and team members identify your lab.
+								</p>
 							</div>
 
-							{/* --- STEP 2: USER DETAILS --- */}
-							<div
-								className={
-									step === 2
-										? 'block animate-in slide-in-from-right-4 fade-in duration-500'
-										: 'hidden'
-								}
-							>
-								<div className="mb-8">
-									<h2 className="text-2xl font-bold text-foreground tracking-tight">
-										Administrator Profile
-									</h2>
-									<p className="text-sm text-muted-foreground mt-1">
-										Set up the primary contact for this lab.
-									</p>
-								</div>
+							<LabLogoUpload />
 
-								<div className="space-y-5">
-									<Controller
-										control={form.control}
-										name="labUser.phoneNumber"
-										render={({ field, fieldState }) => (
-											<InputWithLabel
-												field={field}
-												fieldState={fieldState}
-												fieldTitle="Direct Phone Number"
-												nameInSchema="labUser.phoneNumber"
-												placeholder="+964..."
-											/>
-										)}
-									/>
-
-									<div className="pt-2 border-t border-border/50">
-										<div className="flex items-center gap-2 mb-4">
-											<MapPin className="w-4 h-4 text-primary" />
-											<span className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
-												Logistics Address
-											</span>
-										</div>
-
-										<Controller
-											control={form.control}
-											name="labUser.address1"
-											render={({ field, fieldState }) => (
-												<InputWithLabel
-													field={field}
-													fieldState={fieldState}
-													fieldTitle="Street Address"
-													nameInSchema="labUser.address1"
-													placeholder="Mansour, District 601"
-												/>
-											)}
-										/>
-
-										<div className="grid grid-cols-2 gap-4 mt-4">
-											<Controller
-												control={form.control}
-												name="labUser.city"
-												render={({ field, fieldState }) => (
-													<InputWithLabel
-														field={field}
-														fieldState={fieldState}
-														fieldTitle="City"
-														nameInSchema="labUser.city"
-														placeholder="Baghdad"
-													/>
-												)}
-											/>
-											<Controller
-												control={form.control}
-												name="labUser.zipcode"
-												render={({ field, fieldState }) => (
-													<InputWithLabel
-														field={field}
-														fieldState={fieldState}
-														fieldTitle="Zip (Optional)"
-														nameInSchema="labUser.zipcode"
-														placeholder="10001"
-													/>
-												)}
-											/>
-										</div>
-									</div>
-								</div>
-
-								{form.formState.errors.root && (
-									<div className="mt-6 p-4 bg-destructive/10 border border-destructive/20 rounded-xl text-destructive text-sm font-medium flex items-center gap-3">
-										<div className="w-2 h-2 rounded-full bg-destructive animate-pulse"></div>
-										{form.formState.errors.root.message}
-									</div>
-								)}
-
-								<div className="mt-10 flex justify-between items-center">
-									<Button
-										type="button"
-										variant="ghost"
-										onClick={prevStep}
-										className="rounded-xl h-11 px-6 text-muted-foreground hover:text-foreground hover:bg-secondary"
-									>
-										<ArrowLeft className="w-4 h-4 mr-2" /> Back
-									</Button>
-
-									<Button
-										type="submit"
-										disabled={isCreatingLab || !isProfileDirty}
-										form="oboarding-form"
-										className="rounded-xl h-11 px-8 shadow-premium bg-primary hover:bg-primary/90 text-primary-foreground"
-									>
-										{isCreatingLab ? (
-											<>
-												<Loader2 className="w-4 h-4 mr-2 animate-spin" />{' '}
-												Creating Lab...
-											</>
-										) : (
-											'Complete Setup'
-										)}
-									</Button>
-								</div>
+							<div className="space-y-5">
+								<Controller
+									control={form.control}
+									name="lab.title"
+									render={({ field, fieldState }) => (
+										<InputWithLabel field={field} fieldState={fieldState} fieldTitle="Lab Name" nameInSchema="lab.title" placeholder="e.g. DentaFusion Labs" />
+									)}
+								/>
+								<Controller
+									control={form.control}
+									name="lab.subtitle"
+									render={({ field, fieldState }) => (
+										<InputWithLabel field={field} fieldState={fieldState} fieldTitle="Subtitle" nameInSchema="lab.subtitle" placeholder="Premium Dental Restorations" isOptional />
+									)}
+								/>
+								<Controller
+									control={form.control}
+									name="lab.slug"
+									render={({ field, fieldState }) => (
+										<InputWithLabel field={field} fieldState={fieldState} fieldTitle="Portal URL Slug" nameInSchema="lab.slug" placeholder="dentafusion" />
+									)}
+								/>
 							</div>
+
+							{form.formState.errors.root && (
+								<div className="rounded-xl border border-destructive/20 bg-destructive/10 p-4 text-sm font-medium text-destructive">
+									{form.formState.errors.root.message}
+								</div>
+							)}
+
+							<Button type="submit" disabled={isExecuting} className="h-11 w-full rounded-xl bg-primary text-primary-foreground shadow-premium hover:bg-primary/90">
+								{isExecuting ? (
+									<><Loader2 className="mr-2 size-4 animate-spin" />Creating workspace…</>
+								) : 'Create workspace'}
+							</Button>
 						</form>
 					</FormProvider>
 				</div>

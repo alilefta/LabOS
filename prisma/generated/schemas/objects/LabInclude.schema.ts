@@ -1,5 +1,6 @@
 import * as z from 'zod';
 import type { Prisma } from '../../../../generated/prisma/client';
+import { OrganizationArgsObjectSchema as OrganizationArgsObjectSchema } from './OrganizationArgs.schema';
 import { LabSubscriptionPlanArgsObjectSchema as LabSubscriptionPlanArgsObjectSchema } from './LabSubscriptionPlanArgs.schema';
 import { ClinicFindManySchema as ClinicFindManySchema } from '../findManyClinic.schema';
 import { CaseFindManySchema as CaseFindManySchema } from '../findManyCase.schema';
@@ -27,6 +28,7 @@ import { ProductAddonFindManySchema as ProductAddonFindManySchema } from '../fin
 import { LabCountOutputTypeArgsObjectSchema as LabCountOutputTypeArgsObjectSchema } from './LabCountOutputTypeArgs.schema'
 
 const makeSchema = () => z.object({
+  organization: z.union([z.boolean(), z.lazy(() => OrganizationArgsObjectSchema)]).optional(),
   labSubscriptionPlan: z.union([z.boolean(), z.lazy(() => LabSubscriptionPlanArgsObjectSchema)]).optional(),
   clinics: z.union([z.boolean(), z.lazy(() => ClinicFindManySchema)]).optional(),
   cases: z.union([z.boolean(), z.lazy(() => CaseFindManySchema)]).optional(),

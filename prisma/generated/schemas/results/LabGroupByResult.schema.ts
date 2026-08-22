@@ -1,6 +1,7 @@
 import * as z from 'zod';
 export const LabGroupByResultSchema = z.array(z.object({
   id: z.string(),
+  organizationId: z.string(),
   title: z.string(),
   slug: z.string(),
   brandAvatarUrl: z.string(),
@@ -12,6 +13,8 @@ export const LabGroupByResultSchema = z.array(z.object({
   updatedAt: z.date(),
   _count: z.object({
     id: z.number(),
+    organizationId: z.number(),
+    organization: z.number(),
     title: z.number(),
     slug: z.number(),
     brandAvatarUrl: z.number(),
@@ -58,6 +61,7 @@ export const LabGroupByResultSchema = z.array(z.object({
   }).nullable().optional(),
   _min: z.object({
     id: z.string().nullable(),
+    organizationId: z.string().nullable(),
     title: z.string().nullable(),
     slug: z.string().nullable(),
     brandAvatarUrl: z.string().nullable(),
@@ -70,6 +74,7 @@ export const LabGroupByResultSchema = z.array(z.object({
   }).nullable().optional(),
   _max: z.object({
     id: z.string().nullable(),
+    organizationId: z.string().nullable(),
     title: z.string().nullable(),
     slug: z.string().nullable(),
     brandAvatarUrl: z.string().nullable(),

@@ -8,6 +8,9 @@ export const AuthUserGroupByResultSchema = z.array(z.object({
   createdAt: z.date(),
   updatedAt: z.date(),
   labId: z.string(),
+  banned: z.boolean(),
+  banReason: z.string(),
+  banExpires: z.date(),
   _count: z.object({
     id: z.number(),
     name: z.number(),
@@ -19,9 +22,14 @@ export const AuthUserGroupByResultSchema = z.array(z.object({
     role: z.number(),
     sessions: z.number(),
     accounts: z.number(),
+    members: z.number(),
+    invitations: z.number(),
     labUser: z.number(),
     superUser: z.number(),
-    labId: z.number()
+    labId: z.number(),
+    banned: z.number(),
+    banReason: z.number(),
+    banExpires: z.number()
   }).optional(),
   _min: z.object({
     id: z.string().nullable(),
@@ -30,7 +38,9 @@ export const AuthUserGroupByResultSchema = z.array(z.object({
     image: z.string().nullable(),
     createdAt: z.date().nullable(),
     updatedAt: z.date().nullable(),
-    labId: z.string().nullable()
+    labId: z.string().nullable(),
+    banReason: z.string().nullable(),
+    banExpires: z.date().nullable()
   }).nullable().optional(),
   _max: z.object({
     id: z.string().nullable(),
@@ -39,6 +49,8 @@ export const AuthUserGroupByResultSchema = z.array(z.object({
     image: z.string().nullable(),
     createdAt: z.date().nullable(),
     updatedAt: z.date().nullable(),
-    labId: z.string().nullable()
+    labId: z.string().nullable(),
+    banReason: z.string().nullable(),
+    banExpires: z.date().nullable()
   }).nullable().optional()
 }));

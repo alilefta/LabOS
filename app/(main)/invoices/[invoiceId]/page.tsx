@@ -2,8 +2,8 @@
 
 import { notFound, redirect } from "next/navigation";
 import { getInvoiceDossierData } from "@/data/invoices/get-invoice-dossier"; // Import our new separated function
-import { getServerSession } from "@/lib/get-session";
 import { InvoiceDossierClient } from "@/components/invoices/invoice-details/invoice-dossier-client";
+import { requireTenantContext } from "@/platform/organizations/tenant-context";
 
 interface Props {
 	params: Promise<{ invoiceId: string }>;
@@ -29,12 +29,12 @@ export default async function InvoiceDetailPage({ params, searchParams }: Props)
 	}
 
 	const invoiceData = result.data;
-	const session = await getServerSession(); // Optional, if needed for passing labId down -- could be removed.
+	const tenant = await requireTenantContext();
 
 	return (
 		<div className="flex flex-col h-full bg-background">
 			{/* Pass the pristine DTO straight to the Client Component */}
-			<InvoiceDossierClient initialData={invoiceData} labId={session?.user.labId ?? ""} initialAction={action} />
+			<InvoiceDossierClient initialData={invoiceData} labId={tenant.labId} initialAction={action} />
 		</div>
 	);
 }

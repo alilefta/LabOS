@@ -1,5 +1,6 @@
 import * as z from 'zod';
 import type { Prisma } from '../../../../generated/prisma/client';
+import { OrganizationCreateNestedOneWithoutLabInputObjectSchema as OrganizationCreateNestedOneWithoutLabInputObjectSchema } from './OrganizationCreateNestedOneWithoutLabInput.schema';
 import { LabSubscriptionPlanCreateNestedOneWithoutLabInputObjectSchema as LabSubscriptionPlanCreateNestedOneWithoutLabInputObjectSchema } from './LabSubscriptionPlanCreateNestedOneWithoutLabInput.schema';
 import { ClinicCreateNestedManyWithoutLabInputObjectSchema as ClinicCreateNestedManyWithoutLabInputObjectSchema } from './ClinicCreateNestedManyWithoutLabInput.schema';
 import { CaseCreateNestedManyWithoutLabInputObjectSchema as CaseCreateNestedManyWithoutLabInputObjectSchema } from './CaseCreateNestedManyWithoutLabInput.schema';
@@ -35,6 +36,7 @@ const makeSchema = () => z.object({
   nextInvoiceNumber: z.number().int().optional(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
+  organization: z.lazy(() => OrganizationCreateNestedOneWithoutLabInputObjectSchema).optional(),
   labSubscriptionPlan: z.lazy(() => LabSubscriptionPlanCreateNestedOneWithoutLabInputObjectSchema).optional(),
   clinics: z.lazy(() => ClinicCreateNestedManyWithoutLabInputObjectSchema).optional(),
   cases: z.lazy(() => CaseCreateNestedManyWithoutLabInputObjectSchema).optional(),

@@ -1,21 +1,31 @@
 // app/api/dentists/[dentistId]/route.ts
-import { getServerSession } from "@/lib/get-session";
 import { tenantPrisma } from "@/lib/prisma";
 import { normalizeDentist } from "@/lib/mappers";
+import {
+	requireTenantContext,
+	TENANT_CONTEXT_ERROR_CODES,
+	TenantContextError,
+} from "@/platform/organizations/tenant-context";
 
 export async function GET(req: Request, { params }: { params: Promise<{ dentistId: string }> }) {
-	const session = await getServerSession();
-	if (!session?.user?.labId) {
-		return Response.json({ error: "Unauthorized" }, { status: 401 });
+	let labId: string;
+	try {
+		labId = (await requireTenantContext()).labId;
+	} catch (error) {
+		if (error instanceof TenantContextError) {
+			const status = error.code === TENANT_CONTEXT_ERROR_CODES.UNAUTHENTICATED ? 401 : 403;
+			return Response.json({ error: status === 401 ? "Unauthorized" : "Forbidden" }, { status });
+		}
+		throw error;
 	}
 
 	const { dentistId } = await params;
 	const clinicId = new URL(req.url).searchParams.get("clinicId");
 	if (!clinicId) return Response.json({ error: "Missing clinicId" }, { status: 400 });
 
-	const prisma = await tenantPrisma(session.user.labId);
+	const prisma = await tenantPrisma(labId);
 	const dentist = await prisma.dentist.findUnique({
-		where: { id: dentistId, clinicId, labId: session.user.labId },
+		where: { id: dentistId, clinicId, labId },
 	});
 
 	if (!dentist) return Response.json({ error: "Not found" }, { status: 404 });

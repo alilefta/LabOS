@@ -4,6 +4,8 @@ import { StringFilterObjectSchema as StringFilterObjectSchema } from './StringFi
 import { StringNullableFilterObjectSchema as StringNullableFilterObjectSchema } from './StringNullableFilter.schema';
 import { IntFilterObjectSchema as IntFilterObjectSchema } from './IntFilter.schema';
 import { DateTimeFilterObjectSchema as DateTimeFilterObjectSchema } from './DateTimeFilter.schema';
+import { OrganizationNullableScalarRelationFilterObjectSchema as OrganizationNullableScalarRelationFilterObjectSchema } from './OrganizationNullableScalarRelationFilter.schema';
+import { OrganizationWhereInputObjectSchema as OrganizationWhereInputObjectSchema } from './OrganizationWhereInput.schema';
 import { LabSubscriptionPlanNullableScalarRelationFilterObjectSchema as LabSubscriptionPlanNullableScalarRelationFilterObjectSchema } from './LabSubscriptionPlanNullableScalarRelationFilter.schema';
 import { LabSubscriptionPlanWhereInputObjectSchema as LabSubscriptionPlanWhereInputObjectSchema } from './LabSubscriptionPlanWhereInput.schema';
 import { ClinicListRelationFilterObjectSchema as ClinicListRelationFilterObjectSchema } from './ClinicListRelationFilter.schema';
@@ -36,6 +38,7 @@ const labwhereinputSchema = z.object({
   OR: z.lazy(() => LabWhereInputObjectSchema).array().optional(),
   NOT: z.union([z.lazy(() => LabWhereInputObjectSchema), z.lazy(() => LabWhereInputObjectSchema).array()]).optional(),
   id: z.union([z.lazy(() => StringFilterObjectSchema), z.string()]).optional(),
+  organizationId: z.union([z.lazy(() => StringNullableFilterObjectSchema), z.string()]).optional().nullable(),
   title: z.union([z.lazy(() => StringFilterObjectSchema), z.string()]).optional(),
   slug: z.union([z.lazy(() => StringNullableFilterObjectSchema), z.string()]).optional().nullable(),
   brandAvatarUrl: z.union([z.lazy(() => StringNullableFilterObjectSchema), z.string()]).optional().nullable(),
@@ -45,6 +48,7 @@ const labwhereinputSchema = z.object({
   nextInvoiceNumber: z.union([z.lazy(() => IntFilterObjectSchema), z.number().int()]).optional(),
   createdAt: z.union([z.lazy(() => DateTimeFilterObjectSchema), z.coerce.date()]).optional(),
   updatedAt: z.union([z.lazy(() => DateTimeFilterObjectSchema), z.coerce.date()]).optional(),
+  organization: z.union([z.lazy(() => OrganizationNullableScalarRelationFilterObjectSchema), z.lazy(() => OrganizationWhereInputObjectSchema)]).optional(),
   labSubscriptionPlan: z.union([z.lazy(() => LabSubscriptionPlanNullableScalarRelationFilterObjectSchema), z.lazy(() => LabSubscriptionPlanWhereInputObjectSchema)]).optional(),
   clinics: z.lazy(() => ClinicListRelationFilterObjectSchema).optional(),
   cases: z.lazy(() => CaseListRelationFilterObjectSchema).optional(),

@@ -2,6 +2,8 @@ import * as z from 'zod';
 export const LabFindManyResultSchema = z.object({
   data: z.array(z.object({
   id: z.string(),
+  organizationId: z.string().optional(),
+  organization: z.unknown().optional(),
   title: z.string(),
   slug: z.string().optional(),
   brandAvatarUrl: z.string().optional(),

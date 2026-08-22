@@ -6,8 +6,12 @@ import { NullableStringFieldUpdateOperationsInputObjectSchema as NullableStringF
 import { DateTimeFieldUpdateOperationsInputObjectSchema as DateTimeFieldUpdateOperationsInputObjectSchema } from './DateTimeFieldUpdateOperationsInput.schema';
 import { AuthUserRoleSchema } from '../enums/AuthUserRole.schema';
 import { EnumAuthUserRoleFieldUpdateOperationsInputObjectSchema as EnumAuthUserRoleFieldUpdateOperationsInputObjectSchema } from './EnumAuthUserRoleFieldUpdateOperationsInput.schema';
+import { NullableBoolFieldUpdateOperationsInputObjectSchema as NullableBoolFieldUpdateOperationsInputObjectSchema } from './NullableBoolFieldUpdateOperationsInput.schema';
+import { NullableDateTimeFieldUpdateOperationsInputObjectSchema as NullableDateTimeFieldUpdateOperationsInputObjectSchema } from './NullableDateTimeFieldUpdateOperationsInput.schema';
 import { SessionUncheckedUpdateManyWithoutAuthuserNestedInputObjectSchema as SessionUncheckedUpdateManyWithoutAuthuserNestedInputObjectSchema } from './SessionUncheckedUpdateManyWithoutAuthuserNestedInput.schema';
 import { AccountUncheckedUpdateManyWithoutAuthuserNestedInputObjectSchema as AccountUncheckedUpdateManyWithoutAuthuserNestedInputObjectSchema } from './AccountUncheckedUpdateManyWithoutAuthuserNestedInput.schema';
+import { MemberUncheckedUpdateManyWithoutAuthuserNestedInputObjectSchema as MemberUncheckedUpdateManyWithoutAuthuserNestedInputObjectSchema } from './MemberUncheckedUpdateManyWithoutAuthuserNestedInput.schema';
+import { InvitationUncheckedUpdateManyWithoutAuthuserNestedInputObjectSchema as InvitationUncheckedUpdateManyWithoutAuthuserNestedInputObjectSchema } from './InvitationUncheckedUpdateManyWithoutAuthuserNestedInput.schema';
 import { SuperUserUncheckedUpdateOneWithoutAuthUserNestedInputObjectSchema as SuperUserUncheckedUpdateOneWithoutAuthUserNestedInputObjectSchema } from './SuperUserUncheckedUpdateOneWithoutAuthUserNestedInput.schema'
 
 const makeSchema = () => z.object({
@@ -20,8 +24,13 @@ const makeSchema = () => z.object({
   updatedAt: z.union([z.coerce.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputObjectSchema)]).optional(),
   role: z.union([AuthUserRoleSchema, z.lazy(() => EnumAuthUserRoleFieldUpdateOperationsInputObjectSchema)]).optional(),
   labId: z.union([z.string(), z.lazy(() => NullableStringFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
+  banned: z.union([z.boolean(), z.lazy(() => NullableBoolFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
+  banReason: z.union([z.string(), z.lazy(() => NullableStringFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
+  banExpires: z.union([z.coerce.date(), z.lazy(() => NullableDateTimeFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
   sessions: z.lazy(() => SessionUncheckedUpdateManyWithoutAuthuserNestedInputObjectSchema).optional(),
   accounts: z.lazy(() => AccountUncheckedUpdateManyWithoutAuthuserNestedInputObjectSchema).optional(),
+  members: z.lazy(() => MemberUncheckedUpdateManyWithoutAuthuserNestedInputObjectSchema).optional(),
+  invitations: z.lazy(() => InvitationUncheckedUpdateManyWithoutAuthuserNestedInputObjectSchema).optional(),
   superUser: z.lazy(() => SuperUserUncheckedUpdateOneWithoutAuthUserNestedInputObjectSchema).optional()
 }).strict();
 export const AuthUserUncheckedUpdateWithoutLabUserInputObjectSchema: z.ZodType<Prisma.AuthUserUncheckedUpdateWithoutLabUserInput> = makeSchema() as unknown as z.ZodType<Prisma.AuthUserUncheckedUpdateWithoutLabUserInput>;

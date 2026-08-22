@@ -17,7 +17,7 @@ import { PasswordInputWithLabel } from "../ui/custom/password-input-with-label";
 import { toast } from "sonner";
 import { Github, LoaderCircle } from "lucide-react";
 
-export function SignInForm() {
+export function SignInForm({ callbackUrl }: { callbackUrl?: string | null }) {
 	const router = useRouter();
 
 	const form = useForm<SignInUserInput>({
@@ -34,7 +34,7 @@ export function SignInForm() {
 		onSuccess: ({ data }) => {
 			if (data) {
 				const { result } = data;
-				if (result.redirect) router.push(result.url ?? SIGN_IN_CALLBACK_URL);
+				if (result.redirect) router.push(callbackUrl ?? result.url ?? SIGN_IN_CALLBACK_URL);
 			}
 		},
 		onError: ({ error }) => {
@@ -71,14 +71,14 @@ export function SignInForm() {
 
 	async function SignInWithProvider(provider: "github" | "google") {
 		await authClient.signIn.social(
-			{ provider },
+			{ provider, callbackURL: callbackUrl ?? '/dashboard' },
 			{
 				onError(ctx) {
 					toast.error(ctx.error.message);
 				},
 				onSuccess() {
 					toast.success(`Logged in successfully via ${provider === "github" ? "GitHub" : "Google"}`);
-					router.push("/dashboard");
+					router.push(callbackUrl ?? "/dashboard");
 				},
 			},
 		);
@@ -189,7 +189,7 @@ export function SignInForm() {
 			<div className="mt-8 text-center">
 				<p className="text-[13px] text-muted-foreground">
 					Don&apos;t have an account?{" "}
-					<Link href="/sign-up" className="font-semibold text-foreground hover:text-primary transition-colors">
+					<Link href={callbackUrl ? `/sign-up?callbackUrl=${encodeURIComponent(callbackUrl)}` : "/sign-up"} className="font-semibold text-foreground hover:text-primary transition-colors">
 						Request Access
 					</Link>
 				</p>

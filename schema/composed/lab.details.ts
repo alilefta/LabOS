@@ -68,3 +68,16 @@ export const CreateLabAndLabUserInputSchema = z.object({
 export type CreateLabAndLabUserInput = z.infer<
 	typeof CreateLabAndLabUserInputSchema
 >
+
+/**
+ * Organization-backed onboarding accepts only workspace data. Account identity
+ * comes from the authenticated session, and operational staff data is created
+ * later through the dedicated staff workflow.
+ */
+export const CreateLabWorkspaceInputSchema = z.object({
+	lab: CreateLabInputSchema,
+})
+
+export type CreateLabWorkspaceInput = z.infer<
+	typeof CreateLabWorkspaceInputSchema
+>

@@ -11,7 +11,10 @@ const makeSchema = () => z.object({
   createdAt: z.literal(true).optional(),
   updatedAt: z.literal(true).optional(),
   role: z.literal(true).optional(),
-  labId: z.literal(true).optional()
+  labId: z.literal(true).optional(),
+  banned: z.literal(true).optional(),
+  banReason: z.literal(true).optional(),
+  banExpires: z.literal(true).optional()
 }).strict();
 export const AuthUserMaxAggregateInputObjectSchema: z.ZodType<Prisma.AuthUserMaxAggregateInputType> = makeSchema() as unknown as z.ZodType<Prisma.AuthUserMaxAggregateInputType>;
 export const AuthUserMaxAggregateInputObjectZodSchema = makeSchema();
