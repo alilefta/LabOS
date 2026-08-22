@@ -222,14 +222,34 @@ Organization-scoped permissions skip target resolution only when their trusted d
 | Organization boundary | Trusted target resolver maps the identifier to actor `organizationId`; always first. |
 | Assigned Case | Staff needs active `staffId` and an active same-Lab assignment for staff-level Case reads/transitions. |
 | Case transition | `case.transition` determines who may request it; Workflow later determines whether it is currently valid. |
-| Membership target | Same Organization; only owner affects owner; last owner cannot be removed/demoted; self-target flows are explicit. |
+| Membership target | Same Organization; only an owner may affect an owner; self-target behavior is explicit for each command. |
+| Role assignment | The requested role is configured and falls within the actor's explicit grantable-role ceiling. The Staff-access flow never grants `owner`. |
 | Staff target | Same Lab; linked Member, if present, belongs to the active Organization. |
 | Financial target | All referenced Invoice, Case, Clinic, Staff, assignment, and payout records resolve to actor Lab. |
 | Draft deletion | `invoice.delete_draft` additionally requires current draft state. |
 
 Callers supply identifiers, never trusted-looking security attributes. Each typed policy owns its fact loader, which is tenant-scoped, selects minimal columns, and may reuse facts within a request. Policy composition is a deterministic AND.
 
-Owner count, ownership role, financial invariants, and other security-critical mutable facts must be re-read inside the mutation transaction or enforced by a proven concurrency-safe authority. For Better Auth mutations that cannot share the application's transaction, use supported hooks/atomic mechanisms and concurrency tests; do not rely on a stale authorization precheck. A last-owner invariant may be delegated to Better Auth only after tests prove its behavior under concurrent removal/demotion.
+Owner count, ownership role, financial invariants, and other security-critical mutable facts must be re-read inside the mutation transaction or enforced by a proven concurrency-safe authority. The rule that an Organization must retain an owner is a domain invariant, not merely an authorization-policy fact. For Better Auth mutations that cannot share the application's transaction, use supported hooks/atomic mechanisms and concurrency tests; do not rely on a stale authorization precheck. Last-owner protection may be delegated to Better Auth only after tests prove its behavior under concurrent removal, demotion, and leave operations.
+
+For Staff-access invitations, identical intent means the same Organization, LabStaff, normalized email, and requested role. Repeating identical intent should use Better Auth's idempotent resend behavior. A changed email or role is an authorized replacement operation and must pass the role-assignment ceiling again before the prior invitation is canceled or replaced.
+
+Staff-access invitation and revocation share one immutable, typed role-target policy matrix:
+
+```ts
+type StaffAccessTargetRole = Exclude<OrganizationRole, 'owner'>
+
+const STAFF_ACCESS_ROLE_TARGETS = {
+  owner: new Set<StaffAccessTargetRole>(['admin', 'manager', 'staff']),
+  admin: new Set<StaffAccessTargetRole>(['staff']),
+  manager: new Set<StaffAccessTargetRole>(),
+  staff: new Set<StaffAccessTargetRole>(),
+} satisfies Readonly<
+  Record<OrganizationRole, ReadonlySet<StaffAccessTargetRole>>
+>
+```
+
+This matrix remains private to the policy module and is exposed through an evaluator rather than as mutable Sets. The ceiling is combined with operation-specific policies. Staff-access commands always deny self-targeting, never grant or target `owner`, and never promote, demote, remove, or otherwise mutate ownership. A-125 may load an Owner role only to deny the command. Self-departure and ownership changes are separate future operations such as `membership.leave`, `membership.owner.promote`, and `membership.owner.demote`; generic membership removal and role update also deny Owner targets until those operations are designed and their concurrency behavior is proven.
 
 ## Error and monitoring contract
 
@@ -283,7 +303,7 @@ Current baseline: 131 `requiredLabRole` declarations in `actions/` — 55 Staff,
 6. Replace UI capability projections only after server enforcement.
 7. Prove zero runtime legacy consumers before M5 deletion.
 
-Rollback is per slice: restore its still-present legacy enforcement. Never disable both V1 and legacy enforcement. No database migration is planned; if schema work emerges, stop and request user approval.
+Rollback is per slice: restore its still-present legacy enforcement. Never disable both V1 and legacy enforcement. If a rollback restores an intentionally removed legacy capability, such as Manager access to Staff invitation or revocation, it is a known privilege expansion rather than a semantically equivalent fallback. Record and explicitly approve that incident risk, monitor it, and keep the rollback short-lived. No database migration is planned; if schema work emerges, stop and request user approval.
 
 ## Tests and definition of done
 

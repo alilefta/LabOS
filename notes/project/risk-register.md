@@ -17,6 +17,7 @@ Score probability and impact from 1–5; exposure is their product. Review high 
 | R-011 | Required authorization policy or target resolver is missing after a refactor | 3 | 5 | 15 | `AUTHZ_POLICY_NOT_REGISTERED` or `AUTHZ_TARGET_RESOLVER_MISSING` event | Trusted permission catalog, startup/contract validation, fail-closed evaluator | Disable affected slice and restore its legacy gate | Unassigned | TBD | Open |
 | R-012 | Better Auth and LabOS authorization disagree for an Organization mutation | 3 | 4 | 12 | Dual-authorization compatibility test or runtime mismatch | Require both authorities, test static role configuration against LabOS bundle expectations | Disable affected product operation; repair configuration before retry | Unassigned | TBD | Open |
 | R-013 | Concurrent owner mutations leave an Organization without an owner | 2 | 5 | 10 | Concurrency test failure or zero-owner reconciliation result | Mandatory atomic invariant revalidation or proven Better Auth enforcement | Freeze membership mutations and restore an owner through audited recovery | Unassigned | TBD | Open |
+| R-014 | Direct Better Auth Organization mutation bypasses the LabOS product gate | 4 | 5 | 20 | Catch-all request succeeds without a corresponding V1 decision | Intercept or deny product-managed Organization mutations, retain only explicit session-lifecycle exceptions, and test the HTTP boundary directly | Disable affected Organization endpoints or feature slice; preserve authenticated invite acceptance and tenant switching | Unassigned | TBD | Open |
 
 ## Adding a risk
 

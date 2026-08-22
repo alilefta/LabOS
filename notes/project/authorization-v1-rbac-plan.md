@@ -4,6 +4,8 @@
 **Status:** Discovery
 **Database migration:** None planned
 **Architecture:** `notes/architecture/platform-modules/authorization_module/architecture.md`
+**Migration inventory:** `notes/project/authorization-v1-migration-inventory.md`
+**Generated legacy baseline:** `notes/project/authorization-v1-legacy-action-baseline.md`
 
 ## Outcome and baseline
 
@@ -71,15 +73,15 @@ Exit:
 
 ### 3. `feat/platform-authorization-membership`
 
-Scope: enforce `staff.access.invite`, `staff.access.revoke`, `membership.read`, `membership.role.update`, and `membership.remove`.
+Scope: enforce `staff.access.invite`, `staff.access.revoke`, `membership.read`, `membership.role.update`, and `membership.remove`. Owner targets are denied by Staff-access, generic removal, and generic role-update operations.
 
-Policies: same Organization/Lab, only owner affects owner, last-owner invariant, explicit self-target behavior, and valid staff-member linkage. Last-owner and ownership-role facts are revalidated with concurrency-safe mutation handling.
+Policies: same Organization/Lab, explicit Staff-access self-target denial, valid staff-member linkage, and the approved shared role-target matrix. Identical Staff invitation intent uses idempotent resend; changed intent uses a separately authorized replacement path. `membership.leave`, Owner promotion, and Owner demotion/removal are deferred operations; their last-owner invariant requires concurrency-safe mutation handling or proven Better Auth enforcement before rollout.
 
 Exit:
 
 - [ ] Invitation, role change, revocation, and staff linkage use V1.
-- [ ] Two-Organization, owner, last-owner, and self-target tests pass.
-- [ ] Concurrent owner removal/demotion cannot produce zero owners.
+- [ ] Two-Organization, owner-target, explicit self-target, role-ceiling, and invitation-idempotency tests pass.
+- [ ] Staff-access, generic membership removal, and generic role update deny every Owner target; deferred ownership/self-service endpoints remain unavailable.
 - [ ] LabOS and Better Auth role/API authorization compatibility tests pass.
 - [ ] High-risk events are audit-ready.
 
@@ -133,7 +135,7 @@ Exit:
 - [ ] Implement typed decisions, errors, `can`, `require`, and non-authoritative `roleCapabilities`.
 - [ ] Implement a trusted permission-definition and required-policy registry.
 - [ ] Implement identifier-only targets plus typed target resolvers and policy-owned fact loaders.
-- [ ] Implement Organization boundary, assigned-Case, Staff-target, membership/owner, financial, and draft-state policies.
+- [ ] Implement Organization boundary, assigned-Case, Staff-target, membership/owner, role-assignment ceiling, financial, and draft-state policies.
 - [ ] Require transaction-time revalidation for critical mutable invariants.
 
 ### Adapters and cutover
@@ -165,12 +167,12 @@ Exit:
 |---|---|---|
 | Core | Unit tests; no consumers | Remove unused integration |
 | Shadow | Both divergence directions by action/role; privilege expansions reviewed | Disable shadow evaluation |
-| Membership | Isolation/owner tests | Restore legacy membership slice |
+| Membership | Isolation, role-ceiling, invitation-idempotency, self-target, and concurrent owner-invariant tests | Restore legacy membership slice; record any restored Manager access as a known temporary privilege expansion |
 | Financial | Policy/redaction tests | Restore legacy financial slice |
 | Operations | Assignment/tenant tests | Restore legacy operation group |
 | Full cutover | Zero runtime legacy use | Re-enable documented legacy slice |
 
-Rollback must never disable both V1 and legacy enforcement.
+Rollback must never disable both V1 and legacy enforcement. A rollback that restores an intentionally removed legacy capability requires explicit incident approval and enhanced monitoring because it expands privilege relative to the approved V1 policy.
 
 ## Risks
 
