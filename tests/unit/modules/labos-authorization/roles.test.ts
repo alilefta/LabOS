@@ -45,6 +45,7 @@ describe('LabOS Authorization V1 fixed bundles', () => {
 			'staff.access.invite',
 			'staff.access.revoke',
 			'lab.settings.update',
+			'membership.list',
 			'membership.read',
 			'membership.role.update',
 			'membership.remove',
@@ -61,13 +62,26 @@ describe('LabOS Authorization V1 fixed bundles', () => {
 	it('limits Staff to basic reads and policy-scoped Case work', () => {
 		expect(LABOS_ROLE_PERMISSION_BUNDLES.permissionsFor('staff')).toEqual([
 			'case.read',
+			'case.list',
 			'case.transition',
 			'clinic.read',
+			'clinic.list',
+			'clinic.analytics.read',
+			'clinic.analytics.list',
 			'dentist.read',
+			'dentist.list',
 			'patient.read',
+			'patient.list',
 			'catalog.read',
+			'catalog.list',
+			'catalog.analytics.read',
 			'staff.read',
+			'staff.list',
+			'staff.analytics.read',
+			'staff.analytics.list',
 			'invoice.read',
+			'invoice.list',
+			'invoice.analytics.read',
 		])
 		expect(roleBundleHasPermission('staff', 'case.update')).toBe(false)
 		expect(roleBundleHasPermission('staff', 'case.financials.read')).toBe(false)

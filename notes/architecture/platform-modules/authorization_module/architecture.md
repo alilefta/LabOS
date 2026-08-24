@@ -65,12 +65,20 @@ type AuthorizationRequest = {
   target?: AuthorizationTargetRef
 }
 
-type PermissionDefinition = {
-  permission: Permission
-  scope: 'organization' | 'resource'
-  requiredPolicies: readonly PolicyId[]
-  sensitivity: 'ordinary' | 'sensitive' | 'critical'
-}
+type PermissionDefinition =
+  | {
+      permission: Permission
+      scope: 'organization'
+      requiredPolicies: readonly PolicyId[]
+      sensitivity: 'ordinary' | 'sensitive' | 'critical'
+    }
+  | {
+      permission: Permission
+      scope: 'resource'
+      targetTypes: readonly ResourceType[]
+      requiredPolicies: readonly PolicyId[]
+      sensitivity: 'ordinary' | 'sensitive' | 'critical'
+    }
 
 type AuthorizationDecision =
   | { allowed: true; reason: 'ROLE_PERMISSION' | 'POLICY_ALLOWED' }
@@ -132,31 +140,66 @@ Names use lower-case `<resource>.<action>` strings. They describe operations, ne
 
 | Area | V1 permissions |
 |---|---|
-| Case | `case.read`, `case.create`, `case.update`, `case.archive`, `case.assign`, `case.transition`, `case.financials.read`, `case.financials.update` |
-| Clinic | `clinic.read`, `clinic.create`, `clinic.update`, `clinic.archive` |
-| Dentist | `dentist.read`, `dentist.create`, `dentist.update`, `dentist.archive` |
-| Patient | `patient.read`, `patient.create`, `patient.update`, `patient.archive` |
-| Catalog | `catalog.read`, `catalog.create`, `catalog.update`, `catalog.archive`, `catalog.delete` |
-| Staff | `staff.read`, `staff.create`, `staff.update`, `staff.deactivate`, `staff.schedule.update`, `staff.assign`, `staff.access.invite`, `staff.access.revoke`, `staff.compensation.read`, `staff.compensation.update` |
-| Invoice | `invoice.read`, `invoice.create`, `invoice.update`, `invoice.cancel`, `invoice.delete_draft`, `invoice.payment.record`, `invoice.overdue.sync` |
-| Payout | `payout.read`, `payout.issue`, `payout.void` |
+| Case | `case.list`, `case.read`, `case.analytics.read`, `case.create`, `case.update`, `case.archive`, `case.assign`, `case.transition`, `case.financials.list`, `case.financials.read`, `case.financials.update` |
+| Clinic | `clinic.list`, `clinic.read`, `clinic.analytics.list`, `clinic.analytics.read`, `clinic.financials.list`, `clinic.financials.read`, `clinic.create`, `clinic.update`, `clinic.archive` |
+| Dentist | `dentist.list`, `dentist.read`, `dentist.create`, `dentist.update`, `dentist.archive` |
+| Patient | `patient.list`, `patient.read`, `patient.create`, `patient.update`, `patient.archive` |
+| Catalog | `catalog.list`, `catalog.read`, `catalog.analytics.read`, `catalog.create`, `catalog.update`, `catalog.archive`, `catalog.delete` |
+| Staff | `staff.list`, `staff.read`, `staff.analytics.list`, `staff.analytics.read`, `staff.create`, `staff.update`, `staff.deactivate`, `staff.schedule.update`, `staff.assign`, `staff.access.invite`, `staff.access.revoke`, `staff.compensation.read`, `staff.compensation.update` |
+| Invoice | `invoice.list`, `invoice.read`, `invoice.analytics.read`, `invoice.create`, `invoice.update`, `invoice.cancel`, `invoice.delete_draft`, `invoice.payment.record`, `invoice.overdue.sync` |
+| Payout | `payout.list`, `payout.read`, `payout.issue`, `payout.void` |
 | Settings | `lab.settings.read`, `lab.settings.update` |
-| Membership | `membership.read`, `membership.role.update`, `membership.remove` |
+| Membership | `membership.list`, `membership.read`, `membership.role.update`, `membership.remove` |
 | Billing | `billing.read`, `billing.manage` |
 
 New permissions require review of role assignment, resource policy, audit sensitivity, tests, and migration mapping. Renaming/removal is a contract change.
+
+### Read operation semantics
+
+Read permissions are separated by disclosure shape because trusted resource requirements cannot be optional:
+
+| Shape | Meaning | Trusted scope |
+|---|---|---|
+| `<resource>.list` | Search, lookup, paginated collection, or collection summary | Organization; the server owns tenant and row-visibility predicates |
+| `<resource>.read` | One existing resource or its ordinary detail view | Resource; an identifier-only target and trusted resolver are mandatory |
+| `<resource>.analytics.list` | Aggregate across a resource collection | Organization; aggregate predicates must exactly match authorized collection scope |
+| `<resource>.analytics.read` | Operational analytics for one resource | Resource; target resolution is mandatory |
+| `<resource>.financials.list` | Financial disclosure across a collection | Organization; separate from ordinary list/analytics authority |
+| `<resource>.financials.read` | Financial disclosure for one resource | Resource; separate from ordinary detail authority |
+
+Not every resource needs every shape. A permission is added only when a real boundary requires it. `invoice.analytics.read` is currently an Organization-wide AR aggregate, while `catalog.analytics.read` targets a specific catalog entity; trusted metadata records the difference.
+
+Collection permission is potential access, not permission to trust caller filters. Collection services derive `organizationId`, active Staff identity, assignment visibility, and other row predicates from verified context. Counts, totals, cursors, and aggregates use the identical authorized predicate so excluded rows cannot be inferred. Per-row `can()` loops are forbidden because they create N+1 work and can leak totals before filtering.
+
+A detail permission may declare more than one trusted `targetType` when one stable business operation spans a controlled resource family, such as Catalog Category, WorkType, Product, Addon, and PricingPlan reads. The request target type must be present in the trusted definition and must have its own registered resolver. The caller cannot add target types.
+
+Supporting reads performed solely to complete another authorized command use that command permission and minimum projections when they are not independently reusable disclosures. If an endpoint returns multiple independently protected data classes, every permission must allow or the response must be split/redacted. Financial data, compensation, membership/access state, invitation identifiers, public-access tokens, and similar sensitive fields never ride on an ordinary `.read` or `.list` permission.
 
 Trusted definitions are the source of truth for enforcement requirements:
 
 | Permission | Scope | Target | Required policies |
 |---|---|---|---|
+| `case.list` | Organization | None | Tenant-scoped collection; Staff assignment predicate |
 | `case.create` | Organization | None | LabOS tenant provisioning/context policy |
 | `case.update` | Resource | Case ID | Organization boundary, Case update policy |
 | `case.transition` | Resource | Case ID | Organization boundary, Case transition policy |
+| `catalog.read` | Resource | Approved Catalog target type + ID | Organization boundary, Catalog target policy |
 | `invoice.delete_draft` | Resource | Invoice ID | Organization boundary, financial target, draft state |
 | `lab.settings.read` | Organization | None | None beyond verified membership |
 
 The implementation catalog defines this metadata beside each permission. Request callers cannot weaken or override it.
+
+The concrete LabOS catalog lives in `modules/labos-authorization/permission-definitions.ts`. Importing it performs startup validation: every permission appears exactly once, resource definitions contain at least one unique registered target type, policy IDs are typed, and duplicate definitions fail immediately. Declared policy IDs are mandatory dependencies, not documentation; enforcement denies until every required implementation is registered.
+
+Sensitivity drives monitoring and review posture:
+
+- `ordinary`: low-impact tenant configuration/catalog disclosure.
+- `sensitive`: patient/customer/staff data, analytics, financial reads, and ordinary business mutations.
+- `critical`: access/membership mutations, destructive operations, payments/payouts, and security- or finance-changing commands.
+
+Organization-scoped creation permissions do not authorize foreign reference IDs. The mutation service must resolve every referenced Clinic, Patient, Staff, Catalog, Case, or other record through tenant-scoped storage and revalidate mutable invariants in its transaction.
+
+Some policies require validated operation intent in addition to identifiers—for example the requested role in `staff.access.invite` or `membership.role.update`. The adapter supplies this through a permission-keyed discriminated TypeScript map. Only `staff.access.invite` may carry `{ kind, requestedRole, recipientEmail }`, and only `membership.role.update` may carry `{ kind, requestedRoles }`; permissions without an entry cannot carry operation intent. The kernel must never introduce `Record<string, unknown>` attributes or accept caller-asserted security facts. Runtime validation still fails closed, and policies load actor/target roles and membership state authoritatively.
 
 ## Fixed bundles
 
@@ -230,6 +273,22 @@ Organization-scoped permissions skip target resolution only when their trusted d
 
 Callers supply identifiers, never trusted-looking security attributes. Each typed policy owns its fact loader, which is tenant-scoped, selects minimal columns, and may reuse facts within a request. Policy composition is a deterministic AND.
 
+The kernel creates an empty `AuthorizationFactCache` inside every `can()` evaluation and passes it only to trusted target resolvers and policies. Cache namespaces are module-private Symbols; entries—including failures—live for one evaluation only. There is no cross-request or cross-evaluation decision/fact cache. Boundary resolution and policy facts remain separate queries: boundary lookup resolves the authoritative Organization from the identifier alone so tenant mismatch is observable internally, while policy loaders independently constrain their queries by `actor.organizationId` as defense in depth.
+
+The first concrete adapter slice covers `staff` and `member` targets. Staff boundary resolution selects only `Lab.organizationId`; Member boundary resolution selects only `Member.organizationId`. Staff-access policy facts select active state, Lab/Organization identity, linked Member identity/role, and pending invitation status/role/expiry/linkage. They deliberately exclude Staff identity/contact/address/compensation fields. Invitation email is selected only inside this server policy projection to distinguish exact resend from changed intent; it is never included in decisions, errors, or telemetry. Generic membership administration facts select only Member ID, Organization ID, user ID, and role. These adapters and policies are implemented but are not yet wired into actions or enforcement.
+
+The membership/Staff-access policy registry now implements deterministic AND policies for active Staff targeting, explicit self-target denial, the approved Owner/Admin role-target ceiling, invitation intent integrity, exact Member/Invitation linkage, non-Owner Member targeting, and requested-role assignment. Every Owner target or requested Owner grant fails with `AUTHZ_OWNER_INVARIANT`; missing/malformed operation or authoritative role state fails with `AUTHZ_POLICY_FACT_MISSING`. A runtime caller cannot weaken these outcomes by omitting typed intent.
+
+The server-only LabOS actor adapter is a pure projection from canonical `TenantContext` to `AuthorizationActor`. It splits Better Auth's comma-delimited `Member.role` value but does not lower-case, filter, grant aliases, or perform database/session work. This preserves unknown and malformed role tokens for kernel telemetry and default denial. `labId`, `staffId`, Lab data, and the legacy `member → staff` compatibility mapping never cross the generic actor boundary.
+
+The concrete server-only LabOS service is assembled from a version-controlled activation manifest rather than the entire future permission vocabulary. Its initial enabled set is `staff.access.invite`, `staff.access.revoke`, `membership.read`, `membership.role.update`, and `membership.remove`. Definitions are derived from the authoritative full catalog at startup; metadata is never duplicated. Fixed bundles remain complete, but a role-granted permission outside the activation manifest has no active definition and therefore fails closed before resource loading. Adding a permission to this service requires its resolver/policy and isolation/monitoring tests in the same change.
+
+Safe-action integration uses stable inventory IDs rather than accepting a permission, resource ID, role, or operation object in static metadata. The private server registry currently binds A-124 to `staff.access.invite` and A-125 to `staff.access.revoke`. It also owns each stable action name and legacy required role, so shadow callers cannot forge comparison labels. Only validated middleware may invoke its projectors. Each projector returns immutable trusted metadata, an identifier-only target, and, when required, exact permission-specific operation intent. Registry definitions are compile-time paired with their boundary ID and startup-checked against the concrete service activation manifest. Unknown IDs or stale parsed-input wiring fail with sanitized stable errors and never include action input.
+
+The shadow coordinator accepts only a trusted boundary projection, canonical platform actor, and the unchanged legacy evaluator. It starts both decisions for every validated shadow request and always returns an immutable enforcement result whose source is `legacy`. V1 denials and unexpected V1 failures are observational: failures are converted to a deny comparison with a separate failed outcome and high-severity telemetry, never thrown into a legacy-allowed request. A legacy evaluator failure cannot produce an enforcing decision and therefore fails closed with a sanitized error. Monitor failures are swallowed.
+
+The dedicated `labos.authorization.shadow_comparison` event uses a strict allowlist: stable boundary ID, trusted action name, permission, Organization ID, normalized recognized actor roles, unknown-role count, trusted legacy required role, legacy/V1 outcomes, stable V1 reason, divergence category, server-generated correlation ID, enforcement source, severity, review priority, and duration. The same generated correlation ID is forwarded to the V1 evaluator. Raw or target IDs, Member/User IDs, email, Invitation IDs, operation intent, input payloads, patient/Staff details, financial values, provider errors, and caught exception details are forbidden. `LEGACY_DENY_V1_ALLOW` is `high` severity with `highest` review priority because it is a possible privilege expansion; the approved Manager `LEGACY_ALLOW_V1_DENY` restriction remains reviewable but lower priority.
+
 Owner count, ownership role, financial invariants, and other security-critical mutable facts must be re-read inside the mutation transaction or enforced by a proven concurrency-safe authority. The rule that an Organization must retain an owner is a domain invariant, not merely an authorization-policy fact. For Better Auth mutations that cannot share the application's transaction, use supported hooks/atomic mechanisms and concurrency tests; do not rely on a stale authorization precheck. Last-owner protection may be delegated to Better Auth only after tests prove its behavior under concurrent removal, demotion, and leave operations.
 
 For Staff-access invitations, identical intent means the same Organization, LabStaff, normalized email, and requested role. Repeating identical intent should use Better Auth's idempotent resend behavior. A changed email or role is an authorized replacement operation and must pass the role-assignment ceiling again before the prior invitation is canceled or replaced.
@@ -263,7 +322,9 @@ Engineering targets to validate are role-only p95 below 2 ms in process and poli
 
 ## Server integration
 
-Create a permission-aware safe-action client whose metadata requires `permission: Permission`. Trusted permission definitions—not callers—declare organization/resource scope and required policy IDs. The client runs after authentication and tenant resolution. Public/session-only actions use distinct clients, not `permission: null`. During cutover, legacy and permission metadata may coexist, but a declared V1 permission is never silently replaced by a role decision.
+Create a permission-aware safe-action client selected by a stable trusted boundary ID. The private boundary registry—not action metadata or callers—binds the permission, schema, action label, legacy comparison role, target projector, and operation intent. Trusted permission definitions declare organization/resource scope and required policy IDs. The client runs after authentication and tenant resolution. Public/session-only actions use distinct clients. During cutover, legacy and V1 decisions coexist, but the selected permission is never caller-overridable or silently replaced by a different role decision.
+
+For the first shadow slice, integration is intentionally isolated behind `actionClientWithAuthorizationShadow(boundaryId)` rather than modifying `actionClientWithLab`. It is a typed selector over boundary-owned, fully configured clients: A-124 owns the grant-access Zod schema and A-125 owns the revoke-access schema. Pre-validation middleware logs, requires the User and canonical Tenant, builds the generic actor, and generates the correlation ID. Mandatory next-safe-action `useValidated()` middleware then projects parsed input, runs the shared legacy hierarchy decision and V1 coordinator, records telemetry, enforces only legacy, and calls the handler. Callers cannot supply action name, legacy role, permission, schema, target type, or policies. Unknown boundary selection fails closed; malformed or unavailable V1 projection is high-severity telemetry and does not override a valid legacy allow. Rollback is selecting the unchanged `actionClientWithLab` again.
 
 Routes call the same service. Pages may use `roleCapabilities()` for potential UI affordances, while underlying commands remain protected. Domain services accept verified actor context or enforce at their application boundary; they never accept a raw client role.
 
@@ -271,6 +332,7 @@ Routes call the same service. Pages may use `roleCapabilities()` for potential U
 platform/authorization/
   index.ts
   authorization.types.ts
+  authorization.fact-cache.ts
   permissions.ts
   roles.ts
   role-normalizer.ts
@@ -283,10 +345,24 @@ platform/authorization/
 modules/labos-authorization/
   permissions.ts
   roles.ts
-  labos-authorization-context.ts
+  action-boundaries.ts
+  shadow-evaluation.ts
+  resource-types.ts
+  policy-ids.ts
+  permission-definitions.ts
+  operation-intents.ts
+  actor.ts
+  service.ts
+  action-boundaries.ts
   target-resolvers/
+    organization-boundary-resolver.ts
   policies/
+    membership-access.policies.ts
   fact-loaders/
+    membership-access-facts.ts
+  adapters/prisma/
+    membership-access.repository.ts
+  membership-access.adapters.ts
 ```
 
 The generic platform kernel must not import Prisma-generated LabOS models. LabOS fact loaders and registrations live in an integration layer.
@@ -307,11 +383,12 @@ Rollback is per slice: restore its still-present legacy enforcement. Never disab
 
 ## Tests and definition of done
 
-- [ ] Vocabulary and bundle matrix are approved.
-- [ ] The kernel contains no `labId`, `staffId`, Prisma, or LabOS domain types.
-- [ ] Every role/permission pair and role-normalization edge case is tested; temporary `member` compatibility is measured and removable.
-- [ ] Resource/policy requirements come from trusted permission definitions and missing registration fails closed.
-- [ ] Default deny, policy failure, tenant mismatch, and sanitized monitoring are tested.
+- [x] Vocabulary and bundle matrix are approved.
+- [x] The kernel contains no `labId`, `staffId`, Prisma, or LabOS domain types.
+- [x] Every role/permission pair and role-normalization edge case is tested; temporary `member` compatibility remains outside the kernel and removable.
+- [x] Resource/policy requirements come from trusted permission definitions and missing registration fails closed.
+- [x] Default deny, policy failure, tenant mismatch, and sanitized monitoring are tested.
+- [x] Membership/Staff-access target, self, role-ceiling, invitation, linkage, and Owner-denial policies are tested without application enforcement.
 - [ ] Assigned/inactive Staff, concurrency-safe owner invariants, financial links, and invoice state are tested.
 - [ ] Better Auth and LabOS dual-authorization compatibility tests pass for Organization mutations.
 - [ ] Two-Organization tests reject foreign resources and verify role changes on the next request.

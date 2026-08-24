@@ -15,7 +15,7 @@ function definition(
 	return {
 		permission: 'record.read',
 		scope: 'resource',
-		targetType: 'record',
+		targetTypes: ['record'],
 		requiredPolicies: ['record.visible'],
 		sensitivity: 'ordinary',
 		...overrides,
@@ -31,10 +31,10 @@ describe('permission definition registry', () => {
 
 		policies.length = 0
 
-		expect(registry.get('record.read')).toEqual({
+			expect(registry.get('record.read')).toEqual({
 			permission: 'record.read',
 			scope: 'resource',
-			targetType: 'record',
+			targetTypes: ['record'],
 			requiredPolicies: ['record.visible'],
 			sensitivity: 'ordinary',
 		})
@@ -59,8 +59,16 @@ describe('permission definition registry', () => {
 	it('rejects an empty resource target type', () => {
 		expect(() =>
 			createPermissionDefinitionRegistry([
-				definition({ targetType: '' as ResourceType }),
+				definition({ targetTypes: [] }),
 			]),
-		).toThrow('requires a target type')
+		).toThrow('requires at least one target type')
+	})
+
+	it('rejects duplicate trusted target types', () => {
+		expect(() =>
+			createPermissionDefinitionRegistry([
+				definition({ targetTypes: ['record', 'record'] }),
+			]),
+		).toThrow('duplicate target types')
 	})
 })

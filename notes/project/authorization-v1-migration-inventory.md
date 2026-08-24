@@ -75,11 +75,11 @@ The ranges overlap conceptually where one action touches multiple domains. The f
 
 | ID | Evidence | Problem | Required resolution | Status |
 |---|---|---|---|---|
-| AUTHZ-INV-001 | A-014 and A-106 | Case readers declare `requiredLabRole: null`; null does not prove they are public. | Inspect their client and tenant/resource checks; classify as `case.read` or deliberately session-only with evidence. | Open |
+| AUTHZ-INV-001 | A-014 and A-106 | Case readers declare `requiredLabRole: null`; null does not prove they are public. | Preserve A-014 as a stable tombstone because its source is commented out. Classify A-106 as `case.create` supporting disclosure plus `case.read` when an existing draft ID is supplied; it is never public/session-only. | Resolved — 2026-08-22 |
 | AUTHZ-INV-002 | A-061 | Staff currently passes the legacy gate for complete Clinic creation, while the approved V1 matrix denies Staff creation. | Record and approve `LEGACY_ALLOW_V1_DENY`, or revise the bundle after product review. | Open |
 | AUTHZ-INV-003 | A-107 versus A-123 | Two actions named `Register-New-Lab-Staff-Action` have different legacy minimum roles. | Inspect behavior, rename action identifiers, and decide whether one path is obsolete or differently scoped. | Open |
-| AUTHZ-INV-004 | A-014, A-017, A-064–A-074, and other list/detail reads | One permission may cover both collections and individual resources, but trusted resource requirements cannot be optional. | Decide whether to add explicit `.list` permissions or typed collection targets before freezing definitions. | Open |
-| AUTHZ-INV-005 | A-071 and financial dashboard readers | Current vocabulary does not clearly distinguish Clinic revenue/aggregate access from ordinary Clinic reads. | Add a reviewed financial aggregate permission or map to an existing financial permission with a typed query policy. | Open |
+| AUTHZ-INV-004 | A-014, A-017, A-064–A-074, and other list/detail reads | One permission may cover both collections and individual resources, but trusted resource requirements cannot be optional. | Use explicit `.list` for Organization-scoped collections and `.read` for identifier-targeted resources. Analytics and financial disclosures use separate list/read shapes. | Resolved — 2026-08-22 |
+| AUTHZ-INV-005 | A-019, A-060, A-065–A-066, A-068, A-071, and financial dashboard readers | Financial detail/aggregate data is mixed into ordinary Case/Clinic reads. | Use `case.financials.list/read` and `clinic.financials.list/read`; composite endpoints must require both permissions or split/redact their DTO. | Resolved vocabulary; endpoint remediation open |
 | AUTHZ-INV-006 | A-026–A-027 | Case asset upload/removal combines Case authorization with file lifecycle concerns. | Define the Case permission and future Files-module boundary without allowing either check to substitute for the other. | Open |
 | AUTHZ-INV-007 | Duplicate action names in generated baseline | Telemetry keyed only by `actionName` can collide. | Use stable boundary ID plus source/correlation metadata during migration. | Open |
 | AUTHZ-INV-008 | `app/api/auth/[...all]/route.ts` | Better Auth Organization mutation endpoints are reachable through the catch-all route, so callers can bypass LabOS wrappers while still passing Better Auth rules. | Before enforcement, deny direct product mutations or intercept them with a V1 gate; invitee acceptance/rejection and active-Organization switching remain deliberate exceptions. | Open — critical |
@@ -88,6 +88,40 @@ The ranges overlap conceptually where one action touches multiple domains. The f
 | AUTHZ-INV-011 | A-123 | Staff creation accepts initial commission configuration even though Admin has Staff creation but only compensation-read authority in the proposed matrix. | Create with safe compensation defaults and use the resource-scoped compensation command separately. | Resolved — approved 2026-08-22 |
 | AUTHZ-INV-012 | A-125 and Better Auth Member mutations | Installed Better Auth checks the last owner, but its observed count-then-mutate flow still requires concurrency verification. | Add concurrent removal/demotion/leave tests and retain a fail-closed application strategy if the invariant is not atomic. | Open — critical |
 | AUTHZ-INV-013 | A-124/A-125 | Staff-access commands need one authoritative actor-to-target-role ceiling. | Use the approved matrix: Owner targets Admin/Manager/Staff; Admin targets Staff; Manager/Staff target nobody; Owner and self are always excluded. | Resolved — approved 2026-08-22 |
+| AUTHZ-INV-014 | A-060, A-065, A-066, and A-068 | Staff-visible Clinic endpoints currently disclose balances, credit limits, payments, `grandTotal`, or financial-derived analytics under ordinary read gates. | Split ordinary/operational DTOs from financial DTOs or require the corresponding financial permission in addition to the read/analytics permission. | Open — sensitive |
+| AUTHZ-INV-015 | A-093 | The general Invoice list returns `publicToken` to every legacy Staff caller. A public-access token is a credential-like capability, not list data. | Remove `publicToken` from the list DTO/query. Generate or disclose public links only through a separately authorized operation with expiry and audit. | Open — critical |
+| AUTHZ-INV-016 | A-118 | The Staff dossier returns compensation, membership/invitation state, invitation ID, and HR analytics under ordinary `STAFF` access. | Split the dossier. Ordinary identity requires `staff.read`; analytics requires `staff.analytics.read`; compensation requires `staff.compensation.read`; access state requires `membership.read`. Never expose an invitation identifier as a reusable token. | Open — critical |
+| AUTHZ-INV-017 | Generated baseline A-014 | The regex baseline generator records a commented-out metadata block as if it were active. Removing it would renumber already-reviewed stable IDs. | Retain A-014 as a documented tombstone for V1. Replace sequential extraction with a stable manifest/AST generator in a separate inventory-maintenance change; never reuse A-014. | Open — tooling, non-runtime |
+| AUTHZ-INV-018 | `staff.access.role_target` and `membership.role_assignment` | These policies require validated requested-role intent, while the generic kernel deliberately accepts no arbitrary attribute bag. | Permission-keyed discriminated operation intent is implemented. Only Staff invitation and Member role update accept their exact typed intent; missing/malformed runtime intent fails closed while policies load authoritative actor/target facts. | Resolved — 2026-08-24 |
+
+## Read boundary classification decision
+
+Authorization V1 uses operation-shaped read permissions. `.list` is an Organization-scoped collection/search capability; `.read` is a resource-scoped detail capability requiring an identifier-only target. Operational analytics and financial disclosure are separate because they expose materially different information.
+
+| Boundary group | IDs | V1 classification |
+|---|---|---|
+| Catalog collections/lookups | A-002–A-003, A-006–A-008, A-034–A-037, A-043, A-103–A-105, A-130–A-131 | `catalog.list`; tenant-owned filters and bounded projections |
+| Catalog detail/analytics | A-005, A-032, A-044, A-048–A-049, A-057 | `catalog.read` for detail; A-048 additionally `catalog.analytics.read`; trusted Catalog target type required |
+| Case collections/details | A-010, A-013, A-015–A-017 | A-017 uses `case.list`; A-010 uses `case.read`; A-013/A-015 are supporting `case.create` reads; A-016 targets an existing draft under `case.update`; A-014 is a non-runtime tombstone |
+| Case aggregate disclosure | A-018–A-019 | A-018 `case.analytics.read`; A-019 `case.financials.list` |
+| Clinic detail/composites | A-060, A-065–A-068, A-074 | A-060 uses `clinic.analytics.read`; ordinary detail uses `clinic.read`; nested Case collections additionally require `case.list`; financial fields additionally require the applicable financial permission |
+| Clinic collections/aggregates | A-069–A-073 | A-069/A-072/A-073 `clinic.list`; A-070 `clinic.analytics.list`; A-071 `clinic.financials.list` |
+| Dentist collections/details | A-063–A-064, A-079 | Collections use `dentist.list` plus parent `clinic.read` when filtered by Clinic; detail uses `dentist.read` |
+| Invoice collections/details | A-075, A-090–A-095 | A-075/A-093 `invoice.list`; A-092 `invoice.read`; A-090/A-094 `invoice.analytics.read`; A-091/A-095 are supporting `invoice.create` queries with trusted Clinic filters |
+| Patient collections | A-100–A-101 | `patient.list` |
+| Staff collections/details | A-108–A-110, A-116, A-118, A-120 | Collections use `staff.list`; A-118 ordinary identity uses `staff.read`, with sensitive sections independently gated |
+| Staff analytics | A-119, A-121 | A-119 `staff.analytics.read` with Staff target; A-121 `staff.analytics.list` |
+| Staff-filtered Cases | A-115, A-117 | `case.list` plus `staff.read` for the filter target; Staff actors receive only assignment-authorized rows |
+| Compensation/payout reads | A-111–A-113 | `payout.list` and/or `staff.compensation.read`, plus `staff.read` for the filter target; never ordinary Staff read |
+| Case creation preview | A-106 | `case.create`; if `draftCaseId` is present, also `case.read` for that draft target; minimum supporting projections only |
+
+Rules for implementation:
+
+- Collection filters referencing a Clinic, Staff, Patient, or other resource require that filter target to resolve inside the active Organization; a collection permission alone cannot validate an arbitrary foreign filter ID.
+- Staff-scoped Case collections must obtain their assignment predicate from verified authorization context. Client-supplied staff IDs never expand visibility.
+- List counts, totals, aggregates, pagination cursors, and result rows use the same authorization predicate.
+- Composite endpoints call every required authorization decision before loading sensitive data, or are split so an ordinary response cannot accidentally contain protected sections.
+- Public tokens, invitation identifiers, and similar bearer-like values are excluded from ordinary read/list DTOs regardless of role.
 
 ## Membership and access slice — proposed classifications
 
@@ -140,7 +174,7 @@ The critical membership/access slice is approved. A-083 remains session-only, A-
 - V1 permission: `staff.access.invite`.
 - Trusted scope: `resource`.
 - Target: LabStaff ID from validated input.
-- Target resolver: load LabStaff by ID, map its Lab to Organization, and expose only authoritative Staff/Member/Invitation state.
+- Target resolver: identifier-only LabStaff boundary lookup selects `Lab.organizationId`; the kernel compares it with the actor before policies. The separate tenant-scoped Staff-access fact loader selects only authoritative active/link/Member/Invitation state.
 - Required policies: Organization boundary; active same-Lab Staff; Staff has no linked Member; requested role is known and allowed by the explicit role-assignment ceiling; pending intent is same-tenant and idempotent or safely replaceable.
 - Approved role-target ceiling: Owner may invite Admin, Manager, or Staff; Admin may invite Staff only; Manager and Staff may invite nobody. This Staff-access flow never creates Owner.
 - Idempotency: same Staff + same Organization + same normalized email + same role uses Better Auth `resend: true` and does not cancel/recreate. Changed email or role uses the separately authorized replacement path, which cancels only the superseded pending invitation before creating the new one.
@@ -152,6 +186,7 @@ The critical membership/access slice is approved. A-083 remains session-only, A-
 - Required tests: full actor/grantable-role matrix, foreign/inactive/already-linked Staff, changed-intent replacement, identical idempotent resend without cancellation, dual-authority mismatch in both directions, direct catch-all bypass attempt, and telemetry redaction.
 - Technical rollback: restore the legacy Admin hierarchy gate while preserving Better Auth checks and tenant/link validation.
 - Rollback security implication: Manager invitation access returns temporarily, a known privilege expansion to legacy behavior that must be declared in the incident decision and monitored.
+- Adapter status (2026-08-24): `staff` Organization-boundary resolver, tenant-scoped Staff facts, target/self/role-ceiling/invitation policies, exact-resend/changed-intent tests, trusted A-124 projection, legacy-authoritative comparison, and a boundary-owned validated safe-action shadow client are implemented; action consumption and Better Auth composition remain pending.
 - Migration status: `Approved`.
 
 ### A-125 — Revoke Staff system access
@@ -161,7 +196,7 @@ The critical membership/access slice is approved. A-083 remains session-only, A-
 - V1 permission: `staff.access.revoke`.
 - Trusted scope: `resource`.
 - Target: LabStaff ID from validated input.
-- Target resolver: load same-Lab Staff plus linked Member and/or pending Invitation intent; map all records to the active Organization.
+- Target resolver: identifier-only LabStaff boundary lookup selects `Lab.organizationId`; after the kernel passes the boundary, the tenant-scoped Staff-access fact loader loads the exact Member and/or pending Invitation linkage.
 - Required policies: Organization boundary; exact Staff/Member or Staff/Invitation linkage; explicit self-target denial; approved actor-to-target-role ceiling; pending invitation belongs to the same Organization.
 - Approved self-target rule: deny every actor from using the Staff-administration command on themselves. Future self-service departure belongs to the distinct `membership.leave` flow and does not weaken this policy.
 - Better Auth composition: LabOS V1 **AND** Better Auth `member:delete` for active access or `invitation:cancel` for pending access.
@@ -175,6 +210,7 @@ The critical membership/access slice is approved. A-083 remains session-only, A-
 - Required tests: full actor/target-role matrix, self-target, every Owner target denied, foreign Staff/Member/Invitation, pending invite cancellation, partial unlink, other-Organization preservation, direct catch-all bypass attempt, and sanitized telemetry.
 - Technical rollback: restore the legacy action hierarchy gate only; Better Auth authorization, ownership safeguards, and tenant validation remain mandatory.
 - Rollback security implication: Manager revocation access returns temporarily, a known privilege expansion to legacy behavior that must be declared in the incident decision and monitored.
+- Adapter status (2026-08-24): `staff` Organization-boundary resolver, tenant-scoped Member/Invitation linkage facts, target/self/role-ceiling/linkage policies, Owner-target denial, trusted A-125 projection, legacy-authoritative comparison, and a boundary-owned validated safe-action shadow client are implemented; action consumption and Better Auth composition remain pending.
 - Migration status: `Approved`; ownership mutation is explicitly out of scope.
 
 ### Approved shared Staff-access role-target matrix
@@ -201,6 +237,8 @@ These are explicit inventory records, not implicit exceptions to A-124/A-125:
 | AUTHZ-FUT-003 | `membership.owner.demote` | Explicit ownership removal with separate authority, confirmation, audit, and concurrency-safe last-owner invariant | Deferred; unavailable in Staff-access and generic role-update commands |
 
 Generic `membership.remove` and `membership.role.update` deny Owner targets in Authorization V1 until these ownership operations are designed and approved. A count-then-mutate precheck is never sufficient for ownership invariants.
+
+Implementation status (2026-08-24): generic Member non-Owner and explicit self-target policies are implemented. `membership.role.update` additionally requires permission-specific requested-role intent and applies the fixed role-assignment ceiling; every requested Owner role is denied. No ownership or self-departure mutation has been enabled.
 
 ### Dependent boundary — A-127 Staff deactivation
 
@@ -291,7 +329,7 @@ The legacy count covers safe-action metadata only. The following audit is mandat
 - [x] Extracted total and role distribution reconcile to 131.
 - [x] Every legacy declaration has a stable baseline ID.
 - [ ] Every baseline ID has an approved semantic classification.
-- [ ] Collection-versus-resource permission semantics are resolved.
+- [x] Collection-versus-resource permission semantics are resolved.
 - [ ] Every non-action boundary is enumerated and classified.
 - [ ] Every privilege expansion has explicit approval.
 - [ ] Every intentional restriction has product impact recorded.

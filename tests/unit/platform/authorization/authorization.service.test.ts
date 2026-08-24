@@ -63,14 +63,14 @@ function createFixture(overrides: {
 			{
 				permission: 'record.read',
 				scope: 'resource',
-				targetType: 'record',
+				targetTypes: ['record'],
 				requiredPolicies: ['record.visible', 'record.active'],
 				sensitivity: 'sensitive',
 			},
 			{
 				permission: 'record.archive',
 				scope: 'resource',
-				targetType: 'record',
+				targetTypes: ['record'],
 				requiredPolicies: [],
 				sensitivity: 'critical',
 			},
@@ -270,6 +270,44 @@ describe('AuthorizationService', () => {
 		})
 	})
 
+	it('accepts any target type explicitly listed by trusted metadata', async () => {
+		const roleBundles = createRolePermissionBundles({
+			roles: ROLES,
+			permissions: PERMISSIONS,
+			bundles: {
+				owner: [],
+				admin: [],
+				manager: [],
+				staff: ['record.archive'],
+			},
+		})
+		const otherResolver = {
+			resolveOrganizationId: vi.fn().mockResolvedValue('organization-1'),
+		}
+		const multiTargetService = createAuthorizationService({
+			knownRoles: ROLES,
+			roleBundles,
+			permissionDefinitions: createPermissionDefinitionRegistry([
+				{
+					permission: 'record.archive',
+					scope: 'resource',
+					targetTypes: ['record', 'other'],
+					requiredPolicies: [],
+					sensitivity: 'critical',
+				},
+			]),
+			targetResolvers: { other: otherResolver },
+		})
+
+		await expect(
+			multiTargetService.can({
+				actor,
+				permission: 'record.archive',
+				target: { type: 'other', id: 'other-1' },
+			}),
+		).resolves.toEqual({ allowed: true, reason: 'POLICY_ALLOWED' })
+	})
+
 	it('fails closed when a required target resolver is missing', async () => {
 		const roleBundles = createRolePermissionBundles({
 			roles: ROLES,
@@ -283,7 +321,7 @@ describe('AuthorizationService', () => {
 				{
 					permission: 'record.archive',
 					scope: 'resource',
-					targetType: 'record',
+					targetTypes: ['record'],
 					requiredPolicies: [],
 					sensitivity: 'critical',
 				},

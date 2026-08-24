@@ -1,5 +1,9 @@
 import { Prisma } from '@/generated/prisma/client'
-import { createMiddleware, createSafeActionClient } from 'next-safe-action'
+import {
+	createMiddleware,
+	createSafeActionClient,
+	createValidatedMiddleware,
+} from 'next-safe-action'
 import z from 'zod/v4'
 import { ActionError, ERRORS } from '@/lib/errors'
 import { getServerSession } from './get-session'
@@ -15,6 +19,23 @@ import {
 	TENANT_CONTEXT_ERROR_CODES,
 	TenantContextError,
 } from '@/platform/organizations'
+import {
+	getLabOSActionBoundaryMetadata,
+	LABOS_ACTION_BOUNDARY_IDS,
+	LABOS_ACTION_BOUNDARY_ERROR_CODES,
+	LabOSActionBoundaryError,
+	type LabOSActionBoundaryId,
+} from '@/modules/labos-authorization/action-boundaries'
+import { createLabOSAuthorizationActor } from '@/modules/labos-authorization/actor'
+import {
+	authorizeLabOSActionInShadow,
+	evaluateLegacyLabRole,
+} from '@/modules/labos-authorization/action-shadow-adapter'
+import { recordLabOSShadowConfigurationFailure } from '@/modules/labos-authorization/shadow-evaluation'
+import {
+	GrantStaffSystemAccessInputSchema,
+	RevokeStaffSystemAccessInputSchema,
+} from '@/schema/composed/team/staff-settings.schema'
 
 // ----------------------------------------
 // Base Client - For Auth only
@@ -263,13 +284,6 @@ export const requireLabMiddleware = requireTenantMiddleware
 
 // the shape of LabRole: type LabRole = "OWNER" | "MANAGER" | "ADMIN" | "STAFF"
 
-const ROLE_HIERARCHY: Record<LabRole, number> = {
-	OWNER: 4,
-	MANAGER: 3,
-	ADMIN: 2,
-	STAFF: 1,
-}
-
 export const requireRoleMiddleware = createMiddleware<{
 	metadata: { actionName: string; requiredLabRole: LabRole | null }
 }>().define(async ({ next, ctx, metadata }) => {
@@ -279,10 +293,7 @@ export const requireRoleMiddleware = createMiddleware<{
 		return next({ ctx })
 	}
 
-	const userLevel = ROLE_HIERARCHY[actor.legacyRole]
-	const requiredLevel = ROLE_HIERARCHY[metadata.requiredLabRole]
-
-	if (userLevel < requiredLevel) {
+	if (!evaluateLegacyLabRole(actor.legacyRole, metadata.requiredLabRole)) {
 		throw ERRORS.MISSING_PERMISSIONS
 	}
 
@@ -300,3 +311,163 @@ export const actionClientWithLab = tenantScopedClient
 	.use(requireUserMiddleware)
 	.use(requireTenantMiddleware)
 	.use(requireRoleMiddleware)
+
+// ----------------------------------------
+// Authorization V1 shadow client
+// ----------------------------------------
+
+type AuthorizationShadowMetadata = {
+	actionName: string
+	requiredLabRole: LabRole
+	authorizationBoundaryId: LabOSActionBoundaryId
+}
+
+const authorizationShadowLoggingMiddleware = createMiddleware<{
+	metadata: AuthorizationShadowMetadata
+}>().define(async ({ next, metadata }) => {
+	const startedAt = performance.now()
+	if (process.env.NODE_ENV === 'development') {
+		console.info('Authorization shadow action started', {
+			action: metadata.actionName,
+		})
+	}
+	try {
+		const result = await next()
+		if (process.env.NODE_ENV === 'development') {
+			console.info('Authorization shadow action completed', {
+				action: metadata.actionName,
+				durationMs: Math.round(performance.now() - startedAt),
+			})
+		}
+		return result
+	} catch (error) {
+		console.error('Authorization shadow action failed', {
+			action: metadata.actionName,
+			durationMs: Math.round(performance.now() - startedAt),
+		})
+		throw error
+	}
+})
+
+const authorizationShadowScopedClient = createSafeActionClient({
+	defineMetadataSchema() {
+		return z.object({
+			actionName: z.string(),
+			requiredLabRole: LabRoleSchema,
+			authorizationBoundaryId: z.enum(LABOS_ACTION_BOUNDARY_IDS),
+		})
+	},
+	handleServerError(e) {
+		if (e instanceof ActionError) return toPayload(e)
+		if (e instanceof Prisma.PrismaClientKnownRequestError) {
+			if (e.code === 'P2002') return toPayload(ERRORS.DUPLICATE_ENTRY)
+			if (e.code === 'P2025' || e.code === 'P2003') return toPayload(ERRORS.NOT_FOUND)
+			if (e.code === 'P2014') return toPayload(ERRORS.RECORD_IN_USE)
+			return toPayload(ERRORS.DATABASE_ERROR)
+		}
+		if (
+			e instanceof Prisma.PrismaClientInitializationError ||
+			e instanceof Prisma.PrismaClientUnknownRequestError ||
+			e instanceof Prisma.PrismaClientValidationError
+		) return toPayload(ERRORS.DATABASE_ERROR)
+		return fallbackPayload()
+	},
+})
+
+const buildAuthorizationActorMiddleware = createMiddleware<{
+	metadata: AuthorizationShadowMetadata
+}>().define(async ({ next, ctx }) => {
+	const tenant = ctx as Parameters<typeof createLabOSAuthorizationActor>[0]
+	return next({
+		ctx: {
+			...ctx,
+			authorizationActor: createLabOSAuthorizationActor(tenant),
+			authorizationCorrelationId: crypto.randomUUID(),
+		},
+	})
+})
+
+const authorizationShadowValidatedMiddleware = createValidatedMiddleware<{
+	metadata: AuthorizationShadowMetadata
+	parsedInput: unknown
+	ctx: {
+		authorizationActor: ReturnType<typeof createLabOSAuthorizationActor>
+		authorizationCorrelationId: string
+		actor: { legacyRole: LabRole }
+	}
+}>().define(async ({ next, ctx, metadata, parsedInput }) => {
+	const result = await authorizeLabOSActionInShadow({
+		boundaryId: metadata.authorizationBoundaryId,
+		parsedInput,
+		actor: ctx.authorizationActor,
+		legacyActorRole: ctx.actor.legacyRole,
+		correlationId: ctx.authorizationCorrelationId,
+	})
+
+	if (!result.legacyAllowed) throw ERRORS.MISSING_PERMISSIONS
+
+	return next({ ctx: { ...ctx, authorizationShadow: result } })
+})
+
+const authorizationShadowBaseClient = authorizationShadowScopedClient
+	.use(authorizationShadowLoggingMiddleware)
+	.use(requireUserMiddleware)
+	.use(requireTenantMiddleware)
+	.use(buildAuthorizationActorMiddleware)
+
+const grantAccessBoundary = getLabOSActionBoundaryMetadata('A-124')
+const revokeAccessBoundary = getLabOSActionBoundaryMetadata('A-125')
+
+const AUTHORIZATION_SHADOW_ACTION_CLIENTS = Object.freeze({
+	'A-124': authorizationShadowBaseClient
+		.metadata({
+			actionName: grantAccessBoundary.actionName,
+			requiredLabRole: grantAccessBoundary.legacyRequiredRole,
+			authorizationBoundaryId: grantAccessBoundary.boundaryId,
+		})
+		.inputSchema(GrantStaffSystemAccessInputSchema)
+		.useValidated(authorizationShadowValidatedMiddleware),
+	'A-125': authorizationShadowBaseClient
+		.metadata({
+			actionName: revokeAccessBoundary.actionName,
+			requiredLabRole: revokeAccessBoundary.legacyRequiredRole,
+			authorizationBoundaryId: revokeAccessBoundary.boundaryId,
+		})
+		.inputSchema(RevokeStaffSystemAccessInputSchema)
+		.useValidated(authorizationShadowValidatedMiddleware),
+})
+
+/**
+ * Selects an isolated, fully configured Authorization V1 shadow client.
+ * Each stable boundary owns its schema and validated middleware, preventing
+ * actions from pairing the wrong schema or omitting authorization evaluation.
+ */
+export function actionClientWithAuthorizationShadow(
+	boundaryId: 'A-124',
+): (typeof AUTHORIZATION_SHADOW_ACTION_CLIENTS)['A-124']
+export function actionClientWithAuthorizationShadow(
+	boundaryId: 'A-125',
+): (typeof AUTHORIZATION_SHADOW_ACTION_CLIENTS)['A-125']
+export function actionClientWithAuthorizationShadow(
+	boundaryId: LabOSActionBoundaryId,
+): (typeof AUTHORIZATION_SHADOW_ACTION_CLIENTS)[LabOSActionBoundaryId]
+export function actionClientWithAuthorizationShadow(
+	boundaryId: LabOSActionBoundaryId,
+) {
+	const client = (
+		AUTHORIZATION_SHADOW_ACTION_CLIENTS as Partial<
+			Record<LabOSActionBoundaryId, unknown>
+		>
+	)[boundaryId]
+	if (client) return client
+
+	const error = new LabOSActionBoundaryError(
+		LABOS_ACTION_BOUNDARY_ERROR_CODES.BOUNDARY_NOT_REGISTERED,
+	)
+	recordLabOSShadowConfigurationFailure({
+		boundaryId: String(boundaryId),
+		correlationId: crypto.randomUUID(),
+		failureReason: error.code,
+	})
+	throw error
+}

@@ -1,3 +1,5 @@
+import type { AuthorizationFactCache } from './authorization.fact-cache'
+
 /**
  * Stable reasons used for internal authorization telemetry and tests. Public
  * callers receive only the generic AuthorizationError message.
@@ -37,15 +39,29 @@ export type AuthorizationTargetRef<ResourceType extends string> = {
 	id: string
 }
 
+export type AuthorizationOperationMap<Permission extends string> = Partial<
+	Record<Permission, unknown>
+>
+
+type AuthorizationOperationFragment<
+	Permission extends string,
+	OperationMap extends object,
+> = Permission extends keyof OperationMap
+	? { operation: OperationMap[Permission] }
+	: { operation?: never }
+
 export type AuthorizationRequest<
 	Permission extends string,
 	ResourceType extends string,
+	OperationMap extends object = Record<never, never>,
 > = {
-	actor: AuthorizationActor
-	permission: Permission
-	target?: AuthorizationTargetRef<ResourceType>
-	correlationId?: string
-}
+	[RequestedPermission in Permission]: {
+			actor: AuthorizationActor
+			permission: RequestedPermission
+			target?: AuthorizationTargetRef<ResourceType>
+			correlationId?: string
+		} & AuthorizationOperationFragment<RequestedPermission, OperationMap>
+}[Permission]
 
 export type PermissionSensitivity = 'ordinary' | 'sensitive' | 'critical'
 
@@ -71,7 +87,8 @@ export type ResourcePermissionDefinition<
 	PolicyId extends string,
 > = PermissionDefinitionBase<Permission, PolicyId> & {
 	scope: 'resource'
-	targetType: ResourceType
+	/** Trusted target types accepted by this permission; never caller-defined. */
+	targetTypes: readonly ResourceType[]
 }
 
 export type PermissionDefinition<
@@ -100,18 +117,24 @@ export type AuthorizationPolicyResult =
 export type AuthorizationPolicyContext<
 	Permission extends string,
 	ResourceType extends string,
+	OperationMap extends object = Record<never, never>,
 > = {
-	actor: AuthorizationActor
-	permission: Permission
-	target?: AuthorizationTargetRef<ResourceType>
-}
+	[RequestedPermission in Permission]: {
+			actor: AuthorizationActor
+			permission: RequestedPermission
+			target?: AuthorizationTargetRef<ResourceType>
+			/** Trusted request-local reuse; never supplied by an application caller. */
+			facts: AuthorizationFactCache
+		} & AuthorizationOperationFragment<RequestedPermission, OperationMap>
+}[Permission]
 
 export interface AuthorizationPolicy<
 	Permission extends string,
 	ResourceType extends string,
+	OperationMap extends object = Record<never, never>,
 > {
 	evaluate(
-		context: AuthorizationPolicyContext<Permission, ResourceType>,
+		context: AuthorizationPolicyContext<Permission, ResourceType, OperationMap>,
 	): Promise<AuthorizationPolicyResult> | AuthorizationPolicyResult
 }
 
@@ -119,18 +142,21 @@ export interface AuthorizationTargetResolver<ResourceType extends string> {
 	resolveOrganizationId(input: {
 		actor: AuthorizationActor
 		target: AuthorizationTargetRef<ResourceType>
+		/** Trusted request-local reuse; never supplied by an application caller. */
+		facts: AuthorizationFactCache
 	}): Promise<string | null> | string | null
 }
 
 export interface AuthorizationService<
 	Permission extends string,
 	ResourceType extends string,
+	OperationMap extends object = Record<never, never>,
 > {
 	can(
-		request: AuthorizationRequest<Permission, ResourceType>,
+		request: AuthorizationRequest<Permission, ResourceType, OperationMap>,
 	): Promise<AuthorizationDecision>
 	require(
-		request: AuthorizationRequest<Permission, ResourceType>,
+		request: AuthorizationRequest<Permission, ResourceType, OperationMap>,
 	): Promise<void>
 	roleCapabilities<RequestedPermission extends Permission>(
 		actor: AuthorizationActor,

@@ -47,10 +47,20 @@ export function createPermissionDefinitionRegistry<
 				`Duplicate authorization permission definition: ${definition.permission}`,
 			)
 		}
-		if (definition.scope === 'resource' && !definition.targetType.trim()) {
-			throw new Error(
-				`Resource permission ${definition.permission} requires a target type`,
-			)
+		if (definition.scope === 'resource') {
+			if (
+				definition.targetTypes.length === 0 ||
+				definition.targetTypes.some((targetType) => !targetType.trim())
+			) {
+				throw new Error(
+					`Resource permission ${definition.permission} requires at least one target type`,
+				)
+			}
+			if (new Set(definition.targetTypes).size !== definition.targetTypes.length) {
+				throw new Error(
+					`Resource permission ${definition.permission} contains duplicate target types`,
+				)
+			}
 		}
 
 		const uniquePolicies = new Set(definition.requiredPolicies)
@@ -67,6 +77,9 @@ export function createPermissionDefinitionRegistry<
 
 		const snapshot = Object.freeze({
 			...definition,
+			...(definition.scope === 'resource' && {
+				targetTypes: Object.freeze([...definition.targetTypes]),
+			}),
 			requiredPolicies: Object.freeze([...definition.requiredPolicies]),
 		}) as PermissionDefinition<Permission, ResourceType, PolicyId>
 		byPermission.set(definition.permission, snapshot)

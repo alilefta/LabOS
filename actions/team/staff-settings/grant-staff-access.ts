@@ -3,22 +3,15 @@
 import { headers } from 'next/headers'
 
 import { createStaffOrganizationInvitation } from '@/lib/staff-invitation'
-import { actionClientWithLab } from '@/lib/safe-action'
-import { GrantStaffSystemAccessInputSchema } from '@/schema/composed/team/staff-settings.schema'
+import { actionClientWithAuthorizationShadow } from '@/lib/safe-action'
 
 /**
  * Creates or resends Better Auth Organization access for an existing LabStaff
  * record. Better Auth owns invitation status and expiry; LabOS stores only the
  * optional staff-link intent consumed after acceptance.
  */
-export const grantStaffSystemAccessAction = actionClientWithLab
-	.metadata({
-		actionName: 'Grant-Staff-System-Access',
-		// Temporary compatibility gate. Better Auth also checks the active
-		// Organization role's invitation:create permission.
-		requiredLabRole: 'ADMIN',
-	})
-	.inputSchema(GrantStaffSystemAccessInputSchema)
+export const grantStaffSystemAccessAction =
+	actionClientWithAuthorizationShadow('A-124')
 	.action(async ({ parsedInput, ctx }) => {
 		const result = await createStaffOrganizationInvitation({
 			tenant: {

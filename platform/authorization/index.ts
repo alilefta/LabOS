@@ -1,4 +1,6 @@
 export { AuthorizationError } from './authorization.error'
+export { createAuthorizationFactCache } from './authorization.fact-cache'
+export type { AuthorizationFactCache } from './authorization.fact-cache'
 export {
 	consoleAuthorizationMonitor,
 	noopAuthorizationMonitor,
@@ -16,6 +18,7 @@ export type {
 	AuthorizationActor,
 	AuthorizationDecision,
 	AuthorizationDenialReason,
+	AuthorizationOperationMap,
 	AuthorizationPolicy,
 	AuthorizationPolicyContext,
 	AuthorizationPolicyResult,

@@ -1,9 +1,12 @@
 import { AuthorizationError } from './authorization.error'
+import { createAuthorizationFactCache } from './authorization.fact-cache'
 import type { AuthorizationMonitor } from './authorization.monitor'
 import { noopAuthorizationMonitor } from './authorization.monitor'
 import type {
+	AuthorizationActor,
 	AuthorizationDecision,
 	AuthorizationPolicy,
+	AuthorizationPolicyContext,
 	AuthorizationPolicyResult,
 	AuthorizationRequest,
 	AuthorizationService,
@@ -22,6 +25,7 @@ export type AuthorizationServiceConfiguration<
 	Role extends string,
 	ResourceType extends string,
 	PolicyId extends string,
+	OperationMap extends object = Record<never, never>,
 > = {
 	knownRoles: readonly Role[]
 	roleBundles: RolePermissionBundles<Role, Permission>
@@ -35,17 +39,17 @@ export type AuthorizationServiceConfiguration<
 	>
 	policies?: Readonly<
 		Partial<
-			Record<PolicyId, AuthorizationPolicy<Permission, ResourceType>>
+			Record<
+				PolicyId,
+				AuthorizationPolicy<Permission, ResourceType, OperationMap>
+			>
 		>
 	>
 	monitor?: AuthorizationMonitor<Permission, Role, ResourceType>
 	now?: () => number
 }
 
-function hasValidActorIdentifiers(actor: unknown): actor is AuthorizationRequest<
-	string,
-	string
->['actor'] {
+function hasValidActorIdentifiers(actor: unknown): actor is AuthorizationActor {
 	return (
 		typeof actor === 'object' &&
 		actor !== null &&
@@ -81,14 +85,16 @@ export function createAuthorizationService<
 	Role extends string,
 	ResourceType extends string,
 	PolicyId extends string,
+	OperationMap extends object = Record<never, never>,
 >(
 	configuration: AuthorizationServiceConfiguration<
 		Permission,
 		Role,
 		ResourceType,
-		PolicyId
+		PolicyId,
+		OperationMap
 	>,
-): AuthorizationService<Permission, ResourceType> {
+): AuthorizationService<Permission, ResourceType, OperationMap> {
 	const knownRoles = Object.freeze([...configuration.knownRoles])
 	const targetResolvers = new Map<
 		ResourceType,
@@ -101,11 +107,11 @@ export function createAuthorizationService<
 	)
 	const policies = new Map<
 		PolicyId,
-		AuthorizationPolicy<Permission, ResourceType>
+		AuthorizationPolicy<Permission, ResourceType, OperationMap>
 	>(
 		Object.entries(configuration.policies ?? {}) as [
 			PolicyId,
-			AuthorizationPolicy<Permission, ResourceType>,
+			AuthorizationPolicy<Permission, ResourceType, OperationMap>,
 		][],
 	)
 	const monitor =
@@ -118,9 +124,10 @@ export function createAuthorizationService<
 	const now = configuration.now ?? (() => performance.now())
 
 	async function can(
-		request: AuthorizationRequest<Permission, ResourceType>,
+		request: AuthorizationRequest<Permission, ResourceType, OperationMap>,
 	): Promise<AuthorizationDecision> {
 		const startedAt = now()
+		const facts = createAuthorizationFactCache()
 		const actorIsValid = hasValidActorIdentifiers(request.actor)
 		const normalized = actorIsValid
 			? normalizeRoles(request.actor.memberRoles, knownRoles)
@@ -195,11 +202,11 @@ export function createAuthorizationService<
 			) {
 				return deny(AUTHORIZATION_DENIAL_REASONS.RESOURCE_REQUIRED)
 			}
-			if (request.target.type !== definition.targetType) {
+			if (!definition.targetTypes.includes(request.target.type)) {
 				return deny(AUTHORIZATION_DENIAL_REASONS.TARGET_TYPE_MISMATCH)
 			}
 
-			const resolver = targetResolvers.get(definition.targetType)
+			const resolver = targetResolvers.get(request.target.type)
 			if (!resolver) {
 				return deny(AUTHORIZATION_DENIAL_REASONS.TARGET_RESOLVER_MISSING)
 			}
@@ -209,6 +216,7 @@ export function createAuthorizationService<
 				targetOrganizationId = await resolver.resolveOrganizationId({
 					actor: request.actor,
 					target: request.target,
+					facts,
 				})
 			} catch {
 				return deny(AUTHORIZATION_DENIAL_REASONS.TARGET_RESOLUTION_FAILED)
@@ -235,7 +243,15 @@ export function createAuthorizationService<
 					actor: request.actor,
 					permission: request.permission,
 					target: request.target,
-				})
+					facts,
+					...('operation' in request && {
+						operation: request.operation,
+					}),
+				} as AuthorizationPolicyContext<
+					Permission,
+					ResourceType,
+					OperationMap
+				>)
 			} catch {
 				return deny(AUTHORIZATION_DENIAL_REASONS.POLICY_FAILED)
 			}
