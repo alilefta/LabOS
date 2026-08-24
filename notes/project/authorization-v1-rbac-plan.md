@@ -193,6 +193,8 @@ Rollout-gate checkpoint (2026-08-24): all requested evidence is mapped in `autho
 
 Structured-telemetry checkpoint (2026-08-24): shadow events now pass through an explicit sanitizing adapter into a versioned provider-neutral envelope. The runtime console sink is replaceable, delivery failures are counted, and failures never affect authorization. A bounded process-local aggregator produces immutable count/divergence/failure/latency series while excluding Organization and correlation IDs from aggregation keys. Tests cover exact-envelope redaction, cross-Organization series coalescing, highest-priority divergence grouping, cardinality drops, delivery failure isolation, and reset. This is aggregation support, not a durable monitoring backend; enforcement remains blocked until a deployed log provider collects and queries events across instances.
 
+Membership-directory boundary checkpoint (2026-08-24): the first reviewed non-action boundary is registered as `N-001` for `/settings/team`. It binds the future real Organization-member directory to Organization-scoped, sensitive `membership.list` metadata from the trusted catalog and records the current tenant-member legacy behavior. Manager/Staff denial is an intentional role-matrix restriction that must be observed in shadow before enforcement. The registry is immutable and fail-closed, but `membership.list` is not yet activated in the concrete service and the mocked page remains unchanged.
+
 ## Rollout and rollback
 
 | Checkpoint | Evidence | Rollback |

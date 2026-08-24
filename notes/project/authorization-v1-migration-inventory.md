@@ -1,10 +1,10 @@
 # Authorization V1 migration inventory
 
 **Status:** In progress — mechanical baseline complete; membership/access critical slice approved
-**Branch:** `feat/platform-authorization-core`
+**Branch:** `feat/platform-authorization-membership`
 **Mechanical baseline:** `authorization-v1-legacy-action-baseline.md`
 **Architecture:** `../architecture/platform-modules/authorization_module/architecture.md`
-**Last reconciled:** 2026-08-22
+**Last reconciled:** 2026-08-24
 
 ## Purpose
 
@@ -17,7 +17,7 @@ This is the reviewed control record for migrating every protected server boundar
 | Legacy safe-action declarations | 131 | 4 approved | 0 | A-124/A-125 are shadowing; legacy still enforces |
 | Better Auth Organization mutation endpoints | 12 | 12 in review | 0 | Catch-all exposure requires an explicit product-gate strategy |
 | Route handlers | 1 initial candidate | 0 | 0 | Full route audit required |
-| Server pages, data readers, and services | 28 heuristic candidates | 0 | 0 | Candidate count is not yet authoritative |
+| Server pages, data readers, and services | 28 heuristic candidates | 1 | 0 | N-001 Team & Roles directory is registered; candidate count is not yet authoritative |
 | File/download/upload boundaries | Audit pending | 0 | 0 | Must include UploadThing and asset access |
 | UI-only capability consumers | Audit pending | 0 | Not applicable | Migrated only after server enforcement |
 
@@ -313,6 +313,21 @@ Use this template for every baseline ID during vertical review:
 ## Non-action boundary audit
 
 The legacy count covers safe-action metadata only. The following audit is mandatory before M4 completion:
+
+### N-001 — Team & Roles Organization-member directory
+
+- Source: `app/(main)/settings/team/page.tsx`.
+- Boundary kind: server page with a future tenant-scoped data reader.
+- Permission: `membership.list`.
+- Trusted scope: Organization collection; no resource ID or caller-supplied target.
+- Permission metadata: Organization-scoped, sensitive, with no domain policy. Tenant resolution and the fixed role bundle remain mandatory.
+- Legacy behavior: any authenticated user with a verified active tenant can currently open the mocked page because the main layout requires only tenant membership.
+- V1 behavior: Owner and Admin may list Organization Members; Manager and Staff receive no `membership.list` grant.
+- Difference: Manager/Staff are an intentional `LEGACY_ALLOW_V1_DENY`, consistent with the approved membership authority matrix. Runtime divergence must still be observed before enforcement.
+- Data contract: the future reader returns `Member -> AuthUser` plus optional `LabStaff`; it must never query `LabUser` or `AuthUser.labId`.
+- Status: **Registered, not activated or consumed**. Step 2 activates `membership.list`; subsequent steps add the reader and page adapter.
+- Tests: stable immutable registry metadata, trusted catalog linkage, Organization scope, sensitivity, and fail-closed unknown-ID behavior.
+- Rollback: remove the non-consuming registry record before activation; once integrated, restore the current tenant-only mocked page while retaining tenant validation.
 
 - [ ] Enumerate every `app/api/**/route.ts` handler and classify authentication, tenant, permission, and target enforcement.
 - [ ] Enumerate server pages that query tenant data directly.
