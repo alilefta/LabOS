@@ -7,7 +7,7 @@ Status values: `Not started`, `Discovery`, `In progress`, `At risk`, `Complete`.
 | M0 | Baseline | Unassigned | Not started | Low | TBD | [ ] Inventory [ ] isolation tests [ ] migration/rollback approach [ ] discrepancies resolved |
 | M1 | Organization foundation | Unassigned | In progress | Medium | TBD | [x] schema [x] idempotent service [x] new-onboarding cutover [ ] deterministic backfill [ ] reconciliation [ ] login regression tests |
 | M2 | Tenant-context cutover | Unassigned | In progress | High | TBD | [x] canonical resolver [x] safe-action middleware [x] main layout guard [x] direct page/data consumers [ ] multi-org switching [ ] cache isolation verification |
-| M3 | Membership replacement | Unassigned | In progress | High | TBD | [x] onboarding [x] staff schema migrated [x] guarded link service [x] tenant-context staff identity [x] invitation code/tests [x] intent migration [x] membership revocation [x] legacy writes stopped [ ] email delivery [ ] legacy reconciliation |
+| M3 | Membership replacement | Unassigned | In progress | High | TBD | [x] onboarding [x] staff schema migrated [x] guarded link service [x] tenant-context staff identity [x] invitation code/tests [x] intent migration [x] membership revocation [x] legacy writes stopped [ ] invited sign-up prefill [ ] email delivery [ ] legacy reconciliation |
 | M4 | Authorization V1 | Unassigned | In progress | Medium | TBD | [x] vocabulary approved [x] bundles tested [x] service default-deny [ ] policies verified [ ] 131 action gates plus non-action boundaries migrated [ ] telemetry operational |
 | M5 | Legacy removal | Unassigned | Not started | Low | TBD | [ ] zero fallback window [ ] rehearsal [ ] backup [ ] obsolete schema removal |
 | M6 | Events and audit | Unassigned | Not started | Low | TBD | [ ] outbox [ ] worker [ ] audit [ ] Case Activity parity |
@@ -18,3 +18,7 @@ Status values: `Not started`, `Discovery`, `In progress`, `At risk`, `Complete`.
 ## Review notes
 
 At every sprint review, update only from evidence. A milestone becomes Complete only when every exit item links to a card, test result, migration report, or released change.
+
+## Deferred feature notes
+
+- [ ] **Invited sign-up prefill:** when `/sign-up` is reached from a valid Organization invitation, prefill the invitation's intended name and email while keeping both editable; the user supplies a password. Load the invitation data through a public, expiry-aware, recipient-safe projection that does not expose membership or Staff security facts. Preserve the invitation callback through account creation.
