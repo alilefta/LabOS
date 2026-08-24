@@ -38,6 +38,7 @@ import {
 export const LABOS_AUTHORIZATION_V1_SUPPORTED_PERMISSIONS = Object.freeze([
 	'staff.access.invite',
 	'staff.access.revoke',
+	'membership.list',
 	'membership.read',
 	'membership.role.update',
 	'membership.remove',

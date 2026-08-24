@@ -325,7 +325,7 @@ The legacy count covers safe-action metadata only. The following audit is mandat
 - V1 behavior: Owner and Admin may list Organization Members; Manager and Staff receive no `membership.list` grant.
 - Difference: Manager/Staff are an intentional `LEGACY_ALLOW_V1_DENY`, consistent with the approved membership authority matrix. Runtime divergence must still be observed before enforcement.
 - Data contract: the future reader returns `Member -> AuthUser` plus optional `LabStaff`; it must never query `LabUser` or `AuthUser.labId`.
-- Status: **Registered, not activated or consumed**. Step 2 activates `membership.list`; subsequent steps add the reader and page adapter.
+- Status: **Registered and activated, not consumed**. The concrete service evaluates the fixed Owner/Admin bundle without a resource resolver or domain policy; subsequent steps add the reader and page adapter.
 - Tests: stable immutable registry metadata, trusted catalog linkage, Organization scope, sensitivity, and fail-closed unknown-ID behavior.
 - Rollback: remove the non-consuming registry record before activation; once integrated, restore the current tenant-only mocked page while retaining tenant validation.
 

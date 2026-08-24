@@ -59,6 +59,7 @@ describe('LabOS authorization service composition', () => {
 		expect(LABOS_AUTHORIZATION_V1_SUPPORTED_PERMISSIONS).toEqual([
 			'staff.access.invite',
 			'staff.access.revoke',
+			'membership.list',
 			'membership.read',
 			'membership.role.update',
 			'membership.remove',
@@ -71,6 +72,59 @@ describe('LabOS authorization service composition', () => {
 		expect(Object.isFrozen(LABOS_AUTHORIZATION_V1_SUPPORTED_PERMISSIONS)).toBe(
 			true,
 		)
+	})
+
+	it.each([
+		['owner', true, 'ROLE_PERMISSION'],
+		['admin', true, 'ROLE_PERMISSION'],
+		['manager', false, 'AUTHZ_PERMISSION_NOT_GRANTED'],
+		['staff', false, 'AUTHZ_PERMISSION_NOT_GRANTED'],
+	] as const)(
+		'evaluates membership.list for %s from fixed bundles without resource work',
+		async (role, allowed, reason) => {
+			const memberResolver = resolver()
+			const policy = allowPolicy()
+			const service = createLabOSAuthorizationService({
+				targetResolvers: { member: memberResolver },
+				policies: { 'membership.non_owner_target': policy },
+				monitor: monitor().monitor,
+			})
+
+			await expect(
+				service.can({
+					actor: { ...actor, memberRoles: [role] },
+					permission: 'membership.list',
+				}),
+			).resolves.toEqual({ allowed, reason })
+			expect(memberResolver.resolveOrganizationId).not.toHaveBeenCalled()
+			expect(policy.evaluate).not.toHaveBeenCalled()
+		},
+	)
+
+	it('denies unknown roles and unexpected targets for membership.list', async () => {
+		const service = createLabOSAuthorizationService({
+			monitor: monitor().monitor,
+		})
+
+		await expect(
+			service.can({
+				actor: { ...actor, memberRoles: ['unconfigured-role'] },
+				permission: 'membership.list',
+			}),
+		).resolves.toEqual({
+			allowed: false,
+			reason: 'AUTHZ_ROLE_UNRECOGNIZED',
+		})
+		await expect(
+			service.can({
+				actor,
+				permission: 'membership.list',
+				target: { type: 'member', id: 'member-2' },
+			}),
+		).resolves.toEqual({
+			allowed: false,
+			reason: 'AUTHZ_RESOURCE_UNEXPECTED',
+		})
 	})
 
 	it('authorizes a supported Member resource through the concrete resolver', async () => {
