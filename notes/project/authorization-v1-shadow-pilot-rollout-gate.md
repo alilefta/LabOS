@@ -1,8 +1,11 @@
 # Authorization V1 shadow pilot rollout gate
 
-**Pilot:** A-124 Grant Staff access and A-125 Revoke Staff access  
-**Mode:** Shadow; legacy authorization is authoritative  
-**Automated verification:** Passed on 2026-08-24  
+**Pilot:** A-124 Grant Staff access and A-125 Revoke Staff access
+
+**Mode:** Shadow; legacy authorization is authoritative
+
+**Automated verification:** Pilot scope passed; repository baseline blockers remain
+
 **Enforcement readiness:** **Blocked pending reviewed runtime evidence**
 
 ## Gate rule
@@ -29,7 +32,10 @@ Passing automated tests permits shadow observation only. It does not authorize V
 | Better Auth calls unchanged | Pilot scope architecture test checks existing invite/cancel/revoke calls | Pass |
 | A-124/A-125 two-Organization behavior | Shadow-adapter cross-Organization tests plus platform isolation suite | Pass |
 | Pilot limited to two actions | `tests/unit/architecture/authorization-shadow-pilot-scope.test.ts` | Pass |
-| Full regression and lint | Recorded in the implementation handoff for this checkpoint | Pass |
+| Full regression suite | 29 files / 195 tests on 2026-08-24 | Pass |
+| Pilot authorization lint | All changed action, middleware, adapter, telemetry, and gate-test files | Pass |
+| Repository-wide lint | `pnpm exec eslint .` reports 17 errors and 256 warnings in pre-existing unrelated application/generated files | **Blocked** |
+| Repository-wide TypeScript | Existing Decimal DTO and missing Case work-item `addons` mismatches remain; no error originates in the pilot/authorization scope | **Blocked** |
 
 ## Expected and approved divergence
 
@@ -52,11 +58,12 @@ No `LEGACY_DENY_V1_ALLOW` result is pre-approved. Every occurrence is a possible
 - [ ] Exercise A-124 and A-125 for the same AuthUser across two Organizations and attach results proving the inactive Organization is unchanged.
 - [ ] Confirm Better Auth allowed/denied outcomes are understood alongside LabOS decisions for invite, cancel, and Member removal.
 - [ ] Record product/security approval for the enforcement change and its rollback implications.
+- [ ] Restore repository-wide lint and TypeScript gates to green, or establish and approve a version-controlled baseline that proves this pilot adds no violations.
 
 ## Enforcement decision
 
 **Current decision: DO NOT ENFORCE V1 YET.**
 
-Reason: automated correctness and isolation evidence is green, but runtime divergence volume, infrastructure stability, telemetry sampling, two-Organization operational evidence, and Better Auth dual-authority outcomes have not yet been attached and approved.
+Reason: pilot correctness and isolation evidence is green, but repository-wide lint/TypeScript gates are not green, and runtime divergence volume, infrastructure stability, telemetry sampling, two-Organization operational evidence, and Better Auth dual-authority outcomes have not yet been attached and approved.
 
 When the gate is eventually approved, change only A-124/A-125 in a separate enforcement commit. Keep the legacy path available for immediate rollback; restoring legacy Manager access is a known privilege expansion and must be declared during rollback.
