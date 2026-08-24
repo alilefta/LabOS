@@ -45,6 +45,20 @@ export type LabOSActionShadowAdapterResult =
 	  }>
 
 /**
+ * Executes a handler only when the unchanged legacy decision allows it. This
+ * tiny boundary is shared by safe-action middleware and unit tests so shadow
+ * results can never accidentally become the enforcing decision.
+ */
+export async function executeLegacyAuthorizedShadowHandler<Result>(input: {
+	authorization: LabOSActionShadowAdapterResult
+	handler: () => Promise<Result> | Result
+	onDenied: () => never
+}): Promise<Result> {
+	if (!input.authorization.legacyAllowed) input.onDenied()
+	return input.handler()
+}
+
+/**
  * Adapts validated action input to the trusted boundary registry. Projection
  * failures are high-severity V1 observations; the unchanged legacy role gate
  * still decides whether the handler may run.

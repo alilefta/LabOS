@@ -30,6 +30,7 @@ import { createLabOSAuthorizationActor } from '@/modules/labos-authorization/act
 import {
 	authorizeLabOSActionInShadow,
 	evaluateLegacyLabRole,
+	executeLegacyAuthorizedShadowHandler,
 } from '@/modules/labos-authorization/action-shadow-adapter'
 import { recordLabOSShadowConfigurationFailure } from '@/modules/labos-authorization/shadow-evaluation'
 import {
@@ -404,9 +405,14 @@ const authorizationShadowValidatedMiddleware = createValidatedMiddleware<{
 		correlationId: ctx.authorizationCorrelationId,
 	})
 
-	if (!result.legacyAllowed) throw ERRORS.MISSING_PERMISSIONS
-
-	return next({ ctx: { ...ctx, authorizationShadow: result } })
+	return executeLegacyAuthorizedShadowHandler({
+		authorization: result,
+		handler: () =>
+			next({ ctx: { ...ctx, authorizationShadow: result } }),
+		onDenied: () => {
+			throw ERRORS.MISSING_PERMISSIONS
+		},
+	})
 })
 
 const authorizationShadowBaseClient = authorizationShadowScopedClient

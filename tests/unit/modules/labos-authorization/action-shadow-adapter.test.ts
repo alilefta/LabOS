@@ -4,9 +4,11 @@ import type { AuthorizationActor } from '@/platform/authorization'
 import {
 	authorizeLabOSActionInShadow,
 	evaluateLegacyLabRole,
+	executeLegacyAuthorizedShadowHandler,
 } from '@/modules/labos-authorization/action-shadow-adapter'
 import type { LabOSShadowMonitor } from '@/modules/labos-authorization/shadow-evaluation'
 import type { LabOSAuthorizationService } from '@/modules/labos-authorization/service'
+import { createLabOSAuthorizationService } from '@/modules/labos-authorization/service'
 
 const actor: AuthorizationActor = {
 	userId: 'user-1',
@@ -71,6 +73,68 @@ describe('LabOS shadow action adapter', () => {
 			expect(result.shadow.enforcement.allowed).toBe(false)
 		}
 	})
+
+	it('never invokes the handler when legacy denies', async () => {
+		const handler = vi.fn()
+		const denied = {
+			status: 'v1_configuration_failed' as const,
+			legacyAllowed: false,
+		}
+
+		await expect(
+			executeLegacyAuthorizedShadowHandler({
+				authorization: denied,
+				handler,
+				onDenied: () => {
+					throw new Error('legacy denied')
+				},
+			}),
+		).rejects.toThrow('legacy denied')
+		expect(handler).not.toHaveBeenCalled()
+	})
+
+	it.each([
+		[
+			'A-124' as const,
+			{
+				staffId: 'staff-organization-b',
+				email: 'staff@example.com',
+				roleToGrant: 'STAFF',
+			},
+		],
+		['A-125' as const, { staffId: 'staff-organization-b' }],
+	] as const)(
+		'denies an Organization B target in Organization A shadow context for %s',
+		async (boundaryId, parsedInput) => {
+			const authorizationService = createLabOSAuthorizationService({
+				targetResolvers: {
+					staff: {
+						resolveOrganizationId: vi
+							.fn()
+							.mockResolvedValue('organization-b'),
+					},
+				},
+			})
+			const result = await authorizeLabOSActionInShadow({
+				boundaryId,
+				parsedInput,
+				actor,
+				legacyActorRole: 'OWNER',
+				correlationId: 'two-organization-correlation',
+				authorizationService,
+			})
+
+			expect(result.legacyAllowed).toBe(true)
+			if (result.status === 'evaluated') {
+				expect(result.shadow.comparison).toBe('LEGACY_ALLOW_V1_DENY')
+				expect(result.shadow.v1Decision).toEqual({
+					status: 'completed',
+					allowed: false,
+					reason: 'AUTHZ_TENANT_MISMATCH',
+				})
+			}
+		},
+	)
 
 	it('records malformed projected intent as high severity but preserves legacy allow', async () => {
 		const record = vi.fn()

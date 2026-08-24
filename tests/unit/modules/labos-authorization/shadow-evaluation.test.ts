@@ -50,6 +50,7 @@ describe('LabOS authorization shadow coordinator', () => {
 		'classifies legacy=%s and V1=%s as %s while enforcing legacy',
 		async (legacyAllowed, v1Allowed, comparison) => {
 			const { monitor: testMonitor, record } = monitor()
+			const authorizationService = serviceDecision(v1Allowed)
 			const result = await evaluateLabOSAuthorizationShadow(
 				{
 					actor,
@@ -57,7 +58,7 @@ describe('LabOS authorization shadow coordinator', () => {
 					evaluateLegacy: () => legacyAllowed,
 				},
 				{
-					authorizationService: serviceDecision(v1Allowed),
+					authorizationService,
 					monitor: testMonitor,
 					now: () => 10,
 					generateCorrelationId: () => 'correlation-1',
@@ -88,6 +89,9 @@ describe('LabOS authorization shadow coordinator', () => {
 								? 'review'
 								: 'routine',
 				}),
+			)
+			expect(authorizationService.can).toHaveBeenCalledWith(
+				expect.objectContaining({ correlationId: 'correlation-1' }),
 			)
 		},
 	)

@@ -14,7 +14,7 @@ This is the reviewed control record for migrating every protected server boundar
 
 | Boundary set | Discovered | Classified | Enforced | Notes |
 |---|---:|---:|---:|---|
-| Legacy safe-action declarations | 131 | 4 approved | 0 | First membership/access slice classified below |
+| Legacy safe-action declarations | 131 | 4 approved | 0 | A-124/A-125 are shadowing; legacy still enforces |
 | Better Auth Organization mutation endpoints | 12 | 12 in review | 0 | Catch-all exposure requires an explicit product-gate strategy |
 | Route handlers | 1 initial candidate | 0 | 0 | Full route audit required |
 | Server pages, data readers, and services | 28 heuristic candidates | 0 | 0 | Candidate count is not yet authoritative |
@@ -186,8 +186,8 @@ The critical membership/access slice is approved. A-083 remains session-only, A-
 - Required tests: full actor/grantable-role matrix, foreign/inactive/already-linked Staff, changed-intent replacement, identical idempotent resend without cancellation, dual-authority mismatch in both directions, direct catch-all bypass attempt, and telemetry redaction.
 - Technical rollback: restore the legacy Admin hierarchy gate while preserving Better Auth checks and tenant/link validation.
 - Rollback security implication: Manager invitation access returns temporarily, a known privilege expansion to legacy behavior that must be declared in the incident decision and monitored.
-- Adapter status (2026-08-24): `staff` Organization-boundary resolver, tenant-scoped Staff facts, target/self/role-ceiling/invitation policies, exact-resend/changed-intent tests, trusted A-124 projection, legacy-authoritative comparison, and a boundary-owned validated safe-action shadow client are implemented; action consumption and Better Auth composition remain pending.
-- Migration status: `Approved`.
+- Adapter status (2026-08-24): `staff` Organization-boundary resolver, tenant-scoped Staff facts, target/self/role-ceiling/invitation policies, exact-resend/changed-intent tests, trusted A-124 projection, legacy-authoritative comparison, and boundary-owned validated safe-action shadow client are implemented and consumed by the pilot action. Existing `createStaffOrganizationInvitation`/Better Auth handler behavior is unchanged.
+- Migration status: `Shadowing`; legacy enforcement remains authoritative.
 
 ### A-125 — Revoke Staff system access
 
@@ -210,8 +210,8 @@ The critical membership/access slice is approved. A-083 remains session-only, A-
 - Required tests: full actor/target-role matrix, self-target, every Owner target denied, foreign Staff/Member/Invitation, pending invite cancellation, partial unlink, other-Organization preservation, direct catch-all bypass attempt, and sanitized telemetry.
 - Technical rollback: restore the legacy action hierarchy gate only; Better Auth authorization, ownership safeguards, and tenant validation remain mandatory.
 - Rollback security implication: Manager revocation access returns temporarily, a known privilege expansion to legacy behavior that must be declared in the incident decision and monitored.
-- Adapter status (2026-08-24): `staff` Organization-boundary resolver, tenant-scoped Member/Invitation linkage facts, target/self/role-ceiling/linkage policies, Owner-target denial, trusted A-125 projection, legacy-authoritative comparison, and a boundary-owned validated safe-action shadow client are implemented; action consumption and Better Auth composition remain pending.
-- Migration status: `Approved`; ownership mutation is explicitly out of scope.
+- Adapter status (2026-08-24): `staff` Organization-boundary resolver, tenant-scoped Member/Invitation linkage facts, target/self/role-ceiling/linkage policies, Owner-target denial, trusted A-125 projection, legacy-authoritative comparison, and boundary-owned validated safe-action shadow client are implemented and consumed by the pilot action. Existing Member removal/Invitation cancellation and unlinking handler behavior is unchanged.
+- Migration status: `Shadowing`; legacy enforcement remains authoritative and ownership mutation is explicitly out of scope.
 
 ### Approved shared Staff-access role-target matrix
 

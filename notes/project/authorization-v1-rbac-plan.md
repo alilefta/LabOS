@@ -6,6 +6,7 @@
 **Architecture:** `notes/architecture/platform-modules/authorization_module/architecture.md`
 **Migration inventory:** `notes/project/authorization-v1-migration-inventory.md`
 **Generated legacy baseline:** `notes/project/authorization-v1-legacy-action-baseline.md`
+**Pilot rollout gate:** `notes/project/authorization-v1-shadow-pilot-rollout-gate.md`
 
 ## Outcome and baseline
 
@@ -184,7 +185,11 @@ Shadow-coordinator checkpoint (2026-08-24): validated A-124/A-125 projections ca
 
 Shadow-telemetry checkpoint (2026-08-24): the comparison event now uses only server-owned labels and an explicit field allowlist. The boundary registry supplies action name and legacy required role; the coordinator supplies a cryptographically generated correlation ID, normalized recognized actor roles, and unknown-role count without recording raw unknown values. Target/identity/invitation IDs, emails, input, domain details, financial values, and provider/exception errors are absent by construction and redaction-tested. `LEGACY_DENY_V1_ALLOW` is high severity and carries the unique `highest` review priority; Manager's approved restriction is a lower-priority `LEGACY_ALLOW_V1_DENY` review event.
 
-Safe-action shadow-client checkpoint (2026-08-24): `actionClientWithAuthorizationShadow(boundaryId)` is a separate selector over fully configured A-124/A-125 clients. Each boundary owns its Zod schema, trusted action metadata, actor/correlation middleware, and mandatory `useValidated()` authorization adapter, preventing schema swaps or omitted projection. The installed next-safe-action lifecycle guarantees projection occurs after validation and before the handler. Unknown boundaries fail closed with sanitized high-severity configuration telemetry; missing/throwing projectors and malformed projected intent are recorded as V1 configuration failures while the unchanged legacy role decision remains authoritative. `actionClientWithLab` has not been replaced, and no action has switched clients yet.
+Safe-action shadow-client checkpoint (2026-08-24): `actionClientWithAuthorizationShadow(boundaryId)` is a separate selector over fully configured A-124/A-125 clients. Each boundary owns its Zod schema, trusted action metadata, actor/correlation middleware, and mandatory `useValidated()` authorization adapter, preventing schema swaps or omitted projection. The installed next-safe-action lifecycle guarantees projection occurs after validation and before the handler. Unknown boundaries fail closed with sanitized high-severity configuration telemetry; missing/throwing projectors and malformed projected intent are recorded as V1 configuration failures while the unchanged legacy role decision remains authoritative. `actionClientWithLab` itself has not been replaced.
+
+Pilot checkpoint (2026-08-24): only A-124 Grant Staff access and A-125 Revoke Staff access now select their dedicated shadow clients. Their handler bodies and existing Better Auth invitation/member mutation calls remain unchanged. A source-level architecture guard enumerates all action consumers and fails unless the set is exactly these two; it also proves A-083 invitation acceptance and A-123 Staff creation remain outside the pilot. The pilot changes observation only—legacy allow/deny still controls handler execution.
+
+Rollout-gate checkpoint (2026-08-24): all requested automated evidence is mapped in `authorization-v1-shadow-pilot-rollout-gate.md`. Additional tests prove the middleware's shared enforcement wrapper never invokes the handler after legacy denial, propagate one server correlation ID through V1 and comparison telemetry, and exercise Organization B Staff targets through both A-124/A-125 while Organization A is active. Automated verification permits shadow observation only. Enforcement remains blocked until runtime divergence, failure, redaction, dual-authority, and two-Organization operational evidence is attached and approved.
 
 ## Rollout and rollback
 
