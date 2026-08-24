@@ -64,7 +64,9 @@ export function AcceptOrganizationInvitationCard(props: Props) {
 						<Link href={`/sign-in?callbackUrl=${callback}`}>Sign in</Link>
 					</Button>
 					<Button asChild>
-						<Link href={`/sign-up?callbackUrl=${callback}`}>Create account</Link>
+						<Link href={`/sign-up?callbackUrl=${callback}`}>
+							Create account
+						</Link>
 					</Button>
 				</div>
 			</div>

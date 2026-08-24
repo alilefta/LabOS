@@ -6,10 +6,7 @@ import { z } from 'zod'
 import { auth } from '@/lib/auth'
 import { actionClientWithSession } from '@/lib/safe-action'
 import { processAcceptedStaffInvitation } from '@/lib/staff-invitation'
-
-export const AcceptOrganizationInvitationInputSchema = z.object({
-	invitationId: z.string().trim().min(1).max(128),
-})
+import { AcceptOrganizationInvitationInputSchema } from '@/schema/composed/invite/accept-invite'
 
 /**
  * Accepts a Better Auth Organization invitation for the authenticated user.
