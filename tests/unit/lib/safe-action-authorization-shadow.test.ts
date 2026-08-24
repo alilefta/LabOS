@@ -23,11 +23,16 @@ describe('permission-aware safe-action shadow client registry', () => {
 		)
 		expect(record).toHaveBeenCalledWith(
 			expect.objectContaining({
-				event: 'labos.authorization.shadow_configuration_failure',
-				boundaryId: 'A-unknown',
-				failureReason: 'AUTHZ_BOUNDARY_NOT_REGISTERED',
-				severity: 'high',
-				enforcementSource: 'legacy',
+				schemaVersion: 1,
+				service: 'labos',
+				source: 'authorization-v1-shadow',
+				payload: expect.objectContaining({
+					event: 'labos.authorization.shadow_configuration_failure',
+					boundaryId: 'A-unknown',
+					failureReason: 'AUTHZ_BOUNDARY_NOT_REGISTERED',
+					severity: 'high',
+					enforcementSource: 'legacy',
+				}),
 			}),
 		)
 	})

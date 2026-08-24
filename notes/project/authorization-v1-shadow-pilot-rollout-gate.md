@@ -29,10 +29,11 @@ Passing automated tests permits shadow observation only. It does not authorize V
 | Validated target/operation projection | `tests/unit/modules/labos-authorization/action-boundaries.test.ts` | Pass |
 | Correlation propagation | Shadow test asserts identical generated ID reaches V1 and comparison telemetry | Pass |
 | Telemetry redaction | Exact allowlist plus forbidden-value tests | Pass |
+| Structured delivery and aggregation | Versioned envelope, replaceable sink, bounded series, latency/count snapshots, cardinality and delivery-failure tests | Pass locally; production provider pending |
 | Better Auth calls unchanged | Pilot scope architecture test checks existing invite/cancel/revoke calls | Pass |
 | A-124/A-125 two-Organization behavior | Shadow-adapter cross-Organization tests plus platform isolation suite | Pass |
 | Pilot limited to two actions | `tests/unit/architecture/authorization-shadow-pilot-scope.test.ts` | Pass |
-| Full regression suite | 29 files / 195 tests on 2026-08-24 | Pass |
+| Full regression suite | 30 files / 200 tests on 2026-08-24 | Pass |
 | Pilot authorization lint | All changed action, middleware, adapter, telemetry, and gate-test files | Pass |
 | Repository-wide lint | `pnpm exec eslint .` reports 17 errors and 256 warnings in pre-existing unrelated application/generated files | **Blocked** |
 | Repository-wide TypeScript | Existing Decimal DTO and missing Case work-item `addons` mismatches remain; no error originates in the pilot/authorization scope | **Blocked** |
@@ -50,6 +51,7 @@ No `LEGACY_DENY_V1_ALLOW` result is pre-approved. Every occurrence is a possible
 ## Runtime evidence required before enforcement
 
 - [ ] Record the observation window, environment, release/commit, and event volume.
+- [ ] Connect the structured sink to durable centralized collection (or prove platform stdout ingestion), retention, and cross-instance querying.
 - [ ] Reconcile comparison counts by boundary, actor role, category, and stable V1 reason.
 - [ ] Review every `LEGACY_DENY_V1_ALLOW`; attach an explicit approval or remediation reference for each distinct cause.
 - [ ] Confirm every `LEGACY_ALLOW_V1_DENY` matches an approved restriction or documented tenant-integrity improvement.

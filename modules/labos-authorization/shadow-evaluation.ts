@@ -19,6 +19,7 @@ import {
 	labosAuthorizationService,
 	type LabOSAuthorizationService,
 } from './service'
+import { structuredLabOSShadowMonitor } from './shadow-telemetry'
 
 export const LABOS_SHADOW_COMPARISONS = Object.freeze([
 	'MATCH_ALLOW',
@@ -116,7 +117,7 @@ export function recordLabOSShadowConfigurationFailure(
 		LabOSShadowConfigurationFailureEvent,
 		'event' | 'enforcementSource' | 'severity' | 'reviewPriority'
 	>,
-	monitor: LabOSShadowMonitor = consoleLabOSShadowMonitor,
+	monitor: LabOSShadowMonitor = structuredLabOSShadowMonitor,
 ): void {
 	try {
 		monitor.record({
@@ -216,7 +217,7 @@ export async function evaluateLabOSAuthorizationShadow(
 	options: LabOSShadowEvaluationOptions = {},
 ): Promise<LabOSShadowEvaluationResult> {
 	const service = options.authorizationService ?? labosAuthorizationService
-	const monitor = options.monitor ?? consoleLabOSShadowMonitor
+	const monitor = options.monitor ?? structuredLabOSShadowMonitor
 	const now = options.now ?? (() => performance.now())
 	const correlationId = (
 		options.generateCorrelationId ?? (() => crypto.randomUUID())
