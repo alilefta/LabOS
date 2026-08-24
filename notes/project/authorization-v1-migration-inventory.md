@@ -324,8 +324,9 @@ The legacy count covers safe-action metadata only. The following audit is mandat
 - Legacy behavior: any authenticated user with a verified active tenant can currently open the mocked page because the main layout requires only tenant membership.
 - V1 behavior: Owner and Admin may list Organization Members; Manager and Staff receive no `membership.list` grant.
 - Difference: Manager/Staff are an intentional `LEGACY_ALLOW_V1_DENY`, consistent with the approved membership authority matrix. Runtime divergence must still be observed before enforcement.
-- Data contract: the future reader returns `Member -> AuthUser` plus optional `LabStaff`; it must never query `LabUser` or `AuthUser.labId`.
-- Status: **Registered and activated, not consumed**. The concrete service evaluates the fixed Owner/Admin bundle without a resource resolver or domain policy; subsequent steps add the reader and page adapter.
+- Data contract: the reader returns an immutable, JSON-safe `Member -> AuthUser` plus optional same-Lab `LabStaff` DTO. It exposes Member ID as the only mutation target, recognized roles plus an unknown-role count, account name/email/verification/image, join time, and minimal Staff display identity. It never selects `LabUser`, `AuthUser.id`, `AuthUser.role`, `AuthUser.labId`, credentials, Staff contact/address, or compensation fields.
+- Repository: `modules/labos-membership/member-directory.repository.ts` applies `Member.organizationId` and nested `LabStaff.labId` predicates from canonical TenantContext, uses bounded limit+1 pagination, and maps provider roles without returning raw unknown values.
+- Status: **Registered, activated, and reader implemented; not consumed**. The concrete service evaluates the fixed Owner/Admin bundle without a resource resolver or domain policy; the next step adds the page authorization adapter.
 - Tests: stable immutable registry metadata, trusted catalog linkage, Organization scope, sensitivity, and fail-closed unknown-ID behavior.
 - Rollback: remove the non-consuming registry record before activation; once integrated, restore the current tenant-only mocked page while retaining tenant validation.
 

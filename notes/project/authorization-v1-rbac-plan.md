@@ -195,6 +195,8 @@ Structured-telemetry checkpoint (2026-08-24): shadow events now pass through an 
 
 Membership-directory boundary checkpoint (2026-08-24): the first reviewed non-action boundary is registered as `N-001` for `/settings/team`. It binds the future real Organization-member directory to Organization-scoped, sensitive `membership.list` metadata from the trusted catalog and records the current tenant-member legacy behavior. The permission is active in the concrete service: Owner/Admin allow, Manager/Staff deny, unknown roles deny, and caller-supplied resources deny without invoking resolvers or policies. Manager/Staff denial is an intentional role-matrix restriction that must be observed in shadow before enforcement. The mocked page remains unchanged and does not consume V1 yet.
 
+Membership-directory read-model checkpoint (2026-08-24): `modules/labos-membership` now owns a server-only tenant-scoped repository, persistence-to-DTO mapper, and client-safe immutable DTO contracts for `Member -> AuthUser -> optional LabStaff`. Member and nested Staff predicates use canonical Organization/Lab IDs, pagination is bounded to 100 with a limit+1 next-page signal, and explicit projections exclude legacy/global authorization fields, credentials, Staff HR/contact/address/compensation, and unrelated relations. Multiple known roles are canonicalized, unknown role values are represented only as a count, and AuthUser ID is never exposed. Isolation, projection, pagination, invalid-input, mapping, and immutability tests are in place. The repository performs no authorization itself and remains unreachable until the N-001 page adapter requires `membership.list`.
+
 ## Rollout and rollback
 
 | Checkpoint | Evidence | Rollback |
