@@ -55,6 +55,13 @@ export const auth = betterAuth({
 		authUserAdminPlugin,
 		organization({
 			...organizationAccess,
+			// Browser sessions must use the idempotent Organization + Lab
+			// onboarding service. Server-side `auth.api.createOrganization` with an
+			// explicit trusted userId remains available to that gateway.
+			allowUserToCreateOrganization: false,
+			// Organization deletion cascades into Lab domain data and remains
+			// unavailable until its separately reviewed destructive milestone.
+			disableOrganizationDeletion: true,
 			invitationExpiresIn: 60 * 60 * 48,
 			cancelPendingInvitationsOnReInvite: true,
 			organizationHooks: {

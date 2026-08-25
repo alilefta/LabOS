@@ -82,7 +82,7 @@ The ranges overlap conceptually where one action touches multiple domains. The f
 | AUTHZ-INV-005 | A-019, A-060, A-065–A-066, A-068, A-071, and financial dashboard readers | Financial detail/aggregate data is mixed into ordinary Case/Clinic reads. | Use `case.financials.list/read` and `clinic.financials.list/read`; composite endpoints must require both permissions or split/redact their DTO. | Resolved vocabulary; endpoint remediation open |
 | AUTHZ-INV-006 | A-026–A-027 | Case asset upload/removal combines Case authorization with file lifecycle concerns. | Define the Case permission and future Files-module boundary without allowing either check to substitute for the other. | Open |
 | AUTHZ-INV-007 | Duplicate action names in generated baseline | Telemetry keyed only by `actionName` can collide. | Use stable boundary ID plus source/correlation metadata during migration. | Open |
-| AUTHZ-INV-008 | `app/api/auth/[...all]/route.ts` | Better Auth Organization mutation endpoints are reachable through the catch-all route, so callers can bypass LabOS wrappers while still passing Better Auth rules. | Before enforcement, deny direct product mutations or intercept them with a V1 gate; invitee acceptance/rejection and active-Organization switching remain deliberate exceptions. | Open — critical |
+| AUTHZ-INV-008 | `app/api/auth/[...all]/route.ts` | Better Auth Organization mutation endpoints were reachable through the catch-all route, so callers could bypass LabOS wrappers while still passing Better Auth rules. | A version-pinned, default-deny HTTP registry now permits only tenant selection and recipient invitation lifecycle. Product mutations/reads, unknown endpoints, and method mismatches return 403 before Better Auth. Server-side `auth.api` wrappers remain available for dual authorization. | Resolved for direct HTTP bypass — 2026-08-25; product wrappers remain pending |
 | AUTHZ-INV-009 | `platform/auth/organization-access.ts` | Better Auth Manager currently has Member create/update/delete and Invitation create/cancel, while the approved V1 Manager bundle has no access administration. | Preserve during shadow mode, then remove those Better Auth Manager grants in the same enforcement release and prove role compatibility. | Open |
 | AUTHZ-INV-010 | A-123 | Staff creation optionally creates an invitation, so one primary middleware permission cannot represent the whole command before the Staff target exists. | A-123 creates operational Staff only; A-124 separately invites against the created Staff ID. Invitation failure preserves the valid Staff-without-account record. | Resolved — approved 2026-08-22 |
 | AUTHZ-INV-011 | A-123 | Staff creation accepts initial commission configuration even though Admin has Staff creation but only compensation-read authority in the proposed matrix. | Create with safe compensation defaults and use the resource-scoped compensation command separately. | Resolved — approved 2026-08-22 |
@@ -93,6 +93,7 @@ The ranges overlap conceptually where one action touches multiple domains. The f
 | AUTHZ-INV-016 | A-118 | The Staff dossier returns compensation, membership/invitation state, invitation ID, and HR analytics under ordinary `STAFF` access. | Split the dossier. Ordinary identity requires `staff.read`; analytics requires `staff.analytics.read`; compensation requires `staff.compensation.read`; access state requires `membership.read`. Never expose an invitation identifier as a reusable token. | Open — critical |
 | AUTHZ-INV-017 | Generated baseline A-014 | The regex baseline generator records a commented-out metadata block as if it were active. Removing it would renumber already-reviewed stable IDs. | Retain A-014 as a documented tombstone for V1. Replace sequential extraction with a stable manifest/AST generator in a separate inventory-maintenance change; never reuse A-014. | Open — tooling, non-runtime |
 | AUTHZ-INV-018 | `staff.access.role_target` and `membership.role_assignment` | These policies require validated requested-role intent, while the generic kernel deliberately accepts no arbitrary attribute bag. | Permission-keyed discriminated operation intent is implemented. Only Staff invitation and Member role update accept their exact typed intent; missing/malformed runtime intent fails closed while policies load authoritative actor/target facts. | Resolved — 2026-08-24 |
+| AUTHZ-INV-019 | A-127 `Update-Staff-Identity-Action` | Setting `isActive = false` removes a Better Auth Member or cancels an Invitation under the legacy `MANAGER` gate, bypassing the trusted A-125 boundary and conflicting with the V1 Manager restriction. | Split operational identity update/deactivation from digital-access revocation, or require a composed `staff.deactivate` **AND** `staff.access.revoke` decision using the trusted Staff target before any Better Auth mutation. Owner targets remain denied in this path. | Open — critical enforcement blocker |
 
 ## Read boundary classification decision
 
@@ -248,7 +249,7 @@ Implementation status (2026-08-24): generic Member non-Owner and explicit self-t
 
 ## Better Auth Organization mutation surface
 
-The catch-all route exposes the installed Organization plugin endpoints. Read-only endpoints are audited separately; the mutation surface is classified here.
+Audit source: installed `better-auth` **1.6.16** package code and the active LabOS plugin options on 2026-08-25. The plugin registers 21 fixed HTTP endpoints. Team endpoints are not registered because Teams are disabled; dynamic-role endpoints are not registered because dynamic access control is disabled. `addMember` exists only as a server API without a fixed HTTP path and is classified as internal-only.
 
 | ID | Better Auth operation | Product classification | Direct catch-all policy | Required authority/status |
 |---|---|---|---|---|
@@ -260,7 +261,7 @@ The catch-all route exposes the installed Organization plugin endpoints. Read-on
 | BA-006 | `cancelInvitation` | Child operation of invite replacement, revocation, or recipient lifecycle | Deny arbitrary management call | Parent V1 operation **AND** Better Auth; invitee rejection is BA-008 |
 | BA-007 | `acceptInvitation` | Session-only recipient lifecycle | Allow | Better Auth recipient checks; LabOS post-accept integrity hook |
 | BA-008 | `rejectInvitation` | Session-only recipient lifecycle | Allow | Better Auth recipient checks; LabOS cleanup hook |
-| BA-009 | `addMember` | Bypasses current invitation and optional Staff-intent process | Deny | No V1 product flow; future explicit design required |
+| BA-009 | `addMember` | Server-only operation that bypasses the invitation and optional Staff-intent process | No fixed HTTP path; prohibit application use | No V1 product flow; future explicit design required |
 | BA-010 | `removeMember` | Generic membership removal or Staff access revocation | Deny unwrapped mutation | `membership.remove` or `staff.access.revoke` **AND** Better Auth, with owner invariants |
 | BA-011 | `updateMemberRole` | Membership role administration | Deny until product wrapper exists | `membership.role.update` **AND** Better Auth, grantable-role and owner invariants |
 | BA-012 | `leaveOrganization` | Self-service membership removal | Deny until product flow exists | Explicit self-removal policy, owner invariant, reconciliation, and Better Auth |
@@ -276,7 +277,21 @@ Before the membership slice moves from shadow to enforcement, direct Organizatio
 - Missing authorization context fails closed with high-severity telemetry.
 - Tests call the catch-all endpoint directly rather than assuming UI wrappers are the only callers.
 
-The exact interception mechanism belongs to the adapters branch and must be verified against the installed Better Auth version before implementation.
+Implementation checkpoint (2026-08-25): `platform/auth/organization-http-route-policy.ts` contains the complete version-pinned HTTP manifest, and `app/api/auth/[...all]/route.ts` evaluates both GET and POST requests before delegating to Better Auth. Unknown Organization endpoints and method mismatches deny by default. Denials emit only a stable boundary ID/reason and never log request bodies, query values, identity IDs, or provider errors. Public Organization creation is additionally disabled while the trusted server onboarding gateway remains usable; Organization deletion is disabled at the provider configuration layer.
+
+Internal-call checkpoint (2026-08-25): the repository contains approved in-process calls for onboarding, tenant selection, invitation acceptance, A-124 invitation create/replacement, and A-125 Member/invitation revocation. A-127 remains an unapproved composite caller: operational Staff deactivation currently invokes Member removal or Invitation cancellation without selecting the A-125 authorization boundary. Direct HTTP protection does not protect in-process `auth.api` calls, so AUTHZ-INV-019 must be resolved before enforcement.
+
+### Better Auth Organization read and lifecycle HTTP surface
+
+| Direct HTTP disposition | Endpoints | Reason |
+|---|---|---|
+| Allow | `GET /organization/list`, `POST /organization/set-active` | Authenticated tenant discovery/selection; Better Auth verifies membership and canonical TenantContext revalidates subsequent requests |
+| Allow | `GET /organization/get-invitation`, `GET /organization/list-user-invitations`, `POST /organization/accept-invitation`, `POST /organization/reject-invitation` | Recipient-scoped invitation lifecycle; Better Auth verifies the invitation recipient and LabOS hooks perform integration cleanup/linking |
+| Deny | `GET /organization/get-full-organization`, `GET /organization/list-members`, `GET /organization/list-invitations`, `GET /organization/get-active-member`, `GET /organization/get-active-member-role` | Product data reads require trusted LabOS read boundaries and bounded DTOs |
+| Deny | `POST /organization/has-permission` | Better Auth capability checks cannot substitute for authoritative LabOS product authorization |
+| Deny | `POST /organization/check-slug` | Organization creation is available only through the idempotent onboarding service |
+| Deny | Every product mutation in BA-001–BA-006 and BA-010–BA-012 | Must execute through an approved LabOS wrapper or remain deferred |
+| Deny | Unknown `/organization/*` endpoint or wrong HTTP method | Dependency upgrades and route drift fail closed until the manifest is reviewed |
 
 ### Better Auth role-configuration compatibility
 
