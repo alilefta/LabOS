@@ -18,3 +18,13 @@ export type {
 	OrganizationMemberDirectoryRepository,
 	OrganizationMemberDirectoryTenant,
 } from './member-directory.repository'
+export {
+	createN001TeamDirectoryLoader,
+	loadN001TeamDirectory,
+	N001_TEAM_DIRECTORY_LOADER_ERROR_CODES,
+	N001TeamDirectoryLoaderError,
+} from './member-directory.loader'
+export type {
+	LoadN001TeamDirectoryInput,
+	N001TeamDirectoryLoaderDependencies,
+} from './member-directory.loader'

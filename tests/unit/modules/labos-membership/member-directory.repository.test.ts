@@ -92,6 +92,75 @@ describe('Prisma Organization Member directory repository', () => {
 		})
 	})
 
+	it('returns distinct membership identities for the same account in two Organizations', async () => {
+		prisma.member.findMany
+			.mockResolvedValueOnce([
+				{
+					id: 'member-org-a',
+					role: 'owner',
+					createdAt: new Date('2026-08-20T10:00:00.000Z'),
+					authuser: {
+						name: 'Shared Account',
+						email: 'shared@example.test',
+						emailVerified: true,
+						image: null,
+					},
+					labStaff: null,
+				},
+			])
+			.mockResolvedValueOnce([
+				{
+					id: 'member-org-b',
+					role: 'manager',
+					createdAt: new Date('2026-08-21T10:00:00.000Z'),
+					authuser: {
+						name: 'Shared Account',
+						email: 'shared@example.test',
+						emailVerified: true,
+						image: null,
+					},
+					labStaff: {
+						id: 'staff-org-b',
+						firstName: 'Shared',
+						lastName: 'Manager',
+						avatarUrl: null,
+						isActive: true,
+						roleCategory: 'MANAGER',
+						jobTitle: 'Manager',
+					},
+				},
+			])
+
+		const organizationA =
+			await prismaOrganizationMemberDirectoryRepository.listPage({
+				tenant: { organizationId: 'organization-a', labId: 'lab-a' },
+			})
+		const organizationB =
+			await prismaOrganizationMemberDirectoryRepository.listPage({
+				tenant: { organizationId: 'organization-b', labId: 'lab-b' },
+			})
+
+		expect(organizationA.items[0]).toMatchObject({
+			memberId: 'member-org-a',
+			roles: ['owner'],
+			staff: null,
+		})
+		expect(organizationB.items[0]).toMatchObject({
+			memberId: 'member-org-b',
+			roles: ['manager'],
+			staff: { staffId: 'staff-org-b' },
+		})
+	})
+
+	it('is Member-rooted so account-only and Staff-only identities cannot appear', async () => {
+		await prismaOrganizationMemberDirectoryRepository.listPage({
+			tenant: { organizationId: 'organization-a', labId: 'lab-a' },
+		})
+
+		expect(prisma.member.findMany).toHaveBeenCalledTimes(1)
+		expect(Object.keys(prisma)).toEqual(['member'])
+	})
+
 	it.each([
 		[
 			{ organizationId: '', labId: 'lab-a' },

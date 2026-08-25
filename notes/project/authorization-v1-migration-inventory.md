@@ -17,7 +17,7 @@ This is the reviewed control record for migrating every protected server boundar
 | Legacy safe-action declarations | 131 | 4 approved | 0 | A-124/A-125 are shadowing; legacy still enforces |
 | Better Auth Organization mutation endpoints | 12 | 12 in review | 0 | Catch-all exposure requires an explicit product-gate strategy |
 | Route handlers | 1 initial candidate | 0 | 0 | Full route audit required |
-| Server pages, data readers, and services | 28 heuristic candidates | 1 | 0 | N-001 Team & Roles directory is registered; candidate count is not yet authoritative |
+| Server pages, data readers, and services | 28 heuristic candidates | 1 | 0 | N-001 is connected in shadow; legacy tenant membership still enforces |
 | File/download/upload boundaries | Audit pending | 0 | 0 | Must include UploadThing and asset access |
 | UI-only capability consumers | Audit pending | 0 | Not applicable | Migrated only after server enforcement |
 
@@ -317,18 +317,22 @@ The legacy count covers safe-action metadata only. The following audit is mandat
 ### N-001 — Team & Roles Organization-member directory
 
 - Source: `app/(main)/settings/team/page.tsx`.
-- Boundary kind: server page with a future tenant-scoped data reader.
+- Boundary kind: server page with a tenant-scoped data reader.
 - Permission: `membership.list`.
 - Trusted scope: Organization collection; no resource ID or caller-supplied target.
 - Permission metadata: Organization-scoped, sensitive, with no domain policy. Tenant resolution and the fixed role bundle remain mandatory.
-- Legacy behavior: any authenticated user with a verified active tenant can currently open the mocked page because the main layout requires only tenant membership.
+- Legacy behavior: any authenticated user with a verified active tenant can open the real directory because legacy tenant membership remains authoritative during shadow mode.
 - V1 behavior: Owner and Admin may list Organization Members; Manager and Staff receive no `membership.list` grant.
+- Shadow status: dedicated server-page adapter implemented; legacy verified membership remains authoritative. Owner/Admin match allow, while Manager/Staff are expected `LEGACY_ALLOW_V1_DENY` observations.
+- Data status: tenant-scoped `Member + AuthUser + optional LabStaff` repository is invoked only through the tested N-001 loader.
+- Page status: `/settings/team` is a server route rendering the real immutable directory DTO; static mock users and legacy role labels were removed.
+- Loader status: connected with the enforced sequence `TenantContext -> N-001 shadow -> Member repository`.
 - Difference: Manager/Staff are an intentional `LEGACY_ALLOW_V1_DENY`, consistent with the approved membership authority matrix. Runtime divergence must still be observed before enforcement.
 - Data contract: the reader returns an immutable, JSON-safe `Member -> AuthUser` plus optional same-Lab `LabStaff` DTO. It exposes Member ID as the only mutation target, recognized roles plus an unknown-role count, account name/email/verification/image, join time, and minimal Staff display identity. It never selects `LabUser`, `AuthUser.id`, `AuthUser.role`, `AuthUser.labId`, credentials, Staff contact/address, or compensation fields.
 - Repository: `modules/labos-membership/member-directory.repository.ts` applies `Member.organizationId` and nested `LabStaff.labId` predicates from canonical TenantContext, uses bounded limit+1 pagination, and maps provider roles without returning raw unknown values.
-- Status: **Registered, activated, and reader implemented; not consumed**. The concrete service evaluates the fixed Owner/Admin bundle without a resource resolver or domain policy; the next step adds the page authorization adapter.
-- Tests: stable immutable registry metadata, trusted catalog linkage, Organization scope, sensitivity, and fail-closed unknown-ID behavior.
-- Rollback: remove the non-consuming registry record before activation; once integrated, restore the current tenant-only mocked page while retaining tenant validation.
+- Status: **Connected in shadow; legacy tenant membership enforces**. The concrete service evaluates the fixed Owner/Admin bundle without a resource resolver or domain policy, while the page remains accessible under the existing tenant-member rule until rollout approval.
+- Tests: registry/catalog integrity, actor roles, all comparison categories, telemetry redaction, loader ordering and short-circuit behavior, two-Organization isolation, identity states, and a source boundary test forbidding Prisma/LabUser/mock-data access from the route.
+- Rollback: restore the prior tenant-only mocked page while retaining tenant validation; this removes real directory reads and shadow evidence but does not change membership data.
 
 - [ ] Enumerate every `app/api/**/route.ts` handler and classify authentication, tenant, permission, and target enforcement.
 - [ ] Enumerate server pages that query tenant data directly.

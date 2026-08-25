@@ -6,10 +6,8 @@ import type {
 } from '@/platform/authorization'
 import { normalizeRoles } from '@/platform/authorization'
 
-import type {
-	LabOSActionBoundaryId,
-	LabOSActionBoundaryProjection,
-} from './action-boundaries'
+import type { LabOSActionBoundaryProjection } from './action-boundaries'
+import type { LabOSAuthorizationBoundaryId } from './boundary-ids'
 import type { LabOSPermission } from './permissions'
 import {
 	LABOS_ORGANIZATION_ROLES,
@@ -51,13 +49,13 @@ export class LabOSShadowLegacyEvaluationError extends Error {
 
 export type LabOSShadowComparisonMonitorEvent = Readonly<{
 	event: 'labos.authorization.shadow_comparison'
-	boundaryId: LabOSActionBoundaryId
+	boundaryId: LabOSAuthorizationBoundaryId
 	actionName: string
 	permission: LabOSPermission
 	organizationId: string
 	actorRoles: readonly LabOSOrganizationRole[]
 	unknownRoleCount: number
-	legacyRequiredRole: 'OWNER' | 'MANAGER' | 'ADMIN' | 'STAFF'
+	legacyRequiredRole: 'OWNER' | 'MANAGER' | 'ADMIN' | 'STAFF' | null
 	correlationId: string
 	legacyOutcome: 'allowed' | 'denied' | 'failed'
 	v1Outcome: 'allowed' | 'denied' | 'failed'
@@ -132,7 +130,7 @@ export function recordLabOSShadowConfigurationFailure(
 	}
 }
 
-type ShadowV1Decision =
+export type ShadowV1Decision =
 	| Readonly<{
 			status: 'completed'
 			allowed: boolean
@@ -145,7 +143,7 @@ type ShadowV1Decision =
 	  }>
 
 export type LabOSShadowEvaluationResult = Readonly<{
-	boundaryId: LabOSActionBoundaryId
+	boundaryId: LabOSAuthorizationBoundaryId
 	correlationId: string
 	comparison: LabOSShadowComparison
 	legacyDecision: Readonly<{ allowed: boolean }>
@@ -169,7 +167,7 @@ export type LabOSShadowEvaluationOptions = Readonly<{
 	generateCorrelationId?: () => string
 }>
 
-function classify(
+export function classifyLabOSShadowComparison(
 	legacyAllowed: boolean,
 	v1Allowed: boolean,
 ): LabOSShadowComparison {
@@ -285,7 +283,10 @@ export async function evaluateLabOSAuthorizationShadow(
 	}
 
 	const legacyAllowed = legacyResult.value === true
-	const comparison = classify(legacyAllowed, v1Decision.allowed)
+	const comparison = classifyLabOSShadowComparison(
+		legacyAllowed,
+		v1Decision.allowed,
+	)
 	const result = Object.freeze({
 		boundaryId: input.projection.boundaryId,
 		correlationId,

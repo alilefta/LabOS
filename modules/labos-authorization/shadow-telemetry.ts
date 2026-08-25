@@ -30,7 +30,7 @@ export type LabOSShadowAggregateSeries = Readonly<{
 	actionName?: string
 	permission?: string
 	actorRoles?: readonly string[]
-	legacyRequiredRole?: string
+	legacyRequiredRole?: string | null
 	legacyOutcome?: string
 	v1Outcome?: string
 	v1Reason?: string
