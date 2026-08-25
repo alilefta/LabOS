@@ -7,11 +7,7 @@ import {
 import z from 'zod/v4'
 import { ActionError, ERRORS } from '@/lib/errors'
 import { getServerSession } from './get-session'
-import {
-	fallbackPayload,
-	sanitizeInput,
-	toPayload,
-} from './safe-action-helpers'
+import { fallbackPayload, toPayload } from './safe-action-helpers'
 import { LabRole, LabRoleSchema } from '@/schema/base/enums.base'
 import {
 	requireTenantContext,
@@ -163,13 +159,12 @@ export const tenantScopedClient = createSafeActionClient({
 
 export const loggingMiddleware = createMiddleware<{
 	metadata: { actionName: string; requiredLabRole: LabRole | null }
-}>().define(async ({ next, metadata, clientInput }) => {
+}>().define(async ({ next, metadata }) => {
 	const start = performance.now()
 
 	if (process.env.NODE_ENV === 'development') {
 		console.info('▶️ Action started', {
 			action: metadata.actionName,
-			input: sanitizeInput(clientInput),
 		})
 	}
 
