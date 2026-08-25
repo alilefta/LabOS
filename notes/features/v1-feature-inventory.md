@@ -12,7 +12,7 @@
 
 | Area | Status | Current capability |
 | --- | --- | --- |
-| Authentication | Implemented | Sign-up and sign-in flows are present through Better Auth. |
+| Authentication | Implemented | Sign-up and sign-in use Better Auth. Post-auth continuation restores a valid active Organization, selects a sole membership, preserves invitation callbacks, and requires explicit selection for multiple Organizations instead of misrouting existing Members to onboarding. |
 | Workspace onboarding | Implemented | A new lab workspace can be created and configured through `/onboarding`. |
 | Lab-scoped data | Implemented | Server actions are scoped to the active lab, providing tenant isolation for operational data. |
 | Responsive navigation | Implemented | Desktop and mobile sidebars share a single navigation source in `lib/dashboard-navigation.ts`. |
@@ -65,7 +65,7 @@
 
 | Capability | Status | What exists today |
 | --- | --- | --- |
-| Team roster | Implemented | `/team` includes roster views, staff vitals, registration/onboarding, and role/search filtering. |
+| Team roster | Partial | `/team` is currently the operational `LabStaff` roster. It correctly includes Staff without accounts, but it does not yet include Organization Members without Staff profiles or merge linked Member/Staff identities into one People directory. |
 | Staff dossier | Implemented | `/team/[staffId]` includes overview, active and historical cases, payroll, identity, schedule, compensation, and access controls. |
 | Workload assignment | Implemented | Case assignments can be managed from cases and reassigned from team workflows. |
 | Commission and payouts | Implemented | Pending commissions, payout history, payroll vitals, payout issuance, and printable paystubs are present. |
@@ -91,6 +91,7 @@ These are useful V1.1 candidates because they are already anticipated in the arc
 | Inventory management | Existing route architecture notes identify this as a future business function; no inventory route exists. |
 | Clinic self-service portal | `notes/features/next-features.md` proposes a clinic portal for self-service case submission, live tracking, and bill payment. |
 | Global analytics command center | Dashboard UI exists, but the full AR-aging and capacity-heatmap vision in `next-features.md` still needs validation and implementation. |
+| Unified People directory | `/team` currently lists operational `LabStaff`, while `/settings/team` lists digital Organization Members. A future unified surface must represent Member-only, Staff-only, and linked Member+Staff identities without duplicates or weakening their separate lifecycle/security semantics. |
 
 ## V1.1 prioritization worksheet
 

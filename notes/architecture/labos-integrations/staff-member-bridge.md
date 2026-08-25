@@ -61,6 +61,18 @@ The current product surface delivers invitation links by showing the authorized 
 
 `TenantContext.staffId` is nullable. It is populated only when the active Member links to an active LabStaff record in the resolved Lab. A cross-Lab mismatch or inactive staff record produces null, so operational policies cannot accidentally use a stale or corrupted link.
 
+## Deferred unified People directory
+
+The current product intentionally has two distinct read surfaces. `/team` is rooted in `LabStaff` and represents operational people, including Staff who have no account. `/settings/team` is rooted in Better Auth `Member` and represents digital workspace access, including owners/admins who have no Staff profile. Neither list is complete as a universal People directory by itself.
+
+A future `/team` redesign may compose both sources, but it must preserve these identity states rather than converting one model into the other:
+
+- `LabStaff` only: operational person without application access.
+- `Member + AuthUser` only: digital workspace participant without an operational job.
+- Linked `Member + AuthUser + LabStaff`: one person rendered once with both access and operational facts.
+
+The join key is the optional tenant-scoped `LabStaff.memberId` bridge. Email, name, or AuthUser ID must never be used as an inferred join. Staff and membership mutations remain separate authorized operations, and the composed reader requires independent Organization/Lab predicates plus two-Organization isolation tests. This feature is documented but deliberately not implemented during the Authorization V1 milestone.
+
 ## Monitoring and tests
 
 Structured events record operation, outcome, safe IDs, duration, and stable error code. They exclude names, email addresses, tokens, headers, raw database errors, and stack traces.
