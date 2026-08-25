@@ -57,6 +57,50 @@ describe('LabOS shadow action adapter', () => {
 		}
 	})
 
+	it.each(['OWNER', 'ADMIN', 'MANAGER'] as const)(
+		'observes A-123 MATCH_ALLOW for legacy-allowed %s',
+		async (legacyActorRole) => {
+			const result = await authorizeLabOSActionInShadow({
+				boundaryId: 'A-123',
+				parsedInput: { firstName: 'Private' },
+				actor: {
+					...actor,
+					memberRoles: [legacyActorRole.toLowerCase()],
+				},
+				legacyActorRole,
+				correlationId: 'staff-create-correlation',
+			})
+
+			expect(result).toMatchObject({
+				status: 'evaluated',
+				legacyAllowed: true,
+				shadow: {
+					comparison: 'MATCH_ALLOW',
+					enforcement: { source: 'legacy', allowed: true },
+				},
+			})
+		},
+	)
+
+	it('keeps A-123 Staff denial aligned across legacy and V1', async () => {
+		const result = await authorizeLabOSActionInShadow({
+			boundaryId: 'A-123',
+			parsedInput: { firstName: 'Private' },
+			actor: { ...actor, memberRoles: ['staff'] },
+			legacyActorRole: 'STAFF',
+			correlationId: 'staff-create-denied-correlation',
+		})
+
+		expect(result).toMatchObject({
+			status: 'evaluated',
+			legacyAllowed: false,
+			shadow: {
+				comparison: 'MATCH_DENY',
+				enforcement: { source: 'legacy', allowed: false },
+			},
+		})
+	})
+
 	it('keeps legacy denial authoritative when V1 allows', async () => {
 		const result = await authorizeLabOSActionInShadow({
 			boundaryId: 'A-125',

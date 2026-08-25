@@ -16,8 +16,27 @@ const STAFF_ID = '9a58f4c9-f112-4479-af03-6d3991ad7848'
 
 describe('LabOS action-boundary registry', () => {
 	it('exposes only the stable reviewed boundary IDs', () => {
-		expect(LABOS_ACTION_BOUNDARY_IDS).toEqual(['A-124', 'A-125'])
+		expect(LABOS_ACTION_BOUNDARY_IDS).toEqual(['A-123', 'A-124', 'A-125'])
 		expect(Object.isFrozen(LABOS_ACTION_BOUNDARY_IDS)).toBe(true)
+	})
+
+	it('projects A-123 as an Organization-scoped permission without Staff PII', () => {
+		const projection = projectLabOSActionBoundary('A-123', {
+			firstName: 'Private',
+			lastName: 'Person',
+			phoneNumber: '+9647000000000',
+			address1: 'Private address',
+		})
+
+		expect(projection).toEqual({
+			boundaryId: 'A-123',
+			actionName: 'Register-Team-Lab-Staff-Action',
+			legacyRequiredRole: 'ADMIN',
+			permission: 'staff.create',
+		})
+		expect(projection).not.toHaveProperty('target')
+		expect(JSON.stringify(projection)).not.toContain('Private')
+		expect(Object.isFrozen(projection)).toBe(true)
 	})
 
 	it.each([

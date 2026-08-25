@@ -81,12 +81,24 @@ describe('A-123 operational Staff creation split', () => {
 	})
 
 	it('uses an action name distinct from the A-107 quick-create action', () => {
+		const registry = readFileSync(
+			join(process.cwd(), 'modules/labos-authorization/action-boundaries.ts'),
+			'utf8',
+		)
+
+		expect(registry).toContain("actionName: 'Register-Team-Lab-Staff-Action'")
+		expect(registry).toContain("permission: 'staff.create'")
+	})
+
+	it('selects the trusted A-123 shadow boundary without local metadata', () => {
 		const source = readFileSync(
 			join(process.cwd(), 'actions/team/register-staff-member-action.ts'),
 			'utf8',
 		)
 
-		expect(source).toContain("actionName: 'Register-Team-Lab-Staff-Action'")
+		expect(source).toContain("actionClientWithAuthorizationShadow('A-123')")
+		expect(source).not.toContain('.metadata(')
+		expect(source).not.toContain('.inputSchema(')
 	})
 
 	it('does not expose client payloads through shared action-start logging', () => {

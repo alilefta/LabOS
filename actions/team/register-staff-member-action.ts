@@ -1,10 +1,9 @@
 'use server'
 
 import { tenantPrisma } from '@/lib/prisma'
-import { actionClientWithLab } from '@/lib/safe-action'
+import { actionClientWithAuthorizationShadow } from '@/lib/safe-action'
 import { normalizeLabStaff } from '@/lib/mappers'
 import { buildOperationalStaffCreateData } from '@/modules/labos-staff/operational-staff-creation'
-import { CreateLabStaffInputSchema } from '@/schema/composed/team/staff.schema'
 
 /**
  * A-123 creates only the tenant-scoped operational Staff identity.
@@ -14,12 +13,7 @@ import { CreateLabStaffInputSchema } from '@/schema/composed/team/staff.schema'
  * explicit zero-value defaults prevent basic Staff creation from silently
  * creating a payable entitlement.
  */
-export const createLabStaffAction = actionClientWithLab
-	.metadata({
-		actionName: 'Register-Team-Lab-Staff-Action',
-		requiredLabRole: 'ADMIN',
-	})
-	.inputSchema(CreateLabStaffInputSchema)
+export const createLabStaffAction = actionClientWithAuthorizationShadow('A-123')
 	.action(async ({ parsedInput, ctx }) => {
 		const prisma = await tenantPrisma(ctx.labId)
 

@@ -57,6 +57,7 @@ function monitor() {
 describe('LabOS authorization service composition', () => {
 	it('enables only the reviewed membership and Staff-access slice', () => {
 		expect(LABOS_AUTHORIZATION_V1_SUPPORTED_PERMISSIONS).toEqual([
+			'staff.create',
 			'staff.access.invite',
 			'staff.access.revoke',
 			'membership.list',
@@ -73,6 +74,33 @@ describe('LabOS authorization service composition', () => {
 			true,
 		)
 	})
+
+	it.each([
+		['owner', true, 'ROLE_PERMISSION'],
+		['admin', true, 'ROLE_PERMISSION'],
+		['manager', true, 'ROLE_PERMISSION'],
+		['staff', false, 'AUTHZ_PERMISSION_NOT_GRANTED'],
+	] as const)(
+		'evaluates organization-scoped staff.create for %s without resource work',
+		async (role, allowed, reason) => {
+			const staffResolver = resolver()
+			const policy = allowPolicy()
+			const service = createLabOSAuthorizationService({
+				targetResolvers: { staff: staffResolver },
+				policies: { 'staff.access.target': policy },
+				monitor: monitor().monitor,
+			})
+
+			await expect(
+				service.can({
+					actor: { ...actor, memberRoles: [role] },
+					permission: 'staff.create',
+				}),
+			).resolves.toEqual({ allowed, reason })
+			expect(staffResolver.resolveOrganizationId).not.toHaveBeenCalled()
+			expect(policy.evaluate).not.toHaveBeenCalled()
+		},
+	)
 
 	it.each([
 		['owner', true, 'ROLE_PERMISSION'],

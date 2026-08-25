@@ -14,7 +14,7 @@ This is the reviewed control record for migrating every protected server boundar
 
 | Boundary set | Discovered | Classified | Enforced | Notes |
 |---|---:|---:|---:|---|
-| Legacy safe-action declarations | 131 | 4 approved | 0 | A-124/A-125 are shadowing; legacy still enforces |
+| Legacy safe-action declarations | 131 | 4 approved | 0 | A-123/A-124/A-125 are shadowing; legacy still enforces |
 | Better Auth Organization mutation endpoints | 12 | 12 in review | 0 | Catch-all exposure requires an explicit product-gate strategy |
 | Route handlers | 1 initial candidate | 0 | 0 | Full route audit required |
 | Server pages, data readers, and services | 28 heuristic candidates | 1 | 0 | N-001 is connected in shadow; legacy tenant membership still enforces |
@@ -165,9 +165,9 @@ The critical membership/access slice is approved. A-083 remains session-only, A-
 - Approval: split-command flow, safe compensation defaults, and removal of all-or-nothing invitation compensation approved on 2026-08-22.
 - Required tests: role matrix, tenant-scoped creation, safe compensation defaults, no Better Auth invocation, duplicate identity behavior, downstream invitation failure preserving Staff, and sanitized PII telemetry.
 - Identity behavior: `LabStaff.id` remains the authoritative identity. Names and phone numbers are not deduplication keys because separate operational records for one physical person can be valid; any future person-level deduplication requires an explicit domain identity model.
-- Implementation evidence: `tests/unit/actions/team/register-staff-member-action.test.ts` guards the strict input contract, tenant-scoped persistence projection, zero-value compensation, absence of Better Auth/compensating deletion, distinct telemetry name, duplicate-identity semantics, and payload-free shared logging. The full suite passed with 267 tests on 2026-08-25.
+- Implementation evidence: `tests/unit/actions/team/register-staff-member-action.test.ts` guards the strict input contract, tenant-scoped persistence projection, zero-value compensation, absence of Better Auth/compensating deletion, distinct telemetry name, duplicate-identity semantics, and payload-free shared logging. Boundary/service/adapter tests additionally cover targetless projection and the complete role matrix. The full suite passed with 277 tests on 2026-08-25.
 - Rollback: restore the legacy Admin gate and compound all-or-nothing action; never bypass Better Auth invitation authorization.
-- Migration status: `Implemented — split complete 2026-08-25`; the validated A-123 contract now contains operational identity fields only, persists explicit zero-value compensation defaults, never calls Better Auth, and never deletes Staff because a later access command fails. Authorization remains on its legacy gate until A-123 is deliberately added to the shadow boundary registry.
+- Migration status: `Shadow observation — 2026-08-25`; the validated A-123 contract now contains operational identity fields only, persists explicit zero-value compensation defaults, never calls Better Auth, and never deletes Staff because a later access command fails. Its trusted organization-scoped `staff.create` boundary now evaluates V1 alongside the unchanged authoritative legacy ADMIN gate.
 
 ### A-124 — Grant Staff system access
 

@@ -33,6 +33,7 @@ import {
 	GrantStaffSystemAccessInputSchema,
 	RevokeStaffSystemAccessInputSchema,
 } from '@/schema/composed/team/staff-settings.schema'
+import { CreateLabStaffInputSchema } from '@/schema/composed/team/staff.schema'
 
 // ----------------------------------------
 // Base Client - For Auth only
@@ -416,10 +417,19 @@ const authorizationShadowBaseClient = authorizationShadowScopedClient
 	.use(requireTenantMiddleware)
 	.use(buildAuthorizationActorMiddleware)
 
+const createStaffBoundary = getLabOSActionBoundaryMetadata('A-123')
 const grantAccessBoundary = getLabOSActionBoundaryMetadata('A-124')
 const revokeAccessBoundary = getLabOSActionBoundaryMetadata('A-125')
 
 const AUTHORIZATION_SHADOW_ACTION_CLIENTS = Object.freeze({
+	'A-123': authorizationShadowBaseClient
+		.metadata({
+			actionName: createStaffBoundary.actionName,
+			requiredLabRole: createStaffBoundary.legacyRequiredRole,
+			authorizationBoundaryId: createStaffBoundary.boundaryId,
+		})
+		.inputSchema(CreateLabStaffInputSchema)
+		.useValidated(authorizationShadowValidatedMiddleware),
 	'A-124': authorizationShadowBaseClient
 		.metadata({
 			actionName: grantAccessBoundary.actionName,
@@ -443,6 +453,9 @@ const AUTHORIZATION_SHADOW_ACTION_CLIENTS = Object.freeze({
  * Each stable boundary owns its schema and validated middleware, preventing
  * actions from pairing the wrong schema or omitting authorization evaluation.
  */
+export function actionClientWithAuthorizationShadow(
+	boundaryId: 'A-123',
+): (typeof AUTHORIZATION_SHADOW_ACTION_CLIENTS)['A-123']
 export function actionClientWithAuthorizationShadow(
 	boundaryId: 'A-124',
 ): (typeof AUTHORIZATION_SHADOW_ACTION_CLIENTS)['A-124']

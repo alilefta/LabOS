@@ -183,6 +183,14 @@ function evaluateV1(
 	projection: LabOSActionBoundaryProjection,
 	correlationId?: string,
 ) {
+	if (projection.boundaryId === 'A-123') {
+		return service.can({
+			actor,
+			permission: projection.permission,
+			correlationId,
+		})
+	}
+
 	if (projection.boundaryId === 'A-124') {
 		return service.can({
 			actor,

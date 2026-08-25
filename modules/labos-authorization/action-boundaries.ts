@@ -7,6 +7,7 @@ import type { LabOSOrganizationRole } from './roles'
 import { LABOS_AUTHORIZATION_V1_SUPPORTED_PERMISSIONS } from './service'
 
 export const LABOS_ACTION_BOUNDARY_IDS = Object.freeze([
+	'A-123',
 	'A-124',
 	'A-125',
 ] as const)
@@ -34,6 +35,15 @@ export class LabOSActionBoundaryError extends Error {
 type StaffInviteAuthorizationRequest =
 	LabOSAuthorizationRequest<'staff.access.invite'>
 
+type StaffCreateAuthorizationRequest = LabOSAuthorizationRequest<'staff.create'>
+
+type StaffCreateProjection = Readonly<{
+	boundaryId: 'A-123'
+	actionName: 'Register-Team-Lab-Staff-Action'
+	legacyRequiredRole: 'ADMIN'
+	permission: StaffCreateAuthorizationRequest['permission']
+}>
+
 type StaffInviteProjection = Readonly<{
 	boundaryId: 'A-124'
 	actionName: 'Grant-Staff-System-Access'
@@ -55,6 +65,7 @@ type StaffRevokeProjection = Readonly<{
 }>
 
 export type LabOSActionBoundaryProjection =
+	| StaffCreateProjection
 	| StaffInviteProjection
 	| StaffRevokeProjection
 
@@ -64,6 +75,7 @@ export type LabOSActionBoundaryMetadata = Pick<
 >
 
 type LabOSActionBoundaryProjectionById = {
+	'A-123': StaffCreateProjection
 	'A-124': StaffInviteProjection
 	'A-125': StaffRevokeProjection
 }
@@ -94,6 +106,20 @@ const ORGANIZATION_ROLE_BY_LEGACY_ROLE = Object.freeze({
 
 function isObject(input: unknown): input is Record<string, unknown> {
 	return typeof input === 'object' && input !== null
+}
+
+/**
+ * A-123 is Organization-scoped, so validated operational Staff fields are not
+ * projected into authorization. The kernel receives only the fixed permission
+ * and the actor's authoritative Organization context.
+ */
+function projectStaffCreate(input: unknown): Record<never, never> {
+	if (!isObject(input)) {
+		throw new LabOSActionBoundaryError(
+			LABOS_ACTION_BOUNDARY_ERROR_CODES.VALIDATED_INPUT_INVALID,
+		)
+	}
+	return Object.freeze({})
 }
 
 function projectStaffInvite(
@@ -141,6 +167,12 @@ function projectStaffRevoke(
 }
 
 const LABOS_ACTION_BOUNDARY_REGISTRY = Object.freeze({
+	'A-123': Object.freeze({
+		actionName: 'Register-Team-Lab-Staff-Action',
+		legacyRequiredRole: 'ADMIN',
+		permission: 'staff.create',
+		projectValidatedInput: projectStaffCreate,
+	}),
 	'A-124': Object.freeze({
 		actionName: 'Grant-Staff-System-Access',
 		legacyRequiredRole: 'ADMIN',
@@ -201,6 +233,10 @@ export function getLabOSActionBoundaryMetadata(
  * middleware. Client input can never select a permission, target type, policy,
  * Organization, or fact source.
  */
+export function projectLabOSActionBoundary(
+	boundaryId: 'A-123',
+	parsedInput: unknown,
+): StaffCreateProjection
 export function projectLabOSActionBoundary(
 	boundaryId: 'A-124',
 	parsedInput: unknown,

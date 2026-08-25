@@ -36,6 +36,7 @@ import {
  * policy, monitoring, and isolation tests in the same change.
  */
 export const LABOS_AUTHORIZATION_V1_SUPPORTED_PERMISSIONS = Object.freeze([
+	'staff.create',
 	'staff.access.invite',
 	'staff.access.revoke',
 	'membership.list',
