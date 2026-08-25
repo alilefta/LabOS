@@ -148,7 +148,7 @@ This document is the immutable mechanical baseline for the Authorization V1 migr
 | A-124 | `actions/team/staff-settings/grant-staff-access.ts:15` | `Grant-Staff-System-Access` | `ADMIN` | Pending classification |
 | A-125 | `actions/team/staff-settings/revoke-staff-access.ts:24` | `Revoke-Staff-System-Access` | `ADMIN` | Pending classification |
 | A-126 | `actions/team/staff-settings/update-staff-compensation.ts:11` | `Update-Staff-Compensation-Action` | `OWNER` | Pending classification |
-| A-127 | `actions/team/staff-settings/update-staff-identity.ts:42` | `Update-Staff-Identity-Action` | `MANAGER` | Pending classification |
+| A-127 | `actions/team/staff-settings/update-staff-identity.ts` | `Update-Staff-Identity-Action` | `MANAGER` | `staff.update`; identity-only after 2026-08-25 split. Employment status and access lifecycle are excluded. |
 | A-128 | `actions/team/staff-settings/update-staff-schedule.ts:18` | `Update-Staff-Schedule-Action` | `MANAGER` | Pending classification |
 | A-129 | `actions/work-type.ts:10` | `Create-New-WorkType-Action` | `STAFF` | Pending classification |
 | A-130 | `actions/work-type.ts:48` | `Get-WorkTypes-By-Search-Query-Action` | `STAFF` | Pending classification |

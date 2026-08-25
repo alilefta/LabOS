@@ -92,6 +92,7 @@ These are useful V1.1 candidates because they are already anticipated in the arc
 | Clinic self-service portal | `notes/features/next-features.md` proposes a clinic portal for self-service case submission, live tracking, and bill payment. |
 | Global analytics command center | Dashboard UI exists, but the full AR-aging and capacity-heatmap vision in `next-features.md` still needs validation and implementation. |
 | Unified People directory | `/team` currently lists operational `LabStaff`, while `/settings/team` lists digital Organization Members. A future unified surface must represent Member-only, Staff-only, and linked Member+Staff identities without duplicates or weakening their separate lifecycle/security semantics. |
+| Authorized Staff deactivation/reactivation | A-127 is intentionally identity-only after removing its unsafe compound access-revocation behavior. Build separate employment-status commands with `staff.deactivate`/reactivation authorization, mutation-time workload checks, and a rule requiring Member/invitation access to be revoked through A-125 first. |
 
 ## V1.1 prioritization worksheet
 

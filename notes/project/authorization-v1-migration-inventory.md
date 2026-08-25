@@ -93,7 +93,7 @@ The ranges overlap conceptually where one action touches multiple domains. The f
 | AUTHZ-INV-016 | A-118 | The Staff dossier returns compensation, membership/invitation state, invitation ID, and HR analytics under ordinary `STAFF` access. | Split the dossier. Ordinary identity requires `staff.read`; analytics requires `staff.analytics.read`; compensation requires `staff.compensation.read`; access state requires `membership.read`. Never expose an invitation identifier as a reusable token. | Open — critical |
 | AUTHZ-INV-017 | Generated baseline A-014 | The regex baseline generator records a commented-out metadata block as if it were active. Removing it would renumber already-reviewed stable IDs. | Retain A-014 as a documented tombstone for V1. Replace sequential extraction with a stable manifest/AST generator in a separate inventory-maintenance change; never reuse A-014. | Open — tooling, non-runtime |
 | AUTHZ-INV-018 | `staff.access.role_target` and `membership.role_assignment` | These policies require validated requested-role intent, while the generic kernel deliberately accepts no arbitrary attribute bag. | Permission-keyed discriminated operation intent is implemented. Only Staff invitation and Member role update accept their exact typed intent; missing/malformed runtime intent fails closed while policies load authoritative actor/target facts. | Resolved — 2026-08-24 |
-| AUTHZ-INV-019 | A-127 `Update-Staff-Identity-Action` | Setting `isActive = false` removes a Better Auth Member or cancels an Invitation under the legacy `MANAGER` gate, bypassing the trusted A-125 boundary and conflicting with the V1 Manager restriction. | Split operational identity update/deactivation from digital-access revocation, or require a composed `staff.deactivate` **AND** `staff.access.revoke` decision using the trusted Staff target before any Better Auth mutation. Owner targets remain denied in this path. | Open — critical enforcement blocker |
+| AUTHZ-INV-019 | A-127 `Update-Staff-Identity-Action` | Setting `isActive = false` removed a Better Auth Member or canceled an Invitation under the legacy `MANAGER` gate, bypassing the trusted A-125 boundary and conflicting with the V1 Manager restriction. | A-127 is now identity-only: its validated contract, persistence projection, and UI exclude `isActive`, and it contains no Better Auth or invitation side effects. A separate `staff.deactivate` command remains deferred and must never imply access revocation; linked access must first be revoked through A-125. | Resolved — 2026-08-25; standalone deactivation deferred |
 
 ## Read boundary classification decision
 
@@ -245,7 +245,9 @@ Implementation status (2026-08-24): generic Member non-Owner and explicit self-t
 
 ### Dependent boundary — A-127 Staff deactivation
 
-`Update-Staff-Identity-Action` conditionally cancels an Invitation or removes a Member when `isActive` becomes false. Its full Staff-update classification remains in the operations wave, but its access-revocation branch must reuse the A-125 permission/policies and dual-authority adapter. `staff.update` alone cannot authorize access revocation.
+`Update-Staff-Identity-Action` is now an identity-only operation. Its schema and UI no longer accept employment status, its mutation never writes `LabStaff.isActive`, and it has no Better Auth or invitation calls. This closes the internal A-125 bypass.
+
+Operational deactivation remains a separate operations-wave command. It must use `staff.deactivate`, revalidate active workload at mutation time, and refuse to proceed while a Member or pending Staff invitation remains linked. Digital access must be revoked first through A-125; deactivation must not silently compose or impersonate access revocation. Reactivation also requires its own explicitly classified operation rather than overloading A-127.
 
 ## Better Auth Organization mutation surface
 
@@ -279,7 +281,9 @@ Before the membership slice moves from shadow to enforcement, direct Organizatio
 
 Implementation checkpoint (2026-08-25): `platform/auth/organization-http-route-policy.ts` contains the complete version-pinned HTTP manifest, and `app/api/auth/[...all]/route.ts` evaluates both GET and POST requests before delegating to Better Auth. Unknown Organization endpoints and method mismatches deny by default. Denials emit only a stable boundary ID/reason and never log request bodies, query values, identity IDs, or provider errors. Public Organization creation is additionally disabled while the trusted server onboarding gateway remains usable; Organization deletion is disabled at the provider configuration layer.
 
-Internal-call checkpoint (2026-08-25): the repository contains approved in-process calls for onboarding, tenant selection, invitation acceptance, A-124 invitation create/replacement, and A-125 Member/invitation revocation. A-127 remains an unapproved composite caller: operational Staff deactivation currently invokes Member removal or Invitation cancellation without selecting the A-125 authorization boundary. Direct HTTP protection does not protect in-process `auth.api` calls, so AUTHZ-INV-019 must be resolved before enforcement.
+Internal-call checkpoint (updated 2026-08-25): the repository contains approved in-process calls for onboarding, tenant selection, invitation acceptance, A-124 invitation create/replacement, and A-125 Member/invitation revocation. A-127 no longer calls Better Auth or mutates employment status, closing its former composite bypass. Standalone Staff deactivation remains unavailable until its separate `staff.deactivate` boundary and mutation-time workload/linkage invariants are implemented.
+
+The approved internal mutation allowlist is guarded by `better-auth-organization-internal-callers.test.ts`. It pins the exact file/method pairs for onboarding (`createOrganization`, `setActiveOrganization`), recipient acceptance, Staff invitation create/cancel, and A-125 Member/invitation revocation. Any new direct call—including generic `addMember`, `updateMemberRole`, `removeMember`, `leaveOrganization`, Organization update/delete, or computed `auth.api[...]` access—fails the architecture test until it is classified and routed through an approved product boundary.
 
 ### Better Auth Organization read and lifecycle HTTP surface
 
@@ -356,7 +360,7 @@ The legacy count covers safe-action metadata only. The following audit is mandat
 - [ ] Enumerate exported `data/` readers callable outside protected actions.
 - [ ] Enumerate application services that mutate tenant data directly.
 - [ ] Enumerate UploadThing/file download/delete boundaries.
-- [ ] Enumerate Better Auth Organization mutation wrappers.
+- [x] Enumerate Better Auth Organization mutation wrappers and guard the exact internal caller allowlist in an architecture test.
 - [ ] Enumerate jobs, webhooks, and administrative entry points; explicitly mark out-of-scope service actors.
 - [ ] Enumerate UI imports of the obsolete access-control helper for later UX cutover.
 

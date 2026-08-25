@@ -35,7 +35,6 @@ export const UpdateStaffIdentityInputSchema = z.object({
 	jobTitle: z.string().trim().nullable().optional(),
 	specialization: z.string().trim().nullable().optional(),
 	roleCategory: StaffRoleCategorySchema,
-	isActive: z.boolean(),
 });
 
 export type UpdateStaffIdentityInput = z.infer<typeof UpdateStaffIdentityInputSchema>;
