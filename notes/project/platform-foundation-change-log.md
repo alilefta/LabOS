@@ -426,7 +426,7 @@ No new code may write these legacy structures or use `AuthUser.labId`, `LabUser.
 - [x] Idempotent onboarding service.
 - [x] New onboarding flow cut over.
 - [ ] Deterministic production backfill/reconciliation report.
-- [ ] Login and onboarding regression suite.
+- [x] Active-Organization login restoration and routing regression suite.
 
 ### M2 — Tenant-context cutover
 

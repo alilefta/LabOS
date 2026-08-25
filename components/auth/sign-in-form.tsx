@@ -10,7 +10,6 @@ import { SignInUserInput, SignInUserInputSchema } from "@/schema/base/auth.base"
 import { useAction } from "next-safe-action/hooks";
 import { signInAction } from "@/actions/auth";
 import { handleSafeActionError } from "@/lib/safe-action-helpers";
-import { SIGN_IN_CALLBACK_URL } from "@/lib/urls";
 import { InputWithLabel } from "../ui/custom/input-with-label";
 import { CheckboxWithLabel } from "../ui/custom/checkbox-with-label";
 import { PasswordInputWithLabel } from "../ui/custom/password-input-with-label";
@@ -19,6 +18,7 @@ import { Github, LoaderCircle } from "lucide-react";
 
 export function SignInForm({ callbackUrl }: { callbackUrl?: string | null }) {
 	const router = useRouter();
+	const postAuthUrl = `/auth/continue?callbackUrl=${encodeURIComponent(callbackUrl ?? "/dashboard")}`;
 
 	const form = useForm<SignInUserInput>({
 		resolver: zodResolver(SignInUserInputSchema),
@@ -33,8 +33,7 @@ export function SignInForm({ callbackUrl }: { callbackUrl?: string | null }) {
 	const { executeAsync: signIn, isExecuting: isLoggingIn } = useAction(signInAction, {
 		onSuccess: ({ data }) => {
 			if (data) {
-				const { result } = data;
-				if (result.redirect) router.push(callbackUrl ?? result.url ?? SIGN_IN_CALLBACK_URL);
+				router.push(postAuthUrl);
 			}
 		},
 		onError: ({ error }) => {
@@ -71,14 +70,14 @@ export function SignInForm({ callbackUrl }: { callbackUrl?: string | null }) {
 
 	async function SignInWithProvider(provider: "github" | "google") {
 		await authClient.signIn.social(
-			{ provider, callbackURL: callbackUrl ?? '/dashboard' },
+			{ provider, callbackURL: postAuthUrl },
 			{
 				onError(ctx) {
 					toast.error(ctx.error.message);
 				},
 				onSuccess() {
 					toast.success(`Logged in successfully via ${provider === "github" ? "GitHub" : "Google"}`);
-					router.push(callbackUrl ?? "/dashboard");
+					router.push(postAuthUrl);
 				},
 			},
 		);

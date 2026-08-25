@@ -62,6 +62,10 @@ The public request-facing entry point derives AuthUser ID and request headers fr
 
 ### Runtime tenant context
 
+Fresh Better Auth sessions do not necessarily retain `activeOrganizationId`. Authentication therefore continues through `/auth/continue` before entering protected product routes. The provider-neutral post-auth resolver compares the session's active ID with the caller's authoritative Better Auth Organization list. A valid active membership is retained; exactly one membership is selected through Better Auth; zero memberships proceed to onboarding; and multiple memberships require explicit selection at `/select-organization`. Stale IDs are never trusted, and multiple Organizations are never resolved by arbitrary ordering. Invitation callbacks bypass normal selection only long enough to complete Better Auth acceptance, which establishes the membership and active Organization. Provider failures stop on a retryable restoration screen rather than misclassifying the account as new onboarding.
+
+The proxy permits these two authenticated bootstrap routes even when the active-Organization routing hint is empty. Unauthenticated requests are still redirected to sign-in, and protected layouts continue to call `requireTenantContext()` for authoritative membership and Organization-to-Lab validation.
+
 `requireTenantContext()` is the canonical request-scoped resolver. It reads the authenticated session, requires `activeOrganizationId`, and performs one scoped database query that loads the Organization, only the caller's Member row, its optional LabStaff link, and the linked Lab. Its result contains `userId`, `memberId`, `memberRole`, `staffId`, `organizationId`, `labId`, and the minimal Lab identity needed by request consumers. `staffId` is null for members without an operational identity, inactive staff, or any defensive cross-Lab mismatch. It never falls back to `AuthUser.labId` or uses `LabUser` to establish tenancy.
 
 `requireTenantMiddleware` is a thin safe-action adapter that merges this verified context into `ctx`. The previous middleware name remains as a deprecated alias. The subsequent legacy role gate temporarily maps Member roles into fixed `LabRole` values; this compatibility map fails closed to `STAFF` and must be deleted when `requirePermission` becomes authoritative.
@@ -95,7 +99,8 @@ Invitation links use `/invite/[invitationId]`. The public page preserves a safe 
 ## Definition of done
 
 - [ ] Existing Labs and memberships reconcile one-to-one.
-- [ ] One user can access and switch between multiple Organizations.
+- [x] Fresh sessions restore a sole Organization and require explicit selection for multiple Organizations.
+- [ ] In-app Organization switching is available after entering the product.
 - [ ] Switching changes resolved Lab context and tenant-keyed caches.
 - [ ] Cross-tenant and stale-membership tests pass.
 - [ ] Onboarding retries cannot create duplicate Organizations or Labs.
