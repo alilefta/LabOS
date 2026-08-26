@@ -154,6 +154,9 @@ export const LABOS_PERMISSION_DEFINITIONS = Object.freeze([
 
 	organization('membership.list', 'sensitive'),
 	resource('membership.read', ['member'], 'sensitive'),
+	organization('membership.invite', 'critical', [
+		'membership.invitation.role_assignment',
+	]),
 	resource('membership.role.update', ['member'], 'critical', [
 		'membership.non_owner_target',
 		'membership.self_target',
@@ -162,6 +165,7 @@ export const LABOS_PERMISSION_DEFINITIONS = Object.freeze([
 	resource('membership.remove', ['member'], 'critical', [
 		'membership.non_owner_target',
 		'membership.self_target',
+		'membership.unlinked_staff_target',
 	]),
 
 	organization('billing.read', 'sensitive'),

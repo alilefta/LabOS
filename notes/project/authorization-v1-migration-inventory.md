@@ -243,6 +243,23 @@ Generic `membership.remove` and `membership.role.update` deny Owner targets in A
 
 Implementation status (2026-08-24): generic Member non-Owner and explicit self-target policies are implemented. `membership.role.update` additionally requires permission-specific requested-role intent and applies the fixed role-assignment ceiling; every requested Owner role is denied. No ownership or self-departure mutation has been enabled.
 
+Trusted-boundary checkpoint (updated 2026-08-25): new membership operations use a separate non-legacy `M-xxx` family: M-001 `membership.read`, M-002 `membership.role.update`, M-003 `membership.remove`, and M-004 `membership.invite`. M-001/M-002/M-003 project identifier-only Member targets; M-002 additionally projects schema-validated fixed-role intent. M-004 is Organization-scoped and projects only normalized recipient email plus one non-Owner fixed role, never a Staff target, Staff linkage intent, or caller-owned tenant metadata. The authoritative adapter builds its actor only from canonical TenantContext and calls Authorization V1 `require()` with no legacy fallback. M-001 has a tenant-scoped Member-detail loader using the same bounded DTO as N-001. M-002/M-003/M-004 use a server-only dual-authority command service and dedicated V1-enforcing safe-action clients: V1 must allow before the handler, the command service revalidates V1 immediately before Better Auth, and Better Auth independently authorizes and mutates using the same request session plus an explicit Organization ID. Provider identity/Organization output is verified, and telemetry excludes Member/user IDs, emails, requested roles, invitation IDs, headers, payloads, and provider errors. M-004's role ceiling is Owner → Admin/Manager/Staff and Admin → Staff; Manager/Staff are denied and Owner can never be granted. Development alone may return a copyable invitation token while email delivery is unavailable; production returns no token.
+
+Integration checkpoint (2026-08-25): concrete M-002/M-003/M-004 tests exercise the trusted projectors, TenantContext actor adapter, fixed bundles, Organization resolver, tenant-scoped facts, all mandatory policies, command service, and mocked provider boundary together. They cover the complete role-update and Member-only invitation actor/requested-role matrices, the complete Member-only removal actor/target-role matrix, self and Owner denial, Organization A/B isolation and switching, provider denial after V1 allow, and provider short-circuiting after V1 denial. Generic M-003 also requires `membership.unlinked_staff_target`: a Member linked to LabStaff is denied and must use A-125, preventing generic removal from bypassing the stricter Staff-access role ceiling and reconciliation path.
+
+Runtime checkpoint (2026-08-26): the Owner M-004 allow path created a real
+Member-only invitation, acceptance produced no LabStaff link, and the Owner
+M-003 allow path removed that disposable Member. Both commands produced
+sanitized Axiom `started`/`completed` pairs. Removing the active membership
+exposed a stale session Organization loop; tenant failures now enter the
+authoritative post-auth Organization resolver, which clears a stale active ID
+when no memberships remain or restores/selects another valid membership.
+
+Post-revocation runtime confirmation (2026-08-26): a removed recipient with no
+remaining memberships stayed signed in and reached `/onboarding` once after
+refresh. The stale active Organization was cleared and the previous
+dashboard/onboarding redirect loop did not recur.
+
 ### Dependent boundary — A-127 Staff deactivation
 
 `Update-Staff-Identity-Action` is now an identity-only operation. Its schema and UI no longer accept employment status, its mutation never writes `LabStaff.isActive`, and it has no Better Auth or invitation calls. This closes the internal A-125 bypass.
@@ -259,7 +276,7 @@ Audit source: installed `better-auth` **1.6.16** package code and the active Lab
 | BA-002 | `updateOrganization` | Future Organization settings operation | Deny until designed | Future V1 permission **AND** Better Auth |
 | BA-003 | `deleteOrganization` | Destructive operation outside Authorization V1 | Deny | Separate reviewed milestone, impact preview, backup, critical permission, and Better Auth |
 | BA-004 | `setActiveOrganization` | Authenticated tenant selection | Allow through intended UI/API | Better Auth membership validation; subsequent requests use canonical TenantContext |
-| BA-005 | `createInvitation` | Staff access invitation or future generic membership invitation | Deny unwrapped mutation | `staff.access.invite` with Staff target, or a future explicit membership permission, **AND** Better Auth |
+| BA-005 | `createInvitation` | Staff access invitation or generic Member-only invitation | Deny unwrapped mutation | `staff.access.invite` with Staff target, or `membership.invite` with no Staff intent, **AND** Better Auth |
 | BA-006 | `cancelInvitation` | Child operation of invite replacement, revocation, or recipient lifecycle | Deny arbitrary management call | Parent V1 operation **AND** Better Auth; invitee rejection is BA-008 |
 | BA-007 | `acceptInvitation` | Session-only recipient lifecycle | Allow | Better Auth recipient checks; LabOS post-accept integrity hook |
 | BA-008 | `rejectInvitation` | Session-only recipient lifecycle | Allow | Better Auth recipient checks; LabOS cleanup hook |
@@ -283,7 +300,7 @@ Implementation checkpoint (2026-08-25): `platform/auth/organization-http-route-p
 
 Internal-call checkpoint (updated 2026-08-25): the repository contains approved in-process calls for onboarding, tenant selection, invitation acceptance, A-124 invitation create/replacement, and A-125 Member/invitation revocation. A-127 no longer calls Better Auth or mutates employment status, closing its former composite bypass. Standalone Staff deactivation remains unavailable until its separate `staff.deactivate` boundary and mutation-time workload/linkage invariants are implemented.
 
-The approved internal mutation allowlist is guarded by `better-auth-organization-internal-callers.test.ts`. It pins the exact file/method pairs for onboarding (`createOrganization`, `setActiveOrganization`), recipient acceptance, Staff invitation create/cancel, and A-125 Member/invitation revocation. Any new direct call—including generic `addMember`, `updateMemberRole`, `removeMember`, `leaveOrganization`, Organization update/delete, or computed `auth.api[...]` access—fails the architecture test until it is classified and routed through an approved product boundary.
+The approved internal mutation allowlist is guarded by `better-auth-organization-internal-callers.test.ts`. It pins the exact file/method pairs for onboarding (`createOrganization`, `setActiveOrganization`), recipient acceptance, Staff invitation create/cancel, A-125 Member/invitation revocation, and the M-002/M-003 dual-authority gateway. Any new direct call—including `addMember`, `leaveOrganization`, Organization update/delete, an unwrapped role/removal call, or computed `auth.api[...]` access—fails the architecture test until it is classified and routed through an approved product boundary.
 
 ### Better Auth Organization read and lifecycle HTTP surface
 
@@ -306,6 +323,8 @@ Current `managerOrganizationRole` grants Member create/update/delete and Invitat
 - Staff retains only the minimum Better Auth membership/read capabilities required by the product.
 - Tests cover every V1 role against every Better Auth Organization mutation used by LabOS.
 - `AuthorizationService allow / Better Auth deny` and `AuthorizationService deny / Better Auth allow` are separately observable.
+
+Compatibility checkpoint (2026-08-25): the active shadow profile is now tested separately from an exported enforcement profile. The enforcement profile proves Owner/Admin retain invitation-create and Member update/delete, while Manager/Staff have none of those provider mutations. The runtime profile intentionally retains Manager capabilities until A-124/A-125 leave legacy-authoritative shadow mode; switching profiles earlier would break legitimate shadow requests before V1 becomes the enforcing authority.
 
 ## Per-boundary review template
 

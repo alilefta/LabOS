@@ -3,8 +3,14 @@ import 'server-only'
 import { generalPrisma } from '@/lib/prisma'
 import type { TenantContext } from '@/platform/organizations'
 
-import type { OrganizationMemberDirectoryPageDTO } from './member-directory.dto'
-import { mapOrganizationMemberDirectoryPage } from './member-directory.mapper'
+import type {
+	OrganizationMemberDirectoryItemDTO,
+	OrganizationMemberDirectoryPageDTO,
+} from './member-directory.dto'
+import {
+	mapOrganizationMemberDirectoryItem,
+	mapOrganizationMemberDirectoryPage,
+} from './member-directory.mapper'
 
 export const ORGANIZATION_MEMBER_DIRECTORY_DEFAULT_PAGE_SIZE = 25
 export const ORGANIZATION_MEMBER_DIRECTORY_MAX_PAGE_SIZE = 100
@@ -59,14 +65,26 @@ export interface OrganizationMemberDirectoryRepository {
 	): Promise<OrganizationMemberDirectoryPageDTO>
 }
 
-function normalizeListInput(input: ListOrganizationMembersInput) {
-	const organizationId = input.tenant.organizationId.trim()
-	const labId = input.tenant.labId.trim()
+export interface OrganizationMemberDetailRepository {
+	findById(input: {
+		tenant: OrganizationMemberDirectoryTenant
+		memberId: string
+	}): Promise<OrganizationMemberDirectoryItemDTO | null>
+}
+
+function normalizeTenant(tenant: OrganizationMemberDirectoryTenant) {
+	const organizationId = tenant.organizationId.trim()
+	const labId = tenant.labId.trim()
 	if (!organizationId || !labId) {
 		throw new MemberDirectoryRepositoryError(
 			MEMBER_DIRECTORY_ERROR_CODES.INVALID_TENANT,
 		)
 	}
+	return { organizationId, labId }
+}
+
+function normalizeListInput(input: ListOrganizationMembersInput) {
+	const { organizationId, labId } = normalizeTenant(input.tenant)
 
 	const offset = input.offset ?? 0
 	const pageSize =
@@ -95,7 +113,8 @@ function normalizeListInput(input: ListOrganizationMembersInput) {
  * and the optional LabStaff.labId link. The limit+1 query reports whether a
  * next page exists without an additional count query.
  */
-export const prismaOrganizationMemberDirectoryRepository: OrganizationMemberDirectoryRepository =
+export const prismaOrganizationMemberDirectoryRepository: OrganizationMemberDirectoryRepository &
+	OrganizationMemberDetailRepository =
 	{
 		async listPage(input) {
 			const { organizationId, labId, offset, pageSize } =
@@ -124,5 +143,33 @@ export const prismaOrganizationMemberDirectoryRepository: OrganizationMemberDire
 				pageSize,
 				offset,
 			})
+		},
+
+		async findById(input) {
+			const { organizationId, labId } = normalizeTenant(input.tenant)
+			const memberId = input.memberId.trim()
+			if (!memberId) {
+				throw new MemberDirectoryRepositoryError(
+					MEMBER_DIRECTORY_ERROR_CODES.INVALID_TENANT,
+				)
+			}
+
+			const record = await generalPrisma.member.findFirst({
+				where: { id: memberId, organizationId },
+				select: {
+					id: true,
+					role: true,
+					createdAt: true,
+					authuser: {
+						select: ORGANIZATION_MEMBER_DIRECTORY_ACCOUNT_SELECT,
+					},
+					labStaff: {
+						where: { labId },
+						select: ORGANIZATION_MEMBER_DIRECTORY_STAFF_SELECT,
+					},
+				},
+			})
+
+			return record ? mapOrganizationMemberDirectoryItem(record) : null
 		},
 	}

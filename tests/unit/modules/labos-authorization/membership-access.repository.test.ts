@@ -92,6 +92,7 @@ describe('Prisma membership authorization repository', () => {
 			organizationId: 'organization-1',
 			userId: 'user-2',
 			role: 'staff',
+			labStaff: null,
 		})
 
 		await expect(
@@ -104,6 +105,7 @@ describe('Prisma membership authorization repository', () => {
 			organizationId: 'organization-1',
 			userId: 'user-2',
 			role: 'staff',
+			staffId: null,
 		})
 		expect(prisma.member.findFirst).toHaveBeenCalledWith({
 			where: { id: 'member-2', organizationId: 'organization-1' },

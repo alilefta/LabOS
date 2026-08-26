@@ -1,4 +1,7 @@
 import { loadN001TeamDirectory } from '@/modules/labos-membership/member-directory.loader'
+import { normalizeRoles } from '@/platform/authorization'
+import { requireTenantContext } from '@/platform/organizations'
+import { LABOS_ORGANIZATION_ROLES } from '@/modules/labos-authorization/roles'
 
 import { TeamDirectoryView } from './team-directory-view'
 
@@ -7,7 +10,19 @@ import { TeamDirectoryView } from './team-directory-view'
  * and scoped persistence access are owned by the loader, not this route.
  */
 export default async function TeamSettingsPage() {
-	const directory = await loadN001TeamDirectory()
+	const [directory, tenant] = await Promise.all([
+		loadN001TeamDirectory(),
+		requireTenantContext(),
+	])
+	const viewerRoles = normalizeRoles(
+		tenant.memberRole.split(','),
+		LABOS_ORGANIZATION_ROLES,
+	).roles
 
-	return <TeamDirectoryView directory={directory} />
+	return (
+		<TeamDirectoryView
+			directory={directory}
+			viewer={{ memberId: tenant.memberId, roles: viewerRoles }}
+		/>
+	)
 }

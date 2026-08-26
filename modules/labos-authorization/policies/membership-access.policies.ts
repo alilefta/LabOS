@@ -30,7 +30,9 @@ type MembershipAccessPolicyId = Extract<
 	| 'staff.access.linkage'
 	| 'membership.non_owner_target'
 	| 'membership.self_target'
+	| 'membership.unlinked_staff_target'
 	| 'membership.role_assignment'
+	| 'membership.invitation.role_assignment'
 >
 
 type LabOSPolicy = AuthorizationPolicy<
@@ -316,6 +318,22 @@ export function createMembershipAccessPolicies({
 			},
 		},
 
+		'membership.unlinked_staff_target': {
+			async evaluate(context) {
+				if (context.permission !== 'membership.remove') return FACT_MISSING
+				const facts = await loadMemberFacts(
+					context,
+					membershipAdministrationFacts,
+				)
+				if (!facts) return FACT_MISSING
+
+				// A linked operational Staff identity must use A-125 so its stricter
+				// Staff target-role ceiling and unlink/reconciliation path cannot be
+				// bypassed through generic Member administration.
+				return facts.staffId ? DENY : ALLOW
+			},
+		},
+
 		'membership.role_assignment': {
 			async evaluate(context): Promise<AuthorizationPolicyResult> {
 				if (
@@ -327,6 +345,28 @@ export function createMembershipAccessPolicies({
 				}
 
 				const requestedRoles = parseRoles(context.operation.requestedRoles)
+				if (!requestedRoles) return FACT_MISSING
+				if (requestedRoles.includes('owner')) return OWNER_INVARIANT
+				return canTargetRoles(context.actor.memberRoles, requestedRoles)
+					? ALLOW
+					: DENY
+			},
+		},
+
+		'membership.invitation.role_assignment': {
+			evaluate(context): AuthorizationPolicyResult {
+				if (
+					context.permission !== 'membership.invite' ||
+					!context.operation ||
+					context.operation.kind !== 'membership.invite' ||
+					!normalizeEmail(context.operation.recipientEmail)
+				) {
+					return FACT_MISSING
+				}
+
+				const requestedRoles = parseRoles([
+					context.operation.requestedRole,
+				])
 				if (!requestedRoles) return FACT_MISSING
 				if (requestedRoles.includes('owner')) return OWNER_INVARIANT
 				return canTargetRoles(context.actor.memberRoles, requestedRoles)

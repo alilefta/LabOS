@@ -79,6 +79,18 @@ describe('post-authentication Organization resolution', () => {
 		expect(adapter.setActiveOrganization).not.toHaveBeenCalled()
 	})
 
+	it('clears a revoked stale active Organization before onboarding', async () => {
+		const adapter = gateway({
+			activeOrganizationId: 'revoked-organization',
+			organizations: [],
+		})
+
+		await expect(resolvePostAuthOrganization(adapter)).resolves.toEqual({
+			status: 'onboarding_required',
+		})
+		expect(adapter.setActiveOrganization).toHaveBeenCalledWith(null)
+	})
+
 	it('requires explicit selection for multiple Organizations', async () => {
 		const adapter = gateway({
 			organizations: [

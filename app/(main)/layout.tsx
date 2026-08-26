@@ -5,8 +5,9 @@ import { NuqsAdapter } from 'nuqs/adapters/next/app'
 import { DashboardClientShell } from '@/components/dashboard/dashboard-client-shell'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import {
+	isTenantContextError,
 	requireTenantContext,
-	TenantContextError,
+	TENANT_CONTEXT_ERROR_CODES,
 	toLegacyLabRole,
 } from '@/platform/organizations'
 import { PermissionsProvider } from '@/providers/permissions-provider'
@@ -26,7 +27,17 @@ export default async function MainLayout({ children }: MainLayoutProps) {
 	try {
 		tenant = await requireTenantContext()
 	} catch (error) {
-		if (error instanceof TenantContextError) redirect('/onboarding')
+		if (isTenantContextError(error)) {
+			if (error.code === TENANT_CONTEXT_ERROR_CODES.UNAUTHENTICATED) {
+				redirect('/sign-in')
+			}
+			if (error.code === TENANT_CONTEXT_ERROR_CODES.LAB_NOT_LINKED) {
+				redirect('/onboarding')
+			}
+			// Missing/stale active Organization and revoked membership are repaired
+			// through the authoritative provider list rather than guessed locally.
+			redirect('/auth/continue?callbackUrl=%2Fdashboard')
+		}
 		throw error
 	}
 

@@ -62,6 +62,7 @@ describe('LabOS authorization service composition', () => {
 			'staff.access.revoke',
 			'membership.list',
 			'membership.read',
+			'membership.invite',
 			'membership.role.update',
 			'membership.remove',
 		])

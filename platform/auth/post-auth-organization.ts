@@ -9,7 +9,7 @@ export type PostAuthOrganization = Readonly<{
 export interface PostAuthOrganizationGateway {
 	getActiveOrganizationId(): Promise<string | null>
 	listOrganizations(): Promise<readonly PostAuthOrganization[]>
-	setActiveOrganization(organizationId: string): Promise<void>
+	setActiveOrganization(organizationId: string | null): Promise<void>
 }
 
 export type PostAuthOrganizationResolution =
@@ -52,6 +52,12 @@ export async function resolvePostAuthOrganization(
 	}
 
 	if (immutableOrganizations.length === 0) {
+		// Membership revocation can leave Better Auth's session pointing at an
+		// Organization the user no longer belongs to. Clear that stale candidate
+		// before onboarding so route guards do not classify the account as ready.
+		if (activeOrganizationId) {
+			await gateway.setActiveOrganization(null)
+		}
 		return Object.freeze({ status: 'onboarding_required' })
 	}
 

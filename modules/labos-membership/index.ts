@@ -15,6 +15,7 @@ export {
 } from './member-directory.repository'
 export type {
 	ListOrganizationMembersInput,
+	OrganizationMemberDetailRepository,
 	OrganizationMemberDirectoryRepository,
 	OrganizationMemberDirectoryTenant,
 } from './member-directory.repository'
@@ -28,3 +29,35 @@ export type {
 	LoadN001TeamDirectoryInput,
 	N001TeamDirectoryLoaderDependencies,
 } from './member-directory.loader'
+export {
+	createOrganizationMemberDetailLoader,
+	loadOrganizationMemberDetail,
+} from './member-detail.loader'
+export type { LoadOrganizationMemberDetailDependencies } from './member-detail.loader'
+export {
+	createMembershipAdministrationService,
+	membershipAdministrationService,
+} from './membership-administration.service'
+export type {
+	MembershipAdministrationCommandContext,
+	MembershipAdministrationServiceDependencies,
+} from './membership-administration.service'
+export {
+	createAxiomMembershipAdministrationTelemetrySink,
+	createStructuredMembershipAdministrationMonitor,
+	structuredMembershipAdministrationMonitor,
+} from './membership-administration.telemetry'
+export type {
+	MembershipAdministrationAxiomClient,
+	MembershipAdministrationMonitor,
+	MembershipAdministrationMonitorEvent,
+	MembershipAdministrationTelemetrySink,
+	StructuredMembershipAdministrationRecord,
+} from './membership-administration.telemetry'
+export {
+	betterAuthMembershipAdministrationGateway,
+} from './membership-administration.gateway'
+export type {
+	MembershipAdministrationGateway,
+	MembershipProviderTarget,
+} from './membership-administration.gateway'

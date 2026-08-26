@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 const prisma = vi.hoisted(() => ({
-	member: { findMany: vi.fn() },
+	member: { findMany: vi.fn(), findFirst: vi.fn() },
 }))
 
 vi.mock('@/lib/prisma', () => ({ generalPrisma: prisma }))
@@ -18,6 +18,7 @@ describe('Prisma Organization Member directory repository', () => {
 	beforeEach(() => {
 		vi.clearAllMocks()
 		prisma.member.findMany.mockResolvedValue([])
+		prisma.member.findFirst.mockResolvedValue(null)
 	})
 
 	it('anchors Member and optional Staff reads to the canonical tenant', async () => {
@@ -159,6 +160,48 @@ describe('Prisma Organization Member directory repository', () => {
 
 		expect(prisma.member.findMany).toHaveBeenCalledTimes(1)
 		expect(Object.keys(prisma)).toEqual(['member'])
+	})
+
+	it('scopes Member detail and optional Staff identity to the active tenant', async () => {
+		await prismaOrganizationMemberDirectoryRepository.findById({
+			tenant: { organizationId: 'organization-a', labId: 'lab-a' },
+			memberId: 'member-a',
+		})
+
+		expect(prisma.member.findFirst).toHaveBeenCalledWith({
+			where: { id: 'member-a', organizationId: 'organization-a' },
+			select: {
+				id: true,
+				role: true,
+				createdAt: true,
+				authuser: {
+					select: ORGANIZATION_MEMBER_DIRECTORY_ACCOUNT_SELECT,
+				},
+				labStaff: {
+					where: { labId: 'lab-a' },
+					select: ORGANIZATION_MEMBER_DIRECTORY_STAFF_SELECT,
+				},
+			},
+		})
+	})
+
+	it('does not return a foreign Organization Member from detail lookup', async () => {
+		prisma.member.findFirst.mockResolvedValue(null)
+
+		await expect(
+			prismaOrganizationMemberDirectoryRepository.findById({
+				tenant: { organizationId: 'organization-a', labId: 'lab-a' },
+				memberId: 'member-from-organization-b',
+			}),
+		).resolves.toBeNull()
+		expect(prisma.member.findFirst).toHaveBeenCalledWith(
+			expect.objectContaining({
+				where: {
+					id: 'member-from-organization-b',
+					organizationId: 'organization-a',
+				},
+			}),
+		)
 	})
 
 	it.each([

@@ -24,6 +24,9 @@ const EXPECTED_CALLERS = [
 	'lib/staff-access-revocation/staff-access-revocation.service.ts:removeMember',
 	'lib/staff-invitation/staff-invitation.gateway.ts:cancelInvitation',
 	'lib/staff-invitation/staff-invitation.gateway.ts:createInvitation',
+	'modules/labos-membership/membership-administration.gateway.ts:createInvitation',
+	'modules/labos-membership/membership-administration.gateway.ts:removeMember',
+	'modules/labos-membership/membership-administration.gateway.ts:updateMemberRole',
 	'platform/organizations/onboarding/organization-onboarding.gateway.ts:createOrganization',
 	'platform/organizations/onboarding/organization-onboarding.gateway.ts:setActiveOrganization',
 ] as const

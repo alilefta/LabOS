@@ -41,6 +41,7 @@ export const LABOS_AUTHORIZATION_V1_SUPPORTED_PERMISSIONS = Object.freeze([
 	'staff.access.revoke',
 	'membership.list',
 	'membership.read',
+	'membership.invite',
 	'membership.role.update',
 	'membership.remove',
 ] as const satisfies readonly LabOSPermission[])

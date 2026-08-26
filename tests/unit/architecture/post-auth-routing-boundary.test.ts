@@ -12,6 +12,28 @@ describe('post-authentication tenant restoration routing', () => {
 
 		expect(source).toContain('/auth/continue?callbackUrl=')
 		expect(source).toContain('callbackURL: postAuthUrl')
+		expect(source).toContain('window.location.assign(postAuthUrl)')
+	})
+
+	it('preserves invitation callbacks when switching between auth forms', () => {
+		const signUpSource = readFileSync(
+			join(process.cwd(), 'components', 'auth', 'sign-up-form.tsx'),
+			'utf8',
+		)
+		const signInSource = readFileSync(
+			join(process.cwd(), 'components', 'auth', 'sign-in-form.tsx'),
+			'utf8',
+		)
+
+		expect(signUpSource).toContain(
+			'`/sign-in?callbackUrl=${encodeURIComponent(callbackUrl)}`',
+		)
+		expect(signInSource).toContain(
+			'`/sign-up?callbackUrl=${encodeURIComponent(callbackUrl)}`',
+		)
+		expect(signUpSource).toContain(
+			'window.location.assign(callbackUrl ?? SIGN_UP_CALLBACK_URL)',
+		)
 	})
 
 	it('allows only authenticated tenant-bootstrap routes past the onboarding hint', () => {
@@ -36,8 +58,20 @@ describe('post-authentication tenant restoration routing', () => {
 		)
 
 		expect(source).toContain("callbackUrl.startsWith('/invite/')")
+		expect(source).toContain('window.location.replace(callbackUrl)')
 		expect(source.indexOf("callbackUrl.startsWith('/invite/')")).toBeLessThan(
 			source.indexOf('resolvePostAuthOrganization('),
 		)
+	})
+
+	it('repairs revoked active membership before entering onboarding', () => {
+		const source = readFileSync(
+			join(process.cwd(), 'app', '(main)', 'layout.tsx'),
+			'utf8',
+		)
+
+		expect(source).toContain('isTenantContextError(error)')
+		expect(source).toContain("TENANT_CONTEXT_ERROR_CODES.UNAUTHENTICATED")
+		expect(source).toContain("'/auth/continue?callbackUrl=%2Fdashboard'")
 	})
 })

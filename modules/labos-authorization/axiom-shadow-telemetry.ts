@@ -47,7 +47,7 @@ export function createAxiomLabOSShadowTelemetrySink(options: {
 	const schedule = options.schedule ?? scheduleAfterResponse
 
 	return Object.freeze({
-		write(record) {
+		write(record: LabOSStructuredShadowTelemetryRecord) {
 			const delivery = options.client
 				.ingest(dataset, record)
 				.then(() => undefined)

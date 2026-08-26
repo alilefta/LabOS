@@ -34,7 +34,7 @@ export type OrganizationMemberDirectoryRecord = Readonly<{
 	}> | null
 }>
 
-function mapMember(
+export function mapOrganizationMemberDirectoryItem(
 	record: OrganizationMemberDirectoryRecord,
 ): OrganizationMemberDirectoryItemDTO {
 	const normalized = normalizeRoles<LabOSOrganizationRole>(
@@ -83,7 +83,9 @@ export function mapOrganizationMemberDirectoryPage(input: {
 		: input.records
 
 	return Object.freeze({
-		items: Object.freeze(pageRecords.map(mapMember)),
+		items: Object.freeze(
+			pageRecords.map(mapOrganizationMemberDirectoryItem),
+		),
 		nextOffset: hasMore ? input.offset + input.pageSize : null,
 	})
 }

@@ -18,9 +18,11 @@ export function PostAuthContinuation({ callbackUrl }: { callbackUrl: string }) {
 		async function continueAuthentication() {
 			try {
 				// Invitation acceptance establishes membership and active tenancy, so
-				// it must run before normal workspace resolution.
+				// it must run before normal workspace resolution. Use a document-level
+				// replacement so the invitation lookup sees the fresh authentication
+				// cookie and cannot reuse the anonymous invitation render.
 				if (callbackUrl.startsWith('/invite/')) {
-					router.replace(callbackUrl)
+					window.location.replace(callbackUrl)
 					return
 				}
 

@@ -35,6 +35,7 @@ const ORGANIZATION_SCOPED_PERMISSIONS = new Set([
 	'lab.settings.read',
 	'lab.settings.update',
 	'membership.list',
+	'membership.invite',
 	'billing.read',
 	'billing.manage',
 ])
@@ -139,6 +140,13 @@ describe('LabOS permission-definition catalog', () => {
 			})
 			expect(definition?.requiredPolicies.length).toBeGreaterThan(0)
 		}
+		const invitation =
+			LABOS_PERMISSION_DEFINITION_REGISTRY.get('membership.invite')
+		expect(invitation).toMatchObject({
+			scope: 'organization',
+			sensitivity: 'critical',
+			requiredPolicies: ['membership.invitation.role_assignment'],
+		})
 	})
 
 	it('encodes Staff-access and membership safeguards in trusted metadata', () => {

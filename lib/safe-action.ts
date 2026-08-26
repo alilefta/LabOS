@@ -34,6 +34,19 @@ import {
 	RevokeStaffSystemAccessInputSchema,
 } from '@/schema/composed/team/staff-settings.schema'
 import { CreateLabStaffInputSchema } from '@/schema/composed/team/staff.schema'
+import {
+	InviteOrganizationMemberInputSchema,
+	MembershipTargetInputSchema,
+	UpdateMembershipRoleInputSchema,
+} from '@/schema/composed/team/membership-administration.schema'
+import {
+	LABOS_MEMBERSHIP_OPERATION_BOUNDARY_IDS,
+	LABOS_MEMBERSHIP_OPERATION_BOUNDARY_ERROR_CODES,
+	LabOSMembershipOperationBoundaryError,
+	type LabOSMembershipOperationBoundaryId,
+} from '@/modules/labos-authorization/membership-operation-boundaries'
+import { authorizeLabOSMembershipOperation } from '@/modules/labos-authorization/membership-operation-authorization'
+import { AuthorizationError } from '@/platform/authorization'
 
 // ----------------------------------------
 // Base Client - For Auth only
@@ -356,6 +369,9 @@ const authorizationShadowScopedClient = createSafeActionClient({
 	},
 	handleServerError(e) {
 		if (e instanceof ActionError) return toPayload(e)
+		if (e instanceof AuthorizationError) {
+			return toPayload(ERRORS.MISSING_PERMISSIONS)
+		}
 		if (e instanceof Prisma.PrismaClientKnownRequestError) {
 			if (e.code === 'P2002') return toPayload(ERRORS.DUPLICATE_ENTRY)
 			if (e.code === 'P2025' || e.code === 'P2003') return toPayload(ERRORS.NOT_FOUND)
@@ -484,4 +500,151 @@ export function actionClientWithAuthorizationShadow(
 		failureReason: error.code,
 	})
 	throw error
+}
+
+// ----------------------------------------
+// Authorization V1 enforcing membership client
+// ----------------------------------------
+
+type MembershipAuthorizationMetadata = {
+	actionName: string
+	requiredLabRole: null
+	authorizationBoundaryId: LabOSMembershipOperationBoundaryId
+}
+
+const membershipAuthorizationScopedClient = createSafeActionClient({
+	defineMetadataSchema() {
+		return z.object({
+			actionName: z.string(),
+			requiredLabRole: z.null(),
+			authorizationBoundaryId: z.enum(
+				LABOS_MEMBERSHIP_OPERATION_BOUNDARY_IDS,
+			),
+		})
+	},
+	handleServerError(e) {
+		if (e instanceof ActionError) return toPayload(e)
+		if (e instanceof AuthorizationError) {
+			return toPayload(ERRORS.MISSING_PERMISSIONS)
+		}
+		if (e instanceof Prisma.PrismaClientKnownRequestError) {
+			if (e.code === 'P2025' || e.code === 'P2003') {
+				return toPayload(ERRORS.NOT_FOUND)
+			}
+			return toPayload(ERRORS.DATABASE_ERROR)
+		}
+		return fallbackPayload()
+	},
+})
+
+const membershipAuthorizationLoggingMiddleware = createMiddleware<{
+	metadata: MembershipAuthorizationMetadata
+}>().define(async ({ next, metadata }) => {
+	const startedAt = performance.now()
+	try {
+		return await next()
+	} catch (error) {
+		console.warn('Membership authorization action failed', {
+			action: metadata.actionName,
+			boundaryId: metadata.authorizationBoundaryId,
+			durationMs: Math.round(performance.now() - startedAt),
+		})
+		throw error
+	}
+})
+
+const buildMembershipCorrelationMiddleware = createMiddleware<{
+	metadata: MembershipAuthorizationMetadata
+}>().define(async ({ next, ctx }) =>
+	next({
+		ctx: {
+			...ctx,
+			membershipAuthorizationCorrelationId: crypto.randomUUID(),
+		},
+	}),
+)
+
+const membershipAuthorizationValidatedMiddleware = createValidatedMiddleware<{
+	metadata: MembershipAuthorizationMetadata
+	parsedInput: unknown
+	ctx: {
+		userId: string
+		memberId: string
+		memberRole: string
+		staffId: string | null
+		organizationId: string
+		labId: string
+		lab: { id: string; title: string; slug: string | null }
+		membershipAuthorizationCorrelationId: string
+	}
+}>().define(async ({ next, ctx, metadata, parsedInput }) => {
+	await authorizeLabOSMembershipOperation({
+		boundaryId: metadata.authorizationBoundaryId,
+		parsedInput,
+		tenant: ctx,
+		correlationId: ctx.membershipAuthorizationCorrelationId,
+	})
+
+	return next({ ctx })
+})
+
+const membershipAuthorizationBaseClient = membershipAuthorizationScopedClient
+	.use(membershipAuthorizationLoggingMiddleware)
+	.use(requireUserMiddleware)
+	.use(requireTenantMiddleware)
+	.use(buildMembershipCorrelationMiddleware)
+
+const MEMBERSHIP_AUTHORIZATION_ACTION_CLIENTS = Object.freeze({
+	'M-004': membershipAuthorizationBaseClient
+		.metadata({
+			actionName: 'Invite-Organization-Member',
+			requiredLabRole: null,
+			authorizationBoundaryId: 'M-004',
+		})
+		.inputSchema(InviteOrganizationMemberInputSchema)
+		.useValidated(membershipAuthorizationValidatedMiddleware),
+	'M-002': membershipAuthorizationBaseClient
+		.metadata({
+			actionName: 'Update-Organization-Member-Role',
+			requiredLabRole: null,
+			authorizationBoundaryId: 'M-002',
+		})
+		.inputSchema(UpdateMembershipRoleInputSchema)
+		.useValidated(membershipAuthorizationValidatedMiddleware),
+	'M-003': membershipAuthorizationBaseClient
+		.metadata({
+			actionName: 'Remove-Organization-Member',
+			requiredLabRole: null,
+			authorizationBoundaryId: 'M-003',
+		})
+		.inputSchema(MembershipTargetInputSchema)
+		.useValidated(membershipAuthorizationValidatedMiddleware),
+})
+
+/**
+ * Selects a V1-enforcing membership client. These new commands have no legacy
+ * fallback: missing boundaries, projection failures, and authorization denials
+ * stop before the action handler and before Better Auth is invoked.
+ */
+export function actionClientWithMembershipAuthorization(
+	boundaryId: 'M-004',
+): (typeof MEMBERSHIP_AUTHORIZATION_ACTION_CLIENTS)['M-004']
+export function actionClientWithMembershipAuthorization(
+	boundaryId: 'M-002',
+): (typeof MEMBERSHIP_AUTHORIZATION_ACTION_CLIENTS)['M-002']
+export function actionClientWithMembershipAuthorization(
+	boundaryId: 'M-003',
+): (typeof MEMBERSHIP_AUTHORIZATION_ACTION_CLIENTS)['M-003']
+export function actionClientWithMembershipAuthorization(
+	boundaryId: 'M-002' | 'M-003' | 'M-004',
+) {
+	const client = (
+		MEMBERSHIP_AUTHORIZATION_ACTION_CLIENTS as Partial<
+			Record<LabOSMembershipOperationBoundaryId, unknown>
+		>
+	)[boundaryId]
+	if (client) return client
+	throw new LabOSMembershipOperationBoundaryError(
+		LABOS_MEMBERSHIP_OPERATION_BOUNDARY_ERROR_CODES.BOUNDARY_NOT_REGISTERED,
+	)
 }

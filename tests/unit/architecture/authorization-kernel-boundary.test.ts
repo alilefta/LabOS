@@ -28,16 +28,18 @@ describe('authorization kernel architecture boundary', () => {
 		expect(violations).toEqual([])
 	})
 
-	it('has no application consumers before the adapter rollout', () => {
+	it('allows only the reviewed application adapter to import the kernel', () => {
 		const applicationRoots = ['actions', 'app', 'components', 'data', 'lib']
 		const consumers = applicationRoots.flatMap((directory) =>
 			sourceFiles(join(process.cwd(), directory))
 				.filter((file) =>
 					readFileSync(file, 'utf8').includes('@/platform/authorization'),
 				)
-				.map((file) => relative(process.cwd(), file)),
+				.map((file) =>
+					relative(process.cwd(), file).replaceAll('\\', '/'),
+				),
 		)
 
-		expect(consumers).toEqual([])
+		expect(consumers).toEqual(['lib/safe-action.ts'])
 	})
 })

@@ -87,6 +87,7 @@ function membershipFacts(
 		organizationId: ORGANIZATION_ID,
 		userId: 'target-user',
 		role,
+		staffId: null,
 		...overrides,
 	}
 }
@@ -151,6 +152,23 @@ function membershipRemoveContext(actorRole: LabOSOrganizationRole) {
 		actor: actor(actorRole),
 		permission: 'membership.remove' as const,
 		target: { type: 'member' as const, id: TARGET_MEMBER_ID },
+		facts: createAuthorizationFactCache(),
+	}
+}
+
+function membershipInviteContext(
+	actorRole: LabOSOrganizationRole,
+	requestedRole: Exclude<LabOSOrganizationRole, 'owner'>,
+	email = 'member@example.test',
+) {
+	return {
+		actor: actor(actorRole),
+		permission: 'membership.invite' as const,
+		operation: {
+			kind: 'membership.invite' as const,
+			requestedRole,
+			recipientEmail: email,
+		},
 		facts: createAuthorizationFactCache(),
 	}
 }
@@ -352,6 +370,49 @@ describe('Staff-access policies', () => {
 })
 
 describe('Member administration policies', () => {
+	it('enforces the approved generic invitation role ceiling', async () => {
+		const { policies } = createHarness()
+		const roles: readonly LabOSOrganizationRole[] = [
+			'owner',
+			'admin',
+			'manager',
+			'staff',
+		]
+		const requestedRoles = ['admin', 'manager', 'staff'] as const
+		const allowed = new Set([
+			'owner:admin',
+			'owner:manager',
+			'owner:staff',
+			'admin:staff',
+		])
+
+		for (const actorRole of roles) {
+			for (const requestedRole of requestedRoles) {
+				const result = await policies[
+					'membership.invitation.role_assignment'
+				].evaluate(membershipInviteContext(actorRole, requestedRole))
+				expect(result.allowed, `${actorRole} -> ${requestedRole}`).toBe(
+					allowed.has(`${actorRole}:${requestedRole}`),
+				)
+			}
+		}
+	})
+
+	it('fails closed for malformed generic invitation intent', async () => {
+		const { policies } = createHarness()
+		const result = await policies[
+			'membership.invitation.role_assignment'
+		].evaluate({
+				...membershipInviteContext('owner', 'staff'),
+				operation: {
+					kind: 'membership.invite',
+					requestedRole: 'staff',
+					recipientEmail: 'invalid',
+				},
+			})
+		expect(result).toMatchObject({ reason: 'AUTHZ_POLICY_FACT_MISSING' })
+	})
+
 	it('denies every Owner target and malformed target role', async () => {
 		const { policies, membershipAdministrationFacts } = createHarness()
 		membershipAdministrationFacts.load.mockResolvedValueOnce(
@@ -383,6 +444,28 @@ describe('Member administration policies', () => {
 				membershipRemoveContext('owner'),
 			),
 		).resolves.toMatchObject({ allowed: false })
+	})
+
+	it('requires linked Staff access removal to use A-125', async () => {
+		const { policies, membershipAdministrationFacts } = createHarness()
+		membershipAdministrationFacts.load.mockResolvedValueOnce(
+			membershipFacts('staff', { staffId: 'staff-2' }),
+		)
+
+		await expect(
+			policies['membership.unlinked_staff_target'].evaluate(
+				membershipRemoveContext('owner'),
+			),
+		).resolves.toMatchObject({ allowed: false })
+
+		membershipAdministrationFacts.load.mockResolvedValueOnce(
+			membershipFacts('staff'),
+		)
+		await expect(
+			policies['membership.unlinked_staff_target'].evaluate(
+				membershipRemoveContext('owner'),
+			),
+		).resolves.toEqual({ allowed: true })
 	})
 
 	it('enforces the requested-role ceiling and absolute Owner prohibition', async () => {

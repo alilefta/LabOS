@@ -1,13 +1,16 @@
-import { ShieldCheck, UserPlus, Users } from 'lucide-react'
+import { ShieldCheck, Users } from 'lucide-react'
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import type { LabOSOrganizationRole } from '@/modules/labos-authorization/roles'
 import type {
 	OrganizationMemberDirectoryItemDTO,
 	OrganizationMemberDirectoryPageDTO,
 } from '@/modules/labos-membership/member-directory.dto'
+import type { MembershipAdministrationViewer } from '@/modules/labos-membership/membership-administration.ui-policy'
+
+import { TeamMemberAdministrationControls } from './team-member-administration-controls'
+import { TeamMemberInvitationControl } from './team-member-invitation-control'
 
 const ROLE_PRESENTATION = Object.freeze({
 	owner: {
@@ -66,8 +69,10 @@ function StaffIdentity({
 /** Read-only presentation for the safe Member-directory DTO. */
 export function TeamDirectoryView({
 	directory,
+	viewer,
 }: {
 	directory: OrganizationMemberDirectoryPageDTO
+	viewer: MembershipAdministrationViewer
 }) {
 	const visibleCount = directory.items.length
 
@@ -82,14 +87,7 @@ export function TeamDirectoryView({
 						Organization members with access to this workspace.
 					</p>
 				</div>
-				<Button
-					disabled
-					title="Invitation management will be enabled with its authorized operation"
-					className="h-10 rounded-xl px-4 font-semibold shadow-premium"
-				>
-					<UserPlus className="mr-2 size-4" />
-					Invite Member
-				</Button>
+				<TeamMemberInvitationControl viewer={viewer} />
 			</div>
 
 			<div className="lab-card flex flex-col overflow-hidden">
@@ -121,7 +119,7 @@ export function TeamDirectoryView({
 						<table className="w-full border-collapse whitespace-nowrap text-left">
 							<thead>
 								<tr className="border-b border-border/50">
-									{['Member', 'Organization role', 'Access'].map((heading) => (
+									{['Member', 'Organization role', 'Access', 'Administration'].map((heading) => (
 										<th
 											key={heading}
 											className="px-8 py-4 text-xs font-bold uppercase tracking-wider text-muted-foreground"
@@ -192,6 +190,13 @@ export function TeamDirectoryView({
 													? 'Email verified'
 													: 'Email verification pending'}
 											</span>
+										</td>
+										<td className="px-8 py-4">
+											<TeamMemberAdministrationControls
+												key={`${member.memberId}:${member.roles.join(',')}`}
+												member={member}
+												viewer={viewer}
+											/>
 										</td>
 									</tr>
 								))}

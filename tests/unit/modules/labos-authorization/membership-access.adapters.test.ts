@@ -131,6 +131,7 @@ describe('LabOS membership policy fact loaders', () => {
 			organizationId: 'organization-1',
 			userId: 'user-2',
 			role: 'staff',
+			staffId: null,
 		} as const
 		const repository = {
 			findStaffAccessFacts: vi.fn(),

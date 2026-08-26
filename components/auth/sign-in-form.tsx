@@ -5,7 +5,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, Controller } from "react-hook-form";
 import { authClient } from "@/lib/auth-client";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { SignInUserInput, SignInUserInputSchema } from "@/schema/base/auth.base";
 import { useAction } from "next-safe-action/hooks";
 import { signInAction } from "@/actions/auth";
@@ -17,7 +16,6 @@ import { toast } from "sonner";
 import { Github, LoaderCircle } from "lucide-react";
 
 export function SignInForm({ callbackUrl }: { callbackUrl?: string | null }) {
-	const router = useRouter();
 	const postAuthUrl = `/auth/continue?callbackUrl=${encodeURIComponent(callbackUrl ?? "/dashboard")}`;
 
 	const form = useForm<SignInUserInput>({
@@ -33,7 +31,10 @@ export function SignInForm({ callbackUrl }: { callbackUrl?: string | null }) {
 	const { executeAsync: signIn, isExecuting: isLoggingIn } = useAction(signInAction, {
 		onSuccess: ({ data }) => {
 			if (data) {
-				router.push(postAuthUrl);
+				// A document navigation makes the newly issued Better Auth cookie
+				// authoritative before an invitation is loaded again. A client-router
+				// transition can race cookie observation or reuse a cached public render.
+				window.location.assign(postAuthUrl);
 			}
 		},
 		onError: ({ error }) => {
@@ -77,7 +78,7 @@ export function SignInForm({ callbackUrl }: { callbackUrl?: string | null }) {
 				},
 				onSuccess() {
 					toast.success(`Logged in successfully via ${provider === "github" ? "GitHub" : "Google"}`);
-					router.push(postAuthUrl);
+					window.location.assign(postAuthUrl);
 				},
 			},
 		);

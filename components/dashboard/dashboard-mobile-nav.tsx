@@ -3,18 +3,19 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Settings, LogOut, Menu, ChevronsUpDown } from "lucide-react";
+import { Settings, LogOut, Menu } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import {
 	dashboardMainNavigation,
 	dashboardSettingsHref,
 	dashboardSmartNavigation,
 } from "@/lib/dashboard-navigation";
+import { DashboardWorkspaceSwitcher } from "./dashboard-workspace-switcher";
 
 export function DashboardMobileNav() {
 	const pathname = usePathname();
@@ -41,28 +42,7 @@ export function DashboardMobileNav() {
 
 				{/* Workspace Switcher (Top) */}
 				<div className="h-16 flex items-center px-4 border-b border-border shrink-0">
-					<DropdownMenu>
-						<DropdownMenuTrigger className="flex items-center justify-between w-full p-2 hover:bg-slate-50 dark:hover:bg-white/5 rounded-xl transition-colors focus:outline-none">
-							<div className="flex items-center gap-3">
-								<Avatar className="w-8 h-8 rounded-lg border border-border">
-									<AvatarImage src="https://github.com/shadcn.png" />
-									<AvatarFallback className="bg-primary text-primary-foreground text-xs rounded-lg">DF</AvatarFallback>
-								</Avatar>
-								<div className="flex flex-col items-start text-sm">
-									<span className="font-bold text-foreground truncate max-w-[140px]">DentaFusion</span>
-									<span className="text-[11px] text-muted-foreground font-medium">Lab Workspace</span>
-								</div>
-							</div>
-							<ChevronsUpDown className="w-4 h-4 text-muted-foreground" />
-						</DropdownMenuTrigger>
-						<DropdownMenuContent className="w-[calc(100vw-4rem)] sm:w-64 rounded-xl border-border shadow-premium dark:bg-[#121214] ml-4">
-							<DropdownMenuLabel className="text-xs text-muted-foreground uppercase tracking-wider">Switch Lab</DropdownMenuLabel>
-							<DropdownMenuItem className="rounded-lg cursor-pointer py-2">Apex Dental Labs</DropdownMenuItem>
-							<DropdownMenuItem className="rounded-lg cursor-pointer py-2">Smile Arts</DropdownMenuItem>
-							<DropdownMenuSeparator className="bg-border" />
-							<DropdownMenuItem className="rounded-lg cursor-pointer text-primary py-2 font-medium">+ Create New Workspace</DropdownMenuItem>
-						</DropdownMenuContent>
-					</DropdownMenu>
+					<DashboardWorkspaceSwitcher mobile />
 				</div>
 
 				{/* Navigation Links (Scrollable area) */}

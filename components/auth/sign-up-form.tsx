@@ -2,7 +2,6 @@
 
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { LoaderCircle, Github } from "lucide-react";
 import { toast } from "sonner";
@@ -19,8 +18,6 @@ import { InputWithLabel } from "../ui/custom/input-with-label";
 import { PasswordInputWithLabel } from "../ui/custom/password-input-with-label";
 
 export function SignupForm({ callbackUrl }: { callbackUrl?: string | null }) {
-	const router = useRouter();
-
 	const form = useForm<SignUpUserInput>({
 		resolver: zodResolver(SignUpUserInputSchema),
 		defaultValues: { name: "", email: "", password: "" },
@@ -31,7 +28,9 @@ export function SignupForm({ callbackUrl }: { callbackUrl?: string | null }) {
 		onSuccess: ({ data }) => {
 			if (data) {
 				toast.success("Account created successfully!");
-				router.push(callbackUrl ?? SIGN_UP_CALLBACK_URL);
+				// Reload through the document boundary so the invitation page observes
+				// the session created by Better Auth instead of a cached anonymous render.
+				window.location.assign(callbackUrl ?? SIGN_UP_CALLBACK_URL);
 			}
 		},
 		onError: ({ error }) => {
@@ -62,7 +61,7 @@ export function SignupForm({ callbackUrl }: { callbackUrl?: string | null }) {
 				},
 				onSuccess() {
 					toast.success(`Registered successfully via ${provider === "github" ? "GitHub" : "Google"}`);
-					router.push(callbackUrl ?? "/dashboard");
+					window.location.assign(callbackUrl ?? "/dashboard");
 				},
 			},
 		);

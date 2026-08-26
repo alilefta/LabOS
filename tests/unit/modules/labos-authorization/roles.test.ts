@@ -47,6 +47,7 @@ describe('LabOS Authorization V1 fixed bundles', () => {
 			'lab.settings.update',
 			'membership.list',
 			'membership.read',
+			'membership.invite',
 			'membership.role.update',
 			'membership.remove',
 			'billing.manage',

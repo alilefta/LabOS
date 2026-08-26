@@ -11,6 +11,11 @@ import type { LabOSOrganizationRole } from './roles'
  * TypeScript types do not protect JavaScript or stale callers.
  */
 export type LabOSAuthorizationOperationMap = {
+	'membership.invite': Readonly<{
+		kind: 'membership.invite'
+		requestedRole: Exclude<LabOSOrganizationRole, 'owner'>
+		recipientEmail: string
+	}>
 	'staff.access.invite': Readonly<{
 		kind: 'staff.access.invite'
 		requestedRole: LabOSOrganizationRole

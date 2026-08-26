@@ -49,6 +49,7 @@ export const MEMBERSHIP_ADMINISTRATION_FACTS_SELECT = {
 	organizationId: true,
 	userId: true,
 	role: true,
+	labStaff: { select: { id: true } },
 } as const
 
 /**
@@ -125,6 +126,7 @@ export const prismaMembershipAccessFactRepository: MembershipAccessFactRepositor
 					organizationId: member.organizationId,
 					userId: member.userId,
 					role: member.role,
+					staffId: member.labStaff?.id ?? null,
 				}
 			: null
 	},

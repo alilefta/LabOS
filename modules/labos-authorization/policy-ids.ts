@@ -30,7 +30,9 @@ export const LABOS_POLICY_IDS = [
 	'payout.void',
 	'membership.non_owner_target',
 	'membership.self_target',
+	'membership.unlinked_staff_target',
 	'membership.role_assignment',
+	'membership.invitation.role_assignment',
 ] as const
 
 export type LabOSPolicyId = (typeof LABOS_POLICY_IDS)[number]

@@ -31,6 +31,7 @@ export type MembershipAdministrationFacts = Readonly<{
 	organizationId: string
 	userId: string
 	role: string
+	staffId: string | null
 }>
 
 export interface MembershipAccessFactRepository {

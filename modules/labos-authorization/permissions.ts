@@ -70,6 +70,7 @@ export const LABOS_PERMISSIONS = [
 	'lab.settings.update',
 	'membership.read',
 	'membership.list',
+	'membership.invite',
 	'membership.role.update',
 	'membership.remove',
 	'billing.read',
