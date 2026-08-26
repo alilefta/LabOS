@@ -2,7 +2,7 @@
 
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { User, ShieldAlert, Loader2, Save, Lock, Check } from 'lucide-react'
+import { User, Loader2, Save, Lock } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
 import { useAction } from 'next-safe-action/hooks'
@@ -11,7 +11,6 @@ import { useAction } from 'next-safe-action/hooks'
 import { InputWithLabel } from '@/components/ui/custom/input-with-label'
 import { CustomFieldWithLabel } from '@/components/ui/custom/custom-field-with-label'
 import { Button } from '@/components/ui/button'
-import { Switch } from '@/components/ui/switch'
 
 // Schemas & Actions
 import { updateStaffIdentityAction } from '@/actions/team/staff-settings/update-staff-identity'
@@ -42,7 +41,6 @@ export function StaffIdentityCard({ initialData, isReadOnly }: Props) {
 		mode: 'onBlur',
 	})
 
-	const isWatcherActive = form.watch('isActive')
 	const isActionDisabled = isReadOnly || form.formState.disabled
 
 	// --- SERVER ACTION ---
@@ -83,7 +81,7 @@ export function StaffIdentityCard({ initialData, isReadOnly }: Props) {
 			<div
 				className={cn(
 					'absolute -top-20 -right-20 w-40 h-40 rounded-full blur-3xl opacity-10 transition-colors duration-1000',
-					isWatcherActive ? 'bg-primary' : 'bg-destructive',
+					'bg-primary',
 				)}
 			/>
 
@@ -239,63 +237,6 @@ export function StaffIdentityCard({ initialData, isReadOnly }: Props) {
 						/>
 					</div>
 
-					{/* Employment Status Toggle */}
-					<div className="flex flex-col gap-4 pt-4 border-t border-border">
-						<div
-							className={cn(
-								'flex items-center justify-between p-4 rounded-xl border transition-all duration-300 shadow-sm',
-								isWatcherActive
-									? 'border-border bg-slate-50 dark:bg-white/1'
-									: 'border-destructive/30 bg-destructive/5 animate-pulse',
-							)}
-						>
-							<div className="flex flex-col gap-0.5">
-								<label
-									htmlFor="active-employement-toggle"
-									className={cn(
-										'text-[13px] font-bold',
-										!isWatcherActive && 'text-destructive',
-									)}
-								>
-									Active Employment Status
-								</label>
-								<span className="text-[10px] text-muted-foreground leading-relaxed max-w-65">
-									Allow assignments and maintain system access.
-								</span>
-							</div>
-							<Controller
-								control={form.control}
-								name="isActive"
-								render={({ field }) => (
-									<Switch
-										id="active-employement-toggle"
-										checked={field.value}
-										onCheckedChange={field.onChange}
-										disabled={isActionDisabled || isExecuting} // FIX [1]
-										className="data-[state=checked]:bg-primary"
-									/>
-								)}
-							/>
-						</div>
-
-						{/* In-Line Warning Card on Status Change */}
-						{!isWatcherActive && (
-							<div className="p-4 rounded-2xl bg-destructive/10 border border-destructive/20 flex gap-3 items-start animate-in fade-in slide-in-from-top-2 duration-300">
-								<ShieldAlert className="w-4 h-4 text-destructive shrink-0 mt-0.5" />
-								<div className="flex flex-col gap-0.5">
-									<span className="text-[10px] font-bold text-destructive uppercase tracking-widest">
-										Crucial Warning
-									</span>
-									<p className="text-[11px] text-destructive/80 font-medium leading-relaxed">
-										Deactivating this employee will **instantly block their
-										software login** and freeze their Roster profile. This
-										action will fail if they have cases currently on their
-										bench.
-									</p>
-								</div>
-							</div>
-						)}
-					</div>
 				</form>
 			</div>
 

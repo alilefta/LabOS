@@ -5,7 +5,6 @@ import Link from 'next/link'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import {
 	Settings,
-	ChevronsUpDown,
 	LogOut,
 	ChevronLeft,
 } from 'lucide-react'
@@ -16,7 +15,6 @@ import {
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuItem,
-	DropdownMenuLabel,
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
@@ -32,6 +30,7 @@ import {
 	dashboardSettingsHref,
 	dashboardSmartNavigation,
 } from '@/lib/dashboard-navigation'
+import { DashboardWorkspaceSwitcher } from './dashboard-workspace-switcher'
 
 export function DashboardSidebar() {
 	const pathname = usePathname()
@@ -66,57 +65,7 @@ export function DashboardSidebar() {
 
 			{/* --- WORKSPACE SWITCHER (TOP) --- */}
 			<div className="h-16 flex items-center px-4 border-b border-border shrink-0">
-				<DropdownMenu>
-					<DropdownMenuTrigger
-						className={cn(
-							'flex items-center w-full p-2 hover:bg-slate-50 dark:hover:bg-white/5 rounded-xl transition-all focus:outline-none',
-							isCollapsed ? 'justify-center' : 'justify-between',
-						)}
-					>
-						<div className="flex items-center gap-3">
-							<Avatar className="w-8 h-8 rounded-lg border border-border shrink-0">
-								<AvatarImage src="https://github.com/shadcn.png" />
-								<AvatarFallback className="bg-primary text-primary-foreground text-xs rounded-lg font-bold">
-									DF
-								</AvatarFallback>
-							</Avatar>
-							{!isCollapsed && (
-								<div className="flex flex-col items-start text-sm animate-in fade-in duration-300 min-w-0">
-									<span className="font-bold text-foreground truncate max-w-30">
-										DentaFusion
-									</span>
-									<span className="text-[11px] text-muted-foreground font-medium truncate">
-										Lab Workspace
-									</span>
-								</div>
-							)}
-						</div>
-						{!isCollapsed && (
-							<ChevronsUpDown className="w-4 h-4 text-muted-foreground shrink-0" />
-						)}
-					</DropdownMenuTrigger>
-
-					{/* Dropdown stays full width even if sidebar is collapsed */}
-					<DropdownMenuContent
-						align={isCollapsed ? 'start' : 'center'}
-						sideOffset={12}
-						className="w-56 rounded-xl border-border shadow-premium dark:bg-[#121214]"
-					>
-						<DropdownMenuLabel className="text-xs text-muted-foreground uppercase tracking-wider">
-							Switch Lab
-						</DropdownMenuLabel>
-						<DropdownMenuItem className="rounded-lg cursor-pointer">
-							Apex Dental Labs
-						</DropdownMenuItem>
-						<DropdownMenuItem className="rounded-lg cursor-pointer">
-							Smile Arts
-						</DropdownMenuItem>
-						<DropdownMenuSeparator className="bg-border" />
-						<DropdownMenuItem className="rounded-lg cursor-pointer text-primary font-medium">
-							+ Create New Workspace
-						</DropdownMenuItem>
-					</DropdownMenuContent>
-				</DropdownMenu>
+				<DashboardWorkspaceSwitcher collapsed={isCollapsed} />
 			</div>
 
 			{/* --- NAVIGATION LINKS --- */}

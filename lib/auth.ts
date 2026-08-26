@@ -4,8 +4,9 @@ import { generalPrisma } from './prisma'
 import { LabUserBase } from '@/schema/base/lab-user.base'
 import { SuperUserBase } from '@/schema/base/super-user.base'
 import { nextCookies } from 'better-auth/next-js'
-import { admin, organization } from 'better-auth/plugins'
+import { organization } from 'better-auth/plugins'
 import { organizationAccess } from '@/platform/auth/organization-access'
+import { authUserAdminPlugin } from '@/platform/auth/admin-plugin'
 import {
 	cleanupStaffInvitationIntent,
 	processAcceptedStaffInvitation,
@@ -51,9 +52,16 @@ export const auth = betterAuth({
 	},
 
 	plugins: [
-		admin(),
+		authUserAdminPlugin,
 		organization({
 			...organizationAccess,
+			// Browser sessions must use the idempotent Organization + Lab
+			// onboarding service. Server-side `auth.api.createOrganization` with an
+			// explicit trusted userId remains available to that gateway.
+			allowUserToCreateOrganization: false,
+			// Organization deletion cascades into Lab domain data and remains
+			// unavailable until its separately reviewed destructive milestone.
+			disableOrganizationDeletion: true,
 			invitationExpiresIn: 60 * 60 * 48,
 			cancelPendingInvitationsOnReInvite: true,
 			organizationHooks: {

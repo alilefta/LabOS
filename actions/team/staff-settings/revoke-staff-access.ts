@@ -6,13 +6,12 @@ import { headers } from 'next/headers'
 import { auth } from '@/lib/auth'
 import { ERRORS } from '@/lib/errors'
 import { generalPrisma } from '@/lib/prisma'
-import { actionClientWithLab } from '@/lib/safe-action'
+import { actionClientWithAuthorizationShadow } from '@/lib/safe-action'
 import {
 	assertStaffAccessRevocationAllowed,
 	revokeStaffOrganizationAccess,
 } from '@/lib/staff-access-revocation'
 import { cleanupStaffInvitationIntent } from '@/lib/staff-invitation'
-import { RevokeStaffSystemAccessInputSchema } from '@/schema/composed/team/staff-settings.schema'
 
 /**
  * Revokes only tenant-scoped digital access for a LabStaff record.
@@ -20,14 +19,8 @@ import { RevokeStaffSystemAccessInputSchema } from '@/schema/composed/team/staff
  * Organization Member. The global AuthUser and sessions for other tenants are
  * deliberately preserved.
  */
-export const revokeStaffSystemAccessAction = actionClientWithLab
-	.metadata({
-		actionName: 'Revoke-Staff-System-Access',
-		// Temporary compatibility gate; Better Auth performs the authoritative
-		// invitation/member permission check for the active Organization.
-		requiredLabRole: 'ADMIN',
-	})
-	.inputSchema(RevokeStaffSystemAccessInputSchema)
+export const revokeStaffSystemAccessAction =
+	actionClientWithAuthorizationShadow('A-125')
 	.action(async ({ parsedInput, ctx }) => {
 		const staff = await generalPrisma.labStaff.findFirst({
 			where: { id: parsedInput.staffId, labId: ctx.labId },

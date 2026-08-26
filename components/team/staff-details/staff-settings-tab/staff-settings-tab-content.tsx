@@ -2,7 +2,6 @@
 
 'use client'
 
-import { useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { LabRole } from '@/schema/base/enums.base'
 
@@ -15,7 +14,6 @@ import { usePermissions } from '@/providers/permissions-provider'
 // Data Access
 import { handleSafeActionError } from '@/lib/safe-action-helpers'
 import { getStaffDataDossierAction } from '@/actions/team/get-staff-dossier-action'
-import dynamic from 'next/dynamic'
 import { StaffCompensationCard } from './staff-compensation-card'
 
 interface Props {
@@ -53,28 +51,21 @@ export function StaffSettingsTabContent({ staffId, currentUserRole }: Props) {
 	if (!staff) return null
 
 	// ── 2. MAP DATA TO SPECIFIC CARD SCHEMAS ────────────────────────────
-	const identityData = useMemo(
-		() => ({
-			staffId: staff.id,
-			firstName: staff.firstName,
-			lastName: staff.lastName,
-			phoneNumber: staff.phoneNumber,
-			jobTitle: staff.jobTitle,
-			specialization: staff.specialization,
-			roleCategory: staff.roleCategory,
-			isActive: staff.isActive,
-		}),
-		[staff],
-	)
+	const identityData = {
+		staffId: staff.id,
+		firstName: staff.firstName,
+		lastName: staff.lastName,
+		phoneNumber: staff.phoneNumber,
+		jobTitle: staff.jobTitle,
+		specialization: staff.specialization,
+		roleCategory: staff.roleCategory,
+	}
 
-	const compensationData = useMemo(
-		() => ({
-			staffId: staff.id,
-			commissionType: staff.commissionType,
-			commissionValue: staff.commissionValue,
-		}),
-		[staff],
-	)
+	const compensationData = {
+		staffId: staff.id,
+		commissionType: staff.commissionType,
+		commissionValue: staff.commissionValue,
+	}
 
 	const workingDays = staff.workingDays || [
 		'MONDAY',

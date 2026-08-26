@@ -1,182 +1,192 @@
-"use client";
+'use client'
 
-import { useForm, Controller, useWatch, FormProvider } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { UserPlus, Loader2, Sparkles, Truck, Wrench, Briefcase, ShieldCheck, UserCog, Headset, BadgePercent, DollarSign, Wallet, Check, CheckCircle2, MessageSquare, ChevronRight } from "lucide-react";
-import { useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
-import { useState } from "react";
+import { useForm, Controller, useWatch, FormProvider } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import {
+	UserPlus,
+	Loader2,
+	Truck,
+	Wrench,
+	Briefcase,
+	ShieldCheck,
+	UserCog,
+	Headset,
+	Check,
+	CheckCircle2,
+	ChevronRight,
+	MapPin,
+} from 'lucide-react'
+import { useQueryClient } from '@tanstack/react-query'
+import { useState } from 'react'
 
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFooter } from "@/components/ui/sheet";
-import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
-import { InputWithLabel } from "@/components/ui/custom/input-with-label";
-import { cn } from "@/lib/utils";
+import {
+	Sheet,
+	SheetContent,
+	SheetHeader,
+	SheetTitle,
+	SheetDescription,
+	SheetFooter,
+} from '@/components/ui/sheet'
+import { Button } from '@/components/ui/button'
+import { InputWithLabel } from '@/components/ui/custom/input-with-label'
+import { cn } from '@/lib/utils'
 
-import { LabRole, StaffRoleCategory } from "@/schema/base/enums.base";
-import { useAction } from "next-safe-action/hooks";
-import { handleSafeActionError } from "@/lib/safe-action-helpers";
-import { createLabStaffAction } from "@/actions/team/register-staff-member-action";
-import { CreateLabStaffInput, CreateLabStaffInputSchema } from "@/schema/composed/team/staff.schema";
-import { LabStaffDetailsUI } from "@/schema/composed/lab-staff.details";
+import { StaffRoleCategory } from '@/schema/base/enums.base'
+import { useAction } from 'next-safe-action/hooks'
+import { handleSafeActionError } from '@/lib/safe-action-helpers'
+import { createLabStaffAction } from '@/actions/team/register-staff-member-action'
+import {
+	CreateLabStaffInput,
+	CreateLabStaffInputSchema,
+} from '@/schema/composed/team/staff.schema'
+import { LabStaffDetailsUI } from '@/schema/composed/lab-staff.details'
 
 interface Props {
-	isOpen: boolean;
-	onClose: () => void;
-	onStaffCreated?: (newStaff: LabStaffDetailsUI) => void;
-	requiredRoles?: StaffRoleCategory[];
+	isOpen: boolean
+	onClose: () => void
+	onStaffCreated?: (newStaff: LabStaffDetailsUI) => void
+	requiredRoles?: StaffRoleCategory[]
 }
 
 const ROLE_OPTIONS = [
-	{ id: "TECHNICIAN", label: "Technician", icon: Wrench, desc: "Production & CAD" },
-	{ id: "SENIOR_TECHNICIAN", label: "Senior Technician", icon: UserCog, desc: "Production Supervisor" },
-	{ id: "COURIER", label: "Courier", icon: Truck, desc: "Pickup & Delivery" },
-	{ id: "SALES_REP", label: "Sales Rep", icon: Briefcase, desc: "Account Manager" },
-	{ id: "QC_INSPECTOR", label: "QC Inspector", icon: ShieldCheck, desc: "Quality Assurance" },
-	{ id: "MANAGER", label: "Manager", icon: UserCog, desc: "Lab Operations" },
-	{ id: "RECEPTIONIST", label: "Receptionist", icon: Headset, desc: "Front Desk" },
-];
+	{
+		id: 'TECHNICIAN',
+		label: 'Technician',
+		icon: Wrench,
+		desc: 'Production & CAD',
+	},
+	{
+		id: 'SENIOR_TECHNICIAN',
+		label: 'Senior Technician',
+		icon: UserCog,
+		desc: 'Production Supervisor',
+	},
+	{ id: 'COURIER', label: 'Courier', icon: Truck, desc: 'Pickup & Delivery' },
+	{
+		id: 'SALES_REP',
+		label: 'Sales Rep',
+		icon: Briefcase,
+		desc: 'Account Manager',
+	},
+	{
+		id: 'QC_INSPECTOR',
+		label: 'QC Inspector',
+		icon: ShieldCheck,
+		desc: 'Quality Assurance',
+	},
+	{ id: 'MANAGER', label: 'Manager', icon: UserCog, desc: 'Lab Operations' },
+	{
+		id: 'RECEPTIONIST',
+		label: 'Receptionist',
+		icon: Headset,
+		desc: 'Front Desk',
+	},
+]
 
-export function RegisterStaffMemberSheet({ isOpen, onClose, onStaffCreated, requiredRoles }: Props) {
-	const queryClient = useQueryClient();
-	const [copied, setCopied] = useState(false);
+export function RegisterStaffMemberSheet({
+	isOpen,
+	onClose,
+	onStaffCreated,
+	requiredRoles,
+}: Props) {
+	const queryClient = useQueryClient()
 
-	// --- SUCCESS SHARE SCREEN STATE ---
-	// If the server returns an invitation token, we lock into this view inside the sheet
+	// A-123 ends after the operational identity is created. Access and
+	// compensation are configured later through their dedicated commands.
 	const [successPayload, setSuccessPayload] = useState<{
-		name: string;
-		token: string | null; // null if grantAccess was false
-		email: string | null;
-	} | null>(null);
+		name: string
+	} | null>(null)
 
-	const defaultRoleCat = requiredRoles && requiredRoles.length > 0 ? requiredRoles[0] : "TECHNICIAN";
+	const defaultRoleCat =
+		requiredRoles && requiredRoles.length > 0 ? requiredRoles[0] : 'TECHNICIAN'
 
 	const form = useForm<CreateLabStaffInput>({
 		resolver: zodResolver(CreateLabStaffInputSchema),
 		defaultValues: {
-			firstName: "",
-			lastName: "",
-			phoneNumber: "",
-			city: "",
-			address1: "",
-			address2: "",
-			zipcode: "",
+			firstName: '',
+			lastName: '',
+			phoneNumber: '',
+			city: '',
+			address1: '',
+			address2: '',
+			zipcode: '',
 			isActive: true,
 			roleCategory: defaultRoleCat,
-			jobTitle: "",
-			specialization: "",
-			commissionType: "PERCENTAGE",
-			commissionValue: undefined,
-			grantAccess: false,
-			email: "",
-			systemRole: "STAFF",
+			jobTitle: '',
+			specialization: '',
 		},
-		mode: "onBlur",
-	});
+		mode: 'onBlur',
+	})
 
-	const selectedRole = useWatch({ control: form.control, name: "roleCategory" });
-	const selectedCommission = useWatch({ control: form.control, name: "commissionType" });
-	const grantAccess = useWatch({ control: form.control, name: "grantAccess" });
+	const selectedRole = useWatch({ control: form.control, name: 'roleCategory' })
 
-	const displayedRoles = requiredRoles && requiredRoles.length > 0 ? ROLE_OPTIONS.filter((option) => requiredRoles.includes(option.id as StaffRoleCategory)) : ROLE_OPTIONS.slice(0, 6);
+	const displayedRoles =
+		requiredRoles && requiredRoles.length > 0
+			? ROLE_OPTIONS.filter((option) =>
+					requiredRoles.includes(option.id as StaffRoleCategory),
+				)
+			: ROLE_OPTIONS.slice(0, 6)
 
-	const { executeAsync: registerStaff, isExecuting } = useAction(createLabStaffAction, {
-		onSuccess: ({ data }) => {
-			// Trigger local success state to show invite link
-			setSuccessPayload({
-				name: `${form.getValues("firstName")} ${form.getValues("lastName")}`,
-				token: data.invitation?.token ?? null, // Securely generated by backend
-				email: form.getValues("email") || null,
-			});
+	const { executeAsync: registerStaff, isExecuting } = useAction(
+		createLabStaffAction,
+		{
+			onSuccess: ({ data }) => {
+				setSuccessPayload({
+					name: `${form.getValues('firstName')} ${form.getValues('lastName')}`,
+				})
 
-			if (data.staff.isActive) {
-				queryClient.setQueryData<LabStaffDetailsUI[]>(["labStaff", "search", ""], (prevData) => {
-					if (!prevData) return [data.staff];
-					const exists = prevData.find((s) => s.id === data.staff.id);
-					return exists ? prevData : [data.staff, ...prevData];
-				});
-				if (onStaffCreated) onStaffCreated(data.staff);
-			}
+				if (data.staff.isActive) {
+					queryClient.setQueryData<LabStaffDetailsUI[]>(
+						['labStaff', 'search', ''],
+						(prevData) => {
+							if (!prevData) return [data.staff]
+							const exists = prevData.find((s) => s.id === data.staff.id)
+							return exists ? prevData : [data.staff, ...prevData]
+						},
+					)
+					if (onStaffCreated) onStaffCreated(data.staff)
+				}
 
-			queryClient.invalidateQueries({ queryKey: ["labStaff"] });
+				queryClient.invalidateQueries({ queryKey: ['labStaff'] })
+			},
+			onError: ({ error }) => handleSafeActionError(error),
 		},
-		onError: ({ error }) => handleSafeActionError(error),
-	});
+	)
 
 	const onSubmit = async (data: CreateLabStaffInput) => {
-		await registerStaff(data);
-	};
+		await registerStaff(data)
+	}
 
 	const handleClose = () => {
-		setSuccessPayload(null);
-		form.reset();
-		onClose();
-	};
-
-	// --- WHATSAPP DEEP LINK GENERATION (B2B Onboarding) ---
-	const handleCopyLink = (token: string) => {
-		const link = `${window.location.origin}/invite/${token}`;
-		navigator.clipboard.writeText(link);
-		setCopied(true);
-		toast.success("Onboarding link copied.");
-		setTimeout(() => setCopied(false), 2000);
-	};
-
-	const handleWhatsAppInvite = (token: string) => {
-		const link = `${window.location.origin}/invite/${token}`;
-		const msg = encodeURIComponent(
-			`Hello ${form.getValues("firstName")},\n\nWelcome to our team! We have set up your operational seat at the lab. Click this secure link to set up your password and complete your registration:\n\n${link}`,
-		);
-		window.open(`https://wa.me/${form.getValues("phoneNumber").replace(/\D/g, "")}?text=${msg}`, "_blank");
-	};
+		setSuccessPayload(null)
+		form.reset()
+		onClose()
+	}
 
 	return (
 		<Sheet open={isOpen} onOpenChange={handleClose}>
 			<SheetContent className="sm:max-w-md! border-l border-border bg-card dark:bg-[#09090B] p-0 flex flex-col shadow-2xl">
-				{/* ── CONDITION 1: PENDING SHARE HANDSHAKE SCREEN ────────────────── */}
+				{/* ── CONDITION 1: OPERATIONAL IDENTITY CREATED ───────────────────── */}
 				{successPayload ? (
 					<div className="flex-1 flex flex-col h-full animate-in fade-in zoom-in-95 duration-500">
 						<div className="p-8 text-center flex flex-col items-center bg-linear-to-b from-primary/10 to-transparent border-b border-border">
 							<div className="w-16 h-16 rounded-3xl bg-primary/10 text-primary flex items-center justify-center mb-4 shadow-lg">
 								<CheckCircle2 className="w-8 h-8" />
 							</div>
-							<h3 className="text-xl font-bold text-foreground">Worker Registered</h3>
-							<p className="text-xs text-muted-foreground mt-1">{successPayload.name} is now on the active lab roster.</p>
+							<h3 className="text-xl font-bold text-foreground">
+								Worker Registered
+							</h3>
+							<p className="text-xs text-muted-foreground mt-1">
+								{successPayload.name} is now on the active lab roster.
+							</p>
 						</div>
 
 						<div className="flex-1 p-8 flex flex-col gap-6 overflow-y-auto">
-							{successPayload.token ? (
-								<div className="flex flex-col gap-4 animate-in fade-in duration-300">
-									<p className="text-sm text-muted-foreground text-center">Software invitation generated. Send this secure onboarding link directly to the employee.</p>
-									<div className="flex items-center gap-2 p-1.5 bg-slate-50 dark:bg-white/5 border border-border rounded-xl">
-										<input
-											title="Invite Link"
-											type="text"
-											readOnly
-											value={`${window.location.origin}/invite/${successPayload.token}`}
-											className="flex-1 bg-transparent border-none outline-none pl-3 text-xs font-mono text-muted-foreground truncate"
-										/>
-										<Button
-											type="button"
-											onClick={() => handleCopyLink(successPayload.token!)}
-											className={cn("rounded-lg h-9 font-bold text-xs px-3", copied ? "bg-emerald-600 text-white" : "bg-primary text-white")}
-										>
-											{copied ? <Check className="w-3.5 h-3.5" /> : "Copy"}
-										</Button>
-									</div>
-									<Button
-										type="button"
-										onClick={() => handleWhatsAppInvite(successPayload.token!)}
-										className="w-full h-11 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center gap-2"
-									>
-										<MessageSquare className="w-4 h-4" /> Share Onboarding Link via WhatsApp
-									</Button>
-								</div>
-							) : (
-								<p className="text-sm text-muted-foreground text-center leading-relaxed">
-									Profile successfully recorded. Since no software access was selected, this technician can now be assigned to cases on work tickets, but cannot log into the system.
-								</p>
-							)}
+							<p className="text-sm text-muted-foreground text-center leading-relaxed">
+								The operational profile is ready and can be assigned to work.
+								Configure compensation or grant system access from this Staff
+								member&apos;s settings when needed.
+							</p>
 						</div>
 
 						<SheetFooter className="p-8 border-t border-border bg-slate-50/30 dark:bg-white/1">
@@ -198,51 +208,76 @@ export function RegisterStaffMemberSheet({ isOpen, onClose, onStaffCreated, requ
 							<div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary mb-4 shadow-ai-glow-light">
 								<UserPlus className="w-6 h-6" />
 							</div>
-							<SheetTitle className="text-2xl font-bold tracking-tight">Register Team Member</SheetTitle>
-							<SheetDescription className="text-sm text-muted-foreground font-medium">Onboard a new employee and define their role, commission, and system access.</SheetDescription>
+							<SheetTitle className="text-2xl font-bold tracking-tight">
+								Register Team Member
+							</SheetTitle>
+							<SheetDescription className="text-sm text-muted-foreground font-medium">
+								Create an operational employee profile. Compensation and system
+								access are configured separately after creation.
+							</SheetDescription>
 						</SheetHeader>
 
 						<div className="flex-1 overflow-y-auto p-8 flex flex-col gap-8 custom-scrollbar">
 							<FormProvider {...form}>
-								<form id="register-staff-form" onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-10">
+								<form
+									id="register-staff-form"
+									onSubmit={form.handleSubmit(onSubmit)}
+									className="flex flex-col gap-10"
+								>
 									{/* SECTION 1: SYSTEM ROLE */}
 									<section className="flex flex-col gap-4">
-										<label className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground ml-1">System Role</label>
+										<label className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground ml-1">
+											Operational Role
+										</label>
 										<div className="grid grid-cols-2 gap-3">
 											{displayedRoles.map((option) => {
-												const isSelected = selectedRole === option.id;
+												const isSelected = selectedRole === option.id
 												return (
 													<button
 														key={option.id}
 														type="button"
-														onClick={() => form.setValue("roleCategory", option.id as StaffRoleCategory, { shouldDirty: true, shouldValidate: true })}
+														onClick={() =>
+															form.setValue(
+																'roleCategory',
+																option.id as StaffRoleCategory,
+																{ shouldDirty: true, shouldValidate: true },
+															)
+														}
 														className={cn(
-															"relative flex flex-col items-start p-4 rounded-2xl border transition-all duration-300 text-left group",
+															'relative flex flex-col items-start p-4 rounded-2xl border transition-all duration-300 text-left group',
 															isSelected
-																? "bg-primary/5 border-primary shadow-ai-glow-light ring-1 ring-primary/20"
-																: "bg-card border-border hover:border-primary/40 hover:bg-slate-50/50 dark:hover:bg-white/5",
+																? 'bg-primary/5 border-primary shadow-ai-glow-light ring-1 ring-primary/20'
+																: 'bg-card border-border hover:border-primary/40 hover:bg-slate-50/50 dark:hover:bg-white/5',
 														)}
 													>
 														<div
 															className={cn(
-																"w-8 h-8 rounded-lg flex items-center justify-center mb-3",
-																isSelected ? "bg-primary text-white" : "bg-slate-100 dark:bg-white/5 text-slate-400 group-hover:text-primary",
+																'w-8 h-8 rounded-lg flex items-center justify-center mb-3',
+																isSelected
+																	? 'bg-primary text-white'
+																	: 'bg-slate-100 dark:bg-white/5 text-slate-400 group-hover:text-primary',
 															)}
 														>
 															<option.icon className="w-4 h-4" />
 														</div>
 														<span
 															className={cn(
-																"text-[13px] font-bold leading-none mb-1",
-																isSelected ? "text-foreground" : "text-muted-foreground group-hover:text-foreground",
+																'text-[13px] font-bold leading-none mb-1',
+																isSelected
+																	? 'text-foreground'
+																	: 'text-muted-foreground group-hover:text-foreground',
 															)}
 														>
 															{option.label}
 														</span>
-														<span className="text-[10px] text-muted-foreground font-medium opacity-80">{option.desc}</span>
-														{isSelected && <Check className="absolute top-3 right-3 w-4 h-4 text-primary animate-in zoom-in" />}
+														<span className="text-[10px] text-muted-foreground font-medium opacity-80">
+															{option.desc}
+														</span>
+														{isSelected && (
+															<Check className="absolute top-3 right-3 w-4 h-4 text-primary animate-in zoom-in" />
+														)}
 													</button>
-												);
+												)
 											})}
 										</div>
 									</section>
@@ -251,21 +286,35 @@ export function RegisterStaffMemberSheet({ isOpen, onClose, onStaffCreated, requ
 									<div className="flex flex-col gap-5">
 										<div className="flex items-center gap-2 mb-2 pb-2 border-b border-border/50">
 											<UserCog className="w-4 h-4 text-primary animate-pulse" />
-											<h4 className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">Identity & Contact</h4>
+											<h4 className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
+												Identity & Contact
+											</h4>
 										</div>
 										<div className="grid grid-cols-2 gap-4">
 											<Controller
 												control={form.control}
 												name="firstName"
 												render={({ field, fieldState }) => (
-													<InputWithLabel field={field} fieldState={fieldState} fieldTitle="First Name" nameInSchema="firstName" placeholder="Ahmed" />
+													<InputWithLabel
+														field={field}
+														fieldState={fieldState}
+														fieldTitle="First Name"
+														nameInSchema="firstName"
+														placeholder="Ahmed"
+													/>
 												)}
 											/>
 											<Controller
 												control={form.control}
 												name="lastName"
 												render={({ field, fieldState }) => (
-													<InputWithLabel field={field} fieldState={fieldState} fieldTitle="Last Name" nameInSchema="lastName" placeholder="Ali" />
+													<InputWithLabel
+														field={field}
+														fieldState={fieldState}
+														fieldTitle="Last Name"
+														nameInSchema="lastName"
+														placeholder="Ali"
+													/>
 												)}
 											/>
 										</div>
@@ -273,68 +322,88 @@ export function RegisterStaffMemberSheet({ isOpen, onClose, onStaffCreated, requ
 											control={form.control}
 											name="phoneNumber"
 											render={({ field, fieldState }) => (
-												<InputWithLabel field={field} fieldState={fieldState} fieldTitle="Phone Number" nameInSchema="phoneNumber" placeholder="+964 750 000 0000" />
+												<InputWithLabel
+													field={field}
+													fieldState={fieldState}
+													fieldTitle="Phone Number"
+													nameInSchema="phoneNumber"
+													placeholder="+964 750 000 0000"
+												/>
 											)}
 										/>
 									</div>
 
-									{/* SECTION 3: SYSTEM ACCESS & ROLE (SLIDE DOWN ACCORDION) */}
-									<div className="flex flex-col gap-4 pt-6 border-t border-border">
-										<div className="flex items-center justify-between p-4 rounded-xl bg-slate-50 dark:bg-white/5 border border-border shadow-sm">
-											<div className="flex flex-col gap-0.5 pr-4">
-												<span className="text-[13px] font-bold text-foreground">Grant System Access</span>
-												<span className="text-[10px] text-muted-foreground leading-snug">Allow this worker to log into the software and manage their desk.</span>
-											</div>
+									{/* SECTION 3: LOCATION & LOGISTICS */}
+									<div className="flex flex-col gap-5">
+										<div className="flex items-center gap-2 mb-2 pb-2 border-b border-border/50">
+											<MapPin className="w-4 h-4 text-primary" />
+											<h4 className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
+												Address & Logistics
+											</h4>
+										</div>
+										<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 											<Controller
 												control={form.control}
-												name="grantAccess"
-												render={({ field }) => <Switch checked={field.value} onCheckedChange={field.onChange} className="data-[state=checked]:bg-primary shrink-0" />}
+												name="city"
+												render={({ field, fieldState }) => (
+													<InputWithLabel
+														field={field}
+														fieldState={fieldState}
+														fieldTitle="City"
+														nameInSchema="city"
+														placeholder="Baghdad"
+													/>
+												)}
+											/>
+											<Controller
+												control={form.control}
+												name="zipcode"
+												render={({ field, fieldState }) => (
+													<InputWithLabel
+														field={field}
+														fieldState={fieldState}
+														fieldTitle="Postal Code (Optional)"
+														nameInSchema="zipcode"
+														placeholder="10001"
+													/>
+												)}
 											/>
 										</div>
-
-										<div className={cn("grid transition-all duration-300 ease-in-out", grantAccess ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0")}>
-											<div className="overflow-hidden min-h-0 flex flex-col gap-5 pt-1">
-												<Controller
-													control={form.control}
-													name="email"
-													render={({ field, fieldState }) => (
-														<InputWithLabel field={field} fieldState={fieldState} fieldTitle="System Invitation Email" nameInSchema="email" placeholder="staff@lab.com" />
-													)}
+										<Controller
+											control={form.control}
+											name="address1"
+											render={({ field, fieldState }) => (
+												<InputWithLabel
+													field={field}
+													fieldState={fieldState}
+													fieldTitle="Street Address"
+													nameInSchema="address1"
+													placeholder="District, street, and building"
 												/>
-
-												<div className="flex flex-col gap-2">
-													<label className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground ml-1">Account Permission level</label>
-													<Controller
-														control={form.control}
-														name="systemRole"
-														render={({ field }) => (
-															<div className="flex p-1 bg-slate-100 dark:bg-white/5 rounded-xl border border-border h-11">
-																{(["STAFF", "ADMIN", "MANAGER"] as LabRole[]).map((role) => (
-																	<button
-																		key={role}
-																		type="button"
-																		onClick={() => field.onChange(role)}
-																		className={cn(
-																			"flex-1 text-[10px] font-bold rounded-lg transition-all",
-																			field.value === role ? "bg-white dark:bg-[#121214] text-primary shadow-sm" : "text-muted-foreground hover:text-foreground",
-																		)}
-																	>
-																		{role}
-																	</button>
-																))}
-															</div>
-														)}
-													/>
-												</div>
-											</div>
-										</div>
+											)}
+										/>
+										<Controller
+											control={form.control}
+											name="address2"
+											render={({ field, fieldState }) => (
+												<InputWithLabel
+													field={field}
+													fieldState={fieldState}
+													fieldTitle="Address Line 2 (Optional)"
+													nameInSchema="address2"
+													placeholder="Apartment, suite, or landmark"
+												/>
+											)}
+										/>
 									</div>
 
 									{/* SECTION 4: JOB SPECIFICS */}
 									<div className="flex flex-col gap-5">
 										<div className="flex items-center gap-2 mb-2 pb-2 border-b border-border/50">
 											<Briefcase className="w-4 h-4 text-primary" />
-											<h4 className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">Job Details</h4>
+											<h4 className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
+												Job Details
+											</h4>
 										</div>
 
 										<div className="grid grid-cols-2 gap-4">
@@ -342,7 +411,13 @@ export function RegisterStaffMemberSheet({ isOpen, onClose, onStaffCreated, requ
 												control={form.control}
 												name="jobTitle"
 												render={({ field, fieldState }) => (
-													<InputWithLabel field={field} fieldState={fieldState} fieldTitle="Display Title" nameInSchema="jobTitle" placeholder="e.g. Master Ceramist" />
+													<InputWithLabel
+														field={field}
+														fieldState={fieldState}
+														fieldTitle="Display Title"
+														nameInSchema="jobTitle"
+														placeholder="e.g. Master Ceramist"
+													/>
 												)}
 											/>
 											<Controller
@@ -360,74 +435,9 @@ export function RegisterStaffMemberSheet({ isOpen, onClose, onStaffCreated, requ
 											/>
 										</div>
 										<p className="text-[10px] text-muted-foreground font-medium px-1">
-											The System Role (above) controls permissions, but the Display Title is what shows on invoices and the clinic portal.
+											This operational role describes the person&apos;s work. It
+											does not grant application permissions.
 										</p>
-									</div>
-
-									{/* SECTION 4: COMPENSATION (Dynamic) */}
-									<div className="flex flex-col gap-5 pt-6 border-t border-border">
-										<div className="flex items-center gap-2 mb-4">
-											<Wallet className="w-4 h-4 text-emerald-500" />
-											<h4 className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">Compensation Model</h4>
-										</div>
-
-										{/* Commission Type Toggle */}
-										<div className="flex p-1 bg-slate-100 dark:bg-white/5 rounded-xl border border-border h-12">
-											{(["PERCENTAGE", "FIXED"] as const).map((type) => (
-												<button
-													key={type}
-													type="button"
-													onClick={() => form.setValue("commissionType", type)}
-													className={cn(
-														"flex-1 flex items-center justify-center gap-2 text-[11px] font-bold rounded-lg transition-all uppercase tracking-wider",
-														selectedCommission === type
-															? "bg-white dark:bg-[#121214] text-emerald-600 dark:text-emerald-500 shadow-sm ring-1 ring-border"
-															: "text-muted-foreground hover:text-foreground",
-													)}
-												>
-													{type === "PERCENTAGE" ? <BadgePercent className="w-4 h-4" /> : <DollarSign className="w-4 h-4" />}
-													{type === "PERCENTAGE" ? "% Split" : "Flat Rate"}
-												</button>
-											))}
-										</div>
-
-										{/* Dynamic Input based on selection */}
-										<div className="p-5 rounded-2xl bg-emerald-500/5 border border-emerald-500/20 animate-in fade-in zoom-in-95 duration-300">
-											<Controller
-												control={form.control}
-												name="commissionValue"
-												render={({ field, fieldState }) => (
-													<InputWithLabel
-														field={field}
-														fieldState={fieldState}
-														type="number"
-														value={field.value}
-														fieldTitle={selectedCommission === "PERCENTAGE" ? "Commission Percentage (%)" : "Fixed Amount per Case"}
-														nameInSchema="commissionValue"
-														placeholder={selectedCommission === "PERCENTAGE" ? "e.g. 15" : "e.g. 5000"}
-													/>
-													// <Input
-													// 	name=""
-													// 	type="number"
-													// 	onChange={(e) => {
-													// 		const v = e.currentTarget.value;
-
-													// 		console.log("Revieved value: ", v);
-
-													// 		field.onChange(e);
-													// 	}}
-													// 	value={field.value}
-													// 	placeholder="Enter your amount"
-													// />
-												)}
-											/>
-											<p className="text-[10px] text-muted-foreground font-medium mt-3 flex items-start gap-1.5">
-												<Sparkles className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
-												{selectedCommission === "PERCENTAGE"
-													? "This percentage will be automatically calculated against the Grand Total of cases assigned to this staff member."
-													: "This flat fee will be applied to the staff member's payout for every case they complete, regardless of case value."}
-											</p>
-										</div>
 									</div>
 								</form>
 							</FormProvider>
@@ -435,7 +445,11 @@ export function RegisterStaffMemberSheet({ isOpen, onClose, onStaffCreated, requ
 
 						{/* --- FOOTER --- */}
 						<SheetFooter className="p-8 border-t border-border bg-slate-50/30 dark:bg-white/1 shrink-0">
-							<Button variant="ghost" onClick={handleClose} className="rounded-xl h-11! px-6 font-semibold">
+							<Button
+								variant="ghost"
+								onClick={handleClose}
+								className="rounded-xl h-11! px-6 font-semibold"
+							>
 								Cancel
 							</Button>
 							<Button
@@ -444,12 +458,16 @@ export function RegisterStaffMemberSheet({ isOpen, onClose, onStaffCreated, requ
 								form="register-staff-form"
 								className="rounded-xl h-11 bg-primary text-white shadow-premium font-bold hover:bg-primary/90 transition-all shrink-0"
 							>
-								{isExecuting ? <Loader2 className="animate-spin w-4 h-4 mr-2" /> : "Save Profile"}
+								{isExecuting ? (
+									<Loader2 className="animate-spin w-4 h-4 mr-2" />
+								) : (
+									'Save Profile'
+								)}
 							</Button>
 						</SheetFooter>
 					</>
 				)}
 			</SheetContent>
 		</Sheet>
-	);
+	)
 }

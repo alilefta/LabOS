@@ -1,9 +1,12 @@
 # Authorization V1 and RBAC delivery plan
 
 **Milestone:** M4 — Authorization V1
-**Status:** Discovery
+**Status:** In progress — core and first adapter slice implemented
 **Database migration:** None planned
 **Architecture:** `notes/architecture/platform-modules/authorization_module/architecture.md`
+**Migration inventory:** `notes/project/authorization-v1-migration-inventory.md`
+**Generated legacy baseline:** `notes/project/authorization-v1-legacy-action-baseline.md`
+**Pilot rollout gate:** `notes/project/authorization-v1-shadow-pilot-rollout-gate.md`
 
 ## Outcome and baseline
 
@@ -29,12 +32,14 @@ Routes, pages, readers, services, file access, and UI-only checks still require 
 4. Server enforcement precedes UI changes.
 5. M4 deletes no legacy authorization file or schema field.
 6. No migration is expected. If one becomes necessary, stop and request explicit approval.
+7. The reusable kernel contains Organization identity only; `labId`, `staffId`, and domain facts stay in the LabOS adapter.
+8. Better Auth-owned Organization mutations require both LabOS V1 and Better Auth authorization.
 
 ## Branch sequence
 
 ### 1. `feat/platform-authorization-core`
 
-Scope: permission constants/types, role normalization, explicit bundles, default-deny service, errors, monitoring, and unit tests. No behavior cutover.
+Scope: domain-independent kernel, trusted permission definitions, role normalization, explicit bundles, default-deny service, errors, monitoring, and unit tests. No behavior cutover.
 
 Suggested commits:
 
@@ -45,33 +50,42 @@ Suggested commits:
 
 Exit:
 
-- [ ] Matrix approved and completely tested.
-- [ ] Unknown roles grant nothing.
-- [ ] Role-only decisions require no database query.
-- [ ] No consumer behavior changes.
+- [x] Matrix approved and completely tested.
+- [x] Unknown roles grant nothing.
+- [x] Kernel contracts contain no `labId`, `staffId`, Prisma, or LabOS types.
+- [ ] `member → staff` exists only as measured temporary compatibility.
+- [x] Role-only decisions require no database query.
+- [x] No consumer behavior changes.
 
 ### 2. `feat/platform-authorization-adapters`
 
-Scope: resource-policy registry, safe-action/route/UI adapters, correlation IDs, shadow evaluation, and architecture guard.
+Scope: typed target resolvers/fact loaders, fail-closed policy registry, safe-action/route/UI adapters, correlation IDs, shadow evaluation, and architecture guard.
+
+Read-boundary decision: `.list` is Organization-scoped collection access with server-owned visibility predicates; `.read` is identifier-targeted resource access. Analytics and financial list/detail disclosures are distinct permissions. Composite endpoints require every applicable permission or split/redact their DTOs.
 
 Exit:
 
 - [ ] Middleware follows verified tenant resolution.
-- [ ] Tenant mismatch denies before domain policy.
+- [x] Tenant mismatch denies before domain policy.
+- [x] Permission definitions—not callers—require resources and policies.
+- [x] Missing required target resolver or policy denies with high-severity telemetry.
+- [x] Policy composition requires every policy to allow.
 - [ ] Denial prevents handler execution.
 - [ ] Public/session-only actions remain distinct.
 - [ ] New legacy gates fail an architecture test.
 
 ### 3. `feat/platform-authorization-membership`
 
-Scope: enforce `staff.access.invite`, `staff.access.revoke`, `membership.read`, `membership.role.update`, and `membership.remove`.
+Scope: enforce `staff.access.invite`, `staff.access.revoke`, `membership.read`, `membership.invite`, `membership.role.update`, and `membership.remove`. Owner targets are denied by Staff-access, generic invitation, generic removal, and generic role-update operations.
 
-Policies: same Organization/Lab, only owner affects owner, last-owner invariant, explicit self-target behavior, and valid staff-member linkage.
+Policies: same Organization/Lab, explicit Staff-access self-target denial, valid staff-member linkage, and the approved shared role-target matrix. Identical Staff invitation intent uses idempotent resend; changed intent uses a separately authorized replacement path. `membership.leave`, Owner promotion, and Owner demotion/removal are deferred operations; their last-owner invariant requires concurrency-safe mutation handling or proven Better Auth enforcement before rollout.
 
 Exit:
 
 - [ ] Invitation, role change, revocation, and staff linkage use V1.
-- [ ] Two-Organization, owner, last-owner, and self-target tests pass.
+- [ ] Two-Organization, owner-target, explicit self-target, role-ceiling, and invitation-idempotency tests pass.
+- [ ] Staff-access, generic membership removal, and generic role update deny every Owner target; deferred ownership/self-service endpoints remain unavailable.
+- [ ] LabOS and Better Auth role/API authorization compatibility tests pass.
 - [ ] High-risk events are audit-ready.
 
 ### 4. `feat/platform-authorization-financials`
@@ -104,7 +118,7 @@ Exit:
 
 - [ ] All 131 baseline declarations are migrated or classified public/session-only.
 - [ ] Non-action boundaries are protected.
-- [ ] Shadow divergence is zero or approved.
+- [ ] Both divergence directions are classified and every privilege expansion is approved.
 - [ ] Role hierarchy, compatibility mapping, and obsolete access control have zero runtime consumers.
 - [ ] Legacy artifacts remain for M5 removal.
 
@@ -113,50 +127,104 @@ Exit:
 ### Inventory and design
 
 - [ ] Generate a machine-readable server-boundary inventory.
-- [ ] Assign permission, resource type/ID source, policy, sensitivity, and owner.
+- [ ] Assign permission, trusted scope, target type/ID source, required policies, sensitivity, and owner.
 - [ ] Record intentional behavior changes for approval.
 - [ ] Review the role matrix with product/security stakeholders.
 
 ### Kernel and policies
 
-- [ ] Implement literal permissions and immutable role bundles.
-- [ ] Normalize multiple/unknown Better Auth roles safely.
-- [ ] Implement typed decisions, errors, `can`, `require`, and capabilities.
-- [ ] Implement tenant, assigned-Case, Staff-target, membership/owner, financial, and draft-state policies.
-- [ ] Document transaction-time revalidation for mutable facts.
+- [x] Implement literal permissions and immutable role bundles.
+- [x] Normalize multiple/unknown Better Auth roles safely; temporary `member` compatibility remains outside the kernel.
+- [x] Implement typed decisions, errors, `can`, `require`, and non-authoritative `roleCapabilities`.
+- [x] Implement a trusted permission-definition and required-policy registry.
+- [x] Define the complete LabOS permission catalog with trusted scope, target types, required policy IDs, and sensitivity.
+- [ ] Implement identifier-only targets plus typed target resolvers and policy-owned fact loaders. Staff/Member Organization-boundary resolvers and membership/Staff-access loaders are complete; remaining resource families are pending.
+- [ ] Implement Organization boundary, assigned-Case, Staff-target, membership/owner, role-assignment ceiling, financial, and draft-state policies. Organization boundary plus membership/Staff-access target, self, role-ceiling, invitation, linkage, and non-Owner policies are complete; Case/financial/draft policies remain pending.
+- [ ] Require transaction-time revalidation for critical mutable invariants.
 
 ### Adapters and cutover
 
-- [ ] Add permission-aware safe-action middleware.
+- [x] Add a database-free `TenantContext` → `AuthorizationActor` adapter with no LabOS facts or compatibility aliases.
+- [x] Compose the server-only LabOS service from the reviewed permission slice, fixed bundles, Staff/Member resolvers, policies, typed operation intent, and sanitized monitoring.
+- [x] Add the trusted A-123/A-124/A-125 action-boundary registry and validated-input organization/target/operation projectors.
+- [x] Add the legacy-authoritative A-123/A-124/A-125 shadow coordinator with four-way divergence classification and contained V1 failures.
+- [x] Add a separate permission-aware safe-action shadow client with boundary-owned schemas and post-validation middleware; action consumption remains pending.
 - [ ] Add route and UI adapters.
 - [ ] Freeze the legacy baseline in an architecture test.
-- [ ] Add shadow comparison and divergence telemetry.
+- [x] Add separate `LEGACY_ALLOW_V1_DENY` and `LEGACY_DENY_V1_ALLOW` telemetry for the first Staff-access slice.
 - [ ] Migrate membership, finance, operations, then remaining reads/settings.
 - [ ] Prove zero legacy runtime consumers without deleting files.
 
 ### Verification and monitoring
 
-- [ ] Full bundle/normalization/default-deny tests.
+- [x] Full bundle/normalization/default-deny tests.
 - [ ] Two-Organization and cross-linked-resource tests.
 - [ ] Assigned/unassigned/inactive Staff tests.
 - [ ] Owner/last-owner/self-target tests.
+- [ ] Concurrent owner mutation tests.
+- [ ] Better Auth dual-authorization compatibility tests.
+- [x] Missing permission definition/target resolver/policy registration fail-closed tests.
 - [ ] Adapter short-circuit and role-change tests.
 - [ ] Redaction tests for patient, invitation, credential, and financial data.
-- [ ] Outcome, denial, unknown-role, tenant-mismatch, divergence, and latency metrics.
+- [ ] Outcome, denial, unknown-role, tenant-mismatch, divergence, and latency metrics. Sanitized structured events plus bounded process-local comparison/failure/latency aggregation are complete for A-123/A-124/A-125; durable Axiom collection is connected and saved operational queries/monitors exist, but the observation window and review evidence remain pending.
 - [ ] Temporary operational dashboard before broad enforcement.
+
+Current validation note: the authorization test/lint scope is green. Repository-wide `tsc --noEmit` remains blocked by the previously documented Decimal DTO and missing Case work-item `addons` mismatches outside Authorization V1; no current compiler error originates under `platform/authorization`, `modules/labos-authorization`, or their tests.
+
+Adapter checkpoint (2026-08-23): the kernel now creates a fresh fact cache per authorization evaluation. The first Prisma adapter slice implements identifier-only `staff`/`member` Organization-boundary resolution plus tenant-scoped Staff-access and membership-administration fact loaders. Queries use explicit minimal projections, facts are reused only inside one evaluation, cross-Organization targets deny before policies, and no action behavior is integrated yet.
+
+Policy checkpoint (2026-08-24): permission-keyed operation intent, all eight required membership/Staff-access policies, the immutable Owner/Admin target ceiling, Owner/self protections, invitation/linkage integrity, and policy registration are implemented. Focused tests cover the complete invite matrix, active and pending revocation targets, malformed facts, exact resend versus replacement intent, generic Member safeguards, and one-query request-local composition. Enforcement and application-action integration remain deliberately pending.
+
+Actor-adapter checkpoint (2026-08-24): a server-only, database-free adapter now converts canonical `TenantContext` into the generic `AuthorizationActor`. It copies only user, Member, Organization, and raw split role tokens; it never copies Lab/Staff facts or applies the temporary `member → staff` compatibility mapping. Immutable and malformed-role tests pass.
+
+Service-composition checkpoint (updated 2026-08-25): the concrete server-only service derives its activation manifest from the full trusted catalog: `staff.create`, `staff.access.invite`, `staff.access.revoke`, `membership.list`, `membership.read`, `membership.invite`, `membership.role.update`, and `membership.remove`. It composes fixed bundles, Staff/Member resolvers, all membership/Staff-access policies, typed operation intent, request-local facts, and sanitized monitoring. `membership.list` is Organization-scoped and uses the verified actor Organization plus fixed bundle without resource/policy work. `membership.invite` is also Organization-scoped but requires its trusted role-assignment policy and typed recipient/role intent. Unfinished permissions, missing resolvers/policies, incorrect target types, and role denials fail closed and are tested.
+
+Action-boundary checkpoint (updated 2026-08-25): a private server registry now binds stable IDs A-123/A-124/A-125 to fixed permissions and schema-validated input projectors. A-123 emits no validated identity fields because `staff.create` is Organization-scoped; A-124 emits only the Staff target plus typed invite role/email intent; A-125 emits only the Staff target. Client fields cannot select permissions, target types, Organizations, policies, or facts. Registry/input wiring failures use sanitized stable errors, and every registered boundary is startup-checked against the concrete service activation manifest.
+
+Shadow-coordinator checkpoint (2026-08-24): validated A-124/A-125 projections can now run the unchanged legacy role decision and the concrete V1 evaluator together. Results are classified as `MATCH_ALLOW`, `MATCH_DENY`, `LEGACY_ALLOW_V1_DENY`, or `LEGACY_DENY_V1_ALLOW`, while the returned enforcement source is structurally fixed to legacy. V1 exceptions become an observable high-severity failed/deny comparison and never block legacy-allowed work; legacy evaluator failure remains sanitized and fail-closed. The approved Manager legacy-allow/V1-deny restriction is tested for both boundaries. No action middleware consumes the coordinator yet.
+
+Shadow-telemetry checkpoint (2026-08-24): the comparison event now uses only server-owned labels and an explicit field allowlist. The boundary registry supplies action name and legacy required role; the coordinator supplies a cryptographically generated correlation ID, normalized recognized actor roles, and unknown-role count without recording raw unknown values. Target/identity/invitation IDs, emails, input, domain details, financial values, and provider/exception errors are absent by construction and redaction-tested. `LEGACY_DENY_V1_ALLOW` is high severity and carries the unique `highest` review priority; Manager's approved restriction is a lower-priority `LEGACY_ALLOW_V1_DENY` review event.
+
+Safe-action shadow-client checkpoint (updated 2026-08-25): `actionClientWithAuthorizationShadow(boundaryId)` is a separate selector over fully configured A-123/A-124/A-125 clients. Each boundary owns its Zod schema, trusted action metadata, actor/correlation middleware, and mandatory `useValidated()` authorization adapter, preventing schema swaps or omitted projection. The installed next-safe-action lifecycle guarantees projection occurs after validation and before the handler. Unknown boundaries fail closed with sanitized high-severity configuration telemetry; missing/throwing projectors and malformed projected intent are recorded as V1 configuration failures while the unchanged legacy role decision remains authoritative. `actionClientWithLab` itself has not been replaced.
+
+Pilot checkpoint (updated 2026-08-25): A-123 Staff creation joined A-124 Grant Staff access and A-125 Revoke Staff access as the third reviewed shadow boundary. A-123 is organization-scoped, projects no Staff PII or target ID, and evaluates `staff.create` for Owner/Admin/Manager while Staff remains denied. A-124/A-125 retain their existing Better Auth calls. A source-level architecture guard requires exactly these three consumers and proves A-083 invitation acceptance remains session-only. The pilot changes observation only—legacy allow/deny still controls handler execution.
+
+Rollout-gate checkpoint (2026-08-24): all requested evidence is mapped in `authorization-v1-shadow-pilot-rollout-gate.md`. Additional tests prove the middleware's shared enforcement wrapper never invokes the handler after legacy denial, propagate one server correlation ID through V1 and comparison telemetry, and exercise Organization B Staff targets through both A-124/A-125 while Organization A is active. The full regression suite now passes 30 files/200 tests and the complete changed authorization scope passes lint. Repository-wide lint still reports 17 errors/256 warnings and repository-wide TypeScript retains the documented unrelated DTO/mapping errors, so those baseline gates and the required runtime evidence keep enforcement blocked.
+
+Structured-telemetry checkpoint (2026-08-24): shadow events now pass through an explicit sanitizing adapter into a versioned provider-neutral envelope. The runtime console sink is replaceable, delivery failures are counted, and failures never affect authorization. A bounded process-local aggregator produces immutable count/divergence/failure/latency series while excluding Organization and correlation IDs from aggregation keys. Tests cover exact-envelope redaction, cross-Organization series coalescing, highest-priority divergence grouping, cardinality drops, delivery failure isolation, and reset. This is aggregation support, not a durable monitoring backend; enforcement remains blocked until a deployed log provider collects and queries events across instances.
+
+Membership-directory boundary checkpoint (2026-08-24): the first reviewed non-action boundary is registered as `N-001` for `/settings/team`. It binds the Organization-member directory to Organization-scoped, sensitive `membership.list` metadata from the trusted catalog and records the current tenant-member legacy behavior. The permission is active in the concrete service: Owner/Admin allow, Manager/Staff deny, unknown roles deny, and caller-supplied resources deny without invoking resolvers or policies. Manager/Staff denial is an intentional role-matrix restriction that must be observed in shadow before enforcement.
+
+Membership-directory read-model checkpoint (2026-08-24): `modules/labos-membership` now owns a server-only tenant-scoped repository, persistence-to-DTO mapper, and client-safe immutable DTO contracts for `Member -> AuthUser -> optional LabStaff`. Member and nested Staff predicates use canonical Organization/Lab IDs, pagination is bounded to 100 with a limit+1 next-page signal, and explicit projections exclude legacy/global authorization fields, credentials, Staff HR/contact/address/compensation, and unrelated relations. Multiple known roles are canonicalized, unknown role values are represented only as a count, and AuthUser ID is never exposed. Isolation, projection, pagination, invalid-input, mapping, and immutability tests are in place. The repository is reachable only through the N-001 loader.
+
+N-001 shadow-adapter checkpoint (2026-08-24): a dedicated server-only adapter converts canonical TenantContext identity into the generic actor and compares the current verified-tenant-member page decision with `membership.list`. It reuses the established four comparison categories and sanitized Axiom-compatible event, with `legacyRequiredRole: null` because the current boundary is membership-based rather than hierarchy-based. Owner/Admin produce `MATCH_ALLOW`; Manager/Staff and unknown-only roles produce the expected `LEGACY_ALLOW_V1_DENY` while the legacy page remains allowed. V1 errors are contained and observable, a missing legacy decision fails closed, and identity/correlation/isolation tests cover two Organizations without exposing user/member IDs or role tokens.
+
+Better Auth catch-all checkpoint (2026-08-25): the installed Organization plugin version 1.6.16 is represented by a complete 21-endpoint HTTP manifest. The catch-all permits only authenticated tenant discovery/selection and recipient invitation lifecycle; product mutations, product Member/Invitation reads, the Better Auth permission oracle, unknown Organization endpoints, and HTTP method mismatches deny before reaching Better Auth. Trusted server `auth.api` adapters remain available for dual-authority operations. Public Organization creation and all Organization deletion are additionally disabled in provider configuration. The internal call-site audit identified A-127 Staff deactivation as a remaining composite authorization bypass that must be split or require both `staff.deactivate` and `staff.access.revoke` before enforcement.
+
+A-127 separation checkpoint (2026-08-25): operational identity editing no longer accepts or persists `isActive` and contains no Organization Member or Invitation side effects. The former Manager-authorized access-revocation bypass is closed. A future standalone deactivation command must use `staff.deactivate`, revalidate workload/linkage facts at mutation time, and require access to be revoked separately through A-125 before deactivation.
+
+Generic membership boundary checkpoint (updated 2026-08-25): M-001/M-002/M-003 bind Member read, fixed-role update, and non-Owner removal to identifier-only Member targets. These new operations have no legacy gate: the adapter uses canonical TenantContext and authoritative V1 `require()` or fails closed. M-001 is connected to a tenant-scoped safe Member-detail loader. M-002/M-003 use dedicated enforcing safe-action clients plus a server-only dual-authority service: V1 runs before the handler and is revalidated immediately before Better Auth, which receives explicit Organization scope and independently authorizes the provider mutation. Provider targets and sanitized telemetry are verified. After explicit product approval, controlled M-002/M-003 controls were connected to `/settings/team` for non-production evidence; ownership and `membership.leave` remain unavailable. Better Auth compatibility tests also pin the future enforcement profile while leaving the active Manager-compatible shadow profile unchanged.
+
+Membership-command telemetry checkpoint (2026-08-25): `labos.membership_administration` now uses a dedicated versioned, server-only structured envelope and the configured immediate Axiom ingest client. Its payload is rebuilt from boundary, permission, Organization, correlation, outcome, phase, duration, and severity fields only. Member/user/target IDs, requested roles, emails, headers, inputs, provider errors, and arbitrary runtime properties are discarded by construction and tested. Delivery and sink failures remain isolated from command authorization and provider results. Real-session dataset receipt is pending the disposable two-Organization fixture tracked in `tasks_for_ali.md`.
+
+Generic membership integration checkpoint (2026-08-25): end-to-end in-memory tests cover M-002/M-003 across every actor/requested-role or actor/target-role combination, self and Owner protections, two-Organization mismatch/switching, and Better Auth deny-after-V1-allow behavior. M-003 is now explicitly Member-only: linked LabStaff targets fail the mandatory `membership.unlinked_staff_target` policy and must use A-125, so the generic operation cannot bypass Staff-access ceilings or unlink reconciliation.
+
+N-001 loader checkpoint (2026-08-24): a server-only orchestration loader enforces the required order `requireTenantContext -> N-001 shadow comparison -> tenant-scoped Member repository`. A denied/unavailable legacy decision prevents all data loading, while V1 denial or infrastructure failure remains observational during shadow rollout. Only canonical Organization/Lab IDs are forwarded to the repository, pagination remains bounded there, and only the client-safe directory DTO is returned. Ordering, denial short-circuit, V1-failure containment, tenant-resolution failure, and Organization switching are tested.
+
+N-001 page-integration checkpoint (updated 2026-08-25): `/settings/team` calls the N-001 loader and renders the real Organization Member directory. The previous static mock rows and legacy `LAB_ADMIN`/`LAB_MANAGER`/`LAB_STAFF` presentation were removed. Account identity, fixed Organization roles, optional Staff identity, verification state, unknown-role review state, and empty state are rendered from the safe DTO. Approved M-002/M-003 controls now consume only the Member ID plus canonical cached viewer Member/role facts; they never receive AuthUser IDs, raw provider roles, or tenant identifiers. Client visibility mirrors the reviewed matrix but the enforcing actions reload all security facts. Server revalidation plus client refresh update N-001 only after successful provider mutation.
 
 ## Rollout and rollback
 
 | Checkpoint | Evidence | Rollback |
 |---|---|---|
 | Core | Unit tests; no consumers | Remove unused integration |
-| Shadow | Divergence by action/role | Disable shadow evaluation |
-| Membership | Isolation/owner tests | Restore legacy membership slice |
+| Shadow | Both divergence directions by action/role; privilege expansions reviewed | Disable shadow evaluation |
+| Membership | Isolation, role-ceiling, invitation-idempotency, self-target, and concurrent owner-invariant tests | Restore legacy membership slice; record any restored Manager access as a known temporary privilege expansion |
 | Financial | Policy/redaction tests | Restore legacy financial slice |
 | Operations | Assignment/tenant tests | Restore legacy operation group |
 | Full cutover | Zero runtime legacy use | Re-enable documented legacy slice |
 
-Rollback must never disable both V1 and legacy enforcement.
+Rollback must never disable both V1 and legacy enforcement. A rollback that restores an intentionally removed legacy capability requires explicit incident approval and enhanced monitoring because it expands privilege relative to the approved V1 policy.
 
 ## Risks
 
@@ -164,9 +232,12 @@ Rollback must never disable both V1 and legacy enforcement.
 |---|---|
 | Hierarchy reintroduced | Explicit sets and full matrix tests |
 | Malformed roles | Known-role normalization; empty set denies |
+| Default `member` silently grants Staff | Isolated measured compatibility mapping with removal gate |
 | UI treated as security | Mandatory server enforcement |
 | IDOR/cross-tenant IDs | Tenant policy plus tenant-scoped mutations |
-| Authorization/mutation race | Transactional fact revalidation where practical |
+| Missing policy registration | Fail closed plus high-severity telemetry |
+| Authorization/mutation race | Mandatory atomic revalidation for critical invariants |
+| Better Auth/product policy mismatch | Dual-allow rule and configuration compatibility tests |
 | Policy query overhead | Minimal projections, request reuse, latency metrics |
 | Sensitive logging | Allowlisted event schema and redaction tests |
 | Big-bang regression | Vertical branches, shadow mode, per-slice rollback |
@@ -178,7 +249,7 @@ Rollback must never disable both V1 and legacy enforcement.
 - [ ] Every protected server boundary inventoried.
 - [ ] All covered operations use the central evaluator.
 - [ ] Policy, isolation, and redaction suites pass.
-- [ ] Divergence is zero or explicitly approved.
+- [ ] Both divergence directions are measured; privilege expansions and intentional differences are approved.
 - [ ] Monitoring is operational.
 - [ ] No runtime code depends on hierarchy or UI-only authorization.
 - [ ] Legacy artifacts are preserved for M5.

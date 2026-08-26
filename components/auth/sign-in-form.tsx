@@ -5,12 +5,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, Controller } from "react-hook-form";
 import { authClient } from "@/lib/auth-client";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { SignInUserInput, SignInUserInputSchema } from "@/schema/base/auth.base";
 import { useAction } from "next-safe-action/hooks";
 import { signInAction } from "@/actions/auth";
 import { handleSafeActionError } from "@/lib/safe-action-helpers";
-import { SIGN_IN_CALLBACK_URL } from "@/lib/urls";
 import { InputWithLabel } from "../ui/custom/input-with-label";
 import { CheckboxWithLabel } from "../ui/custom/checkbox-with-label";
 import { PasswordInputWithLabel } from "../ui/custom/password-input-with-label";
@@ -18,7 +16,7 @@ import { toast } from "sonner";
 import { Github, LoaderCircle } from "lucide-react";
 
 export function SignInForm({ callbackUrl }: { callbackUrl?: string | null }) {
-	const router = useRouter();
+	const postAuthUrl = `/auth/continue?callbackUrl=${encodeURIComponent(callbackUrl ?? "/dashboard")}`;
 
 	const form = useForm<SignInUserInput>({
 		resolver: zodResolver(SignInUserInputSchema),
@@ -33,8 +31,10 @@ export function SignInForm({ callbackUrl }: { callbackUrl?: string | null }) {
 	const { executeAsync: signIn, isExecuting: isLoggingIn } = useAction(signInAction, {
 		onSuccess: ({ data }) => {
 			if (data) {
-				const { result } = data;
-				if (result.redirect) router.push(callbackUrl ?? result.url ?? SIGN_IN_CALLBACK_URL);
+				// A document navigation makes the newly issued Better Auth cookie
+				// authoritative before an invitation is loaded again. A client-router
+				// transition can race cookie observation or reuse a cached public render.
+				window.location.assign(postAuthUrl);
 			}
 		},
 		onError: ({ error }) => {
@@ -71,14 +71,14 @@ export function SignInForm({ callbackUrl }: { callbackUrl?: string | null }) {
 
 	async function SignInWithProvider(provider: "github" | "google") {
 		await authClient.signIn.social(
-			{ provider, callbackURL: callbackUrl ?? '/dashboard' },
+			{ provider, callbackURL: postAuthUrl },
 			{
 				onError(ctx) {
 					toast.error(ctx.error.message);
 				},
 				onSuccess() {
 					toast.success(`Logged in successfully via ${provider === "github" ? "GitHub" : "Google"}`);
-					router.push(callbackUrl ?? "/dashboard");
+					window.location.assign(postAuthUrl);
 				},
 			},
 		);
