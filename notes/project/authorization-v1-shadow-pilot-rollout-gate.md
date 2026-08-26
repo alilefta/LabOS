@@ -245,6 +245,21 @@ Manager-session denial evidence received 2026-08-26: a real Manager session in
 DentaFusion rendered no invitation, role-update, or removal controls; a Staff
 target displayed `No administration permission`. No mutation was attempted.
 
+V1 canary evidence received 2026-08-26 in development: the process was
+restarted with `LABOS_AUTHORIZATION_MODE=v1`. An Owner successfully granted
+Staff access through A-124 and revoked Staff access through A-125. Both Axiom
+comparison records contained `enforcementSource: "v1"`, `MATCH_ALLOW`, and
+`POLICY_ALLOWED`. A Manager attempted A-124 three times; each produced
+`LEGACY_ALLOW_V1_DENY`, `AUTHZ_PERMISSION_NOT_GRANTED`, and
+`enforcementSource: "v1"`; no Staff-invitation provider event followed. A
+Staff actor attempted A-123 and was denied with
+`AUTHZ_PERMISSION_NOT_GRANTED`. These observations prove the V1 switch and
+the approved Manager/Staff restrictions, but do not complete the required
+two-Organization command matrix or final production approval. The Team detail
+settings page still has a legacy UI gate that excludes Admin; this is tracked
+as an application-surface TODO and does not weaken the server-side A-124/A-125
+decision.
+
 ### Required before UI connection
 
 - [x] Approve the generic Member-only removal matrix explicitly. Owner/Admin may remove any non-Owner, non-self Member who has no LabStaff link; Manager/Staff cannot remove Members. Approved 2026-08-25.

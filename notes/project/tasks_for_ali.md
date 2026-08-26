@@ -403,6 +403,19 @@ Partial runtime evidence (2026-08-25): Codex inspected `/settings/team` through
 a real active Manager session. The two Organization members rendered, while
 both rows showed "No administration permission" and exposed no role-update or
 removal controls. No mutation or active-Organization change was performed.
+
+### Follow-up UI tasks — separate from Authorization V1 kernel
+
+- [ ] Hide or disable Staff-only Staff-creation/access controls before submit;
+  the server correctly denies `staff.create`, but the current UI still lets a
+  Staff user open the form.
+- [ ] Decide how Admins should reach A-124/A-125 from the Staff detail surface.
+  The current `/team/:staffId?tab=settings` page gate allows only Owner and
+  Manager, so an Admin receives "Unauthorized access" despite the approved
+  server policy allowing Staff-access operations for Admin → Staff targets.
+- [ ] Keep operational compensation/schedule editing separately classified;
+  opening the A-124/A-125 security controls for Admin must not grant those
+  unrelated operational permissions.
 # Authorization V1 enforcement cutover — operator tasks
 
 These tasks are intentionally manual. Do not enable production enforcement
