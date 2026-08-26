@@ -231,6 +231,19 @@ membership, and Axiom received a sanitized correlated pair with an
 approximately 1.49-second provider duration. A meaningful Admin M-002 role
 transition remains pending.
 
+The meaningful Admin M-002 fixture is now defined: a disposable Member-only
+Manager in the active Organization must be changed to Staff by an Admin. A
+Staff-to-Staff submission is not accepted as evidence because it does not prove
+a provider role transition. The target must be non-Owner, non-self, and
+unlinked to LabStaff; the Admin may assign Staff only.
+
+Meaningful Admin M-002 evidence received 2026-08-26: an Owner invited a
+disposable Member-only Manager to Organization B, the recipient accepted, and
+the Admin changed that Member to Staff. The directory refreshed successfully.
+Axiom received a sanitized correlated `started`/`completed` provider pair with
+an approximately 1.34-second duration and no identity, role-intent, input, or
+provider error fields. The Admin M-002 allow path is now verified.
+
 Manager-session denial evidence received 2026-08-26: a real Manager session in
 DentaFusion rendered no invitation, role-update, or removal controls; a Staff
 target displayed `No administration permission`. No mutation was attempted.

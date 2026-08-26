@@ -31,7 +31,7 @@ create additional accounts merely to work around the missing navigation control.
 ### Ali task A-001 — prepare a disposable two-Organization test fixture
 
 - [x] In a non-production environment, create or select Organization A and Organization B.
-- [ ] Ensure the test fixture collectively provides Owner, Admin, Manager, and Staff sessions.
+- [x] Ensure the test fixture collectively provides Owner, Admin, Manager, and Staff sessions.
 - [x] Ensure Organization A contains:
   - one disposable Member-only non-Owner with no linked `LabStaff`, for
     M-002/M-003 tests;
@@ -39,7 +39,7 @@ create additional accounts merely to work around the missing navigation control.
   - no irreplaceable account as the target of a removal test.
 - [x] Open `/select-organization?callbackUrl=/settings/team` as the invited
   multi-Organization Staff account and verify switching changes the visible Lab.
-- [ ] Confirm every test account can sign in and select its intended active Organization.
+- [x] Confirm every test account can sign in and select its intended active Organization.
 - [ ] Sign in to the browser session that Codex should use, or be ready to run
   the documented matrix manually while Codex reviews server/Axiom evidence.
 
@@ -94,6 +94,34 @@ The row disappeared immediately while Owner and Admin remained. Axiom received
 sanitized `started` and `completed` records with one correlation ID; provider
 duration was approximately 1.49 seconds. The removed AuthUser account and its
 membership in Organization A were intentionally preserved.
+
+### Ali task A-008 — prepare the meaningful Admin M-002 fixture
+
+The approved Admin ceiling permits assigning only the `Staff` role. A target
+already holding `Staff` would make M-002 a no-op, so the live allow test needs a
+disposable Member-only `Manager` target in the same Organization. The target
+must not be linked to `LabStaff`, must not be the Admin's own account, and must
+not be an Owner.
+
+- [x] As Owner, invite the disposable account to Organization B with the
+  `Manager` Organization role through M-004.
+- [x] Accept that invitation with the disposable account and select
+  Organization B.
+- [x] Sign in as the prepared Admin in Organization B and open `/settings/team`.
+- [x] Change the Member-only Manager target to `Staff` and save.
+- [x] Confirm the row refreshes and now displays `Staff`.
+- [x] In Axiom, confirm M-002 has a sanitized `started`/`completed` pair with
+  one correlation ID and no identity, role-intent, or provider-error fields.
+
+This fixture exercises a real Better Auth role transition while preserving the
+approved Admin restriction: Admin assigns Staff, never Owner/Admin/Manager.
+
+Real-session evidence received 2026-08-26: Owner created the disposable
+Member-only Manager invitation in Organization B, the recipient accepted it,
+and the prepared Admin changed that Member to Staff. The directory refreshed
+successfully. Axiom recorded sanitized M-002 `started`/`completed` events with
+one correlation ID and an approximately 1.34-second provider duration. No
+identity, role intent, input, or provider error was retained.
 
 Manager-session denial evidence (2026-08-26): in DentaFusion, a real Manager
 session showed no invitation control, no role-update control, and no removal
@@ -230,11 +258,11 @@ rejected attempt. Retry the same Owner role-update scenario below.
 - [x] As Owner, confirm the Owner row says ownership is protected and the
   signed-in row cannot target itself.
 - [x] Confirm a linked Staff row displays "Use Staff access revocation instead."
-- [ ] Prepare a disposable Member-only, non-Owner target without editing
+- [x] Prepare a disposable Member-only, non-Owner target without editing
   production data or unlinking a real Staff profile manually.
-- [ ] Remove only that disposable Member through the confirmation dialog and
+- [x] Remove only that disposable Member through the confirmation dialog and
   confirm the row disappears after success.
-- [ ] In Axiom, confirm the M-003 command produces `started` and `completed`
+- [x] In Axiom, confirm the M-003 command produces `started` and `completed`
   records with the same redaction guarantees.
 
 ### What Codex does after A-004
@@ -258,12 +286,12 @@ Ali confirmed after refresh that the current Owner displays both `Current
 account` and `Ownership is protected`, with no mutation controls. The Owner,
 self-target, and linked-Staff UI protection checks pass.
 
-M-003 fixture status (2026-08-25): blocked on test-fixture availability, not on
-an implementation failure. The current directory contains only the signed-in
-Owner and a Member linked to `LabStaff`; neither is an eligible generic-removal
-target. The UI correctly renders no Remove button. Do not expose removal for
-either row and do not manually unlink Staff. M-003 runtime verification waited
-for a controlled Member-only invitation/provisioning path.
+M-003 fixture status (superseded 2026-08-26): the earlier fixture block is
+resolved through the controlled Member-only invitation path. A real Admin
+removed the disposable non-Owner, non-self Member from Organization B through
+the confirmation dialog; the row disappeared, the other Organization
+membership remained intact, and sanitized Axiom telemetry was verified. No
+manual database unlink or Staff mutation was used.
 
 M-004 implementation checkpoint (2026-08-25): the controlled Member-only
 invitation path is now available from `/settings/team`. It creates a Better Auth
