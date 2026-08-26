@@ -115,14 +115,10 @@ The linked Staff/Admin row retained role-update controls but replaced generic
 membership removal with `Use Staff access revocation instead.` This confirms
 the self-target, ownership, and A-125 routing presentation rules.
 
-M-003 runtime evidence remains fixture-blocked. The tested Organization has no
-disposable Member-only target: its only non-Owner Member is linked to
-`LabStaff`, so the UI correctly withholds generic removal and directs access
-revocation through A-125. No security rule will be relaxed and no Staff link
-will be manually removed to manufacture a test case. Runtime M-003 verification
-waited for a controlled Member-only invitation/provisioning path. M-004 now
-provides that path under V1 + Better Auth dual authorization; real M-004 and
-M-003 provider evidence remains pending Ali's disposable-fixture run.
+M-003 fixture block (superseded 2026-08-26): the controlled Member-only
+invitation path provided a safe disposable target. Real Admin M-003 removal
+completed in Organization B with the row removed, the other Organization
+membership preserved, and sanitized Axiom telemetry verified.
 
 M-004 automated checkpoint (2026-08-25): `membership.invite` is an
 Organization-scoped, critical, policy-required permission. Its trusted schema
@@ -197,8 +193,9 @@ configuration, or evaluation-failure events. It also proved real Axiom receipt
 from the configured development deployment. The M-002 Owner allow path
 completed against Better Auth in approximately 1.38 seconds and refreshed the
 directory row. The M-004 Owner invitation and M-003 Owner removal paths also
-completed with sanitized correlated events. Admin allow, Manager/Staff denial,
-provider denial, and remaining two-Organization command scenarios are pending.
+completed with sanitized correlated events. Admin M-002/M-003/M-004 allow paths
+and Manager/Staff UI denial are now verified; provider denial and remaining
+two-Organization command scenarios remain pending.
 
 The real Better Auth Organization selector was also verified with two identity
 states: a single-membership account saw exactly one Organization, while an
@@ -251,7 +248,10 @@ target displayed `No administration permission`. No mutation was attempted.
 ### Required before UI connection
 
 - [x] Approve the generic Member-only removal matrix explicitly. Owner/Admin may remove any non-Owner, non-self Member who has no LabStaff link; Manager/Staff cannot remove Members. Approved 2026-08-25.
-- [ ] Exercise M-002 and M-003 against real Better Auth sessions in a non-production environment for Owner allow, Admin allow, Manager deny, Staff deny, provider deny, and two Organizations.
+- [ ] Complete the remaining M-002/M-003 live evidence: provider-denial
+  handling and command-level two-Organization isolation. Owner/Admin allow and
+  Manager/Staff denial are verified; retain this gate unchecked until the
+  remaining cases are recorded.
 - [x] Route `labos.membership_administration` through the structured Axiom sink. The versioned adapter reconstructs an explicit allowlist and tests prove runtime extras containing Member IDs, roles, headers/input-equivalent data, emails, and provider errors are discarded. Runtime dataset receipt remains part of the real-session fixture task in `tasks_for_ali.md`.
 - [x] Add destructive confirmation UX, clear messaging that linked Staff access must be managed through A-125, pending/error states, and N-001 cache revalidation after success.
 - [x] Initially expose one fixed role in the UI while retaining the multi-role server contract. Approved 2026-08-25.
@@ -263,8 +263,8 @@ target displayed `No administration permission`. No mutation was attempted.
 
 The approved controls are connected to collect real-provider evidence. The
 server remains authoritative and fail closed; UI visibility is convenience
-only. Production rollout remains blocked on the remaining Admin/Manager/Staff
-runtime matrix, provider-denial evidence, two-Organization command scenarios,
+only. Production rollout remains blocked on provider-denial evidence,
+two-Organization command scenarios,
 and final review. The real Owner M-002, M-003, and M-004 allow paths, sanitized
 Axiom receipt, invitation authentication handoff, active-Organization data
 isolation, and both zero-membership and remaining-membership post-revocation
