@@ -5,6 +5,10 @@ import {
 	ownerAc,
 } from 'better-auth/plugins/organization/access'
 import type { AccessControl, Role } from 'better-auth/plugins/access'
+import {
+	getLabOSAuthorizationMode,
+	type LabOSAuthorizationMode,
+} from '@/modules/labos-authorization/enforcement-mode'
 
 /**
  * Better Auth Organization roles govern membership-management operations only.
@@ -51,3 +55,16 @@ export const authorizationV1EnforcementOrganizationAccess = {
 		staff: staffOrganizationRole as Role,
 	},
 } as const
+
+/**
+ * Selects the provider role profile at process startup. Better Auth remains a
+ * second authority for its own Organization APIs; its Manager capabilities
+ * are narrowed only when LabOS V1 is explicitly enforcing.
+ */
+export function getLabOSOrganizationAccessForMode(
+	mode: LabOSAuthorizationMode = getLabOSAuthorizationMode(),
+) {
+	return mode === 'v1'
+		? authorizationV1EnforcementOrganizationAccess
+		: organizationAccess
+}

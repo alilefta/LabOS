@@ -253,3 +253,12 @@ Rollback must never disable both V1 and legacy enforcement. A rollback that rest
 - [ ] Monitoring is operational.
 - [ ] No runtime code depends on hierarchy or UI-only authorization.
 - [ ] Legacy artifacts are preserved for M5.
+# Enforcement cutover checkpoint (2026-08-26)
+
+A-124 and A-125 now consume a dedicated deployment-controlled cutover client.
+`LABOS_AUTHORIZATION_MODE` defaults to `shadow`, where legacy authorization
+remains authoritative. `v1` makes the V1 decision authoritative and denies
+projection/evaluation failures; `legacy-rollback` restores legacy authority.
+A-123 remains shadow-only. Better Auth selects the narrowed Manager provider
+profile only in `v1` mode. Production activation remains blocked until the
+pilot rollout gate is explicitly approved.

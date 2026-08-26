@@ -61,7 +61,7 @@ export type LabOSShadowComparisonMonitorEvent = Readonly<{
 	v1Outcome: 'allowed' | 'denied' | 'failed'
 	v1Reason: AuthorizationDecision['reason'] | typeof LABOS_SHADOW_ERROR_CODES.V1_EVALUATION_FAILED
 	comparison?: LabOSShadowComparison
-	enforcementSource: 'legacy'
+	enforcementSource: 'legacy' | 'v1'
 	severity: 'info' | 'warning' | 'high'
 	reviewPriority: 'routine' | 'review' | 'highest'
 	durationMs: number
@@ -79,7 +79,7 @@ export type LabOSShadowConfigurationFailureEvent = Readonly<{
 		| 'AUTHZ_BOUNDARY_NOT_REGISTERED'
 		| 'AUTHZ_BOUNDARY_VALIDATED_INPUT_INVALID'
 		| 'AUTHZ_BOUNDARY_PROJECTOR_FAILED'
-	enforcementSource: 'legacy'
+	enforcementSource: 'legacy' | 'v1'
 	severity: 'high'
 	reviewPriority: 'review'
 }>
@@ -116,12 +116,13 @@ export function recordLabOSShadowConfigurationFailure(
 		'event' | 'enforcementSource' | 'severity' | 'reviewPriority'
 	>,
 	monitor: LabOSShadowMonitor = structuredLabOSShadowMonitor,
+	enforcementSource: 'legacy' | 'v1' = 'legacy',
 ): void {
 	try {
 		monitor.record({
 			event: 'labos.authorization.shadow_configuration_failure',
 			...event,
-			enforcementSource: 'legacy',
+			enforcementSource,
 			severity: 'high',
 			reviewPriority: 'review',
 		})
@@ -148,8 +149,8 @@ export type LabOSShadowEvaluationResult = Readonly<{
 	comparison: LabOSShadowComparison
 	legacyDecision: Readonly<{ allowed: boolean }>
 	v1Decision: ShadowV1Decision
-	/** The only decision that shadow middleware may enforce. */
-	enforcement: Readonly<{ source: 'legacy'; allowed: boolean }>
+	/** The decision selected by the deployment-owned enforcement mode. */
+	enforcement: Readonly<{ source: 'legacy' | 'v1'; allowed: boolean }>
 }>
 
 export type LabOSShadowEvaluationInput = Readonly<{
@@ -165,6 +166,8 @@ export type LabOSShadowEvaluationOptions = Readonly<{
 	now?: () => number
 	/** Injectable only for deterministic tests; runtime uses crypto.randomUUID. */
 	generateCorrelationId?: () => string
+	/** Legacy is the default; V1 is enabled only by the enforcement cutover. */
+	enforcementSource?: 'legacy' | 'v1'
 }>
 
 export function classifyLabOSShadowComparison(
@@ -225,6 +228,7 @@ export async function evaluateLabOSAuthorizationShadow(
 	const service = options.authorizationService ?? labosAuthorizationService
 	const monitor = options.monitor ?? structuredLabOSShadowMonitor
 	const now = options.now ?? (() => performance.now())
+	const enforcementSource = options.enforcementSource ?? 'legacy'
 	const correlationId = (
 		options.generateCorrelationId ?? (() => crypto.randomUUID())
 	)()
@@ -259,7 +263,7 @@ export async function evaluateLabOSAuthorizationShadow(
 					reason: LABOS_SHADOW_ERROR_CODES.V1_EVALUATION_FAILED,
 				})
 
-	if (legacyResult.status === 'rejected') {
+	if (legacyResult.status === 'rejected' && enforcementSource === 'legacy') {
 		try {
 			monitor.record({
 				event: 'labos.authorization.shadow_comparison',
@@ -290,7 +294,11 @@ export async function evaluateLabOSAuthorizationShadow(
 		throw new LabOSShadowLegacyEvaluationError()
 	}
 
-	const legacyAllowed = legacyResult.value === true
+	// In V1 mode, a legacy failure is observational only because the legacy
+	// gate is no longer authoritative. Treat it as denied for comparison and
+	// retain the V1 decision as the enforcing result.
+	const legacyAllowed =
+		legacyResult.status === 'fulfilled' && legacyResult.value === true
 	const comparison = classifyLabOSShadowComparison(
 		legacyAllowed,
 		v1Decision.allowed,
@@ -302,8 +310,8 @@ export async function evaluateLabOSAuthorizationShadow(
 		legacyDecision: Object.freeze({ allowed: legacyAllowed }),
 		v1Decision,
 		enforcement: Object.freeze({
-			source: 'legacy' as const,
-			allowed: legacyAllowed,
+			source: enforcementSource,
+			allowed: enforcementSource === 'v1' ? v1Decision.allowed : legacyAllowed,
 		}),
 	})
 
@@ -318,7 +326,12 @@ export async function evaluateLabOSAuthorizationShadow(
 			unknownRoleCount: normalizedRoles.unknownRoleCount,
 			legacyRequiredRole: input.projection.legacyRequiredRole,
 			correlationId,
-			legacyOutcome: legacyAllowed ? 'allowed' : 'denied',
+			legacyOutcome:
+				legacyResult.status === 'rejected'
+					? 'failed'
+					: legacyAllowed
+						? 'allowed'
+						: 'denied',
 			v1Outcome:
 				v1Decision.status === 'failed'
 					? 'failed'
@@ -327,7 +340,7 @@ export async function evaluateLabOSAuthorizationShadow(
 						: 'denied',
 			v1Reason: v1Decision.reason,
 			comparison,
-			enforcementSource: 'legacy',
+			enforcementSource,
 			severity:
 				v1Decision.status === 'failed' ||
 				comparison === 'LEGACY_DENY_V1_ALLOW'

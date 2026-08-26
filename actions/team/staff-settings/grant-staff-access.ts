@@ -3,7 +3,7 @@
 import { headers } from 'next/headers'
 
 import { createStaffOrganizationInvitation } from '@/lib/staff-invitation'
-import { actionClientWithAuthorizationShadow } from '@/lib/safe-action'
+import { actionClientWithAuthorizationCutover } from '@/lib/safe-action'
 
 /**
  * Creates or resends Better Auth Organization access for an existing LabStaff
@@ -11,7 +11,7 @@ import { actionClientWithAuthorizationShadow } from '@/lib/safe-action'
  * optional staff-link intent consumed after acceptance.
  */
 export const grantStaffSystemAccessAction =
-	actionClientWithAuthorizationShadow('A-124')
+	actionClientWithAuthorizationCutover('A-124')
 	.action(async ({ parsedInput, ctx }) => {
 		const result = await createStaffOrganizationInvitation({
 			tenant: {

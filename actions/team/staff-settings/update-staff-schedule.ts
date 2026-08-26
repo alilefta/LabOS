@@ -55,8 +55,9 @@ export const updateStaffScheduleAction = actionClientWithLab
 				success: true,
 				workingDays: updatedStaff.workingDays,
 			};
-		} catch (error: any) {
-			console.error("[Update-Staff-Schedule-Action] Error:", error.message);
+		} catch (error: unknown) {
+			const message = error instanceof Error ? error.message : "Unknown error";
+			console.error("[Update-Staff-Schedule-Action] Error:", message);
 			if (error instanceof Error) throw error;
 			throw ERRORS.OPERATION_NOT_ALLOWED;
 		}

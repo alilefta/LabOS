@@ -4,6 +4,7 @@ import type { AuthorizationActor } from '@/platform/authorization'
 import {
 	authorizeLabOSActionInShadow,
 	evaluateLegacyLabRole,
+	executeLabOSAuthorizedHandler,
 	executeLegacyAuthorizedShadowHandler,
 } from '@/modules/labos-authorization/action-shadow-adapter'
 import type { LabOSShadowMonitor } from '@/modules/labos-authorization/shadow-evaluation'
@@ -134,6 +135,24 @@ describe('LabOS shadow action adapter', () => {
 				},
 			}),
 		).rejects.toThrow('legacy denied')
+		expect(handler).not.toHaveBeenCalled()
+	})
+
+	it('denies a V1 cutover configuration failure even when legacy allowed', async () => {
+		const handler = vi.fn()
+		await expect(
+			executeLabOSAuthorizedHandler({
+				authorization: {
+					status: 'v1_configuration_failed',
+					legacyAllowed: true,
+				},
+				enforcementSource: 'v1',
+				handler,
+				onDenied: () => {
+					throw new Error('v1 denied')
+				},
+			}),
+		).rejects.toThrow('v1 denied')
 		expect(handler).not.toHaveBeenCalled()
 	})
 

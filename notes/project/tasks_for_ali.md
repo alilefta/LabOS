@@ -403,3 +403,22 @@ Partial runtime evidence (2026-08-25): Codex inspected `/settings/team` through
 a real active Manager session. The two Organization members rendered, while
 both rows showed "No administration permission" and exposed no role-update or
 removal controls. No mutation or active-Organization change was performed.
+# Authorization V1 enforcement cutover — operator tasks
+
+These tasks are intentionally manual. Do not enable production enforcement
+until the rollout gate has explicit product/security approval.
+
+- [ ] Confirm the A-124/A-125 runtime evidence and rollout-gate approvals are
+  complete.
+- [ ] In a controlled deployment, set `LABOS_AUTHORIZATION_MODE=v1` and restart
+  all application instances so the process-startup profile is consistent.
+- [ ] Exercise Owner/Admin/Manager/Staff and two-Organization scenarios.
+- [ ] Watch Axiom for V1 enforcement-source events, provider denials, and any
+  high-priority divergence or infrastructure failure.
+- [ ] If an incident occurs, set
+  `LABOS_AUTHORIZATION_MODE=legacy-rollback`, restart all instances, and record
+  that this restores legacy Manager access.
+
+After the manual verification is complete, the implementation task is to
+review the Axiom evidence, update the rollout gate, and decide whether to keep
+V1 enabled or return to shadow mode.

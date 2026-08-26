@@ -51,8 +51,9 @@ export const updateStaffCompensationAction = actionClientWithLab
 						: null,
 				},
 			}
-		} catch (error: any) {
-			console.error('[Update-Staff-Compensation-Action] Error:', error.message)
+		} catch (error: unknown) {
+			const message = error instanceof Error ? error.message : 'Unknown error'
+			console.error('[Update-Staff-Compensation-Action] Error:', message)
 			if (error instanceof Error) throw error
 			throw ERRORS.OPERATION_NOT_ALLOWED
 		}

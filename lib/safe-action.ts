@@ -26,8 +26,13 @@ import { createLabOSAuthorizationActor } from '@/modules/labos-authorization/act
 import {
 	authorizeLabOSActionInShadow,
 	evaluateLegacyLabRole,
+	executeLabOSAuthorizedHandler,
 	executeLegacyAuthorizedShadowHandler,
 } from '@/modules/labos-authorization/action-shadow-adapter'
+import {
+	getLabOSAuthorizationMode,
+	isLabOSAuthorizationV1Enforced,
+} from '@/modules/labos-authorization/enforcement-mode'
 import { recordLabOSShadowConfigurationFailure } from '@/modules/labos-authorization/shadow-evaluation'
 import {
 	GrantStaffSystemAccessInputSchema,
@@ -427,6 +432,42 @@ const authorizationShadowValidatedMiddleware = createValidatedMiddleware<{
 	})
 })
 
+const authorizationCutoverValidatedMiddleware = createValidatedMiddleware<{
+	metadata: AuthorizationShadowMetadata
+	parsedInput: unknown
+	ctx: {
+		authorizationActor: ReturnType<typeof createLabOSAuthorizationActor>
+		authorizationCorrelationId: string
+		actor: { legacyRole: LabRole }
+	}
+}>().define(async ({ next, ctx, metadata, parsedInput }) => {
+	const enforcementSource = isLabOSAuthorizationV1Enforced() ? 'v1' : 'legacy'
+	const result = await authorizeLabOSActionInShadow({
+		boundaryId: metadata.authorizationBoundaryId,
+		parsedInput,
+		actor: ctx.authorizationActor,
+		legacyActorRole: ctx.actor.legacyRole,
+		correlationId: ctx.authorizationCorrelationId,
+		enforcementSource,
+	})
+
+	return executeLabOSAuthorizedHandler({
+		authorization: result,
+		enforcementSource,
+		handler: () =>
+			next({
+				ctx: {
+					...ctx,
+					authorizationShadow: result,
+					authorizationMode: getLabOSAuthorizationMode(),
+				},
+			}),
+		onDenied: () => {
+			throw ERRORS.MISSING_PERMISSIONS
+		},
+	})
+})
+
 const authorizationShadowBaseClient = authorizationShadowScopedClient
 	.use(authorizationShadowLoggingMiddleware)
 	.use(requireUserMiddleware)
@@ -464,6 +505,25 @@ const AUTHORIZATION_SHADOW_ACTION_CLIENTS = Object.freeze({
 		.useValidated(authorizationShadowValidatedMiddleware),
 })
 
+const AUTHORIZATION_CUTOVER_ACTION_CLIENTS = Object.freeze({
+	'A-124': authorizationShadowBaseClient
+		.metadata({
+			actionName: grantAccessBoundary.actionName,
+			requiredLabRole: grantAccessBoundary.legacyRequiredRole,
+			authorizationBoundaryId: grantAccessBoundary.boundaryId,
+		})
+		.inputSchema(GrantStaffSystemAccessInputSchema)
+		.useValidated(authorizationCutoverValidatedMiddleware),
+	'A-125': authorizationShadowBaseClient
+		.metadata({
+			actionName: revokeAccessBoundary.actionName,
+			requiredLabRole: revokeAccessBoundary.legacyRequiredRole,
+			authorizationBoundaryId: revokeAccessBoundary.boundaryId,
+		})
+		.inputSchema(RevokeStaffSystemAccessInputSchema)
+		.useValidated(authorizationCutoverValidatedMiddleware),
+})
+
 /**
  * Selects an isolated, fully configured Authorization V1 shadow client.
  * Each stable boundary owns its schema and validated middleware, preventing
@@ -499,6 +559,33 @@ export function actionClientWithAuthorizationShadow(
 		correlationId: crypto.randomUUID(),
 		failureReason: error.code,
 	})
+	throw error
+}
+
+/**
+ * Selects the two pilot clients whose enforcement can be switched from the
+ * legacy gate to V1 with LABOS_AUTHORIZATION_MODE=v1. The default remains
+ * shadow and `legacy-rollback` remains an explicit operational fallback.
+ */
+export function actionClientWithAuthorizationCutover(
+	boundaryId: 'A-124',
+): (typeof AUTHORIZATION_CUTOVER_ACTION_CLIENTS)['A-124']
+export function actionClientWithAuthorizationCutover(
+	boundaryId: 'A-125',
+): (typeof AUTHORIZATION_CUTOVER_ACTION_CLIENTS)['A-125']
+export function actionClientWithAuthorizationCutover(
+	boundaryId: 'A-124' | 'A-125',
+) {
+	const client = AUTHORIZATION_CUTOVER_ACTION_CLIENTS[boundaryId]
+	if (client) return client
+	const error = new LabOSActionBoundaryError(
+		LABOS_ACTION_BOUNDARY_ERROR_CODES.BOUNDARY_NOT_REGISTERED,
+	)
+	recordLabOSShadowConfigurationFailure({
+		boundaryId,
+		correlationId: crypto.randomUUID(),
+		failureReason: error.code,
+	}, undefined, isLabOSAuthorizationV1Enforced() ? 'v1' : 'legacy')
 	throw error
 }
 
