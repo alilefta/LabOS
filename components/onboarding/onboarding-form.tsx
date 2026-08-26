@@ -24,7 +24,12 @@ import { LabLogoUpload } from './lab-logo-upload'
  * onboarding. Operational staff details are intentionally excluded because an
  * Organization owner does not necessarily have a LabStaff persona.
  */
-export const OnboardingForm = memo(function OnboardingForm() {
+export const OnboardingForm = memo(function OnboardingForm({
+	mode = 'initial',
+}: {
+	mode?: 'initial' | 'additional'
+}) {
+	const isAdditionalWorkspace = mode === 'additional'
 	const router = useRouter()
 	const form = useForm<CreateLabWorkspaceInput>({
 		resolver: zodResolver(CreateLabWorkspaceInputSchema),
@@ -92,7 +97,9 @@ export const OnboardingForm = memo(function OnboardingForm() {
 					L
 				</div>
 				<h1 className="text-3xl font-bold tracking-tight text-foreground">
-					Set up your Lab
+					{isAdditionalWorkspace
+						? 'Create another workspace'
+						: 'Set up your Lab'}
 				</h1>
 			</div>
 
@@ -109,10 +116,14 @@ export const OnboardingForm = memo(function OnboardingForm() {
 						>
 							<div className="mb-8 text-center">
 								<h2 className="text-2xl font-bold tracking-tight text-foreground">
-									Workspace information
+									{isAdditionalWorkspace
+										? 'New workspace information'
+										: 'Workspace information'}
 								</h2>
 								<p className="mt-1 text-sm text-muted-foreground">
-									This is how clinics and team members identify your lab.
+									{isAdditionalWorkspace
+										? 'Create a separate Organization and Lab for this account.'
+										: 'This is how clinics and team members identify your lab.'}
 								</p>
 							</div>
 

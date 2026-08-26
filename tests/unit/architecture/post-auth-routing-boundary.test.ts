@@ -39,9 +39,13 @@ describe('post-authentication tenant restoration routing', () => {
 	it('allows only authenticated tenant-bootstrap routes past the onboarding hint', () => {
 		const source = readFileSync(join(process.cwd(), 'proxy.ts'), 'utf8')
 		const unauthenticatedBranch = source.indexOf('if (!hasSession)')
-		const bootstrapAllowance = source.indexOf('if (isTenantBootstrapRoute)')
+		const bootstrapAllowance = source.indexOf(
+			'if (isTenantBootstrapRoute || isOrganizationCreationRoute)',
+		)
 
 		expect(source).toContain("['/auth/continue', '/select-organization']")
+		expect(source).toContain("const organizationCreationRoute = '/organizations/new'")
+		expect(source).toContain('isTenantBootstrapRoute || isOrganizationCreationRoute')
 		expect(unauthenticatedBranch).toBeGreaterThan(-1)
 		expect(bootstrapAllowance).toBeGreaterThan(unauthenticatedBranch)
 	})

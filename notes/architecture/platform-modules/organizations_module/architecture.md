@@ -58,6 +58,14 @@ The onboarding monitor emits structured step, outcome, correlation ID, safe acto
 
 The Organization/Lab provisioning service does not write `AuthUser.labId` or create `LabUser`/`LabStaff`. The workspace onboarding action now delegates to this service. Its former export remains temporarily as a deprecated alias, while the form sends only Lab workspace fields and no longer collects operational staff data. Legacy models and tenant middleware remain for existing runtime paths until the tenant-context cutover.
 
+Authenticated users can provision an additional Organization + Lab from
+`/organizations/new`. This entry point is linked from both the
+Organization-selection page and the shared desktop/mobile workspace switcher.
+It reuses the same server-owned onboarding action, derives identity from the
+current session, keeps Better Auth browser Organization creation disabled, and
+selects the newly completed Organization only after its Lab exists. The
+existing slug and one-to-one constraints preserve idempotent retries.
+
 The public request-facing entry point derives AuthUser ID and request headers from the authenticated server session. These security inputs are not accepted from client-controlled onboarding data. A lower-level dependency-injected orchestrator exists only for focused tests and trusted internal orchestration.
 
 ### Runtime tenant context
@@ -100,7 +108,10 @@ Invitation links use `/invite/[invitationId]`. The public page preserves a safe 
 
 - [ ] Existing Labs and memberships reconcile one-to-one.
 - [x] Fresh sessions restore a sole Organization and require explicit selection for multiple Organizations.
-- [ ] In-app Organization switching is available after entering the product.
+- [x] In-app Organization switching is available after entering the product.
+- [ ] Authenticated users can create an additional Organization + Lab from the
+  product shell and the selection page (manual verification tracked in
+  `notes/project/tasks_for_ali.md`, A-009).
 - [ ] Switching changes resolved Lab context and tenant-keyed caches.
 - [ ] Cross-tenant and stale-membership tests pass.
 - [ ] Onboarding retries cannot create duplicate Organizations or Labs.

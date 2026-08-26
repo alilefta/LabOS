@@ -20,13 +20,15 @@ showed the Organization A Owner plus the invited Staff Member and its linked
 operational `LabStaff` profile. This verifies the important multi-Organization
 identity shape and Staff linkage, but not yet the complete four-role matrix.
 
-The secure selection page already exists but is not linked from the application
-shell. Until the shell switcher is implemented, use:
+The secure selection page and application-shell workspace switcher use the
+authoritative Better Auth Organization list. To test selection directly, use:
 
 `/select-organization?callbackUrl=/settings/team`
 
-This uses Better Auth's authoritative Organization list and `setActive`; do not
-create additional accounts merely to work around the missing navigation control.
+This uses Better Auth's authoritative Organization list and `setActive`. The
+shell menu now also includes `Create a new workspace`, which opens the
+authenticated `/organizations/new` provisioning page; do not create
+additional accounts merely to work around tenant navigation.
 
 ### Ali task A-001 — prepare a disposable two-Organization test fixture
 
@@ -180,7 +182,9 @@ verified.
 Codex records the shell usability check, then returns to the Authorization V1
 membership gate: Admin/Manager real-session fixtures, M-002/M-003 controlled
 test exposure, command telemetry evidence, and the explicit product decisions
-in A-002/A-003.
+in A-002/A-003. Additional Organization creation is tracked separately in
+A-009 so provisioning verification does not get mixed with authorization
+evidence.
 
 ### What Codex does after A-001
 
@@ -416,6 +420,38 @@ removal controls. No mutation or active-Organization change was performed.
 - [ ] Keep operational compensation/schedule editing separately classified;
   opening the A-124/A-125 security controls for Admin must not grant those
   unrelated operational permissions.
+
+### Ali task A-009 — verify additional Organization creation
+
+The authenticated workspace-creation flow is now available without creating
+another account. The selector and the desktop/mobile workspace switcher link
+to `/organizations/new`. The page uses the existing server-owned,
+idempotent Organization + Lab onboarding service; it does not expose a direct
+Better Auth Organization-creation endpoint or accept a caller-supplied user
+ID.
+
+- [ ] Sign in as an account that already owns one Organization.
+- [ ] Open the workspace switcher and choose `Create a new workspace`.
+- [ ] Confirm `/organizations/new` shows the additional-workspace copy.
+- [ ] Submit a distinct Organization/Lab name and slug.
+- [ ] Confirm the new Organization and Lab are created once and become active.
+- [ ] Confirm `/dashboard` and `/settings/team` show only the new active
+  Organization's data.
+- [ ] Return to the switcher and confirm both Organizations are listed.
+- [ ] Open `/select-organization` directly and confirm it offers the same
+  creation option for one- and multi-Organization accounts.
+- [ ] While signed out, open `/organizations/new` and confirm it redirects to
+  sign-in without revealing the form or provisioning anything.
+
+If the submit fails, record only the safe user-facing error and whether the
+Organization list changed. Do not record credentials, invitation links,
+provider responses, or identifiers in this file.
+
+### What Codex does after A-009
+
+Codex reviews the manual result, checks for duplicate provisioning or active-
+Organization isolation issues, runs the automated suite/lint, and updates the
+Organizations architecture definition-of-done and rollout notes.
 # Authorization V1 enforcement cutover — operator tasks
 
 These tasks are intentionally manual. Do not enable production enforcement

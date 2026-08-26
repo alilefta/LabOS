@@ -1,6 +1,7 @@
 'use client'
 
-import { Building2, Check, ChevronsUpDown, LoaderCircle } from 'lucide-react'
+import { Building2, Check, ChevronsUpDown, LoaderCircle, Plus } from 'lucide-react'
+import Link from 'next/link'
 import { useEffect, useState } from 'react'
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -9,6 +10,7 @@ import {
 	DropdownMenuContent,
 	DropdownMenuItem,
 	DropdownMenuLabel,
+	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { betterAuthPostAuthOrganizationGateway } from '@/lib/post-auth-organization-client'
@@ -199,6 +201,13 @@ export function DashboardWorkspaceSwitcher({
 						)
 					})
 				)}
+				<DropdownMenuSeparator />
+				<DropdownMenuItem asChild className="cursor-pointer rounded-lg py-2">
+					<Link href="/organizations/new">
+						<Plus className="size-4" />
+						<span>Create a new workspace</span>
+					</Link>
+				</DropdownMenuItem>
 			</DropdownMenuContent>
 		</DropdownMenu>
 	)

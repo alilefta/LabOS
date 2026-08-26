@@ -23,6 +23,7 @@ export default async function proxy(request: NextRequest) {
 
 	const authRoutes = ['/sign-in', '/sign-up']
 	const tenantBootstrapRoutes = ['/auth/continue', '/select-organization']
+	const organizationCreationRoute = '/organizations/new'
 	const onboardingRoute = '/onboarding'
 	const dashboardRoute = '/dashboard'
 	const protectedRoutes = [
@@ -70,6 +71,7 @@ export default async function proxy(request: NextRequest) {
 	// perform authoritative membership + Organization-to-Lab validation.
 	const hasOnboarded = Boolean(session?.session.activeOrganizationId)
 	const isTenantBootstrapRoute = tenantBootstrapRoutes.includes(pathname)
+	const isOrganizationCreationRoute = pathname === organizationCreationRoute
 
 	// -------------------------
 	// NOT AUTHENTICATED
@@ -81,10 +83,11 @@ export default async function proxy(request: NextRequest) {
 		return NextResponse.redirect(new URL('/sign-in', request.url))
 	}
 
-	// These authenticated routes repair/select active Organization state. They
-	// are not protected product routes and remain unable to grant membership;
-	// Better Auth validates every listed/selected Organization.
-	if (isTenantBootstrapRoute) {
+	// These authenticated routes repair/select active Organization state or open
+	// the server-owned Organization + Lab provisioning form. Better Auth still
+	// validates every listed/selected Organization, while provisioning derives
+	// the caller identity and headers from the authenticated server session.
+	if (isTenantBootstrapRoute || isOrganizationCreationRoute) {
 		return NextResponse.next()
 	}
 

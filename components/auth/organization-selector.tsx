@@ -1,6 +1,7 @@
 'use client'
 
-import { Building2, LoaderCircle } from 'lucide-react'
+import { Building2, LoaderCircle, Plus } from 'lucide-react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
@@ -55,8 +56,11 @@ export function OrganizationSelector({ callbackUrl }: { callbackUrl: string }) {
 			<div className="w-full max-w-lg rounded-2xl border border-border bg-card p-8 shadow-premium">
 				<h1 className="text-2xl font-bold text-foreground">Choose a workspace</h1>
 				<p className="mt-2 text-sm text-muted-foreground">
-					Your account belongs to multiple Organizations. Select the workspace
-					for this session.
+					{organizations === null
+						? 'Loading your workspaces…'
+						: organizations.length > 1
+							? 'Select the workspace for this session.'
+							: 'Select your workspace or create another one.'}
 				</p>
 
 				{failed ? (
@@ -94,6 +98,22 @@ export function OrganizationSelector({ callbackUrl }: { callbackUrl: string }) {
 						))
 					)}
 				</div>
+
+				<Button
+					asChild
+					variant="secondary"
+					className="mt-4 h-auto w-full justify-start gap-3 rounded-xl p-4 text-left"
+				>
+					<Link href="/organizations/new">
+						<Plus className="size-5 text-primary" />
+						<span className="flex flex-col items-start">
+							<span className="font-semibold">Create a new workspace</span>
+							<span className="text-xs text-muted-foreground">
+								Set up another Organization and Lab
+							</span>
+						</span>
+					</Link>
+				</Button>
 			</div>
 		</div>
 	)
