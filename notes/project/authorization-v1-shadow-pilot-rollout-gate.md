@@ -2,7 +2,7 @@
 
 **Pilot:** A-124 Grant Staff access and A-125 Revoke Staff access
 
-**Mode:** Shadow; legacy authorization is authoritative
+**Pilot mode:** Controlled non-production V1 canary; legacy rollback remains available
 
 **Automated verification:** Pilot scope passed; repository baseline blockers remain
 
@@ -10,7 +10,11 @@
 
 ## Gate rule
 
-Passing automated tests permits shadow observation only. It does not authorize V1 enforcement, removal of the legacy gate, Better Auth role changes, or expansion beyond A-124/A-125. Enforcement requires every runtime checklist item below to be completed and explicitly approved in this record.
+Passing automated tests permits shadow observation or a controlled non-production
+canary only. It does not authorize V1 enforcement in production, removal of the
+legacy rollback path, Better Auth role changes outside the approved profile, or
+expansion beyond A-124/A-125. Production enforcement requires every runtime
+checklist item below to be completed and explicitly approved in this record.
 
 ## Executable evidence
 
@@ -64,9 +68,13 @@ No `LEGACY_DENY_V1_ALLOW` result is pre-approved. Every occurrence is a possible
 
 ## Enforcement decision
 
-**Current decision: DO NOT ENFORCE V1 YET.**
+**Current decision: DO NOT ENFORCE V1 IN PRODUCTION YET.**
 
-Reason: pilot correctness and isolation evidence is green, but repository-wide lint/TypeScript gates are not green, and runtime divergence volume, infrastructure stability, telemetry sampling, two-Organization operational evidence, and Better Auth dual-authority outcomes have not yet been attached and approved.
+Reason: the controlled development canary is green for the observed cases, but
+repository-wide lint/TypeScript gates are not green, and runtime divergence
+volume, infrastructure stability, telemetry sampling, two-Organization
+operational evidence, and Better Auth dual-authority outcomes have not yet been
+attached and approved for production.
 
 When the gate is eventually approved, change only A-124/A-125 in a separate enforcement commit. Keep the legacy path available for immediate rollback; restoring legacy Manager access is a known privilege expansion and must be declared during rollback.
 
