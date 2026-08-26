@@ -430,28 +430,79 @@ idempotent Organization + Lab onboarding service; it does not expose a direct
 Better Auth Organization-creation endpoint or accept a caller-supplied user
 ID.
 
-- [ ] Sign in as an account that already owns one Organization.
-- [ ] Open the workspace switcher and choose `Create a new workspace`.
-- [ ] Confirm `/organizations/new` shows the additional-workspace copy.
-- [ ] Submit a distinct Organization/Lab name and slug.
-- [ ] Confirm the new Organization and Lab are created once and become active.
-- [ ] Confirm `/dashboard` and `/settings/team` show only the new active
+- [x] Sign in as an account that already owns one Organization.
+- [x] Open the workspace switcher and choose `Create a new workspace`.
+- [x] Confirm `/organizations/new` shows the additional-workspace copy.
+- [x] Submit a distinct Organization/Lab name and slug.
+- [x] Confirm the new Organization and Lab are created once and become active.
+- [x] Confirm `/dashboard` and `/settings/team` show only the new active
   Organization's data.
-- [ ] Return to the switcher and confirm both Organizations are listed.
-- [ ] Open `/select-organization` directly and confirm it offers the same
+- [x] Return to the switcher and confirm both Organizations are listed.
+- [x] Open `/select-organization` directly and confirm it offers the same
   creation option for one- and multi-Organization accounts.
-- [ ] While signed out, open `/organizations/new` and confirm it redirects to
+- [x] While signed out, open `/organizations/new` and confirm it redirects to
   sign-in without revealing the form or provisioning anything.
 
 If the submit fails, record only the safe user-facing error and whether the
 Organization list changed. Do not record credentials, invitation links,
 provider responses, or identifiers in this file.
 
-### What Codex does after A-009
+Runtime evidence received 2026-08-26: an existing Owner created a second
+Organization through the authenticated flow and switched between the original
+and new workspaces. Each `/settings/team` page displayed only its active
+Organization's members. Creation, activation, listing, switching, Team
+directory isolation, direct selector access, and signed-out route protection
+all pass. A hydration warning observed after selector-based switching exposed
+a client-navigation cache boundary; tenant selection/restoration now performs
+a full document navigation before rendering product data.
 
-Codex reviews the manual result, checks for duplicate provisioning or active-
-Organization isolation issues, runs the automated suite/lint, and updates the
-Organizations architecture definition-of-done and rollout notes.
+### Ali task A-010 — complete A-124/A-125 two-Organization commands
+
+- [x] With Organization B's Staff page left open, switch the same Owner session
+  to Organization A and submit A-124 from the stale B page.
+- [x] Confirm V1 denies A-124 with `AUTHZ_TENANT_MISMATCH`.
+- [ ] Confirm no `labos.staff_invitation` provider work followed the denied
+  correlation/time window.
+- [x] Switch back to Organization B and confirm the same A-124 target succeeds
+  with `MATCH_ALLOW` / `POLICY_ALLOWED`.
+- [x] Repeat the stale-page test for A-125 after the disposable Staff accepts
+  access in Organization B.
+- [x] Confirm denied A-125 emits `AUTHZ_TENANT_MISMATCH` and no
+  `labos.staff_access_revocation` provider event.
+- [x] Switch back to Organization B and confirm A-125 succeeds only there.
+
+A-124 runtime evidence received 2026-08-26: the cross-Organization stale-page
+submission produced `LEGACY_ALLOW_V1_DENY`, `enforcementSource: v1`, and
+`AUTHZ_TENANT_MISMATCH`. The same target succeeded from its own Organization
+with `MATCH_ALLOW` and `POLICY_ALLOWED`. This verifies both deny and positive
+control paths.
+
+A-125 runtime evidence received 2026-08-26: two stale cross-Organization
+submissions were denied with `LEGACY_ALLOW_V1_DENY`,
+`AUTHZ_TENANT_MISMATCH`, and `enforcementSource: v1`. The target's own active
+Organization then produced `MATCH_ALLOW` / `POLICY_ALLOWED` and completed the
+revocation. The supplied event window contained only authorization comparison
+records for denied attempts; no revocation provider event followed them.
+
+During this test, an already-open Staff detail tab correctly lost server access
+after another tab changed the session's active Organization, but surfaced a
+`Resource not found` query error while retaining stale controls. The shell now
+broadcasts an identifier-free active-Organization change nonce through browser
+storage. Other protected tabs replace their document with `/dashboard`, forcing
+fresh tenant context and client caches. Server denial remains authoritative if
+storage is unavailable or an event is delayed.
+
+Cross-tab recovery verified 2026-08-26: three consecutive active-Organization
+changes caused the other protected tab to navigate automatically to
+`/dashboard`. No stale Staff screen, dossier error, hydration error, or stale
+administration controls remained. The complete regression suite passed with 61
+files / 409 tests, and focused ESLint reported no errors.
+
+### What Codex does after A-010
+
+Codex records the completed A-124/A-125 two-Organization evidence, verifies
+the cross-tab tenant-cache eviction change, updates the rollout gate, and
+identifies the remaining evidence required before final enforcement approval.
 # Authorization V1 enforcement cutover — operator tasks
 
 These tasks are intentionally manual. Do not enable production enforcement

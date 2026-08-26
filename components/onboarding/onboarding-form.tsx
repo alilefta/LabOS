@@ -9,6 +9,7 @@ import { Controller, FormProvider, useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 
 import { createLabWorkspace } from '@/actions/lab'
+import { announceActiveOrganizationChange } from '@/lib/active-organization-browser'
 import { handleSafeActionError } from '@/lib/safe-action-helpers'
 import {
 	CreateLabWorkspaceInputSchema,
@@ -53,8 +54,8 @@ export const OnboardingForm = memo(function OnboardingForm({
 				} else {
 					toast.success(`Workspace “${data.lab.title}” is ready.`)
 				}
-				router.push('/dashboard')
-				router.refresh()
+				announceActiveOrganizationChange()
+				window.location.assign('/dashboard')
 			},
 			onError: ({ error }) => {
 				if (error.validationErrors?.lab) {

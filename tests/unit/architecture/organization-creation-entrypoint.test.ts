@@ -45,4 +45,14 @@ describe('additional Organization creation entry point', () => {
 		expect(source).toContain('href="/organizations/new"')
 		expect(source).toContain('<DropdownMenuSeparator />')
 	})
+
+	it('reloads every tenant surface after additional workspace activation', () => {
+		const source = readFileSync(
+			join(process.cwd(), 'components', 'onboarding', 'onboarding-form.tsx'),
+			'utf8',
+		)
+
+		expect(source).toContain('announceActiveOrganizationChange()')
+		expect(source).toContain("window.location.assign('/dashboard')")
+	})
 })

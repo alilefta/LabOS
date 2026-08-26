@@ -61,7 +61,7 @@ No `LEGACY_DENY_V1_ALLOW` result is pre-approved. Every occurrence is a possible
 - [ ] Confirm every `LEGACY_ALLOW_V1_DENY` matches an approved restriction or documented tenant-integrity improvement.
 - [ ] Confirm no unexplained `AUTHZ_SHADOW_V1_EVALUATION_FAILED`, projector/configuration failure, missing definition/resolver/policy, or telemetry delivery failure remains.
 - [ ] Sample emitted events and confirm the field allowlist contains no target/identity/Invitation IDs, email, input, patient/Staff details, financial values, or provider/exception details.
-- [ ] Exercise A-124 and A-125 for the same AuthUser across two Organizations and attach results proving the inactive Organization is unchanged.
+- [x] Exercise A-124 and A-125 for the same AuthUser across two Organizations and attach results proving the inactive Organization is unchanged. Manually verified 2026-08-26 with enforced tenant-mismatch denials and same-tenant positive controls.
 - [ ] Confirm Better Auth allowed/denied outcomes are understood alongside LabOS decisions for invite, cancel, and Member removal.
 - [ ] Record product/security approval for the enforcement change and its rollback implications.
 - [ ] Restore repository-wide lint and TypeScript gates to green, or establish and approve a version-controlled baseline that proves this pilot adds no violations.
@@ -202,8 +202,8 @@ from the configured development deployment. The M-002 Owner allow path
 completed against Better Auth in approximately 1.38 seconds and refreshed the
 directory row. The M-004 Owner invitation and M-003 Owner removal paths also
 completed with sanitized correlated events. Admin M-002/M-003/M-004 allow paths
-and Manager/Staff UI denial are now verified; provider denial and remaining
-two-Organization command scenarios remain pending.
+and Manager/Staff UI denial are now verified; provider-denial evidence remains
+pending. The A-124/A-125 two-Organization command matrix is completed below.
 
 The real Better Auth Organization selector was also verified with two identity
 states: a single-membership account saw exactly one Organization, while an
@@ -262,11 +262,30 @@ comparison records contained `enforcementSource: "v1"`, `MATCH_ALLOW`, and
 `enforcementSource: "v1"`; no Staff-invitation provider event followed. A
 Staff actor attempted A-123 and was denied with
 `AUTHZ_PERMISSION_NOT_GRANTED`. These observations prove the V1 switch and
-the approved Manager/Staff restrictions, but do not complete the required
-two-Organization command matrix or final production approval. The Team detail
+the approved Manager/Staff restrictions. The later evidence below completes
+the two-Organization command matrix; final production approval remains open. The Team detail
 settings page still has a legacy UI gate that excludes Admin; this is tracked
 as an application-surface TODO and does not weaken the server-side A-124/A-125
 decision.
+
+Two-Organization A-124 command evidence received 2026-08-26: an Owner loaded a
+Staff target in Organization B, changed the same session's active tenant to
+Organization A in another tab, and submitted the stale B command. V1 enforced
+the denial with `AUTHZ_TENANT_MISMATCH`, `LEGACY_ALLOW_V1_DENY`, and
+`enforcementSource: "v1"`. After switching back to B, the same target produced
+`MATCH_ALLOW` / `POLICY_ALLOWED`. A-125 subsequently produced two enforced
+`AUTHZ_TENANT_MISMATCH` denials from stale foreign-Organization pages, followed
+by `MATCH_ALLOW` / `POLICY_ALLOWED` and a successful revocation from the
+target's own active Organization. No provider event followed the denied
+attempts. This closes the A-124/A-125 two-Organization command gate.
+
+The stale-tab behavior exposed during this matrix was also corrected and
+verified. Successful Organization changes now publish an identifier-free
+browser signal; other protected tabs perform a full navigation to `/dashboard`
+and rebuild tenant context and client caches. Three repeated browser checks
+completed without stale Staff data, dossier errors, hydration mismatches, or
+stale controls. Regression verification passed with 61 files / 409 tests and
+focused ESLint was clean.
 
 ### Required before UI connection
 
@@ -286,9 +305,8 @@ decision.
 
 The approved controls are connected to collect real-provider evidence. The
 server remains authoritative and fail closed; UI visibility is convenience
-only. Production rollout remains blocked on provider-denial evidence,
-two-Organization command scenarios,
-and final review. The real Owner M-002, M-003, and M-004 allow paths, sanitized
+only. Production rollout remains blocked on provider-denial evidence and final
+review. The real Owner M-002, M-003, and M-004 allow paths, sanitized
 Axiom receipt, invitation authentication handoff, active-Organization data
 isolation, and both zero-membership and remaining-membership post-revocation
 recovery are verified.

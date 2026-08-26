@@ -74,6 +74,15 @@ Fresh Better Auth sessions do not necessarily retain `activeOrganizationId`. Aut
 
 The proxy permits these two authenticated bootstrap routes even when the active-Organization routing hint is empty. Unauthenticated requests are still redirected to sign-in, and protected layouts continue to call `requireTenantContext()` for authoritative membership and Organization-to-Lab validation.
 
+Every successful active-Organization mutation performs a full document
+navigation so React Server Component payloads and client caches cannot be
+reused across tenants. The product shell also emits an identifier-free browser
+storage signal after a successful switch, restoration, or additional-workspace
+activation. Other open protected tabs respond by replacing their document with
+`/dashboard`, rebuilding tenant context before rendering more product data.
+This is defense-in-depth UX isolation; server-side tenant checks remain
+authoritative if browser storage is unavailable or delivery is delayed.
+
 `requireTenantContext()` is the canonical request-scoped resolver. It reads the authenticated session, requires `activeOrganizationId`, and performs one scoped database query that loads the Organization, only the caller's Member row, its optional LabStaff link, and the linked Lab. Its result contains `userId`, `memberId`, `memberRole`, `staffId`, `organizationId`, `labId`, and the minimal Lab identity needed by request consumers. `staffId` is null for members without an operational identity, inactive staff, or any defensive cross-Lab mismatch. It never falls back to `AuthUser.labId` or uses `LabUser` to establish tenancy.
 
 `requireTenantMiddleware` is a thin safe-action adapter that merges this verified context into `ctx`. The previous middleware name remains as a deprecated alias. The subsequent legacy role gate temporarily maps Member roles into fixed `LabRole` values; this compatibility map fails closed to `STAFF` and must be deleted when `requirePermission` becomes authoritative.
@@ -109,10 +118,12 @@ Invitation links use `/invite/[invitationId]`. The public page preserves a safe 
 - [ ] Existing Labs and memberships reconcile one-to-one.
 - [x] Fresh sessions restore a sole Organization and require explicit selection for multiple Organizations.
 - [x] In-app Organization switching is available after entering the product.
-- [ ] Authenticated users can create an additional Organization + Lab from the
-  product shell and the selection page (manual verification tracked in
-  `notes/project/tasks_for_ali.md`, A-009).
-- [ ] Switching changes resolved Lab context and tenant-keyed caches.
+- [x] Authenticated users can create an additional Organization + Lab from the
+  product shell and selection page; creation, activation, switching,
+  Team-directory isolation, and signed-out route protection are manually
+  verified.
+- [x] Switching changes resolved Lab context and tenant-keyed caches, including
+  identifier-free cross-tab invalidation and full document reload.
 - [ ] Cross-tenant and stale-membership tests pass.
 - [ ] Onboarding retries cannot create duplicate Organizations or Labs.
 - [x] The `LabStaffInvitationIntent` migration is applied.

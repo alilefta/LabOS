@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
 import { Button } from '@/components/ui/button'
+import { announceActiveOrganizationChange } from '@/lib/active-organization-browser'
 import { betterAuthPostAuthOrganizationGateway } from '@/lib/post-auth-organization-client'
 import type { PostAuthOrganization } from '@/platform/auth/post-auth-organization'
 
@@ -44,7 +45,11 @@ export function OrganizationSelector({ callbackUrl }: { callbackUrl: string }) {
 			await betterAuthPostAuthOrganizationGateway.setActiveOrganization(
 				organizationId,
 			)
-			router.replace(callbackUrl)
+			announceActiveOrganizationChange()
+			// Active Organization is session-scoped security state. Reload the
+			// document so no RSC payload or client cache from the previous tenant can
+			// hydrate beneath the newly selected tenant context.
+			window.location.replace(callbackUrl)
 		} catch {
 			setFailed(true)
 			setPendingId(null)

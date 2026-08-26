@@ -50,6 +50,67 @@ describe('post-authentication tenant restoration routing', () => {
 		expect(bootstrapAllowance).toBeGreaterThan(unauthenticatedBranch)
 	})
 
+	it('uses document navigation after active Organization selection', () => {
+		const selectorSource = readFileSync(
+			join(process.cwd(), 'components', 'auth', 'organization-selector.tsx'),
+			'utf8',
+		)
+		const continuationSource = readFileSync(
+			join(
+				process.cwd(),
+				'components',
+				'auth',
+				'post-auth-continuation.tsx',
+			),
+			'utf8',
+		)
+
+		expect(selectorSource).toContain('window.location.replace(callbackUrl)')
+		expect(selectorSource).toContain('announceActiveOrganizationChange()')
+		expect(selectorSource).not.toContain('router.replace(callbackUrl)')
+		expect(continuationSource).toContain(
+			'window.location.replace(callbackUrl)',
+		)
+		expect(continuationSource).toContain(
+			'if (resolution.restored) announceActiveOrganizationChange()',
+		)
+	})
+
+	it('evicts stale protected tabs after an Organization change', () => {
+		const shellSource = readFileSync(
+			join(
+				process.cwd(),
+				'components',
+				'dashboard',
+				'dashboard-client-shell.tsx',
+			),
+			'utf8',
+		)
+		const syncSource = readFileSync(
+			join(
+				process.cwd(),
+				'components',
+				'dashboard',
+				'active-organization-tab-sync.tsx',
+			),
+			'utf8',
+		)
+		const switcherSource = readFileSync(
+			join(
+				process.cwd(),
+				'components',
+				'dashboard',
+				'dashboard-workspace-switcher.tsx',
+			),
+			'utf8',
+		)
+
+		expect(shellSource).toContain('<ActiveOrganizationTabSync />')
+		expect(syncSource).toContain("window.addEventListener('storage'")
+		expect(syncSource).toContain("window.location.replace('/dashboard')")
+		expect(switcherSource).toContain('announceActiveOrganizationChange()')
+	})
+
 	it('preserves invitation callbacks before normal tenant resolution', () => {
 		const source = readFileSync(
 			join(

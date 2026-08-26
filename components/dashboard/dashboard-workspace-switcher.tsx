@@ -13,6 +13,7 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { announceActiveOrganizationChange } from '@/lib/active-organization-browser'
 import { betterAuthPostAuthOrganizationGateway } from '@/lib/post-auth-organization-client'
 import { cn } from '@/lib/utils'
 import type { PostAuthOrganization } from '@/platform/auth/post-auth-organization'
@@ -105,6 +106,7 @@ export function DashboardWorkspaceSwitcher({
 			await betterAuthPostAuthOrganizationGateway.setActiveOrganization(
 				organizationId,
 			)
+			announceActiveOrganizationChange()
 			window.location.assign('/dashboard')
 		} catch {
 			setFailed(true)
