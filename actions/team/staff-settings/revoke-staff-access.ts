@@ -6,7 +6,7 @@ import { headers } from 'next/headers'
 import { auth } from '@/lib/auth'
 import { ERRORS } from '@/lib/errors'
 import { generalPrisma } from '@/lib/prisma'
-import { actionClientWithAuthorizationShadow } from '@/lib/safe-action'
+import { actionClientWithAuthorizationCutover } from '@/lib/safe-action'
 import {
 	assertStaffAccessRevocationAllowed,
 	revokeStaffOrganizationAccess,
@@ -20,7 +20,7 @@ import { cleanupStaffInvitationIntent } from '@/lib/staff-invitation'
  * deliberately preserved.
  */
 export const revokeStaffSystemAccessAction =
-	actionClientWithAuthorizationShadow('A-125')
+	actionClientWithAuthorizationCutover('A-125')
 	.action(async ({ parsedInput, ctx }) => {
 		const staff = await generalPrisma.labStaff.findFirst({
 			where: { id: parsedInput.staffId, labId: ctx.labId },

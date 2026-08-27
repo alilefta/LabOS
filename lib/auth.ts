@@ -5,7 +5,7 @@ import { LabUserBase } from '@/schema/base/lab-user.base'
 import { SuperUserBase } from '@/schema/base/super-user.base'
 import { nextCookies } from 'better-auth/next-js'
 import { organization } from 'better-auth/plugins'
-import { organizationAccess } from '@/platform/auth/organization-access'
+import { getLabOSOrganizationAccessForMode } from '@/platform/auth/organization-access'
 import { authUserAdminPlugin } from '@/platform/auth/admin-plugin'
 import {
 	cleanupStaffInvitationIntent,
@@ -54,7 +54,7 @@ export const auth = betterAuth({
 	plugins: [
 		authUserAdminPlugin,
 		organization({
-			...organizationAccess,
+			...getLabOSOrganizationAccessForMode(),
 			// Browser sessions must use the idempotent Organization + Lab
 			// onboarding service. Server-side `auth.api.createOrganization` with an
 			// explicit trusted userId remains available to that gateway.

@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import {
 	authorizationV1EnforcementOrganizationAccess,
+	getLabOSOrganizationAccessForMode,
 	organizationAccess,
 } from '@/platform/auth/organization-access'
 
@@ -63,5 +64,15 @@ describe('Better Auth and LabOS Authorization V1 role compatibility', () => {
 			expect(can(profile, 'staff', { member: ['update'] })).toBe(false)
 			expect(can(profile, 'staff', { member: ['delete'] })).toBe(false)
 		}
+	})
+
+	it('selects the narrowed provider profile only for V1 mode', () => {
+		expect(getLabOSOrganizationAccessForMode('shadow')).toBe(organizationAccess)
+		expect(getLabOSOrganizationAccessForMode('legacy-rollback')).toBe(
+		organizationAccess,
+	)
+		expect(getLabOSOrganizationAccessForMode('v1')).toBe(
+		authorizationV1EnforcementOrganizationAccess,
+	)
 	})
 })

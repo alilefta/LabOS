@@ -84,7 +84,7 @@ function sanitizeComparison(
 		v1Outcome: event.v1Outcome,
 		v1Reason: event.v1Reason,
 		...(event.comparison && { comparison: event.comparison }),
-		enforcementSource: 'legacy',
+		enforcementSource: event.enforcementSource,
 		severity: event.severity,
 		reviewPriority: event.reviewPriority,
 		durationMs: event.durationMs,
@@ -102,7 +102,7 @@ function sanitizeConfigurationFailure(
 		...(event.organizationId && { organizationId: event.organizationId }),
 		correlationId: event.correlationId,
 		failureReason: event.failureReason,
-		enforcementSource: 'legacy',
+		enforcementSource: event.enforcementSource,
 		severity: 'high',
 		reviewPriority: 'review',
 	})

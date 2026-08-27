@@ -2,6 +2,7 @@
 
 import dynamic from 'next/dynamic'
 import type { ReactNode } from 'react'
+import { ActiveOrganizationTabSync } from './active-organization-tab-sync'
 import { DashboardSidebarSkeleton } from './dashboard-sidebar-skeleton'
 import { DashboardTopHeaderSkeleton } from './dashboard-top-header-skeleton'
 
@@ -17,6 +18,7 @@ const DashboardTopHeader = dynamic(
 export function DashboardClientShell({ children }: { children: ReactNode }) {
 	return (
 		<div className="flex h-screen w-full overflow-hidden bg-background selection:bg-primary/30 print:h-auto print:overflow-visible print:bg-white">
+			<ActiveOrganizationTabSync />
 			<div className="hidden lg:block shrink-0 border-r border-border bg-card dark:bg-[#09090B] z-20 print:hidden">
 				<DashboardSidebar />
 			</div>

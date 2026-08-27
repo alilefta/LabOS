@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
 import { Button } from '@/components/ui/button'
+import { announceActiveOrganizationChange } from '@/lib/active-organization-browser'
 import { betterAuthPostAuthOrganizationGateway } from '@/lib/post-auth-organization-client'
 import { resolvePostAuthOrganization } from '@/platform/auth/post-auth-organization'
 
@@ -41,7 +42,11 @@ export function PostAuthContinuation({ callbackUrl }: { callbackUrl: string }) {
 					)
 					return
 				}
-				router.replace(callbackUrl)
+				if (resolution.restored) announceActiveOrganizationChange()
+				// Resolution may have selected/restored an Organization in the current
+				// session. A document navigation guarantees the destination starts with
+				// tenant-consistent server data and client caches.
+				window.location.replace(callbackUrl)
 			} catch {
 				if (active) setFailed(true)
 			}

@@ -20,13 +20,15 @@ showed the Organization A Owner plus the invited Staff Member and its linked
 operational `LabStaff` profile. This verifies the important multi-Organization
 identity shape and Staff linkage, but not yet the complete four-role matrix.
 
-The secure selection page already exists but is not linked from the application
-shell. Until the shell switcher is implemented, use:
+The secure selection page and application-shell workspace switcher use the
+authoritative Better Auth Organization list. To test selection directly, use:
 
 `/select-organization?callbackUrl=/settings/team`
 
-This uses Better Auth's authoritative Organization list and `setActive`; do not
-create additional accounts merely to work around the missing navigation control.
+This uses Better Auth's authoritative Organization list and `setActive`. The
+shell menu now also includes `Create a new workspace`, which opens the
+authenticated `/organizations/new` provisioning page; do not create
+additional accounts merely to work around tenant navigation.
 
 ### Ali task A-001 — prepare a disposable two-Organization test fixture
 
@@ -180,7 +182,9 @@ verified.
 Codex records the shell usability check, then returns to the Authorization V1
 membership gate: Admin/Manager real-session fixtures, M-002/M-003 controlled
 test exposure, command telemetry evidence, and the explicit product decisions
-in A-002/A-003.
+in A-002/A-003. Additional Organization creation is tracked separately in
+A-009 so provisioning verification does not get mixed with authorization
+evidence.
 
 ### What Codex does after A-001
 
@@ -403,3 +407,207 @@ Partial runtime evidence (2026-08-25): Codex inspected `/settings/team` through
 a real active Manager session. The two Organization members rendered, while
 both rows showed "No administration permission" and exposed no role-update or
 removal controls. No mutation or active-Organization change was performed.
+
+### Follow-up UI tasks — separate from Authorization V1 kernel
+
+- [ ] Hide or disable Staff-only Staff-creation/access controls before submit;
+  the server correctly denies `staff.create`, but the current UI still lets a
+  Staff user open the form.
+- [ ] Decide how Admins should reach A-124/A-125 from the Staff detail surface.
+  The current `/team/:staffId?tab=settings` page gate allows only Owner and
+  Manager, so an Admin receives "Unauthorized access" despite the approved
+  server policy allowing Staff-access operations for Admin → Staff targets.
+- [ ] Keep operational compensation/schedule editing separately classified;
+  opening the A-124/A-125 security controls for Admin must not grant those
+  unrelated operational permissions.
+
+### Ali task A-009 — verify additional Organization creation
+
+The authenticated workspace-creation flow is now available without creating
+another account. The selector and the desktop/mobile workspace switcher link
+to `/organizations/new`. The page uses the existing server-owned,
+idempotent Organization + Lab onboarding service; it does not expose a direct
+Better Auth Organization-creation endpoint or accept a caller-supplied user
+ID.
+
+- [x] Sign in as an account that already owns one Organization.
+- [x] Open the workspace switcher and choose `Create a new workspace`.
+- [x] Confirm `/organizations/new` shows the additional-workspace copy.
+- [x] Submit a distinct Organization/Lab name and slug.
+- [x] Confirm the new Organization and Lab are created once and become active.
+- [x] Confirm `/dashboard` and `/settings/team` show only the new active
+  Organization's data.
+- [x] Return to the switcher and confirm both Organizations are listed.
+- [x] Open `/select-organization` directly and confirm it offers the same
+  creation option for one- and multi-Organization accounts.
+- [x] While signed out, open `/organizations/new` and confirm it redirects to
+  sign-in without revealing the form or provisioning anything.
+
+If the submit fails, record only the safe user-facing error and whether the
+Organization list changed. Do not record credentials, invitation links,
+provider responses, or identifiers in this file.
+
+Runtime evidence received 2026-08-26: an existing Owner created a second
+Organization through the authenticated flow and switched between the original
+and new workspaces. Each `/settings/team` page displayed only its active
+Organization's members. Creation, activation, listing, switching, Team
+directory isolation, direct selector access, and signed-out route protection
+all pass. A hydration warning observed after selector-based switching exposed
+a client-navigation cache boundary; tenant selection/restoration now performs
+a full document navigation before rendering product data.
+
+### Ali task A-010 — complete A-124/A-125 two-Organization commands
+
+- [x] With Organization B's Staff page left open, switch the same Owner session
+  to Organization A and submit A-124 from the stale B page.
+- [x] Confirm V1 denies A-124 with `AUTHZ_TENANT_MISMATCH`.
+- [x] Confirm no `labos.staff_invitation` provider work followed the denied
+  correlation/time window.
+- [x] Switch back to Organization B and confirm the same A-124 target succeeds
+  with `MATCH_ALLOW` / `POLICY_ALLOWED`.
+- [x] Repeat the stale-page test for A-125 after the disposable Staff accepts
+  access in Organization B.
+- [x] Confirm denied A-125 emits `AUTHZ_TENANT_MISMATCH` and no
+  `labos.staff_access_revocation` provider event.
+- [x] Switch back to Organization B and confirm A-125 succeeds only there.
+
+A-124 runtime evidence received 2026-08-26: the cross-Organization stale-page
+submission produced `LEGACY_ALLOW_V1_DENY`, `enforcementSource: v1`, and
+`AUTHZ_TENANT_MISMATCH`. The same target succeeded from its own Organization
+with `MATCH_ALLOW` and `POLICY_ALLOWED`. This verifies both deny and positive
+control paths.
+
+A-125 runtime evidence received 2026-08-26: two stale cross-Organization
+submissions were denied with `LEGACY_ALLOW_V1_DENY`,
+`AUTHZ_TENANT_MISMATCH`, and `enforcementSource: v1`. The target's own active
+Organization then produced `MATCH_ALLOW` / `POLICY_ALLOWED` and completed the
+revocation. The supplied event window contained only authorization comparison
+records for denied attempts; no revocation provider event followed them.
+
+During this test, an already-open Staff detail tab correctly lost server access
+after another tab changed the session's active Organization, but surfaced a
+`Resource not found` query error while retaining stale controls. The shell now
+broadcasts an identifier-free active-Organization change nonce through browser
+storage. Other protected tabs replace their document with `/dashboard`, forcing
+fresh tenant context and client caches. Server denial remains authoritative if
+storage is unavailable or an event is delayed.
+
+Cross-tab recovery verified 2026-08-26: three consecutive active-Organization
+changes caused the other protected tab to navigate automatically to
+`/dashboard`. No stale Staff screen, dossier error, hydration error, or stale
+administration controls remained. The complete regression suite passed with 61
+files / 409 tests, and focused ESLint reported no errors.
+
+Final Axiom audit verified 2026-08-26: all eleven fresh A-124/A-125 records
+were V1-enforced, the approved allow/restriction/isolation decisions were the
+only observed outcomes, and the possible privilege-expansion count was zero.
+A-124/A-125 controlled enforcement evidence is complete. The next manual task
+is the isolated N-001 directory cutover check after Codex connects it to the
+same deployment-owned enforcement mode.
+
+### Ali task A-011 — verify N-001 V1 enforcement
+
+Keep `LABOS_AUTHORIZATION_MODE=v1`, restart the development server after this
+commit, and use the existing disposable role fixtures:
+
+- [x] Owner opens `/settings/team` and sees only the active Organization's
+  Member directory.
+- [x] Admin opens `/settings/team` and sees only the active Organization's
+  Member directory.
+- [x] Manager opens `/settings/team` and sees the sanitized
+  `Team directory unavailable` state with no Member rows or controls.
+- [x] Staff receives the same sanitized denial with no Member rows or controls.
+- [x] An Owner switches between Organizations A and B and confirms N-001 shows
+  only the selected Organization after each full navigation.
+- [x] In Axiom, filter `payload.boundaryId == "N-001"` and confirm Owner/Admin
+  are `MATCH_ALLOW`, Manager/Staff are `LEGACY_ALLOW_V1_DENY` with
+  `AUTHZ_PERMISSION_NOT_GRANTED`, and every fresh event has
+  `enforcementSource: "v1"`.
+- [x] Confirm no N-001 `LEGACY_DENY_V1_ALLOW` or failed V1 outcome appears.
+
+N-001 runtime evidence received 2026-08-27: Owner and Admin produced only
+`MATCH_ALLOW` / `ROLE_PERMISSION`; Manager and Staff produced the approved
+`LEGACY_ALLOW_V1_DENY` / `AUTHZ_PERMISSION_NOT_GRANTED` restriction. Every
+fresh record used `enforcementSource: "v1"`. The supplied window contained no
+privilege expansion or failed V1 outcome. The sanitized denial state exposed
+no Member rows or controls, and active-Organization directory isolation
+remained intact. A-011 is complete.
+
+### What Codex does after A-011
+
+Codex records the runtime evidence, closes the N-001 cutover checkbox, reviews
+the remaining enforcement blockers, and prepares the next scoped migration
+branch or merge checkpoint.
+
+### Ali task A-012 — verify M-002 role isolation
+
+- [x] Choose one disposable AuthUser that is a non-Owner Member of
+  Organizations A and B.
+- [x] Record that Member's role in both Organizations.
+- [x] As an allowed Owner/Admin in Organization A, change the Member's role
+  through `/settings/team`.
+- [x] Confirm Organization A refreshes to the requested role.
+- [x] Switch to Organization B and confirm its original role is unchanged.
+- [x] In Axiom, confirm M-002 emitted one sanitized `started`/`completed` pair
+  for Organization A with the same correlation ID.
+
+A-012 completed by Codex on 2026-08-27. The disposable multi-Organization
+fixture `alilefta95@gmail.com` was `Admin` in both Denta Fusion3 and
+DentaFusion. An Owner changed only the Denta Fusion3 membership to `Manager`;
+the page refreshed to `Manager`, while a tenant-independent read-only
+repository check confirmed DentaFusion remained `Admin`. Codex then restored
+Denta Fusion3 to `Admin` and verified both memberships were `Admin` again.
+Axiom recorded two sanitized M-002 pairs—one for the temporary change and one
+for restoration. Each correlation contained exactly two events
+(`started`/`completed`) for Organization `OmTRCVBvHC5jbDzf7FwF2ZRAA0i4V52k`:
+`6cd28f03-e876-4b51-984e-fe2b744cc6ce` and
+`1f4cf683-8f2c-45e6-8053-fdb1d038e03e`. No fixture IDs, user IDs, email,
+requested role, input payload, or provider error appeared in telemetry.
+
+No deliberate provider outage is required. Provider rejection, unexpected
+provider target, fail-closed behavior, and telemetry redaction are already
+covered by the automated membership-administration tests.
+
+### What Codex does after A-012
+
+Codex records the result, closes the membership-command isolation gate, and
+reduces the remaining milestone work to final product/security approval,
+rollback readiness, and repository-wide quality baselines.
+
+### Existing repository lint debt observed during A-011
+
+The changed N-001 files pass focused ESLint. A broader `app` lint also surfaced
+unrelated existing errors that are outside this authorization slice:
+
+- [ ] Replace the explicit `any` in `app/(main)/settings/billing/page.tsx`.
+- [ ] Refactor the synchronous mount-state effect in
+  `app/(main)/settings/preferences/page.tsx`.
+
+The broader scan also reports existing unused-import and raw-image warnings;
+handle these in a dedicated application-quality cleanup rather than mixing
+them into the authorization enforcement commit.
+
+### What Codex does after A-010
+
+Codex records the completed A-124/A-125 two-Organization evidence, verifies
+the cross-tab tenant-cache eviction change, updates the rollout gate, and
+identifies the remaining evidence required before final enforcement approval.
+# Authorization V1 enforcement cutover — operator tasks
+
+These tasks are intentionally manual. Do not enable production enforcement
+until the rollout gate has explicit product/security approval.
+
+- [x] Confirm the A-124/A-125 runtime evidence and controlled rollout approvals are
+  complete.
+- [x] In a controlled deployment, set `LABOS_AUTHORIZATION_MODE=v1` and restart
+  all application instances so the process-startup profile is consistent.
+- [x] Exercise Owner/Admin/Manager/Staff and two-Organization scenarios.
+- [x] Watch Axiom for V1 enforcement-source events, provider denials, and any
+  high-priority divergence or infrastructure failure.
+- [ ] If an incident occurs, set
+  `LABOS_AUTHORIZATION_MODE=legacy-rollback`, restart all instances, and record
+  that this restores legacy Manager access.
+
+After the manual verification is complete, the implementation task is to
+review the Axiom evidence, update the rollout gate, and decide whether to keep
+V1 enabled or return to shadow mode.

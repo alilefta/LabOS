@@ -59,6 +59,27 @@ export async function executeLegacyAuthorizedShadowHandler<Result>(input: {
 }
 
 /**
+ * Executes a cutover action using the deployment-selected enforcement result.
+ * Shadow/rollback modes preserve the legacy gate; V1 mode denies projection
+ * or evaluation failures and never falls back to legacy authorization.
+ */
+export async function executeLabOSAuthorizedHandler<Result>(input: {
+	authorization: LabOSActionShadowAdapterResult
+	enforcementSource: 'legacy' | 'v1'
+	handler: () => Promise<Result> | Result
+	onDenied: () => never
+}): Promise<Result> {
+	if (input.authorization.status === 'v1_configuration_failed') {
+		if (input.enforcementSource === 'v1' || !input.authorization.legacyAllowed) {
+			input.onDenied()
+		}
+		return input.handler()
+	}
+	if (!input.authorization.shadow.enforcement.allowed) input.onDenied()
+	return input.handler()
+}
+
+/**
  * Adapts validated action input to the trusted boundary registry. Projection
  * failures are high-severity V1 observations; the unchanged legacy role gate
  * still decides whether the handler may run.
@@ -71,6 +92,7 @@ export async function authorizeLabOSActionInShadow(input: {
 	correlationId: string
 	authorizationService?: LabOSAuthorizationService
 	monitor?: LabOSShadowMonitor
+	enforcementSource?: 'legacy' | 'v1'
 }): Promise<LabOSActionShadowAdapterResult> {
 	const metadata = getLabOSActionBoundaryMetadata(input.boundaryId)
 	const legacyAllowed = evaluateLegacyLabRole(
@@ -98,6 +120,7 @@ export async function authorizeLabOSActionInShadow(input: {
 						: LABOS_ACTION_BOUNDARY_ERROR_CODES.PROJECTOR_FAILED,
 			},
 			input.monitor,
+			input.enforcementSource,
 		)
 		return Object.freeze({
 			status: 'v1_configuration_failed',
@@ -115,6 +138,7 @@ export async function authorizeLabOSActionInShadow(input: {
 			authorizationService: input.authorizationService,
 			monitor: input.monitor,
 			generateCorrelationId: () => input.correlationId,
+			enforcementSource: input.enforcementSource,
 		},
 	)
 

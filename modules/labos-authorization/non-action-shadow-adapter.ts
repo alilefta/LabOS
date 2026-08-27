@@ -6,6 +6,7 @@ import {
 	createLabOSAuthorizationActor,
 	type LabOSAuthorizationActorSource,
 } from './actor'
+import { isLabOSAuthorizationV1Enforced } from './enforcement-mode'
 import { getLabOSNonActionBoundaryMetadata } from './non-action-boundaries'
 import { LABOS_ORGANIZATION_ROLES } from './roles'
 import {
@@ -29,14 +30,15 @@ export type N001TeamDirectoryShadowInput = Readonly<{
 }>
 
 /**
- * Evaluates the Team & Roles server-page boundary in observational mode.
+ * Evaluates the Team & Roles server-page boundary with deployment-selected
+ * enforcement.
  *
- * The existing verified-tenant-member behavior remains authoritative. V1
- * evaluates `membership.list` from the same canonical tenant context and is
- * compared for rollout evidence. No repository is called here, and V1 denial
- * or failure cannot block a request allowed by the legacy page boundary.
+ * Shadow and rollback modes preserve the verified-tenant-member gate. V1 mode
+ * makes `membership.list` authoritative and fails closed on a denial or an
+ * evaluation failure. Both decisions are still recorded for rollout evidence.
+ * No repository is called here.
  */
-export async function evaluateN001TeamDirectoryAuthorizationShadow(
+export async function evaluateN001TeamDirectoryAuthorization(
 	input: N001TeamDirectoryShadowInput,
 	options: LabOSShadowEvaluationOptions = {},
 ): Promise<LabOSShadowEvaluationResult> {
@@ -45,6 +47,9 @@ export async function evaluateN001TeamDirectoryAuthorizationShadow(
 	const service = options.authorizationService ?? labosAuthorizationService
 	const monitor = options.monitor ?? structuredLabOSShadowMonitor
 	const now = options.now ?? (() => performance.now())
+	const enforcementSource =
+		options.enforcementSource ??
+		(isLabOSAuthorizationV1Enforced() ? 'v1' : 'legacy')
 	const correlationId = (
 		options.generateCorrelationId ?? (() => crypto.randomUUID())
 	)()
@@ -78,7 +83,7 @@ export async function evaluateN001TeamDirectoryAuthorizationShadow(
 					reason: LABOS_SHADOW_ERROR_CODES.V1_EVALUATION_FAILED,
 				})
 
-	if (legacyResult.status === 'rejected') {
+	if (legacyResult.status === 'rejected' && enforcementSource === 'legacy') {
 		try {
 			monitor.record({
 				event: 'labos.authorization.shadow_comparison',
@@ -98,7 +103,7 @@ export async function evaluateN001TeamDirectoryAuthorizationShadow(
 							? 'allowed'
 							: 'denied',
 				v1Reason: v1Decision.reason,
-				enforcementSource: 'legacy',
+				enforcementSource,
 				severity: 'high',
 				reviewPriority: 'review',
 				durationMs: Math.max(0, now() - startedAt),
@@ -109,7 +114,10 @@ export async function evaluateN001TeamDirectoryAuthorizationShadow(
 		throw new LabOSShadowLegacyEvaluationError()
 	}
 
-	const legacyAllowed = legacyResult.value === true
+	// Once V1 is authoritative, a legacy failure remains observational and is
+	// represented as a denied legacy comparison instead of blocking V1.
+	const legacyAllowed =
+		legacyResult.status === 'fulfilled' && legacyResult.value === true
 	const comparison = classifyLabOSShadowComparison(
 		legacyAllowed,
 		v1Decision.allowed,
@@ -121,8 +129,8 @@ export async function evaluateN001TeamDirectoryAuthorizationShadow(
 		legacyDecision: Object.freeze({ allowed: legacyAllowed }),
 		v1Decision,
 		enforcement: Object.freeze({
-			source: 'legacy' as const,
-			allowed: legacyAllowed,
+			source: enforcementSource,
+			allowed: enforcementSource === 'v1' ? v1Decision.allowed : legacyAllowed,
 		}),
 	})
 
@@ -137,7 +145,12 @@ export async function evaluateN001TeamDirectoryAuthorizationShadow(
 			unknownRoleCount: normalizedRoles.unknownRoleCount,
 			legacyRequiredRole: null,
 			correlationId,
-			legacyOutcome: legacyAllowed ? 'allowed' : 'denied',
+			legacyOutcome:
+				legacyResult.status === 'rejected'
+					? 'failed'
+					: legacyAllowed
+						? 'allowed'
+						: 'denied',
 			v1Outcome:
 				v1Decision.status === 'failed'
 					? 'failed'
@@ -146,7 +159,7 @@ export async function evaluateN001TeamDirectoryAuthorizationShadow(
 						: 'denied',
 			v1Reason: v1Decision.reason,
 			comparison,
-			enforcementSource: 'legacy',
+			enforcementSource,
 			severity:
 				v1Decision.status === 'failed' ||
 				comparison === 'LEGACY_DENY_V1_ALLOW'

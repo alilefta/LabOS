@@ -90,6 +90,9 @@ function findLegacyTenancyWrites(file: string) {
 }
 
 describe('legacy tenancy write freeze', () => {
+	// This is a repository-wide TypeScript AST scan. Keep its budget explicit
+	// and separate from the 5-second default used by small unit tests so adding
+	// application modules does not create a flaky architectural gate.
 	it('blocks new LabInvitation, LabUser, and AuthUser.labId writes', () => {
 		const violations = SOURCE_ROOTS.flatMap((root) =>
 			sourceFiles(join(process.cwd(), root)).flatMap(findLegacyTenancyWrites),
@@ -99,7 +102,7 @@ describe('legacy tenancy write freeze', () => {
 			violations,
 			'Legacy tenancy writes are frozen. Use Better Auth Organization, Member, Invitation, and TenantContext services.',
 		).toEqual([])
-	})
+	}, 15_000)
 
 	it('keeps the legacy Better Auth labId field closed to API input', () => {
 		const authSource = readFileSync(join(process.cwd(), 'lib', 'auth.ts'), 'utf8')

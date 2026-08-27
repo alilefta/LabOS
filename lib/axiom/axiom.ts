@@ -26,7 +26,7 @@ function isAxiomEdge(value: string): value is AxiomEdge {
  * mistake.
  */
 export function readAxiomServerConfig(
-	environment: NodeJS.ProcessEnv = process.env,
+	environment: Readonly<Record<string, string | undefined>> = process.env,
 ): AxiomServerConfig | null {
 	const token = environment.AXIOM_TOKEN?.trim()
 	const dataset = environment.AXIOM_DATASET?.trim()

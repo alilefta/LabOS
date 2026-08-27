@@ -283,6 +283,43 @@ describe('LabOS authorization shadow coordinator', () => {
 		expect(result.enforcement).toEqual({ source: 'legacy', allowed: true })
 	})
 
+	it('makes V1 authoritative when the cutover selects V1', async () => {
+		const result = await evaluateLabOSAuthorizationShadow(
+			{
+				actor,
+				projection: revokeProjection,
+				evaluateLegacy: () => true,
+			},
+			{
+				authorizationService: serviceDecision(false),
+				enforcementSource: 'v1',
+				generateCorrelationId: () => 'v1-correlation',
+			},
+		)
+
+		expect(result.comparison).toBe('LEGACY_ALLOW_V1_DENY')
+		expect(result.enforcement).toEqual({ source: 'v1', allowed: false })
+	})
+
+	it('does not let a legacy evaluation failure bypass V1 enforcement', async () => {
+		const result = await evaluateLabOSAuthorizationShadow(
+			{
+				actor,
+				projection: revokeProjection,
+				evaluateLegacy: () => {
+					throw new Error('legacy unavailable')
+				},
+			},
+			{
+				authorizationService: serviceDecision(true),
+				enforcementSource: 'v1',
+			},
+		)
+
+		expect(result.enforcement).toEqual({ source: 'v1', allowed: true })
+		expect(result.legacyDecision).toEqual({ allowed: false })
+	})
+
 	it('returns deeply immutable comparison and enforcement results', async () => {
 		const result = await evaluateLabOSAuthorizationShadow(
 			{

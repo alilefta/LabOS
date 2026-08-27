@@ -58,6 +58,14 @@ The onboarding monitor emits structured step, outcome, correlation ID, safe acto
 
 The Organization/Lab provisioning service does not write `AuthUser.labId` or create `LabUser`/`LabStaff`. The workspace onboarding action now delegates to this service. Its former export remains temporarily as a deprecated alias, while the form sends only Lab workspace fields and no longer collects operational staff data. Legacy models and tenant middleware remain for existing runtime paths until the tenant-context cutover.
 
+Authenticated users can provision an additional Organization + Lab from
+`/organizations/new`. This entry point is linked from both the
+Organization-selection page and the shared desktop/mobile workspace switcher.
+It reuses the same server-owned onboarding action, derives identity from the
+current session, keeps Better Auth browser Organization creation disabled, and
+selects the newly completed Organization only after its Lab exists. The
+existing slug and one-to-one constraints preserve idempotent retries.
+
 The public request-facing entry point derives AuthUser ID and request headers from the authenticated server session. These security inputs are not accepted from client-controlled onboarding data. A lower-level dependency-injected orchestrator exists only for focused tests and trusted internal orchestration.
 
 ### Runtime tenant context
@@ -65,6 +73,15 @@ The public request-facing entry point derives AuthUser ID and request headers fr
 Fresh Better Auth sessions do not necessarily retain `activeOrganizationId`. Authentication therefore continues through `/auth/continue` before entering protected product routes. The provider-neutral post-auth resolver compares the session's active ID with the caller's authoritative Better Auth Organization list. A valid active membership is retained; exactly one membership is selected through Better Auth; zero memberships proceed to onboarding; and multiple memberships require explicit selection at `/select-organization`. Stale IDs are never trusted, and multiple Organizations are never resolved by arbitrary ordering. Invitation callbacks bypass normal selection only long enough to complete Better Auth acceptance, which establishes the membership and active Organization. Provider failures stop on a retryable restoration screen rather than misclassifying the account as new onboarding.
 
 The proxy permits these two authenticated bootstrap routes even when the active-Organization routing hint is empty. Unauthenticated requests are still redirected to sign-in, and protected layouts continue to call `requireTenantContext()` for authoritative membership and Organization-to-Lab validation.
+
+Every successful active-Organization mutation performs a full document
+navigation so React Server Component payloads and client caches cannot be
+reused across tenants. The product shell also emits an identifier-free browser
+storage signal after a successful switch, restoration, or additional-workspace
+activation. Other open protected tabs respond by replacing their document with
+`/dashboard`, rebuilding tenant context before rendering more product data.
+This is defense-in-depth UX isolation; server-side tenant checks remain
+authoritative if browser storage is unavailable or delivery is delayed.
 
 `requireTenantContext()` is the canonical request-scoped resolver. It reads the authenticated session, requires `activeOrganizationId`, and performs one scoped database query that loads the Organization, only the caller's Member row, its optional LabStaff link, and the linked Lab. Its result contains `userId`, `memberId`, `memberRole`, `staffId`, `organizationId`, `labId`, and the minimal Lab identity needed by request consumers. `staffId` is null for members without an operational identity, inactive staff, or any defensive cross-Lab mismatch. It never falls back to `AuthUser.labId` or uses `LabUser` to establish tenancy.
 
@@ -100,8 +117,13 @@ Invitation links use `/invite/[invitationId]`. The public page preserves a safe 
 
 - [ ] Existing Labs and memberships reconcile one-to-one.
 - [x] Fresh sessions restore a sole Organization and require explicit selection for multiple Organizations.
-- [ ] In-app Organization switching is available after entering the product.
-- [ ] Switching changes resolved Lab context and tenant-keyed caches.
+- [x] In-app Organization switching is available after entering the product.
+- [x] Authenticated users can create an additional Organization + Lab from the
+  product shell and selection page; creation, activation, switching,
+  Team-directory isolation, and signed-out route protection are manually
+  verified.
+- [x] Switching changes resolved Lab context and tenant-keyed caches, including
+  identifier-free cross-tab invalidation and full document reload.
 - [ ] Cross-tenant and stale-membership tests pass.
 - [ ] Onboarding retries cannot create duplicate Organizations or Labs.
 - [x] The `LabStaffInvitationIntent` migration is applied.
