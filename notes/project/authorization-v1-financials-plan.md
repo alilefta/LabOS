@@ -85,6 +85,11 @@ long-lived authorization result may survive tenant or membership changes.
 
 ### F0 — Reconcile and approve the inventory
 
+Inventory record: `authorization-v1-financials-inventory.md`
+
+Current state: F0 approved by Ali on 2026-08-27; implementation remediations
+remain open and F1 may begin.
+
 For every listed action and non-action boundary, record:
 
 - business operation and stable boundary ID;
@@ -271,4 +276,3 @@ facts are transactionally revalidated, handler/repository execution is blocked
 after denial, telemetry is sanitized, two-Organization tests pass, shadow
 evidence is reviewed, rollback is documented, and V1 enforcement is explicitly
 approved.
-
