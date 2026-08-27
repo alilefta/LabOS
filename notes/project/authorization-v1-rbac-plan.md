@@ -92,6 +92,11 @@ Exit:
 
 Scope: Case financials, compensation, invoices, payments, payouts, and billing.
 
+Implementation plan: `authorization-v1-financials-plan.md`. The current branch
+is limited to the reviewed inventory and shared resolver/policy foundation;
+financial reads, invoice lifecycle, payments, compensation/payouts, and billing
+continue in smaller vertical branches after the foundation merges.
+
 Exit:
 
 - [ ] Every financial mutation has permission and tenant predicates.
