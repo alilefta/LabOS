@@ -237,8 +237,7 @@ role, Member/user ID, input, or provider error was present. Admin M-003 removal
 then passed after explicit confirmation: the disposable Member-only Staff row
 disappeared, Better Auth preserved the AuthUser and its other Organization
 membership, and Axiom received a sanitized correlated pair with an
-approximately 1.49-second provider duration. A meaningful Admin M-002 role
-transition remains pending.
+approximately 1.49-second provider duration.
 
 The meaningful Admin M-002 fixture is now defined: a disposable Member-only
 Manager in the active Organization must be changed to Staff by an Admin. A
@@ -252,6 +251,17 @@ the Admin changed that Member to Staff. The directory refreshed successfully.
 Axiom received a sanitized correlated `started`/`completed` provider pair with
 an approximately 1.34-second duration and no identity, role-intent, input, or
 provider error fields. The Admin M-002 allow path is now verified.
+
+M-002 cross-Organization isolation evidence received 2026-08-27: the same
+disposable AuthUser was an Admin in Denta Fusion3 and DentaFusion. An Owner
+changed only the Denta Fusion3 membership to Manager; the directory refreshed,
+and a tenant-independent read-only repository check proved the DentaFusion
+membership remained Admin. Codex restored Denta Fusion3 to Admin and verified
+both memberships were Admin afterward. Axiom recorded a sanitized
+`started`/`completed` pair for both the temporary update and its restoration;
+the correlation IDs were `6cd28f03-e876-4b51-984e-fe2b744cc6ce` and
+`1f4cf683-8f2c-45e6-8053-fdb1d038e03e`, each with exactly two events for the
+intended Organization. The M-002 isolation gate is complete.
 
 Manager-session denial evidence received 2026-08-26: a real Manager session in
 DentaFusion rendered no invitation, role-update, or removal controls; a Staff
@@ -317,10 +327,12 @@ focused ESLint was clean.
 ### Required before UI connection
 
 - [x] Approve the generic Member-only removal matrix explicitly. Owner/Admin may remove any non-Owner, non-self Member who has no LabStaff link; Manager/Staff cannot remove Members. Approved 2026-08-25.
-- [ ] Complete the remaining M-002 live evidence: change a disposable
+- [x] Complete the remaining M-002 live evidence: change a disposable
   multi-Organization Member's role in Organization A and verify its role in
-  Organization B is unchanged. M-003 already proved that removal from one
-  Organization preserves the other membership.
+  Organization B is unchanged. Completed 2026-08-27: a disposable Member was
+  changed from Admin to Manager only in Denta Fusion3 while its DentaFusion
+  role remained Admin, then restored to Admin. M-003 already proved that
+  removal from one Organization preserves the other membership.
 - [x] Verify provider-failure handling through automated fail-closed,
   sanitized-telemetry, and authoritative-target tests. Do not deliberately
   damage a real provider/session merely to manufacture a runtime error.
@@ -335,8 +347,10 @@ focused ESLint was clean.
 
 The approved controls are connected to collect real-provider evidence. The
 server remains authoritative and fail closed; UI visibility is convenience
-only. Production rollout remains blocked on M-002 cross-Organization role
-isolation and final approval. The real Owner M-002, M-003, and M-004 allow paths, sanitized
-Axiom receipt, invitation authentication handoff, active-Organization data
-isolation, and both zero-membership and remaining-membership post-revocation
-recovery are verified.
+only. M-002 cross-Organization role isolation is verified, including restoration
+of the disposable fixture and two sanitized correlated Axiom event pairs.
+Production rollout remains blocked on final product/security approval and
+rollback readiness. The real Owner M-002, M-003, and M-004 allow paths,
+sanitized Axiom receipt, invitation authentication handoff, active-Organization
+data isolation, and both zero-membership and remaining-membership
+post-revocation recovery are verified.

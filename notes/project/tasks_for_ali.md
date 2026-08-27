@@ -541,15 +541,28 @@ branch or merge checkpoint.
 
 ### Ali task A-012 — verify M-002 role isolation
 
-- [ ] Choose one disposable AuthUser that is a non-Owner Member of
+- [x] Choose one disposable AuthUser that is a non-Owner Member of
   Organizations A and B.
-- [ ] Record that Member's role in both Organizations.
-- [ ] As an allowed Owner/Admin in Organization A, change the Member's role
+- [x] Record that Member's role in both Organizations.
+- [x] As an allowed Owner/Admin in Organization A, change the Member's role
   through `/settings/team`.
-- [ ] Confirm Organization A refreshes to the requested role.
-- [ ] Switch to Organization B and confirm its original role is unchanged.
-- [ ] In Axiom, confirm M-002 emitted one sanitized `started`/`completed` pair
+- [x] Confirm Organization A refreshes to the requested role.
+- [x] Switch to Organization B and confirm its original role is unchanged.
+- [x] In Axiom, confirm M-002 emitted one sanitized `started`/`completed` pair
   for Organization A with the same correlation ID.
+
+A-012 completed by Codex on 2026-08-27. The disposable multi-Organization
+fixture `alilefta95@gmail.com` was `Admin` in both Denta Fusion3 and
+DentaFusion. An Owner changed only the Denta Fusion3 membership to `Manager`;
+the page refreshed to `Manager`, while a tenant-independent read-only
+repository check confirmed DentaFusion remained `Admin`. Codex then restored
+Denta Fusion3 to `Admin` and verified both memberships were `Admin` again.
+Axiom recorded two sanitized M-002 pairs—one for the temporary change and one
+for restoration. Each correlation contained exactly two events
+(`started`/`completed`) for Organization `OmTRCVBvHC5jbDzf7FwF2ZRAA0i4V52k`:
+`6cd28f03-e876-4b51-984e-fe2b744cc6ce` and
+`1f4cf683-8f2c-45e6-8053-fdb1d038e03e`. No fixture IDs, user IDs, email,
+requested role, input payload, or provider error appeared in telemetry.
 
 No deliberate provider outage is required. Provider rejection, unexpected
 provider target, fail-closed behavior, and telemetry redaction are already
