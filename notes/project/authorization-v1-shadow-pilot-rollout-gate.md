@@ -4,9 +4,9 @@
 
 **Pilot mode:** Controlled non-production V1 canary; legacy rollback remains available
 
-**Automated verification:** Pilot scope passed; repository baseline blockers remain
+**Automated verification:** Pilot scope passed; repository debt is captured in an approved baseline
 
-**Enforcement readiness:** **Controlled development enforcement verified; production approval remains blocked**
+**Enforcement readiness:** **Approved for the reviewed V1 enforcement scope**
 
 ## Gate rule
 
@@ -39,8 +39,8 @@ checklist item below to be completed and explicitly approved in this record.
 | Pilot limited to two actions | `tests/unit/architecture/authorization-shadow-pilot-scope.test.ts` | Pass |
 | Full regression suite | 61 files / 418 tests on 2026-08-27 | Pass |
 | Pilot authorization lint | All changed action, middleware, adapter, telemetry, and gate-test files | Pass |
-| Repository-wide lint | `pnpm exec eslint .` reports 17 errors and 256 warnings in pre-existing unrelated application/generated files | **Blocked** |
-| Repository-wide TypeScript | Existing Decimal DTO and missing Case work-item `addons` mismatches remain; no error originates in the pilot/authorization scope | **Blocked** |
+| Repository-wide lint | `authorization-v1-quality-baseline.md`: 13 errors and 254 warnings in unrelated application/generated files | Approved baseline |
+| Repository-wide TypeScript | `authorization-v1-quality-baseline.md`: 7 existing Decimal DTO / missing Case work-item `addons` errors; no final error originates in the pilot/authorization scope | Approved baseline |
 
 ## Expected and approved divergence
 
@@ -59,21 +59,22 @@ No `LEGACY_DENY_V1_ALLOW` result is pre-approved. Every occurrence is a possible
 - [x] Reconcile comparison counts by boundary, actor role, category, and stable V1 reason for A-124/A-125/N-001.
 - [x] Review every observed `LEGACY_DENY_V1_ALLOW`. The reviewed windows contained zero occurrences.
 - [x] Confirm every observed `LEGACY_ALLOW_V1_DENY` matches the approved Manager/Staff restriction or tenant-integrity mismatch denial.
-- [ ] Confirm no unexplained `AUTHZ_SHADOW_V1_EVALUATION_FAILED`, projector/configuration failure, missing definition/resolver/policy, or telemetry delivery failure remains.
+- [x] Confirm no unexplained `AUTHZ_SHADOW_V1_EVALUATION_FAILED`, projector/configuration failure, missing definition/resolver/policy, or telemetry delivery failure remains. The reviewed two-day Axiom query returned zero records.
 - [x] Sample emitted events and confirm the field allowlist contains no target/identity/Invitation IDs, email, input, patient/Staff details, financial values, or provider/exception details.
 - [x] Exercise A-124 and A-125 for the same AuthUser across two Organizations and attach results proving the inactive Organization is unchanged. Manually verified 2026-08-26 with enforced tenant-mismatch denials and same-tenant positive controls.
-- [ ] Confirm Better Auth allowed/denied outcomes are understood alongside LabOS decisions for invite, cancel, and Member removal.
-- [ ] Record product/security approval for the enforcement change and its rollback implications.
-- [ ] Restore repository-wide lint and TypeScript gates to green, or establish and approve a version-controlled baseline that proves this pilot adds no violations.
+- [x] Confirm Better Auth allowed/denied outcomes are understood alongside LabOS decisions for invite, cancel, and Member removal. The reviewed two-day provider telemetry was balanced: M-002 29 started/29 completed, M-003 6/6, and M-004 9/9, with zero failed records. Provider-denial behavior also remains covered by the fail-closed integration suite.
+- [x] Record product/security approval for the enforcement change and its rollback implications in `authorization-v1-final-approval.md`.
+- [x] Restore repository-wide lint and TypeScript gates to green, or establish and approve a version-controlled baseline that proves this pilot adds no violations. The approved baseline is `authorization-v1-quality-baseline.md`.
 
 ## Enforcement decision
 
-**Current decision: DO NOT ENFORCE V1 IN PRODUCTION YET.**
+**Current decision: APPROVED FOR THE REVIEWED V1 ENFORCEMENT SCOPE.**
 
-Reason: the controlled development canary is green for A-124/A-125/N-001, but
-repository-wide lint/TypeScript gates are not green, unexplained-failure and
-production telemetry operations still require final review, and M-002
-cross-Organization role isolation plus product/security approval remain open.
+Reason: the controlled canary, two-Organization isolation, role matrices,
+failure review, provider outcome reconciliation, telemetry redaction, rollback
+tests, and version-controlled quality baseline are complete. The reviewed
+two-day Axiom window contained zero privilege expansions and zero unexplained
+authorization or membership-provider failures.
 
 A-124/A-125/N-001 are V1-authoritative only when the deployment switch is
 `v1`. Keep the legacy path available for immediate rollback; restoring legacy
@@ -339,18 +340,19 @@ focused ESLint was clean.
 - [x] Route `labos.membership_administration` through the structured Axiom sink. The versioned adapter reconstructs an explicit allowlist and tests prove runtime extras containing Member IDs, roles, headers/input-equivalent data, emails, and provider errors are discarded. Runtime dataset receipt remains part of the real-session fixture task in `tasks_for_ali.md`.
 - [x] Add destructive confirmation UX, clear messaging that linked Staff access must be managed through A-125, pending/error states, and N-001 cache revalidation after success.
 - [x] Initially expose one fixed role in the UI while retaining the multi-role server contract. Approved 2026-08-25.
-- [ ] Record product/security approval and rollback behavior.
+- [x] Record product/security approval and rollback behavior in
+  `authorization-v1-final-approval.md`.
 
 ### UI decision
 
-**Current decision: CONNECTED FOR CONTROLLED NON-PRODUCTION EVIDENCE; PRODUCTION ROLLOUT REMAINS BLOCKED.**
+**Current decision: APPROVED FOR THE REVIEWED V1 ENFORCEMENT SCOPE.**
 
 The approved controls are connected to collect real-provider evidence. The
 server remains authoritative and fail closed; UI visibility is convenience
 only. M-002 cross-Organization role isolation is verified, including restoration
 of the disposable fixture and two sanitized correlated Axiom event pairs.
-Production rollout remains blocked on final product/security approval and
-rollback readiness. The real Owner M-002, M-003, and M-004 allow paths,
+Product/security approval and rollback readiness are recorded. The real Owner
+M-002, M-003, and M-004 allow paths,
 sanitized Axiom receipt, invitation authentication handoff, active-Organization
 data isolation, and both zero-membership and remaining-membership
 post-revocation recovery are verified.

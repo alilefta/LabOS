@@ -52,7 +52,11 @@ authorization is authoritative.
 - [x] Verify the approved A-124/A-125 role and two-Organization scenarios.
 - [x] Monitor Axiom for A-124/A-125 V1-enforced comparison events.
 - [x] Verify N-001 Owner/Admin allow and Manager/Staff denial under V1.
-- [ ] Keep `legacy-rollback` documented and available during the observation
-  window.
+- [x] Keep `legacy-rollback` documented and available during the observation
+  window. Mode selection, provider-profile selection, action enforcement, and
+  non-action enforcement passed 29 focused tests on 2026-08-27. It was not
+  activated without an incident because doing so restores legacy Manager
+  privileges.
 
-Do not set `v1` in production until the rollout gate is explicitly approved.
+The rollout gate was explicitly approved on 2026-08-27. Production activation
+still requires the deployment checks in `authorization-v1-final-approval.md`.
