@@ -461,7 +461,7 @@ a full document navigation before rendering product data.
 - [x] With Organization B's Staff page left open, switch the same Owner session
   to Organization A and submit A-124 from the stale B page.
 - [x] Confirm V1 denies A-124 with `AUTHZ_TENANT_MISMATCH`.
-- [ ] Confirm no `labos.staff_invitation` provider work followed the denied
+- [x] Confirm no `labos.staff_invitation` provider work followed the denied
   correlation/time window.
 - [x] Switch back to Organization B and confirm the same A-124 target succeeds
   with `MATCH_ALLOW` / `POLICY_ALLOWED`.
@@ -497,6 +497,52 @@ changes caused the other protected tab to navigate automatically to
 `/dashboard`. No stale Staff screen, dossier error, hydration error, or stale
 administration controls remained. The complete regression suite passed with 61
 files / 409 tests, and focused ESLint reported no errors.
+
+Final Axiom audit verified 2026-08-26: all eleven fresh A-124/A-125 records
+were V1-enforced, the approved allow/restriction/isolation decisions were the
+only observed outcomes, and the possible privilege-expansion count was zero.
+A-124/A-125 controlled enforcement evidence is complete. The next manual task
+is the isolated N-001 directory cutover check after Codex connects it to the
+same deployment-owned enforcement mode.
+
+### Ali task A-011 — verify N-001 V1 enforcement
+
+Keep `LABOS_AUTHORIZATION_MODE=v1`, restart the development server after this
+commit, and use the existing disposable role fixtures:
+
+- [ ] Owner opens `/settings/team` and sees only the active Organization's
+  Member directory.
+- [ ] Admin opens `/settings/team` and sees only the active Organization's
+  Member directory.
+- [ ] Manager opens `/settings/team` and sees the sanitized
+  `Team directory unavailable` state with no Member rows or controls.
+- [ ] Staff receives the same sanitized denial with no Member rows or controls.
+- [ ] An Owner switches between Organizations A and B and confirms N-001 shows
+  only the selected Organization after each full navigation.
+- [ ] In Axiom, filter `payload.boundaryId == "N-001"` and confirm Owner/Admin
+  are `MATCH_ALLOW`, Manager/Staff are `LEGACY_ALLOW_V1_DENY` with
+  `AUTHZ_PERMISSION_NOT_GRANTED`, and every fresh event has
+  `enforcementSource: "v1"`.
+- [ ] Confirm no N-001 `LEGACY_DENY_V1_ALLOW` or failed V1 outcome appears.
+
+### What Codex does after A-011
+
+Codex records the runtime evidence, closes the N-001 cutover checkbox, reviews
+the remaining enforcement blockers, and prepares the next scoped migration
+branch or merge checkpoint.
+
+### Existing repository lint debt observed during A-011
+
+The changed N-001 files pass focused ESLint. A broader `app` lint also surfaced
+unrelated existing errors that are outside this authorization slice:
+
+- [ ] Replace the explicit `any` in `app/(main)/settings/billing/page.tsx`.
+- [ ] Refactor the synchronous mount-state effect in
+  `app/(main)/settings/preferences/page.tsx`.
+
+The broader scan also reports existing unused-import and raw-image warnings;
+handle these in a dedicated application-quality cleanup rather than mixing
+them into the authorization enforcement commit.
 
 ### What Codex does after A-010
 

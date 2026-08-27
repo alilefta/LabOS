@@ -22,6 +22,15 @@ describe('N-001 Team directory page boundary', () => {
 		expect(source).not.toContain('teamMembers =')
 	})
 
+	it('renders a sanitized denial while rethrowing unrelated page failures', () => {
+		const source = readFileSync(join(routeDirectory, 'page.tsx'), 'utf8')
+
+		expect(source).toContain('error instanceof N001TeamDirectoryLoaderError')
+		expect(source).toContain('Team directory unavailable')
+		expect(source).toContain('throw error')
+		expect(source).not.toContain('AUTHZ_PERMISSION_NOT_GRANTED')
+	})
+
 	it('renders only the safe DTO and exposes no mutation implementation', () => {
 		const source = readFileSync(
 			join(routeDirectory, 'team-directory-view.tsx'),

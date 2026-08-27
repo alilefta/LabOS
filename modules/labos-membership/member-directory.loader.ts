@@ -4,7 +4,7 @@ import type { TenantContext } from '@/platform/organizations'
 import { requireTenantContext } from '@/platform/organizations'
 
 import {
-	evaluateN001TeamDirectoryAuthorizationShadow,
+	evaluateN001TeamDirectoryAuthorization,
 } from '@/modules/labos-authorization/non-action-shadow-adapter'
 import type { LabOSShadowEvaluationResult } from '@/modules/labos-authorization/shadow-evaluation'
 
@@ -15,14 +15,14 @@ import {
 } from './member-directory.repository'
 
 export const N001_TEAM_DIRECTORY_LOADER_ERROR_CODES = Object.freeze({
-	LEGACY_ACCESS_DENIED: 'AUTHZ_N001_LEGACY_ACCESS_DENIED',
+	ACCESS_DENIED: 'AUTHZ_N001_ACCESS_DENIED',
 } as const)
 
 /** Sanitized error used when the currently enforcing page boundary denies. */
 export class N001TeamDirectoryLoaderError extends Error {
 	constructor(
 		readonly code =
-			N001_TEAM_DIRECTORY_LOADER_ERROR_CODES.LEGACY_ACCESS_DENIED,
+			N001_TEAM_DIRECTORY_LOADER_ERROR_CODES.ACCESS_DENIED,
 	) {
 		super('Team directory access denied')
 		this.name = 'N001TeamDirectoryLoaderError'
@@ -45,11 +45,11 @@ export type N001TeamDirectoryLoaderDependencies = Readonly<{
 /**
  * Creates the server-page loader for the N-001 Team & Roles boundary.
  *
- * Ordering is security-critical: canonical tenancy is resolved first, shadow
+ * Ordering is security-critical: canonical tenancy is resolved first,
  * authorization runs second, and the tenant-scoped repository is unreachable
- * until the currently authoritative legacy decision allows. Authorization V1
- * remains observational, so a contained V1 denial/failure never changes an
- * allowed legacy outcome during this rollout stage.
+ * until the deployment-selected enforcement decision allows. In V1 mode a V1
+ * denial or infrastructure failure fails closed; shadow and rollback modes
+ * preserve the legacy verified-membership decision.
  */
 export function createN001TeamDirectoryLoader(
 	dependencies: N001TeamDirectoryLoaderDependencies = {},
@@ -57,7 +57,7 @@ export function createN001TeamDirectoryLoader(
 	const resolveTenant = dependencies.resolveTenant ?? requireTenantContext
 	const evaluateAuthorization =
 		dependencies.evaluateAuthorization ??
-		evaluateN001TeamDirectoryAuthorizationShadow
+		evaluateN001TeamDirectoryAuthorization
 	const repository =
 		dependencies.repository ?? prismaOrganizationMemberDirectoryRepository
 

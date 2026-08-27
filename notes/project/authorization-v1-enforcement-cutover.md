@@ -3,8 +3,9 @@
 ## Purpose
 
 This checkpoint adds a reversible deployment switch for the reviewed A-124
-(Grant Staff access) and A-125 (Revoke Staff access) pilot boundaries. The
-action handlers and Better Auth calls are unchanged.
+(Grant Staff access), A-125 (Revoke Staff access), and N-001 (`membership.list`)
+pilot boundaries. The action handlers, Better Auth calls, and tenant-scoped
+Member repository are unchanged.
 
 ## Runtime modes
 
@@ -13,7 +14,7 @@ Set `LABOS_AUTHORIZATION_MODE` at process startup:
 | Value | Behavior |
 |---|---|
 | `shadow` or unset | V1 is evaluated and telemetry is emitted; the legacy role gate remains authoritative. |
-| `v1` | V1 is authoritative for A-124/A-125. A denied decision, missing boundary, projection failure, or V1 evaluation failure denies before the handler. |
+| `v1` | V1 is authoritative for A-124/A-125 and N-001. A denial or V1 evaluation/configuration failure fails closed before the handler or Member repository. |
 | `legacy-rollback` | Legacy authorization is authoritative while the cutover is investigated. This intentionally restores the legacy Manager privilege and must be treated as a security-impacting rollback. |
 
 Unknown values fall back to `shadow`. The setting is deployment-owned and is
@@ -33,6 +34,8 @@ authorization is authoritative.
 - A-123 remains shadow-only and is not part of this cutover.
 - A-124/A-125 use the cutover client, whose default behavior is identical to
   the prior shadow client.
+- N-001 resolves canonical TenantContext before evaluation and cannot call the
+  Member repository unless the deployment-selected decision allows.
 - V1 mode never falls back to legacy after a V1 failure.
 - Legacy rollback remains available without reverting code or changing domain
   handlers.
@@ -41,15 +44,15 @@ authorization is authoritative.
 
 ## Activation checklist
 
-- [ ] Attach the reviewed runtime evidence and product/security approval to
+- [x] Attach the reviewed A-124/A-125 runtime evidence and controlled approval to
   `authorization-v1-shadow-pilot-rollout-gate.md`.
-- [ ] Confirm no `LEGACY_DENY_V1_ALLOW`, configuration, evaluation, or delivery
-  failures remain unexplained.
-- [ ] Deploy with `LABOS_AUTHORIZATION_MODE=v1` in a controlled environment.
-- [ ] Verify Owner/Admin/Manager/Staff and two-Organization scenarios.
-- [ ] Monitor Axiom for V1-enforced comparison events and provider denials.
+- [x] Confirm the A-124/A-125 audit has zero `LEGACY_DENY_V1_ALLOW` events and
+  no unexplained evaluation outcome.
+- [x] Deploy A-124/A-125 with `LABOS_AUTHORIZATION_MODE=v1` in development.
+- [x] Verify the approved A-124/A-125 role and two-Organization scenarios.
+- [x] Monitor Axiom for A-124/A-125 V1-enforced comparison events.
+- [ ] Verify N-001 Owner/Admin allow and Manager/Staff denial under V1.
 - [ ] Keep `legacy-rollback` documented and available during the observation
   window.
 
 Do not set `v1` in production until the rollout gate is explicitly approved.
-

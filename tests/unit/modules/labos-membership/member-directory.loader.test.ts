@@ -21,20 +21,38 @@ function tenant(overrides: Partial<TenantContext> = {}): TenantContext {
 
 const emptyPage = Object.freeze({ items: Object.freeze([]), nextOffset: null })
 
-function shadowResult(allowed: boolean) {
+function shadowResult(
+	allowed: boolean,
+	options: {
+		source?: 'legacy' | 'v1'
+		legacyAllowed?: boolean
+		v1Status?: 'completed' | 'failed'
+	} = {},
+) {
+	const source = options.source ?? 'legacy'
+	const legacyAllowed = options.legacyAllowed ?? allowed
+	const v1Status = options.v1Status ?? 'completed'
 	return Object.freeze({
 		boundaryId: 'N-001' as const,
 		correlationId: 'correlation-n-001',
-		comparison: allowed ? ('MATCH_ALLOW' as const) : ('MATCH_DENY' as const),
-		legacyDecision: Object.freeze({ allowed }),
+		comparison: legacyAllowed
+			? allowed
+				? ('MATCH_ALLOW' as const)
+				: ('LEGACY_ALLOW_V1_DENY' as const)
+			: allowed
+				? ('LEGACY_DENY_V1_ALLOW' as const)
+				: ('MATCH_DENY' as const),
+		legacyDecision: Object.freeze({ allowed: legacyAllowed }),
 		v1Decision: Object.freeze({
-			status: 'completed' as const,
+			status: v1Status,
 			allowed,
-			reason: allowed
+			reason: v1Status === 'failed'
+				? ('AUTHZ_SHADOW_V1_EVALUATION_FAILED' as const)
+				: allowed
 				? ('ROLE_PERMISSION' as const)
 				: ('AUTHZ_PERMISSION_NOT_GRANTED' as const),
 		}),
-		enforcement: Object.freeze({ source: 'legacy' as const, allowed }),
+		enforcement: Object.freeze({ source, allowed }),
 	})
 }
 
@@ -77,8 +95,46 @@ describe('N-001 Team directory server-page loader', () => {
 
 		await expect(load()).rejects.toMatchObject({
 			name: 'N001TeamDirectoryLoaderError',
-			code: N001_TEAM_DIRECTORY_LOADER_ERROR_CODES.LEGACY_ACCESS_DENIED,
+			code: N001_TEAM_DIRECTORY_LOADER_ERROR_CODES.ACCESS_DENIED,
 			message: 'Team directory access denied',
+		})
+		expect(repository.listPage).not.toHaveBeenCalled()
+	})
+
+	it('never calls the repository when authoritative V1 denies a legacy-allowed read', async () => {
+		const repository = { listPage: vi.fn() }
+		const load = createN001TeamDirectoryLoader({
+			resolveTenant: vi.fn().mockResolvedValue(tenant({ memberRole: 'manager' })),
+			evaluateAuthorization: vi.fn().mockResolvedValue(
+				shadowResult(false, { source: 'v1', legacyAllowed: true }),
+			),
+			repository,
+		})
+
+		await expect(load()).rejects.toMatchObject({
+			name: 'N001TeamDirectoryLoaderError',
+			code: N001_TEAM_DIRECTORY_LOADER_ERROR_CODES.ACCESS_DENIED,
+		})
+		expect(repository.listPage).not.toHaveBeenCalled()
+	})
+
+	it('never calls the repository when authoritative V1 evaluation fails', async () => {
+		const repository = { listPage: vi.fn() }
+		const load = createN001TeamDirectoryLoader({
+			resolveTenant: vi.fn().mockResolvedValue(tenant()),
+			evaluateAuthorization: vi.fn().mockResolvedValue(
+				shadowResult(false, {
+					source: 'v1',
+					legacyAllowed: true,
+					v1Status: 'failed',
+				}),
+			),
+			repository,
+		})
+
+		await expect(load()).rejects.toMatchObject({
+			name: 'N001TeamDirectoryLoaderError',
+			code: N001_TEAM_DIRECTORY_LOADER_ERROR_CODES.ACCESS_DENIED,
 		})
 		expect(repository.listPage).not.toHaveBeenCalled()
 	})

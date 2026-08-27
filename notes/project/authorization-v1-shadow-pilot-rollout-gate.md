@@ -279,6 +279,20 @@ by `MATCH_ALLOW` / `POLICY_ALLOWED` and a successful revocation from the
 target's own active Organization. No provider event followed the denied
 attempts. This closes the A-124/A-125 two-Organization command gate.
 
+Final three-hour Axiom audit received 2026-08-26: all eleven fresh A-124/A-125
+comparison records used `enforcementSource: "v1"`. A-124 contained three
+Owner `MATCH_ALLOW` / `POLICY_ALLOWED` decisions, one enforced Owner
+`AUTHZ_TENANT_MISMATCH` denial, and three approved Manager
+`AUTHZ_PERMISSION_NOT_GRANTED` denials. A-125 contained two Owner
+`MATCH_ALLOW` / `POLICY_ALLOWED` decisions and two enforced
+`AUTHZ_TENANT_MISMATCH` denials. Both tested Organizations were represented.
+The privilege-expansion query returned zero `LEGACY_DENY_V1_ALLOW` records.
+Observed allowed-policy latency was approximately 0.55–1.05 seconds; denied
+role-only decisions were approximately 0.8–1.3 milliseconds and tenant-mismatch
+decisions approximately 0.23 seconds. These are observation values rather than
+hard production budgets. The A-124/A-125 controlled V1 enforcement gate is
+approved; production deployment approval remains separate.
+
 The stale-tab behavior exposed during this matrix was also corrected and
 verified. Successful Organization changes now publish an identifier-free
 browser signal; other protected tabs perform a full navigation to `/dashboard`

@@ -17,7 +17,7 @@ This is the reviewed control record for migrating every protected server boundar
 | Legacy safe-action declarations | 131 | 4 approved | 0 | A-123/A-124/A-125 are shadowing; legacy still enforces |
 | Better Auth Organization mutation endpoints | 12 | 12 in review | 0 | Catch-all exposure requires an explicit product-gate strategy |
 | Route handlers | 1 initial candidate | 0 | 0 | Full route audit required |
-| Server pages, data readers, and services | 28 heuristic candidates | 1 | 0 | N-001 is connected in shadow; legacy tenant membership still enforces |
+| Server pages, data readers, and services | 28 heuristic candidates | 1 | 1 | N-001 is connected to the deployment-selected V1/rollback enforcement mode |
 | File/download/upload boundaries | Audit pending | 0 | 0 | Must include UploadThing and asset access |
 | UI-only capability consumers | Audit pending | 0 | Not applicable | Migrated only after server enforcement |
 
