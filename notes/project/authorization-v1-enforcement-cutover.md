@@ -51,7 +51,7 @@ authorization is authoritative.
 - [x] Deploy A-124/A-125 with `LABOS_AUTHORIZATION_MODE=v1` in development.
 - [x] Verify the approved A-124/A-125 role and two-Organization scenarios.
 - [x] Monitor Axiom for A-124/A-125 V1-enforced comparison events.
-- [ ] Verify N-001 Owner/Admin allow and Manager/Staff denial under V1.
+- [x] Verify N-001 Owner/Admin allow and Manager/Staff denial under V1.
 - [ ] Keep `legacy-rollback` documented and available during the observation
   window.
 

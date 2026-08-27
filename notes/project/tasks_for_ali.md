@@ -510,26 +510,56 @@ same deployment-owned enforcement mode.
 Keep `LABOS_AUTHORIZATION_MODE=v1`, restart the development server after this
 commit, and use the existing disposable role fixtures:
 
-- [ ] Owner opens `/settings/team` and sees only the active Organization's
+- [x] Owner opens `/settings/team` and sees only the active Organization's
   Member directory.
-- [ ] Admin opens `/settings/team` and sees only the active Organization's
+- [x] Admin opens `/settings/team` and sees only the active Organization's
   Member directory.
-- [ ] Manager opens `/settings/team` and sees the sanitized
+- [x] Manager opens `/settings/team` and sees the sanitized
   `Team directory unavailable` state with no Member rows or controls.
-- [ ] Staff receives the same sanitized denial with no Member rows or controls.
-- [ ] An Owner switches between Organizations A and B and confirms N-001 shows
+- [x] Staff receives the same sanitized denial with no Member rows or controls.
+- [x] An Owner switches between Organizations A and B and confirms N-001 shows
   only the selected Organization after each full navigation.
-- [ ] In Axiom, filter `payload.boundaryId == "N-001"` and confirm Owner/Admin
+- [x] In Axiom, filter `payload.boundaryId == "N-001"` and confirm Owner/Admin
   are `MATCH_ALLOW`, Manager/Staff are `LEGACY_ALLOW_V1_DENY` with
   `AUTHZ_PERMISSION_NOT_GRANTED`, and every fresh event has
   `enforcementSource: "v1"`.
-- [ ] Confirm no N-001 `LEGACY_DENY_V1_ALLOW` or failed V1 outcome appears.
+- [x] Confirm no N-001 `LEGACY_DENY_V1_ALLOW` or failed V1 outcome appears.
+
+N-001 runtime evidence received 2026-08-27: Owner and Admin produced only
+`MATCH_ALLOW` / `ROLE_PERMISSION`; Manager and Staff produced the approved
+`LEGACY_ALLOW_V1_DENY` / `AUTHZ_PERMISSION_NOT_GRANTED` restriction. Every
+fresh record used `enforcementSource: "v1"`. The supplied window contained no
+privilege expansion or failed V1 outcome. The sanitized denial state exposed
+no Member rows or controls, and active-Organization directory isolation
+remained intact. A-011 is complete.
 
 ### What Codex does after A-011
 
 Codex records the runtime evidence, closes the N-001 cutover checkbox, reviews
 the remaining enforcement blockers, and prepares the next scoped migration
 branch or merge checkpoint.
+
+### Ali task A-012 — verify M-002 role isolation
+
+- [ ] Choose one disposable AuthUser that is a non-Owner Member of
+  Organizations A and B.
+- [ ] Record that Member's role in both Organizations.
+- [ ] As an allowed Owner/Admin in Organization A, change the Member's role
+  through `/settings/team`.
+- [ ] Confirm Organization A refreshes to the requested role.
+- [ ] Switch to Organization B and confirm its original role is unchanged.
+- [ ] In Axiom, confirm M-002 emitted one sanitized `started`/`completed` pair
+  for Organization A with the same correlation ID.
+
+No deliberate provider outage is required. Provider rejection, unexpected
+provider target, fail-closed behavior, and telemetry redaction are already
+covered by the automated membership-administration tests.
+
+### What Codex does after A-012
+
+Codex records the result, closes the membership-command isolation gate, and
+reduces the remaining milestone work to final product/security approval,
+rollback readiness, and repository-wide quality baselines.
 
 ### Existing repository lint debt observed during A-011
 
@@ -554,12 +584,12 @@ identifies the remaining evidence required before final enforcement approval.
 These tasks are intentionally manual. Do not enable production enforcement
 until the rollout gate has explicit product/security approval.
 
-- [ ] Confirm the A-124/A-125 runtime evidence and rollout-gate approvals are
+- [x] Confirm the A-124/A-125 runtime evidence and controlled rollout approvals are
   complete.
-- [ ] In a controlled deployment, set `LABOS_AUTHORIZATION_MODE=v1` and restart
+- [x] In a controlled deployment, set `LABOS_AUTHORIZATION_MODE=v1` and restart
   all application instances so the process-startup profile is consistent.
-- [ ] Exercise Owner/Admin/Manager/Staff and two-Organization scenarios.
-- [ ] Watch Axiom for V1 enforcement-source events, provider denials, and any
+- [x] Exercise Owner/Admin/Manager/Staff and two-Organization scenarios.
+- [x] Watch Axiom for V1 enforcement-source events, provider denials, and any
   high-priority divergence or infrastructure failure.
 - [ ] If an incident occurs, set
   `LABOS_AUTHORIZATION_MODE=legacy-rollback`, restart all instances, and record

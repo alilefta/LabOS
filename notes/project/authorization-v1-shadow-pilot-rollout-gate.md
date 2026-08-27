@@ -1,12 +1,12 @@
 # Authorization V1 shadow pilot rollout gate
 
-**Pilot:** A-124 Grant Staff access and A-125 Revoke Staff access
+**Pilot:** A-124 Grant Staff access, A-125 Revoke Staff access, and N-001 Team directory
 
 **Pilot mode:** Controlled non-production V1 canary; legacy rollback remains available
 
 **Automated verification:** Pilot scope passed; repository baseline blockers remain
 
-**Enforcement readiness:** **Blocked pending reviewed runtime evidence**
+**Enforcement readiness:** **Controlled development enforcement verified; production approval remains blocked**
 
 ## Gate rule
 
@@ -33,11 +33,11 @@ checklist item below to be completed and explicitly approved in this record.
 | Validated target/operation projection | `tests/unit/modules/labos-authorization/action-boundaries.test.ts` | Pass |
 | Correlation propagation | Shadow test asserts identical generated ID reaches V1 and comparison telemetry | Pass |
 | Telemetry redaction | Exact allowlist plus forbidden-value tests | Pass |
-| Structured delivery and aggregation | Versioned envelope, replaceable sink, bounded series, latency/count snapshots, cardinality and delivery-failure tests | Pass locally; production provider pending |
+| Structured delivery and aggregation | Versioned envelope, Axiom sink, bounded series, latency/count snapshots, cardinality and delivery-failure tests | Pass in development; production retention/operations approval pending |
 | Better Auth calls unchanged | Pilot scope architecture test checks existing invite/cancel/revoke calls | Pass |
 | A-124/A-125 two-Organization behavior | Shadow-adapter cross-Organization tests plus platform isolation suite | Pass |
 | Pilot limited to two actions | `tests/unit/architecture/authorization-shadow-pilot-scope.test.ts` | Pass |
-| Full regression suite | 30 files / 200 tests on 2026-08-24 | Pass |
+| Full regression suite | 61 files / 418 tests on 2026-08-27 | Pass |
 | Pilot authorization lint | All changed action, middleware, adapter, telemetry, and gate-test files | Pass |
 | Repository-wide lint | `pnpm exec eslint .` reports 17 errors and 256 warnings in pre-existing unrelated application/generated files | **Blocked** |
 | Repository-wide TypeScript | Existing Decimal DTO and missing Case work-item `addons` mismatches remain; no error originates in the pilot/authorization scope | **Blocked** |
@@ -54,13 +54,13 @@ No `LEGACY_DENY_V1_ALLOW` result is pre-approved. Every occurrence is a possible
 
 ## Runtime evidence required before enforcement
 
-- [ ] Record the observation window, environment, release/commit, and event volume.
-- [ ] Connect the structured sink to durable centralized collection (or prove platform stdout ingestion), retention, and cross-instance querying.
-- [ ] Reconcile comparison counts by boundary, actor role, category, and stable V1 reason.
-- [ ] Review every `LEGACY_DENY_V1_ALLOW`; attach an explicit approval or remediation reference for each distinct cause.
-- [ ] Confirm every `LEGACY_ALLOW_V1_DENY` matches an approved restriction or documented tenant-integrity improvement.
+- [x] Record the observation window, environment, release/commit, and event volume. Development evidence spans the 2026-08-26 three-hour A-124/A-125 window and the 2026-08-27 N-001 window at commit `b327cfa`.
+- [x] Connect the structured sink to durable centralized collection. Development events are queryable in the `labos-authorization-shadow` Axiom dataset; production retention and cross-instance operations remain a deployment task.
+- [x] Reconcile comparison counts by boundary, actor role, category, and stable V1 reason for A-124/A-125/N-001.
+- [x] Review every observed `LEGACY_DENY_V1_ALLOW`. The reviewed windows contained zero occurrences.
+- [x] Confirm every observed `LEGACY_ALLOW_V1_DENY` matches the approved Manager/Staff restriction or tenant-integrity mismatch denial.
 - [ ] Confirm no unexplained `AUTHZ_SHADOW_V1_EVALUATION_FAILED`, projector/configuration failure, missing definition/resolver/policy, or telemetry delivery failure remains.
-- [ ] Sample emitted events and confirm the field allowlist contains no target/identity/Invitation IDs, email, input, patient/Staff details, financial values, or provider/exception details.
+- [x] Sample emitted events and confirm the field allowlist contains no target/identity/Invitation IDs, email, input, patient/Staff details, financial values, or provider/exception details.
 - [x] Exercise A-124 and A-125 for the same AuthUser across two Organizations and attach results proving the inactive Organization is unchanged. Manually verified 2026-08-26 with enforced tenant-mismatch denials and same-tenant positive controls.
 - [ ] Confirm Better Auth allowed/denied outcomes are understood alongside LabOS decisions for invite, cancel, and Member removal.
 - [ ] Record product/security approval for the enforcement change and its rollback implications.
@@ -70,13 +70,15 @@ No `LEGACY_DENY_V1_ALLOW` result is pre-approved. Every occurrence is a possible
 
 **Current decision: DO NOT ENFORCE V1 IN PRODUCTION YET.**
 
-Reason: the controlled development canary is green for the observed cases, but
-repository-wide lint/TypeScript gates are not green, and runtime divergence
-volume, infrastructure stability, telemetry sampling, two-Organization
-operational evidence, and Better Auth dual-authority outcomes have not yet been
-attached and approved for production.
+Reason: the controlled development canary is green for A-124/A-125/N-001, but
+repository-wide lint/TypeScript gates are not green, unexplained-failure and
+production telemetry operations still require final review, and M-002
+cross-Organization role isolation plus product/security approval remain open.
 
-When the gate is eventually approved, change only A-124/A-125 in a separate enforcement commit. Keep the legacy path available for immediate rollback; restoring legacy Manager access is a known privilege expansion and must be declared during rollback.
+A-124/A-125/N-001 are V1-authoritative only when the deployment switch is
+`v1`. Keep the legacy path available for immediate rollback; restoring legacy
+Manager/Staff privileges is a known expansion and must be declared during
+rollback.
 
 ## Generic membership command gate — M-002/M-003/M-004
 
@@ -201,9 +203,11 @@ configuration, or evaluation-failure events. It also proved real Axiom receipt
 from the configured development deployment. The M-002 Owner allow path
 completed against Better Auth in approximately 1.38 seconds and refreshed the
 directory row. The M-004 Owner invitation and M-003 Owner removal paths also
-completed with sanitized correlated events. Admin M-002/M-003/M-004 allow paths
-and Manager/Staff UI denial are now verified; provider-denial evidence remains
-pending. The A-124/A-125 two-Organization command matrix is completed below.
+completed with sanitized correlated events. Admin M-002/M-003/M-004 allow
+paths and Manager/Staff UI denial are now verified. Provider failure is covered
+by automated fail-closed gateway, sanitized telemetry, and unexpected-target
+tests; intentionally breaking the real provider adds no useful authorization
+evidence. The A-124/A-125 two-Organization command matrix is completed below.
 
 The real Better Auth Organization selector was also verified with two identity
 states: a single-membership account saw exactly one Organization, while an
@@ -293,6 +297,15 @@ decisions approximately 0.23 seconds. These are observation values rather than
 hard production budgets. The A-124/A-125 controlled V1 enforcement gate is
 approved; production deployment approval remains separate.
 
+N-001 controlled enforcement evidence received 2026-08-27: Owner and Admin
+produced `MATCH_ALLOW` / `ROLE_PERMISSION`, while Manager and Staff produced
+the approved `LEGACY_ALLOW_V1_DENY` / `AUTHZ_PERMISSION_NOT_GRANTED` result.
+Every fresh comparison used `enforcementSource: "v1"`; no
+`LEGACY_DENY_V1_ALLOW` or failed V1 outcome appeared. Denied actors received a
+sanitized page state with no Member rows or controls, and Organization
+switching continued to isolate the directory. The N-001 development cutover
+gate is complete.
+
 The stale-tab behavior exposed during this matrix was also corrected and
 verified. Successful Organization changes now publish an identifier-free
 browser signal; other protected tabs perform a full navigation to `/dashboard`
@@ -304,10 +317,13 @@ focused ESLint was clean.
 ### Required before UI connection
 
 - [x] Approve the generic Member-only removal matrix explicitly. Owner/Admin may remove any non-Owner, non-self Member who has no LabStaff link; Manager/Staff cannot remove Members. Approved 2026-08-25.
-- [ ] Complete the remaining M-002/M-003 live evidence: provider-denial
-  handling and command-level two-Organization isolation. Owner/Admin allow and
-  Manager/Staff denial are verified; retain this gate unchecked until the
-  remaining cases are recorded.
+- [ ] Complete the remaining M-002 live evidence: change a disposable
+  multi-Organization Member's role in Organization A and verify its role in
+  Organization B is unchanged. M-003 already proved that removal from one
+  Organization preserves the other membership.
+- [x] Verify provider-failure handling through automated fail-closed,
+  sanitized-telemetry, and authoritative-target tests. Do not deliberately
+  damage a real provider/session merely to manufacture a runtime error.
 - [x] Route `labos.membership_administration` through the structured Axiom sink. The versioned adapter reconstructs an explicit allowlist and tests prove runtime extras containing Member IDs, roles, headers/input-equivalent data, emails, and provider errors are discarded. Runtime dataset receipt remains part of the real-session fixture task in `tasks_for_ali.md`.
 - [x] Add destructive confirmation UX, clear messaging that linked Staff access must be managed through A-125, pending/error states, and N-001 cache revalidation after success.
 - [x] Initially expose one fixed role in the UI while retaining the multi-role server contract. Approved 2026-08-25.
@@ -319,8 +335,8 @@ focused ESLint was clean.
 
 The approved controls are connected to collect real-provider evidence. The
 server remains authoritative and fail closed; UI visibility is convenience
-only. Production rollout remains blocked on provider-denial evidence and final
-review. The real Owner M-002, M-003, and M-004 allow paths, sanitized
+only. Production rollout remains blocked on M-002 cross-Organization role
+isolation and final approval. The real Owner M-002, M-003, and M-004 allow paths, sanitized
 Axiom receipt, invitation authentication handoff, active-Organization data
 isolation, and both zero-membership and remaining-membership post-revocation
 recovery are verified.
