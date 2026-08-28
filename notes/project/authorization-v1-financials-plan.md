@@ -109,6 +109,16 @@ Exit criteria:
 
 ### F1 — Build the shared financial authorization foundation
 
+Progress as of 2026-08-28:
+
+- Complete: identifier-only Organization resolvers for Case, Clinic, Invoice,
+  Staff, and Payout.
+- Complete: tenant-scoped, request-cached fact loaders for Case/Clinic
+  financial state, Invoice lifecycle, Invoice Case links, Staff compensation
+  targets, and Payout lifecycle.
+- Pending: deterministic financial policies, operation-intent contracts,
+  concrete-service registration, and policy matrix tests.
+
 Implement typed tenant-scoped resolvers and minimal fact loaders for:
 
 - Case;
