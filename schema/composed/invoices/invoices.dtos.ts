@@ -23,8 +23,6 @@ export type InvoiceListDTO = {
 	isOverdue: boolean; // true IF amountDue > 0 AND dueDate < Today
 	progressPct: number; // Math.round((amountPaid / total) * 100)
 
-	// For the WhatsApp action
-	publicToken: string | null;
 };
 
 // ── 3. The Server Action Result  ─────────────────────────────────────────

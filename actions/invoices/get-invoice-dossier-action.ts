@@ -6,6 +6,7 @@ import { actionClientWithLab } from "@/lib/safe-action";
 import { InvoiceDetailsDTO } from "@/schema/composed/invoices/invoice-details.dtos";
 import { differenceInDays, startOfDay } from "date-fns";
 import { z } from "zod";
+import { INVOICE_DOSSIER_SELECT } from "@/data/invoices/invoice-read-projections";
 
 export const getInvoiceDossierAction = actionClientWithLab
 	.metadata({
@@ -21,43 +22,7 @@ export const getInvoiceDossierAction = actionClientWithLab
 
 		const rawInvoice = await prisma.invoice.findUnique({
 			where: { id: invoiceId, labId },
-			include: {
-				lab: {
-					select: { title: true, subtitle: true, brandAvatarUrl: true },
-				},
-				clinic: {
-					select: {
-						id: true,
-						name: true,
-						city: true,
-						address1: true,
-						phoneNumber: true,
-						email: true,
-						type: true,
-					},
-				},
-				payments: {
-					orderBy: { paidAt: "desc" },
-				},
-				cases: {
-					include: {
-						case: {
-							include: {
-								patient: { select: { name: true, age: true, gender: true } },
-								dentist: { select: { name: true } },
-								caseItems: {
-									include: {
-										product: { select: { name: true } },
-										workType: { select: { name: true } },
-										selectedTeeth: { select: { toothPosition: true } },
-										_count: true,
-									},
-								},
-							},
-						},
-					},
-				},
-			},
+			select: INVOICE_DOSSIER_SELECT,
 		});
 
 		if (!rawInvoice) throw ERRORS.INVOICE_NOT_FOUND;
@@ -96,9 +61,6 @@ export const getInvoiceDossierAction = actionClientWithLab
 			dueDate: rawInvoice.dueDate,
 			createdAt: rawInvoice.createdAt,
 			updatedAt: rawInvoice.updatedAt,
-
-			publicToken: rawInvoice.publicToken,
-			publicLinkExpiresAt: rawInvoice.publicLinkExpiresAt,
 
 			lab: {
 				title: rawInvoice.lab.title,

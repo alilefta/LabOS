@@ -158,6 +158,20 @@ Exit criteria:
 Migrate financial collection/detail/analytics readers and remove capability
 leakage before mutating actions are enforced.
 
+Progress as of 2026-08-28:
+
+- Complete: remove Invoice public bearer tokens from ordinary A-093 list query,
+  DTO, and UI paths.
+- Complete: remove Invoice public bearer tokens from ordinary A-092 dossier
+  action/data queries, DTO, and UI paths.
+- Complete: shared allowlisted Prisma read projections and an architectural
+  regression test preserving the isolated public statement lookup.
+- Pending: A-092 payment-history and nested patient data minimization.
+- Pending: V1 reader adapters, repository short-circuit tests, role matrices,
+  two-Organization isolation, and remaining financial/compensation DTO splits.
+- Deferred to a dedicated lifecycle/public-capability slice: authorized link
+  issuance, rotation, disclosure, expiry, and audit behavior.
+
 Work includes:
 
 - `case.financials.list/read` and `clinic.financials.list/read` boundaries;

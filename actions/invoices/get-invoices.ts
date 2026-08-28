@@ -8,6 +8,7 @@ import { endOfDay, startOfDay, startOfMonth, subMonths } from "date-fns";
 import { GetInvoicsListSchema, GetInvoicesListResult, InvoiceListDTO } from "@/schema/composed/invoices/invoices.dtos";
 import { DatePreset } from "@/schema/composed/shared/date-preset";
 import { InvoicePulseFilter } from "@/schema/composed/invoices/invoice-filters";
+import { INVOICE_LIST_SELECT } from "@/data/invoices/invoice-read-projections";
 
 function resolveDatePreset(preset: DatePreset, from: Date | null, to: Date | null): { gte: Date; lte: Date } | null {
 	const now = new Date();
@@ -101,18 +102,7 @@ export const getInvoicesListAction = actionClientWithLab
 				take: take + 1,
 				...(cursor && { cursor: { id: cursor }, skip: 1 }),
 				orderBy: [{ dueDate: "asc" }, { createdAt: "desc" }],
-				select: {
-					id: true,
-					invoiceNumber: true,
-					issuedAt: true,
-					dueDate: true,
-					total: true,
-					amountPaid: true,
-					amountDue: true,
-					status: true,
-					publicToken: true,
-					clinic: { select: { name: true } },
-				},
+				select: INVOICE_LIST_SELECT,
 			}),
 			prisma.invoice.count({ where }),
 			prisma.invoice.aggregate({
@@ -141,7 +131,6 @@ export const getInvoicesListAction = actionClientWithLab
 				status: inv.status,
 				isOverdue: amountDue > 0 && inv.dueDate !== null && inv.dueDate < now,
 				progressPct: total > 0 ? Math.round((amountPaid / total) * 100) : 0,
-				publicToken: inv.publicToken,
 			};
 		});
 

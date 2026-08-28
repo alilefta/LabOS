@@ -7,6 +7,7 @@ import { daError, daSuccess, toDAError, DAResult } from "@/lib/data-access-error
 import { startOfDay, differenceInDays } from "date-fns";
 import { InvoiceDetailsDTO } from "@/schema/composed/invoices/invoice-details.dtos";
 import z from "zod";
+import { INVOICE_DOSSIER_SELECT } from "./invoice-read-projections";
 
 const InputSchema = z.string().uuid("Invalid Invoice ID format");
 
@@ -29,35 +30,7 @@ export async function getInvoiceDossierData(invoiceId: string): Promise<DAResult
 		// ── 2. DATABASE READ (OPTIMIZED SHAPE) ───────────────────────────────
 		const rawInvoice = await prisma.invoice.findUnique({
 			where: { id: parsedId.data, labId },
-			include: {
-				lab: {
-					select: { title: true, subtitle: true, brandAvatarUrl: true },
-				},
-				clinic: {
-					select: { id: true, name: true, city: true, address1: true, phoneNumber: true, email: true, type: true },
-				},
-				payments: {
-					orderBy: { paidAt: "desc" }, // Fresh payments at the top
-				},
-				cases: {
-					include: {
-						case: {
-							include: {
-								patient: { select: { name: true, age: true, gender: true } },
-								dentist: { select: { name: true } },
-								caseItems: {
-									include: {
-										product: { select: { name: true } },
-										workType: { select: { name: true } },
-										selectedTeeth: { select: { toothPosition: true } },
-										_count: true,
-									},
-								},
-							},
-						},
-					},
-				},
-			},
+			select: INVOICE_DOSSIER_SELECT,
 		});
 
 		if (!rawInvoice) {
@@ -103,9 +76,6 @@ export async function getInvoiceDossierData(invoiceId: string): Promise<DAResult
 			dueDate: rawInvoice.dueDate,
 			createdAt: rawInvoice.createdAt,
 			updatedAt: rawInvoice.updatedAt,
-
-			publicToken: rawInvoice.publicToken,
-			publicLinkExpiresAt: rawInvoice.publicLinkExpiresAt,
 
 			lab: {
 				title: rawInvoice.lab.title,

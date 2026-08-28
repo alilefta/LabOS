@@ -65,10 +65,6 @@ export const InvoiceDetailsDTOSchema = z.object({
 	createdAt: z.coerce.date(),
 	updatedAt: z.coerce.date(),
 
-	// Sharing
-	publicToken: z.string().nullable(),
-	publicLinkExpiresAt: z.coerce.date().nullable(),
-
 	// Nested Clinic Metadata (Direct, flattened lookup)
 	clinic: z.object({
 		id: z.string().uuid(),

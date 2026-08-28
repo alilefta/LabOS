@@ -17,7 +17,6 @@ import { DigitalBillFooter } from "./left-pane/digital-bill-footer";
 // Financial Elements (Right Pane)
 import { ClinicStatusGauge } from "./right-pane/clinic-status-gauge";
 import { PaymentHistoryTimeline } from "./right-pane/payment-history-timeline";
-import { StatementSharingBox } from "./right-pane/statement-sharing-box";
 import { useInvoiceUiStore } from "@/store/invoices/use-invoice-ui-store";
 import { AmbientBgGlow } from "@/components/ui/ui-utils/animated-ambient-bg-glow";
 import { getInvoiceDossierAction } from "@/actions/invoices/get-invoice-dossier-action";
@@ -294,14 +293,6 @@ export function InvoiceDossierClient({ initialData, initialAction }: Props) {
 						/>
 						{/* 2. Transaction Timeline */}
 						<PaymentHistoryTimeline payments={invoice.payments} />
-						{/* 3. Statement Sharing */}
-						<StatementSharingBox
-							amountDue={invoice.amountDue}
-							clinicName={invoice.clinic.name}
-							clinicPhone={invoice.clinic.phoneNumber}
-							invoiceNumber={invoice.invoiceNumber}
-							publicToken={invoice.publicToken}
-						/>
 					</div>
 
 					{/* Mobile Floating Bars */}

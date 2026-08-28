@@ -611,3 +611,23 @@ until the rollout gate has explicit product/security approval.
 After the manual verification is complete, the implementation task is to
 review the Axiom evidence, update the rollout gate, and decide whether to keep
 V1 enabled or return to shadow mode.
+
+# Financial Authorization F2 — operator tasks
+
+### Ali task F2-001 — verify Invoice bearer-token remediation
+
+- [ ] Open the authenticated Invoice list and confirm its row actions no longer
+  offer a public-statement link.
+- [ ] Open an authenticated Invoice dossier and confirm its sidebar no longer
+  offers statement sharing.
+- [ ] Use a previously issued, unexpired `/statement/[token]` URL and confirm
+  the isolated public statement still loads.
+- [ ] Confirm ordinary Invoice list/detail responses in the browser developer
+  tools contain neither `publicToken` nor `publicLinkExpiresAt`.
+
+### What Codex does after F2-001
+
+Codex records the manual result, then continues F2 with the A-092 minimal
+detail decision and the A-118 Staff dossier split. Public-link issuance,
+rotation, disclosure, expiry, and audit remain a separate authorized slice;
+they will not be restored through ordinary Invoice reads.

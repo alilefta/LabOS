@@ -55,8 +55,8 @@ intentional only after explicit product/security approval.
 | A-089 | Create an Invoice | `invoice.create`; Organization; validated Clinic/Case IDs are typed operation intent, not trusted facts | Resolve Clinic and every Case in tenant; require same Clinic, eligible status, unbilled state; validate in transaction | Owner/Manager → Owner/Admin/Manager; **Admin expansion approved 2026-08-27** | Blocked: separate public-link issuance |
 | A-090 | Accounts-receivable vitals | `invoice.analytics.read`; Organization | Tenant-scoped aggregates and one consistent predicate | All roles → all roles | Approved classification |
 | A-091 | List Cases eligible for a draft Invoice | `invoice.create` for creation, or `invoice.update` with Invoice target for editing; Clinic filter must resolve | Resolve Clinic; when draft ID exists resolve same-tenant, same-Clinic draft; return minimal supporting DTO | All roles → Owner/Admin/Manager; **Staff restriction approved 2026-08-27** | Blocked: split create/edit contracts and validate draft authority |
-| A-092 | Read Invoice dossier | `invoice.read`; resource; Invoice ID | Same Organization; composite sections independently require their disclosure permission or are redacted | All roles → all roles | Blocked: remove bearer token and decide payment-history/nested patient disclosure |
-| A-093 | List Invoices | `invoice.list`; Organization; optional Clinic filter resolves in tenant | Tenant-scoped collection; same predicate for rows/count/cursor | All roles → all roles | **Blocked critical:** remove `publicToken` from query and DTO |
+| A-092 | Read Invoice dossier | `invoice.read`; resource; Invoice ID | Same Organization; composite sections independently require their disclosure permission or are redacted | All roles → all roles | Bearer-token query/DTO/UI disclosure remediated in F2; still blocked on payment-history/nested patient minimization and V1 adapter |
+| A-093 | List Invoices | `invoice.list`; Organization; optional Clinic filter resolves in tenant | Tenant-scoped collection; same predicate for rows/count/cursor | All roles → all roles | Critical `publicToken` query/DTO/UI disclosure remediated in F2; V1 reader adapter and role/tenant matrix pending |
 | A-094 | Read credit-risk Clinic analytics | `invoice.analytics.read` plus `clinic.read` (or a redacted analytics DTO); Organization collection with verified Clinic rows | Tenant-scoped balance/overdue aggregates; no contact data unless `clinic.read` also allows it | All roles → all roles under current bundles | Blocked: split financial analytics from Clinic contact data |
 | A-095 | List unbilled Cases for Invoice creation | `invoice.create`; Organization with verified Clinic filter | Resolve Clinic; eligible same-tenant Case predicate; minimal identifier/price projection | All roles → Owner/Admin/Manager; **Staff restriction approved 2026-08-27** | Approved classification; DTO review pending |
 | A-096 | Record Invoice payment | `invoice.payment.record`; resource; Invoice ID | Same Organization; payable state; positive bounded amount; transaction re-reads balance/state and prevents duplicate value | Owner/Manager → Owner/Admin/Manager; **Admin expansion approved 2026-08-27** | **Blocked critical:** add idempotency/concurrency guarantee |
@@ -159,3 +159,26 @@ implementation gates rather than product-decision blockers.
 F1 may now implement only the shared target resolvers, fact loaders, policies,
 and unit tests. It must not connect financial actions yet and must not perform a
 Prisma migration without Ali's explicit approval.
+
+## F2 implementation record
+
+### Invoice bearer-capability remediation — 2026-08-28
+
+- Ordinary A-093 Invoice list queries now use an explicit allowlisted
+  projection that cannot retrieve `publicToken` or `publicLinkExpiresAt`.
+- Ordinary A-092 Invoice dossier action and server data reader share an
+  explicit allowlisted projection and no longer return either bearer-capability
+  field in their DTO.
+- List and dossier sharing controls were removed until a separate authorized,
+  expiring, audited public-link operation exists.
+- The public `/statement/[token]` lookup remains isolated and operational; this
+  remediation does not delete stored tokens or alter the public capability
+  boundary.
+- Invoice create/update responses that currently disclose a newly issued token
+  remain an F3 lifecycle blocker and are not treated as ordinary read access.
+- A-092 remains blocked on deciding and enforcing the minimum necessary payment
+  history and nested patient disclosure.
+
+Regression coverage: `invoice-public-capability-boundary.test.ts` protects the
+ordinary query projections, DTO/UI paths, and the isolated public lookup. No
+Prisma schema change or migration was required.
