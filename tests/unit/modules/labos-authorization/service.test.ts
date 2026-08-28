@@ -55,8 +55,13 @@ function monitor() {
 }
 
 describe('LabOS authorization service composition', () => {
-	it('enables only the reviewed membership and Staff-access slice', () => {
+	it('enables only the reviewed membership and financial foundation slices', () => {
 		expect(LABOS_AUTHORIZATION_V1_SUPPORTED_PERMISSIONS).toEqual([
+			'case.financials.read',
+			'case.financials.list',
+			'case.financials.update',
+			'clinic.financials.read',
+			'clinic.financials.list',
 			'staff.create',
 			'staff.access.invite',
 			'staff.access.revoke',
@@ -65,6 +70,20 @@ describe('LabOS authorization service composition', () => {
 			'membership.invite',
 			'membership.role.update',
 			'membership.remove',
+			'staff.compensation.read',
+			'staff.compensation.update',
+			'invoice.read',
+			'invoice.list',
+			'invoice.analytics.read',
+			'invoice.update',
+			'invoice.cancel',
+			'invoice.delete_draft',
+			'invoice.payment.record',
+			'invoice.overdue.sync',
+			'payout.read',
+			'payout.list',
+			'payout.issue',
+			'payout.void',
 		])
 		expect(
 			LABOS_AUTHORIZATION_V1_PERMISSION_REGISTRY.list().map(
@@ -174,6 +193,85 @@ describe('LabOS authorization service composition', () => {
 			}),
 		).resolves.toEqual({ allowed: true, reason: 'POLICY_ALLOWED' })
 		expect(memberResolver.resolveOrganizationId).toHaveBeenCalledOnce()
+	})
+
+	it.each([
+		['owner', true, 'POLICY_ALLOWED'],
+		['admin', true, 'POLICY_ALLOWED'],
+		['manager', true, 'POLICY_ALLOWED'],
+		['staff', true, 'POLICY_ALLOWED'],
+	] as const)(
+		'evaluates supported invoice.read for %s through the Invoice resolver',
+		async (role, allowed, reason) => {
+			const invoiceResolver = resolver()
+			const service = createLabOSAuthorizationService({
+				targetResolvers: { invoice: invoiceResolver },
+				policies: {},
+				monitor: monitor().monitor,
+			})
+
+			await expect(
+				service.can({
+					actor: { ...actor, memberRoles: [role] },
+					permission: 'invoice.read',
+					target: { type: 'invoice', id: 'invoice-1' },
+				}),
+			).resolves.toEqual({ allowed, reason })
+			expect(invoiceResolver.resolveOrganizationId).toHaveBeenCalledOnce()
+		},
+	)
+
+	it.each([
+		['owner', true, 'POLICY_ALLOWED'],
+		['admin', false, 'AUTHZ_PERMISSION_NOT_GRANTED'],
+		['manager', true, 'POLICY_ALLOWED'],
+		['staff', false, 'AUTHZ_PERMISSION_NOT_GRANTED'],
+	] as const)(
+		'evaluates the approved staff.compensation.update role matrix for %s',
+		async (role, allowed, reason) => {
+			const staffResolver = resolver()
+			const policy = allowPolicy()
+			const service = createLabOSAuthorizationService({
+				targetResolvers: { staff: staffResolver },
+				policies: { 'staff.compensation.update': policy },
+				monitor: monitor().monitor,
+			})
+
+			await expect(
+				service.can({
+					actor: { ...actor, memberRoles: [role] },
+					permission: 'staff.compensation.update',
+					target: { type: 'staff', id: 'staff-1' },
+					operation: { kind: 'staff.compensation.update' },
+				}),
+			).resolves.toEqual({ allowed, reason })
+			expect(staffResolver.resolveOrganizationId).toHaveBeenCalledTimes(
+				allowed ? 1 : 0,
+			)
+			expect(policy.evaluate).toHaveBeenCalledTimes(allowed ? 1 : 0)
+		},
+	)
+
+	it('denies a cross-Organization financial target before policy evaluation', async () => {
+		const policy = allowPolicy()
+		const service = createLabOSAuthorizationService({
+			targetResolvers: { invoice: resolver('organization-2') },
+			policies: { 'invoice.payment.record': policy },
+			monitor: monitor().monitor,
+		})
+
+		await expect(
+			service.can({
+				actor,
+				permission: 'invoice.payment.record',
+				target: { type: 'invoice', id: 'foreign-invoice' },
+				operation: { kind: 'invoice.payment.record' },
+			}),
+		).resolves.toEqual({
+			allowed: false,
+			reason: 'AUTHZ_TENANT_MISMATCH',
+		})
+		expect(policy.evaluate).not.toHaveBeenCalled()
 	})
 
 	it('passes typed Staff invitation intent through every required policy', async () => {

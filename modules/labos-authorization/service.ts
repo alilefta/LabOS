@@ -17,6 +17,10 @@ import {
 	LABOS_MEMBERSHIP_ACCESS_POLICIES,
 	LABOS_MEMBERSHIP_TARGET_RESOLVERS,
 } from './membership-access.adapters'
+import {
+	LABOS_FINANCIAL_POLICIES,
+	LABOS_FINANCIAL_TARGET_RESOLVERS,
+} from './financial.adapters'
 import type { LabOSAuthorizationOperationMap } from './operation-intents'
 import {
 	LABOS_PERMISSION_DEFINITION_REGISTRY,
@@ -36,6 +40,11 @@ import {
  * policy, monitoring, and isolation tests in the same change.
  */
 export const LABOS_AUTHORIZATION_V1_SUPPORTED_PERMISSIONS = Object.freeze([
+	'case.financials.read',
+	'case.financials.list',
+	'case.financials.update',
+	'clinic.financials.read',
+	'clinic.financials.list',
 	'staff.create',
 	'staff.access.invite',
 	'staff.access.revoke',
@@ -44,7 +53,31 @@ export const LABOS_AUTHORIZATION_V1_SUPPORTED_PERMISSIONS = Object.freeze([
 	'membership.invite',
 	'membership.role.update',
 	'membership.remove',
+	'staff.compensation.read',
+	'staff.compensation.update',
+	'invoice.read',
+	'invoice.list',
+	'invoice.analytics.read',
+	'invoice.update',
+	'invoice.cancel',
+	'invoice.delete_draft',
+	'invoice.payment.record',
+	'invoice.overdue.sync',
+	'payout.read',
+	'payout.list',
+	'payout.issue',
+	'payout.void',
 ] as const satisfies readonly LabOSPermission[])
+
+const LABOS_AUTHORIZATION_V1_TARGET_RESOLVERS = Object.freeze({
+	...LABOS_MEMBERSHIP_TARGET_RESOLVERS,
+	...LABOS_FINANCIAL_TARGET_RESOLVERS,
+})
+
+const LABOS_AUTHORIZATION_V1_POLICIES = Object.freeze({
+	...LABOS_MEMBERSHIP_ACCESS_POLICIES,
+	...LABOS_FINANCIAL_POLICIES,
+})
 
 type LabOSPermissionDefinition = PermissionDefinition<
 	LabOSPermission,
@@ -142,8 +175,8 @@ export function createLabOSAuthorizationService(
 		roleBundles: LABOS_ROLE_PERMISSION_BUNDLES,
 		permissionDefinitions: LABOS_AUTHORIZATION_V1_PERMISSION_REGISTRY,
 		targetResolvers:
-			options.targetResolvers ?? LABOS_MEMBERSHIP_TARGET_RESOLVERS,
-		policies: options.policies ?? LABOS_MEMBERSHIP_ACCESS_POLICIES,
+			options.targetResolvers ?? LABOS_AUTHORIZATION_V1_TARGET_RESOLVERS,
+		policies: options.policies ?? LABOS_AUTHORIZATION_V1_POLICIES,
 		monitor: options.monitor ?? labosAuthorizationMonitor,
 		now: options.now,
 	})

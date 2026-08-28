@@ -63,10 +63,10 @@ Caller-supplied attributes are forbidden. If classification cannot name a truste
 | Catalog and pricing | A-001–A-009, A-029–A-059, A-102–A-105, A-129–A-131 | 47 | `feat/platform-authorization-operations` | Pending |
 | Clinics and Dentists | A-060–A-082 | 23 | `feat/platform-authorization-operations` | Pending |
 | Invitation/onboarding session paths | A-083, A-098 | 2 | Membership/core review | Pending |
-| Invoices and payments | A-084–A-097 | 14 | `feat/platform-authorization-financials` | Pending |
+| Invoices and payments | A-084–A-097 | 14 | `feat/platform-authorization-financials` | F0 approved 2026-08-27; see `authorization-v1-financials-inventory.md` |
 | Patients | A-099–A-101 | 3 | `feat/platform-authorization-operations` | Pending |
 | Staff and team access | A-107–A-110, A-116, A-118–A-121, A-123–A-125, A-127–A-128 | 14 | Membership/operations | Pending |
-| Payroll, compensation, and payouts | A-111–A-114, A-126 | 5 | `feat/platform-authorization-financials` | Pending |
+| Payroll, compensation, and payouts | A-111–A-114, A-126 | 5 | `feat/platform-authorization-financials` | F0 approved 2026-08-27; see `authorization-v1-financials-inventory.md` |
 | Team Case views and reassignment | A-115, A-117, A-122 | 3 | `feat/platform-authorization-operations` | Pending |
 
 The ranges overlap conceptually where one action touches multiple domains. The final per-boundary record chooses one primary permission and lists all required policies; it does not grant multiple unrelated permissions merely because an action performs too much. Over-broad actions should be split before enforcement.
