@@ -116,8 +116,15 @@ Progress as of 2026-08-28:
 - Complete: tenant-scoped, request-cached fact loaders for Case/Clinic
   financial state, Invoice lifecycle, Invoice Case links, Staff compensation
   targets, and Payout lifecycle.
-- Pending: deterministic financial policies, operation-intent contracts,
-  concrete-service registration, and policy matrix tests.
+- Complete: specialized candidate/source loaders for draft Invoice Case links
+  and payout assignments; callers cannot establish those security facts.
+- Complete: closed operation-intent contracts and deterministic policies for
+  Case recalculation, Staff compensation, Invoice update/cancel/draft deletion/
+  payment, and Payout issue/void.
+- Complete: concrete-service registration, fixed-role matrices, fail-closed
+  facts, cross-Organization isolation, cross-link, and lifecycle tests.
+- F1 checkpoint: complete. No application action or page consumes this
+  financial policy slice yet.
 
 Implement typed tenant-scoped resolvers and minimal fact loaders for:
 

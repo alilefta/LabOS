@@ -48,6 +48,13 @@ export const INVOICE_CASE_LINK_FACTS_SELECT = {
 	cases: { select: { caseId: true } },
 } as const
 
+export const INVOICE_UPDATE_CANDIDATE_FACTS_SELECT = {
+	id: true,
+	clinicId: true,
+	status: true,
+	invoiceCase: { select: { invoiceId: true } },
+} as const
+
 export const STAFF_COMPENSATION_FACTS_SELECT = {
 	id: true,
 	labId: true,
@@ -62,6 +69,14 @@ export const PAYOUT_FINANCIAL_FACTS_SELECT = {
 	status: true,
 	lab: { select: { organizationId: true } },
 	_count: { select: { caseAssignments: true } },
+} as const
+
+export const PAYOUT_ISSUE_SOURCE_FACTS_SELECT = {
+	id: true,
+	staffId: true,
+	isPaid: true,
+	payoutId: true,
+	dentalCase: { select: { status: true } },
 } as const
 
 function createLabOrganizationBoundaryLookup(
@@ -175,6 +190,23 @@ export const prismaFinancialFactRepository: FinancialFactRepository = {
 		}
 	},
 
+	async findInvoiceUpdateCandidatesFacts({ organizationId, caseIds }) {
+		const candidates = await generalPrisma.case.findMany({
+			where: { id: { in: [...caseIds] }, lab: { organizationId } },
+			select: INVOICE_UPDATE_CANDIDATE_FACTS_SELECT,
+		})
+
+		return {
+			organizationId,
+			candidates: candidates.map((candidate) => ({
+				caseId: candidate.id,
+				clinicId: candidate.clinicId,
+				status: candidate.status,
+				invoiceId: candidate.invoiceCase?.invoiceId ?? null,
+			})),
+		}
+	},
+
 	async findStaffCompensationFacts({ organizationId, staffId }) {
 		const staff = await generalPrisma.labStaff.findFirst({
 			where: { id: staffId, lab: { organizationId } },
@@ -204,6 +236,27 @@ export const prismaFinancialFactRepository: FinancialFactRepository = {
 			staffId: payout.staffId,
 			status: payout.status,
 			hasAssignments: payout._count.caseAssignments > 0,
+		}
+	},
+
+	async findPayoutIssueSourceFacts({ organizationId, assignmentIds }) {
+		const assignments = await generalPrisma.caseStaffAssignment.findMany({
+			where: {
+				id: { in: [...assignmentIds] },
+				lab: { organizationId },
+			},
+			select: PAYOUT_ISSUE_SOURCE_FACTS_SELECT,
+		})
+
+		return {
+			organizationId,
+			assignments: assignments.map((assignment) => ({
+				assignmentId: assignment.id,
+				staffId: assignment.staffId,
+				caseStatus: assignment.dentalCase.status,
+				isPaid: assignment.isPaid,
+				payoutId: assignment.payoutId,
+			})),
 		}
 	},
 }

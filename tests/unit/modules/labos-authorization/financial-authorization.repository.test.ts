@@ -1,11 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 const prisma = vi.hoisted(() => ({
-	case: { findUnique: vi.fn(), findFirst: vi.fn() },
+	case: { findUnique: vi.fn(), findFirst: vi.fn(), findMany: vi.fn() },
 	clinic: { findUnique: vi.fn(), findFirst: vi.fn() },
 	invoice: { findUnique: vi.fn(), findFirst: vi.fn() },
 	labStaff: { findUnique: vi.fn(), findFirst: vi.fn() },
 	staffPayout: { findUnique: vi.fn(), findFirst: vi.fn() },
+	caseStaffAssignment: { findMany: vi.fn() },
 }))
 
 vi.mock('@/lib/prisma', () => ({ generalPrisma: prisma }))
@@ -18,8 +19,10 @@ import {
 	INVOICE_FINANCIAL_FACTS_SELECT,
 	INVOICE_CASE_LINK_FACTS_SELECT,
 	INVOICE_ORGANIZATION_BOUNDARY_SELECT,
+	INVOICE_UPDATE_CANDIDATE_FACTS_SELECT,
 	PAYOUT_FINANCIAL_FACTS_SELECT,
 	PAYOUT_ORGANIZATION_BOUNDARY_SELECT,
+	PAYOUT_ISSUE_SOURCE_FACTS_SELECT,
 	prismaCaseOrganizationBoundaryLookup,
 	prismaClinicOrganizationBoundaryLookup,
 	prismaFinancialFactRepository,
@@ -190,6 +193,44 @@ describe('Prisma financial authorization repository', () => {
 		})
 	})
 
+	it('loads tenant-scoped Invoice update candidates without monetary values', async () => {
+		prisma.case.findMany.mockResolvedValue([
+			{
+				id: 'case-1',
+				clinicId: 'clinic-1',
+				status: 'COMPLETED',
+				invoiceCase: null,
+			},
+		])
+
+		await expect(
+			prismaFinancialFactRepository.findInvoiceUpdateCandidatesFacts({
+				organizationId: 'organization-1',
+				caseIds: ['case-1'],
+			}),
+		).resolves.toEqual({
+			organizationId: 'organization-1',
+			candidates: [
+				{
+					caseId: 'case-1',
+					clinicId: 'clinic-1',
+					status: 'COMPLETED',
+					invoiceId: null,
+				},
+			],
+		})
+		expect(prisma.case.findMany).toHaveBeenCalledWith({
+			where: {
+				id: { in: ['case-1'] },
+				lab: { organizationId: 'organization-1' },
+			},
+			select: INVOICE_UPDATE_CANDIDATE_FACTS_SELECT,
+		})
+		expect(INVOICE_UPDATE_CANDIDATE_FACTS_SELECT).not.toHaveProperty(
+			'grandTotal',
+		)
+	})
+
 	it('loads active Staff compensation-target facts without compensation values', async () => {
 		prisma.labStaff.findFirst.mockResolvedValue({
 			id: 'staff-1',
@@ -249,6 +290,46 @@ describe('Prisma financial authorization repository', () => {
 		expect(PAYOUT_FINANCIAL_FACTS_SELECT).not.toHaveProperty('amount')
 		expect(PAYOUT_FINANCIAL_FACTS_SELECT).not.toHaveProperty('reference')
 		expect(PAYOUT_FINANCIAL_FACTS_SELECT).not.toHaveProperty('notes')
+	})
+
+	it('loads tenant-scoped payout source eligibility without commission values', async () => {
+		prisma.caseStaffAssignment.findMany.mockResolvedValue([
+			{
+				id: 'assignment-1',
+				staffId: 'staff-1',
+				isPaid: false,
+				payoutId: null,
+				dentalCase: { status: 'COMPLETED' },
+			},
+		])
+
+		await expect(
+			prismaFinancialFactRepository.findPayoutIssueSourceFacts({
+				organizationId: 'organization-1',
+				assignmentIds: ['assignment-1'],
+			}),
+		).resolves.toEqual({
+			organizationId: 'organization-1',
+			assignments: [
+				{
+					assignmentId: 'assignment-1',
+					staffId: 'staff-1',
+					caseStatus: 'COMPLETED',
+					isPaid: false,
+					payoutId: null,
+				},
+			],
+		})
+		expect(prisma.caseStaffAssignment.findMany).toHaveBeenCalledWith({
+			where: {
+				id: { in: ['assignment-1'] },
+				lab: { organizationId: 'organization-1' },
+			},
+			select: PAYOUT_ISSUE_SOURCE_FACTS_SELECT,
+		})
+		expect(PAYOUT_ISSUE_SOURCE_FACTS_SELECT).not.toHaveProperty(
+			'commissionTotal',
+		)
 	})
 
 	it('returns null when a target does not belong to the actor Organization', async () => {

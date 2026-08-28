@@ -19,8 +19,10 @@ function repository() {
 		findClinicFinancialFacts: vi.fn(),
 		findInvoiceFinancialFacts: vi.fn(),
 		findInvoiceCaseLinkFacts: vi.fn(),
+		findInvoiceUpdateCandidatesFacts: vi.fn(),
 		findStaffCompensationFacts: vi.fn(),
 		findPayoutFinancialFacts: vi.fn(),
+		findPayoutIssueSourceFacts: vi.fn(),
 	}
 }
 
@@ -47,6 +49,35 @@ describe('financial policy fact loaders', () => {
 			repositoryMethod: factRepository.findInvoiceFinancialFacts,
 			idName: 'invoiceId',
 		})
+		const candidateFacts = Object.freeze({
+			organizationId: 'organization-1',
+			candidates: [],
+		})
+		factRepository.findInvoiceUpdateCandidatesFacts.mockResolvedValue(
+			candidateFacts,
+		)
+		const candidateCache = createAuthorizationFactCache()
+		await expect(
+			loaders.invoiceUpdateCandidates.load({
+				actor,
+				caseIds: ['case-2', 'case-1', 'case-1'],
+				facts: candidateCache,
+			}),
+		).resolves.toBe(candidateFacts)
+		await loaders.invoiceUpdateCandidates.load({
+			actor,
+			caseIds: ['case-1', 'case-2'],
+			facts: candidateCache,
+		})
+		expect(
+			factRepository.findInvoiceUpdateCandidatesFacts,
+		).toHaveBeenCalledOnce()
+		expect(
+			factRepository.findInvoiceUpdateCandidatesFacts,
+		).toHaveBeenCalledWith({
+			organizationId: 'organization-1',
+			caseIds: ['case-1', 'case-2'],
+		})
 		await assertCachedLoad({
 			loader: loaders.invoiceCaseLinks,
 			target: { type: 'invoice', id: 'invoice-1' },
@@ -64,6 +95,29 @@ describe('financial policy fact loaders', () => {
 			target: { type: 'payout', id: 'payout-1' },
 			repositoryMethod: factRepository.findPayoutFinancialFacts,
 			idName: 'payoutId',
+		})
+		const payoutSources = Object.freeze({
+			organizationId: 'organization-1',
+			assignments: [],
+		})
+		factRepository.findPayoutIssueSourceFacts.mockResolvedValue(payoutSources)
+		const payoutCache = createAuthorizationFactCache()
+		await expect(
+			loaders.payoutIssueSources.load({
+				actor,
+				assignmentIds: ['assignment-2', 'assignment-1', 'assignment-1'],
+				facts: payoutCache,
+			}),
+		).resolves.toBe(payoutSources)
+		await loaders.payoutIssueSources.load({
+			actor,
+			assignmentIds: ['assignment-1', 'assignment-2'],
+			facts: payoutCache,
+		})
+		expect(factRepository.findPayoutIssueSourceFacts).toHaveBeenCalledOnce()
+		expect(factRepository.findPayoutIssueSourceFacts).toHaveBeenCalledWith({
+			organizationId: 'organization-1',
+			assignmentIds: ['assignment-1', 'assignment-2'],
 		})
 	})
 

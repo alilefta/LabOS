@@ -11,6 +11,7 @@ import {
 } from './adapters/prisma/financial-authorization.repository'
 import { createFinancialFactLoaders } from './fact-loaders/financial-facts'
 import { prismaStaffOrganizationBoundaryLookup } from './adapters/prisma/membership-access.repository'
+import { createFinancialPolicies } from './policies/financial.policies'
 import type { LabOSResourceType } from './resource-types'
 import { createOrganizationBoundaryResolver } from './target-resolvers/organization-boundary-resolver'
 
@@ -51,3 +52,7 @@ export const LABOS_FINANCIAL_TARGET_RESOLVERS = Object.freeze({
 
 export const LABOS_FINANCIAL_FACT_LOADERS =
 	createFinancialFactLoaders(prismaFinancialFactRepository)
+
+export const LABOS_FINANCIAL_POLICIES = createFinancialPolicies(
+	LABOS_FINANCIAL_FACT_LOADERS,
+)

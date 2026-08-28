@@ -39,6 +39,18 @@ export type InvoiceCaseLinkFacts = Readonly<{
 	caseIds: readonly string[]
 }>
 
+export type InvoiceUpdateCandidateFacts = Readonly<{
+	caseId: string
+	clinicId: string | null
+	status: string
+	invoiceId: string | null
+}>
+
+export type InvoiceUpdateCandidatesFacts = Readonly<{
+	organizationId: string
+	candidates: readonly InvoiceUpdateCandidateFacts[]
+}>
+
 export type StaffCompensationFacts = Readonly<{
 	staffId: string
 	labId: string
@@ -53,6 +65,19 @@ export type PayoutFinancialFacts = Readonly<{
 	staffId: string
 	status: string
 	hasAssignments: boolean
+}>
+
+export type PayoutAssignmentFacts = Readonly<{
+	assignmentId: string
+	staffId: string
+	caseStatus: string
+	isPaid: boolean
+	payoutId: string | null
+}>
+
+export type PayoutIssueSourceFacts = Readonly<{
+	organizationId: string
+	assignments: readonly PayoutAssignmentFacts[]
 }>
 
 export interface FinancialFactRepository {
@@ -72,6 +97,10 @@ export interface FinancialFactRepository {
 		organizationId: string
 		invoiceId: string
 	}): Promise<InvoiceCaseLinkFacts | null>
+	findInvoiceUpdateCandidatesFacts(input: {
+		organizationId: string
+		caseIds: readonly string[]
+	}): Promise<InvoiceUpdateCandidatesFacts>
 	findStaffCompensationFacts(input: {
 		organizationId: string
 		staffId: string
@@ -80,6 +109,10 @@ export interface FinancialFactRepository {
 		organizationId: string
 		payoutId: string
 	}): Promise<PayoutFinancialFacts | null>
+	findPayoutIssueSourceFacts(input: {
+		organizationId: string
+		assignmentIds: readonly string[]
+	}): Promise<PayoutIssueSourceFacts>
 }
 
 type FinancialTargetType = 'case' | 'clinic' | 'invoice' | 'staff' | 'payout'
@@ -106,12 +139,28 @@ export interface InvoiceCaseLinkFactLoader {
 	load(input: FactLoaderInput<'invoice'>): Promise<InvoiceCaseLinkFacts | null>
 }
 
+export interface InvoiceUpdateCandidatesFactLoader {
+	load(input: {
+		actor: AuthorizationActor
+		caseIds: readonly string[]
+		facts: AuthorizationFactCache
+	}): Promise<InvoiceUpdateCandidatesFacts>
+}
+
 export interface StaffCompensationFactLoader {
 	load(input: FactLoaderInput<'staff'>): Promise<StaffCompensationFacts | null>
 }
 
 export interface PayoutFinancialFactLoader {
 	load(input: FactLoaderInput<'payout'>): Promise<PayoutFinancialFacts | null>
+}
+
+export interface PayoutIssueSourceFactLoader {
+	load(input: {
+		actor: AuthorizationActor
+		assignmentIds: readonly string[]
+		facts: AuthorizationFactCache
+	}): Promise<PayoutIssueSourceFacts>
 }
 
 const CASE_FINANCIAL_FACTS = Symbol('labos.authorization.case-financial-facts')
@@ -124,11 +173,17 @@ const INVOICE_FINANCIAL_FACTS = Symbol(
 const INVOICE_CASE_LINK_FACTS = Symbol(
 	'labos.authorization.invoice-case-link-facts',
 )
+const INVOICE_UPDATE_CANDIDATES_FACTS = Symbol(
+	'labos.authorization.invoice-update-candidates-facts',
+)
 const STAFF_COMPENSATION_FACTS = Symbol(
 	'labos.authorization.staff-compensation-facts',
 )
 const PAYOUT_FINANCIAL_FACTS = Symbol(
 	'labos.authorization.payout-financial-facts',
+)
+const PAYOUT_ISSUE_SOURCE_FACTS = Symbol(
+	'labos.authorization.payout-issue-source-facts',
 )
 
 /**
@@ -144,8 +199,10 @@ export function createFinancialFactLoaders(
 	clinicFinancials: ClinicFinancialFactLoader
 	invoiceFinancials: InvoiceFinancialFactLoader
 	invoiceCaseLinks: InvoiceCaseLinkFactLoader
+	invoiceUpdateCandidates: InvoiceUpdateCandidatesFactLoader
 	staffCompensation: StaffCompensationFactLoader
 	payoutFinancials: PayoutFinancialFactLoader
+	payoutIssueSources: PayoutIssueSourceFactLoader
 }> {
 	return Object.freeze({
 		caseFinancials: {
@@ -200,6 +257,20 @@ export function createFinancialFactLoaders(
 				)
 			},
 		},
+		invoiceUpdateCandidates: {
+			load({ actor, caseIds, facts }) {
+				const normalizedIds = [...new Set(caseIds)].sort()
+				return facts.getOrLoad(
+					INVOICE_UPDATE_CANDIDATES_FACTS,
+					`${actor.organizationId}:${normalizedIds.join(',')}`,
+					() =>
+						repository.findInvoiceUpdateCandidatesFacts({
+							organizationId: actor.organizationId,
+							caseIds: normalizedIds,
+						}),
+				)
+			},
+		},
 		staffCompensation: {
 			load({ actor, target, facts }) {
 				return facts.getOrLoad(
@@ -222,6 +293,20 @@ export function createFinancialFactLoaders(
 						repository.findPayoutFinancialFacts({
 							organizationId: actor.organizationId,
 							payoutId: target.id,
+						}),
+				)
+			},
+		},
+		payoutIssueSources: {
+			load({ actor, assignmentIds, facts }) {
+				const normalizedIds = [...new Set(assignmentIds)].sort()
+				return facts.getOrLoad(
+					PAYOUT_ISSUE_SOURCE_FACTS,
+					`${actor.organizationId}:${normalizedIds.join(',')}`,
+					() =>
+						repository.findPayoutIssueSourceFacts({
+							organizationId: actor.organizationId,
+							assignmentIds: normalizedIds,
 						}),
 				)
 			},
