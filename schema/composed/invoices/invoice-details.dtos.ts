@@ -9,7 +9,6 @@ export const InvoicePaymentSchema = z.object({
 	amount: z.number(),
 	method: PaymentMethodSchema,
 	reference: z.string().nullable(),
-	notes: z.string().nullable(),
 	paidAt: z.coerce.date<Date>(), // Coerce safely handles ISO date strings from JSON
 });
 
@@ -27,8 +26,6 @@ export const BilledCaseLineItemSchema = z.object({
 	id: z.string().uuid(),
 	caseNumber: z.string(),
 	patientName: z.string(),
-	patientAge: z.number().int().nullable(),
-	patientGender: z.string().nullable(),
 	dentistName: z.string().nullable(),
 
 	// CRITICAL: This is the SNAPSHOTTED price from InvoiceCase,

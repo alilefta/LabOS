@@ -100,8 +100,6 @@ export async function getInvoiceDossierData(invoiceId: string): Promise<DAResult
 					id: c.id,
 					caseNumber: c.caseNumber,
 					patientName: c.patient.name,
-					patientAge: c.patient.age,
-					patientGender: c.patient.gender,
 					dentistName: c.dentist?.name ?? null,
 					caseTotal: Number(ic.caseTotal), // The historical snapshot price!
 					isRemake: c.isRemake,
@@ -120,7 +118,6 @@ export async function getInvoiceDossierData(invoiceId: string): Promise<DAResult
 				amount: Number(p.amount),
 				method: p.method,
 				reference: p.reference,
-				notes: p.notes,
 				paidAt: p.paidAt,
 			})),
 

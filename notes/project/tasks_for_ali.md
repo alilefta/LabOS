@@ -624,10 +624,14 @@ V1 enabled or return to shadow mode.
   the isolated public statement still loads.
 - [ ] Confirm ordinary Invoice list/detail responses in the browser developer
   tools contain neither `publicToken` nor `publicLinkExpiresAt`.
+- [ ] Confirm the authenticated Invoice dossier still renders billed Case rows
+  and its receipt timeline after the minimization.
+- [ ] Confirm the dossier response contains no patient age/gender and no
+  free-form payment notes.
 
 ### What Codex does after F2-001
 
-Codex records the manual result, then continues F2 with the A-092 minimal
-detail decision and the A-118 Staff dossier split. Public-link issuance,
+Codex records the manual result, then continues F2 with the A-118 Staff dossier
+split. Public-link issuance,
 rotation, disclosure, expiry, and audit remain a separate authorized slice;
 they will not be restored through ordinary Invoice reads.

@@ -54,7 +54,6 @@ export const INVOICE_DOSSIER_SELECT = {
 			amount: true,
 			method: true,
 			reference: true,
-			notes: true,
 			paidAt: true,
 		},
 	},
@@ -66,7 +65,7 @@ export const INVOICE_DOSSIER_SELECT = {
 					id: true,
 					caseNumber: true,
 					isRemake: true,
-					patient: { select: { name: true, age: true, gender: true } },
+					patient: { select: { name: true } },
 					dentist: { select: { name: true } },
 					caseItems: {
 						select: {

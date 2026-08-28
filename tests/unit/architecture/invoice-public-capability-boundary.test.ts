@@ -28,6 +28,19 @@ describe('Invoice public capability boundary', () => {
 		expect(projections).not.toContain('publicLinkExpiresAt')
 	})
 
+	it('limits patient and payment history to necessary Invoice detail facts', () => {
+		expect(
+			INVOICE_DOSSIER_SELECT.cases.select.case.select.patient.select,
+		).toEqual({ name: true })
+		expect(INVOICE_DOSSIER_SELECT.payments.select).toEqual({
+			id: true,
+			amount: true,
+			method: true,
+			reference: true,
+			paidAt: true,
+		})
+	})
+
 	it('does not expose bearer-capability fields through ordinary DTOs or UI', () => {
 		const violations = ORDINARY_INVOICE_READ_FILES.filter((file) => {
 			const source = readFileSync(join(process.cwd(), file), 'utf8')

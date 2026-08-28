@@ -166,7 +166,9 @@ Progress as of 2026-08-28:
   action/data queries, DTO, and UI paths.
 - Complete: shared allowlisted Prisma read projections and an architectural
   regression test preserving the isolated public statement lookup.
-- Pending: A-092 payment-history and nested patient data minimization.
+- Complete: A-092 authenticated detail minimization removes unused patient
+  age/gender and free-form payment notes while retaining the minimum Case and
+  receipt-reconciliation facts used by the page.
 - Pending: V1 reader adapters, repository short-circuit tests, role matrices,
   two-Organization isolation, and remaining financial/compensation DTO splits.
 - Deferred to a dedicated lifecycle/public-capability slice: authorized link

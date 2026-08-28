@@ -3,21 +3,20 @@
 import { memo } from "react";
 import { format } from "date-fns";
 import { Banknote, Smartphone, CreditCard, Building, Receipt, History, HelpCircle, LucideIcon, Copy } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { InvoicePaymentDTO } from "@/schema/composed/invoices/invoice-details.dtos";
 import { PaymentMethod } from "@/schema/base/enums.base";
 
 // --- PAYMENT METHODS CONFIG ---
-const METHOD_CONFIG: Record<PaymentMethod, { label: string; icon: LucideIcon; colorClass: string; borderAccent: string }> = {
-	CASH: { label: "Cash", icon: Banknote, colorClass: "text-emerald-500 bg-emerald-500/10 border-emerald-500/20", borderAccent: "border-l-emerald-500" },
-	ZAIN_CASH: { label: "Zain Cash", icon: Smartphone, colorClass: "text-rose-500 bg-rose-500/10 border-rose-500/20", borderAccent: "border-l-rose-500" },
-	ASIA_HAWALA: { label: "Asia Hawala", icon: Smartphone, colorClass: "text-amber-500 bg-amber-500/10 border-amber-500/20", borderAccent: "border-l-amber-500" },
-	SUPER_QI: { label: "Super QI", icon: CreditCard, colorClass: "text-blue-500 bg-blue-500/10 border-blue-500/20", borderAccent: "border-l-blue-500" },
-	BANK_TRANSFER: { label: "Bank Transfer", icon: Building, colorClass: "text-slate-500 dark:text-zinc-400 bg-slate-100 dark:bg-white/5 border-border", borderAccent: "border-l-slate-400" },
-	PADDLE: { label: "Paddle", icon: Receipt, colorClass: "text-indigo-500 bg-indigo-500/10 border-indigo-500/20", borderAccent: "border-l-indigo-500" },
-	STRIPE: { label: "Stripe", icon: CreditCard, colorClass: "text-purple-500 bg-purple-500/10 border-purple-500/20", borderAccent: "border-l-purple-500" },
-	OTHER: { label: "Other", icon: HelpCircle, colorClass: "text-muted-foreground bg-slate-100 border-border", borderAccent: "border-l-border" },
+const METHOD_CONFIG: Record<PaymentMethod, { label: string; icon: LucideIcon; colorClass: string }> = {
+	CASH: { label: "Cash", icon: Banknote, colorClass: "text-emerald-500 bg-emerald-500/10 border-emerald-500/20" },
+	ZAIN_CASH: { label: "Zain Cash", icon: Smartphone, colorClass: "text-rose-500 bg-rose-500/10 border-rose-500/20" },
+	ASIA_HAWALA: { label: "Asia Hawala", icon: Smartphone, colorClass: "text-amber-500 bg-amber-500/10 border-amber-500/20" },
+	SUPER_QI: { label: "Super QI", icon: CreditCard, colorClass: "text-blue-500 bg-blue-500/10 border-blue-500/20" },
+	BANK_TRANSFER: { label: "Bank Transfer", icon: Building, colorClass: "text-slate-500 dark:text-zinc-400 bg-slate-100 dark:bg-white/5 border-border" },
+	PADDLE: { label: "Paddle", icon: Receipt, colorClass: "text-indigo-500 bg-indigo-500/10 border-indigo-500/20" },
+	STRIPE: { label: "Stripe", icon: CreditCard, colorClass: "text-purple-500 bg-purple-500/10 border-purple-500/20" },
+	OTHER: { label: "Other", icon: HelpCircle, colorClass: "text-muted-foreground bg-slate-100 border-border" },
 };
 
 interface Props {
@@ -115,17 +114,6 @@ export const PaymentHistoryTimeline = memo(function PaymentHistoryTimeline({ pay
 												)}
 											</div>
 
-											{/* Accountant Notes */}
-											{p.notes && (
-												<div
-													className={cn(
-														"mt-2 p-2.5 rounded-r-lg rounded-bl-lg bg-slate-50 dark:bg-white/2 border border-border border-l-2 text-[10px] text-muted-foreground italic leading-relaxed shadow-sm",
-														config.borderAccent,
-													)}
-												>
-													&quot;{p.notes}&quot;
-												</div>
-											)}
 										</div>
 									</div>
 								);

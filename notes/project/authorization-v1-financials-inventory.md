@@ -55,7 +55,7 @@ intentional only after explicit product/security approval.
 | A-089 | Create an Invoice | `invoice.create`; Organization; validated Clinic/Case IDs are typed operation intent, not trusted facts | Resolve Clinic and every Case in tenant; require same Clinic, eligible status, unbilled state; validate in transaction | Owner/Manager → Owner/Admin/Manager; **Admin expansion approved 2026-08-27** | Blocked: separate public-link issuance |
 | A-090 | Accounts-receivable vitals | `invoice.analytics.read`; Organization | Tenant-scoped aggregates and one consistent predicate | All roles → all roles | Approved classification |
 | A-091 | List Cases eligible for a draft Invoice | `invoice.create` for creation, or `invoice.update` with Invoice target for editing; Clinic filter must resolve | Resolve Clinic; when draft ID exists resolve same-tenant, same-Clinic draft; return minimal supporting DTO | All roles → Owner/Admin/Manager; **Staff restriction approved 2026-08-27** | Blocked: split create/edit contracts and validate draft authority |
-| A-092 | Read Invoice dossier | `invoice.read`; resource; Invoice ID | Same Organization; composite sections independently require their disclosure permission or are redacted | All roles → all roles | Bearer-token query/DTO/UI disclosure remediated in F2; still blocked on payment-history/nested patient minimization and V1 adapter |
+| A-092 | Read Invoice dossier | `invoice.read`; resource; Invoice ID | Same Organization; composite sections independently require their disclosure permission or are redacted | All roles → all roles | Bearer token removed; authenticated detail minimized to necessary Case identity and payment reconciliation facts; V1 reader adapter and role/tenant tests pending |
 | A-093 | List Invoices | `invoice.list`; Organization; optional Clinic filter resolves in tenant | Tenant-scoped collection; same predicate for rows/count/cursor | All roles → all roles | Critical `publicToken` query/DTO/UI disclosure remediated in F2; V1 reader adapter and role/tenant matrix pending |
 | A-094 | Read credit-risk Clinic analytics | `invoice.analytics.read` plus `clinic.read` (or a redacted analytics DTO); Organization collection with verified Clinic rows | Tenant-scoped balance/overdue aggregates; no contact data unless `clinic.read` also allows it | All roles → all roles under current bundles | Blocked: split financial analytics from Clinic contact data |
 | A-095 | List unbilled Cases for Invoice creation | `invoice.create`; Organization with verified Clinic filter | Resolve Clinic; eligible same-tenant Case predicate; minimal identifier/price projection | All roles → Owner/Admin/Manager; **Staff restriction approved 2026-08-27** | Approved classification; DTO review pending |
@@ -176,8 +176,10 @@ Prisma migration without Ali's explicit approval.
   boundary.
 - Invoice create/update responses that currently disclose a newly issued token
   remain an F3 lifecycle blocker and are not treated as ordinary read access.
-- A-092 remains blocked on deciding and enforcing the minimum necessary payment
-  history and nested patient disclosure.
+- A-092 now retains only patient name for billed-line identification and
+  Case navigation; unused patient age/gender are neither queried nor returned.
+- A-092 payment history retains amount, method, date, and reference for receipt
+  reconciliation; free-form payment notes are neither queried nor returned.
 
 Regression coverage: `invoice-public-capability-boundary.test.ts` protects the
 ordinary query projections, DTO/UI paths, and the isolated public lookup. No
