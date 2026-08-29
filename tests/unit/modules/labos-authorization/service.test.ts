@@ -70,6 +70,7 @@ describe('LabOS authorization service composition', () => {
 			'membership.invite',
 			'membership.role.update',
 			'membership.remove',
+			'staff.read',
 			'staff.compensation.read',
 			'staff.compensation.update',
 			'invoice.read',
@@ -317,7 +318,7 @@ describe('LabOS authorization service composition', () => {
 		await expect(
 			service.can({
 				actor,
-				permission: 'staff.read',
+			permission: 'staff.update',
 				target: { type: 'staff', id: 'staff-1' },
 			}),
 		).resolves.toEqual({
@@ -327,7 +328,7 @@ describe('LabOS authorization service composition', () => {
 		expect(staffResolver.resolveOrganizationId).not.toHaveBeenCalled()
 		expect(record).toHaveBeenCalledWith(
 			expect.objectContaining({
-				permission: 'staff.read',
+				permission: 'staff.update',
 				outcome: 'denied',
 				severity: 'high',
 				reason: 'AUTHZ_PERMISSION_DEFINITION_MISSING',

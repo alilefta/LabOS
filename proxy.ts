@@ -1,20 +1,12 @@
-// import { betterFetch } from "@better-fetch/fetch";
-// import { Session } from "better-auth";
 import { NextRequest, NextResponse } from 'next/server'
-// import { getSessionCookie } from "better-auth/cookies";
-import { headers } from 'next/headers'
-import { auth } from './lib/auth'
+import {
+	projectApplicationSession,
+	type ProjectableSession,
+} from './lib/application-session'
 
 export default async function proxy(request: NextRequest) {
 	console.log('Recieved call to Proxy')
 	const { pathname } = request.nextUrl
-
-	// keep this block in case of failing getSession() at build time
-	// // 1. Fetch the session from better-auth's API, passing the current cookies
-	// const { data: session } = await betterFetch<Session>("/api/auth/get-session", {
-	// 	baseURL: request.nextUrl.origin,
-	// 	headers: await headers(),
-	// });
 
 	// route groups
 	// Route groups
@@ -62,9 +54,22 @@ export default async function proxy(request: NextRequest) {
 	// 	return NextResponse.redirect(new URL("/sign-in", request.url));
 	// }
 
-	const session = await auth.api.getSession({
-		headers: await headers(),
-	})
+	// Consume the redacted custom-session endpoint instead of calling
+	// Better Auth's low-level session API from middleware. The
+	// latter returns the provider-shaped session model and is too easy to
+	// accidentally carry into a request/rendering context.
+	const sessionResponse = await fetch(
+		new URL('/api/auth/get-session', request.url),
+		{
+			method: 'GET',
+			headers: new Headers(request.headers),
+			cache: 'no-store',
+		},
+	)
+	const authSession = sessionResponse.ok
+		? ((await sessionResponse.json()) as ProjectableSession | null)
+		: null
+	const session = authSession ? projectApplicationSession(authSession) : null
 
 	const hasSession = !!session
 	// This is only a routing hint. Protected layouts and request handlers still

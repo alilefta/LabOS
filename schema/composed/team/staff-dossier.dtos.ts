@@ -12,22 +12,17 @@ export const SystemAccessStateSchema = z.enum([
 ]);
 export type SystemAccessState = z.infer<typeof SystemAccessStateSchema>;
 
-// ── 2. THE PERFORMANCE VITALS SCHEMAS ───────────────────────────────────────
-// These are mathematically calculated on the server to prevent client lag
+// Performance analytics have a separate action/permission boundary. They are
+// intentionally not embedded in StaffDossierDTO.
 export const StaffBurnoutRiskSchema = z.enum(["LOW", "MEDIUM", "HIGH"]);
 export type StaffBurnoutRisk = z.infer<typeof StaffBurnoutRiskSchema>;
 
 export const StaffPerformanceVitalsSchema = z.object({
-	// Workload (Active Assignments)
 	activeCaseCount: z.number().int().min(0),
 	burnoutRisk: StaffBurnoutRiskSchema,
-
-	// Quality (Lifetime Records)
 	totalCompletedCases: z.number().int().min(0),
-	remakeRate: z.number().min(0).max(100), // e.g. 4.5 (%)
-
-	// Speed (Calculated from completedAt - createdAt)
-	avgTurnaroundDays: z.number().nullable(), // null if no completed cases exist
+	remakeRate: z.number().min(0).max(100),
+	avgTurnaroundDays: z.number().nullable(),
 });
 
 export type StaffPerformanceVitals = z.infer<typeof StaffPerformanceVitalsSchema>;
@@ -48,18 +43,21 @@ export const StaffDossierDTOSchema = z.object({
 	jobTitle: z.string().trim().nullable(),
 	specialization: z.string().trim().nullable(),
 
-	// Compensation Structure (Role Guarded on read)
-	commissionType: CommissionTypeSchema,
-	commissionValue: z.number().nullable(), // Null if flat salary with no commission
-
-	// Unified Software Access State
-	accessState: SystemAccessStateSchema,
-	systemRole: LabRoleSchema.nullable(), // Null if no access
-	inviteEmail: z.string().email().nullable(), // Target email for pending invitations
-	inviteToken: z.string().nullable(), // Cryptographic token for copying registration links
-
-	// Immutable Performance Metrics (Computed dynamically)
-	vitals: StaffPerformanceVitalsSchema,
+	// Independently authorized disclosure sections. A null section means the
+	// actor was not permitted to query it; it is not a client-side hiding hint.
+	compensation: z
+		.object({
+			commissionType: CommissionTypeSchema,
+			commissionValue: z.number().nullable(),
+		})
+		.nullable(),
+	access: z
+		.object({
+			accessState: SystemAccessStateSchema,
+			systemRole: LabRoleSchema.nullable(),
+			inviteEmail: z.string().email().nullable(),
+		})
+		.nullable(),
 });
 
 export type StaffDossierDTO = z.infer<typeof StaffDossierDTOSchema>;
@@ -84,9 +82,5 @@ export const StaffHeaderDTOSchema = z.object({
 	jobTitle: z.string().nullable(),
 	specialization: z.string().nullable(),
 
-	// Security Identity State
-	accessState: SystemAccessStateSchema,
-	systemRole: LabRoleSchema.nullable(),
-	inviteEmail: z.string().email().nullable(),
 });
 export type StaffHeaderDTO = z.infer<typeof StaffHeaderDTOSchema>;

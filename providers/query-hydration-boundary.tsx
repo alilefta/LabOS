@@ -1,8 +1,13 @@
 // providers/query-hydration-boundary.tsx
-// "use client";
+'use client'
 
-import { HydrationBoundary, type DehydratedState } from "@tanstack/react-query";
+import {
+	HydrationBoundary,
+	QueryClientProvider,
+	type DehydratedState,
+} from "@tanstack/react-query";
 import type { ReactNode } from "react";
+import { getQueryClient } from "./get-query-client";
 
 interface Props {
 	state: DehydratedState;
@@ -10,5 +15,9 @@ interface Props {
 }
 
 export function QueryHydrationBoundary({ state, children }: Props) {
-	return <HydrationBoundary state={state}>{children}</HydrationBoundary>;
+	return (
+		<QueryClientProvider client={getQueryClient()}>
+			<HydrationBoundary state={state}>{children}</HydrationBoundary>
+		</QueryClientProvider>
+	);
 }

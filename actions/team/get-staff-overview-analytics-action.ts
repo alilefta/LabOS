@@ -79,7 +79,7 @@ export const getStaffOverviewAnalyticsAction = actionClientWithLab
 		// 1. Security Guard: Verify the staff member belongs to this lab tenant [2]
 		const staffExists = await prisma.labStaff.findUnique({
 			where: { id: staffId, labId },
-			select: { id: true, firstName: true, lastName: true, commissionType: true, commissionValue: true },
+			select: { id: true, firstName: true, lastName: true },
 		});
 
 		if (!staffExists) {
@@ -315,8 +315,6 @@ export const getStaffOverviewAnalyticsAction = actionClientWithLab
 			staff: {
 				firstName: staffExists.firstName,
 				lastName: staffExists.lastName,
-				commissionValue: staffExists.commissionValue ? Number(staffExists.commissionValue) : null,
-				commissionType: staffExists.commissionType,
 			},
 		};
 	});

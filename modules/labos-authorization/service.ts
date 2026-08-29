@@ -53,6 +53,7 @@ export const LABOS_AUTHORIZATION_V1_SUPPORTED_PERMISSIONS = Object.freeze([
 	'membership.invite',
 	'membership.role.update',
 	'membership.remove',
+	'staff.read',
 	'staff.compensation.read',
 	'staff.compensation.update',
 	'invoice.read',

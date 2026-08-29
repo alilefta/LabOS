@@ -26,7 +26,7 @@ interface Props {
 // 	{ ssr: false, loading: () => <p>Loading </p> },
 // )
 export function StaffSettingsTabContent({ staffId, currentUserRole }: Props) {
-	const { canViewFinancials, canManageStaff } = usePermissions()
+	const { canManageStaff } = usePermissions()
 
 	// ── 1. HIGH-PERFORMANCE DATA FETCH (SUSPENDED) ────────────────────
 
@@ -61,11 +61,12 @@ export function StaffSettingsTabContent({ staffId, currentUserRole }: Props) {
 		roleCategory: staff.roleCategory,
 	}
 
-	const compensationData = {
-		staffId: staff.id,
-		commissionType: staff.commissionType,
-		commissionValue: staff.commissionValue,
-	}
+	const compensationData = staff.compensation
+		? { staffId: staff.id, ...staff.compensation }
+		: null
+	const accessData = staff.access
+		? { staffId: staff.id, ...staff.access }
+		: null
 
 	const workingDays = staff.workingDays || [
 		'MONDAY',
@@ -99,14 +100,19 @@ export function StaffSettingsTabContent({ staffId, currentUserRole }: Props) {
                 Assigning key={staff.id} guarantees that the security form resets 
                 and destroys its dirty state whenever the manager switches users [1].
             */}
-				<StaffSecurityCard
-					key={staff.id}
-					initialData={staff}
-					currentUserRole={currentUserRole}
-				/>
+				{accessData && (
+					<StaffSecurityCard
+						key={staff.id}
+						initialData={accessData}
+						currentUserRole={currentUserRole}
+					/>
+				)}
 
-				{canViewFinancials && (
-					<StaffCompensationCard initialData={compensationData} />
+				{compensationData && (
+					<StaffCompensationCard
+						initialData={compensationData}
+						isReadOnly={currentUserRole === 'ADMIN'}
+					/>
 				)}
 			</div>
 		</div>

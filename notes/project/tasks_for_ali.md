@@ -635,3 +635,107 @@ Codex records the manual result, then continues F2 with the A-118 Staff dossier
 split. Public-link issuance,
 rotation, disclosure, expiry, and audit remain a separate authorized slice;
 they will not be restored through ordinary Invoice reads.
+
+### Ali task F2-002 — verify A-118 disclosure sections
+
+- [x] As Owner, open a Staff dossier and confirm identity, compensation, and
+  access sections render as expected; no invitation token is shown after a
+  reload.
+- [x] As Admin, confirm identity, read-only compensation, and permitted access
+  administration are visible; compensation controls cannot be saved.
+- [x] As Manager, confirm identity and compensation are visible but system
+  access administration is absent.
+- [x] As Staff, confirm Work Settings renders the sanitized `Unauthorized
+  Access` state and does not render identity, compensation, or system-access
+  cards. Ordinary dossier identity remains a server-authorized projection but
+  is not presented as a separate card outside Work Settings.
+- [x] In browser responses, confirm A-118 never contains `inviteToken`,
+  invitation IDs, patient age/gender, or free-form payment notes.
+- [x] In the Staff overview response, confirm `staff` contains only the
+  operational name fields; compensation values are absent and are read only
+  from the separately authorized Settings section.
+
+Partial runtime evidence received 2026-08-29: Owner rendered System Access and
+editable Compensation cards; the reload/token portion of the Owner check is
+still pending. Admin rendered System Access with read-only Compensation.
+Manager rendered editable Compensation with no System Access card. Staff
+received the intentional server-rendered `Unauthorized Access` state for the
+administrative Work Settings tab. Source and UI reconciliation confirmed that
+`Performance Overview` is an analytics surface, not an identity-card surface;
+the Identity card is grouped inside Work Settings. Browser-response redaction
+checks remain pending.
+
+Role-transition evidence received 2026-08-29 from two isolated browser
+sessions: Browser A remained signed in as Owner while Browser B exercised the
+target account. Browser B initially rendered the Staff `Unauthorized Access`
+state with no Work Settings cards. After Browser A changed that membership to
+Admin, a Browser B refresh rendered identity, read-only Compensation, and
+editable System Access. After Browser A restored the membership to Staff, a
+second Browser B refresh removed all Work Settings cards and restored the
+sanitized denial state. This verifies that refreshed server disclosure follows
+the authoritative current membership role and does not retain the prior Admin
+cards. The disposable role was restored to Staff.
+
+Owner reload evidence received 2026-08-29: identity, editable Compensation,
+and editable System Access rendered, and no invitation link/token appeared
+after reload. A reviewed `_next/static/chunks` excerpt contained only compiled
+Better Auth access-control statements and generic error strings; it contained
+no runtime invitation record, identifier, email, or token and is not treated
+as an A-118 data response. Fetch/XHR, document, and RSC response inspection
+is now complete.
+
+Final F2-002 response evidence received 2026-08-29: the Owner Work Settings
+RSC payload contained the authorized identity, compensation, and access DTO
+sections, with no invitation token/ID, patient demographic, or payment-note
+fields. The Staff Work Settings RSC payload contained the sanitized denial and
+no dossier query data. Performance Overview contained only Staff first/last
+name beneath `staff` and no compensation or access fields. Payroll Ledger did
+contain commission data for the authorized Owner, which is expected and belongs
+to the separate payout/compensation authorization slice rather than A-118.
+F2-002 is complete.
+
+Separate authentication finding: authenticated development RSC responses were
+observed serializing the complete Better Auth session object, including its
+opaque session token. This is not an invitation-token or A-118 disclosure, but
+it is credential-bearing output. No token values are recorded here. The app
+session boundary is now minimized in both places where this matters: Better
+Auth's `/get-session` endpoint uses `customSession`, and the Server Component
+helper projects the result to `user.id`, `user.name`, and
+`session.activeOrganizationId` only. The projection is frozen and covered by
+regression tests. A production build retry remains pending because the build
+environment cannot fetch the existing Google Fonts; signing out invalidated
+the two manually exposed sessions.
+
+Follow-up Owner retest received 2026-08-29 still showed the complete session
+shape in the Performance and Work Settings RSC payloads and surfaced a
+recoverable `No QueryClient set` error. The hydration boundary's client
+directive was found commented out and has been restored; each hydration
+boundary now establishes its own QueryClientProvider. Because the RSC path
+still observed Better Auth's internal full object after browser reset, the
+server session helper now invokes the redacted `/api/auth/get-session` handler
+and parses its response instead of awaiting `auth.api.getSession` directly.
+Full Vitest now passes (69 files, 480 tests). A full dev-server restart and one
+clean authenticated response check remain required before closing this finding.
+No new credential values are recorded.
+
+Proxy audit follow-up received 2026-08-29: `proxy.ts` was confirmed to call
+`auth.api.getSession()` directly. It now projects that result immediately and
+uses only the minimal routing fields (`hasSession` and active Organization
+presence); it no longer imports `next/headers` or carries the raw session into
+downstream decisions. Full Vitest after this hardening passes (71 files, 482
+tests). Restart the server and repeat the document check before closing the
+session-disclosure finding.
+
+Document-render follow-up received 2026-08-29: the pasted HTML contained a
+`BAILOUT_TO_CLIENT_SIDE_RENDERING` marker caused by `DashboardClientShell`
+using `next/dynamic(..., { ssr: false })` for components that are already
+client components. The sidebar and top header are now statically imported, and
+an architecture test prevents that bailout from returning. This marker was a
+rendering problem, not an authorization grant, but it made the document
+diagnostics noisier while investigating session disclosure.
+
+### What Codex does after F2-002
+
+Codex records the role-matrix result, then separates the Staff analytics reader
+and adds its own `staff.analytics.read` boundary before starting the remaining
+Clinic financial DTO splits.

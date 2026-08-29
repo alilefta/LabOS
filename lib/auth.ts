@@ -4,9 +4,10 @@ import { generalPrisma } from './prisma'
 import { LabUserBase } from '@/schema/base/lab-user.base'
 import { SuperUserBase } from '@/schema/base/super-user.base'
 import { nextCookies } from 'better-auth/next-js'
-import { organization } from 'better-auth/plugins'
+import { customSession, organization } from 'better-auth/plugins'
 import { getLabOSOrganizationAccessForMode } from '@/platform/auth/organization-access'
 import { authUserAdminPlugin } from '@/platform/auth/admin-plugin'
+import { projectApplicationSession } from '@/lib/application-session'
 import {
 	cleanupStaffInvitationIntent,
 	processAcceptedStaffInvitation,
@@ -105,6 +106,7 @@ export const auth = betterAuth({
 				},
 			},
 		}),
+		customSession(async (session) => projectApplicationSession(session)),
 		nextCookies(),
 	],
 })

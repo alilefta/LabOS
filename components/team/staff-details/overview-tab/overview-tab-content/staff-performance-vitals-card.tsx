@@ -4,18 +4,15 @@ import { memo, useMemo } from "react";
 import { Wrench, DollarSign, Award, Info } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
-import { CommissionType } from "@/schema/base/enums.base";
 import { StaffBurnoutRisk } from "@/schema/composed/team/staff-dossier.dtos";
 
 interface Props {
 	activeCaseCount: number;
 	burnoutRisk: StaffBurnoutRisk;
-	commissionType: CommissionType;
-	commissionValue: number | null;
 	canViewFinancials: boolean;
 }
 
-export const StaffPerformanceVitalsCard = memo(function StaffPerformanceVitalsCard({ activeCaseCount, burnoutRisk, commissionType, commissionValue, canViewFinancials }: Props) {
+export const StaffPerformanceVitalsCard = memo(function StaffPerformanceVitalsCard({ activeCaseCount, burnoutRisk, canViewFinancials }: Props) {
 	// Max capacity standard in high-end labs is 15 cases per tech
 	const maxCapacity = 15;
 	const capacityPct = Math.min((activeCaseCount / maxCapacity) * 100, 100);
@@ -87,7 +84,7 @@ export const StaffPerformanceVitalsCard = memo(function StaffPerformanceVitalsCa
 				<Progress value={capacityPct} className={cn("h-2 bg-slate-100 dark:bg-white/5 shadow-inner", theme.bar)} />
 			</div>
 
-			{/* ROLE-GUARDED FINANCIAL LEDGER */}
+			{/* Role-gated navigation hint; compensation values come from the separately authorized settings read. */}
 			{canViewFinancials && (
 				<div className="p-3 rounded-xl bg-emerald-500/2 border border-emerald-500/10 flex items-center justify-between relative z-10 animate-in zoom-in-95 duration-300 shrink-0">
 					<div className="flex items-center gap-2.5 min-w-0">
@@ -95,13 +92,11 @@ export const StaffPerformanceVitalsCard = memo(function StaffPerformanceVitalsCa
 							<DollarSign className="w-4 h-4" />
 						</div>
 						<div className="flex flex-col min-w-0">
-							<span className="text-[9px] font-bold text-muted-foreground uppercase">Commission Basis</span>
-							<span className="text-xs font-bold text-foreground truncate">{commissionType === "PERCENTAGE" ? "Percentage Cut" : "Fixed Rate"}</span>
+							<span className="text-[9px] font-bold text-muted-foreground uppercase">Compensation</span>
+							<span className="text-xs font-bold text-foreground truncate">View details in Settings</span>
 						</div>
 					</div>
-					<div className="text-right shrink-0 font-mono font-bold text-sm text-emerald-600 dark:text-emerald-400">
-						{commissionType === "PERCENTAGE" ? `${commissionValue ?? 0}%` : `$${commissionValue ?? 0}`}
-					</div>
+					<span className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400">Authorized view</span>
 				</div>
 			)}
 

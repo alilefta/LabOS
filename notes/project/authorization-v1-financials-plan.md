@@ -169,8 +169,13 @@ Progress as of 2026-08-28:
 - Complete: A-092 authenticated detail minimization removes unused patient
   age/gender and free-form payment notes while retaining the minimum Case and
   receipt-reconciliation facts used by the page.
+- Complete: A-118 Staff dossier now authorizes identity, compensation, and
+  system-access sections independently; invitation bearer IDs are never part
+  of dossier projections or DTOs, access data is not loaded for Staff, and
+  compensation is absent from the combined overview analytics payload.
 - Pending: V1 reader adapters, repository short-circuit tests, role matrices,
-  two-Organization isolation, and remaining financial/compensation DTO splits.
+  two-Organization isolation, the separate Staff analytics reader, and
+  remaining financial/compensation DTO splits.
 - Deferred to a dedicated lifecycle/public-capability slice: authorized link
   issuance, rotation, disclosure, expiry, and audit behavior.
 

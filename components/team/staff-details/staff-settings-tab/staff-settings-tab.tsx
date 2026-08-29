@@ -29,7 +29,7 @@ export async function StaffSettingsTab({ staffId }: Props) {
 	const queryClient = getQueryClient();
 
 	const userRole = labUser.role; // e.g. "OWNER" | "MANAGER" | "STAFF"
-	const canManageSettings = userRole === "OWNER" || userRole === "MANAGER";
+	const canManageSettings = userRole === "OWNER" || userRole === "ADMIN" || userRole === "MANAGER";
 
 	if (!canManageSettings) {
 		return (

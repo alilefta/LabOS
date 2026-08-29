@@ -37,7 +37,7 @@ import {
 } from '@/schema/composed/team/staff-settings.schema'
 
 interface Props {
-	initialData: StaffDossierDTO
+	initialData: NonNullable<StaffDossierDTO['access']> & { staffId: string }
 	currentUserRole: LabRole
 }
 
@@ -50,12 +50,16 @@ const SYSTEM_ROLE_OPTIONS = [
 export function StaffSecurityCard({ initialData, currentUserRole }: Props) {
 	const queryClient = useQueryClient()
 	const [copied, setCopied] = useState(false)
+	const [issuedInviteToken, setIssuedInviteToken] = useState<string | null>(null)
 
 	// --- 1. PROACTIVE PENDING STATE (Lockout Guard) ---
 	const isAuthorizedToEdit =
 		currentUserRole === 'OWNER' ||
-		currentUserRole === 'MANAGER' ||
 		currentUserRole === 'ADMIN'
+	const assignableRoles =
+		currentUserRole === 'OWNER'
+			? SYSTEM_ROLE_OPTIONS
+			: SYSTEM_ROLE_OPTIONS.filter((option) => option.id === 'STAFF')
 
 	// ── 2. DERIVED STATE (NO STATE DRIFT VULNERABILITY) ──────────────────
 	// We read directly from the query-cached initialData.
@@ -63,13 +67,11 @@ export function StaffSecurityCard({ initialData, currentUserRole }: Props) {
 	const accessState = initialData.accessState
 	const systemRole = initialData.systemRole
 	const inviteEmail = initialData.inviteEmail
-	const inviteToken = initialData.inviteToken
-
 	// Local form used strictly for the "Grant Access" setup fields
 	const grantForm = useForm<GrantStaffSystemAccessInput>({
 		resolver: zodResolver(GrantStaffSystemAccessInputSchema),
 		defaultValues: {
-			staffId: initialData.id,
+			staffId: initialData.staffId,
 			email: '',
 			roleToGrant: 'STAFF',
 		},
@@ -78,9 +80,9 @@ export function StaffSecurityCard({ initialData, currentUserRole }: Props) {
 
 	// URL Builder for copy action
 	const inviteUrl = useMemo(() => {
-		if (typeof window === 'undefined' || !inviteToken) return ''
-		return `${window.location.origin}/invite/${inviteToken}`
-	}, [inviteToken])
+		if (typeof window === 'undefined' || !issuedInviteToken) return ''
+		return `${window.location.origin}/invite/${issuedInviteToken}`
+	}, [issuedInviteToken])
 
 	// ── SERVER ACTIONS ─────────────────────────────────────────────
 
@@ -90,24 +92,26 @@ export function StaffSecurityCard({ initialData, currentUserRole }: Props) {
 		{
 			onSuccess: ({ data }) => {
 				toast.success('System invitation successfully dispatched.')
+				setIssuedInviteToken(data.invite.token)
 
 				// Optimistic Cache Update
 				queryClient.setQueryData<StaffDossierDTO>(
-					['staff-details', initialData.id],
+					['staff-details', initialData.staffId],
 					(old) => {
 						if (!old) return old
 						return {
 							...old,
-							accessState: 'PENDING_INVITE',
-							inviteEmail: data.invite.email,
-							inviteToken: data.invite.token,
-							systemRole: grantForm.getValues('roleToGrant'),
+							access: {
+								accessState: 'PENDING_INVITE',
+								inviteEmail: data.invite.email,
+								systemRole: grantForm.getValues('roleToGrant'),
+							},
 						}
 					},
 				)
 
 				grantForm.reset({
-					staffId: initialData.id,
+					staffId: initialData.staffId,
 					email: '',
 					roleToGrant: 'STAFF',
 				})
@@ -122,18 +126,20 @@ export function StaffSecurityCard({ initialData, currentUserRole }: Props) {
 		{
 			onSuccess: () => {
 				toast.success('Portal credentials successfully revoked.')
+				setIssuedInviteToken(null)
 
 				// Optimistic Cache Update
 				queryClient.setQueryData<StaffDossierDTO>(
-					['staff-details', initialData.id],
+					['staff-details', initialData.staffId],
 					(old) => {
 						if (!old) return old
 						return {
 							...old,
-							accessState: 'NO_ACCESS',
-							systemRole: null,
-							inviteEmail: null,
-							inviteToken: null,
+							access: {
+								accessState: 'NO_ACCESS',
+								systemRole: null,
+								inviteEmail: null,
+							},
 						}
 					},
 				)
@@ -164,14 +170,14 @@ export function StaffSecurityCard({ initialData, currentUserRole }: Props) {
 		setCopied(true)
 		toast.success('Invitation link secured to clipboard.')
 		setTimeout(() => setCopied(false), 2000)
-	}, [])
+	}, [inviteUrl])
 
 	const onGrantSubmit = async (data: GrantStaffSystemAccessInput) => {
 		await executeGrant(data)
 	}
 
 	const onRevokeClick = async () => {
-		await executeRevoke({ staffId: initialData.id })
+		await executeRevoke({ staffId: initialData.staffId })
 	}
 
 	return (
@@ -252,38 +258,44 @@ export function StaffSecurityCard({ initialData, currentUserRole }: Props) {
 							</div>
 						</div>
 
-						{/* Invitation Link Clipboard Area */}
-						<div className="flex flex-col gap-2">
-							<span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest pl-1">
-								Secure Invite Link
-							</span>
-							<div className="flex items-center gap-2 p-1.5 bg-slate-50 dark:bg-[#121214] border border-border rounded-xl">
-								<input
-									title="Invite URL"
-									type="text"
-									readOnly
-									value={inviteUrl}
-									className="flex-1 bg-transparent border-none outline-none pl-3 text-xs font-mono text-muted-foreground truncate"
-								/>
-								<Button
-									type="button"
-									onClick={handleCopy}
-									className={cn(
-										'rounded-lg h-8 font-bold text-[10px] shrink-0 transition-all px-3 uppercase tracking-wider',
-										copied
-											? 'bg-emerald-500 text-white shadow-sm'
-											: 'bg-primary text-primary-foreground',
-									)}
-								>
-									{copied ? (
-										<Check className="w-3.5 h-3.5" />
-									) : (
-										<Copy className="w-3.5 h-3.5 mr-1.5" />
-									)}
-									{copied ? 'Copied' : 'Copy'}
-								</Button>
+						{/* Bearer links are shown only in the command response that issued them. */}
+						{inviteUrl ? (
+							<div className="flex flex-col gap-2">
+								<span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest pl-1">
+									New secure invite link
+								</span>
+								<div className="flex items-center gap-2 p-1.5 bg-slate-50 dark:bg-[#121214] border border-border rounded-xl">
+									<input
+										title="Invite URL"
+										type="text"
+										readOnly
+										value={inviteUrl}
+										className="flex-1 bg-transparent border-none outline-none pl-3 text-xs font-mono text-muted-foreground truncate"
+									/>
+									<Button
+										type="button"
+										onClick={handleCopy}
+										className={cn(
+											'rounded-lg h-8 font-bold text-[10px] shrink-0 transition-all px-3 uppercase tracking-wider',
+											copied
+												? 'bg-emerald-500 text-white shadow-sm'
+												: 'bg-primary text-primary-foreground',
+										)}
+									>
+										{copied ? (
+											<Check className="w-3.5 h-3.5" />
+										) : (
+											<Copy className="w-3.5 h-3.5 mr-1.5" />
+										)}
+										{copied ? 'Copied' : 'Copy'}
+									</Button>
+								</div>
 							</div>
-						</div>
+						) : (
+							<p className="text-[10px] text-muted-foreground rounded-xl border border-border bg-slate-50 dark:bg-white/2 p-3 leading-relaxed">
+								For security, an invitation link is shown only when it is newly issued.
+							</p>
+						)}
 
 						{isAuthorizedToEdit && (
 							<Button
@@ -364,7 +376,7 @@ export function StaffSecurityCard({ initialData, currentUserRole }: Props) {
 													aria-label="Software access levels"
 													className="flex flex-col gap-2 p-1 bg-slate-100 dark:bg-white/5 rounded-xl border border-border w-full"
 												>
-													{SYSTEM_ROLE_OPTIONS.map((opt) => {
+												{assignableRoles.map((opt) => {
 														const isChecked = field.value === opt.id
 														return (
 															<button
@@ -372,7 +384,7 @@ export function StaffSecurityCard({ initialData, currentUserRole }: Props) {
 																id="roleToGrant"
 																type="button"
 																role="radio" // ACCESSIBILITY FIX [3]
-																aria-checked={true} // ACCESSIBILITY FIX [3]
+														aria-checked={isChecked} // ACCESSIBILITY FIX [3]
 																disabled={isPending}
 																onClick={() => field.onChange(opt.id)}
 																className={cn(

@@ -1,210 +1,121 @@
-// data/team/get-staff-dossier.ts
+import { z } from 'zod'
 
-import { tenantPrisma } from "@/lib/prisma";
-import { getDataTenantContext } from "@/lib/data-tenant-context";
-import { ERRORS } from "@/lib/errors";
-import { daError, daSuccess, toDAError, DAResult } from "@/lib/data-access-errors";
-import { StaffDossierDTO, StaffHeaderDTO, StaffMetadataDTO, SystemAccessState } from "@/schema/composed/team/staff-dossier.dtos"; // Adjust path
-import z from "zod";
-import { toLegacyLabRole } from "@/platform/organizations/legacy-role-compatibility";
+import { daError, daSuccess, toDAError, type DAResult } from '@/lib/data-access-errors'
+import { getDataTenantContext } from '@/lib/data-tenant-context'
+import { ERRORS } from '@/lib/errors'
+import { tenantPrisma } from '@/lib/prisma'
+import { createLabOSAuthorizationActor } from '@/modules/labos-authorization/actor'
+import { labosAuthorizationService } from '@/modules/labos-authorization/service'
+import {
+	createStaffDossierLoader,
+	StaffDossierAuthorizationError,
+} from '@/modules/labos-staff/staff-dossier.loader'
+import type {
+	StaffDossierDTO,
+	StaffHeaderDTO,
+	StaffMetadataDTO,
+} from '@/schema/composed/team/staff-dossier.dtos'
+import type { TenantContext } from '@/platform/organizations/tenant-context'
 
-const InputSchema = z.string().uuid("Invalid Staff ID format");
+import { prismaStaffDossierRepository } from './staff-dossier.repository'
 
-export async function getStaffDossierData(staffId: string): Promise<DAResult<StaffDossierDTO>> {
+const InputSchema = z.string().uuid('Invalid Staff ID format')
+
+const loadStaffDossier = createStaffDossierLoader(
+	labosAuthorizationService,
+	prismaStaffDossierRepository,
+)
+
+async function canReadStaff(
+	tenant: TenantContext,
+	staffId: string,
+): Promise<boolean> {
+	const decision = await labosAuthorizationService.can({
+		actor: createLabOSAuthorizationActor(tenant),
+		permission: 'staff.read',
+		target: { type: 'staff', id: staffId },
+	})
+	return decision.allowed
+}
+
+/**
+ * Resolves and validates the active tenant before loading the split A-118 DTO.
+ * The loader owns all section-level authorization and the repositories own
+ * tenant-scoped minimal projections.
+ */
+export async function getStaffDossierData(
+	staffId: string,
+): Promise<DAResult<StaffDossierDTO>> {
 	try {
-		// ── 1. SECURITY GATES ───────────────────────────────────────────────
-		const tenantResult = await getDataTenantContext();
-		if (!tenantResult.success) return daError(tenantResult.error);
-		const { labId } = tenantResult.data;
+		const tenantResult = await getDataTenantContext()
+		if (!tenantResult.success) return daError(tenantResult.error)
 
-		const parsedStaffId = InputSchema.safeParse(staffId);
-		if (!parsedStaffId.success) {
-			return daError(ERRORS.INVALID_INPUT.toJSON());
+		const parsedStaffId = InputSchema.safeParse(staffId)
+		if (!parsedStaffId.success) return daError(ERRORS.INVALID_INPUT.toJSON())
+
+		const tenant = tenantResult.data
+		const dossier = await loadStaffDossier({
+			actor: createLabOSAuthorizationActor(tenant),
+			labId: tenant.labId,
+			staffId: parsedStaffId.data,
+		})
+
+		if (!dossier) return daError(ERRORS.NOT_FOUND.toJSON())
+		return daSuccess(dossier)
+	} catch (error) {
+		if (error instanceof StaffDossierAuthorizationError) {
+			return daError(ERRORS.MISSING_PERMISSIONS.toJSON())
 		}
-
-		const prisma = await tenantPrisma(labId);
-
-		// ── 2. DATABASE READS (N+1 PROOF & RUN IN PARALLEL) ─────────────────
-		// We execute 4 queries in parallel.
-		// Notice the raw SQL query running alongside the Prisma ORM queries!
-		const [staff, completedAgg, failedAgg, rawSpeedResult] = await Promise.all([
-			// A. Fetch core details + only active case assignments (O(1) memory)
-			prisma.labStaff.findUnique({
-				where: { id: parsedStaffId.data, labId },
-				include: {
-					member: { select: { id: true, role: true } },
-					organizationInvitationIntent: {
-						select: {
-							invitation: { select: { id: true, email: true, role: true, status: true, expiresAt: true } },
-						},
-					},
-					caseAssignments: {
-						where: {
-							dentalCase: { status: { in: ["ASSIGNED", "PROCESSING"] } },
-						},
-						select: { id: true },
-					},
-				},
-			}),
-
-			// B. Aggregate completed cases directly inside PostgreSQL
-			prisma.caseStaffAssignment.aggregate({
-				where: {
-					staffId: parsedStaffId.data,
-					labId,
-					dentalCase: { status: { in: ["COMPLETED", "DELIVERED"] } },
-				},
-				_count: { id: true },
-			}),
-
-			// C. Aggregate failed/remake cases directly inside PostgreSQL
-			prisma.caseStaffAssignment.aggregate({
-				where: {
-					staffId: parsedStaffId.data,
-					labId,
-					OR: [{ dentalCase: { status: "FAILED" } }, { dentalCase: { isRemake: true } }],
-				},
-				_count: { id: true },
-			}),
-
-			// D. 🔥 THE RAW SQL SPEED ENGINE (O(1) Space Complexity)
-			// We calculate the average difference between completedAt and createdAt in seconds (EPOCH),
-			// divide by 86400 (seconds in a day), and let PostgreSQL run the math.
-			// Prisma parameterized templates automatically protect against SQL injection.
-			prisma.$queryRaw<[{ avgDays: number | null }]>`
-				SELECT AVG(EXTRACT(EPOCH FROM (c."completedAt" - c."createdAt"))) / 86400 AS "avgDays"
-				FROM "Case" c
-				INNER JOIN "CaseStaffAssignment" csa ON c."id" = csa."caseId"
-				WHERE csa."staffId" = ${parsedStaffId.data}
-				  AND csa."labId" = ${labId}
-				  AND c."status" IN ('COMPLETED', 'DELIVERED')
-				  AND c."completedAt" IS NOT NULL
-			`,
-		]);
-
-		if (!staff) {
-			return daError(ERRORS.NOT_FOUND.toJSON());
-		}
-
-		// ── 3. THE HR METRIC COMPILER ───────────────────────────────────────
-		const activeCount = staff.caseAssignments.length;
-
-		// A. Burnout Risk
-		let burnoutRisk: "LOW" | "MEDIUM" | "HIGH" = "LOW";
-		if (activeCount >= 15) burnoutRisk = "HIGH";
-		else if (activeCount >= 8) burnoutRisk = "MEDIUM";
-
-		// B. Remake Rate (Quality)
-		const totalCompleted = completedAgg._count.id;
-		const totalFailed = failedAgg._count.id;
-		const totalHistoricalCount = totalCompleted + totalFailed;
-
-		let remakeRate = 0;
-		if (totalHistoricalCount > 0) {
-			remakeRate = (totalFailed / totalHistoricalCount) * 100;
-		}
-
-		// C. Speed / Turnaround Time (Read directly from the single raw SQL float)
-		const rawAvgDays = rawSpeedResult[0]?.avgDays;
-		const avgTurnaroundDays = rawAvgDays !== null && rawAvgDays !== undefined ? Math.round(Number(rawAvgDays) * 10) / 10 : null;
-
-		// ── 4. RESOLVE SECURITY PORTAL STATUS ──────────────────────────────
-		const now = new Date();
-		let accessState: SystemAccessState = "NO_ACCESS";
-		let systemRole = null;
-		let inviteEmail = null;
-		let inviteToken = null;
-
-		if (staff.member) {
-			accessState = "ACTIVE_USER";
-			systemRole = toLegacyLabRole(staff.member.role);
-		} else if (
-			staff.organizationInvitationIntent?.invitation.status === "pending" &&
-			staff.organizationInvitationIntent.invitation.expiresAt > now
-		) {
-			accessState = "PENDING_INVITE";
-			systemRole = staff.organizationInvitationIntent.invitation.role
-				? toLegacyLabRole(staff.organizationInvitationIntent.invitation.role)
-				: null;
-			inviteEmail = staff.organizationInvitationIntent.invitation.email;
-			inviteToken = staff.organizationInvitationIntent.invitation.id;
-		}
-
-		// ── 5. MAP TO SECURE, SANITIZED DTO ────────────────────────────────
-		return daSuccess({
-			id: staff.id,
-			firstName: staff.firstName,
-			lastName: staff.lastName,
-			phoneNumber: staff.phoneNumber,
-			avatarUrl: staff.avatarUrl,
-			roleCategory: staff.roleCategory,
-			jobTitle: staff.jobTitle,
-			specialization: staff.specialization,
-			isActive: staff.isActive,
-			workingDays: staff.workingDays,
-
-			commissionType: staff.commissionType,
-			commissionValue: staff.commissionValue ? Number(staff.commissionValue) : null,
-
-			accessState,
-			systemRole,
-			inviteEmail,
-			inviteToken,
-
-			vitals: {
-				activeCaseCount: activeCount,
-				totalCompletedCases: totalCompleted,
-				avgTurnaroundDays,
-				remakeRate,
-				burnoutRisk,
-			},
-		});
-	} catch (e) {
-		return toDAError(e);
+		return toDAError(error)
 	}
 }
 
-// ── DAF 1: GET STAFF METADATA (Blistering Fast PK Select) ───────────────────
-export async function getStaffMetadata(staffId: string): Promise<DAResult<StaffMetadataDTO>> {
+/** Lean tenant-scoped identity used only for metadata generation. */
+export async function getStaffMetadata(
+	staffId: string,
+): Promise<DAResult<StaffMetadataDTO>> {
 	try {
-		const tenantResult = await getDataTenantContext();
-		if (!tenantResult.success) return daError(tenantResult.error);
-		const { labId } = tenantResult.data;
+		const tenantResult = await getDataTenantContext()
+		if (!tenantResult.success) return daError(tenantResult.error)
+		const { labId } = tenantResult.data
 
-		const parsedStaffId = InputSchema.safeParse(staffId);
-		if (!parsedStaffId.success) return daError(ERRORS.INVALID_INPUT.toJSON());
+		const parsedStaffId = InputSchema.safeParse(staffId)
+		if (!parsedStaffId.success) return daError(ERRORS.INVALID_INPUT.toJSON())
+		if (!(await canReadStaff(tenantResult.data, parsedStaffId.data))) {
+			return daError(ERRORS.MISSING_PERMISSIONS.toJSON())
+		}
 
-		const prisma = await tenantPrisma(labId);
-
+		const prisma = await tenantPrisma(labId)
 		const staff = await prisma.labStaff.findUnique({
 			where: { id: parsedStaffId.data, labId },
-			select: {
-				id: true,
-				firstName: true,
-				lastName: true,
-			},
-		});
+			select: { id: true, firstName: true, lastName: true },
+		})
 
-		if (!staff) return daError(ERRORS.NOT_FOUND.toJSON());
-
-		return daSuccess(staff);
-	} catch (e) {
-		return toDAError(e);
+		return staff ? daSuccess(staff) : daError(ERRORS.NOT_FOUND.toJSON())
+	} catch (error) {
+		return toDAError(error)
 	}
 }
 
-// ── DAF 2: GET STAFF HEADER DATA (Zero Relational Aggregations) ──────────────
-export async function getStaffHeaderData(staffId: string): Promise<DAResult<StaffHeaderDTO>> {
+/**
+ * Loads operational header identity only. Membership and invitation state are
+ * deliberately absent because the Staff page header is an ordinary read.
+ */
+export async function getStaffHeaderData(
+	staffId: string,
+): Promise<DAResult<StaffHeaderDTO>> {
 	try {
-		const tenantResult = await getDataTenantContext();
-		if (!tenantResult.success) return daError(tenantResult.error);
-		const { labId } = tenantResult.data;
+		const tenantResult = await getDataTenantContext()
+		if (!tenantResult.success) return daError(tenantResult.error)
+		const { labId } = tenantResult.data
 
-		const parsedStaffId = InputSchema.safeParse(staffId);
-		if (!parsedStaffId.success) return daError(ERRORS.INVALID_INPUT.toJSON());
+		const parsedStaffId = InputSchema.safeParse(staffId)
+		if (!parsedStaffId.success) return daError(ERRORS.INVALID_INPUT.toJSON())
+		if (!(await canReadStaff(tenantResult.data, parsedStaffId.data))) {
+			return daError(ERRORS.MISSING_PERMISSIONS.toJSON())
+		}
 
-		const prisma = await tenantPrisma(labId);
-
+		const prisma = await tenantPrisma(labId)
 		const staff = await prisma.labStaff.findUnique({
 			where: { id: parsedStaffId.data, labId },
 			select: {
@@ -217,53 +128,11 @@ export async function getStaffHeaderData(staffId: string): Promise<DAResult<Staf
 				jobTitle: true,
 				specialization: true,
 				isActive: true,
-				member: {
-					select: { role: true },
-				},
-				organizationInvitationIntent: {
-					select: {
-						invitation: { select: { email: true, role: true, status: true, expiresAt: true } },
-					},
-				},
 			},
-		});
+		})
 
-		if (!staff) return daError(ERRORS.NOT_FOUND.toJSON());
-
-		const now = new Date();
-		let accessState: SystemAccessState = "NO_ACCESS";
-		let systemRole = null;
-		let inviteEmail = null;
-
-		if (staff.member) {
-			accessState = "ACTIVE_USER";
-			systemRole = toLegacyLabRole(staff.member.role);
-		} else if (
-			staff.organizationInvitationIntent?.invitation.status === "pending" &&
-			staff.organizationInvitationIntent.invitation.expiresAt > now
-		) {
-			accessState = "PENDING_INVITE";
-			systemRole = staff.organizationInvitationIntent.invitation.role
-				? toLegacyLabRole(staff.organizationInvitationIntent.invitation.role)
-				: null;
-			inviteEmail = staff.organizationInvitationIntent.invitation.email;
-		}
-
-		return daSuccess({
-			id: staff.id,
-			firstName: staff.firstName,
-			lastName: staff.lastName,
-			phoneNumber: staff.phoneNumber,
-			avatarUrl: staff.avatarUrl,
-			roleCategory: staff.roleCategory,
-			jobTitle: staff.jobTitle,
-			specialization: staff.specialization,
-			isActive: staff.isActive,
-			accessState,
-			systemRole,
-			inviteEmail,
-		});
-	} catch (e) {
-		return toDAError(e);
+		return staff ? daSuccess(staff) : daError(ERRORS.NOT_FOUND.toJSON())
+	} catch (error) {
+		return toDAError(error)
 	}
 }

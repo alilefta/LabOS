@@ -5,7 +5,6 @@ import {
 	ChevronLeft,
 	Edit3,
 	MoreVertical,
-	Mail,
 	Phone,
 	ShieldAlert,
 } from 'lucide-react'
@@ -70,26 +69,18 @@ export async function TeamHeaderSection({ staffId }: Props) {
 									{staff.firstName} {staff.lastName}
 								</h1>
 
-								{/* Dynamic System Access Badge */}
+								{/* Operational status only; access state is permission-controlled. */}
 								<span
 									className={cn(
 										'px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-widest border shadow-sm',
 										isInactive
 											? 'bg-destructive/10 text-destructive border-destructive/20 animate-pulse'
-											: staff.accessState === 'ACTIVE_USER'
-												? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20'
-												: staff.accessState === 'PENDING_INVITE'
-													? 'bg-ai/10 text-ai border-ai/20 animate-pulse'
-													: 'bg-slate-100 dark:bg-white/5 text-muted-foreground border-border',
+										: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20',
 									)}
 								>
 									{isInactive
 										? 'Deactivated'
-										: staff.accessState === 'ACTIVE_USER'
-											? 'Active User'
-											: staff.accessState === 'PENDING_INVITE'
-												? 'Pending'
-												: 'No Access'}
+										: 'Active Staff'}
 								</span>
 							</div>
 
@@ -110,11 +101,6 @@ export async function TeamHeaderSection({ staffId }: Props) {
 									<Phone className="w-3.5 h-3.5" />{' '}
 									<span className="font-mono">{staff.phoneNumber}</span>
 								</span>
-								{staff.inviteEmail && (
-									<span className="flex items-center gap-1.5">
-										<Mail className="w-3.5 h-3.5" /> {staff.inviteEmail}
-									</span>
-								)}
 							</div>
 						</div>
 					</div>

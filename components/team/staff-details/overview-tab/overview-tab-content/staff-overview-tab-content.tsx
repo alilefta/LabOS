@@ -102,8 +102,6 @@ export function StaffOverviewTabContent({ staffId, period }: Props) {
 				<StaffPerformanceVitalsCard
 					activeCaseCount={data.vitals.activeCaseCount}
 					burnoutRisk={data.vitals.burnoutRisk}
-					commissionType={data.staff.commissionType}
-					commissionValue={data.staff.commissionValue}
 					canViewFinancials={canViewFinancials}
 				/>
 			</div>

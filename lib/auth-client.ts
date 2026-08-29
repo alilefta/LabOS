@@ -1,14 +1,18 @@
 import { createAuthClient } from 'better-auth/react'
 import {
 	adminClient,
+	customSessionClient,
 	organizationClient,
 } from 'better-auth/client/plugins'
 import { organizationAccess } from '@/platform/auth/organization-access'
+import type { auth } from '@/lib/auth'
 
 export const authClient = createAuthClient({
-	/** The base URL of the server (optional if you're using the same domain) */
-	baseURL: 'http://localhost:3000',
-	plugins: [adminClient(), organizationClient(organizationAccess)],
+	plugins: [
+		adminClient(),
+		organizationClient(organizationAccess),
+		customSessionClient<typeof auth>(),
+	],
 })
 
-export const { signIn, signUp, signOut, useSession } = createAuthClient()
+export const { signIn, signUp, signOut, useSession } = authClient

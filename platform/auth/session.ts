@@ -1,5 +1,6 @@
 import 'server-only'
 
+import type { ApplicationSession } from '@/lib/application-session'
 import { getServerSession } from '@/lib/get-session'
 
 /**
@@ -10,6 +11,4 @@ import { getServerSession } from '@/lib/get-session'
  */
 export const getPlatformSession = getServerSession
 
-export type PlatformSession = NonNullable<
-	Awaited<ReturnType<typeof getPlatformSession>>
->
+export type PlatformSession = ApplicationSession

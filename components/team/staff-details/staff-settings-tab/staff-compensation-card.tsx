@@ -30,6 +30,7 @@ import {
 
 interface Props {
 	initialData: UpdateStaffCompensationInput
+	isReadOnly?: boolean
 }
 
 const COMMISSION_OPTIONS = [
@@ -49,6 +50,7 @@ const COMMISSION_OPTIONS = [
 
 export const StaffCompensationCard = memo(function StaffCompensationCard({
 	initialData,
+	isReadOnly = false,
 }: Props) {
 	// Initialize the localized form strictly for this card's financial scope [3]
 	const form = useForm<UpdateStaffCompensationInput>({
@@ -104,7 +106,7 @@ export const StaffCompensationCard = memo(function StaffCompensationCard({
 	)
 
 	const onSubmit = async (data: UpdateStaffCompensationInput) => {
-		await updateCompensation(data)
+		if (!isReadOnly) await updateCompensation(data)
 	}
 
 	const isDirty = form.formState.isDirty
@@ -163,7 +165,7 @@ export const StaffCompensationCard = memo(function StaffCompensationCard({
 												id="commissionType"
 												role="radio" // ACCESSIBILITY FIX
 												aria-checked={isSelected} // ACCESSIBILITY FIX
-												disabled={isExecuting}
+									disabled={isExecuting || isReadOnly}
 												onClick={() => {
 													field.onChange(opt.id)
 													form.setValue('commissionValue', 0, {
@@ -175,7 +177,7 @@ export const StaffCompensationCard = memo(function StaffCompensationCard({
 													isSelected
 														? 'border-emerald-500 bg-emerald-500/5 ring-1 ring-emerald-500/20 shadow-sm'
 														: 'border-border bg-card hover:border-slate-300 dark:hover:border-white/10',
-													isExecuting && 'opacity-50 cursor-not-allowed',
+									(isExecuting || isReadOnly) && 'opacity-50 cursor-not-allowed',
 												)}
 											>
 												<div
@@ -220,7 +222,7 @@ export const StaffCompensationCard = memo(function StaffCompensationCard({
 								type="number"
 								field={field}
 								fieldState={fieldState}
-								disabled={isExecuting}
+								disabled={isExecuting || isReadOnly}
 								fieldTitle={
 									selectedType === 'PERCENTAGE'
 										? 'Commission Percentage (%)'
@@ -267,7 +269,7 @@ export const StaffCompensationCard = memo(function StaffCompensationCard({
 				<Button
 					type="submit"
 					form={`compensation-form-${initialData.staffId}`}
-					disabled={!isDirty || isExecuting}
+					disabled={!isDirty || isExecuting || isReadOnly}
 					className={cn(
 						'rounded-xl h-11 px-6 font-bold text-xs transition-all shadow-sm flex items-center justify-center gap-2',
 						isDirty
@@ -280,7 +282,7 @@ export const StaffCompensationCard = memo(function StaffCompensationCard({
 					) : (
 						<Save className="w-4 h-4 shrink-0" />
 					)}
-					Save Ledger Changes
+					{isReadOnly ? 'Read-only compensation' : 'Save Ledger Changes'}
 				</Button>
 			</div>
 		</div>

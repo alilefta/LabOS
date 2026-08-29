@@ -19,7 +19,7 @@ export const signInAction = actionClient
 	.action(async ({ ctx, parsedInput }) => {
 		const { email, password, rememberMe } = parsedInput
 		try {
-			const result = await auth.api.signInEmail({
+			await auth.api.signInEmail({
 				body: {
 					email,
 					password,
@@ -28,7 +28,10 @@ export const signInAction = actionClient
 				},
 			})
 
-			return { result }
+			// The provider response contains the credential-bearing session and
+			// user record. The browser only needs a success signal before it
+			// performs the document navigation that observes the new cookie.
+			return { success: true as const }
 		} catch (e) {
 			// if (isAPIError(e)) {
 			// 	console.log('API ERROR+++++1', e)
@@ -58,7 +61,7 @@ export const signUpAction = actionClient
 		const { email, password, rememberMe, name } = parsedInput
 
 		try {
-			const result = await auth.api.signUpEmail({
+			await auth.api.signUpEmail({
 				body: {
 					name,
 					email,
@@ -68,7 +71,9 @@ export const signUpAction = actionClient
 				},
 			})
 
-			return { result }
+			// Never serialize Better Auth's raw sign-up response through the
+			// Server Action Flight payload.
+			return { success: true as const }
 		} catch (e) {
 			if (isAPIError(e)) {
 				console.error('[Sign-Up-Action] Error', e.message)
