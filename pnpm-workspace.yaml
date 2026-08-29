@@ -9,3 +9,6 @@ allowBuilds:
 ignoredBuiltDependencies:
   - sharp
   - unrs-resolver
+overrides:
+  '@types/react': 19.2.18
+  '@types/react-dom': 19.2.5
