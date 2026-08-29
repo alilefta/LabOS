@@ -11,6 +11,7 @@ import { TeamFilters, DEFAULT_TEAM_FILTERS, SystemAccessState, CapacityBand, Qua
 import { StaffRoleCategory } from "@/schema/base/enums.base";
 
 interface Props {
+	canViewSystemAccess: boolean;
 	isOpen: boolean;
 	onClose: () => void;
 	currentFilters: TeamFilters;
@@ -49,7 +50,7 @@ const ROLE_GROUPS = [
 	{ id: "MANAGER", label: "Manager" },
 ];
 
-export function TeamAdvancedFiltersSheet({ isOpen, onClose, currentFilters, onApplyFilters, onClearFilters }: Props) {
+export function TeamAdvancedFiltersSheet({ canViewSystemAccess, isOpen, onClose, currentFilters, onApplyFilters, onClearFilters }: Props) {
 	// ── STATE ────────────────────────────────────────────────────────────────
 	const [localFilters, setLocalFilters] = useState<TeamFilters>(currentFilters);
 
@@ -211,7 +212,7 @@ export function TeamAdvancedFiltersSheet({ isOpen, onClose, currentFilters, onAp
 						</div>
 
 						{/* System Access States */}
-						<div className="flex flex-col gap-2 mt-4">
+						{canViewSystemAccess && <div className="flex flex-col gap-2 mt-4">
 							{ACCESS_OPTIONS.map((access) => {
 								const isSelected = localFilters.accessStates.includes(access.id);
 								return (
@@ -244,7 +245,7 @@ export function TeamAdvancedFiltersSheet({ isOpen, onClose, currentFilters, onAp
 									</button>
 								);
 							})}
-						</div>
+						</div>}
 					</div>
 				</div>
 

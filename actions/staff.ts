@@ -7,6 +7,31 @@ import { actionClientWithLab } from "@/lib/safe-action";
 import { CreateLabStaffInputSchema, GetLabStaffByRoleAndSearchQueryInputSchema } from "@/schema/composed/lab-staff.details";
 import { SearchInputSchema } from "@/schema/composed/shared-schema";
 import { APIError } from "better-auth";
+import type { LabStaffModel } from "@/generated/prisma/models";
+
+// Read actions intentionally omit phone numbers, invitation relations, and
+// other contact/access fields. Consumers of these legacy selectors only need
+// assignment identity and (where authorized by the caller) compensation.
+const SAFE_STAFF_READ_SELECT = {
+	id: true,
+	labId: true,
+	firstName: true,
+	lastName: true,
+	avatarUrl: true,
+	isActive: true,
+	city: true,
+	address1: true,
+	address2: true,
+	zipcode: true,
+	roleCategory: true,
+	jobTitle: true,
+	specialization: true,
+	commissionType: true,
+	commissionValue: true,
+	workingDays: true,
+	createdAt: true,
+	updatedAt: true,
+} as const;
 
 export const createLabStaffAction = actionClientWithLab
 	.metadata({
@@ -84,6 +109,7 @@ export const getActiveLabStaffBySearchQueryAction = actionClientWithLab
 			await tenantPrisma(labId)
 		).labStaff.findMany({
 			where: whereClause,
+			select: SAFE_STAFF_READ_SELECT,
 
 			orderBy: {
 				createdAt: "desc",
@@ -92,7 +118,7 @@ export const getActiveLabStaffBySearchQueryAction = actionClientWithLab
 		});
 
 		return {
-			staff: staffMembers.map(normalizeLabStaff),
+			staff: staffMembers.map((staff) => normalizeLabStaff(staff as LabStaffModel)),
 		};
 	});
 
@@ -135,13 +161,11 @@ export const getLabStaffByRoleAndSearchAction = actionClientWithLab
 					createdAt: "desc",
 				},
 				take: limit,
-				include: {
-					lab: true,
-				},
+				select: SAFE_STAFF_READ_SELECT,
 			});
 
 			return {
-				staff: staffMembers.map(normalizeLabStaff),
+				staff: staffMembers.map((staff) => normalizeLabStaff(staff as LabStaffModel)),
 			};
 		} catch (e) {
 			if (e instanceof APIError || e instanceof Error) {
@@ -170,13 +194,11 @@ export const getActiveLabStaffAction = actionClientWithLab
 				orderBy: {
 					createdAt: "desc",
 				},
-				include: {
-					lab: true,
-				},
+				select: SAFE_STAFF_READ_SELECT,
 			});
 
 			return {
-				staff: staffMembers.map(normalizeLabStaff),
+				staff: staffMembers.map((staff) => normalizeLabStaff(staff as LabStaffModel)),
 			};
 		} catch (e) {
 			if (e instanceof APIError || e instanceof Error) {

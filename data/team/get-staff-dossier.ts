@@ -115,6 +115,12 @@ export async function getStaffHeaderData(
 			return daError(ERRORS.MISSING_PERMISSIONS.toJSON())
 		}
 
+		const actor = createLabOSAuthorizationActor(tenantResult.data)
+		const contactDecision = await labosAuthorizationService.can({
+			actor,
+			permission: 'staff.contact.read',
+			target: { type: 'staff', id: parsedStaffId.data },
+		})
 		const prisma = await tenantPrisma(labId)
 		const staff = await prisma.labStaff.findUnique({
 			where: { id: parsedStaffId.data, labId },
@@ -122,7 +128,6 @@ export async function getStaffHeaderData(
 				id: true,
 				firstName: true,
 				lastName: true,
-				phoneNumber: true,
 				avatarUrl: true,
 				roleCategory: true,
 				jobTitle: true,
@@ -131,7 +136,13 @@ export async function getStaffHeaderData(
 			},
 		})
 
-		return staff ? daSuccess(staff) : daError(ERRORS.NOT_FOUND.toJSON())
+		if (!staff) return daError(ERRORS.NOT_FOUND.toJSON())
+		if (!contactDecision.allowed) return daSuccess(staff)
+		const contact = await prisma.labStaff.findUnique({
+			where: { id: parsedStaffId.data, labId },
+			select: { phoneNumber: true },
+		})
+		return daSuccess({ ...staff, ...(contact && { phoneNumber: contact.phoneNumber }) })
 	} catch (error) {
 		return toDAError(error)
 	}

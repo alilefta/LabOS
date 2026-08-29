@@ -164,5 +164,33 @@ F2-002 manual verification and the authenticated production disclosure check
 are complete. Next.js 16.3.3 production is running on port 3001 for a final UI
 smoke test. The remaining authorization check is to restart development and
 confirm the new HTTP boundary also removes React's development debug copy. Then
-resolve or separately track the existing TypeScript/lint backlog, commit the
-A-118 slice, and move to the Staff analytics field-disclosure boundary.
+resolve or separately track the existing TypeScript/lint backlog and continue
+with the Staff analytics field-disclosure boundary.
+
+## A-119 roster contact and access disclosure boundary
+
+- Added explicit `staff.contact.read/list` and `staff.compensation.list`
+  permissions. Owner, Admin, and Manager may receive contact/compensation list
+  fields; Staff receives neither. Membership access metadata remains Owner/Admin
+  only.
+- Replaced the wide roster Prisma query with separate base, analytics, contact,
+  compensation, and access projections. Denied projections are not queried and
+  their DTO keys are omitted entirely.
+- Removed phone numbers from the ordinary Staff dossier identity/header path;
+  the contact projection is now independently authorized. Pending invitation
+  counts in Team vitals are also membership-gated.
+- Team UI now hides access filters/actions for Staff and omits the contact zone
+  when the server did not disclose a phone field.
+- Legacy staff search/list actions used by case assignment controls now use a
+  safe scalar projection and no longer serialize phone numbers, lab relations,
+  or invitation data.
+- Added roster loader disclosure tests and expanded dossier tests. Targeted
+  authorization/roster tests pass (56 tests); repository-wide TypeScript still
+  has the previously tracked Decimal/addons/ES target errors.
+
+## A-119 handoff
+
+A-119 is implemented and ready for manual Owner/Admin/Manager/Staff verification.
+The next slice is to review the Staff overview analytics action for field-level
+disclosure and confirm which operational metrics are appropriate for ordinary
+Staff versus management roles.

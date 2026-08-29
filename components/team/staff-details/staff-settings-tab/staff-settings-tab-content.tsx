@@ -55,7 +55,7 @@ export function StaffSettingsTabContent({ staffId, currentUserRole }: Props) {
 		staffId: staff.id,
 		firstName: staff.firstName,
 		lastName: staff.lastName,
-		phoneNumber: staff.phoneNumber,
+		phoneNumber: staff.phoneNumber ?? "",
 		jobTitle: staff.jobTitle,
 		specialization: staff.specialization,
 		roleCategory: staff.roleCategory,

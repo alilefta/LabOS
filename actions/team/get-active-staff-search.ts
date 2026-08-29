@@ -47,8 +47,6 @@ export const getActiveLabStaffBySearchQueryAction = actionClientWithLab
 				jobTitle: true,
 				avatarUrl: true,
 				isActive: true,
-				commissionType: true,
-				commissionValue: true,
 
 				// N+1 Prevention: Sum up only ASSIGNED/PROCESSING cases in a single SQL join!
 				_count: {
@@ -76,9 +74,6 @@ export const getActiveLabStaffBySearchQueryAction = actionClientWithLab
 			jobTitle: staff.jobTitle,
 			avatarUrl: staff.avatarUrl,
 			isActive: staff.isActive,
-			commissionType: staff.commissionType,
-			commissionValue: staff.commissionValue ? Number(staff.commissionValue) : null,
-
 			// Map the nested count to a flat property for the UI
 			activeCaseCount: staff._count.caseAssignments,
 		})) as ActiveStaffCasesDTO[];

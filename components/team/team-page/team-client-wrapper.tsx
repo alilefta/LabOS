@@ -37,7 +37,8 @@ const TeamAdvancedFiltersSheet = dynamic(() => import("../../modals/team/filters
 export function TeamClientWrapper({ initialAction }: Props) {
 	const router = useRouter();
 	const pathname = usePathname();
-	const { labId, canViewFinancials } = usePermissions(); // 🔥 OPTIMIZATION: Pluck permission flag directly [4]
+	const { labId, role, canViewFinancials, canManageTeam } = usePermissions();
+	const canViewSystemAccess = role === "OWNER" || role === "ADMIN";
 
 	// ── 1. STATE MANAGEMENT ────────────────────────────────────────────
 	const [searchInput, setSearchInput] = useState("");
@@ -151,7 +152,7 @@ export function TeamClientWrapper({ initialAction }: Props) {
 						</div>
 
 						{/* 🔥 NEW: The Quick Segment Toggle */}
-						<div className="flex p-1 bg-slate-100 dark:bg-white/5 rounded-xl border border-border shrink-0 h-11 w-full sm:w-auto">
+						{canViewSystemAccess && <div className="flex p-1 bg-slate-100 dark:bg-white/5 rounded-xl border border-border shrink-0 h-11 w-full sm:w-auto">
 							{[
 								{ id: "ALL", label: "Entire Team" },
 								{ id: "HAS_ACCESS", label: "App Users" },
@@ -168,7 +169,7 @@ export function TeamClientWrapper({ initialAction }: Props) {
 									{segment.label}
 								</button>
 							))}
-						</div>
+						</div>}
 					</div>
 
 					{/* Right Side: Action Triggers & Archived Toggle */}
@@ -272,7 +273,8 @@ export function TeamClientWrapper({ initialAction }: Props) {
 					// INTEGRATED GRID
 					<StaffRosterGrid
 						staff={staffList}
-						canViewFinancials={canViewFinancials} // Pass permission directly [4]
+						canViewFinancials={canViewFinancials}
+						canManageTeam={canManageTeam}
 						onEdit={handleEditStaff}
 						onToggleStatus={handleToggleStaffStatus}
 						onInvite={handleResendInvitation}
@@ -283,6 +285,7 @@ export function TeamClientWrapper({ initialAction }: Props) {
 
 			<RegisterStaffMemberSheet isOpen={isRegisterSheetOpen} onClose={handleCloseRegisterSheet} />
 			<TeamAdvancedFiltersSheet
+				canViewSystemAccess={canViewSystemAccess}
 				currentFilters={filters}
 				isOpen={isFilterOpen}
 				onApplyFilters={setFilters}

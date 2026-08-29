@@ -15,12 +15,13 @@ import { StaffMemberDTO } from "@/schema/composed/team/team.dtos";
 interface Props {
 	member: StaffMemberDTO;
 	canViewFinancials: boolean;
+	canManageTeam: boolean;
 	onEdit: (id: string) => void;
 	onToggleStatus: (id: string, current: boolean) => void;
 	onInvite: (id: string) => void;
 }
 
-export const StaffMemberCard = memo(function StaffMemberCard({ member, canViewFinancials, onEdit, onToggleStatus, onInvite }: Props) {
+export const StaffMemberCard = memo(function StaffMemberCard({ member, canViewFinancials, canManageTeam, onEdit, onToggleStatus, onInvite }: Props) {
 	const initials = useMemo(() => {
 		return `${member.firstName[0] || ""}${member.lastName[0] || ""}`.toUpperCase() || "ST";
 	}, [member.firstName, member.lastName]);
@@ -32,9 +33,10 @@ export const StaffMemberCard = memo(function StaffMemberCard({ member, canViewFi
 
 	// --- CAPACITY & BURNOUT THRESHOLDS ---
 	const maxCapacity = 15;
-	const capacityPct = Math.min((member.activeCaseCount / maxCapacity) * 100, 100);
-	const isOverloaded = member.activeCaseCount >= 12;
-	const isWarning = member.activeCaseCount >= 8 && member.activeCaseCount < 12;
+	const activeCaseCount = member.activeCaseCount ?? 0;
+	const capacityPct = Math.min((activeCaseCount / maxCapacity) * 100, 100);
+	const isOverloaded = activeCaseCount >= 12;
+	const isWarning = activeCaseCount >= 8 && activeCaseCount < 12;
 
 	// --- GPU-ACCELERATED AMBIENT GLOW LOGIC ---
 	const glowVar = useMemo(() => {
@@ -123,7 +125,7 @@ export const StaffMemberCard = memo(function StaffMemberCard({ member, canViewFi
 				</div>
 
 				{/* Settings Dropdown */}
-				<DropdownMenu>
+				{canManageTeam && <DropdownMenu>
 					<DropdownMenuTrigger asChild>
 						<Button variant="ghost" size="icon" className="h-8 w-8 shrink-0 text-muted-foreground hover:text-foreground -mr-2 -mt-2 transition-colors">
 							<MoreHorizontal className="w-4 h-4" />
@@ -166,11 +168,11 @@ export const StaffMemberCard = memo(function StaffMemberCard({ member, canViewFi
 							)}
 						</DropdownMenuItem>
 					</DropdownMenuContent>
-				</DropdownMenu>
+				</DropdownMenu>}
 			</div>
 
 			{/* --- ZONE B: CONTACT INFO --- */}
-			<div className="space-y-2 mb-6 relative z-10">
+			{member.phoneNumber !== undefined && <div className="space-y-2 mb-6 relative z-10">
 				<div className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors cursor-default">
 					<Phone className="w-3.5 h-3.5 text-slate-400 shrink-0" />
 					<span className={cn("truncate", member.phoneNumber && "font-mono font-medium")}>{member.phoneNumber || "No phone listed"}</span>
@@ -181,7 +183,7 @@ export const StaffMemberCard = memo(function StaffMemberCard({ member, canViewFi
 						<span className="truncate text-ai font-medium">Sent to: {member.inviteEmail}</span>
 					</div>
 				)}
-			</div>
+			</div>}
 
 			{/* --- ZONE C: THE CAPACITY & PERFORMANCE LEDGER --- */}
 			<div className="mt-auto p-4 rounded-xl bg-slate-50 dark:bg-white/2 border border-border relative z-10">
@@ -204,7 +206,7 @@ export const StaffMemberCard = memo(function StaffMemberCard({ member, canViewFi
 							>
 								{!member.isActive ? "Account Inactive" : isOverloaded ? "Burnout Risk" : isWarning ? "High Workload" : "Optimal Load"}
 							</span>
-							<span className="font-mono font-bold text-foreground">{member.activeCaseCount} Active Cases</span>
+							<span className="font-mono font-bold text-foreground">{activeCaseCount} Active Cases</span>
 						</div>
 						<Progress
 							value={capacityPct}
@@ -216,7 +218,7 @@ export const StaffMemberCard = memo(function StaffMemberCard({ member, canViewFi
 					</div>
 
 					{/* Role-Guarded Payroll Info */}
-					{canViewFinancials && (
+					{canViewFinancials && member.commissionType !== undefined && (
 						<div className="flex justify-between items-end pt-3 border-t border-border/60">
 							<span className="text-[11px] text-muted-foreground font-medium">Commission Basis</span>
 							<span className="text-xs font-mono font-bold text-emerald-600 dark:text-emerald-400">

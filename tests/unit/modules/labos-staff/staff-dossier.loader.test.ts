@@ -14,7 +14,6 @@ const identity = {
 	id: '1690baa7-467a-4143-97dc-1e557022f788',
 	firstName: 'Ahmed',
 	lastName: 'Sameer',
-	phoneNumber: '07000000000',
 	avatarUrl: null,
 	isActive: true,
 	workingDays: ['MONDAY'] as const,
@@ -39,7 +38,9 @@ function authorization(): LabOSAuthorizationService {
 			const allowed =
 				request.permission === 'staff.read'
 					? ['owner', 'admin', 'manager', 'staff'].includes(role)
-					: request.permission === 'staff.compensation.read'
+					: request.permission === 'staff.contact.read'
+						? ['owner', 'admin', 'manager'].includes(role)
+						: request.permission === 'staff.compensation.read'
 						? ['owner', 'admin', 'manager'].includes(role)
 						: request.permission === 'membership.list'
 							? ['owner', 'admin'].includes(role)
@@ -53,11 +54,13 @@ function authorization(): LabOSAuthorizationService {
 
 function repository(): StaffDossierRepository & {
 	findIdentity: ReturnType<typeof vi.fn>
+	findContact: ReturnType<typeof vi.fn>
 	findCompensation: ReturnType<typeof vi.fn>
 	findAccess: ReturnType<typeof vi.fn>
 } {
 	return {
 		findIdentity: vi.fn().mockResolvedValue(identity),
+		findContact: vi.fn().mockResolvedValue({ phoneNumber: '07000000000' }),
 		findCompensation: vi.fn().mockResolvedValue({
 			commissionType: 'PERCENTAGE',
 			commissionValue: 20,
@@ -72,13 +75,13 @@ function repository(): StaffDossierRepository & {
 
 describe('A-118 Staff dossier loader', () => {
 	it.each([
-		['owner', true, true],
-		['admin', true, true],
-		['manager', true, false],
-		['staff', false, false],
+		['owner', true, true, true],
+		['admin', true, true, true],
+		['manager', true, true, false],
+		['staff', false, false, false],
 	] as const)(
 		'returns only authorized sections for %s',
-		async (role, compensationAllowed, accessAllowed) => {
+		async (role, contactAllowed, compensationAllowed, accessAllowed) => {
 			const repo = repository()
 			const load = createStaffDossierLoader(authorization(), repo)
 
@@ -90,6 +93,8 @@ describe('A-118 Staff dossier loader', () => {
 
 			expect(result?.compensation !== null).toBe(compensationAllowed)
 			expect(result?.access !== null).toBe(accessAllowed)
+			expect(result && 'phoneNumber' in result).toBe(contactAllowed)
+			expect(repo.findContact).toHaveBeenCalledTimes(contactAllowed ? 1 : 0)
 			expect(repo.findCompensation).toHaveBeenCalledTimes(
 				compensationAllowed ? 1 : 0,
 			)
@@ -106,6 +111,7 @@ describe('A-118 Staff dossier loader', () => {
 		).rejects.toBeInstanceOf(StaffDossierAuthorizationError)
 
 		expect(repo.findIdentity).not.toHaveBeenCalled()
+		expect(repo.findContact).not.toHaveBeenCalled()
 		expect(repo.findCompensation).not.toHaveBeenCalled()
 		expect(repo.findAccess).not.toHaveBeenCalled()
 	})

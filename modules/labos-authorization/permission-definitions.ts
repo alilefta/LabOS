@@ -106,6 +106,8 @@ export const LABOS_PERMISSION_DEFINITIONS = Object.freeze([
 
 	organization('staff.list', 'sensitive'),
 	resource('staff.read', ['staff'], 'sensitive'),
+	organization('staff.contact.list', 'sensitive'),
+	resource('staff.contact.read', ['staff'], 'sensitive'),
 	organization('staff.analytics.list', 'sensitive'),
 	resource('staff.analytics.read', ['staff'], 'sensitive'),
 	organization('staff.create', 'sensitive'),
@@ -126,6 +128,7 @@ export const LABOS_PERMISSION_DEFINITIONS = Object.freeze([
 		'staff.access.linkage',
 	]),
 	resource('staff.compensation.read', ['staff'], 'sensitive'),
+	organization('staff.compensation.list', 'sensitive'),
 	resource('staff.compensation.update', ['staff'], 'critical', [
 		'staff.compensation.update',
 	]),

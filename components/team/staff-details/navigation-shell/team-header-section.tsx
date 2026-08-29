@@ -96,12 +96,12 @@ export async function TeamHeaderSection({ staffId }: Props) {
 							</p>
 
 							{/* Contact Details */}
-							<div className="flex flex-wrap items-center gap-4 text-[11px] font-medium text-muted-foreground mt-3">
+							{staff.phoneNumber !== undefined && <div className="flex flex-wrap items-center gap-4 text-[11px] font-medium text-muted-foreground mt-3">
 								<span className="flex items-center gap-1.5">
 									<Phone className="w-3.5 h-3.5" />{' '}
 									<span className="font-mono">{staff.phoneNumber}</span>
 								</span>
-							</div>
+							</div>}
 						</div>
 					</div>
 				</div>

@@ -231,7 +231,7 @@ export function ReassignStaffCasesSheet({
 							const originalPct = Math.min((originalNewCount / MAX_CAPACITY) * 100, 100);
 
 							// Target Staff Math
-							const targetNewCount = targetStaff.activeCaseCount + caseIds.length;
+							const targetNewCount = (targetStaff.activeCaseCount ?? 0) + caseIds.length;
 							const targetPct = Math.min((targetNewCount / MAX_CAPACITY) * 100, 100);
 
 							// Target Staff Color Logic

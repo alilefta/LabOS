@@ -9,13 +9,14 @@ import { StaffMemberDTO } from "@/schema/composed/team/team.dtos";
 interface StaffRosterGridProps {
 	staff: StaffMemberDTO[];
 	canViewFinancials: boolean;
+	canManageTeam: boolean;
 	onEdit: (id: string) => void;
 	onToggleStatus: (id: string, current: boolean) => void;
 	onInvite: (id: string) => void;
 	onCreateNew: () => void;
 }
 
-export const StaffRosterGrid = memo(function StaffRosterGrid({ staff, canViewFinancials, onEdit, onToggleStatus, onInvite, onCreateNew }: StaffRosterGridProps) {
+export const StaffRosterGrid = memo(function StaffRosterGrid({ staff, canViewFinancials, canManageTeam, onEdit, onToggleStatus, onInvite, onCreateNew }: StaffRosterGridProps) {
 	const isEmpty = staff.length === 0;
 
 	return (
@@ -24,7 +25,7 @@ export const StaffRosterGrid = memo(function StaffRosterGrid({ staff, canViewFin
 			{!isEmpty && (
 				<div className="grid grid-cols-[repeat(auto-fill,minmax(320px,1fr))] gap-6 pb-12">
 					{staff.map((member) => (
-						<StaffMemberCard key={member.id} member={member} canViewFinancials={canViewFinancials} onEdit={onEdit} onToggleStatus={onToggleStatus} onInvite={onInvite} />
+						<StaffMemberCard key={member.id} member={member} canViewFinancials={canViewFinancials} canManageTeam={canManageTeam} onEdit={onEdit} onToggleStatus={onToggleStatus} onInvite={onInvite} />
 					))}
 				</div>
 			)}

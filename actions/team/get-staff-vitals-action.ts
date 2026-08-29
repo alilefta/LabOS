@@ -6,6 +6,8 @@ import { actionClientWithLab } from "@/lib/safe-action";
 import { tenantPrisma } from "@/lib/prisma";
 import { ERRORS } from "@/lib/errors";
 import { StaffVitalsDTO } from "@/schema/composed/team/team.dtos";
+import { createLabOSAuthorizationActor } from "@/modules/labos-authorization/actor";
+import { labosAuthorizationService } from "@/modules/labos-authorization/service";
 
 export const getStaffVitalsAction = actionClientWithLab
 	.metadata({
@@ -17,6 +19,10 @@ export const getStaffVitalsAction = actionClientWithLab
 
 		try {
 			const prisma = await tenantPrisma(labId);
+			const accessDecision = await labosAuthorizationService.can({
+				actor: createLabOSAuthorizationActor(ctx),
+				permission: "membership.list",
+			});
 
 			const now = new Date();
 			const thirtyDaysAgo = subDays(startOfDay(now), 30);
@@ -30,12 +36,12 @@ export const getStaffVitalsAction = actionClientWithLab
 				}),
 
 				// 2. Pending Software Invites
-				prisma.labStaffInvitationIntent.count({
+				accessDecision.allowed ? prisma.labStaffInvitationIntent.count({
 					where: {
 						labId,
 						invitation: { status: "pending", expiresAt: { gte: now } },
 					},
-				}),
+				} }) : Promise.resolve(0),
 
 				// 3. Active Case Assignments on the Floor
 				// Only count assignments on cases that are actually in production

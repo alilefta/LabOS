@@ -5,8 +5,10 @@ import type { LabOSAuthorizationService } from '@/modules/labos-authorization/se
 
 export type StaffDossierIdentity = Omit<
 	StaffDossierDTO,
-	'compensation' | 'access'
+	'phoneNumber' | 'compensation' | 'access'
 >
+
+export type StaffDossierContact = Readonly<{ phoneNumber: string }>
 
 export type StaffDossierCompensation = NonNullable<
 	StaffDossierDTO['compensation']
@@ -19,6 +21,10 @@ export type StaffDossierRepository = Readonly<{
 		labId: string
 		staffId: string
 	}): Promise<StaffDossierIdentity | null>
+	findContact(input: {
+		labId: string
+		staffId: string
+	}): Promise<StaffDossierContact | null>
 	findCompensation(input: {
 		labId: string
 		staffId: string
@@ -75,8 +81,13 @@ export function createStaffDossierLoader(
 			throw new StaffDossierAuthorizationError()
 		}
 
-		const [identity, compensationDecision, accessDecision] = await Promise.all([
+		const [identity, contactDecision, compensationDecision, accessDecision] = await Promise.all([
 			repository.findIdentity({ labId: input.labId, staffId: input.staffId }),
+			authorization.can({
+				actor: input.actor,
+				permission: 'staff.contact.read',
+				target,
+			}),
 			authorization.can({
 				actor: input.actor,
 				permission: 'staff.compensation.read',
@@ -90,7 +101,10 @@ export function createStaffDossierLoader(
 
 		if (!identity) return null
 
-		const [compensation, access] = await Promise.all([
+		const [contact, compensation, access] = await Promise.all([
+			contactDecision.allowed
+				? repository.findContact({ labId: input.labId, staffId: input.staffId })
+				: Promise.resolve(null),
 			compensationDecision.allowed
 				? repository.findCompensation({
 						labId: input.labId,
@@ -107,6 +121,7 @@ export function createStaffDossierLoader(
 
 		return Object.freeze({
 			...identity,
+			...(contact && { phoneNumber: contact.phoneNumber }),
 			compensation,
 			access,
 		})

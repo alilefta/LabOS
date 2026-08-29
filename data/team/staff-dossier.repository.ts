@@ -12,13 +12,16 @@ export const STAFF_DOSSIER_IDENTITY_SELECT = Object.freeze({
 	id: true,
 	firstName: true,
 	lastName: true,
-	phoneNumber: true,
 	avatarUrl: true,
 	roleCategory: true,
 	jobTitle: true,
 	specialization: true,
 	isActive: true,
 	workingDays: true,
+} as const)
+
+export const STAFF_DOSSIER_CONTACT_SELECT = Object.freeze({
+	phoneNumber: true,
 } as const)
 
 export const STAFF_DOSSIER_COMPENSATION_SELECT = Object.freeze({
@@ -72,6 +75,14 @@ export const prismaStaffDossierRepository: StaffDossierRepository = {
 					? null
 					: Number(result.commissionValue),
 		}
+	},
+
+	async findContact({ labId, staffId }) {
+		const prisma = await tenantPrisma(labId)
+		return prisma.labStaff.findUnique({
+			where: { id: staffId, labId },
+			select: STAFF_DOSSIER_CONTACT_SELECT,
+		})
 	},
 
 	async findAccess({ labId, staffId }) {

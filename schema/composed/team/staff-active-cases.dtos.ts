@@ -1,7 +1,7 @@
 // schema/composed/team/staff-active-cases.dtos.ts
 
 import { z } from "zod";
-import { CaseStatusSchema, CommissionType, StaffRoleCategory, StaffRoleCategorySchema } from "@/schema/base/enums.base"; // Adjust paths
+import { CaseStatusSchema, StaffRoleCategory, StaffRoleCategorySchema } from "@/schema/base/enums.base"; // Adjust paths
 
 // ── 1. THE ROW DTO (EXHAUSTIVE PROJECTION FOR WORKBENCH TABLE) ─────────────
 export const StaffActiveCaseDTOSchema = z.object({
@@ -46,7 +46,5 @@ export type ActiveStaffCasesDTO = {
 	jobTitle: string | null;
 	avatarUrl: string | null;
 	isActive: boolean;
-	commissionType: CommissionType;
-	commissionValue: number | null;
 	activeCaseCount: number;
 };

@@ -1,38 +1,91 @@
-"use client";
+'use client'
 
-import { memo } from "react";
-import { format } from "date-fns";
-import { Banknote, Smartphone, CreditCard, Building, Receipt, History, HelpCircle, LucideIcon, Copy } from "lucide-react";
-import { toast } from "sonner";
-import { InvoicePaymentDTO } from "@/schema/composed/invoices/invoice-details.dtos";
-import { PaymentMethod } from "@/schema/base/enums.base";
+import { memo } from 'react'
+import { format } from 'date-fns'
+import {
+	Banknote,
+	Smartphone,
+	CreditCard,
+	Building,
+	Receipt,
+	History,
+	HelpCircle,
+	LucideIcon,
+	Copy,
+} from 'lucide-react'
+import { toast } from 'sonner'
+import { InvoicePaymentDTO } from '@/schema/composed/invoices/invoice-details.dtos'
+import { PaymentMethod } from '@/schema/base/enums.base'
+import { cn } from '@/lib/utils'
 
 // --- PAYMENT METHODS CONFIG ---
-const METHOD_CONFIG: Record<PaymentMethod, { label: string; icon: LucideIcon; colorClass: string }> = {
-	CASH: { label: "Cash", icon: Banknote, colorClass: "text-emerald-500 bg-emerald-500/10 border-emerald-500/20" },
-	ZAIN_CASH: { label: "Zain Cash", icon: Smartphone, colorClass: "text-rose-500 bg-rose-500/10 border-rose-500/20" },
-	ASIA_HAWALA: { label: "Asia Hawala", icon: Smartphone, colorClass: "text-amber-500 bg-amber-500/10 border-amber-500/20" },
-	SUPER_QI: { label: "Super QI", icon: CreditCard, colorClass: "text-blue-500 bg-blue-500/10 border-blue-500/20" },
-	BANK_TRANSFER: { label: "Bank Transfer", icon: Building, colorClass: "text-slate-500 dark:text-zinc-400 bg-slate-100 dark:bg-white/5 border-border" },
-	PADDLE: { label: "Paddle", icon: Receipt, colorClass: "text-indigo-500 bg-indigo-500/10 border-indigo-500/20" },
-	STRIPE: { label: "Stripe", icon: CreditCard, colorClass: "text-purple-500 bg-purple-500/10 border-purple-500/20" },
-	OTHER: { label: "Other", icon: HelpCircle, colorClass: "text-muted-foreground bg-slate-100 border-border" },
-};
-
-interface Props {
-	payments: InvoicePaymentDTO[];
+const METHOD_CONFIG: Record<
+	PaymentMethod,
+	{ label: string; icon: LucideIcon; colorClass: string }
+> = {
+	CASH: {
+		label: 'Cash',
+		icon: Banknote,
+		colorClass: 'text-emerald-500 bg-emerald-500/10 border-emerald-500/20',
+	},
+	ZAIN_CASH: {
+		label: 'Zain Cash',
+		icon: Smartphone,
+		colorClass: 'text-rose-500 bg-rose-500/10 border-rose-500/20',
+	},
+	ASIA_HAWALA: {
+		label: 'Asia Hawala',
+		icon: Smartphone,
+		colorClass: 'text-amber-500 bg-amber-500/10 border-amber-500/20',
+	},
+	SUPER_QI: {
+		label: 'Super QI',
+		icon: CreditCard,
+		colorClass: 'text-blue-500 bg-blue-500/10 border-blue-500/20',
+	},
+	BANK_TRANSFER: {
+		label: 'Bank Transfer',
+		icon: Building,
+		colorClass:
+			'text-slate-500 dark:text-zinc-400 bg-slate-100 dark:bg-white/5 border-border',
+	},
+	PADDLE: {
+		label: 'Paddle',
+		icon: Receipt,
+		colorClass: 'text-indigo-500 bg-indigo-500/10 border-indigo-500/20',
+	},
+	STRIPE: {
+		label: 'Stripe',
+		icon: CreditCard,
+		colorClass: 'text-purple-500 bg-purple-500/10 border-purple-500/20',
+	},
+	OTHER: {
+		label: 'Other',
+		icon: HelpCircle,
+		colorClass: 'text-muted-foreground bg-slate-100 border-border',
+	},
 }
 
-export const PaymentHistoryTimeline = memo(function PaymentHistoryTimeline({ payments }: Props) {
-	const formatMoney = (val: number) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(val);
+interface Props {
+	payments: InvoicePaymentDTO[]
+}
 
-	const isEmpty = payments.length === 0;
+export const PaymentHistoryTimeline = memo(function PaymentHistoryTimeline({
+	payments,
+}: Props) {
+	const formatMoney = (val: number) =>
+		new Intl.NumberFormat('en-US', {
+			style: 'currency',
+			currency: 'USD',
+		}).format(val)
+
+	const isEmpty = payments.length === 0
 
 	// UX: Instant clipboard copy for transaction references
 	const copyReference = (ref: string) => {
-		navigator.clipboard.writeText(ref);
-		toast.success(`Reference ${ref} copied to clipboard.`);
-	};
+		navigator.clipboard.writeText(ref)
+		toast.success(`Reference ${ref} copied to clipboard.`)
+	}
 
 	return (
 		<div className="lab-card flex-1 flex flex-col p-6 overflow-hidden min-h-75">
@@ -42,9 +95,12 @@ export const PaymentHistoryTimeline = memo(function PaymentHistoryTimeline({ pay
 					<History className="w-4 h-4" />
 				</div>
 				<div>
-					<h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Receipt Timeline</h3>
+					<h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
+						Receipt Timeline
+					</h3>
 					<p className="text-[10px] text-muted-foreground mt-0.5 uppercase tracking-wide">
-						{payments.length} Transaction{payments.length === 1 ? "" : "s"} Logged
+						{payments.length} Transaction{payments.length === 1 ? '' : 's'}{' '}
+						Logged
 					</p>
 				</div>
 			</div>
@@ -57,8 +113,12 @@ export const PaymentHistoryTimeline = memo(function PaymentHistoryTimeline({ pay
 						<div className="w-12 h-12 rounded-full bg-slate-100 dark:bg-white/5 border border-border flex items-center justify-center mb-3 shadow-sm">
 							<Receipt className="w-5 h-5 text-slate-400 dark:text-zinc-500" />
 						</div>
-						<p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">No Payments Recorded</p>
-						<p className="text-[10px] text-muted-foreground mt-1 max-w-45 leading-relaxed">Outstanding balance remains uncollected. Log a payment below.</p>
+						<p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+							No Payments Recorded
+						</p>
+						<p className="text-[10px] text-muted-foreground mt-1 max-w-45 leading-relaxed">
+							Outstanding balance remains uncollected. Log a payment below.
+						</p>
 					</div>
 				) : (
 					<div className="relative pl-6 py-2 animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -68,18 +128,23 @@ export const PaymentHistoryTimeline = memo(function PaymentHistoryTimeline({ pay
 						{/* Timeline List */}
 						<div className="space-y-6">
 							{payments.map((p, index) => {
-								const config = METHOD_CONFIG[p.method] || METHOD_CONFIG["OTHER"];
-								const Icon = config.icon;
-								const isFirst = index === 0;
+								const config = METHOD_CONFIG[p.method] || METHOD_CONFIG['OTHER']
+								const Icon = config.icon
+								const isFirst = index === 0
 
 								return (
-									<div key={p.id} className="relative flex gap-4 items-start group">
+									<div
+										key={p.id}
+										className="relative flex gap-4 items-start group"
+									>
 										{/* Timeline Node */}
 										<div className="relative shrink-0 mt-0.5">
-											{isFirst && <div className="absolute -inset-1 rounded-full bg-emerald-500/20 blur-[3px] animate-pulse" />}
+											{isFirst && (
+												<div className="absolute -inset-1 rounded-full bg-emerald-500/20 blur-[3px] animate-pulse" />
+											)}
 											<div
 												className={cn(
-													"w-6 h-6 rounded-full border flex items-center justify-center relative z-10 bg-background transition-transform duration-300 group-hover:scale-110 shadow-sm",
+													'w-6 h-6 rounded-full border flex items-center justify-center relative z-10 bg-background transition-transform duration-300 group-hover:scale-110 shadow-sm',
 													config.colorClass,
 												)}
 											>
@@ -90,40 +155,50 @@ export const PaymentHistoryTimeline = memo(function PaymentHistoryTimeline({ pay
 										{/* Receipt Details */}
 										<div className="flex-1 min-w-0 flex flex-col pb-1">
 											<div className="flex items-baseline justify-between mb-1">
-												<span className="text-xs font-bold text-foreground">{config.label}</span>
-												<span className="text-xs font-mono font-bold text-emerald-600 dark:text-emerald-500">+{formatMoney(p.amount)}</span>
+												<span className="text-xs font-bold text-foreground">
+													{config.label}
+												</span>
+												<span className="text-xs font-mono font-bold text-emerald-600 dark:text-emerald-500">
+													+{formatMoney(p.amount)}
+												</span>
 											</div>
 
 											{/* Transaction Meta */}
 											<div className="flex flex-wrap items-center gap-2 text-[10px] text-muted-foreground font-mono">
-												<span>{format(new Date(p.paidAt), "MMM dd, yyyy • HH:mm")}</span>
+												<span>
+													{format(new Date(p.paidAt), 'MMM dd, yyyy • HH:mm')}
+												</span>
 
 												{p.reference && (
 													<>
-														<span className="opacity-30 hidden sm:inline">•</span>
+														<span className="opacity-30 hidden sm:inline">
+															•
+														</span>
 														<button
 															type="button"
 															onClick={() => copyReference(p.reference!)}
 															className="flex items-center gap-1 hover:text-foreground hover:bg-slate-100 dark:hover:bg-white/10 px-1.5 py-0.5 rounded transition-colors group/ref"
 															title="Copy Reference ID"
 														>
-															Ref: <span className="truncate max-w-25">{p.reference}</span>
+															Ref:{' '}
+															<span className="truncate max-w-25">
+																{p.reference}
+															</span>
 															<Copy className="w-2.5 h-2.5 opacity-0 group-hover/ref:opacity-100 transition-opacity" />
 														</button>
 													</>
 												)}
 											</div>
-
 										</div>
 									</div>
-								);
+								)
 							})}
 						</div>
 					</div>
 				)}
 			</div>
 		</div>
-	);
-});
+	)
+})
 
-PaymentHistoryTimeline.displayName = "PaymentHistoryTimeline";
+PaymentHistoryTimeline.displayName = 'PaymentHistoryTimeline'

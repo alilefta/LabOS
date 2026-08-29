@@ -9,27 +9,27 @@ export interface StaffMemberDTO {
 	id: string;
 	firstName: string;
 	lastName: string;
-	phoneNumber: string;
+	phoneNumber?: string;
 	avatarUrl: string | null;
 	roleCategory: StaffRoleCategory;
 	jobTitle: string | null;
 
 	// Commission Info
-	commissionType: CommissionType;
-	commissionValue: number | null;
+	commissionType?: CommissionType;
+	commissionValue?: number | null;
 
 	// The Unified Identity State
-	accessState: SystemAccessState;
-	systemRole: LabRole | null; // e.g. "MANAGER", only present if ACTIVE or PENDING
-	inviteEmail: string | null; // To display where the pending invite was sent
+	accessState?: SystemAccessState;
+	systemRole?: LabRole | null; // e.g. "MANAGER", only present if ACTIVE or PENDING
+	inviteEmail?: string | null; // To display where the pending invite was sent
 
 	// Operational Metrics (Preventing N+1)
-	activeCaseCount: number; // Cases currently ASSIGNED or PROCESSING
+	activeCaseCount?: number; // Cases currently ASSIGNED or PROCESSING
 	isActive: boolean;
 
-	capacityBand: CapacityBand;
-	qualityBand: QualityRiskBand;
-	remakeRate: number;
+	capacityBand?: CapacityBand;
+	qualityBand?: QualityRiskBand;
+	remakeRate?: number;
 }
 
 // Filter Schema for the Client Wrapper
