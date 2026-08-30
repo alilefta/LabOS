@@ -140,6 +140,15 @@ function staffAnalyticsContext(actorRole: LabOSOrganizationRole) {
 	}
 }
 
+function staffReadContext(actorRole: LabOSOrganizationRole) {
+	return {
+		actor: actor(actorRole),
+		permission: 'staff.read' as const,
+		target: { type: 'staff' as const, id: STAFF_ID },
+		facts: createAuthorizationFactCache(),
+	}
+}
+
 function staffWorkbenchContext(actorRole: LabOSOrganizationRole) {
 	return {
 		actor: actor(actorRole),
@@ -552,6 +561,55 @@ describe('Staff analytics visibility policy', () => {
 		await expect(
 			policies['staff.analytics.self_or_management'].evaluate(
 				staffAnalyticsContext('staff'),
+			),
+		).resolves.toMatchObject({
+			allowed: false,
+			reason: 'AUTHZ_POLICY_DENIED',
+		})
+	})
+})
+
+describe('Staff dossier visibility policy', () => {
+	it.each(['owner', 'admin', 'manager'] as const)(
+		'allows %s to open any Staff dossier',
+		async (role) => {
+			const { policies, staffAccessFacts } = createHarness()
+			await expect(
+				policies['staff.read.self_or_management'].evaluate(
+					staffReadContext(role),
+				),
+			).resolves.toEqual({ allowed: true })
+			expect(staffAccessFacts.load).not.toHaveBeenCalled()
+		},
+	)
+
+	it('allows Staff to open their own linked dossier', async () => {
+		const { policies, staffAccessFacts } = createHarness()
+		staffAccessFacts.load.mockResolvedValue(
+			staffFacts({
+				member: member('staff', {
+					id: 'actor-member',
+					userId: 'actor-user',
+				}),
+			}),
+		)
+
+		await expect(
+			policies['staff.read.self_or_management'].evaluate(
+				staffReadContext('staff'),
+			),
+		).resolves.toEqual({ allowed: true })
+	})
+
+	it('denies Staff access to a coworker dossier', async () => {
+		const { policies, staffAccessFacts } = createHarness()
+		staffAccessFacts.load.mockResolvedValue(
+			staffFacts({ member: member('staff') }),
+		)
+
+		await expect(
+			policies['staff.read.self_or_management'].evaluate(
+				staffReadContext('staff'),
 			),
 		).resolves.toMatchObject({
 			allowed: false,

@@ -24,6 +24,7 @@ import {
 type MembershipAccessPolicyId = Extract<
 	LabOSPolicyId,
 	| 'staff.access.target'
+	| 'staff.read.self_or_management'
 	| 'staff.analytics.self_or_management'
 	| 'staff.workbench.self_or_management'
 	| 'staff.access.self_target'
@@ -156,6 +157,22 @@ export function createMembershipAccessPolicies({
 	Record<MembershipAccessPolicyId, LabOSPolicy>
 > {
 	return Object.freeze({
+		'staff.read.self_or_management': {
+			async evaluate(context) {
+				const actorRoles = parseRoles(context.actor.memberRoles)
+				if (!actorRoles) return DENY
+				if (actorRoles.some((role) => role !== 'staff')) {
+					return ALLOW
+				}
+
+				const facts = await loadStaffFacts(context, staffAccessFacts)
+				if (!facts?.member) return FACT_MISSING
+				return facts.member.id === context.actor.memberId &&
+					facts.member.userId === context.actor.userId
+					? ALLOW
+					: DENY
+			},
+		},
 		'staff.analytics.self_or_management': {
 			async evaluate(context) {
 				const actorRoles = parseRoles(context.actor.memberRoles)

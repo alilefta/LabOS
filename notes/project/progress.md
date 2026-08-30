@@ -9,8 +9,8 @@
 ## What I am doing now
 
 I am finishing the A-122 implementation and verification pass. The goal is to
-make the Active Workbench follow the same self-versus-management boundary as
-detailed Staff performance.
+make the entire Staff dossier, including every tab, follow the same
+self-versus-management boundary as detailed Staff performance.
 
 The current work is:
 
@@ -231,8 +231,11 @@ nor network responses.
 - Added `staff.workbench.read` with a self-or-management target policy. Staff
   can read their own active and historical workbench; Owner/Admin/Manager can
   read any Staff workbench.
-- The cases tab now redirects a Staff user away from a coworker's dossier
-  before loading header data or dehydrating active/historical cases.
+- `staff.read` now has its own self-or-management target policy. The
+  `/team/[staffId]` page redirects a Staff user away from a coworker's dossier
+  before rendering its header, navigation, or any tab content.
+- The cases tab retains its defense-in-depth check before loading header data
+  or dehydrating active/historical cases.
 - Both active-case and historical-case server actions enforce the same policy
   before their Prisma queries, protecting direct action calls as well as page
   navigation.

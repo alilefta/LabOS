@@ -105,7 +105,9 @@ export const LABOS_PERMISSION_DEFINITIONS = Object.freeze([
 	]),
 
 	organization('staff.list', 'sensitive'),
-	resource('staff.read', ['staff'], 'sensitive'),
+	resource('staff.read', ['staff'], 'sensitive', [
+		'staff.read.self_or_management',
+	]),
 	organization('staff.contact.list', 'sensitive'),
 	resource('staff.contact.read', ['staff'], 'sensitive'),
 	organization('staff.analytics.list', 'sensitive'),

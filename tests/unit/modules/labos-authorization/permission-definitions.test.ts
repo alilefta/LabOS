@@ -196,6 +196,13 @@ describe('LabOS permission-definition catalog', () => {
 		).toEqual(['staff.analytics.self_or_management'])
 	})
 
+	it('limits Staff dossier reads to self or management', () => {
+		expect(
+			LABOS_PERMISSION_DEFINITION_REGISTRY.get('staff.read')
+				?.requiredPolicies,
+		).toEqual(['staff.read.self_or_management'])
+	})
+
 	it('limits Staff workbench reads to self or management', () => {
 		expect(
 			LABOS_PERMISSION_DEFINITION_REGISTRY.get('staff.workbench.read')

@@ -13,6 +13,9 @@ import { TeamHeaderSection } from "@/components/team/staff-details/navigation-sh
 import { getStaffMetadata } from "@/data/team/get-staff-dossier";
 import { TeamTabNavigation } from "@/components/team/staff-details/navigation-shell/team-tab-navigation";
 import { TeamTabRouter } from "@/components/team/staff-details/navigation-router/team-tabs-router";
+import { requireTenantContext } from "@/platform/organizations";
+import { createLabOSAuthorizationActor } from "@/modules/labos-authorization/actor";
+import { labosAuthorizationService } from "@/modules/labos-authorization/service";
 
 // --- PLACEHOLDERS FOR FUTURE COMPONENTS (PHASE 1) ---
 // These will be imported and built in subsequent steps!
@@ -62,6 +65,17 @@ export default async function StaffDossierPage({ params, searchParams }: PagePro
 			redirect("/team?action=register");
 		}
 		notFound();
+	}
+
+	const tenant = await requireTenantContext();
+	const dossierDecision = await labosAuthorizationService.can({
+		actor: createLabOSAuthorizationActor(tenant),
+		permission: "staff.read",
+		target: { type: "staff", id: parsedId.data },
+	});
+
+	if (!dossierDecision.allowed) {
+		redirect("/team");
 	}
 
 	// Safely validate and fallback search parameters [1]
