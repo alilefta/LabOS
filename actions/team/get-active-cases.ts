@@ -9,6 +9,8 @@ import { startOfDay, addDays } from "date-fns";
 import { CaseStaffAssignmentWhereInput, CaseWhereInput } from "@/generated/prisma/models";
 import { CasesFiltersSchema } from "@/schema/composed/cases/cases-filters";
 import { resolveDatePreset } from "@/schema/composed/shared/date-preset";
+import { createLabOSAuthorizationActor } from "@/modules/labos-authorization/actor";
+import { labosAuthorizationService } from "@/modules/labos-authorization/service";
 
 export const getActiveCasesByStaffAction = actionClientWithLab
 	.metadata({
@@ -36,6 +38,15 @@ export const getActiveCasesByStaffAction = actionClientWithLab
 	.action(async ({ parsedInput, ctx }) => {
 		const { labId } = ctx;
 		const { staffId, cursor, take, search, filters } = parsedInput;
+		const decision = await labosAuthorizationService.can({
+			actor: createLabOSAuthorizationActor(ctx),
+			permission: "staff.workbench.read",
+			target: { type: "staff", id: staffId },
+		});
+
+		if (!decision.allowed) {
+			throw ERRORS.MISSING_PERMISSIONS;
+		}
 
 		const prisma = await tenantPrisma(labId);
 

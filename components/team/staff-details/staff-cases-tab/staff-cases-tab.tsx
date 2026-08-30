@@ -11,16 +11,30 @@ import { getActiveCasesByStaffAction } from "@/actions/team/get-active-cases";
 import { StaffCasesTabContent } from "./cases-pipeline-tab-content/staff-cases-tab-content";
 import { DEFAULT_CASES_FILTERS } from "@/schema/composed/cases/cases-filters";
 import { GetStaffActiveCasesResult } from "@/schema/composed/team/staff-active-cases.dtos";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { getStaffCasesHeaderData } from "@/data/team/get-staff-cases-header-data";
 import { getHistoricalCasesByStaffAction } from "@/actions/team/get-historical-cases-by-staff";
 import { GetStaffHistoricalCasesResult } from "@/schema/composed/team/staff-historical-cases.dtos";
+import { requireTenantContext } from "@/platform/organizations";
+import { createLabOSAuthorizationActor } from "@/modules/labos-authorization/actor";
+import { labosAuthorizationService } from "@/modules/labos-authorization/service";
 
 interface Props {
 	staffId: string;
 }
 
 export async function StaffCasesTab({ staffId }: Props) {
+	const tenant = await requireTenantContext();
+	const decision = await labosAuthorizationService.can({
+		actor: createLabOSAuthorizationActor(tenant),
+		permission: "staff.workbench.read",
+		target: { type: "staff", id: staffId },
+	});
+
+	if (!decision.allowed) {
+		redirect("/team");
+	}
+
 	const results = await getStaffCasesHeaderData(staffId);
 
 	if (!results.success) {

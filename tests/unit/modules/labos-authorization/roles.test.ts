@@ -80,6 +80,7 @@ describe('LabOS Authorization V1 fixed bundles', () => {
 			'staff.list',
 			'staff.analytics.read',
 			'staff.analytics.list',
+			'staff.workbench.read',
 			'invoice.read',
 			'invoice.list',
 			'invoice.analytics.read',

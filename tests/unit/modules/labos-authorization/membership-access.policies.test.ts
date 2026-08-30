@@ -140,6 +140,15 @@ function staffAnalyticsContext(actorRole: LabOSOrganizationRole) {
 	}
 }
 
+function staffWorkbenchContext(actorRole: LabOSOrganizationRole) {
+	return {
+		actor: actor(actorRole),
+		permission: 'staff.workbench.read' as const,
+		target: { type: 'staff' as const, id: STAFF_ID },
+		facts: createAuthorizationFactCache(),
+	}
+}
+
 function membershipUpdateContext(
 	actorRole: LabOSOrganizationRole,
 	requestedRoles: readonly LabOSOrganizationRole[],
@@ -543,6 +552,55 @@ describe('Staff analytics visibility policy', () => {
 		await expect(
 			policies['staff.analytics.self_or_management'].evaluate(
 				staffAnalyticsContext('staff'),
+			),
+		).resolves.toMatchObject({
+			allowed: false,
+			reason: 'AUTHZ_POLICY_DENIED',
+		})
+	})
+})
+
+describe('Staff workbench visibility policy', () => {
+	it.each(['owner', 'admin', 'manager'] as const)(
+		'allows %s to view any Staff workbench',
+		async (role) => {
+			const { policies, staffAccessFacts } = createHarness()
+			await expect(
+				policies['staff.workbench.self_or_management'].evaluate(
+					staffWorkbenchContext(role),
+				),
+			).resolves.toEqual({ allowed: true })
+			expect(staffAccessFacts.load).not.toHaveBeenCalled()
+		},
+	)
+
+	it('allows Staff to view their own linked workbench', async () => {
+		const { policies, staffAccessFacts } = createHarness()
+		staffAccessFacts.load.mockResolvedValue(
+			staffFacts({
+				member: member('staff', {
+					id: 'actor-member',
+					userId: 'actor-user',
+				}),
+			}),
+		)
+
+		await expect(
+			policies['staff.workbench.self_or_management'].evaluate(
+				staffWorkbenchContext('staff'),
+			),
+		).resolves.toEqual({ allowed: true })
+	})
+
+	it('denies Staff access to a coworker workbench', async () => {
+		const { policies, staffAccessFacts } = createHarness()
+		staffAccessFacts.load.mockResolvedValue(
+			staffFacts({ member: member('staff') }),
+		)
+
+		await expect(
+			policies['staff.workbench.self_or_management'].evaluate(
+				staffWorkbenchContext('staff'),
 			),
 		).resolves.toMatchObject({
 			allowed: false,

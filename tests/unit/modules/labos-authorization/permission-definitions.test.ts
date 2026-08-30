@@ -196,6 +196,13 @@ describe('LabOS permission-definition catalog', () => {
 		).toEqual(['staff.analytics.self_or_management'])
 	})
 
+	it('limits Staff workbench reads to self or management', () => {
+		expect(
+			LABOS_PERMISSION_DEFINITION_REGISTRY.get('staff.workbench.read')
+				?.requiredPolicies,
+		).toEqual(['staff.workbench.self_or_management'])
+	})
+
 	it('does not expose deferred ownership or self-departure operations', () => {
 		expect(LABOS_PERMISSIONS).not.toContain('membership.leave')
 		expect(LABOS_PERMISSIONS).not.toContain('membership.owner.promote')

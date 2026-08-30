@@ -59,6 +59,7 @@ export const LABOS_AUTHORIZATION_V1_SUPPORTED_PERMISSIONS = Object.freeze([
 	'staff.contact.list',
 	'staff.analytics.list',
 	'staff.analytics.read',
+	'staff.workbench.read',
 	'staff.compensation.read',
 	'staff.compensation.list',
 	'staff.compensation.update',

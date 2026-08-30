@@ -46,6 +46,7 @@ export const LABOS_PERMISSIONS = [
 	'staff.contact.list',
 	'staff.analytics.read',
 	'staff.analytics.list',
+	'staff.workbench.read',
 	'staff.create',
 	'staff.update',
 	'staff.deactivate',

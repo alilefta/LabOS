@@ -10,6 +10,8 @@ import { ClinicHistoricalCaseDTO, ClinicHistoricalWorkItemDTO } from "@/schema/c
 import { CaseStaffAssignmentWhereInput, CaseWhereInput } from "@/generated/prisma/models";
 import { CasesFiltersSchema } from "@/schema/composed/cases/cases-filters";
 import { GetStaffHistoricalCasesResult, StaffHistoricalCaseDTO, StaffHistoricalWorkItemDTO } from "@/schema/composed/team/staff-historical-cases.dtos";
+import { createLabOSAuthorizationActor } from "@/modules/labos-authorization/actor";
+import { labosAuthorizationService } from "@/modules/labos-authorization/service";
 
 export const getHistoricalCasesByStaffAction = actionClientWithLab
 	.metadata({
@@ -37,6 +39,15 @@ export const getHistoricalCasesByStaffAction = actionClientWithLab
 	.action(async ({ parsedInput, ctx }) => {
 		const { labId } = ctx;
 		const { staffId, cursor, take, search, filters } = parsedInput;
+		const decision = await labosAuthorizationService.can({
+			actor: createLabOSAuthorizationActor(ctx),
+			permission: "staff.workbench.read",
+			target: { type: "staff", id: staffId },
+		});
+
+		if (!decision.allowed) {
+			throw ERRORS.MISSING_PERMISSIONS;
+		}
 
 		const prisma = await tenantPrisma(labId);
 

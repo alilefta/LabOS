@@ -4,13 +4,13 @@
 
 **Branch:** `feat/authorization-financial-reads`
 **Workstream:** F2 — protected financial and sensitive reads
-**Current slice:** A-121 — Staff payroll read boundary
+**Current slice:** A-122 — Staff workbench privacy boundary
 
 ## What I am doing now
 
-I am finishing the A-121 implementation and verification pass. The goal is to
-make payroll vitals, pending commissions, and payout history use the V1
-financial read permissions before any database query runs.
+I am finishing the A-122 implementation and verification pass. The goal is to
+make the Active Workbench follow the same self-versus-management boundary as
+detailed Staff performance.
 
 The current work is:
 
@@ -225,3 +225,16 @@ nor network responses.
 - Targeted TypeScript and ESLint checks pass for the changed payroll files;
   `git diff --check` passes. The repository-wide TypeScript debt remains the
   previously tracked Decimal/addons/ES-target errors.
+
+## A-122 Staff workbench privacy boundary
+
+- Added `staff.workbench.read` with a self-or-management target policy. Staff
+  can read their own active and historical workbench; Owner/Admin/Manager can
+  read any Staff workbench.
+- The cases tab now redirects a Staff user away from a coworker's dossier
+  before loading header data or dehydrating active/historical cases.
+- Both active-case and historical-case server actions enforce the same policy
+  before their Prisma queries, protecting direct action calls as well as page
+  navigation.
+- Staff can still see coworker names in the Team roster; only the detailed
+  workbench route is restricted.

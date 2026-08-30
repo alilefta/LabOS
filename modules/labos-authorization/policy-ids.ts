@@ -17,6 +17,7 @@ export const LABOS_POLICY_IDS = [
 	'staff.deactivate',
 	'staff.assign',
 	'staff.analytics.self_or_management',
+	'staff.workbench.self_or_management',
 	'staff.access.target',
 	'staff.access.self_target',
 	'staff.access.role_target',
