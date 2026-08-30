@@ -189,6 +189,13 @@ describe('LabOS permission-definition catalog', () => {
 		).toEqual(['case.read'])
 	})
 
+	it('limits detailed Staff analytics to self or management', () => {
+		expect(
+			LABOS_PERMISSION_DEFINITION_REGISTRY.get('staff.analytics.read')
+				?.requiredPolicies,
+		).toEqual(['staff.analytics.self_or_management'])
+	})
+
 	it('does not expose deferred ownership or self-departure operations', () => {
 		expect(LABOS_PERMISSIONS).not.toContain('membership.leave')
 		expect(LABOS_PERMISSIONS).not.toContain('membership.owner.promote')

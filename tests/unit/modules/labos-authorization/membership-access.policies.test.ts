@@ -131,6 +131,15 @@ function staffRevokeContext(actorRole: LabOSOrganizationRole) {
 	}
 }
 
+function staffAnalyticsContext(actorRole: LabOSOrganizationRole) {
+	return {
+		actor: actor(actorRole),
+		permission: 'staff.analytics.read' as const,
+		target: { type: 'staff' as const, id: STAFF_ID },
+		facts: createAuthorizationFactCache(),
+	}
+}
+
 function membershipUpdateContext(
 	actorRole: LabOSOrganizationRole,
 	requestedRoles: readonly LabOSOrganizationRole[],
@@ -490,6 +499,55 @@ describe('Member administration policies', () => {
 				membershipUpdateContext('owner', ['owner']),
 			),
 		).resolves.toMatchObject({ reason: 'AUTHZ_OWNER_INVARIANT' })
+	})
+})
+
+describe('Staff analytics visibility policy', () => {
+	it.each(['owner', 'admin', 'manager'] as const)(
+		'allows %s to view any Staff performance profile',
+		async (role) => {
+			const { policies, staffAccessFacts } = createHarness()
+			await expect(
+				policies['staff.analytics.self_or_management'].evaluate(
+					staffAnalyticsContext(role),
+				),
+			).resolves.toEqual({ allowed: true })
+			expect(staffAccessFacts.load).not.toHaveBeenCalled()
+		},
+	)
+
+	it('allows Staff to view their own linked performance profile', async () => {
+		const { policies, staffAccessFacts } = createHarness()
+		staffAccessFacts.load.mockResolvedValue(
+			staffFacts({
+				member: member('staff', {
+					id: 'actor-member',
+					userId: 'actor-user',
+				}),
+			}),
+		)
+
+		await expect(
+			policies['staff.analytics.self_or_management'].evaluate(
+				staffAnalyticsContext('staff'),
+			),
+		).resolves.toEqual({ allowed: true })
+	})
+
+	it('denies Staff access to a coworker performance profile', async () => {
+		const { policies, staffAccessFacts } = createHarness()
+		staffAccessFacts.load.mockResolvedValue(
+			staffFacts({ member: member('staff') }),
+		)
+
+		await expect(
+			policies['staff.analytics.self_or_management'].evaluate(
+				staffAnalyticsContext('staff'),
+			),
+		).resolves.toMatchObject({
+			allowed: false,
+			reason: 'AUTHZ_POLICY_DENIED',
+		})
 	})
 })
 

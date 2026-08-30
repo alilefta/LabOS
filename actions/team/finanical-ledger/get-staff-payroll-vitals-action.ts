@@ -7,12 +7,15 @@ import { ERRORS } from '@/lib/errors'
 import { startOfYear } from 'date-fns'
 import { computeCommission } from './helpers'
 import { CommissionType } from '@/schema/base/enums.base'
+import { createLabOSAuthorizationActor } from '@/modules/labos-authorization/actor'
+import { labosAuthorizationService } from '@/modules/labos-authorization/service'
 
 export const getStaffPayrollVitalsAction = actionClientWithLab
 	.metadata({
 		actionName: 'Get-Staff-Payroll-Vitals-Action',
-		// Security Guard: Only Managers or Owners can view financial ledger cards [1]
-		requiredLabRole: 'MANAGER',
+		// The legacy gate only establishes lab membership. The V1 permission
+		// checks below decide which management roles may read payroll data.
+		requiredLabRole: 'STAFF',
 	})
 	.inputSchema(
 		z.object({
@@ -22,6 +25,22 @@ export const getStaffPayrollVitalsAction = actionClientWithLab
 	.action(async ({ parsedInput, ctx }) => {
 		const { labId } = ctx
 		const { staffId } = parsedInput
+		const actor = createLabOSAuthorizationActor(ctx)
+		const [payoutDecision, compensationDecision] = await Promise.all([
+			labosAuthorizationService.can({
+				actor,
+				permission: 'payout.list',
+			}),
+			labosAuthorizationService.can({
+				actor,
+				permission: 'staff.compensation.read',
+				target: { type: 'staff', id: staffId },
+			}),
+		])
+
+		if (!payoutDecision.allowed || !compensationDecision.allowed) {
+			throw ERRORS.MISSING_PERMISSIONS
+		}
 
 		const prisma = await tenantPrisma(labId)
 

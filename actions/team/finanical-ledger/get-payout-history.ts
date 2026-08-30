@@ -7,11 +7,15 @@ import { tenantPrisma } from '@/lib/prisma'
 import { ERRORS } from '@/lib/errors'
 import { GetStaffPayoutHistoryResultDTO } from '@/schema/composed/team/payroll-history.dtos'
 import { PayoutStatus } from '@/schema/base/enums.base'
+import { createLabOSAuthorizationActor } from '@/modules/labos-authorization/actor'
+import { labosAuthorizationService } from '@/modules/labos-authorization/service'
 
 export const getStaffPayoutHistoryAction = actionClientWithLab
 	.metadata({
 		actionName: 'Get-Staff-Payout-History-Action',
-		requiredLabRole: 'MANAGER', // Security: Only managers can view past payroll files
+		// The legacy gate only establishes lab membership. The V1 permission
+		// checks below decide which management roles may read payroll data.
+		requiredLabRole: 'STAFF',
 	})
 	.inputSchema(
 		z.object({
@@ -22,6 +26,22 @@ export const getStaffPayoutHistoryAction = actionClientWithLab
 	.action(async ({ parsedInput, ctx }) => {
 		const { labId } = ctx
 		const { staffId, take } = parsedInput
+		const actor = createLabOSAuthorizationActor(ctx)
+		const [payoutDecision, staffDecision] = await Promise.all([
+			labosAuthorizationService.can({
+				actor,
+				permission: 'payout.list',
+			}),
+			labosAuthorizationService.can({
+				actor,
+				permission: 'staff.read',
+				target: { type: 'staff', id: staffId },
+			}),
+		])
+
+		if (!payoutDecision.allowed || !staffDecision.allowed) {
+			throw ERRORS.MISSING_PERMISSIONS
+		}
 
 		const prisma = await tenantPrisma(labId)
 

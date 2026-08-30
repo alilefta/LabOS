@@ -53,7 +53,7 @@ export const PendingCommissionsQueue = memo(function PendingCommissionsQueue({
 					</div>
 				</div>
 
-				<div className="flex items-center gap-3 w-full sm:w-auto justify-end">
+				{onPayClick && <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
 					<Button
 						type="button"
 						disabled={isEmpty}
@@ -68,7 +68,7 @@ export const PendingCommissionsQueue = memo(function PendingCommissionsQueue({
 					>
 						<Plus className="w-4 h-4" /> Review & Issue Payout
 					</Button>
-				</div>
+				</div>}
 			</div>
 
 			{/* --- 2. THE CASES LIST --- */}

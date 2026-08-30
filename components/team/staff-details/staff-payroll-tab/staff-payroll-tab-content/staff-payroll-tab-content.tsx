@@ -39,7 +39,8 @@ interface Props {
 export function StaffPayrollTabContent({ staffId }: Props) {
 	// ── 1. STATE & PERMISSIONS ──────────────────────────────────────────
 	const [isPayoutSheetOpen, setIsPayoutSheetOpen] = useState(false)
-	const { canViewCommissions } = usePermissions()
+	const { canViewCommissions, role } = usePermissions()
+	const canIssuePayout = role === 'OWNER' || role === 'MANAGER'
 
 	// ── 2. SECURE DATA HYDRATION HOOKS ──────────────────────────────────
 	// The staleTime prevents the "Double Fetch" bug upon Server Hydration.
@@ -138,7 +139,7 @@ export function StaffPayrollTabContent({ staffId }: Props) {
 				pendingCommissions={queue.pendingCommissions}
 				// Only pass the click handler if there are actually cases to pay
 				onPayClick={
-					queue.pendingCommissions.length > 0
+					canIssuePayout && queue.pendingCommissions.length > 0
 						? () => setIsPayoutSheetOpen(true)
 						: undefined
 				}

@@ -16,12 +16,14 @@ interface Props {
 	member: StaffMemberDTO;
 	canViewFinancials: boolean;
 	canManageTeam: boolean;
+	canOpenDossier: boolean;
+	isOwnProfile: boolean;
 	onEdit: (id: string) => void;
 	onToggleStatus: (id: string, current: boolean) => void;
 	onInvite: (id: string) => void;
 }
 
-export const StaffMemberCard = memo(function StaffMemberCard({ member, canViewFinancials, canManageTeam, onEdit, onToggleStatus, onInvite }: Props) {
+export const StaffMemberCard = memo(function StaffMemberCard({ member, canViewFinancials, canManageTeam, canOpenDossier, isOwnProfile, onEdit, onToggleStatus, onInvite }: Props) {
 	const initials = useMemo(() => {
 		return `${member.firstName[0] || ""}${member.lastName[0] || ""}`.toUpperCase() || "ST";
 	}, [member.firstName, member.lastName]);
@@ -50,7 +52,8 @@ export const StaffMemberCard = memo(function StaffMemberCard({ member, canViewFi
 	return (
 		<div
 			className={cn(
-				"lab-card flex flex-col p-5 group hover:border-primary/40 hover:shadow-lg transition-all duration-300 relative overflow-hidden h-full min-h-[360px] transform-gpu will-change-transform",
+				"lab-card flex flex-col p-5 group hover:border-primary/40 hover:shadow-lg transition-all duration-300 relative overflow-hidden h-full transform-gpu will-change-transform",
+				member.phoneNumber !== undefined || member.commissionType !== undefined ? "min-h-[360px]" : "min-h-0",
 				!member.isActive && "opacity-70 grayscale-50 bg-slate-50 dark:bg-white/1", // Visual fade for inactive staff
 			)}
 		>
@@ -186,7 +189,7 @@ export const StaffMemberCard = memo(function StaffMemberCard({ member, canViewFi
 			</div>}
 
 			{/* --- ZONE C: THE CAPACITY & PERFORMANCE LEDGER --- */}
-			<div className="mt-auto p-4 rounded-xl bg-slate-50 dark:bg-white/2 border border-border relative z-10">
+			<div className={cn("p-4 rounded-xl bg-slate-50 dark:bg-white/2 border border-border relative z-10", member.phoneNumber === undefined ? "mt-2" : "mt-auto")}>
 				<div className="flex items-center justify-between mb-4">
 					<span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-1.5">
 						<Wrench className="w-3.5 h-3.5 text-primary/70" /> Workload & Capacity
@@ -230,17 +233,17 @@ export const StaffMemberCard = memo(function StaffMemberCard({ member, canViewFi
 			</div>
 
 			{/* --- ZONE D: QUICK ACTIONS --- */}
-			<div className="mt-4 pt-4 border-t border-border flex gap-2 relative z-10">
+			{canOpenDossier && <div className="mt-4 pt-4 border-t border-border flex gap-2 relative z-10">
 				<Link href={`/team/${member.id}`} className={cn("flex-1", !member.isActive && "pointer-events-none")}>
 					<Button
 						disabled={!member.isActive}
 						variant="outline"
 						className="w-full rounded-xl h-10 border-border hover:bg-primary/5 hover:text-primary font-bold text-xs transition-all shadow-sm"
 					>
-						Open Team Member Dossier
+						{isOwnProfile ? "Open My Performance" : "Open Team Member Dossier"}
 					</Button>
 				</Link>
-			</div>
+			</div>}
 		</div>
 	);
 });

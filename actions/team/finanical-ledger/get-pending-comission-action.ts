@@ -7,11 +7,15 @@ import { tenantPrisma } from '@/lib/prisma'
 import { ERRORS } from '@/lib/errors'
 import { computeCommission } from './helpers'
 import { CommissionType } from '@/schema/base/enums.base'
+import { createLabOSAuthorizationActor } from '@/modules/labos-authorization/actor'
+import { labosAuthorizationService } from '@/modules/labos-authorization/service'
 
 export const getPendingCommissionsAction = actionClientWithLab
 	.metadata({
 		actionName: 'Get-Pending-Commissions-Action',
-		requiredLabRole: 'MANAGER', // Security Guard
+		// The legacy gate only establishes lab membership. The V1 permission
+		// checks below decide which management roles may read payroll data.
+		requiredLabRole: 'STAFF',
 	})
 	.inputSchema(
 		z.object({
@@ -21,6 +25,27 @@ export const getPendingCommissionsAction = actionClientWithLab
 	.action(async ({ parsedInput, ctx }) => {
 		const { labId } = ctx
 		const { staffId } = parsedInput
+		const actor = createLabOSAuthorizationActor(ctx)
+		const decisions = await Promise.all([
+			labosAuthorizationService.can({
+				actor,
+				permission: 'payout.list',
+			}),
+			labosAuthorizationService.can({
+				actor,
+				permission: 'staff.read',
+				target: { type: 'staff', id: staffId },
+			}),
+			labosAuthorizationService.can({
+				actor,
+				permission: 'staff.compensation.read',
+				target: { type: 'staff', id: staffId },
+			}),
+		])
+
+		if (decisions.some((decision) => !decision.allowed)) {
+			throw ERRORS.MISSING_PERMISSIONS
+		}
 
 		const prisma = await tenantPrisma(labId)
 

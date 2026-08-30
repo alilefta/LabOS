@@ -13,6 +13,10 @@ import { QueryHydrationBoundary } from "@/providers/query-hydration-boundary";
 import { StaffOverviewTabContent } from "./overview-tab-content/staff-overview-tab-content";
 import { TimeFrameFilter } from "@/components/shared/filters/time-frame-filter";
 import { getStaffOverviewAnalyticsAction } from "@/actions/team/get-staff-overview-analytics-action";
+import { ShieldAlert } from "lucide-react";
+import { requireTenantContext } from "@/platform/organizations";
+import { createLabOSAuthorizationActor } from "@/modules/labos-authorization/actor";
+import { labosAuthorizationService } from "@/modules/labos-authorization/service";
 
 interface Props {
 	staffId: string;
@@ -20,6 +24,27 @@ interface Props {
 }
 
 export async function StaffOverviewTab({ staffId, activePeriod }: Props) {
+	const tenant = await requireTenantContext();
+	const decision = await labosAuthorizationService.can({
+		actor: createLabOSAuthorizationActor(tenant),
+		permission: "staff.analytics.read",
+		target: { type: "staff", id: staffId },
+	});
+
+	if (!decision.allowed) {
+		return (
+			<div className="w-full h-80 rounded-4xl border-2 border-dashed border-destructive/20 bg-destructive/5 flex flex-col items-center justify-center p-8 text-center animate-in fade-in duration-500">
+				<div className="w-12 h-12 rounded-2xl bg-destructive/10 flex items-center justify-center text-destructive mb-4">
+					<ShieldAlert className="w-6 h-6" />
+				</div>
+				<h3 className="text-sm font-bold text-destructive uppercase tracking-widest">Private Performance Profile</h3>
+				<p className="text-xs text-destructive/85 max-w-sm mt-1 leading-relaxed">
+					Staff members can view their own detailed performance only. Team names and operational roster availability remain visible.
+				</p>
+			</div>
+		);
+	}
+
 	const queryClient = getQueryClient();
 
 	// 2. THE SERVER-PREFETCH:

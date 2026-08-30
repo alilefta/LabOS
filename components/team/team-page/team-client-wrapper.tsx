@@ -37,7 +37,7 @@ const TeamAdvancedFiltersSheet = dynamic(() => import("../../modals/team/filters
 export function TeamClientWrapper({ initialAction }: Props) {
 	const router = useRouter();
 	const pathname = usePathname();
-	const { labId, role, canViewFinancials, canManageTeam } = usePermissions();
+	const { labId, role, staffId, canViewFinancials, canManageTeam } = usePermissions();
 	const canViewSystemAccess = role === "OWNER" || role === "ADMIN";
 
 	// ── 1. STATE MANAGEMENT ────────────────────────────────────────────
@@ -275,6 +275,7 @@ export function TeamClientWrapper({ initialAction }: Props) {
 						staff={staffList}
 						canViewFinancials={canViewFinancials}
 						canManageTeam={canManageTeam}
+						viewerStaffId={staffId}
 						onEdit={handleEditStaff}
 						onToggleStatus={handleToggleStaffStatus}
 						onInvite={handleResendInvitation}

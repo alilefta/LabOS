@@ -37,7 +37,7 @@ export async function StaffPayrollTab({ staffId }: Props) {
 	if (!labUser) redirect('/onboarding')
 
 	const userRole = labUser.role // e.g. "OWNER" | "MANAGER" | "STAFF"
-	const canViewPayroll = userRole === 'OWNER' || userRole === 'MANAGER'
+	const canViewPayroll = userRole === 'OWNER' || userRole === 'MANAGER' || userRole === 'ADMIN'
 
 	if (!canViewPayroll) {
 		return (

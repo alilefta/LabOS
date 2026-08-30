@@ -75,6 +75,7 @@ describe('LabOS authorization service composition', () => {
 			'staff.contact.read',
 			'staff.contact.list',
 			'staff.analytics.list',
+			'staff.analytics.read',
 			'staff.compensation.read',
 			'staff.compensation.list',
 			'staff.compensation.update',

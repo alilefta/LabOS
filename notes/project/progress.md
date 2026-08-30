@@ -4,13 +4,13 @@
 
 **Branch:** `feat/authorization-financial-reads`
 **Workstream:** F2 — protected financial and sensitive reads
-**Current slice:** A-118 — Staff dossier disclosure boundaries
+**Current slice:** A-121 — Staff payroll read boundary
 
 ## What I am doing now
 
-I am finishing the A-118 implementation and verification pass. The goal is to
-make Staff details disclose only the sections that the current role is allowed
-to read, while keeping security-sensitive facts out of broad/composite reads.
+I am finishing the A-121 implementation and verification pass. The goal is to
+make payroll vitals, pending commissions, and payout history use the V1
+financial read permissions before any database query runs.
 
 The current work is:
 
@@ -190,7 +190,38 @@ with the Staff analytics field-disclosure boundary.
 
 ## A-119 handoff
 
-A-119 is implemented and ready for manual Owner/Admin/Manager/Staff verification.
-The next slice is to review the Staff overview analytics action for field-level
-disclosure and confirm which operational metrics are appropriate for ordinary
-Staff versus management roles.
+A-119 manual verification passed: Owner/Admin/Manager receive the expected
+contact and compensation projections, while Staff receives neither in the UI
+nor network responses.
+
+## A-120 Staff performance privacy boundary
+
+- Approved policy: Staff may see the full team roster, but detailed performance
+  is self-only; Owner/Admin/Manager may view every Staff profile.
+- `staff.analytics.read` now requires the
+  `staff.analytics.self_or_management` resource policy. Staff self-access is
+  verified through the authoritative Member-to-Staff link; coworker targets
+  fail closed before analytics queries execute.
+- Coworker roster cards remain visible to Staff but no longer link to a dossier.
+  The Staff user's own card shows `Open My Performance`.
+- Restricted roster cards no longer retain the removed contact zone's forced
+  minimum height or `mt-auto` spacer, eliminating the large blank middle area.
+- Focused authorization suite passes (5 files, 70 tests). The full TypeScript
+  check reports only the previously tracked Decimal/addons/ES-target errors.
+
+## A-121 Staff payroll read boundary
+
+- Payroll vitals, pending commissions, and payout history now require the V1
+  `payout.list` permission plus the relevant Staff read/compensation
+  permission before any financial query runs.
+- The legacy membership gate remains at `STAFF` only as a compatibility
+  precondition; the authorization service is now the decision-maker, allowing
+  Owner/Admin/Manager and denying Staff.
+- The payroll page now includes Admin in its read-only financial view, matching
+  the approved policy. Staff still receives the existing denial panel and no
+  payroll prefetch.
+- The payout-issue control remains visible only to Owner/Manager, matching the
+  separate `payout.issue` policy; Admin receives read-only payroll data.
+- Targeted TypeScript and ESLint checks pass for the changed payroll files;
+  `git diff --check` passes. The repository-wide TypeScript debt remains the
+  previously tracked Decimal/addons/ES-target errors.

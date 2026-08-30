@@ -6,6 +6,8 @@ import { tenantPrisma } from "@/lib/prisma";
 import { subDays, startOfYear, startOfDay, endOfDay, differenceInDays, addDays } from "date-fns";
 import { TeamDashboardTimeFramePeriodSchema } from "@/schema/composed/team/helpers";
 import { ERRORS } from "@/lib/errors";
+import { createLabOSAuthorizationActor } from "@/modules/labos-authorization/actor";
+import { labosAuthorizationService } from "@/modules/labos-authorization/service";
 
 // --- Timeframe Resolvers ---
 function resolvePeriodWindow(period: string): { start: Date | null; end: Date } {
@@ -73,6 +75,15 @@ export const getStaffOverviewAnalyticsAction = actionClientWithLab
 	.action(async ({ ctx, parsedInput }) => {
 		const { labId } = ctx;
 		const { staffId, period } = parsedInput;
+		const analyticsDecision = await labosAuthorizationService.can({
+			actor: createLabOSAuthorizationActor(ctx),
+			permission: "staff.analytics.read",
+			target: { type: "staff", id: staffId },
+		});
+
+		if (!analyticsDecision.allowed) {
+			throw ERRORS.MISSING_PERMISSIONS;
+		}
 
 		const prisma = await tenantPrisma(labId);
 
