@@ -4,6 +4,9 @@ import { ClinicWhereInput } from "@/generated/prisma/models";
 import { composeClinicListDTO } from "@/lib/mappers/composers";
 import { tenantPrisma } from "@/lib/prisma";
 import { actionClientWithLab } from "@/lib/safe-action";
+import { ERRORS } from "@/lib/errors";
+import { createLabOSAuthorizationActor } from "@/modules/labos-authorization/actor";
+import { labosAuthorizationService } from "@/modules/labos-authorization/service";
 import { ClinicListDTO, ClinicPulseStats, ClinicRevenueStats, GetClinicsListInputSchema, GetClinicsListResult } from "@/schema/composed/clinic.details";
 import { SearchInputSchema } from "@/schema/composed/shared-schema";
 import { APIError } from "better-auth";
@@ -22,6 +25,26 @@ export const getClinicsListAction = actionClientWithLab
 		try {
 			const { labId } = ctx;
 			const { cursor, take = 30, search, filters } = parsedInput;
+			const actor = createLabOSAuthorizationActor(ctx);
+			const [analyticsDecision, financialDecision] = await Promise.all([
+				labosAuthorizationService.can({
+					actor,
+					permission: "clinic.analytics.list",
+				}),
+				labosAuthorizationService.can({
+					actor,
+					permission: "clinic.financials.list",
+				}),
+			]);
+
+			if (!analyticsDecision.allowed) throw ERRORS.MISSING_PERMISSIONS;
+			const requestedFinancialFilter =
+				filters.hasOutstandingBalance ||
+				filters.pulseFilter === "credit_risk" ||
+				filters.pulseFilter === "uninvoiced";
+			if (requestedFinancialFilter && !financialDecision.allowed) {
+				throw ERRORS.MISSING_PERMISSIONS;
+			}
 			const prisma = await tenantPrisma(labId);
 
 			const today = new Date();
@@ -66,7 +89,7 @@ export const getClinicsListAction = actionClientWithLab
 					where,
 					take: take + 1,
 					...(cursor && { cursor: { id: cursor }, skip: 1 }),
-					orderBy: [{ currentBalance: "desc" }, { createdAt: "desc" }],
+					orderBy: financialDecision.allowed ? [{ currentBalance: "desc" }, { createdAt: "desc" }] : [{ createdAt: "desc" }],
 					select: {
 						id: true,
 						name: true,
@@ -122,8 +145,10 @@ export const getClinicsListAction = actionClientWithLab
 				let score = 100;
 
 				// Risk 1: Financial Exposure (-25 points if maxed out)
-				if (c.creditLimit && Number(c.currentBalance) >= Number(c.creditLimit)) score -= 25;
-				else if (c.creditLimit && Number(c.currentBalance) >= Number(c.creditLimit) * 0.8) score -= 15;
+				if (financialDecision.allowed) {
+					if (c.creditLimit && Number(c.currentBalance) >= Number(c.creditLimit)) score -= 25;
+					else if (c.creditLimit && Number(c.currentBalance) >= Number(c.creditLimit) * 0.8) score -= 15;
+				}
 
 				// Risk 2: Quality Issues (-10 points per recent FAILED case)
 				const recentFailures = c.cases.filter((cr) => cr.status === "FAILED").length;
@@ -136,7 +161,7 @@ export const getClinicsListAction = actionClientWithLab
 				// --- CALC: UNINVOICED COUNT ---
 				const uninvoicedCount = c.cases.filter((cr) => cr.invoiceCase === null && ["COMPLETED", "DELIVERED"].includes(cr.status)).length;
 
-				return composeClinicListDTO(c, uninvoicedCount, score, trendBuckets);
+				return composeClinicListDTO(c, uninvoicedCount, score, trendBuckets, financialDecision.allowed);
 				// return {
 				// 	id: c.id,
 				// 	name: c.name,
@@ -178,29 +203,29 @@ export const getClinicsPulseAction = actionClientWithLab
 	.action(async ({ ctx }) => {
 		try {
 			const { labId } = ctx;
+			const actor = createLabOSAuthorizationActor(ctx);
+			const [analyticsDecision, financialDecision] = await Promise.all([
+				labosAuthorizationService.can({
+					actor,
+					permission: "clinic.analytics.list",
+				}),
+				labosAuthorizationService.can({
+					actor,
+					permission: "clinic.financials.list",
+				}),
+			]);
+
+			if (!analyticsDecision.allowed) throw ERRORS.MISSING_PERMISSIONS;
 			const prisma = await tenantPrisma(labId);
 
-			const [all, suspended, uninvoiced, dormant, potentialCreditRisks] = await Promise.all([
+			const [all, suspended, dormant] = await Promise.all([
 				// 1. All Clinics
 				prisma.clinic.count({ where: { labId } }),
 
 				// 2. Suspended Clinics
 				prisma.clinic.count({ where: { labId, status: "SUSPENDED" } }),
 
-				// 3. Uninvoiced Clinics (Has at least one COMPLETED/DELIVERED case not tied to an invoice)
-				prisma.clinic.count({
-					where: {
-						labId,
-						cases: {
-							some: {
-								invoiceCase: null,
-								status: { in: ["COMPLETED", "DELIVERED"] },
-							},
-						},
-					},
-				}),
-
-				// 4. Dormant Clinics (Has NO active cases in production)
+				// 3. Dormant Clinics (Has NO active cases in production)
 				prisma.clinic.count({
 					where: {
 						labId,
@@ -213,30 +238,43 @@ export const getClinicsPulseAction = actionClientWithLab
 						},
 					},
 				}),
-
-				// 5. Credit Risks (Fetch minimal data to do math in JS)
-				prisma.clinic.findMany({
-					where: {
-						labId,
-						creditLimit: { not: null },
-						currentBalance: { gt: 0 },
-					},
-					select: { currentBalance: true, creditLimit: true },
-				}),
 			]);
 
-			// Post-query calculation for credit risk (Balance >= 80% of Limit)
-			const credit_risk = potentialCreditRisks.filter((c) => {
-				if (!c.creditLimit) return false;
-				return Number(c.currentBalance) >= Number(c.creditLimit) * 0.8;
-			}).length;
+			let financialPulse: Pick<ClinicPulseStats, "credit_risk" | "uninvoiced"> = {};
+			if (financialDecision.allowed) {
+				const [uninvoiced, potentialCreditRisks] = await Promise.all([
+					prisma.clinic.count({
+						where: {
+							labId,
+							cases: {
+								some: {
+									invoiceCase: null,
+									status: { in: ["COMPLETED", "DELIVERED"] },
+								},
+							},
+						},
+					}),
+					prisma.clinic.findMany({
+						where: {
+							labId,
+							creditLimit: { not: null },
+							currentBalance: { gt: 0 },
+						},
+						select: { currentBalance: true, creditLimit: true },
+					}),
+				]);
+				const credit_risk = potentialCreditRisks.filter((c) => {
+					if (!c.creditLimit) return false;
+					return Number(c.currentBalance) >= Number(c.creditLimit) * 0.8;
+				}).length;
+				financialPulse = { credit_risk, uninvoiced };
+			}
 
 			return {
 				all,
-				credit_risk,
-				uninvoiced,
 				suspended,
 				dormant,
+				...financialPulse,
 			} as ClinicPulseStats;
 		} catch (e) {
 			if (e instanceof APIError || e instanceof Error) {
@@ -249,11 +287,21 @@ export const getClinicsPulseAction = actionClientWithLab
 export const getClinicsRevenueAction = actionClientWithLab
 	.metadata({
 		actionName: "Get-Clinics-Revenue-Action",
-		requiredLabRole: "MANAGER", // Protect this route!
+		// Membership compatibility only. Authorization V1 below is authoritative.
+		requiredLabRole: "STAFF",
 	})
 	.action(async ({ ctx }) => {
 		try {
 			const { labId } = ctx;
+			const decision = await labosAuthorizationService.can({
+				actor: createLabOSAuthorizationActor(ctx),
+				permission: "clinic.financials.list",
+			});
+
+			if (!decision.allowed) {
+				throw ERRORS.MISSING_PERMISSIONS;
+			}
+
 			const prisma = await tenantPrisma(labId);
 
 			const [arAgg, unbilledAgg, overdueAgg] = await Promise.all([

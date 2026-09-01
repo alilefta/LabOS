@@ -5,9 +5,16 @@ import { getClinicsListAction, getClinicsPulseAction, getClinicsRevenueAction } 
 import { QueryHydrationBoundary } from "@/providers/query-hydration-boundary";
 import { dehydrate } from "@tanstack/react-query";
 import { requireTenantContext } from "@/platform/organizations/tenant-context";
+import { createLabOSAuthorizationActor } from "@/modules/labos-authorization/actor";
+import { labosAuthorizationService } from "@/modules/labos-authorization/service";
 
 export default async function ClinicsListPage() {
-	const { labId } = await requireTenantContext();
+	const tenant = await requireTenantContext();
+	const { labId } = tenant;
+	const revenueDecision = await labosAuthorizationService.can({
+		actor: createLabOSAuthorizationActor(tenant),
+		permission: "clinic.financials.list",
+	});
 
 	const queryClient = getQueryClient();
 
@@ -26,14 +33,16 @@ export default async function ClinicsListPage() {
 		initialPageParam: undefined as string | undefined,
 	});
 
-	await queryClient.prefetchQuery({
-		queryKey: ["clinics-revenue", labId],
-		queryFn: async () => {
-			const res = await getClinicsRevenueAction();
-			return res?.data ?? null;
-		},
-		staleTime: 60_000,
-	});
+	if (revenueDecision.allowed) {
+		await queryClient.prefetchQuery({
+			queryKey: ["clinics-revenue", labId],
+			queryFn: async () => {
+				const res = await getClinicsRevenueAction();
+				return res?.data ?? null;
+			},
+			staleTime: 60_000,
+		});
+	}
 
 	await queryClient.prefetchQuery({
 		queryKey: ["clinics-pulse"],

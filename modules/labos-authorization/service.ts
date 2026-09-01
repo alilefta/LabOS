@@ -40,11 +40,15 @@ import {
  * policy, monitoring, and isolation tests in the same change.
  */
 export const LABOS_AUTHORIZATION_V1_SUPPORTED_PERMISSIONS = Object.freeze([
+	'case.create',
 	'case.financials.read',
 	'case.financials.list',
 	'case.financials.update',
 	'clinic.financials.read',
 	'clinic.financials.list',
+	'clinic.analytics.list',
+	'clinic.analytics.read',
+	'clinic.update',
 	'staff.create',
 	'staff.access.invite',
 	'staff.access.revoke',

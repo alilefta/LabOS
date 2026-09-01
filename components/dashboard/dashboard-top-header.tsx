@@ -4,8 +4,10 @@ import { Bell, Plus, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DashboardMobileNav } from "./dashboard-mobile-nav";
 import Link from "next/link";
+import { usePermissions } from "@/providers/permissions-provider";
 
 export function DashboardTopHeader() {
+	const { canCreateCases } = usePermissions();
 	return (
 		<header className="h-16 shrink-0 flex items-center justify-between px-4 sm:px-8 border-b border-border bg-background/70 dark:bg-[#09090B]/70 backdrop-blur-xl sticky top-0 z-30">
 			{/* Left side: Mobile Menu & Context */}
@@ -49,10 +51,10 @@ export function DashboardTopHeader() {
 				</Button>
 
 				{/* Primary Action Button */}
-				<Link className="h-9 flex items-center px-4 rounded-xl shadow-premium bg-primary hover:bg-primary/90 text-primary-foreground text-sm font-semibold" href={"/cases/new-case"}>
+				{canCreateCases && <Link className="h-9 flex items-center px-4 rounded-xl shadow-premium bg-primary hover:bg-primary/90 text-primary-foreground text-sm font-semibold" href={"/cases/new-case"}>
 					<Plus className="w-4 h-4 mr-1.5" />
 					<span className="hidden sm:inline">New Case</span>
-				</Link>
+				</Link>}
 			</div>
 		</header>
 	);

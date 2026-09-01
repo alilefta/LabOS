@@ -12,6 +12,8 @@ import { ClinicActiveCaseDTO } from "@/schema/composed/clinics/clinic-cases.dtos
 import { GetClinicHistoricalCasesInputSchema, GetClinicHistoricalCasesResult, ClinicHistoricalCaseDTO, ClinicHistoricalWorkItemDTO } from "@/schema/composed/clinics/clinic-cases.dtos";
 import { Prisma } from "@/generated/prisma/client";
 import { resolveDatePreset } from "@/schema/composed/shared/date-preset";
+import { createLabOSAuthorizationActor } from "@/modules/labos-authorization/actor";
+import { labosAuthorizationService } from "@/modules/labos-authorization/service";
 
 export const getClinicQuickOverviewAction = actionClientWithLab
 	.metadata({
@@ -22,6 +24,11 @@ export const getClinicQuickOverviewAction = actionClientWithLab
 	.action(async ({ ctx, parsedInput }) => {
 		const { labId } = ctx;
 		const { clinicId } = parsedInput;
+		const financialDecision = await labosAuthorizationService.can({
+			actor: createLabOSAuthorizationActor(ctx),
+			permission: "clinic.financials.read",
+			target: { type: "clinic", id: clinicId },
+		});
 		try {
 			const prisma = await tenantPrisma(labId);
 
@@ -91,17 +98,19 @@ export const getClinicQuickOverviewAction = actionClientWithLab
 
 			// Calculate Uninvoiced Cases Count (Completed/Delivered with no InvoiceCase)
 			// Note: For extreme performance at 5k+ clinics, consider moving this to a dedicated `count`
-			const uninvoicedCount = await prisma.case.count({
-				where: {
-					clinicId,
-					labId,
-					status: { in: ["COMPLETED", "DELIVERED"] },
-					invoiceCase: null,
-				},
-			});
+			const uninvoicedCount = financialDecision.allowed
+				? await prisma.case.count({
+						where: {
+							clinicId,
+							labId,
+							status: { in: ["COMPLETED", "DELIVERED"] },
+							invoiceCase: null,
+						},
+					})
+				: 0;
 
 			// payments is calculated inside the composer
-			return composeClinicQuickOverviewDTO(clinic, uninvoicedCount);
+			return composeClinicQuickOverviewDTO(clinic, uninvoicedCount, financialDecision.allowed);
 		} catch (e) {
 			if (e instanceof APIError || e instanceof Error) {
 				console.error("[Create-New-Dental-Case-Action] Error", e.message);
@@ -119,6 +128,12 @@ export const getClinicDetailsAction = actionClientWithLab
 	.action(async ({ ctx, parsedInput }) => {
 		const { labId } = ctx;
 		const { clinicId } = parsedInput;
+		const financialDecision = await labosAuthorizationService.can({
+			actor: createLabOSAuthorizationActor(ctx),
+			permission: "clinic.financials.read",
+			target: { type: "clinic", id: clinicId },
+		});
+		if (!financialDecision.allowed) throw ERRORS.MISSING_PERMISSIONS;
 		try {
 			const prisma = await tenantPrisma(labId);
 
@@ -274,6 +289,10 @@ export const getClinicHistoricalCasesAction = actionClientWithLab
 	.action(async ({ ctx, parsedInput }) => {
 		const { labId } = ctx;
 		const { clinicId, cursor, take, search, filters } = parsedInput;
+		const financialDecision = await labosAuthorizationService.can({
+			actor: createLabOSAuthorizationActor(ctx),
+			permission: "case.financials.list",
+		});
 
 		const prisma = await tenantPrisma(labId);
 
@@ -373,7 +392,9 @@ export const getClinicHistoricalCasesAction = actionClientWithLab
 				resolvedDate,
 				patientName: c.patient.name,
 				dentistName: c.dentist?.name ?? null,
-				grandTotal: c.grandTotal !== null ? Number(c.grandTotal) : null,
+				...(financialDecision.allowed
+					? { grandTotal: c.grandTotal !== null ? Number(c.grandTotal) : null }
+					: {}),
 				isRemake: c.isRemake,
 				failureReason: c.failureReason,
 				workItems,

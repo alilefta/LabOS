@@ -29,6 +29,7 @@ import { CasesFilters, DateRangeFilter } from "@/schema/composed/cases/cases-fil
 
 type GetCasesListParams = {
 	labId: string;
+	includeFinancials: boolean;
 	cursor?: string;
 	take?: number;
 	search?: string;
@@ -48,7 +49,7 @@ const TERMINAL_STATUSES: CaseStatus[] = ["COMPLETED", "DELIVERED", "FAILED"];
 
 export async function getCasesList(params: GetCasesListParams): Promise<DAResult<GetCasesListResult>> {
 	try {
-		const { labId, cursor, take = 30, search, filters } = params;
+		const { labId, includeFinancials, cursor, take = 30, search, filters } = params;
 		const prisma = await tenantPrisma(labId);
 
 		const today = startOfDay(new Date());
@@ -126,7 +127,7 @@ export async function getCasesList(params: GetCasesListParams): Promise<DAResult
 					caseNumber: true,
 					status: true,
 					deadline: true,
-					grandTotal: true,
+					...(includeFinancials && { grandTotal: true }),
 					patient: {
 						select: { name: true },
 					},
@@ -184,7 +185,9 @@ export async function getCasesList(params: GetCasesListParams): Promise<DAResult
 				caseNumber: c.caseNumber,
 				status: c.status,
 				deadline: c.deadline,
-				grandTotal: c.grandTotal !== null ? Number(c.grandTotal) : null,
+				...(includeFinancials && {
+					grandTotal: c.grandTotal !== null ? Number(c.grandTotal) : null,
+				}),
 				patientName: c.patient.name,
 				clinicName: c.clinic?.name ?? null,
 				dentistName: c.dentist?.name ?? null,

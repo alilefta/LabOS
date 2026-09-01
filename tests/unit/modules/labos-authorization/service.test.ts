@@ -57,11 +57,15 @@ function monitor() {
 describe('LabOS authorization service composition', () => {
 	it('enables only the reviewed membership and financial foundation slices', () => {
 		expect(LABOS_AUTHORIZATION_V1_SUPPORTED_PERMISSIONS).toEqual([
+			'case.create',
 			'case.financials.read',
 			'case.financials.list',
 			'case.financials.update',
 			'clinic.financials.read',
 			'clinic.financials.list',
+			'clinic.analytics.list',
+			'clinic.analytics.read',
+			'clinic.update',
 			'staff.create',
 			'staff.access.invite',
 			'staff.access.revoke',
@@ -257,6 +261,64 @@ describe('LabOS authorization service composition', () => {
 				allowed ? 1 : 0,
 			)
 			expect(policy.evaluate).toHaveBeenCalledTimes(allowed ? 1 : 0)
+		},
+	)
+
+	it.each([
+		['owner', true, 'ROLE_PERMISSION'],
+		['admin', true, 'ROLE_PERMISSION'],
+		['manager', true, 'ROLE_PERMISSION'],
+		['staff', false, 'AUTHZ_PERMISSION_NOT_GRANTED'],
+	] as const)(
+		'evaluates the approved clinic.financials.list role matrix for %s',
+		async (role, allowed, reason) => {
+			const service = createLabOSAuthorizationService({
+				monitor: monitor().monitor,
+			})
+
+			await expect(
+				service.can({
+					actor: { ...actor, memberRoles: [role] },
+					permission: 'clinic.financials.list',
+				}),
+			).resolves.toEqual({ allowed, reason })
+		},
+	)
+
+	it.each([
+		['owner', true, 'ROLE_PERMISSION'],
+		['admin', true, 'ROLE_PERMISSION'],
+		['manager', true, 'ROLE_PERMISSION'],
+		['staff', false, 'AUTHZ_PERMISSION_NOT_GRANTED'],
+	] as const)(
+		'evaluates the approved case.create role matrix for %s',
+		async (role, allowed, reason) => {
+			const service = createLabOSAuthorizationService({
+				monitor: monitor().monitor,
+			})
+
+			await expect(
+				service.can({
+					actor: { ...actor, memberRoles: [role] },
+					permission: 'case.create',
+				}),
+			).resolves.toEqual({ allowed, reason })
+		},
+	)
+
+	it.each(['owner', 'admin', 'manager', 'staff'] as const)(
+		'allows clinic.analytics.list for %s',
+		async (role) => {
+			const service = createLabOSAuthorizationService({
+				monitor: monitor().monitor,
+			})
+
+			await expect(
+				service.can({
+					actor: { ...actor, memberRoles: [role] },
+					permission: 'clinic.analytics.list',
+				}),
+			).resolves.toEqual({ allowed: true, reason: 'ROLE_PERMISSION' })
 		},
 	)
 

@@ -189,6 +189,7 @@ export function composeClinicQuickOverviewDTO(
 		}[];
 	},
 	uninvoicedCount: number,
+	includeFinancials = true,
 ): ClinicQuickOverviewDTO {
 	// Flatten the payments from all invoices into a single sorted array
 	const allPayments = raw.invoices
@@ -205,9 +206,13 @@ export function composeClinicQuickOverviewDTO(
 		phoneNumber: raw.phoneNumber,
 		email: raw.email,
 		createdAt: raw.createdAt,
-		currentBalance: Number(raw.currentBalance),
-		creditLimit: Number(raw.creditLimit),
-		uninvoicedCasesCount: uninvoicedCount,
+		...(includeFinancials
+			? {
+					currentBalance: Number(raw.currentBalance),
+					creditLimit: raw.creditLimit ? Number(raw.creditLimit) : null,
+					uninvoicedCasesCount: uninvoicedCount,
+				}
+			: {}),
 		dentists: raw.dentists,
 		recentCases: raw.cases.map((c) => ({
 			id: c.id,
@@ -222,12 +227,16 @@ export function composeClinicQuickOverviewDTO(
 			deadline: c.deadline,
 			categoryName: c.caseCategory?.name ?? "No category",
 		})),
-		recentPayments: allPayments.map((p) => ({
-			id: p.id,
-			amount: Number(p.amount),
-			paidAt: p.paidAt,
-			method: p.method,
-		})),
+		...(includeFinancials
+			? {
+					recentPayments: allPayments.map((p) => ({
+						id: p.id,
+						amount: Number(p.amount),
+						paidAt: p.paidAt,
+						method: p.method,
+					})),
+				}
+			: {}),
 	};
 }
 
@@ -243,6 +252,7 @@ export function composeClinicListDTO(
 	uninvoicedCount: number,
 	score: number,
 	trendBuckets: number[],
+	includeFinancials = true,
 ): ClinicListDTO {
 	return {
 		id: raw.id,
@@ -251,9 +261,13 @@ export function composeClinicListDTO(
 		city: raw.city,
 		status: raw.status,
 		phoneNumber: raw.phoneNumber,
-		currentBalance: Number(raw.currentBalance),
-		creditLimit: raw.creditLimit ? Number(raw.creditLimit) : null,
-		uninvoicedCasesCount: uninvoicedCount,
+		...(includeFinancials
+			? {
+					currentBalance: Number(raw.currentBalance),
+					creditLimit: raw.creditLimit ? Number(raw.creditLimit) : null,
+					uninvoicedCasesCount: uninvoicedCount,
+				}
+			: {}),
 		ownerDentist: raw.dentists[0] ?? null,
 		totalDentists: raw._count.dentists,
 		activeCases: raw._count.cases,

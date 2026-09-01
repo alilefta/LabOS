@@ -4,31 +4,55 @@
 
 **Branch:** `feat/authorization-financial-reads`
 **Workstream:** F2 — protected financial and sensitive reads
-**Current slice:** A-074 — Clinic negotiated-pricing read boundary
+**Current slice:** A-019/A-060/A-065/A-071/A-074 — Clinic and Case financial disclosure surfaces
 
 ## What I am doing now
 
-I am finishing the A-074 implementation and verification pass. The goal is to
-keep negotiated Clinic pricing and discounts available to Owner/Admin/Manager
-while preventing Staff queries and React Query dehydration.
+I am finishing the Clinic financial-surface implementation and manual
+verification pass. The goal is to keep revenue aggregates and negotiated
+pricing available to Owner/Admin/Manager without generating expected 403s or
+dehydrating those financial values for Staff.
 
 The current work is:
 
-1. Keep ordinary Staff identity behind `staff.read`.
-2. Load compensation only after `staff.compensation.read` allows it.
-3. Load system-access and invitation state only after the Organization-scoped
-   `membership.list` decision allows it.
-4. Avoid selecting or returning Better Auth invitation bearer identifiers.
-5. Keep compensation values out of the combined overview analytics response;
-   compensation remains available only through the separately authorized
-   Settings section.
-6. Preserve role-specific UI behavior: Staff receives the sanitized Work
-   Settings denial state, Manager can see compensation but not access
-   administration, and Owner/Admin can use their permitted controls. The
-   ordinary identity projection remains independently authorized on the server,
-   but its card is grouped inside the administrative Work Settings surface.
-7. Add unit and source-boundary regression checks before the user runs the full
-   test and lint commands.
+1. Authorize Clinic-wide revenue aggregates with `clinic.financials.list` before
+   opening Prisma.
+2. Prefetch and render the revenue strip only for Owner/Admin/Manager.
+3. Keep the Clinic ledger available for permitted operational invoice history,
+   while omitting negotiated pricing data and its editor for Staff.
+4. Keep pricing create/update actions behind the management server boundary.
+5. Hide Clinic creation controls from Staff while retaining server enforcement.
+6. Verify the approved role matrix and source ordering with regression tests.
+
+## Case Staff disclosure follow-up
+
+- Case revenue aggregates now require `case.financials.list` before opening
+  Prisma, and the page prefetches them only for Owner/Admin/Manager.
+- The Staff Case-list DTO does not select or serialize `grandTotal`; the
+  financial table column and executive revenue strip are absent for Staff.
+- Operational Case pulse counts remain available to Staff, with the legacy
+  membership gate corrected from Admin to Staff so the page no longer produces
+  an expected 403.
+
+## Clinic Staff disclosure and write-control pass
+
+- Staff Clinic list DTOs omit balance, credit limit, and unbilled counts. The
+  financial filters are rejected on the server and removed from the UI.
+- Staff retains operational pulse cards: All Partners, Suspended, and Dormant.
+  Credit Risk and Unbilled cards are queried and shown only to management.
+- Quick View keeps operational identity/contact and production data, while
+  balance, credit limit, unbilled counts, recent payments, statements, payment
+  actions, and invoice-generation controls are omitted for Staff.
+- Clinic overview analytics now separates operational metrics from financial
+  category revenue and payment-derived scores before dehydration.
+- Clinic phone/email remain ordinary operational contact data by policy.
+- Case creation is Owner/Admin/Manager-only in the UI, the `/cases/new-case`
+  server layout, and the create action. Staff direct navigation redirects to
+  `/cases` and direct action calls are denied.
+- Clinic historical Case DTOs retain operational details for Staff while
+  omitting `grandTotal` unless `case.financials.list` is allowed.
+- The focused authorization/Clinic suite passes. The TypeScript baseline still
+  contains unrelated generated-schema/Decimal errors; this slice adds none.
 
 ## Files referenced or changed
 
@@ -242,12 +266,23 @@ nor network responses.
 - Staff can still see coworker names in the Team roster; only the detailed
   workbench route is restricted.
 
+## A-071 Clinic revenue aggregate boundary
+
+- `getClinicsRevenueAction` now uses the membership-compatible legacy gate and
+  enforces `clinic.financials.list` as the authoritative decision before Prisma.
+- The `/clinics` server page prefetches revenue only for Owner/Admin/Manager, so
+  Staff no longer produces an expected `MISSING_PERMISSIONS` error or receives
+  dehydrated aggregate values.
+- The Staff UI also omits the revenue strip and New Clinic control. Direct write
+  actions remain protected independently on the server.
+- The approved role matrix is Owner/Admin/Manager allow and Staff deny.
+
 ## A-074 Clinic negotiated-pricing read boundary
 
 - `getClinicPricingPlansAction` now requires `clinic.financials.read` for the
   requested Clinic before opening the tenant Prisma client.
 - The Clinic Financial Ledger checks the same permission on the server. Staff
-  receives the permitted Invoice history but the negotiated-pricing query,
+  retains the permitted Invoice history tab, but the negotiated-pricing query,
   hydrated DTO, and pricing editor UI are omitted entirely.
 - Owner/Admin/Manager retain the negotiated pricing view. The Clinic target
   resolver continues to enforce same-Organization ownership.

@@ -52,7 +52,7 @@ export function ClinicsClientWrapper({ labId }: PageProps) {
 	const closeCopilot = useCopilotStore((s) => s.closeCopilot);
 
 	const [filters, setFilters] = useState<ClinicsFilters>(DEFAULT_CLINICS_FILTERS);
-	const { canViewFinancials } = usePermissions();
+	const { canManageClinics, canViewFinancials } = usePermissions();
 
 	// Strip financial columns for standard technicians
 	const visibleColumns = useMemo(() => {
@@ -90,6 +90,7 @@ export function ClinicsClientWrapper({ labId }: PageProps) {
 	const handleAIPromptClick = (intent: string) => {
 		closeCopilot();
 		if (intent === "debt") {
+			if (!canViewFinancials) return;
 			setFilters((prev) => ({ ...prev, pulseFilter: "credit_risk", statuses: [] }));
 			setSearchInput("");
 		} else if (intent === "suspended") {
@@ -130,12 +131,14 @@ export function ClinicsClientWrapper({ labId }: PageProps) {
 							<Filter className="w-3.5 h-3.5 mr-2 text-muted-foreground" /> Filters
 							{hasActiveAdvancedFilters && <div className="ml-2 w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />}
 						</Button>
-						<Button
-							onClick={() => router.push("/clinics/new-clinic")}
-							className="h-10 rounded-xl shadow-premium bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-xs px-5"
-						>
-							<Plus className="w-4 h-4 mr-1.5" /> New Clinic
-						</Button>
+						{canManageClinics && (
+							<Button
+								onClick={() => router.push("/clinics/new-clinic")}
+								className="h-10 rounded-xl shadow-premium bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-xs px-5"
+							>
+								<Plus className="w-4 h-4 mr-1.5" /> New Clinic
+							</Button>
+						)}
 					</div>
 				</div>
 			</header>

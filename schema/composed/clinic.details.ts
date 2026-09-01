@@ -186,9 +186,9 @@ export const ClinicListDTOSchema = z.object({
 	phoneNumber: z.string(),
 
 	// --- Financial Health ---
-	currentBalance: z.number(),
-	creditLimit: z.number().nullable(),
-	uninvoicedCasesCount: z.number(), // Critical for Lab Admin action
+	currentBalance: z.number().optional(),
+	creditLimit: z.number().nullable().optional(),
+	uninvoicedCasesCount: z.number().optional(), // Management-only financial disclosure
 
 	// --- Human Resources ---
 	ownerDentist: z
@@ -264,8 +264,8 @@ export type GetClinicsListResult = {
 // Data shape for the 5 Pulse Strip cards
 export type ClinicPulseStats = {
 	all: number;
-	credit_risk: number;
-	uninvoiced: number;
+	credit_risk?: number;
+	uninvoiced?: number;
 	suspended: number;
 	dormant: number;
 };
@@ -289,9 +289,9 @@ export const ClinicQuickOverviewDTOSchema = z.object({
 	createdAt: z.date(),
 
 	// Financials
-	currentBalance: z.number(),
-	creditLimit: z.number().nullable(),
-	uninvoicedCasesCount: z.number(),
+	currentBalance: z.number().optional(),
+	creditLimit: z.number().nullable().optional(),
+	uninvoicedCasesCount: z.number().optional(),
 
 	// Nested Dentists
 	dentists: z.array(
@@ -329,7 +329,7 @@ export const ClinicQuickOverviewDTOSchema = z.object({
 			paidAt: z.date(),
 			method: PaymentMethodSchema,
 		}),
-	),
+	).optional(),
 });
 
 export type ClinicQuickOverviewDTO = z.infer<typeof ClinicQuickOverviewDTOSchema>;

@@ -1,8 +1,11 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { mapClinicToUpdateFormValues } from "@/lib/mappers/clinics/clinic-helpers";
 import { getClinicById } from "@/data/clinics/get-clinic";
 import { ClinicBase } from "@/schema/base/clinic.base";
 import { EditClinicClient } from "@/components/clinics/edit-clinic/edit-clinic-client";
+import { requireTenantContext } from "@/platform/organizations";
+import { createLabOSAuthorizationActor } from "@/modules/labos-authorization/actor";
+import { labosAuthorizationService } from "@/modules/labos-authorization/service";
 
 interface Props {
 	params: Promise<{ clinicId: string }>;
@@ -10,6 +13,13 @@ interface Props {
 
 export default async function EditClinicPage({ params }: Props) {
 	const { clinicId } = await params;
+	const tenant = await requireTenantContext();
+	const decision = await labosAuthorizationService.can({
+		actor: createLabOSAuthorizationActor(tenant),
+		permission: "clinic.update",
+		target: { type: "clinic", id: clinicId },
+	});
+	if (!decision.allowed) redirect(`/clinics/${clinicId}`);
 
 	// 2. Fetch the absolute source of truth
 	const result = await getClinicById(clinicId);

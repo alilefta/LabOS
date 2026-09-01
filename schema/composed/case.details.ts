@@ -558,7 +558,7 @@ export type CaseListDTO = {
 	caseNumber: string
 	status: CaseStatus
 	deadline: Date | null
-	grandTotal: number | null
+	grandTotal?: number | null
 	patientName: string
 	clinicName: string | null
 	dentistName: string | null

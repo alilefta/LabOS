@@ -66,7 +66,7 @@ export default function CasesClientWrapperPage({ labId }: PageProps) {
 		router.replace(`${pathname}?${params.toString()}`);
 	};
 
-	const { canViewFinancials } = usePermissions();
+	const { canCreateCases, canViewFinancials } = usePermissions();
 
 	// If they can't see financials, we strip the grandTotal column before
 	// it even hits the DataTable component.
@@ -215,9 +215,9 @@ export default function CasesClientWrapperPage({ labId }: PageProps) {
 							{hasActiveAdvancedFilters && <span className="ml-2 w-2 h-2 rounded-full bg-primary animate-pulse" />}
 						</Button>
 
-						<Button onClick={() => router.push("/cases/new-case")} className="h-10 rounded-xl shadow-premium bg-primary hover:bg-primary/90 text-primary-foreground font-bold px-6">
+						{canCreateCases && <Button onClick={() => router.push("/cases/new-case")} className="h-10 rounded-xl shadow-premium bg-primary hover:bg-primary/90 text-primary-foreground font-bold px-6">
 							<Plus className="w-4 h-4 mr-2" /> New Case
-						</Button>
+						</Button>}
 					</div>
 				</div>
 			</header>

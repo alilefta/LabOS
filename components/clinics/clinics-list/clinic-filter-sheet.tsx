@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 
 import { ClinicStatus, ClinicType } from "@/schema/base/enums.base";
 import { ClinicsFilters } from "@/schema/composed/clinic.details";
+import { usePermissions } from "@/providers/permissions-provider";
 
 interface Props {
 	isOpen: boolean;
@@ -33,6 +34,7 @@ const TYPE_OPTIONS = [
 ];
 
 export function ClinicFiltersSheet({ isOpen, onClose, currentFilters, onApplyFilters, onClearFilters }: Props) {
+	const { canViewFinancials } = usePermissions();
 	// Local state so the user can fiddle before hitting "Apply"
 	const [localFilters, setLocalFilters] = useState<ClinicsFilters>(currentFilters);
 
@@ -57,7 +59,11 @@ export function ClinicFiltersSheet({ isOpen, onClose, currentFilters, onApplyFil
 	};
 
 	const handleApply = () => {
-		onApplyFilters(localFilters);
+		onApplyFilters(
+			canViewFinancials
+				? localFilters
+				: { ...localFilters, hasOutstandingBalance: false, pulseFilter: "all" },
+		);
 		onClose();
 	};
 
@@ -128,7 +134,7 @@ export function ClinicFiltersSheet({ isOpen, onClose, currentFilters, onApplyFil
 					</div>
 
 					{/* 2. CLINIC TYPE FILTER */}
-					<div className="flex flex-col gap-4 pt-8 border-t border-border/50">
+					{canViewFinancials && <div className="flex flex-col gap-4 pt-8 border-t border-border/50">
 						<h3 className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-2 mb-1">
 							<Building2 className="w-4 h-4 text-primary/70" /> Facility Type
 						</h3>
@@ -151,7 +157,7 @@ export function ClinicFiltersSheet({ isOpen, onClose, currentFilters, onApplyFil
 								);
 							})}
 						</div>
-					</div>
+					</div>}
 
 					{/* 3. FINANCIAL EXPOSURE TOGGLE */}
 					<div className="flex flex-col gap-4 pt-8 border-t border-border/50">

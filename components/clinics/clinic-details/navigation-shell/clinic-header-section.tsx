@@ -4,6 +4,9 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { getClinicDetailsById } from "@/data/clinics/get-clinic";
 import { ClinicBase } from "@/schema/base/clinic.base";
+import { requireTenantContext } from "@/platform/organizations";
+import { createLabOSAuthorizationActor } from "@/modules/labos-authorization/actor";
+import { labosAuthorizationService } from "@/modules/labos-authorization/service";
 
 const getClinicIcon = (type: string) => {
 	switch (type) {
@@ -23,10 +26,27 @@ interface Props {
 }
 
 export async function ClinicHeaderSection({ clinicId }: Props) {
-	const results = await getClinicDetailsById(clinicId);
+	const [results, tenant] = await Promise.all([
+		getClinicDetailsById(clinicId),
+		requireTenantContext(),
+	]);
 
 	if (!results.success) return null;
 	const { name, type, status, phoneNumber, email, id } = results.data as ClinicBase;
+	const actor = createLabOSAuthorizationActor(tenant);
+	const [caseCreateDecision, financialDecision, updateDecision] = await Promise.all([
+		labosAuthorizationService.can({ actor, permission: "case.create" }),
+		labosAuthorizationService.can({
+			actor,
+			permission: "clinic.financials.read",
+			target: { type: "clinic", id },
+		}),
+		labosAuthorizationService.can({
+			actor,
+			permission: "clinic.update",
+			target: { type: "clinic", id },
+		}),
+	]);
 
 	const isSuspended = status === "SUSPENDED";
 
@@ -77,12 +97,12 @@ export async function ClinicHeaderSection({ clinicId }: Props) {
 
 				{/* RIGHT: Quick Actions */}
 				<div className="flex items-center gap-2 w-full md:w-auto">
-					<Button variant="outline" className="flex-1 md:flex-none rounded-xl border-border h-10 px-4 font-semibold shadow-sm bg-white dark:bg-white/5">
+					{financialDecision.allowed && <Button variant="outline" className="flex-1 md:flex-none rounded-xl border-border h-10 px-4 font-semibold shadow-sm bg-white dark:bg-white/5">
 						<Download className="w-4 h-4 mr-2 text-muted-foreground" /> Statement
-					</Button>
+					</Button>}
 
 					{/* CLINICAL SUSPENSION GATE: Mutates "+ New Case" link state based on status */}
-					<Button
+					{caseCreateDecision.allowed && <Button
 						asChild={!isSuspended}
 						disabled={isSuspended}
 						className={cn(
@@ -101,13 +121,13 @@ export async function ClinicHeaderSection({ clinicId }: Props) {
 								<Plus className="w-4 h-4 mr-2" /> New Case
 							</Link>
 						)}
-					</Button>
+					</Button>}
 
-					<Button asChild variant="outline" className="rounded-xl border-border h-10 px-4 font-semibold shadow-sm bg-white dark:bg-white/5">
+					{updateDecision.allowed && <Button asChild variant="outline" className="rounded-xl border-border h-10 px-4 font-semibold shadow-sm bg-white dark:bg-white/5">
 						<Link href={`/clinics/${id}/edit`}>
 							<Edit3 className="w-4 h-4 text-muted-foreground" />
 						</Link>
-					</Button>
+					</Button>}
 				</div>
 			</div>
 
@@ -118,7 +138,9 @@ export async function ClinicHeaderSection({ clinicId }: Props) {
 					<div>
 						<h4 className="text-[12px] font-bold text-destructive">Production Hold Active</h4>
 						<p className="text-[11px] text-destructive/80 font-medium leading-snug mt-0.5">
-							This clinic has exceeded credit terms or was manually suspended. Cases cannot advance to production and new case creation is blocked.
+							{financialDecision.allowed
+								? "This clinic has exceeded credit terms or was manually suspended. Cases cannot advance to production and new case creation is blocked."
+								: "This clinic is temporarily suspended. New case creation is blocked."}
 						</p>
 					</div>
 				</div>

@@ -43,6 +43,7 @@ interface Props {
 	dentist: DentistPersonaDTO
 	clinicId: string
 	canViewFinancials: boolean
+	canCreateCases: boolean
 	onToggleStatus: (id: string, current: boolean) => void
 	onEdit: (id: string) => void
 	onSetDefault: (id: string) => void
@@ -52,6 +53,7 @@ export const DentistPersonaCard = memo(function DentistPersonaCard({
 	dentist,
 	clinicId,
 	canViewFinancials,
+	canCreateCases,
 	onEdit,
 	onToggleStatus,
 	onSetDefault,
@@ -361,7 +363,7 @@ export const DentistPersonaCard = memo(function DentistPersonaCard({
 
 			{/* --- ZONE D: QUICK ACTIONS --- */}
 			<div className="mt-4 pt-4 border-t border-border flex gap-2 relative z-10">
-				{dentist.isActive ? (
+				{canCreateCases && (dentist.isActive ? (
 					<Link
 						href={`/cases/new-case?clinicId=${clinicId}&dentistId=${dentist.id}`}
 						className="flex-1"
@@ -378,7 +380,7 @@ export const DentistPersonaCard = memo(function DentistPersonaCard({
 					>
 						Register Locked
 					</Button>
-				)}
+				))}
 			</div>
 		</div>
 	)

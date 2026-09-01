@@ -6,6 +6,8 @@ import { actionClientWithLab } from "@/lib/safe-action";
 import { ClinicDashboardTimeFramePeriod, ClinicDashboardTimeFramePeriodSchema } from "@/schema/composed/clinics/helpers";
 import { subDays, startOfYear, startOfDay, endOfDay } from "date-fns";
 import z from "zod";
+import { createLabOSAuthorizationActor } from "@/modules/labos-authorization/actor";
+import { labosAuthorizationService } from "@/modules/labos-authorization/service";
 
 // ── Period schema (mirrors the URL param) ─────────────────────────────────────
 
@@ -67,6 +69,20 @@ export const getClinicOverviewAnalyticsAction = actionClientWithLab
 	.action(async ({ ctx, parsedInput }) => {
 		const { labId } = ctx;
 		const { clinicId, period } = parsedInput;
+		const actor = createLabOSAuthorizationActor(ctx);
+		const [analyticsDecision, financialDecision] = await Promise.all([
+			labosAuthorizationService.can({
+				actor,
+				permission: "clinic.analytics.read",
+				target: { type: "clinic", id: clinicId },
+			}),
+			labosAuthorizationService.can({
+				actor,
+				permission: "clinic.financials.read",
+				target: { type: "clinic", id: clinicId },
+			}),
+		]);
+		if (!analyticsDecision.allowed) throw ERRORS.MISSING_PERMISSIONS;
 
 		const prisma = await tenantPrisma(labId);
 
@@ -153,7 +169,7 @@ export const getClinicOverviewAnalyticsAction = actionClientWithLab
 			// If the first payment was on time but the final one was late, your logic considers it "Late" (0.5 points).
 			// This is usually the correct business interpretation for "paid on time," but make sure that aligns with your Lab's policy!
 
-			prisma.invoice.findMany({
+			financialDecision.allowed ? prisma.invoice.findMany({
 				where: {
 					clinicId,
 					labId,
@@ -169,7 +185,7 @@ export const getClinicOverviewAnalyticsAction = actionClientWithLab
 						take: 1,
 					},
 				},
-			}),
+			}) : Promise.resolve([]),
 		]);
 
 		// ── Volume Score ──────────────────────────────────────────────────────────
@@ -293,7 +309,7 @@ export const getClinicOverviewAnalyticsAction = actionClientWithLab
 				.map(([name, value]) => ({ name, value: Math.round(value * 100) / 100 }))
 				.sort((a, b) => b.value - a.value);
 
-		const categoriesByRevenue = sortAndFormat(categoryRevenueMap);
+		const categoriesByRevenue = financialDecision.allowed ? sortAndFormat(categoryRevenueMap) : [];
 		const workTypesByVolume = sortAndFormat(workTypeVolumeMap);
 		const productsByVolume = sortAndFormat(productVolumeMap);
 
@@ -301,7 +317,7 @@ export const getClinicOverviewAnalyticsAction = actionClientWithLab
 			scores: {
 				volume: volumeScore,
 				quality: qualityScore,
-				logic: logicScore,
+				...(financialDecision.allowed ? { logic: logicScore } : {}),
 			},
 			heatmap: heatmapData,
 			productMix: {
@@ -316,7 +332,7 @@ export const getClinicOverviewAnalyticsAction = actionClientWithLab
 				totalCasesInPeriod,
 				labFaultRemakes,
 				clinicFaultRemakes,
-				invoicesEvaluated: invoices.length,
+				...(financialDecision.allowed ? { invoicesEvaluated: invoices.length } : {}),
 			},
 		};
 	});

@@ -29,7 +29,7 @@ interface Props {
 type RoleFilter = "ALL" | "OWNERS" | "ASSOCIATES" | "INACTIVE";
 
 export const DentistRosterGrid = memo(function DentistRosterGrid({ clinicId, currentClinicType, onEdit }: Props) {
-	const { canViewFinancials } = usePermissions();
+	const { canCreateCases, canViewFinancials } = usePermissions();
 	const queryClient = useQueryClient();
 	// --- 1. UI STATE ---
 	const [searchInput, setSearchInput] = useState("");
@@ -218,6 +218,7 @@ export const DentistRosterGrid = memo(function DentistRosterGrid({ clinicId, cur
 								dentist={dentist}
 								clinicId={clinicId}
 								canViewFinancials={canViewFinancials}
+								canCreateCases={canCreateCases}
 								onEdit={onEdit}
 								onToggleStatus={handleToggleStatus}
 								onSetDefault={handleSetDefault}

@@ -33,6 +33,8 @@ export function OwnerRevenueStrip({ labId }: OwnerRevenueStripProps) {
 
 	const formatCurrency = (val: number) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(val);
 
+	if (!canViewFinancials) return null;
+
 	return (
 		<div className="flex flex-col md:flex-row items-stretch md:items-center justify-between p-5 mb-6 rounded-3xl bg-linear-to-r from-emerald-950 via-[#09090B] to-[#09090B] border border-emerald-500/20 shadow-sm animate-in fade-in slide-in-from-top-4 duration-500 overflow-hidden relative">
 			{/* Ambient background glow */}

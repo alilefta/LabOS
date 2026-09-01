@@ -18,6 +18,8 @@ import {
 } from '@/schema/composed/case.details'
 import { revalidatePath } from 'next/cache'
 import z from 'zod/v3'
+import { createLabOSAuthorizationActor } from '@/modules/labos-authorization/actor'
+import { labosAuthorizationService } from '@/modules/labos-authorization/service'
 
 export const createDentalCaseAction = actionClientWithLab
 	.metadata({
@@ -40,6 +42,11 @@ export const createDentalCaseAction = actionClientWithLab
 			existingDraftId,
 		} = parsedInput
 		const { labId, labUser } = ctx
+		const createDecision = await labosAuthorizationService.can({
+			actor: createLabOSAuthorizationActor(ctx),
+			permission: 'case.create',
+		})
+		if (!createDecision.allowed) throw ERRORS.MISSING_PERMISSIONS
 
 		// !!!!!!!!!!!! creating a case from stored draft should be done through update not create!!!!!
 

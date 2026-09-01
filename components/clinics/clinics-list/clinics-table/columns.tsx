@@ -13,6 +13,7 @@ import { ClinicListDTO } from "@/schema/composed/clinic.details";
 import Link from "next/link";
 import { useTransition } from "react";
 import { parseAsString, useQueryState } from "nuqs";
+import { usePermissions } from "@/providers/permissions-provider";
 
 // --- FORMATTERS ---
 const formatCurrency = (val: number) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(val);
@@ -163,7 +164,7 @@ export const columns: ColumnDef<ClinicListDTO>[] = [
 						<span className="text-sm font-mono font-bold text-foreground">{activeCases}</span>
 						<span className="text-[10px] text-muted-foreground font-medium uppercase tracking-widest">In Lab</span>
 					</div>
-					{uninvoiced > 0 && (
+					{(uninvoiced ?? 0) > 0 && (
 						<div className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-500 animate-in zoom-in-95 shrink-0 w-fit">
 							<FileText className="w-2.5 h-2.5" />
 							<span className="text-[9px] font-black uppercase tracking-widest">{uninvoiced} Unbilled</span>
@@ -209,12 +210,13 @@ export const columns: ColumnDef<ClinicListDTO>[] = [
 		cell: ({ row }) => {
 			const clinic = row.original;
 
-			return <ActionCell id={clinic.id} uninvoicedCasesCount={clinic.uninvoicedCasesCount} />;
+			return <ActionCell id={clinic.id} uninvoicedCasesCount={clinic.uninvoicedCasesCount ?? 0} />;
 		},
 	},
 ];
 
 function ActionCell({ id, uninvoicedCasesCount }: { id: string; uninvoicedCasesCount: number }) {
+	const { canCreateCases, canManageFinancials } = usePermissions();
 	const [isPending, startTransition] = useTransition();
 	const [_, setQuickView] = useQueryState("quick", parseAsString.withOptions({ startTransition, shallow: true, history: "push" }));
 
@@ -228,7 +230,7 @@ function ActionCell({ id, uninvoicedCasesCount }: { id: string; uninvoicedCasesC
 					</Button>
 				</DropdownMenuTrigger>
 				<DropdownMenuContent align="end" className="w-48 rounded-xl border-border shadow-premium dark:bg-[#121214]">
-					<DropdownMenuLabel className="text-[10px] text-muted-foreground uppercase tracking-widest">Management</DropdownMenuLabel>
+					<DropdownMenuLabel className="text-[10px] text-muted-foreground uppercase tracking-widest">Clinic</DropdownMenuLabel>
 					<DropdownMenuItem
 						className="cursor-pointer font-medium py-2 hover:bg-primary/5"
 						onClick={() => {
@@ -250,9 +252,11 @@ function ActionCell({ id, uninvoicedCasesCount }: { id: string; uninvoicedCasesC
 							Full Clinic View <ArrowUpRight className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform duration-75" />
 						</Link>
 					</DropdownMenuItem>
-					<DropdownMenuItem className="cursor-pointer font-medium py-2 hover:bg-primary/5 text-primary">New Case</DropdownMenuItem>
-					<DropdownMenuSeparator className="bg-border" />
-					{uninvoicedCasesCount > 0 ? (
+					{canCreateCases && <DropdownMenuItem className="cursor-pointer font-medium py-2 hover:bg-primary/5 text-primary" asChild>
+						<Link href={`/cases/new-case?clinicId=${id}`}>New Case</Link>
+					</DropdownMenuItem>}
+					{canManageFinancials && <DropdownMenuSeparator className="bg-border" />}
+					{canManageFinancials && (uninvoicedCasesCount > 0 ? (
 						<DropdownMenuItem className="cursor-pointer font-bold py-2 text-emerald-600 focus:text-emerald-600 focus:bg-emerald-500/10">
 							<FileText className="w-4 h-4 mr-2" /> Generate Invoice
 						</DropdownMenuItem>
@@ -260,7 +264,7 @@ function ActionCell({ id, uninvoicedCasesCount }: { id: string; uninvoicedCasesC
 						<DropdownMenuItem className="cursor-pointer font-medium py-2 hover:bg-emerald-500/5">
 							<Wallet className="w-4 h-4 mr-2 text-emerald-500" /> Record Payment
 						</DropdownMenuItem>
-					)}
+					))}
 				</DropdownMenuContent>
 			</DropdownMenu>
 		</div>

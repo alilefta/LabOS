@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { X, ExternalLink, Plus, FileText, CreditCard, Sparkles } from "lucide-react";
+import { X, ExternalLink, Plus, FileText, Sparkles } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetClose, SheetDescription } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -21,7 +21,7 @@ interface Props {
 
 export function ClinicQuickViewSheet({ clinicId, isOpen, onClose }: Props) {
 	const router = useRouter();
-	const { canViewFinancials } = usePermissions();
+	const { canCreateCases, canManageClinics, canViewFinancials } = usePermissions();
 
 	const { data: clinic, isLoading } = useQuery({
 		queryKey: ["clinic-quick-view", clinicId],
@@ -41,7 +41,7 @@ export function ClinicQuickViewSheet({ clinicId, isOpen, onClose }: Props) {
 			<SheetContent showCloseButton={false} className="sm:max-w-md! border-l border-border bg-card dark:bg-[#09090B] p-0 flex flex-col shadow-2xl overflow-hidden">
 				<SheetHeader className="sr-only">
 					<SheetTitle>{clinic?.name || "Clinic"} Quick View</SheetTitle>
-					<SheetDescription>Comprehensive clinical and financial health summary</SheetDescription>
+					<SheetDescription>Clinic identity and operational summary</SheetDescription>
 				</SheetHeader>
 
 				{isLoading || !clinic ? (
@@ -80,36 +80,32 @@ export function ClinicQuickViewSheet({ clinicId, isOpen, onClose }: Props) {
 										className="w-full h-12 rounded-2xl bg-primary text-primary-foreground font-bold shadow-premium hover:bg-primary/90 transition-all group"
 										href={`/clinics/${clinic.id}`}
 									>
-										Manage Full Hub <ExternalLink className="w-4 h-4 ml-2 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+										{canManageClinics ? "Manage Full Hub" : "View Full Clinic"} <ExternalLink className="w-4 h-4 ml-2 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
 									</Link>
 								</Button>
-								<div className="grid grid-cols-2 gap-2">
-									<Button
+								{(canCreateCases || canViewFinancials) && <div className="grid grid-cols-2 gap-2">
+									{canCreateCases && <Button
 										variant="outline"
 										className="h-10 rounded-xl font-bold border-border bg-white dark:bg-white/5 hover:bg-slate-50 dark:hover:bg-white/10 text-xs"
 										onClick={() => router.push(`/cases/new-case?clinicId=${clinic.id}`)}
 									>
 										<Plus className="w-3.5 h-3.5 mr-1.5" /> New Case
-									</Button>
+									</Button>}
 
 									{canViewFinancials ? (
 										<Button
 											variant="outline"
 											className={cn(
 												"h-10 rounded-xl font-bold text-xs transition-all",
-												clinic.uninvoicedCasesCount > 0
+												(clinic.uninvoicedCasesCount ?? 0) > 0
 													? "border-emerald-500/50 text-emerald-600 dark:text-emerald-500 hover:bg-emerald-500/10"
 													: "border-border bg-white dark:bg-white/5",
 											)}
 										>
 											<FileText className="w-3.5 h-3.5 mr-1.5" /> Statement
 										</Button>
-									) : (
-										<Button variant="outline" className="h-10 rounded-xl font-bold text-xs border-border bg-white dark:bg-white/5">
-											<CreditCard className="w-3.5 h-3.5 mr-1.5" /> History
-										</Button>
-									)}
-								</div>
+									) : null}
+								</div>}
 							</div>
 						</div>
 					</>

@@ -10,12 +10,26 @@ import { getQueryClient } from "@/providers/get-query-client";
 import { Suspense } from "react";
 import { ClinicOverviewTabSkeleton } from "./clinic-overview-tab-skeleton";
 import { notFound } from "next/navigation";
+import { requireTenantContext } from "@/platform/organizations";
+import { createLabOSAuthorizationActor } from "@/modules/labos-authorization/actor";
+import { labosAuthorizationService } from "@/modules/labos-authorization/service";
 interface Props {
 	clinicId: string;
 	activePeriod: ClinicDashboardTimeFramePeriod;
 }
 export async function ClinicOverviewTab({ clinicId, activePeriod }: Props) {
-	const results = await getClinicSelectiveFieldById(clinicId, { id: true, name: true, creditLimit: true, currentBalance: true, discount: true });
+	const tenant = await requireTenantContext();
+	const financialDecision = await labosAuthorizationService.can({
+		actor: createLabOSAuthorizationActor(tenant),
+		permission: "clinic.financials.read",
+		target: { type: "clinic", id: clinicId },
+	});
+	const results = await getClinicSelectiveFieldById(
+		clinicId,
+		financialDecision.allowed
+			? { id: true, name: true, creditLimit: true, currentBalance: true, discount: true }
+			: { id: true, name: true },
+	);
 	const queryClient = getQueryClient();
 
 	if (!results.success || !results.data) {
@@ -48,7 +62,14 @@ export async function ClinicOverviewTab({ clinicId, activePeriod }: Props) {
 			</div>
 			<QueryHydrationBoundary state={dehydrate(queryClient)}>
 				<Suspense fallback={<ClinicOverviewTabSkeleton />}>
-					<ClinicOverviewTabContent clinicId={id} clinicName={name} period={activePeriod} creditLimit={creditLimit} currentBalance={currentBalance} discount={discount} />
+					<ClinicOverviewTabContent
+						clinicId={id}
+						clinicName={name}
+						period={activePeriod}
+						creditLimit={financialDecision.allowed ? creditLimit : undefined}
+						currentBalance={financialDecision.allowed ? currentBalance : undefined}
+						discount={financialDecision.allowed ? discount : undefined}
+					/>
 				</Suspense>
 			</QueryHydrationBoundary>
 		</div>

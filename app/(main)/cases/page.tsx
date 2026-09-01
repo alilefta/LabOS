@@ -6,9 +6,16 @@ import { getQueryClient } from "@/providers/get-query-client";
 import { dehydrate } from "@tanstack/react-query";
 import { QueryHydrationBoundary } from "@/providers/query-hydration-boundary";
 import { requireTenantContext } from "@/platform/organizations/tenant-context";
+import { createLabOSAuthorizationActor } from "@/modules/labos-authorization/actor";
+import { labosAuthorizationService } from "@/modules/labos-authorization/service";
 
 export default async function CasesPage() {
-	const { labId } = await requireTenantContext();
+	const tenant = await requireTenantContext();
+	const { labId } = tenant;
+	const revenueDecision = await labosAuthorizationService.can({
+		actor: createLabOSAuthorizationActor(tenant),
+		permission: "case.financials.list",
+	});
 
 	const queryClient = getQueryClient();
 
@@ -26,14 +33,16 @@ export default async function CasesPage() {
 		initialPageParam: undefined as string | undefined,
 	});
 
-	await queryClient.prefetchQuery({
-		queryKey: ["cases-revenue", labId],
-		queryFn: async () => {
-			const res = await getCasesRevenueAction();
-			return res?.data ?? null;
-		},
-		staleTime: 60_000,
-	});
+	if (revenueDecision.allowed) {
+		await queryClient.prefetchQuery({
+			queryKey: ["cases-revenue", labId],
+			queryFn: async () => {
+				const res = await getCasesRevenueAction();
+				return res?.data ?? null;
+			},
+			staleTime: 60_000,
+		});
+	}
 
 	await queryClient.prefetchQuery({
 		queryKey: ["cases-pulse", labId],

@@ -16,17 +16,19 @@ import { Button } from "@/components/ui/button";
 import { getClinicOverviewAnalyticsAction } from "@/actions/clinics/analytics";
 import { ClinicalMixDonut } from "./clinical-mix-donut";
 import { memo } from "react";
+import { usePermissions } from "@/providers/permissions-provider";
 
 interface Props {
 	clinicId: string;
 	period: ClinicDashboardTimeFramePeriod;
 	clinicName: string;
-	currentBalance: number;
-	creditLimit: number | null;
-	discount: number | null;
+	currentBalance?: number;
+	creditLimit?: number | null;
+	discount?: number | null;
 }
 
 export const ClinicOverviewTabContent = memo(function ClinicOverviewTabContent({ clinicId, period, clinicName, currentBalance, creditLimit, discount }: Props) {
+	const { canViewFinancials } = usePermissions();
 	// 1. Fetch ALL overview data in one network request
 	const { data, isError, refetch, isRefetching } = useQuery({
 		queryKey: ["clinic-overview", clinicId, period],
@@ -77,9 +79,9 @@ export const ClinicOverviewTabContent = memo(function ClinicOverviewTabContent({
 		<div className="flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
 			{/* TOP ROW: The 3 Pillars */}
 			<div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-				<ClinicHealthRing scores={data.scores} />
+				{canViewFinancials && data.scores.logic !== undefined && <ClinicHealthRing scores={{ ...data.scores, logic: data.scores.logic }} />}
 				<ClinicalMixDonut categories={data.productMix.categories} workTypes={data.productMix.workTypes} products={data.productMix.products} />
-				<ClinicFinancialVitalsCard balance={currentBalance} limit={creditLimit} discount={discount} />
+				{canViewFinancials && currentBalance !== undefined && <ClinicFinancialVitalsCard balance={currentBalance} limit={creditLimit ?? null} discount={discount ?? null} />}
 			</div>
 
 			{/* MIDDLE ROW: The Rhythm */}
@@ -88,7 +90,13 @@ export const ClinicOverviewTabContent = memo(function ClinicOverviewTabContent({
 			</div>
 
 			{/* BOTTOM ROW: The Brains */}
-			<AiRelationshipAuditor clinicName={clinicName} scores={data.scores} meta={data.meta} />
+			{canViewFinancials && data.scores.logic !== undefined && data.meta.invoicesEvaluated !== undefined && (
+				<AiRelationshipAuditor
+					clinicName={clinicName}
+					scores={{ ...data.scores, logic: data.scores.logic }}
+					meta={{ ...data.meta, invoicesEvaluated: data.meta.invoicesEvaluated }}
+				/>
+			)}
 		</div>
 	);
 });

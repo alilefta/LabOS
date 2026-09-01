@@ -8,6 +8,7 @@ import { handleSafeActionError } from "@/lib/safe-action-helpers";
 // Import your action and types
 import { getClinicsPulseAction } from "@/actions/clinics/get-clinics";
 import { ClinicPulseFilter, ClinicPulseStats } from "@/schema/composed/clinic.details"; // Adjust import if needed
+import { usePermissions } from "@/providers/permissions-provider";
 
 interface ClinicPulseStripProps {
 	currentFilter: ClinicPulseFilter;
@@ -15,6 +16,7 @@ interface ClinicPulseStripProps {
 }
 
 export function ClinicPulseStrip({ currentFilter, onFilterChange }: ClinicPulseStripProps) {
+	const { canViewFinancials } = usePermissions();
 	const { data, isLoading } = useQuery({
 		queryKey: ["clinics-pulse"],
 		queryFn: async () => {
@@ -73,7 +75,7 @@ export function ClinicPulseStrip({ currentFilter, onFilterChange }: ClinicPulseS
 			bgClass: "bg-primary/10 border-primary/20",
 			activeClass: "ring-2 ring-primary bg-primary/5 shadow-premium",
 		},
-	];
+	].filter((card) => canViewFinancials || (card.id !== "credit_risk" && card.id !== "uninvoiced"));
 
 	return (
 		<div className="grid grid-cols-2 md:grid-cols-5 gap-3 sm:gap-4 mb-6 ml-1 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-150">

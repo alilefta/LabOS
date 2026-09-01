@@ -47,7 +47,7 @@ export type ClinicHistoricalCaseDTO = {
 
 	patientName: string;
 	dentistName: string | null;
-	grandTotal: number | null;
+	grandTotal?: number | null;
 
 	// Crucial for FAILED cases so we can show the warning inline
 	isRemake: boolean;
