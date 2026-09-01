@@ -7,6 +7,8 @@ import { PricingStrategy } from '@/schema/base/enums.base'
 import { ClinicPricingPlanDTO } from '@/schema/composed/clinics/clinic-pricings'
 import { APIError } from 'better-auth'
 import z from 'zod'
+import { createLabOSAuthorizationActor } from '@/modules/labos-authorization/actor'
+import { labosAuthorizationService } from '@/modules/labos-authorization/service'
 
 export const getClinicPricingPlansAction = actionClientWithLab
 	.metadata({
@@ -17,6 +19,16 @@ export const getClinicPricingPlansAction = actionClientWithLab
 	.action(async ({ ctx, parsedInput }) => {
 		const { labId } = ctx
 		const { clinicId } = parsedInput
+		const decision = await labosAuthorizationService.can({
+			actor: createLabOSAuthorizationActor(ctx),
+			permission: 'clinic.financials.read',
+			target: { type: 'clinic', id: clinicId },
+		})
+
+		if (!decision.allowed) {
+			throw ERRORS.MISSING_PERMISSIONS
+		}
+
 		try {
 			const prisma = await tenantPrisma(labId)
 

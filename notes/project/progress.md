@@ -4,13 +4,13 @@
 
 **Branch:** `feat/authorization-financial-reads`
 **Workstream:** F2 — protected financial and sensitive reads
-**Current slice:** A-122 — Staff workbench privacy boundary
+**Current slice:** A-074 — Clinic negotiated-pricing read boundary
 
 ## What I am doing now
 
-I am finishing the A-122 implementation and verification pass. The goal is to
-make the entire Staff dossier, including every tab, follow the same
-self-versus-management boundary as detailed Staff performance.
+I am finishing the A-074 implementation and verification pass. The goal is to
+keep negotiated Clinic pricing and discounts available to Owner/Admin/Manager
+while preventing Staff queries and React Query dehydration.
 
 The current work is:
 
@@ -241,3 +241,15 @@ nor network responses.
   navigation.
 - Staff can still see coworker names in the Team roster; only the detailed
   workbench route is restricted.
+
+## A-074 Clinic negotiated-pricing read boundary
+
+- `getClinicPricingPlansAction` now requires `clinic.financials.read` for the
+  requested Clinic before opening the tenant Prisma client.
+- The Clinic Financial Ledger checks the same permission on the server. Staff
+  receives the permitted Invoice history but the negotiated-pricing query,
+  hydrated DTO, and pricing editor UI are omitted entirely.
+- Owner/Admin/Manager retain the negotiated pricing view. The Clinic target
+  resolver continues to enforce same-Organization ownership.
+- Focused A-074 and Authorization V1 tests pass (4 files, 52 tests), and
+  targeted ESLint passes.

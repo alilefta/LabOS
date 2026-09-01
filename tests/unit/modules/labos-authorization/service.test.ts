@@ -260,6 +260,34 @@ describe('LabOS authorization service composition', () => {
 		},
 	)
 
+	it.each([
+		['owner', true, 'POLICY_ALLOWED'],
+		['admin', true, 'POLICY_ALLOWED'],
+		['manager', true, 'POLICY_ALLOWED'],
+		['staff', false, 'AUTHZ_PERMISSION_NOT_GRANTED'],
+	] as const)(
+		'evaluates the approved clinic.financials.read role matrix for %s',
+		async (role, allowed, reason) => {
+			const clinicResolver = resolver()
+			const service = createLabOSAuthorizationService({
+				targetResolvers: { clinic: clinicResolver },
+				policies: {},
+				monitor: monitor().monitor,
+			})
+
+			await expect(
+				service.can({
+					actor: { ...actor, memberRoles: [role] },
+					permission: 'clinic.financials.read',
+					target: { type: 'clinic', id: 'clinic-1' },
+				}),
+			).resolves.toEqual({ allowed, reason })
+			expect(clinicResolver.resolveOrganizationId).toHaveBeenCalledTimes(
+				allowed ? 1 : 0,
+			)
+		},
+	)
+
 	it('denies a cross-Organization financial target before policy evaluation', async () => {
 		const policy = allowPolicy()
 		const service = createLabOSAuthorizationService({
