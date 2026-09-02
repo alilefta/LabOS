@@ -85,4 +85,22 @@ describe('invoice write boundaries', () => {
 		expect(source).toContain('if (invoice.status !== "DRAFT")')
 		expect(source).toContain('isolationLevel: Prisma.TransactionIsolationLevel.Serializable')
 	})
+
+	it('authorizes unpaid Invoice cancellation before opening Prisma with the Invoice target and operation intent', () => {
+		const source = readSource('actions', 'invoices', 'cancel-invoice.ts')
+		const permissionIndex = source.indexOf('permission: "invoice.cancel"')
+		const denialIndex = source.indexOf('decision.allowed', permissionIndex)
+		const prismaIndex = source.indexOf('tenantPrisma(', permissionIndex)
+
+		expect(permissionIndex).toBeGreaterThan(0)
+		expect(denialIndex).toBeGreaterThan(permissionIndex)
+		expect(prismaIndex).toBeGreaterThan(denialIndex)
+		expect(source).toContain('target: { type: "invoice", id: invoiceId }')
+		expect(source).toContain('operation: { kind: "invoice.unpaid.cancel" }')
+		expect(source).toContain('createLabOSAuthorizationActor(ctx)')
+		expect(source).toContain('if (Number(invoice.amountPaid) > 0)')
+		expect(source).toContain('await tx.invoiceCase.deleteMany')
+		expect(source).toContain('requiredLabRole: "MANAGER"')
+		expect(source).toContain('isolationLevel: Prisma.TransactionIsolationLevel.Serializable')
+	})
 })

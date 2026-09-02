@@ -5,8 +5,11 @@ import { z } from "zod";
 import { actionClientWithLab } from "@/lib/safe-action";
 import { tenantPrisma } from "@/lib/prisma";
 import { ERRORS } from "@/lib/errors";
+import { Prisma } from "@/generated/prisma/client";
 import { buildLogEntry, resolveActorName } from "@/data/activity-logs/build-activity-log";
 import { CaseUpdatedPayloadSchema } from "@/schema/composed/case-activity-logs.details";
+import { createLabOSAuthorizationActor } from "@/modules/labos-authorization/actor";
+import { labosAuthorizationService } from "@/modules/labos-authorization/service";
 
 const CancelInvoiceSchema = z.object({
 	invoiceId: z.string().uuid("Invalid Invoice ID format"),
@@ -15,12 +18,20 @@ const CancelInvoiceSchema = z.object({
 export const cancelInvoiceAction = actionClientWithLab
 	.metadata({
 		actionName: "Cancel-Void-Invoice-Action",
-		requiredLabRole: "ADMIN", // Only Administrators can void ledgers
+		requiredLabRole: "MANAGER", // Owner/Admin/Manager may cancel unpaid invoices
 	})
 	.inputSchema(CancelInvoiceSchema)
 	.action(async ({ parsedInput, ctx }) => {
 		const { invoiceId } = parsedInput;
 		const { labId, labUser } = ctx;
+
+		const decision = await labosAuthorizationService.can({
+			actor: createLabOSAuthorizationActor(ctx),
+			permission: "invoice.cancel",
+			target: { type: "invoice", id: invoiceId },
+			operation: { kind: "invoice.unpaid.cancel" },
+		});
+		if (!decision.allowed) throw ERRORS.MISSING_PERMISSIONS;
 
 		const prisma = await tenantPrisma(labId);
 
@@ -117,6 +128,7 @@ export const cancelInvoiceAction = actionClientWithLab
 			{
 				maxWait: 5000,
 				timeout: 10000,
+				isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
 			},
 		);
 

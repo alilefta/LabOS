@@ -428,3 +428,18 @@ nor network responses.
   silently deleted as a stale draft; the operation fails rather than widening
   the deletion race.
 - Focused invoice boundary, policy, and service tests pass (74 tests).
+
+## F3 A-088 unpaid Invoice cancellation authorization slice
+
+- `cancelInvoiceAction` now authorizes `invoice.cancel` with the Invoice target
+  and `invoice.unpaid.cancel` operation intent before tenant Prisma and actor
+  name resolution.
+- The legacy metadata gate now matches the approved Owner/Admin/Manager role
+  bundle instead of requiring Admin only.
+- Existing transaction-time guards remain authoritative: Invoice existence,
+  cancellation state, and zero recorded payments are checked before adjusting
+  Clinic balance, releasing Case links, and cancelling the Invoice.
+- Serializable isolation keeps the payment/state check and Case release in one
+  atomic mutation. Paid/partial voiding remains the separately deferred A-087
+  design.
+- Focused invoice boundary, policy, and service tests pass (75 tests).
