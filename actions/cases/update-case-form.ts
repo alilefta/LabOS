@@ -270,7 +270,7 @@ export const updateDentalCaseAction = actionClientWithLab
 
 		if (caseCategoryId) {
 			if (!category) throw ERRORS.NOT_FOUND
-			if (!category.isArchived) throw ERRORS.OPERATION_NOT_ALLOWED
+			if (category.isArchived) throw ERRORS.OPERATION_NOT_ALLOWED
 		}
 
 		// All pricing plans must exist within this lab

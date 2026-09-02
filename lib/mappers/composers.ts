@@ -107,6 +107,9 @@ export function composeWorkItem(raw: RawWorkItem): CaseWorkItemDetailsUI {
 		workType: raw.workType ? normalizeWorkType(raw.workType) : null,
 		casePricingPlan: raw.casePricingPlan ? normalizePricingPlan(raw.casePricingPlan) : null,
 		selectedTeeth: raw.selectedTeeth.map(normalizeSelectedTooth),
+		// Add-ons are not part of the current Case dossier query. Keep the DTO
+		// shape explicit until that relation is intentionally selected and mapped.
+		addons: [],
 		lab: null,
 		dentalCase: null,
 	};

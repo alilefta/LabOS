@@ -220,6 +220,13 @@ Exit criteria:
 - Cross-tenant Clinic, Case, Invoice, and payment references fail closed.
 - Shadow evidence has zero unexplained privilege expansion or failure.
 
+DTO hardening backlog for this milestone:
+
+- Audit Invoice and payment mappers for explicit scalar projections and
+  Decimal conversion before implementing the remaining lifecycle writes.
+- Keep public-capability, payment, and ordinary invoice DTOs separate so a
+  write/read change cannot reintroduce financial fields into a broad payload.
+
 ### F4 — Compensation and payouts
 
 Migrate A-111–A-114 and A-126:
@@ -236,6 +243,14 @@ Exit criteria:
 - Active Staff, source-period, and duplicate-payout invariants are checked again
   inside the transaction.
 - Amounts and Staff identity never enter authorization telemetry.
+
+DTO hardening backlog for this milestone:
+
+- Audit Staff compensation, payout, and membership mappers for relation
+  spreading and explicit server-to-client projections.
+- Audit Clinic financial/detail mappers alongside the billing cutover in F5;
+  Staff operational DTOs must remain free of balances, pricing, and payment
+  relations.
 
 ### F5 — Billing and financial cutover
 

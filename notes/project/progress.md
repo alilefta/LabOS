@@ -339,5 +339,18 @@ nor network responses.
   history keeps both Clinic lookup and Invoice predicates scoped to the active
   Lab/Organization.
 - Focused role, resolver, repository, page-boundary, and Clinic pricing tests
-  pass. The authenticated Staff browser smoke test also passed; management
-  browser confirmation remains a manual follow-up.
+  pass. Authenticated Staff browser smoke testing passed, and the Manager,
+  Admin, and Owner browser confirmations all passed for Case, Invoice, Clinic,
+  and Clinic Ledger management surfaces.
+
+## Case DTO Decimal boundary
+
+- `normalizeCase` now emits an explicit scalar-only `CaseBase` projection and
+  converts both `grandTotal` and `manualDiscountAmount` from Prisma Decimal to
+  plain numbers. Raw Case relations can no longer be carried by object spread
+  into Server Component props.
+- Case list mapping and the Case dossier both use this normalizer, so the
+  created-case detail route has one server-to-client DTO boundary.
+- Decimal/relation audits for Invoice, Clinic, Staff, and other model mappers
+  remain deferred to the later hardening backlog; they are not part of this
+  Case slice.

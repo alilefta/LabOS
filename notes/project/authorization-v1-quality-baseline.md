@@ -58,10 +58,7 @@ application-quality debt and are not introduced by this cutover.
 
 | File | Count | Existing mismatch |
 |---|---:|---|
-| `data/cases/get-case.ts` | 1 | Prisma `Decimal` assigned to numeric DTO field |
-| `lib/mappers/composers.ts` | 1 | required work-item `addons` relation missing |
-| `lib/mappers/normalizers.ts` | 2 | Prisma `Decimal` assigned to case/invoice numeric DTO fields |
-| `lib/server-only-helpers.ts` | 3 | missing `addons` relation and `Decimal` DTO mismatches |
+| `lib/mappers/normalizers.ts` | 1 | Invoice `appliedDiscountPercentage` still returns Prisma `Decimal` |
 
 ## Baseline enforcement rule
 

@@ -7,7 +7,7 @@ import {
 } from '@/lib/data-access-errors'
 import { ERRORS } from '@/lib/errors'
 import { getDataTenantContext } from '@/lib/data-tenant-context'
-import { composeCaseDTO } from '@/lib/mappers'
+import { composeCaseDTO, normalizeCase } from '@/lib/mappers'
 import { tenantPrisma } from '@/lib/prisma'
 import { CaseBase } from '@/schema/base/case.base'
 import { CaseDetailsUI } from '@/schema/composed/case.details'
@@ -94,8 +94,5 @@ export async function getDentalCaseById(caseId: string) {
 	return daSuccess<CaseDetailsUI | null>(composeCaseDTO(dentalCase))
 }
 export const rawCaseToCaseBaseMapper = (data: Case[]): CaseBase[] => {
-	return data.map((c) => ({
-		...c,
-		grandTotal: Number(c.grandTotal),
-	}))
+	return data.map(normalizeCase)
 }

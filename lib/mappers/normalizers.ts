@@ -118,8 +118,31 @@ export function normalizeLabStaff(raw: LabStaffModel): LabStaffBase {
 
 export function normalizeCase(raw: CaseModel): CaseBase {
 	return {
-		...raw,
+		// Keep the Case client DTO scalar-only. Spreading a Prisma model here can
+		// silently carry Decimal values (or future relation fields) across the
+		// Server Component boundary.
+		id: raw.id,
+		patientId: raw.patientId,
+		caseNumber: raw.caseNumber,
+		labId: raw.labId,
+		caseCategoryId: raw.caseCategoryId,
+		status: raw.status,
 		grandTotal: d(raw.grandTotal),
+		manualDiscountAmount: dStrict(raw.manualDiscountAmount),
+		manualDiscountReason: raw.manualDiscountReason,
+		isWarranty: raw.isWarranty,
+		clinicId: raw.clinicId,
+		dentistId: raw.dentistId,
+		notes: raw.notes,
+		deadline: raw.deadline,
+		createdAt: raw.createdAt,
+		updatedAt: raw.updatedAt,
+		isRemake: raw.isRemake,
+		originalCaseId: raw.originalCaseId,
+		failureReason: raw.failureReason,
+		failureFault: raw.failureFault,
+		completedAt: raw.completedAt,
+		deliveredAt: raw.deliveredAt,
 	}
 }
 

@@ -182,7 +182,7 @@ export const createDentalCaseAction = actionClientWithLab
 		// Category must exist and be active
 		if (caseCategoryId) {
 			if (!category) throw ERRORS.NOT_FOUND
-			if (!category.isArchived) throw ERRORS.OPERATION_NOT_ALLOWED
+			if (category.isArchived) throw ERRORS.OPERATION_NOT_ALLOWED
 		}
 
 		// Every pricing plan ID must resolve to a record in this lab

@@ -25,6 +25,7 @@ import { JawType } from "@/schema/base/enums.base";
 import { ToothPosition } from "@/schema/base/tooth-position.base";
 
 import type * as runtime from "@prisma/client/runtime/client";
+import { normalizeCase, normalizeWorkItem } from "@/lib/mappers";
 
 // ============================================================================
 // 1. UTILITY HELPERS
@@ -56,7 +57,9 @@ type CaseItemsWithDetails = CaseWorkItemModel & {
 
 export function caseWorkItemServerToFrontDTO(caseWorkItems: CaseItemsWithDetails[]): CaseWorkItemDetailsUI[] {
 	return caseWorkItems.map((cwi) => ({
-		...cwi,
+		...normalizeWorkItem(cwi),
+		product: cwi.product,
+		workType: cwi.workType,
 		casePricingPlan: cwi.casePricingPlan ? (pricingPlansNormalizer(cwi.casePricingPlan) as CasePricingPlanBase) : null,
 		additionalToothPrice: cwi.additionalToothPrice === null ? null : Number(cwi.additionalToothPrice),
 		bulkPrice: cwi.bulkPrice === null ? null : Number(cwi.bulkPrice),
@@ -65,6 +68,8 @@ export function caseWorkItemServerToFrontDTO(caseWorkItems: CaseItemsWithDetails
 		toothPrice: cwi.toothPrice === null ? null : Number(cwi.toothPrice),
 		totalPrice: Number(cwi.totalPrice),
 		selectedTeeth: cwi.selectedTeeth,
+		addons: [],
+		lab: null,
 		dentalCase: null,
 	}));
 }
@@ -140,7 +145,7 @@ type DraftCaseRaw = CaseModel & {
 
 export function draftCaseServerToDTO(raw: DraftCaseRaw): DraftCaseDTO {
 	return {
-		...raw,
+		...normalizeCase(raw),
 		// CaseBase fields — normalize Decimals
 		id: raw.id,
 		patientId: raw.patientId,
@@ -161,7 +166,7 @@ export function draftCaseServerToDTO(raw: DraftCaseRaw): DraftCaseDTO {
 		clinic: raw.clinic,
 
 		caseItems: raw.caseItems.map((item) => ({
-			...item,
+			...normalizeWorkItem(item),
 			totalPrice: Number(item.totalPrice),
 			bulkPrice: item.bulkPrice !== null ? Number(item.bulkPrice) : null,
 			toothPrice: item.toothPrice !== null ? Number(item.toothPrice) : null,
@@ -174,9 +179,17 @@ export function draftCaseServerToDTO(raw: DraftCaseRaw): DraftCaseDTO {
 		staffAssignments: raw.staffAssignments
 			.filter((sa) => sa !== undefined)
 			.map((s) => ({
-				...s,
+				id: s.id,
+				caseId: s.caseId,
+				staffId: s.staffId,
+				labId: s.labId,
 				commissionValue: Number(s.commissionValue),
 				commissionTotal: Number(s.commissionTotal),
+				commissionType: s.commissionType,
+				isPaid: s.isPaid,
+				paidAt: s.paidAt,
+				createdAt: s.createdAt,
+				updatedAt: s.updatedAt,
 				roleCategory: s.roleCategory,
 			})),
 
@@ -186,7 +199,7 @@ export function draftCaseServerToDTO(raw: DraftCaseRaw): DraftCaseDTO {
 
 export function optionalSelectiveDraftCaseServerToDTO(raw: DraftCaseRaw): DraftCaseDTO {
 	return {
-		...raw,
+		...normalizeCase(raw),
 		// CaseBase fields — normalize Decimals
 		id: raw.id,
 		patientId: raw.patientId,
@@ -208,7 +221,7 @@ export function optionalSelectiveDraftCaseServerToDTO(raw: DraftCaseRaw): DraftC
 		clinic: raw.clinic,
 
 		caseItems: raw.caseItems.map((item) => ({
-			...item,
+			...normalizeWorkItem(item),
 			totalPrice: Number(item.totalPrice),
 			bulkPrice: item.bulkPrice !== null ? Number(item.bulkPrice) : null,
 			toothPrice: item.toothPrice !== null ? Number(item.toothPrice) : null,
@@ -221,9 +234,18 @@ export function optionalSelectiveDraftCaseServerToDTO(raw: DraftCaseRaw): DraftC
 		staffAssignments: raw.staffAssignments
 			.filter((s) => s !== undefined)
 			.map((s) => ({
-				...s,
+				id: s.id,
+				caseId: s.caseId,
+				staffId: s.staffId,
+				labId: s.labId,
 				commissionValue: Number(s.commissionValue),
 				commissionTotal: Number(s.commissionTotal),
+				commissionType: s.commissionType,
+				isPaid: s.isPaid,
+				paidAt: s.paidAt,
+				createdAt: s.createdAt,
+				updatedAt: s.updatedAt,
+				roleCategory: s.roleCategory,
 			})),
 
 		caseAssetFiles: raw.caseAssetFiles.filter((caf) => caf !== undefined),
