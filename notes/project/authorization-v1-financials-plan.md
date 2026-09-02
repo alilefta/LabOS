@@ -42,7 +42,7 @@ role hierarchy.
 | Capability | Owner | Admin | Manager | Staff |
 |---|---|---|---|---|
 | Case/Clinic financials | Read/write | Read/write | Read/write | None |
-| Invoice read/list/analytics | Full | Full | Full | Read-only |
+| Invoice read/list/analytics | Full | Full | Full | None |
 | Invoice create/update/cancel/delete draft | Yes | Yes | Yes | No |
 | Record payment / sync overdue | Yes | Yes | Yes | No |
 | Compensation | Read/write | Read | Read/write | No |
@@ -52,6 +52,12 @@ role hierarchy.
 Any departure from this table requires an explicit product/security decision
 and a recorded divergence. Role changes must affect the next request; no
 long-lived authorization result may survive tenant or membership changes.
+
+Staff Invoice read access was removed by approved product/security decision on
+2026-09-01. Invoice lists, dossiers, Clinic ledger history, accounts-receivable
+analytics, risk views, payment history, totals, balances, discounts, and
+unbilled financial values are management-only. Staff retains ordinary Clinic
+and Case operational data through their separate redacted DTOs.
 
 ## Boundary inventory
 

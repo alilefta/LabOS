@@ -81,12 +81,12 @@ describe('LabOS Authorization V1 fixed bundles', () => {
 			'staff.analytics.read',
 			'staff.analytics.list',
 			'staff.workbench.read',
-			'invoice.read',
-			'invoice.list',
-			'invoice.analytics.read',
 		])
 		expect(roleBundleHasPermission('staff', 'case.update')).toBe(false)
 		expect(roleBundleHasPermission('staff', 'case.financials.read')).toBe(false)
+		expect(roleBundleHasPermission('staff', 'invoice.read')).toBe(false)
+		expect(roleBundleHasPermission('staff', 'invoice.list')).toBe(false)
+		expect(roleBundleHasPermission('staff', 'invoice.analytics.read')).toBe(false)
 	})
 
 	it('does not model roles as a hierarchy', () => {

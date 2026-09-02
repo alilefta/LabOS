@@ -7,6 +7,8 @@ import { InvoiceDetailsDTO } from "@/schema/composed/invoices/invoice-details.dt
 import { differenceInDays, startOfDay } from "date-fns";
 import { z } from "zod";
 import { INVOICE_DOSSIER_SELECT } from "@/data/invoices/invoice-read-projections";
+import { createLabOSAuthorizationActor } from "@/modules/labos-authorization/actor";
+import { labosAuthorizationService } from "@/modules/labos-authorization/service";
 
 export const getInvoiceDossierAction = actionClientWithLab
 	.metadata({
@@ -17,6 +19,12 @@ export const getInvoiceDossierAction = actionClientWithLab
 	.action(async ({ ctx, parsedInput }) => {
 		const { labId } = ctx;
 		const { invoiceId } = parsedInput;
+		const decision = await labosAuthorizationService.can({
+			actor: createLabOSAuthorizationActor(ctx),
+			permission: "invoice.read",
+			target: { type: "invoice", id: invoiceId },
+		});
+		if (!decision.allowed) throw ERRORS.MISSING_PERMISSIONS;
 
 		const prisma = await tenantPrisma(labId);
 

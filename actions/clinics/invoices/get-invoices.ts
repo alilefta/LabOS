@@ -9,6 +9,8 @@ import { APIError } from "better-auth";
 import { endOfDay, startOfDay, startOfMonth, subMonths } from "date-fns";
 import { InvoiceFiltersSchema } from "@/schema/composed/invoices/invoice-filters";
 import { DatePreset } from "@/schema/composed/shared/date-preset";
+import { createLabOSAuthorizationActor } from "@/modules/labos-authorization/actor";
+import { labosAuthorizationService } from "@/modules/labos-authorization/service";
 
 export type ClinicInvoiceListDTO = {
 	id: string;
@@ -64,6 +66,12 @@ export const getClinicInvoicesAction = actionClientWithLab
 		const { labId } = ctx;
 		const { clinicId, cursor, take, search, filters } = parsedInput;
 		try {
+			const decision = await labosAuthorizationService.can({
+				actor: createLabOSAuthorizationActor(ctx),
+				permission: "invoice.list",
+			});
+			if (!decision.allowed) throw ERRORS.MISSING_PERMISSIONS;
+
 			const prisma = await tenantPrisma(labId);
 
 			const clinic = await prisma.clinic.findUnique({

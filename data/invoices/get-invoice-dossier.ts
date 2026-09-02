@@ -8,6 +8,8 @@ import { startOfDay, differenceInDays } from "date-fns";
 import { InvoiceDetailsDTO } from "@/schema/composed/invoices/invoice-details.dtos";
 import z from "zod";
 import { INVOICE_DOSSIER_SELECT } from "./invoice-read-projections";
+import { createLabOSAuthorizationActor } from "@/modules/labos-authorization/actor";
+import { labosAuthorizationService } from "@/modules/labos-authorization/service";
 
 const InputSchema = z.string().uuid("Invalid Invoice ID format");
 
@@ -17,12 +19,22 @@ export async function getInvoiceDossierData(invoiceId: string): Promise<DAResult
 		// Resolve the session and labId internally to guarantee tenant isolation [1].
 		const tenantResult = await getDataTenantContext();
 		if (!tenantResult.success) return daError(tenantResult.error);
-		const { labId } = tenantResult.data;
+		const tenant = tenantResult.data;
+		const { labId } = tenant;
 
 		// Sanitize input
 		const parsedId = InputSchema.safeParse(invoiceId);
 		if (!parsedId.success) {
 			return daError(ERRORS.INVALID_INPUT.toJSON());
+		}
+
+		const decision = await labosAuthorizationService.can({
+			actor: createLabOSAuthorizationActor(tenant),
+			permission: "invoice.read",
+			target: { type: "invoice", id: parsedId.data },
+		});
+		if (!decision.allowed) {
+			return daError(ERRORS.MISSING_PERMISSIONS.toJSON());
 		}
 
 		const prisma = await tenantPrisma(labId);

@@ -211,9 +211,9 @@ describe('LabOS authorization service composition', () => {
 		['owner', true, 'POLICY_ALLOWED'],
 		['admin', true, 'POLICY_ALLOWED'],
 		['manager', true, 'POLICY_ALLOWED'],
-		['staff', true, 'POLICY_ALLOWED'],
+		['staff', false, 'AUTHZ_PERMISSION_NOT_GRANTED'],
 	] as const)(
-		'evaluates supported invoice.read for %s through the Invoice resolver',
+		'evaluates the approved invoice.read role matrix for %s',
 		async (role, allowed, reason) => {
 			const invoiceResolver = resolver()
 			const service = createLabOSAuthorizationService({
@@ -229,7 +229,11 @@ describe('LabOS authorization service composition', () => {
 					target: { type: 'invoice', id: 'invoice-1' },
 				}),
 			).resolves.toEqual({ allowed, reason })
-			expect(invoiceResolver.resolveOrganizationId).toHaveBeenCalledOnce()
+			if (allowed) {
+				expect(invoiceResolver.resolveOrganizationId).toHaveBeenCalledOnce()
+			} else {
+				expect(invoiceResolver.resolveOrganizationId).not.toHaveBeenCalled()
+			}
 		},
 	)
 

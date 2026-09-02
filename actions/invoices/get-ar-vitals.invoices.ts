@@ -6,6 +6,9 @@ import { ArVitalsDTO } from "@/schema/composed/invoices/invoices.dtos";
 import { GlobalTimeFramePeriod, GlobalTimeFramePeriodSchema } from "@/schema/composed/shared/date-preset";
 import { subDays, startOfDay, startOfYear, endOfDay } from "date-fns";
 import z from "zod";
+import { ERRORS } from "@/lib/errors";
+import { createLabOSAuthorizationActor } from "@/modules/labos-authorization/actor";
+import { labosAuthorizationService } from "@/modules/labos-authorization/service";
 
 // Helper to resolve current collected window [1]
 function resolveCollectedWindow(period: GlobalTimeFramePeriod): { start: Date | null; end: Date } {
@@ -63,6 +66,12 @@ export const getArVitalsAction = actionClientWithLab
 	.action(async ({ ctx, parsedInput }) => {
 		const { labId } = ctx;
 		const { period } = parsedInput;
+		const decision = await labosAuthorizationService.can({
+			actor: createLabOSAuthorizationActor(ctx),
+			permission: "invoice.analytics.read",
+		});
+		if (!decision.allowed) throw ERRORS.MISSING_PERMISSIONS;
+
 		const prisma = await tenantPrisma(labId);
 
 		const now = new Date();

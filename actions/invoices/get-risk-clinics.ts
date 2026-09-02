@@ -3,6 +3,9 @@
 import { actionClientWithLab } from "@/lib/safe-action";
 import { tenantPrisma } from "@/lib/prisma";
 import { RiskClinicDTO } from "@/schema/composed/invoices/invoices.dtos";
+import { ERRORS } from "@/lib/errors";
+import { createLabOSAuthorizationActor } from "@/modules/labos-authorization/actor";
+import { labosAuthorizationService } from "@/modules/labos-authorization/service";
 
 export const getArRiskClinicsAction = actionClientWithLab
 	.metadata({
@@ -12,6 +15,12 @@ export const getArRiskClinicsAction = actionClientWithLab
 	})
 	.action(async ({ ctx }) => {
 		const { labId } = ctx;
+		const decision = await labosAuthorizationService.can({
+			actor: createLabOSAuthorizationActor(ctx),
+			permission: "invoice.analytics.read",
+		});
+		if (!decision.allowed) throw ERRORS.MISSING_PERMISSIONS;
+
 		const prisma = await tenantPrisma(labId);
 
 		const now = new Date();

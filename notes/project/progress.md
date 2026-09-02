@@ -4,14 +4,36 @@
 
 **Branch:** `feat/authorization-financial-reads`
 **Workstream:** F2 — protected financial and sensitive reads
-**Current slice:** A-019/A-060/A-065/A-071/A-074 — Clinic and Case financial disclosure surfaces
+**Current slice:** A-075/A-090/A-092–A-094 — Invoice read separation
 
 ## What I am doing now
 
-I am finishing the Clinic financial-surface implementation and manual
-verification pass. The goal is to keep revenue aggregates and negotiated
-pricing available to Owner/Admin/Manager without generating expected 403s or
-dehydrating those financial values for Staff.
+The Clinic/Case disclosure slice was committed at `51f802c`. The active work is
+now the Invoice read boundary: Owner/Admin/Manager retain Invoice and A/R
+access, while Staff keeps operational Clinic/Case data but receives no Invoice
+financial records or controls.
+
+## Staff Invoice policy decision — 2026-09-01
+
+- Staff no longer has `invoice.read`, `invoice.list`, or
+  `invoice.analytics.read` in the fixed V1 permission bundle.
+- Invoice lists, dossiers, Clinic ledger history, A/R vitals, risk views,
+  payment history, totals, balances, discounts, and unbilled financial values
+  are Owner/Admin/Manager-only.
+- This records policy intent. Server-page, action, repository short-circuit,
+  DTO, and UI enforcement are the next implementation slice.
+
+## Invoice reader enforcement
+
+- Global and Clinic-scoped Invoice lists require `invoice.list` before opening
+  their business Prisma clients.
+- Both the Invoice dossier action and the direct server data reader require
+  `invoice.read` with an identifier-only Invoice target before loading the
+  dossier projection.
+- A/R vitals, risk radar, and the server unbilled-summary reader require
+  `invoice.analytics.read` before aggregate or Clinic queries execute.
+- Focused role/service/source-order tests pass (3 files, 53 tests). Server-page
+  redirects, conditional dehydration, and Staff UI removal are the next step.
 
 The current work is:
 

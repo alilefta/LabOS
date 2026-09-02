@@ -4,6 +4,9 @@ import { tenantPrisma } from "@/lib/prisma";
 import { getDataTenantContext } from "@/lib/data-tenant-context";
 import { daError, DAResult, daSuccess, toDAError } from "@/lib/data-access-errors";
 import { UninvoicedClinicsSummary } from "@/schema/composed/invoices/invoices.dtos";
+import { ERRORS } from "@/lib/errors";
+import { createLabOSAuthorizationActor } from "@/modules/labos-authorization/actor";
+import { labosAuthorizationService } from "@/modules/labos-authorization/service";
 
 export async function getUninvoicedClinicsSummary(): Promise<DAResult<UninvoicedClinicsSummary>> {
 	try {
@@ -14,7 +17,15 @@ export async function getUninvoicedClinicsSummary(): Promise<DAResult<Uninvoiced
 		// ─────────────────────────────────────────────────────────────────
 		const tenantResult = await getDataTenantContext();
 		if (!tenantResult.success) return daError(tenantResult.error);
-		const { labId } = tenantResult.data;
+		const tenant = tenantResult.data;
+		const { labId } = tenant;
+		const decision = await labosAuthorizationService.can({
+			actor: createLabOSAuthorizationActor(tenant),
+			permission: "invoice.analytics.read",
+		});
+		if (!decision.allowed) {
+			return daError(ERRORS.MISSING_PERMISSIONS.toJSON());
+		}
 
 		const prisma = await tenantPrisma(labId);
 

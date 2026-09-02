@@ -9,6 +9,8 @@ import { GetInvoicsListSchema, GetInvoicesListResult, InvoiceListDTO } from "@/s
 import { DatePreset } from "@/schema/composed/shared/date-preset";
 import { InvoicePulseFilter } from "@/schema/composed/invoices/invoice-filters";
 import { INVOICE_LIST_SELECT } from "@/data/invoices/invoice-read-projections";
+import { createLabOSAuthorizationActor } from "@/modules/labos-authorization/actor";
+import { labosAuthorizationService } from "@/modules/labos-authorization/service";
 
 function resolveDatePreset(preset: DatePreset, from: Date | null, to: Date | null): { gte: Date; lte: Date } | null {
 	const now = new Date();
@@ -53,6 +55,11 @@ export const getInvoicesListAction = actionClientWithLab
 	.action(async ({ ctx, parsedInput }) => {
 		const { labId } = ctx;
 		const { cursor, take, search, filters } = parsedInput;
+		const decision = await labosAuthorizationService.can({
+			actor: createLabOSAuthorizationActor(ctx),
+			permission: "invoice.list",
+		});
+		if (!decision.allowed) throw ERRORS.MISSING_PERMISSIONS;
 
 		const prisma = await tenantPrisma(labId);
 
