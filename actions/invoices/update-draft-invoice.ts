@@ -7,6 +7,8 @@ import { tenantPrisma } from "@/lib/prisma";
 import { ERRORS } from "@/lib/errors"; // Predefined errors
 import crypto from "crypto";
 import { UpdateInvoiceInputSchema } from "@/schema/composed/invoices/update-invoice.schema";
+import { createLabOSAuthorizationActor } from "@/modules/labos-authorization/actor";
+import { labosAuthorizationService } from "@/modules/labos-authorization/service";
 
 export const updateDraftInvoiceAction = actionClientWithLab
 	.metadata({
@@ -17,6 +19,18 @@ export const updateDraftInvoiceAction = actionClientWithLab
 	.action(async ({ parsedInput, ctx }) => {
 		const { labId } = ctx;
 		const { invoiceId, clinicId, caseIds, status, billingTerms, customDueDate, discountPercentage, discountReason, notes } = parsedInput;
+
+		const decision = await labosAuthorizationService.can({
+			actor: createLabOSAuthorizationActor(ctx),
+			permission: "invoice.update",
+			target: { type: "invoice", id: invoiceId },
+			operation: {
+				kind: "invoice.draft.update",
+				clinicId,
+				caseIds,
+			},
+		});
+		if (!decision.allowed) throw ERRORS.MISSING_PERMISSIONS;
 
 		const prisma = await tenantPrisma(labId);
 

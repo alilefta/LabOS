@@ -1,9 +1,12 @@
 "use server";
 
 import { addDays, startOfDay } from "date-fns";
+import { ERRORS } from "@/lib/errors";
 import { actionClientWithLab } from "@/lib/safe-action";
 import { tenantPrisma } from "@/lib/prisma";
 import { CreateInvoiceInputSchema } from "@/schema/composed/invoices/new-invoice.schema";
+import { createLabOSAuthorizationActor } from "@/modules/labos-authorization/actor";
+import { labosAuthorizationService } from "@/modules/labos-authorization/service";
 
 export const createInvoiceAction = actionClientWithLab
 	.metadata({
@@ -14,6 +17,12 @@ export const createInvoiceAction = actionClientWithLab
 	.action(async ({ parsedInput, ctx }) => {
 		const { labId } = ctx;
 		const { clinicId, caseIds, status, billingTerms, customDueDate, discountPercentage, discountReason, notes } = parsedInput;
+
+		const decision = await labosAuthorizationService.can({
+			actor: createLabOSAuthorizationActor(ctx),
+			permission: "invoice.create",
+		});
+		if (!decision.allowed) throw ERRORS.MISSING_PERMISSIONS;
 
 		const prisma = await tenantPrisma(labId);
 

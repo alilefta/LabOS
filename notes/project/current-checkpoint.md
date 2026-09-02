@@ -2,7 +2,8 @@
 
 **Last reviewed:** 2026-09-02
 **Active branch:** `feat/authorization-financial-reads`
-**Last committed checkpoint:** `0e4dfbb` — `fix(cases): enforce plain DTO boundary`
+**Last code checkpoint:** `0e4dfbb` — `fix(cases): enforce plain DTO boundary`
+**Last documentation checkpoint:** `aa84da4` — `docs(project): add authorization handoff checkpoint`
 **Working tree:** F3 implementation changes are in progress and are not yet committed.
 
 This is the short, evidence-based handoff for someone starting from the current
@@ -14,13 +15,15 @@ chronological events belong in `progress.md`.
 **Authorization V1 financials — F3: Invoice lifecycle writes and payments**
 **Status:** In progress
 
-The first F3 slice protects `createInvoiceAction` with `invoice.create` before
-tenant Prisma access. Existing transaction-time Clinic/Case eligibility checks
-remain in place. Focused authorization and invoice-boundary tests pass.
+The first two F3 slices protect `createInvoiceAction` with `invoice.create` and
+`updateDraftInvoiceAction` with the typed `invoice.update` target and draft
+operation intent before tenant Prisma access. Existing transaction-time
+Clinic/Case eligibility checks remain in place. Focused authorization and
+invoice-boundary tests pass.
 
 ### Next implementation slices
 
-1. Update/adjust draft or live invoices.
+1. Harden update/adjust behavior for live invoices.
 2. Delete draft invoices.
 3. Implement unpaid cancellation and define the deferred paid/partial void path.
 4. Synchronize overdue invoices.
@@ -34,13 +37,13 @@ remain in place. Focused authorization and invoice-boundary tests pass.
 | F0 — Reconcile and approve inventory | Complete | Approved 2026-08-27; see `authorization-v1-financials-inventory.md`. |
 | F1 — Shared authorization foundation | Complete | Typed tenant-scoped resolvers, fact loaders, policies, and fail-closed tests; checkpoint merge `6796fda` (underlying commits `0f7101d`, `9135146`). |
 | F2 — Financial read separation | Complete for the implemented read-separation checkpoint | Invoice capability removal, Clinic/Case/Staff financial redaction, pre-Prisma reader/page enforcement, role and cross-tenant tests, and Owner/Admin/Manager browser confirmation; see `progress.md` and `baseline-app/`. Remaining follow-ups stay explicitly listed in the plan/inventory. |
-| F3 — Invoice lifecycle and payments | In progress | `createInvoiceAction` authorization gate and focused tests are complete in the working tree; remaining lifecycle writes are listed above. |
+| F3 — Invoice lifecycle and payments | In progress | `createInvoiceAction` and `updateDraftInvoiceAction` authorization gates plus focused tests are complete in the working tree; remaining lifecycle writes are listed above. |
 | F4 — Compensation and payouts | Not started | Planned after F3. |
 | F5 — Billing and financial cutover | Not started | Planned after F4. |
 
 ## Verification at this checkpoint
 
-- Focused Vitest run: 53 tests passed across invoice read/write boundaries and authorization service tests.
+- Focused Vitest run: 71 tests passed across invoice read/write boundaries and authorization policy/service tests.
 - ESLint passed for the F3 action and its new boundary test.
 - `git diff --check` passed.
 - Case DTO boundary is committed; Case totals and discounts are converted to plain numbers before Client Components.

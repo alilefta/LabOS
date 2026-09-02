@@ -378,3 +378,17 @@ nor network responses.
   plan and added the missing F1 implementation record to the boundary inventory.
 - `progress.md` remains append-only history; product-specific findings remain
   under `notes/baseline-app/`.
+
+## F3 draft Invoice update authorization slice
+
+- `updateDraftInvoiceAction` now authorizes `invoice.update` before opening the
+  tenant Prisma client.
+- The request carries the Invoice target plus the closed
+  `invoice.draft.update` operation intent (`clinicId` and `caseIds`), allowing
+  the policy to validate draft state, Clinic ownership, and candidate links
+  without trusting caller-supplied facts.
+- Existing transaction logic remains in place, including draft-only checks,
+  same-Clinic Case selection, and Case eligibility validation. Binding the
+  transaction's Clinic update to the trusted Invoice relationship remains a
+  critical follow-up.
+- Focused invoice boundary, policy, and service tests pass (71 tests).
