@@ -417,3 +417,14 @@ nor network responses.
   decrements debt and an increased total increments it.
 - Focused boundary, policy, and service tests pass (73 tests). A production
   concurrency exercise remains a follow-up for the broader F3 verification.
+
+## F3 A-085 draft Invoice deletion authorization slice
+
+- `deleteDraftInvoiceAction` now authorizes `invoice.delete_draft` with the
+  Invoice target before opening the tenant Prisma client.
+- The transaction revalidates Invoice existence and `DRAFT` state before
+  deleting tenant-owned InvoiceCase rows and the Invoice itself.
+- Serializable isolation prevents a concurrent lifecycle change from being
+  silently deleted as a stale draft; the operation fails rather than widening
+  the deletion race.
+- Focused invoice boundary, policy, and service tests pass (74 tests).

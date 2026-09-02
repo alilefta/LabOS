@@ -70,4 +70,19 @@ describe('invoice write boundaries', () => {
 		expect(source).not.toContain('balanceAdjustment > 0')
 		expect(source).not.toContain('where: { id: invoice.clinicId }')
 	})
+
+	it('authorizes draft Invoice deletion before opening Prisma with the Invoice target', () => {
+		const source = readSource('actions', 'invoices', 'admin-actions', 'delete-draft-invoice-action.ts')
+		const permissionIndex = source.indexOf('permission: "invoice.delete_draft"')
+		const denialIndex = source.indexOf('decision.allowed', permissionIndex)
+		const prismaIndex = source.indexOf('tenantPrisma(', permissionIndex)
+
+		expect(permissionIndex).toBeGreaterThan(0)
+		expect(denialIndex).toBeGreaterThan(permissionIndex)
+		expect(prismaIndex).toBeGreaterThan(denialIndex)
+		expect(source).toContain('target: { type: "invoice", id: invoiceId }')
+		expect(source).toContain('createLabOSAuthorizationActor(ctx)')
+		expect(source).toContain('if (invoice.status !== "DRAFT")')
+		expect(source).toContain('isolationLevel: Prisma.TransactionIsolationLevel.Serializable')
+	})
 })

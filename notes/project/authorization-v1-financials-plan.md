@@ -216,8 +216,9 @@ Exit criteria:
 ### F3 — Invoice lifecycle and payments
 
 **Status:** In progress — `createInvoiceAction`, `updateDraftInvoiceAction`,
-and `adjustLiveInvoiceAction` are the first protected write slices; the
-remaining lifecycle mutations and payment idempotency work are next.
+`adjustLiveInvoiceAction`, and `deleteDraftInvoiceAction` are the first
+protected write slices; the remaining lifecycle mutations and payment
+idempotency work are next.
 
 Migrate A-084–A-089 and A-096–A-097 vertically:
 
