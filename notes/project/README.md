@@ -6,10 +6,12 @@ This folder holds durable project-control records. Live ticket status belongs on
 
 | Information | Source of truth |
 |---|---|
-| Architecture and module contracts | `notes/architecture/platform-architecture-plan.md` and `platform-modules/` |
+| Current implementation checkpoint | `current-checkpoint.md` |
+| Architecture and module contracts | `../architecture/platform-architecture-plan.md` and `platform-modules/` |
 | Work status, owner, priority, blockers | Trello/project board |
 | Milestone exit gates | `milestones.md` |
-| Current Authorization V1 delivery plan | `authorization-v1-rbac-plan.md` |
+| Current Authorization V1 financials delivery plan | `authorization-v1-financials-plan.md` |
+| Broader Authorization V1/RBAC plan | `authorization-v1-rbac-plan.md` |
 | Authorization migration inventory | `authorization-v1-migration-inventory.md` and generated legacy baseline |
 | Program risks | `risk-register.md` |
 | Sprint goal/review/retrospective | `sprints/YYYY-SNN.md` |
@@ -19,8 +21,9 @@ Existing feature and architecture plans outside the new platform baseline are no
 
 ## Start here
 
-1. Create the board lists and labels from [the delivery process](../architecture/platform-delivery-process.md).
-2. Run M0 discovery and create one board card per inventory/test/risk outcome.
-3. Refine only the first two sprints.
-4. Copy `sprints/TEMPLATE.md` to the numbered sprint file at planning time.
-5. Review the milestone and risk registers during every sprint review.
+1. Read [the current checkpoint](current-checkpoint.md) for the active branch, milestone, verified work, and next task.
+2. Read the relevant plan: [Authorization V1 financials](authorization-v1-financials-plan.md) for F0–F5, or [the broader RBAC plan](authorization-v1-rbac-plan.md) for the platform-wide migration.
+3. Use [the milestone register](milestones.md) for M0–M9 exit gates and cross-project status.
+4. Use the financial [boundary inventory](authorization-v1-financials-inventory.md) for operation-level scope, policy, and evidence.
+5. Treat [progress.md](progress.md) as append-only history, not as the onboarding entry point.
+6. Review [baseline-app findings](../baseline-app/info.md) when working on product-specific behavior or UX issues.

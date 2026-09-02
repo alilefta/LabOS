@@ -354,3 +354,27 @@ nor network responses.
 - Decimal/relation audits for Invoice, Clinic, Staff, and other model mappers
   remain deferred to the later hardening backlog; they are not part of this
   Case slice.
+
+## F3 Invoice lifecycle kickoff
+
+- F2 is checkpointed in commit `0e4dfbb` after Manager, Admin, and Owner browser
+  confirmation.
+- The first F3 write slice protects `createInvoiceAction` with the V1
+  organization-level `invoice.create` permission before `tenantPrisma`.
+- Existing transaction checks still require same-tenant, same-Clinic,
+  completed/delivered, unbilled Cases. Public-link issuance remains a separate
+  capability boundary and is not expanded by Invoice creation.
+- Next F3 slices: update draft, record payment, unpaid cancellation, overdue
+  synchronization, and draft deletion; each needs target authorization before
+  Prisma plus transaction-time state and concurrency invariants.
+
+## Documentation checkpoint structure
+
+- Added `notes/project/current-checkpoint.md` as the canonical handoff for the
+  active branch, milestone status, verified work, open risks, and next task.
+- Updated `notes/project/README.md` with a clear reading order and corrected the
+  active financials plan source of truth.
+- Backfilled explicit F1 and F2 status/evidence summaries in the financials
+  plan and added the missing F1 implementation record to the boundary inventory.
+- `progress.md` remains append-only history; product-specific findings remain
+  under `notes/baseline-app/`.

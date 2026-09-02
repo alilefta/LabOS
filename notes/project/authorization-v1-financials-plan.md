@@ -1,7 +1,8 @@
 # Authorization V1 financials implementation plan
 
 **Status:** Approved planning baseline  
-**Current branch:** `feat/platform-authorization-financials`  
+**Active implementation branch:** `feat/authorization-financial-reads`
+**Foundation baseline branch:** `feat/platform-authorization-financials`
 **Starting checkpoint:** `authorization-v1-membership-enforcement`  
 **Scope:** Case/Clinic financial disclosure, Staff compensation, invoices,
 payments, payouts, and billing authorization
@@ -91,6 +92,9 @@ and Case operational data through their separate redacted DTOs.
 
 ### F0 — Reconcile and approve the inventory
 
+**Status:** Complete — approved by Ali on 2026-08-27; implementation findings
+remain tracked in the boundary inventory.
+
 Inventory record: `authorization-v1-financials-inventory.md`
 
 Current state: F0 approved by Ali on 2026-08-27; implementation remediations
@@ -114,6 +118,10 @@ Exit criteria:
 - No new authorization table or database migration is introduced.
 
 ### F1 — Build the shared financial authorization foundation
+
+**Status:** Complete — checkpoint merge `6796fda` (underlying foundation
+commits `0f7101d` and `9135146`). The foundation is tested and fail-closed;
+application action/page consumers intentionally began in F2.
 
 Progress as of 2026-08-28:
 
@@ -161,6 +169,10 @@ Exit criteria:
 
 ### F2 — Financial read separation
 
+**Status:** Complete for the implemented read-separation checkpoint. Residual
+DTO and dedicated-reader follow-ups remain explicitly listed below and in the
+boundary inventory; they must not be silently treated as complete.
+
 Migrate financial collection/detail/analytics readers and remove capability
 leakage before mutating actions are enforced.
 
@@ -202,6 +214,9 @@ Exit criteria:
 - Denied readers do not execute repositories.
 
 ### F3 — Invoice lifecycle and payments
+
+**Status:** In progress — `createInvoiceAction` is the first protected write
+slice; the remaining lifecycle mutations and payment idempotency work are next.
 
 Migrate A-084–A-089 and A-096–A-097 vertically:
 

@@ -52,7 +52,7 @@ intentional only after explicit product/security approval.
 | A-086 | Synchronize overdue Invoices | `invoice.overdue.sync`; Organization; no target | Server-owned time/status predicate; bounded tenant update; record counts only | Owner/Manager → Owner/Admin/Manager; **Admin expansion approved 2026-08-27** | Approved classification; implementation pending |
 | A-087 | Void a live Invoice | `invoice.cancel`; resource; Invoice ID | Same Organization; void eligibility; re-read payment/state/Clinic balance; never put reason in auth telemetry | Owner/Manager → Owner/Admin/Manager; **Admin expansion approved 2026-08-27** | Deferred: paid/partial void semantics remain separate from A-088 |
 | A-088 | Cancel an unpaid Invoice | `invoice.cancel`; resource; Invoice ID | Same Organization; non-draft, no-payment cancellation; revalidate payment/state and release Cases atomically | Owner/Manager/Admin → same | Approved classification; implementation pending |
-| A-089 | Create an Invoice | `invoice.create`; Organization; validated Clinic/Case IDs are typed operation intent, not trusted facts | Resolve Clinic and every Case in tenant; require same Clinic, eligible status, unbilled state; validate in transaction | Owner/Manager → Owner/Admin/Manager; **Admin expansion approved 2026-08-27** | Blocked: separate public-link issuance |
+| A-089 | Create an Invoice | `invoice.create`; Organization; validated Clinic/Case IDs are typed operation intent, not trusted facts | Resolve Clinic and every Case in tenant; require same Clinic, eligible status, unbilled state; validate in transaction | Owner/Manager → Owner/Admin/Manager; **Admin expansion approved 2026-08-27** | V1 organization authorization now runs before Prisma; tenant/case eligibility remains transaction-scoped; public-link issuance stays separate |
 | A-090 | Accounts-receivable vitals | `invoice.analytics.read`; Organization | Tenant-scoped aggregates and one consistent predicate | All roles → Owner/Admin/Manager; **Staff restriction approved 2026-09-01** | Reader and Invoice page enforcement implemented before Prisma/dehydration; role/cross-tenant tests pass; management browser matrix pending |
 | A-091 | List Cases eligible for a draft Invoice | `invoice.create` for creation, or `invoice.update` with Invoice target for editing; Clinic filter must resolve | Resolve Clinic; when draft ID exists resolve same-tenant, same-Clinic draft; return minimal supporting DTO | All roles → Owner/Admin/Manager; **Staff restriction approved 2026-08-27** | Blocked: split create/edit contracts and validate draft authority |
 | A-092 | Read Invoice dossier | `invoice.read`; resource; Invoice ID | Same Organization; composite sections independently require their disclosure permission or are redacted | All roles → Owner/Admin/Manager; **Staff restriction approved 2026-09-01** | Action, direct server reader, page, and metadata authorize the Invoice target before business Prisma/dehydration; role/cross-tenant tests pass; management browser matrix pending |
@@ -160,6 +160,26 @@ implementation gates rather than product-decision blockers.
 F1 may now implement only the shared target resolvers, fact loaders, policies,
 and unit tests. It must not connect financial actions yet and must not perform a
 Prisma migration without Ali's explicit approval.
+
+## F1 implementation record
+
+### Shared financial authorization foundation — 2026-08-28
+
+- Typed identifier-only tenant resolvers were implemented for Case, Clinic,
+  Invoice, Staff compensation targets, and Payout.
+- Request-cached, tenant-scoped fact loaders were implemented for financial
+  state, lifecycle, cross-links, compensation targets, and payout eligibility.
+- Closed operation-intent contracts and deterministic policies were added for
+  Case recalculation, compensation, Invoice update/cancel/draft deletion/
+  payment, and payout issue/void.
+- Fail-closed behavior, cross-Organization isolation, cross-link, and lifecycle
+  tests passed.
+- No application action or page consumed these policies during F1, as required
+  by the milestone gate. Consumers began in the later F2/F3 vertical slices.
+
+**Result:** F1 checkpoint complete.
+**Evidence:** foundation commits `0f7101d` and `9135146`, merged at `6796fda`;
+the policy/service tests and the F1 plan record provide the detailed evidence.
 
 ## F2 implementation record
 
