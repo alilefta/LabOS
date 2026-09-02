@@ -41,4 +41,33 @@ describe('invoice write boundaries', () => {
 		expect(source).toContain('caseIds,')
 		expect(source).toContain('createLabOSAuthorizationActor(ctx)')
 	})
+
+	it('authorizes live Invoice adjustments before opening Prisma with a derived change set', () => {
+		const source = readSource('actions', 'invoices', 'adjust-live-invoice-action.ts')
+		const permissionIndex = source.indexOf('permission: "invoice.update"')
+		const denialIndex = source.indexOf('decision.allowed', permissionIndex)
+		const prismaIndex = source.indexOf('tenantPrisma(', permissionIndex)
+
+		expect(permissionIndex).toBeGreaterThan(0)
+		expect(denialIndex).toBeGreaterThan(permissionIndex)
+		expect(prismaIndex).toBeGreaterThan(denialIndex)
+		expect(source).toContain('target: { type: "invoice", id: invoiceId }')
+		expect(source).toContain('kind: "invoice.live.update"')
+		expect(source).toContain('changeSet')
+		expect(source).toContain('createLabOSAuthorizationActor(ctx)')
+	})
+
+	it('revalidates Invoice and Clinic facts inside a serializable transaction', () => {
+		const source = readSource('actions', 'invoices', 'adjust-live-invoice-action.ts')
+
+		expect(source).toContain('const result = await prisma.$transaction(')
+		expect(source).toContain('const invoice = await tx.invoice.findUnique')
+		expect(source).toContain('const clinic = await tx.clinic.findUnique')
+		expect(source).toContain('isolationLevel: Prisma.TransactionIsolationLevel.Serializable')
+		expect(source).toContain('const balanceDelta = newTotal - Number(invoice.total)')
+		expect(source).toContain('where: { id: clinic.id, labId }')
+		expect(source).toContain('currentBalance: { increment: balanceDelta }')
+		expect(source).not.toContain('balanceAdjustment > 0')
+		expect(source).not.toContain('where: { id: invoice.clinicId }')
+	})
 })

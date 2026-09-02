@@ -392,3 +392,28 @@ nor network responses.
   transaction's Clinic update to the trusted Invoice relationship remains a
   critical follow-up.
 - Focused invoice boundary, policy, and service tests pass (71 tests).
+
+## F3 live Invoice adjustment authorization slice
+
+- `adjustLiveInvoiceAction` now authorizes `invoice.update` before opening the
+  tenant Prisma client.
+- The request carries the Invoice target and a derived, closed
+  `invoice.live.update` change set. Only fields actually present in the input
+  become `due_date`, `discount`, or `notes` intent; callers cannot claim a
+  broader change set independently of their submitted values.
+- Existing paid/partial/draft state rules remain in the domain action and the
+  policy denies financial changes to settled invoices while allowing notes-only
+  updates where defined.
+- Focused invoice boundary, policy, and service tests pass (72 tests).
+
+## F3 A-084 transaction integrity follow-up
+
+- Moved the live Invoice state, subtotal, payment, total, and Clinic reads into
+  the mutation transaction so calculations cannot use stale pre-read facts.
+- The transaction now uses serializable isolation and binds the Clinic ledger
+  update to `invoice.clinicId` read inside that transaction, rather than to any
+  caller-selected relationship.
+- Clinic balance deltas now support both directions: a reduced Invoice total
+  decrements debt and an increased total increments it.
+- Focused boundary, policy, and service tests pass (73 tests). A production
+  concurrency exercise remains a follow-up for the broader F3 verification.
