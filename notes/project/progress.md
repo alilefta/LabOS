@@ -328,3 +328,16 @@ nor network responses.
   cannot reach invoice history or pricing through a hidden tab or direct URL.
 - Added source-order regression coverage for the page guards and ledger
   hide/redirect behavior. No Prisma migration was required.
+
+## Step 5 role and tenant-isolation verification
+
+- Owner, Admin, and Manager are allowed `invoice.read`, `invoice.list`,
+  `invoice.analytics.read`, and `invoice.create`; Staff is denied by the fixed
+  role bundles and the authorization service.
+- Cross-Organization Invoice dossier targets fail with
+  `AUTHZ_TENANT_MISMATCH` before policy or dossier loading. Clinic Invoice
+  history keeps both Clinic lookup and Invoice predicates scoped to the active
+  Lab/Organization.
+- Focused role, resolver, repository, page-boundary, and Clinic pricing tests
+  pass. The authenticated Staff browser smoke test also passed; management
+  browser confirmation remains a manual follow-up.

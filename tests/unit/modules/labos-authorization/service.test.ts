@@ -290,6 +290,31 @@ describe('LabOS authorization service composition', () => {
 		},
 	)
 
+	it.each(['invoice.list', 'invoice.analytics.read', 'invoice.create'] as const)(
+		'evaluates management-only Invoice organization permission %s for owner/admin/manager and Staff denial',
+		async (permission) => {
+			const service = createLabOSAuthorizationService({
+				targetResolvers: {},
+				policies: {},
+				monitor: monitor().monitor,
+			})
+
+			for (const [role, allowed, reason] of [
+				['owner', true, 'ROLE_PERMISSION'],
+				['admin', true, 'ROLE_PERMISSION'],
+				['manager', true, 'ROLE_PERMISSION'],
+				['staff', false, 'AUTHZ_PERMISSION_NOT_GRANTED'],
+			] as const) {
+				await expect(
+					service.can({
+						actor: { ...actor, memberRoles: [role] },
+						permission,
+					}),
+				).resolves.toEqual({ allowed, reason })
+			}
+		},
+	)
+
 	it.each([
 		['owner', true, 'ROLE_PERMISSION'],
 		['admin', true, 'ROLE_PERMISSION'],
@@ -375,6 +400,27 @@ describe('LabOS authorization service composition', () => {
 			reason: 'AUTHZ_TENANT_MISMATCH',
 		})
 		expect(policy.evaluate).not.toHaveBeenCalled()
+	})
+
+	it('denies a cross-Organization Invoice dossier target before policy or dossier loading', async () => {
+		const invoiceResolver = resolver('organization-2')
+		const service = createLabOSAuthorizationService({
+			targetResolvers: { invoice: invoiceResolver },
+			policies: {},
+			monitor: monitor().monitor,
+		})
+
+		await expect(
+			service.can({
+				actor,
+				permission: 'invoice.read',
+				target: { type: 'invoice', id: 'foreign-invoice' },
+			}),
+		).resolves.toEqual({
+			allowed: false,
+			reason: 'AUTHZ_TENANT_MISMATCH',
+		})
+		expect(invoiceResolver.resolveOrganizationId).toHaveBeenCalledOnce()
 	})
 
 	it('passes typed Staff invitation intent through every required policy', async () => {

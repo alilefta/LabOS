@@ -34,11 +34,16 @@ describe('invoice read boundaries', () => {
 	})
 
 	it('authorizes Clinic Invoice history before opening Prisma', () => {
+		const source = readSource('actions', 'clinics', 'invoices', 'get-invoices.ts')
 		expectAuthorizationBeforePrisma(
-			readSource('actions', 'clinics', 'invoices', 'get-invoices.ts'),
+			source,
 			'invoice.list',
 			'export const getClinicInvoicesAction',
 		)
+		// Clinic lookup and invoice predicates remain tenant-scoped after the
+		// organization-level permission succeeds.
+		expect(source).toContain('where: { id: clinicId, labId }')
+		expect(source).toMatch(/clinicId,\s+labId,/)
 	})
 
 	it('authorizes both Invoice dossier readers with the Invoice target', () => {
