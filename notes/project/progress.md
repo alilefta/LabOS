@@ -32,8 +32,14 @@ financial records or controls.
   dossier projection.
 - A/R vitals, risk radar, and the server unbilled-summary reader require
   `invoice.analytics.read` before aggregate or Clinic queries execute.
-- Focused role/service/source-order tests pass (3 files, 53 tests). Server-page
-  redirects, conditional dehydration, and Staff UI removal are the next step.
+- Invoice list, detail, edit, and new-invoice server pages now authorize before
+  loading data or creating query dehydration. Denied Staff requests redirect to
+  `/dashboard` or `/invoices` without rendering the protected page.
+- The Clinic Financial Ledger tab is hidden for Staff and direct `?tab=ledger`
+  navigation redirects to the operational overview before ledger data loads.
+- Focused authorization/source-order tests pass (23 files, 249 tests). The
+  remaining browser matrix is a manual confirmation with authenticated Staff
+  and management sessions.
 
 The current work is:
 
@@ -310,3 +316,15 @@ nor network responses.
   resolver continues to enforce same-Organization ownership.
 - Focused A-074 and Authorization V1 tests pass (4 files, 52 tests), and
   targeted ESLint passes.
+
+## A-123 Invoice server-page and dehydration boundary
+
+- Global Invoice list access is checked before the page can prefetch invoice
+  rows, A/R vitals, or risk data.
+- Invoice dossier, edit, and new-invoice pages authorize before loading their
+  DTOs or onboarding queries; metadata uses the same target check and returns a
+  generic title when denied.
+- Clinic Financial Ledger navigation and routing are management-only, so Staff
+  cannot reach invoice history or pricing through a hidden tab or direct URL.
+- Added source-order regression coverage for the page guards and ledger
+  hide/redirect behavior. No Prisma migration was required.

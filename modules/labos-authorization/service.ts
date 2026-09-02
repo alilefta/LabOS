@@ -49,6 +49,7 @@ export const LABOS_AUTHORIZATION_V1_SUPPORTED_PERMISSIONS = Object.freeze([
 	'clinic.analytics.list',
 	'clinic.analytics.read',
 	'clinic.update',
+	'invoice.create',
 	'staff.create',
 	'staff.access.invite',
 	'staff.access.revoke',

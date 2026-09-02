@@ -9,6 +9,8 @@ import { ClinicDetailsUI } from "@/schema/composed/clinic.details";
 import { QueryHydrationBoundary } from "@/providers/query-hydration-boundary";
 import { dehydrate } from "@tanstack/react-query";
 import { requireTenantContext } from "@/platform/organizations/tenant-context";
+import { createLabOSAuthorizationActor } from "@/modules/labos-authorization/actor";
+import { labosAuthorizationService } from "@/modules/labos-authorization/service";
 
 const QueryParamSchema = z.object({
 	clinicId: z.uuid().optional(),
@@ -24,7 +26,13 @@ export default async function NewInvoicePage({ searchParams }: { searchParams: P
 	const parsedParams = QueryParamSchema.safeParse(params);
 	const clinicId = parsedParams.success ? parsedParams.data.clinicId : undefined;
 
-	const { labId } = await requireTenantContext();
+	const tenant = await requireTenantContext();
+	const { labId } = tenant;
+	const createDecision = await labosAuthorizationService.can({
+		actor: createLabOSAuthorizationActor(tenant),
+		permission: "invoice.create",
+	});
+	if (!createDecision.allowed) redirect("/invoices");
 
 	// 2. Execute Secure Data Access Function
 	const result = await getNewInvoiceOnboardingData(clinicId);

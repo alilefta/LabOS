@@ -66,6 +66,7 @@ describe('LabOS authorization service composition', () => {
 			'clinic.analytics.list',
 			'clinic.analytics.read',
 			'clinic.update',
+			'invoice.create',
 			'staff.create',
 			'staff.access.invite',
 			'staff.access.revoke',

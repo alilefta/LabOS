@@ -18,6 +18,9 @@ import { getUninvoicedClinicsSummary } from "@/data/invoices/get-invoices";
 import Link from "next/link";
 import { SyncLedgerButton } from "@/components/invoices/invoices-page/sync-ledge-button";
 import { requireTenantContext } from "@/platform/organizations/tenant-context";
+import { createLabOSAuthorizationActor } from "@/modules/labos-authorization/actor";
+import { labosAuthorizationService } from "@/modules/labos-authorization/service";
+import { redirect } from "next/navigation";
 
 export const metadata = {
 	title: "Accounts Receivable | LabOS",
@@ -25,7 +28,13 @@ export const metadata = {
 
 export default async function InvoicesDashboardPage({ searchParams }: { searchParams: Promise<{ period?: string }> }) {
 	const queryClient = getQueryClient();
-	const { labId } = await requireTenantContext();
+	const tenant = await requireTenantContext();
+	const { labId } = tenant;
+	const readDecision = await labosAuthorizationService.can({
+		actor: createLabOSAuthorizationActor(tenant),
+		permission: "invoice.list",
+	});
+	if (!readDecision.allowed) redirect("/dashboard");
 
 	const { period } = await searchParams;
 	const parsedPeriod = GlobalTimeFramePeriodSchema.safeParse(period);

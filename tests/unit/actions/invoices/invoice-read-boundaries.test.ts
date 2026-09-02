@@ -65,4 +65,23 @@ describe('invoice read boundaries', () => {
 			)
 		}
 	})
+
+	it('protects Invoice pages before loader/prefetch work and hides Clinic Ledger for Staff', () => {
+		const dashboard = readSource('app', '(main)', 'invoices', 'page.tsx')
+		const dossier = readSource('app', '(main)', 'invoices', '[invoiceId]', 'page.tsx')
+		const create = readSource('app', '(main)', 'invoices', 'new-invoice', 'page.tsx')
+		const edit = readSource('app', '(main)', 'invoices', '[invoiceId]', 'edit', 'page.tsx')
+		const nav = readSource('components', 'clinics', 'clinic-details', 'navigation-shell', 'clinic-tab-navigation.tsx')
+		const router = readSource('components', 'clinics', 'clinic-details', 'clinic-tab-router.tsx')
+
+		expect(dashboard).toContain('if (!readDecision.allowed) redirect("/dashboard")')
+		expect(dossier).toContain('if (!readDecision.allowed) redirect("/invoices")')
+		expect(create).toContain('permission: "invoice.create"')
+		expect(create).toContain('if (!createDecision.allowed) redirect("/invoices")')
+		expect(edit).toContain('permission: "invoice.read"')
+		expect(edit).toContain('if (!readDecision.allowed) redirect("/invoices")')
+		expect(nav).toContain('TABS.filter((tab) => tab.id !== "ledger")')
+		expect(router).toContain('if (activeTab === "ledger")')
+		expect(router).toContain('redirect(`/clinics/${clinicId}?tab=overview`)')
+	})
 })

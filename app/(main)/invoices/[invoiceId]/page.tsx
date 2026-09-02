@@ -4,6 +4,8 @@ import { notFound, redirect } from "next/navigation";
 import { getInvoiceDossierData } from "@/data/invoices/get-invoice-dossier"; // Import our new separated function
 import { InvoiceDossierClient } from "@/components/invoices/invoice-details/invoice-dossier-client";
 import { requireTenantContext } from "@/platform/organizations/tenant-context";
+import { createLabOSAuthorizationActor } from "@/modules/labos-authorization/actor";
+import { labosAuthorizationService } from "@/modules/labos-authorization/service";
 
 interface Props {
 	params: Promise<{ invoiceId: string }>;
@@ -13,6 +15,13 @@ interface Props {
 export default async function InvoiceDetailPage({ params, searchParams }: Props) {
 	const { invoiceId } = await params;
 	const { action } = await searchParams;
+	const tenant = await requireTenantContext();
+	const readDecision = await labosAuthorizationService.can({
+		actor: createLabOSAuthorizationActor(tenant),
+		permission: "invoice.read",
+		target: { type: "invoice", id: invoiceId },
+	});
+	if (!readDecision.allowed) redirect("/invoices");
 
 	// 1. Fetch the secure, pre-validated and formatted source of truth [1]
 	const result = await getInvoiceDossierData(invoiceId);
@@ -29,8 +38,6 @@ export default async function InvoiceDetailPage({ params, searchParams }: Props)
 	}
 
 	const invoiceData = result.data;
-	const tenant = await requireTenantContext();
-
 	return (
 		<div className="flex flex-col h-full bg-background">
 			{/* Pass the pristine DTO straight to the Client Component */}

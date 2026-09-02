@@ -6,6 +6,8 @@ import { DraftInvoiceHydrationDTO } from "@/schema/composed/invoices/draft-invoi
 import { EditInvoiceClient } from "@/components/invoices/edit-invoice/edit-invoice-client";
 import { Metadata } from "next";
 import { requireTenantContext } from "@/platform/organizations/tenant-context";
+import { createLabOSAuthorizationActor } from "@/modules/labos-authorization/actor";
+import { labosAuthorizationService } from "@/modules/labos-authorization/service";
 
 interface Props {
 	params: Promise<{ invoiceId: string }>;
@@ -13,7 +15,14 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
 	const { invoiceId } = await params;
-	const { labId } = await requireTenantContext();
+	const tenant = await requireTenantContext();
+	const { labId } = tenant;
+	const readDecision = await labosAuthorizationService.can({
+		actor: createLabOSAuthorizationActor(tenant),
+		permission: "invoice.read",
+		target: { type: "invoice", id: invoiceId },
+	});
+	if (!readDecision.allowed) return { title: "Accounts Receivable | LabOS" };
 	// fetch post information
 	const result = await getDraftInvoiceForEdit(invoiceId, labId);
 
@@ -32,7 +41,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function EditInvoicePage({ params }: Props) {
 	const { invoiceId } = await params;
 
-	const { labId } = await requireTenantContext();
+	const tenant = await requireTenantContext();
+	const { labId } = tenant;
+	const readDecision = await labosAuthorizationService.can({
+		actor: createLabOSAuthorizationActor(tenant),
+		permission: "invoice.read",
+		target: { type: "invoice", id: invoiceId },
+	});
+	if (!readDecision.allowed) redirect("/invoices");
 
 	const result = await getDraftInvoiceForEdit(invoiceId, labId);
 

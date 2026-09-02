@@ -4,6 +4,10 @@ import { ClinicPipelineTab } from "./cases-tab/clinic-pipeline-tab";
 import { ClinicLedgerTab } from "./finanical-tab/clinic-ledger-tab";
 import { ClinicRosterTab } from "./practitioner-tab/clinic-roaster-tab";
 import { ReactNode, Suspense } from "react";
+import { redirect } from "next/navigation";
+import { requireTenantContext } from "@/platform/organizations/tenant-context";
+import { createLabOSAuthorizationActor } from "@/modules/labos-authorization/actor";
+import { labosAuthorizationService } from "@/modules/labos-authorization/service";
 
 interface Props {
 	clinicId: string;
@@ -12,6 +16,14 @@ interface Props {
 }
 
 export async function ClinicTabRouter({ clinicId, activePeriod, activeTab }: Props) {
+	if (activeTab === "ledger") {
+		const tenant = await requireTenantContext();
+		const ledgerDecision = await labosAuthorizationService.can({
+			actor: createLabOSAuthorizationActor(tenant),
+			permission: "invoice.list",
+		});
+		if (!ledgerDecision.allowed) redirect(`/clinics/${clinicId}?tab=overview`);
+	}
 	let tab: ReactNode | null = null;
 	switch (activeTab) {
 		case "pipeline":

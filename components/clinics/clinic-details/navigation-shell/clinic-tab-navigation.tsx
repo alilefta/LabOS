@@ -1,5 +1,8 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { requireTenantContext } from "@/platform/organizations/tenant-context";
+import { createLabOSAuthorizationActor } from "@/modules/labos-authorization/actor";
+import { labosAuthorizationService } from "@/modules/labos-authorization/service";
 
 interface Props {
 	activeTab: string;
@@ -13,12 +16,18 @@ const TABS = [
 	{ id: "ledger", label: "Financial Ledger" },
 ];
 
-export function ClinicTabNavigation({ activeTab, clinicId }: Props) {
+export async function ClinicTabNavigation({ activeTab, clinicId }: Props) {
+	const tenant = await requireTenantContext();
+	const ledgerDecision = await labosAuthorizationService.can({
+		actor: createLabOSAuthorizationActor(tenant),
+		permission: "invoice.list",
+	});
+	const visibleTabs = ledgerDecision.allowed ? TABS : TABS.filter((tab) => tab.id !== "ledger");
 	return (
 		<div className="w-full max-w-500 mx-auto px-6 lg:px-8 mt-2">
 			{/* The ml-14 perfectly aligns the tabs with the text of the header above, bypassing the back button */}
 			<div className="flex items-center gap-8 overflow-x-auto no-scrollbar md:ml-14 border-b border-border/50">
-				{TABS.map((tab) => {
+				{visibleTabs.map((tab) => {
 					const isActive = activeTab === tab.id;
 					return (
 						<Link
