@@ -1,3 +1,10 @@
+Status: Archived
+Authority: Historical
+Owner: Project owner
+Last reviewed: 2026-09-05
+
+> This document is non-authoritative and does not define current LabOS architecture or security policy. Consult current documentation, architecture, and decisions before using it.
+
 The **Staff Dossier (`/team/[staffId]`)** is the ultimate HR and Operations checkpoint.
 
 When a Lab Manager opens this page, they are either:
@@ -79,8 +86,3 @@ To keep the database clean and secure, the Server Actions for this page must enf
 Standard HR software treats employees as static records. LabOS treats them as **Operational Nodes**. By merging the HR file (phone numbers, titles) with the Active Workbench (live cases, bulk reassignment tools), you save a lab manager hours of digging through different screens to figure out who is working on what.
 > Historical design or record.
 >
-> This document is non-authoritative and does not define current LabOS architecture or security policy. Consult current documentation, architecture, and decisions before using it.
-Status: Archived
-Authority: Historical
-Owner: Project owner
-Last reviewed: 2026-09-05

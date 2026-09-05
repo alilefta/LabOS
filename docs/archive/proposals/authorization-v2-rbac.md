@@ -1,5 +1,12 @@
 # V2 architecture: database-managed roles and permissions
 
+Status: Archived
+Authority: Historical
+Owner: Project owner
+Last reviewed: 2026-09-05
+
+> This document is non-authoritative and does not define current LabOS architecture or security policy. Consult current documentation, architecture, and decisions before using it.
+
 ## Purpose
 
 V2 replaces V1's fixed two-category boolean matrix with configurable, lab-scoped roles and permissions. It must preserve the same server-side authorization boundary while allowing a lab manager to assign reusable access profiles such as Case Coordinator or Finance Officer.
@@ -149,8 +156,3 @@ The role editor should show grouped checkboxes for a custom role only—not a pe
 - Migration parity between V1 booleans and seeded V2 roles.
 > Historical design or record.
 >
-> This document is non-authoritative and does not define current LabOS architecture or security policy. Consult current documentation, architecture, and decisions before using it.
-Status: Archived
-Authority: Historical
-Owner: Project owner
-Last reviewed: 2026-09-05

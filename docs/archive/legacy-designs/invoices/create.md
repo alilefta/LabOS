@@ -1,3 +1,10 @@
+Status: Archived
+Authority: Historical
+Owner: Project owner
+Last reviewed: 2026-09-05
+
+> This document is non-authoritative and does not define current LabOS architecture or security policy. Consult current documentation, architecture, and decisions before using it.
+
 This is the absolute financial bottleneck of a dental lab. If this page is clunky, accountants will delay generating invoices, which directly hurts the lab's cash flow.
 
 To build an "Awwwards-Level" B2B billing engine, we must move away from the concept of a "Form" and build a **"Reconciliation Workspace."**
@@ -106,8 +113,3 @@ Standard dental software makes invoicing a tedious, click-heavy spreadsheet task
 **Do you approve of this Split-Screen Configuration/Reconciliation architecture?** If so, I am ready to define the specific DTOs and Schemas for the Batch Generator!
 > Historical design or record.
 >
-> This document is non-authoritative and does not define current LabOS architecture or security policy. Consult current documentation, architecture, and decisions before using it.
-Status: Archived
-Authority: Historical
-Owner: Project owner
-Last reviewed: 2026-09-05

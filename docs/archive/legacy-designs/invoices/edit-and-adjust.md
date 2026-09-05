@@ -1,3 +1,10 @@
+Status: Archived
+Authority: Historical
+Owner: Project owner
+Last reviewed: 2026-09-05
+
+> This document is non-authoritative and does not define current LabOS architecture or security policy. Consult current documentation, architecture, and decisions before using it.
+
 This is the architectural blueprint for the **Draft Invoice Editor** (`/invoices/[invoiceId]/edit`).
 
 Since an invoice in the `DRAFT` state hasn't impacted the clinic's public ledger yet, the accountant has full unrestricted access to modify the "Cart" (the cases attached to it) and the "Terms" (discounts, notes).
@@ -133,8 +140,3 @@ By introducing this "Adjust" flow, you prevent the lab staff from having to manu
 **Do you agree with this Lockout Matrix and Sheet-based UI approach?** If so, we can begin detailing the schemas and components.
 > Historical design or record.
 >
-> This document is non-authoritative and does not define current LabOS architecture or security policy. Consult current documentation, architecture, and decisions before using it.
-Status: Archived
-Authority: Historical
-Owner: Project owner
-Last reviewed: 2026-09-05

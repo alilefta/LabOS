@@ -8,6 +8,11 @@
 
 **Enforcement readiness:** **Approved for the reviewed V1 enforcement scope**
 
+Status: Completed
+Authority: Historical
+Owner: Project owner
+Last reviewed: 2026-09-05
+
 ## Gate rule
 
 Passing automated tests permits shadow observation or a controlled non-production
@@ -356,7 +361,3 @@ M-002, M-003, and M-004 allow paths,
 sanitized Axiom receipt, invitation authentication handoff, active-Organization
 data isolation, and both zero-membership and remaining-membership
 post-revocation recovery are verified.
-Status: Completed
-Authority: Historical
-Owner: Project owner
-Last reviewed: 2026-09-05

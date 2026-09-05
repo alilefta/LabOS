@@ -1,5 +1,10 @@
 # Auth / Identity module architecture
 
+Status: Current
+Authority: Canonical
+Owner: Project owner
+Last reviewed: 2026-09-05
+
 ## Mission
 
 Answer “who is the caller, and is the identity authenticated?” Better Auth remains the identity implementation. Domain modules never manipulate credentials, sessions, OAuth accounts, verification tokens, bans, or impersonation internals.
@@ -55,7 +60,3 @@ Better Auth types must not leak beyond the module boundary. Server code obtains 
 - [ ] Secrets and tokens are redacted from logs and audit.
 - [ ] Account suspension and impersonation behavior are tested.
 - [ ] `AuthUser.labId` has no runtime consumer before removal.
-Status: Active
-Authority: Canonical
-Owner: Project owner
-Last reviewed: 2026-09-05

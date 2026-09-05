@@ -1,5 +1,12 @@
 # Catalog & Pricing Matrix
 
+Status: Archived
+Authority: Historical
+Owner: Project owner
+Last reviewed: 2026-09-05
+
+> This document is non-authoritative and does not define current LabOS architecture or security policy. Consult current documentation, architecture, and decisions before using it.
+
 The **`/catalog`** route is the "Master Blueprint" of the lab. It is the central repository where the Lab Owner defines what they sell (`Products`), how it's organized (`Categories` / `Work Types`), and what it costs (`Default Pricing Plans`).
 
 Since you already built the beautiful `CreateWorkTypeSheet` and `CreatePricingPlanSheet` during the Case Creation phase, this page will simply be the **Global Control Center** to manage those entities outside of an active case.
@@ -94,8 +101,3 @@ const activeProducts = await prisma.product.findMany({
 ---
 > Historical design or record.
 >
-> This document is non-authoritative and does not define current LabOS architecture or security policy. Consult current documentation, architecture, and decisions before using it.
-Status: Archived
-Authority: Historical
-Owner: Project owner
-Last reviewed: 2026-09-05

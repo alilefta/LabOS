@@ -6,6 +6,11 @@ this checkpoint
 **Scope:** Authorization V1, Better Auth Organization integration, membership
 administration, tenant switching, and their observability adapters
 
+# Status: Current
+# Authority: Canonical
+# Owner: Project owner
+# Last reviewed: 2026-09-05
+
 ## Decision
 
 The Authorization V1 milestone adds no known lint or TypeScript violation in
@@ -70,8 +75,3 @@ Before merging an Authorization V1 follow-up:
    tenant, membership, Better Auth, safe-action, or observability file.
 4. Update this baseline only in a dedicated quality-debt change with an
    explicit explanation.
-
-# Status: Current
-# Authority: Canonical
-# Owner: Project owner
-# Last reviewed: 2026-09-05

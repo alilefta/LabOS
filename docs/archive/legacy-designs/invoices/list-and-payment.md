@@ -1,3 +1,10 @@
+Status: Archived
+Authority: Historical
+Owner: Project owner
+Last reviewed: 2026-09-05
+
+> This document is non-authoritative and does not define current LabOS architecture or security policy. Consult current documentation, architecture, and decisions before using it.
+
 **The /invoices/new-invoice server and client component and goals architecture, what it should have, what it should does, the plan and the steps of our logic, UX, and security goals here. No code.**
 
 This is the **Accounts Receivable (A/R) Command Center**.
@@ -234,8 +241,3 @@ To finish the `/invoices` page to an elite standard, we should:
 **Which of these would you like to knock out first?** (I recommend fixing the Timeframe Filter first so all the math lines up perfectly).
 > Historical design or record.
 >
-> This document is non-authoritative and does not define current LabOS architecture or security policy. Consult current documentation, architecture, and decisions before using it.
-Status: Archived
-Authority: Historical
-Owner: Project owner
-Last reviewed: 2026-09-05

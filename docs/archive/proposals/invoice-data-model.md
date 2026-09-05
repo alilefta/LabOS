@@ -1,5 +1,12 @@
 ## Critical Issue 2: Invoice "Line Item" Snapshot Missing
 
+Status: Archived
+Authority: Historical
+Owner: Project owner
+Last reviewed: 2026-09-05
+
+> This document is non-authoritative and does not define current LabOS architecture or security policy. Consult current documentation, architecture, and decisions before using it.
+
 The Flaw: Your InvoiceCase junction links an Invoice directly to a Case and snapshots the caseTotal.
 The Risk: An invoice is a legal document. If you look at an invoice 3 years from now, you need to know exactly what was on it. Currently, you are relying on the live Case and CaseWorkItem tables to render the PDF. If a user deletes a CaseWorkItem two years from now, your historical Invoice PDF will break or show missing data!
 The Fix: You must create an InvoiceLineItem model that snapshots the text description and quantity of what was sold at the exact moment the invoice was frozen.
@@ -269,8 +276,3 @@ With this architecture, you can confidently answer: _"Your historical invoices a
 This is the exact database schema you need to build a bulletproof financial engine. Are you ready to run `npx prisma db push` and start building the UI for the Clinic Dossier?
 > Historical design or record.
 >
-> This document is non-authoritative and does not define current LabOS architecture or security policy. Consult current documentation, architecture, and decisions before using it.
-Status: Archived
-Authority: Historical
-Owner: Project owner
-Last reviewed: 2026-09-05

@@ -1,3 +1,10 @@
+Status: Archived
+Authority: Historical
+Owner: Project owner
+Last reviewed: 2026-09-05
+
+> This document is non-authoritative and does not define current LabOS architecture or security policy. Consult current documentation, architecture, and decisions before using it.
+
 The **Work Settings Tab (`StaffSettingsTab`)** is the final component of the Staff Dossier.
 
 While the other tabs focus on _daily operations_ (Cases) and _payouts_ (Payroll), this tab is the **"Control Panel"** for the employee's relationship with the lab. It is where you manage their **Identity, Compensation Defaults, IT Security, and Work Schedule.**
@@ -123,8 +130,3 @@ _Focus: Managing their credentials, active logins, and invites. This is the most
 If so, let's execute **Sprint 1 (Roster Identity & Availability)**! I am ready to write the code for the first set of components whenever you are.
 > Historical design or record.
 >
-> This document is non-authoritative and does not define current LabOS architecture or security policy. Consult current documentation, architecture, and decisions before using it.
-Status: Archived
-Authority: Historical
-Owner: Project owner
-Last reviewed: 2026-09-05

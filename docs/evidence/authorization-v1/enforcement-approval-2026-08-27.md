@@ -4,6 +4,11 @@
 **Decision:** Approved for the reviewed V1 enforcement scope  
 **Reviewed boundaries:** A-124, A-125, N-001, M-002, M-003, and M-004
 
+Status: Completed
+Authority: Historical
+Owner: Project owner
+Last reviewed: 2026-09-05
+
 ## Product and security decision
 
 Authorization V1 is approved as authoritative for the reviewed boundaries.
@@ -67,8 +72,3 @@ traffic is enabled, operators must confirm:
 
 The fixed RBAC bundles, ownership exclusions, and legacy rollback must remain
 in place until a later reviewed migration explicitly replaces them.
-
-Status: Completed
-Authority: Historical
-Owner: Project owner
-Last reviewed: 2026-09-05

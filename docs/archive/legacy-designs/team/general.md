@@ -1,5 +1,12 @@
 ## /Team Route
 
+Status: Archived
+Authority: Historical
+Owner: Project owner
+Last reviewed: 2026-09-05
+
+> This document is non-authoritative and does not define current LabOS architecture or security policy. Consult current documentation, architecture, and decisions before using it.
+
 Moving to the `/team` route shifts the software from a "Financial Ledger" into a **"Human Resources & Operations Hub."**
 
 Dental labs live and die by the efficiency and quality of their technicians. This page must answer three critical questions for the Lab Manager:
@@ -432,8 +439,3 @@ This page uses the 70/30 split to analyze a single employee's footprint in the l
 This architecture completely solves the "Ghost User" problem that plagues typical SaaS apps. A Lab Owner never has to navigate to a generic "Settings > Users" page to figure out who has access to the software. Access is treated as a **physical keycard** handed to a specific worker on the floor, managed directly from their HR profile.
 > Historical design or record.
 >
-> This document is non-authoritative and does not define current LabOS architecture or security policy. Consult current documentation, architecture, and decisions before using it.
-Status: Archived
-Authority: Historical
-Owner: Project owner
-Last reviewed: 2026-09-05

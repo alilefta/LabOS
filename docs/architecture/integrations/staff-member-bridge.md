@@ -1,5 +1,10 @@
 # LabStaff ↔ Better Auth Member integration
 
+Status: Current
+Authority: Canonical
+Owner: Project owner
+Last reviewed: 2026-09-05
+
 ## Purpose
 
 Keep operational identity separate from application access while supporting an optional, tenant-aware connection between them.
@@ -95,7 +100,3 @@ Focused tests cover staff-only, member-only, exact links, both one-to-one confli
 - [ ] Configure and verify an invitation email delivery adapter.
 - [ ] Reconcile outstanding legacy `LabInvitation` rows before legacy removal.
 - [x] Stop all new `LabUser`, `LabInvitation`, and `AuthUser.labId` writes and enforce the freeze with an architecture test.
-Status: Active
-Authority: Canonical
-Owner: Project owner
-Last reviewed: 2026-09-05

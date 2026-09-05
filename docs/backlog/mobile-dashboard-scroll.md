@@ -1,5 +1,10 @@
 # P1 — Restore mobile dashboard vertical scrolling
 
+Status: Active
+Authority: Supporting
+Owner: Project owner
+Last reviewed: 2026-09-05
+
 ## Status
 
 Backlog / future fix. Reported during Organization switcher verification on
@@ -35,7 +40,3 @@ content extending below the viewport is unreachable on touch devices.
 
 Implement this in a dedicated UI-fix branch after the current Authorization V1
 membership milestone reaches its next checkpoint.
-Status: Active
-Authority: Supporting
-Owner: Project owner
-Last reviewed: 2026-09-05

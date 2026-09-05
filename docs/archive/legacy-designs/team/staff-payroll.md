@@ -1,3 +1,10 @@
+Status: Archived
+Authority: Historical
+Owner: Project owner
+Last reviewed: 2026-09-05
+
+> This document is non-authoritative and does not define current LabOS architecture or security policy. Consult current documentation, architecture, and decisions before using it.
+
 The **Ledger Tab (`StaffPayrollTab`)** is the final and most sensitive component of the Team Dossier.
 
 In a dental lab, technicians are frequently paid on a **hybrid model**: a base salary plus a commission per unit (e.g., "$15 per Zirconia crown") or a percentage of the total case value.
@@ -232,8 +239,3 @@ This is the "Pending Ledger." It acts as a detailed receipt, showing the manager
 If yes, we are ready to write the code for the **`StaffPayrollTabContent`** and **`StaffCompensationVitals`** to kick off the frontend implementation of Sprint 2!
 > Historical design or record.
 >
-> This document is non-authoritative and does not define current LabOS architecture or security policy. Consult current documentation, architecture, and decisions before using it.
-Status: Archived
-Authority: Historical
-Owner: Project owner
-Last reviewed: 2026-09-05

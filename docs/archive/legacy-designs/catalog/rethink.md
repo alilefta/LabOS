@@ -1,3 +1,10 @@
+Status: Archived
+Authority: Historical
+Owner: Project owner
+Last reviewed: 2026-09-05
+
+> This document is non-authoritative and does not define current LabOS architecture or security policy. Consult current documentation, architecture, and decisions before using it.
+
 Here is the **Master Architecture Plan** for the `/catalog` (Product & Pricing Matrix) module, utilizing the **"Sliding Context Window"** pattern.
 
 This plan guarantees 120 FPS performance, seamless mobile-to-desktop responsiveness, and absolute compliance with your Prisma relationships.
@@ -76,8 +83,3 @@ The Catalog uses a **Dynamic 30/70 Split-Screen**. The content of the Left Pane 
 **Are you ready to begin Sprint 1?** If so, I will provide the code for the `CatalogPage` shell and the `CategorySidebar`.
 > Historical design or record.
 >
-> This document is non-authoritative and does not define current LabOS architecture or security policy. Consult current documentation, architecture, and decisions before using it.
-Status: Archived
-Authority: Historical
-Owner: Project owner
-Last reviewed: 2026-09-05

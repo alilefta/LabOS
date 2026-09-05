@@ -1,5 +1,10 @@
 # Authorization V1 enforcement cutover
 
+Status: Active
+Authority: Supporting
+Owner: Project owner
+Last reviewed: 2026-09-05
+
 ## Purpose
 
 This checkpoint adds a reversible deployment switch for the reviewed A-124
@@ -67,7 +72,3 @@ authorization is authoritative.
 
 The rollout gate was explicitly approved on 2026-08-27. Production activation
 still requires the deployment checks in [enforcement approval evidence](../evidence/authorization-v1/enforcement-approval-2026-08-27.md).
-Status: Active
-Authority: Supporting
-Owner: Project owner
-Last reviewed: 2026-09-05

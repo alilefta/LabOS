@@ -9,6 +9,11 @@
 **Repository-wide discovery supplement:**
 `authorization-v1-platform-boundary-inventory.md` (2026-09-03)
 
+Status: Active
+Authority: Supporting
+Owner: Project owner
+Last reviewed: 2026-09-05
+
 ## Purpose
 
 This is the reviewed control record for migrating every protected server boundary. The generated baseline proves what legacy metadata exists; this document records what each operation means under Authorization V1. A boundary is not ready to migrate until its permission, trusted scope, target, required policies, sensitivity, behavior difference, tests, and rollback are explicit.
@@ -452,7 +457,3 @@ This inventory is the sole cross-surface migration inventory. The supplement rec
 Recorded non-action boundaries include N-API-001 Better Auth gateway, N-API-002 Dentist detail (migrated), N-FILE-001 UploadThing endpoint set (active), N-FILE-002 completion DTO (migrated), and N-PROVIDER-001 Better Auth in-process gateways. N-002 authenticated paystub and N-001 Team directory remain recorded registered boundaries. Every boundary still requires role, tenant isolation, denial-order, operation-intent, DTO, telemetry, and domain-behavior evidence before completion.
 
 The active P0 file slice is N-FILE-001. Split the mixed Catalog/Dentist endpoint before enforcement; register Staff, Catalog, Dentist, and Case boundaries incrementally. Catalog pages and client role projections remain migration work, not server authorization.
-Status: Active
-Authority: Supporting
-Owner: Project owner
-Last reviewed: 2026-09-05

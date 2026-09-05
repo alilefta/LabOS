@@ -1,5 +1,12 @@
 # Detailed Catalog & Pricing Matrix
 
+Status: Archived
+Authority: Historical
+Owner: Project owner
+Last reviewed: 2026-09-05
+
+> This document is non-authoritative and does not define current LabOS architecture or security policy. Consult current documentation, architecture, and decisions before using it.
+
 Here is the detailed, code-ready architectural plan for **Part 1 (The Shell & Header)** and **Part 2 (The Left Pane Hierarchy Browser)**.
 
 ---
@@ -150,8 +157,3 @@ While the Product Card shows the _Default Base Price_, a lab owner needs a way t
 By locking the Layout to `max-w-[2000px]` and delegating the Heavy Math (Pricing Tiers) to a lazy-loaded TanStack Query inside a Sheet, the **Product Matrix** (Part 3) will render in milliseconds. The Lab Owner can scroll through 100 products smoothly, only loading the complex pricing deals (Part 4) when they explicitly click on a specific item.
 > Historical design or record.
 >
-> This document is non-authoritative and does not define current LabOS architecture or security policy. Consult current documentation, architecture, and decisions before using it.
-Status: Archived
-Authority: Historical
-Owner: Project owner
-Last reviewed: 2026-09-05

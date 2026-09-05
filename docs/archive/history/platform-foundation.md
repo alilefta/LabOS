@@ -1,5 +1,12 @@
 # LabOS platform foundation — implementation change log
 
+Status: Archived
+Authority: Historical
+Owner: Project owner
+Last reviewed: 2026-09-05
+
+> This document is non-authoritative and does not define current LabOS architecture or security policy. Consult current documentation, architecture, and decisions before using it.
+
 ## Document control
 
 | Field | Value |
@@ -487,8 +494,3 @@ After that checkpoint, begin Authorization V1 on a dedicated bounded branch and 
 | Architecture and project tracking | `notes/architecture/`, `notes/project/` |
 > Historical design or record.
 >
-> This document is non-authoritative and does not define current LabOS architecture or security policy. Consult current documentation, architecture, and decisions before using it.
-Status: Archived
-Authority: Historical
-Owner: Project owner
-Last reviewed: 2026-09-05

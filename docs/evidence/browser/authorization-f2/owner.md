@@ -5,6 +5,11 @@ Role: Owner
 Workspace: Denta Fusion3  
 Case reviewed: `#LAB-0002` (`f2e1b2c9-a970-4615-bcee-212d8ff4c4c0`)
 
+Status: Completed
+Authority: Historical
+Owner: Project owner
+Last reviewed: 2026-09-05
+
 ## Results
 
 The Owner session passed the F2 management-read browser checks:
@@ -27,7 +32,3 @@ was used as the dossier fixture.
 Owner is allowed to read the reviewed Case, Invoice, Clinic, and Clinic Ledger
 financial surfaces, matching the approved Owner/Admin/Manager policy. Staff
 denial and cross-tenant isolation remain separate checks.
-Status: Completed
-Authority: Historical
-Owner: Project owner
-Last reviewed: 2026-09-05

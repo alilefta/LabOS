@@ -6,6 +6,11 @@ Workspace: Denta Fusion3
 Case created: `#LAB-0002` (`f2e1b2c9-a970-4615-bcee-212d8ff4c4c0`)  
 Data: Existing dummy clinic, dentist, patient, category, product, and pricing plan
 
+Status: Completed
+Authority: Historical
+Owner: Project owner
+Last reviewed: 2026-09-05
+
 ## Flow result
 
 The Manager could open `/cases/new-case`, select the dummy clinic and dentist,
@@ -44,7 +49,3 @@ F2 Manager checks completed:
 These are application-quality findings, separate from Authorization V1. Invoice,
 Clinic, Staff, and other model DTO/relation audits remain scheduled for the F3–F5
 hardening backlog. The current slice only hardens the Case DTO boundary.
-Status: Completed
-Authority: Historical
-Owner: Project owner
-Last reviewed: 2026-09-05

@@ -2,6 +2,11 @@
 
 Score probability and impact from 1–5; exposure is their product. Review high exposure (12+) at least weekly.
 
+Status: Active
+Authority: Canonical
+Owner: Project owner
+Last reviewed: 2026-09-05
+
 | ID | Risk | Probability | Impact | Exposure | Trigger/evidence | Mitigation | Contingency | Owner | Review date | Status |
 |---|---|---:|---:|---:|---|---|---|---|---|---|
 | R-001 | Legacy and new membership systems diverge | 4 | 5 | 20 | Reconciliation mismatch or fallback count stops declining | Deterministic backfill, dual-read telemetry, short exit window | Freeze rollout; repair from mapping report | Unassigned | TBD | Open |
@@ -23,7 +28,3 @@ Score probability and impact from 1–5; exposure is their product. Review high 
 ## Adding a risk
 
 State an uncertain future event, not a current defect. Include evidence/trigger, preventive mitigation, fallback contingency, one accountable owner, and the next review date. Current defects belong on the board and may reference the related risk.
-Status: Active
-Authority: Canonical
-Owner: Project owner
-Last reviewed: 2026-09-05

@@ -2,6 +2,11 @@
 
 Status values: `Not started`, `Discovery`, `In progress`, `At risk`, `Complete`. Confidence is `Low`, `Medium`, or `High`. Dates remain unset until M0 produces evidence-based sizing.
 
+Status: Active
+Authority: Canonical
+Owner: Project owner
+Last reviewed: 2026-09-05
+
 | ID | Milestone | Owner | Status | Confidence | Target | Exit-gate checklist |
 |---|---|---|---|---|---|---|
 | M0 | Baseline | Unassigned | Not started | Low | TBD | [ ] Inventory [ ] isolation tests [ ] migration/rollback approach [ ] discrepancies resolved |
@@ -28,7 +33,3 @@ At every sprint review, update only from evidence. A milestone becomes Complete 
 
 - [ ] **Invited sign-up prefill:** when `/sign-up` is reached from a valid Organization invitation, prefill the invitation's intended name and email while keeping both editable; the user supplies a password. Load the invitation data through a public, expiry-aware, recipient-safe projection that does not expose membership or Staff security facts. Preserve the invitation callback through account creation.
 - [ ] **Unified People directory (`/team`):** preserve the operational Staff roster and the digital Organization-member directory as separate read models, then compose them into one user-facing directory with three explicit states: Staff without access, Member without Staff, and linked Member+Staff. Deduplicate by the optional `LabStaff.memberId` bridge, retain distinct Staff/member actions and permissions, tenant-scope both sources, paginate deterministically, and test two-Organization isolation. This is deferred and does not block the current Authorization V1 membership slice.
-Status: Active
-Authority: Canonical
-Owner: Project owner
-Last reviewed: 2026-09-05

@@ -7,6 +7,11 @@
 **Scope:** Case/Clinic financial disclosure, Staff compensation, invoices,
 payments, payouts, and billing authorization
 
+Status: Active
+Authority: Supporting
+Owner: Project owner
+Last reviewed: 2026-09-05
+
 ## Objective
 
 Extend Authorization V1 into financial operations without creating one
@@ -381,7 +386,3 @@ approved.
 - [ ] Confirm browser responses contain neither `publicToken` nor `publicLinkExpiresAt`.
 - [ ] Confirm the dossier still renders billed Case rows and its receipt timeline.
 - [ ] Confirm the dossier response contains no patient age/gender or free-form payment notes.
-Status: Active
-Authority: Supporting
-Owner: Project owner
-Last reviewed: 2026-09-05

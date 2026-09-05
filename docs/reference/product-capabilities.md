@@ -2,6 +2,11 @@
 
 **Purpose:** a factual snapshot of what is currently represented in the application. Use this document to decide which capabilities to complete, improve, or add in V1.1.
 
+Status: Active
+Authority: Canonical
+Owner: Project owner
+Last reviewed: 2026-09-05
+
 **Status key**
 
 - **Implemented:** a route and supporting UI/actions exist.
@@ -135,7 +140,3 @@ For one developer, this is approximately **34–55 developer days** before a bro
 2. For every Partial feature, write a short definition of done: user role, happy path, permissions, error cases, and success metric.
 3. Convert the top V1.1 candidates into one-page feature briefs before implementation.
 4. Keep product aspirations in the [product backlog](../backlog/product.md) and update this file only when the shipped feature set changes.
-Status: Active
-Authority: Canonical
-Owner: Project owner
-Last reviewed: 2026-09-05

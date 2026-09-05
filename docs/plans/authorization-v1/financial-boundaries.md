@@ -8,6 +8,11 @@
 
 **Reviewed and approved by:** Ali — 2026-08-27
 
+Status: Active
+Authority: Supporting
+Owner: Project owner
+Last reviewed: 2026-09-05
+
 ## Purpose
 
 This is the F0 control record for financial Authorization V1. It classifies the
@@ -208,7 +213,3 @@ the policy/service tests and the F1 plan record provide the detailed evidence.
 Regression coverage: `invoice-public-capability-boundary.test.ts` protects the
 ordinary query projections, DTO/UI paths, and the isolated public lookup. No
 Prisma schema change or migration was required.
-Status: Active
-Authority: Supporting
-Owner: Project owner
-Last reviewed: 2026-09-05

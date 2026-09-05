@@ -4,6 +4,11 @@
 **Authoritative replacement:** `requireTenantContext()`
 **Rule:** No new code may read `session.user.labId`, `user.labId`, `LabUser.labId`, `getLabIdSession`, or `CheckLabIsolation` to establish tenancy.
 
+Status: Completed
+Authority: Historical
+Owner: Project owner
+Last reviewed: 2026-09-05
+
 The canonical resolver, safe-action middleware, server pages, data functions, route handlers, and uploads now resolve through active Organization membership. The proxy uses `activeOrganizationId` only as a routing hint; protected layouts and handlers perform authoritative tenant validation.
 
 ## Batch A — Main application pages
@@ -64,7 +69,3 @@ Historical reads remain permitted only for audit display and transitional actor 
 - [x] Two-Organization tests cover active switching plus foreign staff, Member, invitation intent, and revocation boundaries.
 - [ ] Rejection reason and latency remain observable without sensitive data.
 - [ ] No migration or data backfill is executed without explicit approval.
-Status: Completed
-Authority: Historical
-Owner: Project owner
-Last reviewed: 2026-09-05

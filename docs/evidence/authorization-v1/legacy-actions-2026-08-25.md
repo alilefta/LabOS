@@ -5,6 +5,11 @@
 **Scope:** Literal `requiredLabRole` declarations under `actions/`
 **Verified total:** 131
 
+Status: Completed
+Authority: Historical
+Owner: Project owner
+Last reviewed: 2026-09-05
+
 This document is the immutable mechanical baseline for the Authorization V1 migration. It records what exists, not what the new policy should be. Proposed permissions, target requirements, policies, sensitivity, behavior changes, and migration status belong in the reviewed migration inventory.
 
 ## Counts
@@ -153,7 +158,3 @@ This document is the immutable mechanical baseline for the Authorization V1 migr
 | A-129 | `actions/work-type.ts:10` | `Create-New-WorkType-Action` | `STAFF` | Pending classification |
 | A-130 | `actions/work-type.ts:48` | `Get-WorkTypes-By-Search-Query-Action` | `STAFF` | Pending classification |
 | A-131 | `actions/work-type.ts:88` | `Get-WorkTypes-By-CategoryId-Action` | `STAFF` | Pending classification |
-Status: Completed
-Authority: Historical
-Owner: Project owner
-Last reviewed: 2026-09-05

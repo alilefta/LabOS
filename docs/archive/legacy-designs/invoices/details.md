@@ -1,3 +1,10 @@
+Status: Archived
+Authority: Historical
+Owner: Project owner
+Last reviewed: 2026-09-05
+
+> This document is non-authoritative and does not define current LabOS architecture or security policy. Consult current documentation, architecture, and decisions before using it.
+
 The **Financial Dossier** (`/invoices/[invoiceId]`) is the ultimate tool for accounts receivable.
 
 When an accountant or lab owner opens this page, they are in a **"Reconciliation and Audit"** mindset. They need to answer: _Have they paid us? If partially, how much is left? What cases are on this bill, and who worked on them?_
@@ -56,8 +63,3 @@ To keep the lab's financial ledger 100% secure, the page and its server actions 
 ---
 > Historical design or record.
 >
-> This document is non-authoritative and does not define current LabOS architecture or security policy. Consult current documentation, architecture, and decisions before using it.
-Status: Archived
-Authority: Historical
-Owner: Project owner
-Last reviewed: 2026-09-05
