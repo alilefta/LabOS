@@ -193,6 +193,14 @@ function evaluateV1(
 			correlationId,
 		})
 	}
+	if (projection.boundaryId === 'A-086') {
+		return service.can({
+			actor,
+			permission: projection.permission,
+			boundaryId: projection.boundaryId,
+			correlationId,
+		})
+	}
 
 	if (projection.boundaryId === 'A-124') {
 		return service.can({
@@ -273,7 +281,7 @@ export async function evaluateLabOSAuthorizationShadow(
 				organizationId: input.actor.organizationId,
 				actorRoles: normalizedRoles.roles,
 				unknownRoleCount: normalizedRoles.unknownRoleCount,
-				legacyRequiredRole: input.projection.legacyRequiredRole,
+				legacyRequiredRole: input.projection.legacyComparisonRole,
 				correlationId,
 				legacyOutcome: 'failed',
 				v1Outcome:
@@ -324,7 +332,7 @@ export async function evaluateLabOSAuthorizationShadow(
 			organizationId: input.actor.organizationId,
 			actorRoles: normalizedRoles.roles,
 			unknownRoleCount: normalizedRoles.unknownRoleCount,
-			legacyRequiredRole: input.projection.legacyRequiredRole,
+			legacyRequiredRole: input.projection.legacyComparisonRole,
 			correlationId,
 			legacyOutcome:
 				legacyResult.status === 'rejected'

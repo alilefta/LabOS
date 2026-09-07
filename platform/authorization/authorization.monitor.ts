@@ -9,6 +9,7 @@ export type AuthorizationMonitorEvent<
 	ResourceType extends string,
 > = {
 	event: 'platform.authorization.decision'
+	boundaryId?: string
 	permission: Permission
 	sensitivity?: PermissionSensitivity
 	organizationId?: string

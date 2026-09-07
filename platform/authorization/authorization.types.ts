@@ -59,6 +59,8 @@ export type AuthorizationRequest<
 			actor: AuthorizationActor
 			permission: RequestedPermission
 			target?: AuthorizationTargetRef<ResourceType>
+			/** Stable server-owned boundary label used only for sanitized telemetry. */
+			boundaryId?: string
 			correlationId?: string
 		} & AuthorizationOperationFragment<RequestedPermission, OperationMap>
 }[Permission]

@@ -68,7 +68,20 @@ export const PAYOUT_FINANCIAL_FACTS_SELECT = {
 	staffId: true,
 	status: true,
 	lab: { select: { organizationId: true } },
-	_count: { select: { caseAssignments: true } },
+	staff: {
+		select: {
+			labId: true,
+			memberId: true,
+			member: { select: { organizationId: true } },
+		},
+	},
+	caseAssignments: {
+		select: {
+			labId: true,
+			staffId: true,
+			dentalCase: { select: { labId: true } },
+		},
+	},
 } as const
 
 export const PAYOUT_ISSUE_SOURCE_FACTS_SELECT = {
@@ -234,8 +247,19 @@ export const prismaFinancialFactRepository: FinancialFactRepository = {
 			labId: payout.labId,
 			organizationId: payout.lab.organizationId,
 			staffId: payout.staffId,
+			linkedMemberId: payout.staff.memberId,
 			status: payout.status,
-			hasAssignments: payout._count.caseAssignments > 0,
+			hasAssignments: payout.caseAssignments.length > 0,
+			relationshipsConsistent:
+				payout.staff.labId === payout.labId &&
+				(payout.staff.member === null ||
+					payout.staff.member.organizationId === payout.lab.organizationId) &&
+				payout.caseAssignments.every(
+					(assignment) =>
+						assignment.labId === payout.labId &&
+						assignment.staffId === payout.staffId &&
+						assignment.dentalCase.labId === payout.labId,
+				),
 		}
 	},
 

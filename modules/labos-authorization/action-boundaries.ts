@@ -1,12 +1,19 @@
 import 'server-only'
 
 import type { LabRole } from '@/schema/base/enums.base'
+import { z } from 'zod/v4'
+import {
+	GrantStaffSystemAccessInputSchema,
+	RevokeStaffSystemAccessInputSchema,
+} from '@/schema/composed/team/staff-settings.schema'
+import { CreateLabStaffInputSchema } from '@/schema/composed/team/staff.schema'
 
 import type { LabOSAuthorizationRequest } from './operation-intents'
 import type { LabOSOrganizationRole } from './roles'
 import { LABOS_AUTHORIZATION_V1_SUPPORTED_PERMISSIONS } from './service'
 
 export const LABOS_ACTION_BOUNDARY_IDS = Object.freeze([
+	'A-086',
 	'A-123',
 	'A-124',
 	'A-125',
@@ -14,6 +21,13 @@ export const LABOS_ACTION_BOUNDARY_IDS = Object.freeze([
 
 export type LabOSActionBoundaryId =
 	(typeof LABOS_ACTION_BOUNDARY_IDS)[number]
+
+export const LABOS_REGISTERED_ACTION_BOUNDARY_IDS = Object.freeze([
+	'A-086',
+] as const)
+
+export type LabOSRegisteredActionBoundaryId =
+	(typeof LABOS_REGISTERED_ACTION_BOUNDARY_IDS)[number]
 
 export const LABOS_ACTION_BOUNDARY_ERROR_CODES = {
 	BOUNDARY_NOT_REGISTERED: 'AUTHZ_BOUNDARY_NOT_REGISTERED',
@@ -35,19 +49,29 @@ export class LabOSActionBoundaryError extends Error {
 type StaffInviteAuthorizationRequest =
 	LabOSAuthorizationRequest<'staff.access.invite'>
 
+type InvoiceOverdueSyncAuthorizationRequest =
+	LabOSAuthorizationRequest<'invoice.overdue.sync'>
+
+type InvoiceOverdueSyncProjection = Readonly<{
+	boundaryId: 'A-086'
+	actionName: 'Sync-Overdue-Invoices-Action'
+	legacyComparisonRole: 'MANAGER'
+	permission: InvoiceOverdueSyncAuthorizationRequest['permission']
+}>
+
 type StaffCreateAuthorizationRequest = LabOSAuthorizationRequest<'staff.create'>
 
 type StaffCreateProjection = Readonly<{
 	boundaryId: 'A-123'
 	actionName: 'Register-Team-Lab-Staff-Action'
-	legacyRequiredRole: 'ADMIN'
+	legacyComparisonRole: 'ADMIN'
 	permission: StaffCreateAuthorizationRequest['permission']
 }>
 
 type StaffInviteProjection = Readonly<{
 	boundaryId: 'A-124'
 	actionName: 'Grant-Staff-System-Access'
-	legacyRequiredRole: 'ADMIN'
+	legacyComparisonRole: 'ADMIN'
 	permission: StaffInviteAuthorizationRequest['permission']
 	target: NonNullable<StaffInviteAuthorizationRequest['target']>
 	operation: StaffInviteAuthorizationRequest['operation']
@@ -59,22 +83,24 @@ type StaffRevokeAuthorizationRequest =
 type StaffRevokeProjection = Readonly<{
 	boundaryId: 'A-125'
 	actionName: 'Revoke-Staff-System-Access'
-	legacyRequiredRole: 'ADMIN'
+	legacyComparisonRole: 'ADMIN'
 	permission: StaffRevokeAuthorizationRequest['permission']
 	target: NonNullable<StaffRevokeAuthorizationRequest['target']>
 }>
 
 export type LabOSActionBoundaryProjection =
+	| InvoiceOverdueSyncProjection
 	| StaffCreateProjection
 	| StaffInviteProjection
 	| StaffRevokeProjection
 
 export type LabOSActionBoundaryMetadata = Pick<
 	LabOSActionBoundaryProjection,
-	'boundaryId' | 'actionName' | 'legacyRequiredRole' | 'permission'
+	'boundaryId' | 'actionName' | 'legacyComparisonRole' | 'permission'
 >
 
 type LabOSActionBoundaryProjectionById = {
+	'A-086': InvoiceOverdueSyncProjection
 	'A-123': StaffCreateProjection
 	'A-124': StaffInviteProjection
 	'A-125': StaffRevokeProjection
@@ -82,14 +108,15 @@ type LabOSActionBoundaryProjectionById = {
 
 type LabOSActionBoundaryDefinition<Id extends LabOSActionBoundaryId> =
 	Readonly<{
+		inputSchema: z.ZodType
 		actionName: LabOSActionBoundaryProjectionById[Id]['actionName']
-		legacyRequiredRole: LabOSActionBoundaryProjectionById[Id]['legacyRequiredRole']
+		legacyComparisonRole: LabOSActionBoundaryProjectionById[Id]['legacyComparisonRole']
 		permission: LabOSActionBoundaryProjectionById[Id]['permission']
 		projectValidatedInput(
 			input: unknown,
 		): Omit<
 			LabOSActionBoundaryProjectionById[Id],
-			'boundaryId' | 'actionName' | 'legacyRequiredRole' | 'permission'
+			'boundaryId' | 'actionName' | 'legacyComparisonRole' | 'permission'
 		>
 	}>
 
@@ -106,6 +133,17 @@ const ORGANIZATION_ROLE_BY_LEGACY_ROLE = Object.freeze({
 
 function isObject(input: unknown): input is Record<string, unknown> {
 	return typeof input === 'object' && input !== null
+}
+
+export const SyncOverdueInvoicesBoundaryInputSchema = z.void()
+
+function projectInvoiceOverdueSync(input: unknown): Record<never, never> {
+	if (input !== undefined) {
+		throw new LabOSActionBoundaryError(
+			LABOS_ACTION_BOUNDARY_ERROR_CODES.VALIDATED_INPUT_INVALID,
+		)
+	}
+	return Object.freeze({})
 }
 
 /**
@@ -167,21 +205,31 @@ function projectStaffRevoke(
 }
 
 const LABOS_ACTION_BOUNDARY_REGISTRY = Object.freeze({
+	'A-086': Object.freeze({
+		inputSchema: SyncOverdueInvoicesBoundaryInputSchema,
+		actionName: 'Sync-Overdue-Invoices-Action',
+		legacyComparisonRole: 'MANAGER',
+		permission: 'invoice.overdue.sync',
+		projectValidatedInput: projectInvoiceOverdueSync,
+	}),
 	'A-123': Object.freeze({
+		inputSchema: CreateLabStaffInputSchema,
 		actionName: 'Register-Team-Lab-Staff-Action',
-		legacyRequiredRole: 'ADMIN',
+		legacyComparisonRole: 'ADMIN',
 		permission: 'staff.create',
 		projectValidatedInput: projectStaffCreate,
 	}),
 	'A-124': Object.freeze({
+		inputSchema: GrantStaffSystemAccessInputSchema,
 		actionName: 'Grant-Staff-System-Access',
-		legacyRequiredRole: 'ADMIN',
+		legacyComparisonRole: 'ADMIN',
 		permission: 'staff.access.invite',
 		projectValidatedInput: projectStaffInvite,
 	}),
 	'A-125': Object.freeze({
+		inputSchema: RevokeStaffSystemAccessInputSchema,
 		actionName: 'Revoke-Staff-System-Access',
-		legacyRequiredRole: 'ADMIN',
+		legacyComparisonRole: 'ADMIN',
 		permission: 'staff.access.revoke',
 		projectValidatedInput: projectStaffRevoke,
 	}),
@@ -222,7 +270,7 @@ export function getLabOSActionBoundaryMetadata(
 	return Object.freeze({
 		boundaryId,
 		actionName: definition.actionName,
-		legacyRequiredRole: definition.legacyRequiredRole,
+		legacyComparisonRole: definition.legacyComparisonRole,
 		permission: definition.permission,
 	}) as LabOSActionBoundaryMetadata
 }
@@ -233,6 +281,10 @@ export function getLabOSActionBoundaryMetadata(
  * middleware. Client input can never select a permission, target type, policy,
  * Organization, or fact source.
  */
+export function projectLabOSActionBoundary(
+	boundaryId: 'A-086',
+	parsedInput: unknown,
+): InvoiceOverdueSyncProjection
 export function projectLabOSActionBoundary(
 	boundaryId: 'A-123',
 	parsedInput: unknown,
@@ -268,8 +320,30 @@ export function projectLabOSActionBoundary(
 	return Object.freeze({
 		boundaryId,
 		actionName: definition.actionName,
-		legacyRequiredRole: definition.legacyRequiredRole,
+		legacyComparisonRole: definition.legacyComparisonRole,
 		permission: definition.permission,
 		...definition.projectValidatedInput(parsedInput),
 	}) as LabOSActionBoundaryProjection
+}
+
+export function getLabOSActionBoundaryInputSchema(
+	boundaryId: 'A-086',
+): typeof SyncOverdueInvoicesBoundaryInputSchema
+export function getLabOSActionBoundaryInputSchema(
+	boundaryId: LabOSActionBoundaryId,
+): z.ZodType
+export function getLabOSActionBoundaryInputSchema(
+	boundaryId: LabOSActionBoundaryId,
+): z.ZodType {
+	const definition = (
+		LABOS_ACTION_BOUNDARY_REGISTRY as unknown as Partial<
+			Record<string, LabOSActionBoundaryDefinition<LabOSActionBoundaryId>>
+		>
+	)[boundaryId]
+	if (!definition) {
+		throw new LabOSActionBoundaryError(
+			LABOS_ACTION_BOUNDARY_ERROR_CODES.BOUNDARY_NOT_REGISTERED,
+		)
+	}
+	return definition.inputSchema
 }

@@ -63,8 +63,10 @@ export type PayoutFinancialFacts = Readonly<{
 	labId: string
 	organizationId: string
 	staffId: string
+	linkedMemberId: string | null
 	status: string
 	hasAssignments: boolean
+	relationshipsConsistent: boolean
 }>
 
 export type PayoutAssignmentFacts = Readonly<{

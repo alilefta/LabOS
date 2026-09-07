@@ -136,6 +136,7 @@ export function createAuthorizationService<
 			try {
 				monitor.record({
 					event: 'platform.authorization.decision',
+					boundaryId: request.boundaryId,
 					permission: request.permission,
 					sensitivity:
 						configuration.permissionDefinitions.get(request.permission)

@@ -267,7 +267,14 @@ describe('Prisma financial authorization repository', () => {
 			staffId: 'staff-1',
 			status: 'SETTLED',
 			lab: { organizationId: 'organization-1' },
-			_count: { caseAssignments: 2 },
+			staff: {
+				labId: 'lab-1',
+				memberId: 'member-1',
+				member: { organizationId: 'organization-1' },
+			},
+			caseAssignments: [
+				{ labId: 'lab-1', staffId: 'staff-1', dentalCase: { labId: 'lab-1' } },
+			],
 		})
 
 		await expect(
@@ -280,8 +287,10 @@ describe('Prisma financial authorization repository', () => {
 			labId: 'lab-1',
 			organizationId: 'organization-1',
 			staffId: 'staff-1',
+			linkedMemberId: 'member-1',
 			status: 'SETTLED',
 			hasAssignments: true,
+			relationshipsConsistent: true,
 		})
 		expect(prisma.staffPayout.findFirst).toHaveBeenCalledWith({
 			where: { id: 'payout-1', lab: { organizationId: 'organization-1' } },

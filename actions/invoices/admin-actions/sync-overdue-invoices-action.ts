@@ -1,17 +1,13 @@
 // actions/invoices/sync-ledger.ts
 "use server";
 
-import { actionClientWithLab } from "@/lib/safe-action";
+import { actionClientWithAuthorization } from "@/lib/safe-action";
 import { tenantPrisma } from "@/lib/prisma";
 
-export const syncOverdueInvoicesAction = actionClientWithLab
-	.metadata({
-		actionName: "Sync-Overdue-Invoices-Action",
-		// Security: Only accountants and managers can alter database ledger states
-		requiredLabRole: "MANAGER",
-	})
+export const syncOverdueInvoicesAction = actionClientWithAuthorization('A-086')
 	.action(async ({ ctx }) => {
 		const { labId } = ctx;
+
 		const prisma = await tenantPrisma(labId);
 
 		const now = new Date();

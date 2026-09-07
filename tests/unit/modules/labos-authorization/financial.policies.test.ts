@@ -42,8 +42,10 @@ const payoutFacts = {
 	labId: 'lab-1',
 	organizationId: 'organization-1',
 	staffId: 'staff-1',
+	linkedMemberId: 'member-1',
 	status: 'PENDING_APPROVAL',
 	hasAssignments: true,
+	relationshipsConsistent: true,
 } as const
 
 function dependencies() {
@@ -99,6 +101,53 @@ function baseContext() {
 
 describe('financial authorization policies', () => {
 	beforeEach(() => vi.clearAllMocks())
+
+	it('requires consistent payout relationships and the route Staff identifier for reads', async () => {
+		const deps = dependencies()
+		const policy = createFinancialPolicies(deps)['payout.read.relationships']
+		const request = {
+			...baseContext(),
+			permission: 'payout.read',
+			target: { type: 'payout', id: 'payout-1' },
+			operation: { kind: 'payout.paystub.read', routeStaffId: 'staff-1' },
+		} as const
+
+		await expect(policy.evaluate(request)).resolves.toEqual({ allowed: true })
+		deps.payoutFinancials.load.mockResolvedValueOnce({
+			...payoutFacts,
+			relationshipsConsistent: false,
+		})
+		await expect(policy.evaluate(request)).resolves.toMatchObject({ allowed: false })
+		await expect(
+			policy.evaluate({
+				...request,
+				operation: { kind: 'payout.paystub.read', routeStaffId: 'staff-2' },
+			}),
+		).resolves.toMatchObject({ allowed: false })
+	})
+
+	it('requires authoritative Member-to-Staff payout ownership for self reads', async () => {
+		const deps = dependencies()
+		const policy = createFinancialPolicies(deps)['payout.self.ownership']
+		const request = {
+			...baseContext(),
+			permission: 'payout.self.read',
+			target: { type: 'payout', id: 'payout-1' },
+			operation: { kind: 'payout.paystub.read', routeStaffId: 'staff-1' },
+		} as const
+
+		await expect(policy.evaluate(request)).resolves.toEqual({ allowed: true })
+		deps.payoutFinancials.load.mockResolvedValueOnce({
+			...payoutFacts,
+			linkedMemberId: 'member-2',
+		})
+		await expect(policy.evaluate(request)).resolves.toMatchObject({ allowed: false })
+		deps.payoutFinancials.load.mockResolvedValueOnce({
+			...payoutFacts,
+			linkedMemberId: null,
+		})
+		await expect(policy.evaluate(request)).resolves.toMatchObject({ allowed: false })
+	})
 
 	it('allows recalculation only for a tenant Case that has not been invoiced', async () => {
 		const deps = dependencies()

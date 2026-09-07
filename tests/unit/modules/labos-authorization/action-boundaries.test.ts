@@ -4,6 +4,7 @@ import {
 	LABOS_ACTION_BOUNDARY_ERROR_CODES,
 	LABOS_ACTION_BOUNDARY_IDS,
 	LabOSActionBoundaryError,
+	getLabOSActionBoundaryInputSchema,
 	projectLabOSActionBoundary,
 } from '@/modules/labos-authorization/action-boundaries'
 import type { LabOSActionBoundaryId } from '@/modules/labos-authorization/action-boundaries'
@@ -16,8 +17,25 @@ const STAFF_ID = '9a58f4c9-f112-4479-af03-6d3991ad7848'
 
 describe('LabOS action-boundary registry', () => {
 	it('exposes only the stable reviewed boundary IDs', () => {
-		expect(LABOS_ACTION_BOUNDARY_IDS).toEqual(['A-123', 'A-124', 'A-125'])
+		expect(LABOS_ACTION_BOUNDARY_IDS).toEqual([
+			'A-086',
+			'A-123',
+			'A-124',
+			'A-125',
+		])
 		expect(Object.isFrozen(LABOS_ACTION_BOUNDARY_IDS)).toBe(true)
+	})
+
+	it('owns the A-086 schema and projects no caller data', () => {
+		const schema = getLabOSActionBoundaryInputSchema('A-086')
+		expect(schema.parse(undefined)).toBeUndefined()
+		expect(() => schema.parse({ permission: 'billing.manage' })).toThrow()
+		expect(projectLabOSActionBoundary('A-086', undefined)).toEqual({
+			boundaryId: 'A-086',
+			actionName: 'Sync-Overdue-Invoices-Action',
+			legacyComparisonRole: 'MANAGER',
+			permission: 'invoice.overdue.sync',
+		})
 	})
 
 	it('projects A-123 as an Organization-scoped permission without Staff PII', () => {
@@ -31,7 +49,7 @@ describe('LabOS action-boundary registry', () => {
 		expect(projection).toEqual({
 			boundaryId: 'A-123',
 			actionName: 'Register-Team-Lab-Staff-Action',
-			legacyRequiredRole: 'ADMIN',
+			legacyComparisonRole: 'ADMIN',
 			permission: 'staff.create',
 		})
 		expect(projection).not.toHaveProperty('target')
@@ -60,7 +78,7 @@ describe('LabOS action-boundary registry', () => {
 			expect(projection).toEqual({
 				boundaryId: 'A-124',
 				actionName: 'Grant-Staff-System-Access',
-				legacyRequiredRole: 'ADMIN',
+				legacyComparisonRole: 'ADMIN',
 				permission: 'staff.access.invite',
 				target: { type: 'staff', id: STAFF_ID },
 				operation: {
@@ -83,7 +101,7 @@ describe('LabOS action-boundary registry', () => {
 		expect(projectLabOSActionBoundary('A-125', parsedInput)).toEqual({
 			boundaryId: 'A-125',
 			actionName: 'Revoke-Staff-System-Access',
-			legacyRequiredRole: 'ADMIN',
+			legacyComparisonRole: 'ADMIN',
 			permission: 'staff.access.revoke',
 			target: { type: 'staff', id: STAFF_ID },
 		})

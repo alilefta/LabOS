@@ -17,10 +17,13 @@ import {
 } from '@/platform/organizations'
 import {
 	getLabOSActionBoundaryMetadata,
+	getLabOSActionBoundaryInputSchema,
 	LABOS_ACTION_BOUNDARY_IDS,
+	LABOS_REGISTERED_ACTION_BOUNDARY_IDS,
 	LABOS_ACTION_BOUNDARY_ERROR_CODES,
 	LabOSActionBoundaryError,
 	type LabOSActionBoundaryId,
+	type LabOSRegisteredActionBoundaryId,
 } from '@/modules/labos-authorization/action-boundaries'
 import { createLabOSAuthorizationActor } from '@/modules/labos-authorization/actor'
 import {
@@ -52,6 +55,7 @@ import {
 } from '@/modules/labos-authorization/membership-operation-boundaries'
 import { authorizeLabOSMembershipOperation } from '@/modules/labos-authorization/membership-operation-authorization'
 import { AuthorizationError } from '@/platform/authorization'
+import { executeRegisteredLabOSAction } from '@/modules/labos-authorization/registered-action-authorization'
 
 // ----------------------------------------
 // Base Client - For Auth only
@@ -250,7 +254,7 @@ function mapTenantContextError(error: TenantContextError): never {
  * for old audit foreign keys and never influences tenant authorization.
  */
 export const requireTenantMiddleware = createMiddleware<{
-	metadata: { actionName: string; requiredLabRole: LabRole | null }
+	metadata: { actionName: string; requiredLabRole?: LabRole | null }
 }>().define(async ({ next, ctx }) => {
 	const { user } = ctx as { user: { id: string; name: string } }
 
@@ -336,6 +340,8 @@ type AuthorizationShadowMetadata = {
 	requiredLabRole: LabRole
 	authorizationBoundaryId: LabOSActionBoundaryId
 }
+
+type LabOSShadowActionBoundaryId = Exclude<LabOSActionBoundaryId, 'A-086'>
 
 const authorizationShadowLoggingMiddleware = createMiddleware<{
 	metadata: AuthorizationShadowMetadata
@@ -482,7 +488,7 @@ const AUTHORIZATION_SHADOW_ACTION_CLIENTS = Object.freeze({
 	'A-123': authorizationShadowBaseClient
 		.metadata({
 			actionName: createStaffBoundary.actionName,
-			requiredLabRole: createStaffBoundary.legacyRequiredRole,
+			requiredLabRole: createStaffBoundary.legacyComparisonRole,
 			authorizationBoundaryId: createStaffBoundary.boundaryId,
 		})
 		.inputSchema(CreateLabStaffInputSchema)
@@ -490,7 +496,7 @@ const AUTHORIZATION_SHADOW_ACTION_CLIENTS = Object.freeze({
 	'A-124': authorizationShadowBaseClient
 		.metadata({
 			actionName: grantAccessBoundary.actionName,
-			requiredLabRole: grantAccessBoundary.legacyRequiredRole,
+			requiredLabRole: grantAccessBoundary.legacyComparisonRole,
 			authorizationBoundaryId: grantAccessBoundary.boundaryId,
 		})
 		.inputSchema(GrantStaffSystemAccessInputSchema)
@@ -498,7 +504,7 @@ const AUTHORIZATION_SHADOW_ACTION_CLIENTS = Object.freeze({
 	'A-125': authorizationShadowBaseClient
 		.metadata({
 			actionName: revokeAccessBoundary.actionName,
-			requiredLabRole: revokeAccessBoundary.legacyRequiredRole,
+			requiredLabRole: revokeAccessBoundary.legacyComparisonRole,
 			authorizationBoundaryId: revokeAccessBoundary.boundaryId,
 		})
 		.inputSchema(RevokeStaffSystemAccessInputSchema)
@@ -509,7 +515,7 @@ const AUTHORIZATION_CUTOVER_ACTION_CLIENTS = Object.freeze({
 	'A-124': authorizationShadowBaseClient
 		.metadata({
 			actionName: grantAccessBoundary.actionName,
-			requiredLabRole: grantAccessBoundary.legacyRequiredRole,
+			requiredLabRole: grantAccessBoundary.legacyComparisonRole,
 			authorizationBoundaryId: grantAccessBoundary.boundaryId,
 		})
 		.inputSchema(GrantStaffSystemAccessInputSchema)
@@ -517,7 +523,7 @@ const AUTHORIZATION_CUTOVER_ACTION_CLIENTS = Object.freeze({
 	'A-125': authorizationShadowBaseClient
 		.metadata({
 			actionName: revokeAccessBoundary.actionName,
-			requiredLabRole: revokeAccessBoundary.legacyRequiredRole,
+			requiredLabRole: revokeAccessBoundary.legacyComparisonRole,
 			authorizationBoundaryId: revokeAccessBoundary.boundaryId,
 		})
 		.inputSchema(RevokeStaffSystemAccessInputSchema)
@@ -539,8 +545,11 @@ export function actionClientWithAuthorizationShadow(
 	boundaryId: 'A-125',
 ): (typeof AUTHORIZATION_SHADOW_ACTION_CLIENTS)['A-125']
 export function actionClientWithAuthorizationShadow(
+	boundaryId: LabOSShadowActionBoundaryId,
+): (typeof AUTHORIZATION_SHADOW_ACTION_CLIENTS)[LabOSShadowActionBoundaryId]
+export function actionClientWithAuthorizationShadow(
 	boundaryId: LabOSActionBoundaryId,
-): (typeof AUTHORIZATION_SHADOW_ACTION_CLIENTS)[LabOSActionBoundaryId]
+): (typeof AUTHORIZATION_SHADOW_ACTION_CLIENTS)[LabOSShadowActionBoundaryId]
 export function actionClientWithAuthorizationShadow(
 	boundaryId: LabOSActionBoundaryId,
 ) {
@@ -587,6 +596,127 @@ export function actionClientWithAuthorizationCutover(
 		failureReason: error.code,
 	}, undefined, isLabOSAuthorizationV1Enforced() ? 'v1' : 'legacy')
 	throw error
+}
+
+// ----------------------------------------
+// Registered Authorization V1 action client
+// ----------------------------------------
+
+type RegisteredAuthorizationMetadata = {
+	actionName: string
+	authorizationBoundaryId: LabOSRegisteredActionBoundaryId
+}
+
+const registeredAuthorizationScopedClient = createSafeActionClient({
+	defineMetadataSchema() {
+		return z.object({
+			actionName: z.string(),
+			authorizationBoundaryId: z.enum(
+				LABOS_REGISTERED_ACTION_BOUNDARY_IDS,
+			),
+		})
+	},
+	handleServerError(error) {
+		if (error instanceof ActionError) return toPayload(error)
+		if (error instanceof AuthorizationError) {
+			return toPayload(ERRORS.MISSING_PERMISSIONS)
+		}
+		if (error instanceof Prisma.PrismaClientKnownRequestError) {
+			if (error.code === 'P2025' || error.code === 'P2003') {
+				return toPayload(ERRORS.NOT_FOUND)
+			}
+			return toPayload(ERRORS.DATABASE_ERROR)
+		}
+		return fallbackPayload()
+	},
+})
+
+const registeredAuthorizationLoggingMiddleware = createMiddleware<{
+	metadata: RegisteredAuthorizationMetadata
+}>().define(async ({ next, metadata }) => {
+	const startedAt = performance.now()
+	try {
+		return await next()
+	} catch (error) {
+		console.warn('Registered authorization action failed', {
+			action: metadata.actionName,
+			boundaryId: metadata.authorizationBoundaryId,
+			durationMs: Math.round(performance.now() - startedAt),
+		})
+		throw error
+	}
+})
+
+const buildRegisteredAuthorizationContext = createMiddleware<{
+	metadata: RegisteredAuthorizationMetadata
+}>().define(async ({ next, ctx }) => {
+	const tenant = ctx as Parameters<typeof createLabOSAuthorizationActor>[0]
+	return next({
+		ctx: {
+			...ctx,
+			authorizationActor: createLabOSAuthorizationActor(tenant),
+			authorizationCorrelationId: crypto.randomUUID(),
+		},
+	})
+})
+
+const registeredAuthorizationValidatedMiddleware = createValidatedMiddleware<{
+	metadata: RegisteredAuthorizationMetadata
+	parsedInput: unknown
+	ctx: {
+		authorizationActor: ReturnType<typeof createLabOSAuthorizationActor>
+		authorizationCorrelationId: string
+	}
+}>().define(async ({ next, ctx, metadata, parsedInput }) =>
+	executeRegisteredLabOSAction({
+		boundaryId: metadata.authorizationBoundaryId,
+		parsedInput,
+		actor: ctx.authorizationActor,
+		correlationId: ctx.authorizationCorrelationId,
+		handler: () =>
+			next({
+				ctx: {
+					...ctx,
+					authorizationBoundaryId: metadata.authorizationBoundaryId,
+				},
+			}),
+	}),
+)
+
+const registeredAuthorizationBaseClient = registeredAuthorizationScopedClient
+	.use(registeredAuthorizationLoggingMiddleware)
+	.use(requireUserMiddleware)
+	.use(requireTenantMiddleware)
+	.use(buildRegisteredAuthorizationContext)
+
+const overdueSyncBoundary = getLabOSActionBoundaryMetadata('A-086')
+
+const REGISTERED_AUTHORIZATION_ACTION_CLIENTS = Object.freeze({
+	'A-086': registeredAuthorizationBaseClient
+		.metadata({
+			actionName: overdueSyncBoundary.actionName,
+			authorizationBoundaryId: 'A-086',
+		})
+		.inputSchema(getLabOSActionBoundaryInputSchema('A-086'))
+		.useValidated(registeredAuthorizationValidatedMiddleware),
+})
+
+/**
+ * Selects a schema-first, V1-authoritative action boundary. Permission,
+ * target, operation intent, and schema all come from the trusted registry;
+ * the handler cannot override or omit enforcement.
+ */
+export function actionClientWithAuthorization(
+	boundaryId: 'A-086',
+): (typeof REGISTERED_AUTHORIZATION_ACTION_CLIENTS)['A-086']
+export function actionClientWithAuthorization(
+	boundaryId: LabOSRegisteredActionBoundaryId,
+) {
+	const client = REGISTERED_AUTHORIZATION_ACTION_CLIENTS[boundaryId]
+	if (client) return client
+	throw new LabOSActionBoundaryError(
+		LABOS_ACTION_BOUNDARY_ERROR_CODES.BOUNDARY_NOT_REGISTERED,
+	)
 }
 
 // ----------------------------------------

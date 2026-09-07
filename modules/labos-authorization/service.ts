@@ -1,7 +1,6 @@
 import 'server-only'
 
 import {
-	consoleAuthorizationMonitor,
 	createAuthorizationService,
 	createPermissionDefinitionRegistry,
 } from '@/platform/authorization'
@@ -18,6 +17,10 @@ import {
 	LABOS_MEMBERSHIP_TARGET_RESOLVERS,
 } from './membership-access.adapters'
 import {
+	LABOS_OPERATIONAL_POLICIES,
+	LABOS_OPERATIONAL_TARGET_RESOLVERS,
+} from './operational.adapters'
+import {
 	LABOS_FINANCIAL_POLICIES,
 	LABOS_FINANCIAL_TARGET_RESOLVERS,
 } from './financial.adapters'
@@ -33,6 +36,7 @@ import {
 	LABOS_ROLE_PERMISSION_BUNDLES,
 	type LabOSOrganizationRole,
 } from './roles'
+import { structuredLabOSAuthorizationDecisionMonitor } from './decision-telemetry'
 
 /**
  * Permissions whose complete resolver/policy path is currently implemented.
@@ -49,6 +53,9 @@ export const LABOS_AUTHORIZATION_V1_SUPPORTED_PERMISSIONS = Object.freeze([
 	'clinic.analytics.list',
 	'clinic.analytics.read',
 	'clinic.update',
+	'catalog.create',
+	'catalog.update',
+	'dentist.read',
 	'invoice.create',
 	'staff.create',
 	'staff.access.invite',
@@ -77,6 +84,7 @@ export const LABOS_AUTHORIZATION_V1_SUPPORTED_PERMISSIONS = Object.freeze([
 	'invoice.payment.record',
 	'invoice.overdue.sync',
 	'payout.read',
+	'payout.self.read',
 	'payout.list',
 	'payout.issue',
 	'payout.void',
@@ -85,11 +93,13 @@ export const LABOS_AUTHORIZATION_V1_SUPPORTED_PERMISSIONS = Object.freeze([
 const LABOS_AUTHORIZATION_V1_TARGET_RESOLVERS = Object.freeze({
 	...LABOS_MEMBERSHIP_TARGET_RESOLVERS,
 	...LABOS_FINANCIAL_TARGET_RESOLVERS,
+	...LABOS_OPERATIONAL_TARGET_RESOLVERS,
 })
 
 const LABOS_AUTHORIZATION_V1_POLICIES = Object.freeze({
 	...LABOS_MEMBERSHIP_ACCESS_POLICIES,
 	...LABOS_FINANCIAL_POLICIES,
+	...LABOS_OPERATIONAL_POLICIES,
 })
 
 type LabOSPermissionDefinition = PermissionDefinition<
@@ -162,7 +172,7 @@ export const labosAuthorizationMonitor: AuthorizationMonitor<
 	LabOSResourceType
 > = {
 	record(event) {
-		consoleAuthorizationMonitor.record(event)
+		structuredLabOSAuthorizationDecisionMonitor.record(event)
 	},
 }
 

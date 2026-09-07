@@ -103,4 +103,19 @@ describe('invoice write boundaries', () => {
 		expect(source).toContain('requiredLabRole: "MANAGER"')
 		expect(source).toContain('isolationLevel: Prisma.TransactionIsolationLevel.Serializable')
 	})
+
+	it('authorizes overdue Invoice synchronization before opening Prisma', () => {
+		const source = readSource('actions', 'invoices', 'admin-actions', 'sync-overdue-invoices-action.ts')
+		const boundaryIndex = source.indexOf("actionClientWithAuthorization('A-086')")
+		const prismaIndex = source.indexOf('tenantPrisma(', boundaryIndex)
+
+		expect(boundaryIndex).toBeGreaterThan(0)
+		expect(prismaIndex).toBeGreaterThan(boundaryIndex)
+		expect(source).not.toContain('requiredLabRole')
+		expect(source).not.toContain('labosAuthorizationService.can')
+		expect(source).toContain('status: { in: ["SENT", "PARTIAL"] }')
+		expect(source).toContain('amountDue: { gt: 0 }')
+		expect(source).toContain('dueDate: { lt: now }')
+		expect(source).toContain('return { updatedCount: result.count }')
+	})
 })

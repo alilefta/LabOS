@@ -55,7 +55,7 @@ function monitor() {
 }
 
 describe('LabOS authorization service composition', () => {
-	it('enables only the reviewed membership and financial foundation slices', () => {
+	it('enables only reviewed Authorization V1 slices', () => {
 		expect(LABOS_AUTHORIZATION_V1_SUPPORTED_PERMISSIONS).toEqual([
 			'case.create',
 			'case.financials.read',
@@ -66,6 +66,9 @@ describe('LabOS authorization service composition', () => {
 			'clinic.analytics.list',
 			'clinic.analytics.read',
 			'clinic.update',
+			'catalog.create',
+			'catalog.update',
+			'dentist.read',
 			'invoice.create',
 			'staff.create',
 			'staff.access.invite',
@@ -94,6 +97,7 @@ describe('LabOS authorization service composition', () => {
 			'invoice.payment.record',
 			'invoice.overdue.sync',
 			'payout.read',
+			'payout.self.read',
 			'payout.list',
 			'payout.issue',
 			'payout.void',
@@ -266,6 +270,45 @@ describe('LabOS authorization service composition', () => {
 				allowed ? 1 : 0,
 			)
 			expect(policy.evaluate).toHaveBeenCalledTimes(allowed ? 1 : 0)
+		},
+	)
+
+	it.each([
+		['owner', 'payout.read', true],
+		['admin', 'payout.read', true],
+		['manager', 'payout.read', true],
+		['staff', 'payout.read', false],
+		['owner', 'payout.self.read', false],
+		['admin', 'payout.self.read', false],
+		['manager', 'payout.self.read', false],
+		['staff', 'payout.self.read', true],
+	] as const)(
+		'enforces the approved paystub bundle for %s using %s',
+		async (role, permission, allowed) => {
+			const payoutResolver = resolver()
+			const policies = {
+				'payout.read.relationships': allowPolicy(),
+				'payout.self.ownership': allowPolicy(),
+			}
+			const service = createLabOSAuthorizationService({
+				targetResolvers: { payout: payoutResolver },
+				policies,
+				monitor: monitor().monitor,
+			})
+
+			const decision = await service.can({
+				actor: { ...actor, memberRoles: [role] },
+				permission,
+				target: { type: 'payout', id: 'payout-1' },
+				operation: {
+					kind: 'payout.paystub.read',
+					routeStaffId: 'staff-1',
+				},
+			})
+			expect(decision.allowed).toBe(allowed)
+			expect(payoutResolver.resolveOrganizationId).toHaveBeenCalledTimes(
+				allowed ? 1 : 0,
+			)
 		},
 	)
 

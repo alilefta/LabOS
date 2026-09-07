@@ -11,6 +11,24 @@ import type { LabOSOrganizationRole } from './roles'
  * TypeScript types do not protect JavaScript or stale callers.
  */
 export type LabOSAuthorizationOperationMap = {
+	'catalog.create':
+		| Readonly<{
+				kind: 'catalog.category.image.create.stage'
+		  }>
+		| Readonly<{
+				kind: 'catalog.category.image.create.commit'
+		  }>
+	'catalog.update':
+		| Readonly<{
+				kind: 'catalog.category.image.update.stage'
+		  }>
+		| Readonly<{
+				kind: 'catalog.category.image.update.commit'
+		  }>
+	'dentist.read': Readonly<{
+		kind: 'dentist.detail.read'
+		routeClinicId: string
+	}>
 	'case.financials.update': Readonly<{
 		kind: 'case.financials.recalculate'
 	}>
@@ -46,6 +64,14 @@ export type LabOSAuthorizationOperationMap = {
 	}>
 	'invoice.payment.record': Readonly<{
 		kind: 'invoice.payment.record'
+	}>
+	'payout.read': Readonly<{
+		kind: 'payout.paystub.read'
+		routeStaffId: string
+	}>
+	'payout.self.read': Readonly<{
+		kind: 'payout.paystub.read'
+		routeStaffId: string
 	}>
 	'payout.issue': Readonly<{
 		kind: 'payout.issue'

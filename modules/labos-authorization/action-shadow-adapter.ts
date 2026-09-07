@@ -97,7 +97,7 @@ export async function authorizeLabOSActionInShadow(input: {
 	const metadata = getLabOSActionBoundaryMetadata(input.boundaryId)
 	const legacyAllowed = evaluateLegacyLabRole(
 		input.legacyActorRole,
-		metadata.legacyRequiredRole,
+		metadata.legacyComparisonRole,
 	)
 
 	let projection

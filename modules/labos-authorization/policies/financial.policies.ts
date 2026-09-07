@@ -26,6 +26,8 @@ type FinancialPolicyId = Extract<
 	| 'invoice.cancel'
 	| 'invoice.delete_draft'
 	| 'invoice.payment.record'
+	| 'payout.read.relationships'
+	| 'payout.self.ownership'
 	| 'payout.issue'
 	| 'payout.void'
 >
@@ -168,6 +170,48 @@ export function createFinancialPolicies({
 	Record<FinancialPolicyId, LabOSPolicy>
 > {
 	return Object.freeze({
+		'payout.read.relationships': {
+			async evaluate(context) {
+				if (
+					(context.permission !== 'payout.read' &&
+						context.permission !== 'payout.self.read') ||
+					!context.operation ||
+					context.operation.kind !== 'payout.paystub.read' ||
+					!validIdentifier(context.operation.routeStaffId)
+				) {
+					return FACT_MISSING
+				}
+				const facts = await loadPayoutFacts(context, payoutFinancials)
+				if (!facts) return FACT_MISSING
+				return sameOrganization(context, facts) &&
+					facts.relationshipsConsistent &&
+					facts.staffId === context.operation.routeStaffId
+					? ALLOW
+					: DENY
+			},
+		},
+
+		'payout.self.ownership': {
+			async evaluate(context) {
+				if (
+					context.permission !== 'payout.self.read' ||
+					!context.operation ||
+					context.operation.kind !== 'payout.paystub.read' ||
+					!validIdentifier(context.operation.routeStaffId)
+				) {
+					return FACT_MISSING
+				}
+				const facts = await loadPayoutFacts(context, payoutFinancials)
+				if (!facts) return FACT_MISSING
+				return sameOrganization(context, facts) &&
+					facts.relationshipsConsistent &&
+					facts.linkedMemberId !== null &&
+					facts.linkedMemberId === context.actor.memberId
+					? ALLOW
+					: DENY
+			},
+		},
+
 		'case.financials.update': {
 			async evaluate(context) {
 				if (
