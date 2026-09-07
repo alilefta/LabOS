@@ -11,7 +11,7 @@ export default async function proxy(request: NextRequest) {
 	// route groups
 	// Route groups
 	const exactPublicRoutes = ['/', '/pricing', '/about', '/contact']
-	const dynamicPublicRoutes = ['/statement', '/paystub', '/invite']
+	const dynamicPublicRoutes = ['/statement', '/invite']
 
 	const authRoutes = ['/sign-in', '/sign-up']
 	const tenantBootstrapRoutes = ['/auth/continue', '/select-organization']
@@ -24,6 +24,7 @@ export default async function proxy(request: NextRequest) {
 		'/cases',
 		'/invoices',
 		'/team',
+		'/paystub',
 
 		'/catalog',
 	]

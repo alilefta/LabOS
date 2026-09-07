@@ -73,7 +73,7 @@ export const LABOS_PERMISSION_DEFINITIONS = Object.freeze([
 	resource('clinic.archive', ['clinic'], 'sensitive', ['clinic.archive']),
 
 	organization('dentist.list', 'sensitive'),
-	resource('dentist.read', ['dentist'], 'sensitive'),
+	resource('dentist.read', ['dentist'], 'sensitive', ['dentist.read']),
 	organization('dentist.create', 'sensitive'),
 	resource('dentist.update', ['dentist'], 'sensitive'),
 	resource('dentist.archive', ['dentist'], 'sensitive', ['dentist.archive']),
@@ -155,7 +155,13 @@ export const LABOS_PERMISSION_DEFINITIONS = Object.freeze([
 	organization('invoice.overdue.sync', 'critical'),
 
 	organization('payout.list', 'sensitive'),
-	resource('payout.read', ['payout'], 'sensitive'),
+	resource('payout.read', ['payout'], 'sensitive', [
+		'payout.read.relationships',
+	]),
+	resource('payout.self.read', ['payout'], 'sensitive', [
+		'payout.read.relationships',
+		'payout.self.ownership',
+	]),
 	resource('payout.issue', ['staff'], 'critical', ['payout.issue']),
 	resource('payout.void', ['payout'], 'critical', ['payout.void']),
 

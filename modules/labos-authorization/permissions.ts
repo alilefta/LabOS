@@ -67,6 +67,7 @@ export const LABOS_PERMISSIONS = [
 	'invoice.payment.record',
 	'invoice.overdue.sync',
 	'payout.read',
+	'payout.self.read',
 	'payout.list',
 	'payout.issue',
 	'payout.void',

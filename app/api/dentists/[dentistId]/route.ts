@@ -1,37 +1,51 @@
-// app/api/dentists/[dentistId]/route.ts
-import { tenantPrisma } from "@/lib/prisma";
-import { normalizeDentist } from "@/lib/mappers";
 import {
-	requireTenantContext,
+	isTenantContextError,
 	TENANT_CONTEXT_ERROR_CODES,
-	TenantContextError,
-} from "@/platform/organizations/tenant-context";
+} from '@/platform/organizations'
+import {
+	LabOSNonActionBoundaryError,
+} from '@/modules/labos-authorization/non-action-boundaries'
+import {
+	createNApi002DentistDetailLoader,
+	NApi002DentistAuthorizationError,
+} from '@/modules/labos-dentists/dentist-detail.loader'
+import { prismaDentistDetailRepository } from '@/data/dentists/dentist-detail.repository'
 
-export async function GET(req: Request, { params }: { params: Promise<{ dentistId: string }> }) {
-	let labId: string;
+const loadDentistDetail = createNApi002DentistDetailLoader({
+	repository: prismaDentistDetailRepository,
+})
+
+export async function GET(
+	request: Request,
+	context: { params: Promise<{ dentistId: string }> },
+) {
 	try {
-		labId = (await requireTenantContext()).labId;
-	} catch (error) {
-		if (error instanceof TenantContextError) {
-			const status = error.code === TENANT_CONTEXT_ERROR_CODES.UNAUTHENTICATED ? 401 : 403;
-			return Response.json({ error: status === 401 ? "Unauthorized" : "Forbidden" }, { status });
+		const { dentistId } = await context.params
+		const clinicId = new URL(request.url).searchParams.get('clinicId') ?? ''
+		const dentist = await loadDentistDetail({ dentistId, clinicId })
+
+		if (!dentist) {
+			return Response.json({ error: 'Dentist not found' }, { status: 404 })
 		}
-		throw error;
+
+		return Response.json({ dentist })
+	} catch (error) {
+		if (error instanceof LabOSNonActionBoundaryError) {
+			return Response.json({ error: 'Invalid request' }, { status: 400 })
+		}
+
+		if (isTenantContextError(error)) {
+			const status =
+				error.code === TENANT_CONTEXT_ERROR_CODES.UNAUTHENTICATED ? 401 : 403
+			return Response.json({ error: 'Access denied' }, { status })
+		}
+
+		if (error instanceof NApi002DentistAuthorizationError) {
+			// Resource denials deliberately match not-found responses to avoid
+			// disclosing whether a Dentist identifier exists in another tenant.
+			return Response.json({ error: 'Dentist not found' }, { status: 404 })
+		}
+
+		throw error
 	}
-
-	const { dentistId } = await params;
-	const clinicId = new URL(req.url).searchParams.get("clinicId");
-	if (!clinicId) return Response.json({ error: "Missing clinicId" }, { status: 400 });
-
-	const prisma = await tenantPrisma(labId);
-	const dentist = await prisma.dentist.findUnique({
-		where: { id: dentistId, clinicId, labId },
-	});
-
-	if (!dentist) return Response.json({ error: "Not found" }, { status: 404 });
-
-	return Response.json({ dentist: normalizeDentist(dentist) });
 }
-
-// Note: Using this route handler solved the problem of using server actions with useQuery as this combination was causing re-rendering issue.
-// the case is unique which prevents me from fetching data in a server component then pass it down to client, because it was conditionally depending on an edit dentist id

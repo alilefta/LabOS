@@ -17,9 +17,9 @@ describe('LabOS Authorization V1 fixed bundles', () => {
 		])
 	})
 
-	it('grants every reviewed permission to Owner', () => {
+	it('grants Owner every reviewed permission except Staff-only payout self-read', () => {
 		expect(LABOS_ROLE_PERMISSION_BUNDLES.permissionsFor('owner')).toEqual(
-			LABOS_PERMISSIONS,
+			LABOS_PERMISSIONS.filter((permission) => permission !== 'payout.self.read'),
 		)
 	})
 
@@ -29,6 +29,7 @@ describe('LabOS Authorization V1 fixed bundles', () => {
 			'staff.compensation.update',
 			'payout.issue',
 			'payout.void',
+			'payout.self.read',
 			'billing.manage',
 		])
 
@@ -51,6 +52,7 @@ describe('LabOS Authorization V1 fixed bundles', () => {
 			'membership.role.update',
 			'membership.remove',
 			'billing.manage',
+			'payout.self.read',
 		])
 
 		for (const permission of LABOS_PERMISSIONS) {
@@ -81,12 +83,15 @@ describe('LabOS Authorization V1 fixed bundles', () => {
 			'staff.analytics.read',
 			'staff.analytics.list',
 			'staff.workbench.read',
+			'payout.self.read',
 		])
 		expect(roleBundleHasPermission('staff', 'case.update')).toBe(false)
 		expect(roleBundleHasPermission('staff', 'case.financials.read')).toBe(false)
 		expect(roleBundleHasPermission('staff', 'invoice.read')).toBe(false)
 		expect(roleBundleHasPermission('staff', 'invoice.list')).toBe(false)
 		expect(roleBundleHasPermission('staff', 'invoice.analytics.read')).toBe(false)
+		expect(roleBundleHasPermission('staff', 'payout.read')).toBe(false)
+		expect(roleBundleHasPermission('staff', 'payout.self.read')).toBe(true)
 	})
 
 	it('does not model roles as a hierarchy', () => {

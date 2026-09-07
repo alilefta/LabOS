@@ -6,12 +6,17 @@ import {
 	LABOS_NON_ACTION_BOUNDARY_IDS,
 	LabOSNonActionBoundaryError,
 	type LabOSNonActionBoundaryId,
+	projectNApi002DentistDetailBoundary,
 } from '@/modules/labos-authorization/non-action-boundaries'
 import { LABOS_PERMISSION_DEFINITION_REGISTRY } from '@/modules/labos-authorization/permission-definitions'
 
 describe('LabOS non-action authorization boundary registry', () => {
 	it('registers the Team & Roles directory under one stable ID', () => {
-		expect(LABOS_NON_ACTION_BOUNDARY_IDS).toEqual(['N-001'])
+		expect(LABOS_NON_ACTION_BOUNDARY_IDS).toEqual([
+			'N-001',
+			'N-002',
+			'N-API-002',
+		])
 		expect(Object.isFrozen(LABOS_NON_ACTION_BOUNDARY_IDS)).toBe(true)
 
 		const metadata = getLabOSNonActionBoundaryMetadata('N-001')
@@ -26,6 +31,66 @@ describe('LabOS non-action authorization boundary registry', () => {
 			wave: 'membership',
 		})
 		expect(Object.isFrozen(metadata)).toBe(true)
+	})
+
+	it('registers and projects the Dentist detail API with fixed policy inputs', () => {
+		expect(getLabOSNonActionBoundaryMetadata('N-API-002')).toMatchObject({
+			boundaryId: 'N-API-002',
+			kind: 'route-handler',
+			permission: 'dentist.read',
+			migration: 'LEGACY_TENANT_ONLY -> V1_AUTHENTICATED_RESOURCE_SCOPED',
+		})
+		expect(
+			projectNApi002DentistDetailBoundary({
+				dentistId: '11111111-1111-4111-8111-111111111111',
+				clinicId: '22222222-2222-4222-8222-222222222222',
+			}),
+		).toEqual({
+			boundaryId: 'N-API-002',
+			boundaryName: 'Dentist-Detail-API',
+			permission: 'dentist.read',
+			target: {
+				type: 'dentist',
+				id: '11111111-1111-4111-8111-111111111111',
+			},
+			operation: {
+				kind: 'dentist.detail.read',
+				routeClinicId: '22222222-2222-4222-8222-222222222222',
+			},
+		})
+	})
+
+	it('rejects malformed Dentist route identifiers before projection', () => {
+		expect(() =>
+			projectNApi002DentistDetailBoundary({
+				dentistId: 'not-a-uuid',
+				clinicId: '22222222-2222-4222-8222-222222222222',
+			}),
+		).toThrow('Authorization boundary input is invalid')
+	})
+
+	it('registers and projects the authenticated resource-scoped paystub boundary', async () => {
+		const { projectN002PaystubBoundary } = await import(
+			'@/modules/labos-authorization/non-action-boundaries'
+		)
+		expect(getLabOSNonActionBoundaryMetadata('N-002')).toMatchObject({
+			boundaryId: 'N-002',
+			permissions: ['payout.read', 'payout.self.read'],
+			migration: 'LEGACY_PUBLIC -> V1_AUTHENTICATED_RESOURCE_SCOPED',
+		})
+		expect(
+			projectN002PaystubBoundary({
+				staffId: '11111111-1111-4111-8111-111111111111',
+				payoutId: '22222222-2222-4222-8222-222222222222',
+			}),
+		).toMatchObject({
+			boundaryId: 'N-002',
+			target: { type: 'payout', id: '22222222-2222-4222-8222-222222222222' },
+			operation: {
+				kind: 'payout.paystub.read',
+				routeStaffId: '11111111-1111-4111-8111-111111111111',
+			},
+		})
 	})
 
 	it('derives scope, policies, and sensitivity from the trusted catalog', () => {

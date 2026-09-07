@@ -116,7 +116,7 @@ export default async function PaystubPrintPage({ params }: Props) {
 											#{c.caseNumber}
 										</span>
 										<span className="text-sm font-bold text-slate-900">
-											Patient: {c.patientName}
+											{c.assignmentRole.replace('_', ' ')}
 										</span>
 
 										{/* 🔥 FIX 3: ADDED PRODUCT AND TEETH COUNT FOR AUDITING [3] */}
@@ -126,11 +126,6 @@ export default async function PaystubPrintPage({ params }: Props) {
 										</div>
 									</div>
 									<div className="flex items-center gap-12 font-mono">
-										<div className="text-right hidden sm:block">
-											<span className="text-xs text-slate-400">
-												Case Total: {formatMoney(c.caseTotal)}
-											</span>
-										</div>
 										<div className="text-right w-24">
 											<span className="text-sm font-bold text-emerald-600">
 												+{formatMoney(c.commissionTotal)}

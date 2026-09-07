@@ -257,6 +257,7 @@ const LABOS_ROLE_PERMISSION_DEFINITIONS = {
 		'staff.analytics.read',
 		'staff.analytics.list',
 		'staff.workbench.read',
+		'payout.self.read',
 	],
 } as const satisfies Readonly<
 	Record<LabOSOrganizationRole, readonly LabOSPermission[]>

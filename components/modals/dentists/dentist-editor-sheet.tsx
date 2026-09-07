@@ -17,7 +17,7 @@ import { handleSafeActionError } from "@/lib/safe-action-helpers";
 import { CreateDentistInput, CreateDentistInputSchema, UpdateDentistInput } from "@/schema/composed/dentist.details";
 import { CatalogImageUpload } from "@/components/shared/file-assets/catalog-image-upload";
 import { createDentistAction } from "@/actions/dentists/create-dentist";
-import { DentistBase } from "@/schema/base/dentist.base";
+import type { DentistEditDTO } from "@/modules/labos-dentists/dentist-detail.dto";
 import { memo, useEffect } from "react";
 import { updateDentistAction } from "@/actions/dentists/update-dentist";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -28,7 +28,7 @@ interface Props {
 	onClose: () => void;
 	clinicId: string;
 	dentistIdToEdit: string | null;
-	initialData?: DentistBase | null;
+	initialData?: DentistEditDTO | null;
 	isFetchingEditData?: boolean;
 	isEdit: boolean;
 }
@@ -52,6 +52,7 @@ export const DentistEditorSheet = memo(function DentistEditorSheet({ isOpen, onC
 		},
 		mode: "onBlur",
 	});
+	const { reset } = form;
 	// fetch edit data
 	const { data: initialData, isFetching: isFetchingEditData } = useQuery({
 		queryKey: ["dentist-details", dentistIdToEdit ? dentistIdToEdit : ""],
@@ -63,7 +64,7 @@ export const DentistEditorSheet = memo(function DentistEditorSheet({ isOpen, onC
 			const res = await fetch(`/api/dentists/${dentistIdToEdit}?clinicId=${clinicId}`);
 			if (!res.ok) return null;
 			const data = await res.json();
-			return data.dentist as DentistBase;
+			return data.dentist as DentistEditDTO;
 		},
 		enabled: !!dentistIdToEdit && dentistIdToEdit !== "new",
 		staleTime: Infinity,
@@ -71,7 +72,7 @@ export const DentistEditorSheet = memo(function DentistEditorSheet({ isOpen, onC
 
 	useEffect(() => {
 		if (isOpen && isEdit && initialData) {
-			form.reset({
+			reset({
 				clinicId,
 				name: initialData.name || "",
 				speciality: initialData.specialty || "",
@@ -86,9 +87,9 @@ export const DentistEditorSheet = memo(function DentistEditorSheet({ isOpen, onC
 		}
 
 		if (!isOpen) {
-			form.reset();
+			reset();
 		}
-	}, [isOpen, isEdit, initialData]); // form intentionally omitted
+	}, [clinicId, initialData, isEdit, isOpen, reset]);
 
 	const { executeAsync: createDentist, isExecuting: isCreating } = useAction(createDentistAction, {
 		onSuccess: () => {
