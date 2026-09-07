@@ -2,7 +2,8 @@ import * as z from 'zod';
 import type { Prisma } from '../../../../generated/prisma/client';
 import { StringFieldUpdateOperationsInputObjectSchema as StringFieldUpdateOperationsInputObjectSchema } from './StringFieldUpdateOperationsInput.schema';
 import { DateTimeFieldUpdateOperationsInputObjectSchema as DateTimeFieldUpdateOperationsInputObjectSchema } from './DateTimeFieldUpdateOperationsInput.schema';
-import { LabStaffUncheckedUpdateOneWithoutMemberNestedInputObjectSchema as LabStaffUncheckedUpdateOneWithoutMemberNestedInputObjectSchema } from './LabStaffUncheckedUpdateOneWithoutMemberNestedInput.schema'
+import { LabStaffUncheckedUpdateOneWithoutMemberNestedInputObjectSchema as LabStaffUncheckedUpdateOneWithoutMemberNestedInputObjectSchema } from './LabStaffUncheckedUpdateOneWithoutMemberNestedInput.schema';
+import { FileUploadGrantUncheckedUpdateManyWithoutCreatedByMemberNestedInputObjectSchema as FileUploadGrantUncheckedUpdateManyWithoutCreatedByMemberNestedInputObjectSchema } from './FileUploadGrantUncheckedUpdateManyWithoutCreatedByMemberNestedInput.schema'
 
 const makeSchema = () => z.object({
   id: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputObjectSchema)]).optional(),
@@ -10,7 +11,8 @@ const makeSchema = () => z.object({
   userId: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputObjectSchema)]).optional(),
   role: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputObjectSchema)]).optional(),
   createdAt: z.union([z.coerce.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputObjectSchema)]).optional(),
-  labStaff: z.lazy(() => LabStaffUncheckedUpdateOneWithoutMemberNestedInputObjectSchema).optional()
+  labStaff: z.lazy(() => LabStaffUncheckedUpdateOneWithoutMemberNestedInputObjectSchema).optional(),
+  fileUploadGrants: z.lazy(() => FileUploadGrantUncheckedUpdateManyWithoutCreatedByMemberNestedInputObjectSchema).optional()
 }).strict();
 export const MemberUncheckedUpdateInputObjectSchema: z.ZodType<Prisma.MemberUncheckedUpdateInput> = makeSchema() as unknown as z.ZodType<Prisma.MemberUncheckedUpdateInput>;
 export const MemberUncheckedUpdateInputObjectZodSchema = makeSchema();

@@ -14,6 +14,7 @@ import { CaseWorkItemUpdateManyWithoutLabNestedInputObjectSchema as CaseWorkItem
 import { SelectedToothUpdateManyWithoutLabNestedInputObjectSchema as SelectedToothUpdateManyWithoutLabNestedInputObjectSchema } from './SelectedToothUpdateManyWithoutLabNestedInput.schema';
 import { CasePricingPlanUpdateManyWithoutLabNestedInputObjectSchema as CasePricingPlanUpdateManyWithoutLabNestedInputObjectSchema } from './CasePricingPlanUpdateManyWithoutLabNestedInput.schema';
 import { CaseAssetFileUpdateManyWithoutLabNestedInputObjectSchema as CaseAssetFileUpdateManyWithoutLabNestedInputObjectSchema } from './CaseAssetFileUpdateManyWithoutLabNestedInput.schema';
+import { FileUploadGrantUpdateManyWithoutLabNestedInputObjectSchema as FileUploadGrantUpdateManyWithoutLabNestedInputObjectSchema } from './FileUploadGrantUpdateManyWithoutLabNestedInput.schema';
 import { PatientUpdateManyWithoutLabNestedInputObjectSchema as PatientUpdateManyWithoutLabNestedInputObjectSchema } from './PatientUpdateManyWithoutLabNestedInput.schema';
 import { DentistUpdateManyWithoutLabNestedInputObjectSchema as DentistUpdateManyWithoutLabNestedInputObjectSchema } from './DentistUpdateManyWithoutLabNestedInput.schema';
 import { CaseStaffAssignmentUpdateManyWithoutLabNestedInputObjectSchema as CaseStaffAssignmentUpdateManyWithoutLabNestedInputObjectSchema } from './CaseStaffAssignmentUpdateManyWithoutLabNestedInput.schema';
@@ -50,6 +51,7 @@ const makeSchema = () => z.object({
   selectedTeeth: z.lazy(() => SelectedToothUpdateManyWithoutLabNestedInputObjectSchema).optional(),
   casePricingPlans: z.lazy(() => CasePricingPlanUpdateManyWithoutLabNestedInputObjectSchema).optional(),
   caseAssetFiles: z.lazy(() => CaseAssetFileUpdateManyWithoutLabNestedInputObjectSchema).optional(),
+  fileUploadGrants: z.lazy(() => FileUploadGrantUpdateManyWithoutLabNestedInputObjectSchema).optional(),
   patients: z.lazy(() => PatientUpdateManyWithoutLabNestedInputObjectSchema).optional(),
   dentists: z.lazy(() => DentistUpdateManyWithoutLabNestedInputObjectSchema).optional(),
   staffAssignments: z.lazy(() => CaseStaffAssignmentUpdateManyWithoutLabNestedInputObjectSchema).optional(),

@@ -17,7 +17,9 @@ export const MemberFindFirstOrThrowSelectSchema: z.ZodType<Prisma.MemberSelect> 
     authuser: z.boolean().optional(),
     role: z.boolean().optional(),
     createdAt: z.boolean().optional(),
-    labStaff: z.boolean().optional()
+    labStaff: z.boolean().optional(),
+    fileUploadGrants: z.boolean().optional(),
+    _count: z.boolean().optional()
   }).strict() as unknown as z.ZodType<Prisma.MemberSelect>;
 
 export const MemberFindFirstOrThrowSelectZodSchema = z.object({
@@ -28,7 +30,9 @@ export const MemberFindFirstOrThrowSelectZodSchema = z.object({
     authuser: z.boolean().optional(),
     role: z.boolean().optional(),
     createdAt: z.boolean().optional(),
-    labStaff: z.boolean().optional()
+    labStaff: z.boolean().optional(),
+    fileUploadGrants: z.boolean().optional(),
+    _count: z.boolean().optional()
   }).strict();
 
 export const MemberFindFirstOrThrowSchema: z.ZodType<Prisma.MemberFindFirstOrThrowArgs> = z.object({ select: MemberFindFirstOrThrowSelectSchema.optional(), include: z.lazy(() => MemberIncludeObjectSchema.optional()), orderBy: z.union([MemberOrderByWithRelationInputObjectSchema, MemberOrderByWithRelationInputObjectSchema.array()]).optional(), where: MemberWhereInputObjectSchema.optional(), cursor: MemberWhereUniqueInputObjectSchema.optional(), take: z.number().optional(), skip: z.number().optional(), distinct: z.union([MemberScalarFieldEnumSchema, MemberScalarFieldEnumSchema.array()]).optional() }).strict() as unknown as z.ZodType<Prisma.MemberFindFirstOrThrowArgs>;

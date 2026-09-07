@@ -8,7 +8,8 @@ export const MemberModelSchema = z.object({
     authuser: z.unknown(),
     role: z.string(),
     createdAt: z.date(),
-    labStaff: z.unknown().nullable()
+    labStaff: z.unknown().nullable(),
+    fileUploadGrants: z.array(z.unknown())
 }).strict();
 
 export type MemberPureType = z.infer<typeof MemberModelSchema>;

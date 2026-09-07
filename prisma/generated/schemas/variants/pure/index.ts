@@ -35,5 +35,6 @@ export { AccountModelSchema } from './Account.pure';
 export { VerificationModelSchema } from './Verification.pure';
 export { OrganizationModelSchema } from './Organization.pure';
 export { MemberModelSchema } from './Member.pure';
+export { FileUploadGrantModelSchema } from './FileUploadGrant.pure';
 export { InvitationModelSchema } from './Invitation.pure';
 export { LabStaffInvitationIntentModelSchema } from './LabStaffInvitationIntent.pure';

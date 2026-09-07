@@ -13,6 +13,7 @@ import { CaseWorkItemOrderByRelationAggregateInputObjectSchema as CaseWorkItemOr
 import { SelectedToothOrderByRelationAggregateInputObjectSchema as SelectedToothOrderByRelationAggregateInputObjectSchema } from './SelectedToothOrderByRelationAggregateInput.schema';
 import { CasePricingPlanOrderByRelationAggregateInputObjectSchema as CasePricingPlanOrderByRelationAggregateInputObjectSchema } from './CasePricingPlanOrderByRelationAggregateInput.schema';
 import { CaseAssetFileOrderByRelationAggregateInputObjectSchema as CaseAssetFileOrderByRelationAggregateInputObjectSchema } from './CaseAssetFileOrderByRelationAggregateInput.schema';
+import { FileUploadGrantOrderByRelationAggregateInputObjectSchema as FileUploadGrantOrderByRelationAggregateInputObjectSchema } from './FileUploadGrantOrderByRelationAggregateInput.schema';
 import { PatientOrderByRelationAggregateInputObjectSchema as PatientOrderByRelationAggregateInputObjectSchema } from './PatientOrderByRelationAggregateInput.schema';
 import { DentistOrderByRelationAggregateInputObjectSchema as DentistOrderByRelationAggregateInputObjectSchema } from './DentistOrderByRelationAggregateInput.schema';
 import { CaseStaffAssignmentOrderByRelationAggregateInputObjectSchema as CaseStaffAssignmentOrderByRelationAggregateInputObjectSchema } from './CaseStaffAssignmentOrderByRelationAggregateInput.schema';
@@ -51,6 +52,7 @@ const makeSchema = () => z.object({
   selectedTeeth: z.lazy(() => SelectedToothOrderByRelationAggregateInputObjectSchema).optional(),
   casePricingPlans: z.lazy(() => CasePricingPlanOrderByRelationAggregateInputObjectSchema).optional(),
   caseAssetFiles: z.lazy(() => CaseAssetFileOrderByRelationAggregateInputObjectSchema).optional(),
+  fileUploadGrants: z.lazy(() => FileUploadGrantOrderByRelationAggregateInputObjectSchema).optional(),
   patients: z.lazy(() => PatientOrderByRelationAggregateInputObjectSchema).optional(),
   dentists: z.lazy(() => DentistOrderByRelationAggregateInputObjectSchema).optional(),
   staffAssignments: z.lazy(() => CaseStaffAssignmentOrderByRelationAggregateInputObjectSchema).optional(),

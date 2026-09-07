@@ -4,7 +4,8 @@ import { StringFieldUpdateOperationsInputObjectSchema as StringFieldUpdateOperat
 import { NullableStringFieldUpdateOperationsInputObjectSchema as NullableStringFieldUpdateOperationsInputObjectSchema } from './NullableStringFieldUpdateOperationsInput.schema';
 import { DateTimeFieldUpdateOperationsInputObjectSchema as DateTimeFieldUpdateOperationsInputObjectSchema } from './DateTimeFieldUpdateOperationsInput.schema';
 import { MemberUpdateManyWithoutOrganizationNestedInputObjectSchema as MemberUpdateManyWithoutOrganizationNestedInputObjectSchema } from './MemberUpdateManyWithoutOrganizationNestedInput.schema';
-import { LabUpdateOneWithoutOrganizationNestedInputObjectSchema as LabUpdateOneWithoutOrganizationNestedInputObjectSchema } from './LabUpdateOneWithoutOrganizationNestedInput.schema'
+import { LabUpdateOneWithoutOrganizationNestedInputObjectSchema as LabUpdateOneWithoutOrganizationNestedInputObjectSchema } from './LabUpdateOneWithoutOrganizationNestedInput.schema';
+import { FileUploadGrantUpdateManyWithoutOrganizationNestedInputObjectSchema as FileUploadGrantUpdateManyWithoutOrganizationNestedInputObjectSchema } from './FileUploadGrantUpdateManyWithoutOrganizationNestedInput.schema'
 
 const makeSchema = () => z.object({
   id: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputObjectSchema)]).optional(),
@@ -14,7 +15,8 @@ const makeSchema = () => z.object({
   createdAt: z.union([z.coerce.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputObjectSchema)]).optional(),
   metadata: z.union([z.string(), z.lazy(() => NullableStringFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
   members: z.lazy(() => MemberUpdateManyWithoutOrganizationNestedInputObjectSchema).optional(),
-  lab: z.lazy(() => LabUpdateOneWithoutOrganizationNestedInputObjectSchema).optional()
+  lab: z.lazy(() => LabUpdateOneWithoutOrganizationNestedInputObjectSchema).optional(),
+  fileUploadGrants: z.lazy(() => FileUploadGrantUpdateManyWithoutOrganizationNestedInputObjectSchema).optional()
 }).strict();
 export const OrganizationUpdateWithoutInvitationsInputObjectSchema: z.ZodType<Prisma.OrganizationUpdateWithoutInvitationsInput> = makeSchema() as unknown as z.ZodType<Prisma.OrganizationUpdateWithoutInvitationsInput>;
 export const OrganizationUpdateWithoutInvitationsInputObjectZodSchema = makeSchema();

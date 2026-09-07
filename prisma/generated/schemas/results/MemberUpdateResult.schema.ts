@@ -7,5 +7,6 @@ export const MemberUpdateResultSchema = z.nullable(z.object({
   authuser: z.unknown(),
   role: z.string(),
   createdAt: z.date(),
-  labStaff: z.unknown().optional()
+  labStaff: z.unknown().optional(),
+  fileUploadGrants: z.array(z.unknown())
 }));

@@ -51,6 +51,15 @@ enum AssetFileType {
   SCANNERFILE
 }
 
+enum FileUploadGrantStatus {
+  PENDING
+  UPLOADED
+  CONSUMED
+  EXPIRED
+  FAILED
+  CLEANED
+}
+
 enum PricingStrategy {
   BULK
   PERTOOTH
@@ -248,6 +257,7 @@ model Lab {
   selectedTeeth    SelectedTooth[]
   casePricingPlans CasePricingPlan[]
   caseAssetFiles   CaseAssetFile[]
+  fileUploadGrants FileUploadGrant[]
 
   patients         Patient[]
   dentists         Dentist[]
@@ -730,8 +740,8 @@ model LabStaff {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@index([labId])
   @@unique([id, labId])
+  @@index([labId])
   @@index([labId, roleCategory])
   @@index([labId, isActive])
 }
@@ -1182,46 +1192,96 @@ model Verification {
 }
 
 model Organization {
-  id          String       @id
-  name        String
-  slug        String
-  logo        String?
-  createdAt   DateTime
-  metadata    String?
-  members     Member[]
-  invitations Invitation[]
-  lab         Lab?
+  id               String            @id
+  name             String
+  slug             String
+  logo             String?
+  createdAt        DateTime
+  metadata         String?
+  members          Member[]
+  invitations      Invitation[]
+  lab              Lab?
+  fileUploadGrants FileUploadGrant[]
 
   @@unique([slug])
   @@map("organization")
 }
 
 model Member {
-  id             String       @id
-  organizationId String
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  userId         String
-  authuser       AuthUser     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  role           String       @default("member")
-  createdAt      DateTime
-  labStaff       LabStaff?
+  id               String            @id
+  organizationId   String
+  organization     Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  userId           String
+  authuser         AuthUser          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role             String            @default("member")
+  createdAt        DateTime
+  labStaff         LabStaff?
+  fileUploadGrants FileUploadGrant[]
 
   @@index([organizationId])
   @@index([userId])
   @@map("member")
 }
 
-model Invitation {
-  id             String       @id
+/// Short-lived, server-owned proof that an authorized actor staged one file.
+/// The browser receives only `id`; every other field is authoritative server data.
+model FileUploadGrant {
+  id String @id @default(uuid())
+
   organizationId String
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  labId String
+  lab   Lab    @relation(fields: [labId], references: [id], onDelete: Cascade)
+
+  /// Nullable only so removing a Member does not erase the grant before orphan cleanup.
+  /// Consumption always requires an exact, non-null canonical Member match.
+  createdByMemberId String?
+  createdByMember   Member? @relation(fields: [createdByMemberId], references: [id], onDelete: SetNull)
+
+  boundaryId String
+  purpose    String
+  targetType String?
+  targetId   String?
+
+  status FileUploadGrantStatus @default(PENDING)
+
+  providerFileKey String? @unique
+  providerFileUrl String?
+
+  correlationId String
+  expiresAt     DateTime
+  uploadedAt    DateTime?
+  consumedAt    DateTime?
+  expiredAt     DateTime?
+  failedAt      DateTime?
+
+  failureCode          String?
+  providerDeletedAt    DateTime?
+  cleanupAttemptCount  Int       @default(0)
+  lastCleanupAttemptAt DateTime?
+  cleanupFailureCode   String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([organizationId, labId, createdByMemberId, status])
+  @@index([status, expiresAt])
+  @@index([boundaryId, status])
+  @@index([targetType, targetId, status])
+}
+
+model Invitation {
+  id             String                    @id
+  organizationId String
+  organization   Organization              @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   email          String
   role           String?
-  status         String       @default("pending")
+  status         String                    @default("pending")
   expiresAt      DateTime
-  createdAt      DateTime     @default(now())
+  createdAt      DateTime                  @default(now())
   inviterId      String
-  authuser       AuthUser     @relation(fields: [inviterId], references: [id], onDelete: Cascade)
+  authuser       AuthUser                  @relation(fields: [inviterId], references: [id], onDelete: Cascade)
   labStaffIntent LabStaffInvitationIntent?
 
   @@index([organizationId])
@@ -1244,6 +1304,6 @@ model LabStaffInvitationIntent {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@index([labId])
   @@unique([labStaffId, labId])
+  @@index([labId])
 }

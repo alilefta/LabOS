@@ -19,6 +19,7 @@ export const OrganizationFindFirstSelectSchema: z.ZodType<Prisma.OrganizationSel
     members: z.boolean().optional(),
     invitations: z.boolean().optional(),
     lab: z.boolean().optional(),
+    fileUploadGrants: z.boolean().optional(),
     _count: z.boolean().optional()
   }).strict() as unknown as z.ZodType<Prisma.OrganizationSelect>;
 
@@ -32,6 +33,7 @@ export const OrganizationFindFirstSelectZodSchema = z.object({
     members: z.boolean().optional(),
     invitations: z.boolean().optional(),
     lab: z.boolean().optional(),
+    fileUploadGrants: z.boolean().optional(),
     _count: z.boolean().optional()
   }).strict();
 

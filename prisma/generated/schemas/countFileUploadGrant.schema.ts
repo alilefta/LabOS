@@ -1,0 +1,10 @@
+import type { Prisma } from '../../../generated/prisma/client';
+import * as z from 'zod';
+import { FileUploadGrantOrderByWithRelationInputObjectSchema as FileUploadGrantOrderByWithRelationInputObjectSchema } from './objects/FileUploadGrantOrderByWithRelationInput.schema';
+import { FileUploadGrantWhereInputObjectSchema as FileUploadGrantWhereInputObjectSchema } from './objects/FileUploadGrantWhereInput.schema';
+import { FileUploadGrantWhereUniqueInputObjectSchema as FileUploadGrantWhereUniqueInputObjectSchema } from './objects/FileUploadGrantWhereUniqueInput.schema';
+import { FileUploadGrantCountAggregateInputObjectSchema as FileUploadGrantCountAggregateInputObjectSchema } from './objects/FileUploadGrantCountAggregateInput.schema';
+
+export const FileUploadGrantCountSchema: z.ZodType<Prisma.FileUploadGrantCountArgs> = z.object({ orderBy: z.union([FileUploadGrantOrderByWithRelationInputObjectSchema, FileUploadGrantOrderByWithRelationInputObjectSchema.array()]).optional(), where: FileUploadGrantWhereInputObjectSchema.optional(), cursor: FileUploadGrantWhereUniqueInputObjectSchema.optional(), take: z.number().optional(), skip: z.number().optional(), select: z.union([ z.literal(true), FileUploadGrantCountAggregateInputObjectSchema ]).optional() }).strict() as unknown as z.ZodType<Prisma.FileUploadGrantCountArgs>;
+
+export const FileUploadGrantCountZodSchema = z.object({ orderBy: z.union([FileUploadGrantOrderByWithRelationInputObjectSchema, FileUploadGrantOrderByWithRelationInputObjectSchema.array()]).optional(), where: FileUploadGrantWhereInputObjectSchema.optional(), cursor: FileUploadGrantWhereUniqueInputObjectSchema.optional(), take: z.number().optional(), skip: z.number().optional(), select: z.union([ z.literal(true), FileUploadGrantCountAggregateInputObjectSchema ]).optional() }).strict();

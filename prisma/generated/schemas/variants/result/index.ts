@@ -35,5 +35,6 @@ export { AccountResultSchema } from './Account.result';
 export { VerificationResultSchema } from './Verification.result';
 export { OrganizationResultSchema } from './Organization.result';
 export { MemberResultSchema } from './Member.result';
+export { FileUploadGrantResultSchema } from './FileUploadGrant.result';
 export { InvitationResultSchema } from './Invitation.result';
 export { LabStaffInvitationIntentResultSchema } from './LabStaffInvitationIntent.result';

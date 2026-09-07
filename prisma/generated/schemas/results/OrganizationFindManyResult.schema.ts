@@ -9,7 +9,8 @@ export const OrganizationFindManyResultSchema = z.object({
   metadata: z.string().optional(),
   members: z.array(z.unknown()),
   invitations: z.array(z.unknown()),
-  lab: z.unknown().optional()
+  lab: z.unknown().optional(),
+  fileUploadGrants: z.array(z.unknown())
 })),
   pagination: z.object({
   page: z.number().int().min(1),

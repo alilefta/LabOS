@@ -1,7 +1,8 @@
 import * as z from 'zod';
 import type { Prisma } from '../../../../generated/prisma/client';
 import { InvitationUncheckedCreateNestedManyWithoutOrganizationInputObjectSchema as InvitationUncheckedCreateNestedManyWithoutOrganizationInputObjectSchema } from './InvitationUncheckedCreateNestedManyWithoutOrganizationInput.schema';
-import { LabUncheckedCreateNestedOneWithoutOrganizationInputObjectSchema as LabUncheckedCreateNestedOneWithoutOrganizationInputObjectSchema } from './LabUncheckedCreateNestedOneWithoutOrganizationInput.schema'
+import { LabUncheckedCreateNestedOneWithoutOrganizationInputObjectSchema as LabUncheckedCreateNestedOneWithoutOrganizationInputObjectSchema } from './LabUncheckedCreateNestedOneWithoutOrganizationInput.schema';
+import { FileUploadGrantUncheckedCreateNestedManyWithoutOrganizationInputObjectSchema as FileUploadGrantUncheckedCreateNestedManyWithoutOrganizationInputObjectSchema } from './FileUploadGrantUncheckedCreateNestedManyWithoutOrganizationInput.schema'
 
 const makeSchema = () => z.object({
   id: z.string(),
@@ -11,7 +12,8 @@ const makeSchema = () => z.object({
   createdAt: z.coerce.date(),
   metadata: z.string().optional().nullable(),
   invitations: z.lazy(() => InvitationUncheckedCreateNestedManyWithoutOrganizationInputObjectSchema).optional(),
-  lab: z.lazy(() => LabUncheckedCreateNestedOneWithoutOrganizationInputObjectSchema).optional()
+  lab: z.lazy(() => LabUncheckedCreateNestedOneWithoutOrganizationInputObjectSchema).optional(),
+  fileUploadGrants: z.lazy(() => FileUploadGrantUncheckedCreateNestedManyWithoutOrganizationInputObjectSchema).optional()
 }).strict();
 export const OrganizationUncheckedCreateWithoutMembersInputObjectSchema: z.ZodType<Prisma.OrganizationUncheckedCreateWithoutMembersInput> = makeSchema() as unknown as z.ZodType<Prisma.OrganizationUncheckedCreateWithoutMembersInput>;
 export const OrganizationUncheckedCreateWithoutMembersInputObjectZodSchema = makeSchema();

@@ -6,7 +6,8 @@ import { DateTimeFilterObjectSchema as DateTimeFilterObjectSchema } from './Date
 import { MemberListRelationFilterObjectSchema as MemberListRelationFilterObjectSchema } from './MemberListRelationFilter.schema';
 import { InvitationListRelationFilterObjectSchema as InvitationListRelationFilterObjectSchema } from './InvitationListRelationFilter.schema';
 import { LabNullableScalarRelationFilterObjectSchema as LabNullableScalarRelationFilterObjectSchema } from './LabNullableScalarRelationFilter.schema';
-import { LabWhereInputObjectSchema as LabWhereInputObjectSchema } from './LabWhereInput.schema'
+import { LabWhereInputObjectSchema as LabWhereInputObjectSchema } from './LabWhereInput.schema';
+import { FileUploadGrantListRelationFilterObjectSchema as FileUploadGrantListRelationFilterObjectSchema } from './FileUploadGrantListRelationFilter.schema'
 
 const organizationwhereinputSchema = z.object({
   AND: z.union([z.lazy(() => OrganizationWhereInputObjectSchema), z.lazy(() => OrganizationWhereInputObjectSchema).array()]).optional(),
@@ -20,7 +21,8 @@ const organizationwhereinputSchema = z.object({
   metadata: z.union([z.lazy(() => StringNullableFilterObjectSchema), z.string()]).optional().nullable(),
   members: z.lazy(() => MemberListRelationFilterObjectSchema).optional(),
   invitations: z.lazy(() => InvitationListRelationFilterObjectSchema).optional(),
-  lab: z.union([z.lazy(() => LabNullableScalarRelationFilterObjectSchema), z.lazy(() => LabWhereInputObjectSchema)]).optional()
+  lab: z.union([z.lazy(() => LabNullableScalarRelationFilterObjectSchema), z.lazy(() => LabWhereInputObjectSchema)]).optional(),
+  fileUploadGrants: z.lazy(() => FileUploadGrantListRelationFilterObjectSchema).optional()
 }).strict();
 export const OrganizationWhereInputObjectSchema: z.ZodType<Prisma.OrganizationWhereInput> = organizationwhereinputSchema as unknown as z.ZodType<Prisma.OrganizationWhereInput>;
 export const OrganizationWhereInputObjectZodSchema = organizationwhereinputSchema;

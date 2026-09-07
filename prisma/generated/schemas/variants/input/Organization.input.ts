@@ -9,7 +9,8 @@ export const OrganizationInputSchema = z.object({
     metadata: z.string().optional().nullable(),
     members: z.array(z.unknown()),
     invitations: z.array(z.unknown()),
-    lab: z.unknown().optional().nullable()
+    lab: z.unknown().optional().nullable(),
+    fileUploadGrants: z.array(z.unknown())
 }).strict();
 
 export type OrganizationInputType = z.infer<typeof OrganizationInputSchema>;

@@ -15,7 +15,8 @@ export const OrganizationGroupByResultSchema = z.array(z.object({
     metadata: z.number(),
     members: z.number(),
     invitations: z.number(),
-    lab: z.number()
+    lab: z.number(),
+    fileUploadGrants: z.number()
   }).optional(),
   _min: z.object({
     id: z.string().nullable(),

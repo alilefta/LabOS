@@ -18,6 +18,7 @@ export const LabResultSchema = z.object({
     selectedTeeth: z.array(z.unknown()),
     casePricingPlans: z.array(z.unknown()),
     caseAssetFiles: z.array(z.unknown()),
+    fileUploadGrants: z.array(z.unknown()),
     patients: z.array(z.unknown()),
     dentists: z.array(z.unknown()),
     staffAssignments: z.array(z.unknown()),

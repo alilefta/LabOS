@@ -9,7 +9,8 @@ export const OrganizationModelSchema = z.object({
     metadata: z.string().nullable(),
     members: z.array(z.unknown()),
     invitations: z.array(z.unknown()),
-    lab: z.unknown().nullable()
+    lab: z.unknown().nullable(),
+    fileUploadGrants: z.array(z.unknown())
 }).strict();
 
 export type OrganizationPureType = z.infer<typeof OrganizationModelSchema>;

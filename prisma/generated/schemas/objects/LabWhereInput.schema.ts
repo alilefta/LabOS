@@ -17,6 +17,7 @@ import { CaseWorkItemListRelationFilterObjectSchema as CaseWorkItemListRelationF
 import { SelectedToothListRelationFilterObjectSchema as SelectedToothListRelationFilterObjectSchema } from './SelectedToothListRelationFilter.schema';
 import { CasePricingPlanListRelationFilterObjectSchema as CasePricingPlanListRelationFilterObjectSchema } from './CasePricingPlanListRelationFilter.schema';
 import { CaseAssetFileListRelationFilterObjectSchema as CaseAssetFileListRelationFilterObjectSchema } from './CaseAssetFileListRelationFilter.schema';
+import { FileUploadGrantListRelationFilterObjectSchema as FileUploadGrantListRelationFilterObjectSchema } from './FileUploadGrantListRelationFilter.schema';
 import { PatientListRelationFilterObjectSchema as PatientListRelationFilterObjectSchema } from './PatientListRelationFilter.schema';
 import { DentistListRelationFilterObjectSchema as DentistListRelationFilterObjectSchema } from './DentistListRelationFilter.schema';
 import { CaseStaffAssignmentListRelationFilterObjectSchema as CaseStaffAssignmentListRelationFilterObjectSchema } from './CaseStaffAssignmentListRelationFilter.schema';
@@ -59,6 +60,7 @@ const labwhereinputSchema = z.object({
   selectedTeeth: z.lazy(() => SelectedToothListRelationFilterObjectSchema).optional(),
   casePricingPlans: z.lazy(() => CasePricingPlanListRelationFilterObjectSchema).optional(),
   caseAssetFiles: z.lazy(() => CaseAssetFileListRelationFilterObjectSchema).optional(),
+  fileUploadGrants: z.lazy(() => FileUploadGrantListRelationFilterObjectSchema).optional(),
   patients: z.lazy(() => PatientListRelationFilterObjectSchema).optional(),
   dentists: z.lazy(() => DentistListRelationFilterObjectSchema).optional(),
   staffAssignments: z.lazy(() => CaseStaffAssignmentListRelationFilterObjectSchema).optional(),
