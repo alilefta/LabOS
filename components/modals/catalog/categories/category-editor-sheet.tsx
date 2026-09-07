@@ -65,6 +65,7 @@ const FORM_DEFAULT_VALUES: CreateCaseCategoryInput = {
 	description: '',
 	isArchived: false,
 	imageUrl: '',
+	imageUploadGrantId: undefined,
 }
 
 export const CategoryEditorSheet = memo(function CategoryEditorSheet({
@@ -111,6 +112,7 @@ export const CategoryEditorSheet = memo(function CategoryEditorSheet({
 					name: initialData.name || '',
 					description: initialData.description || undefined,
 					imageUrl: initialData.imageUrl || undefined,
+					imageUploadGrantId: undefined,
 					isArchived: initialData.isArchived ?? false,
 				})
 			} else if (!isEdit) {
@@ -319,7 +321,15 @@ export const CategoryEditorSheet = memo(function CategoryEditorSheet({
 										</label>
 									</div>
 									<div className="p-4 rounded-2xl border border-border bg-slate-50/50 dark:bg-white/2 shadow-sm transition-colors hover:border-primary/30 group">
-										<CategoryIconUpload />
+										{isEdit ? (
+											categoryIdToEdit ? (
+												<CategoryIconUpload
+													stage={{ mode: 'update', categoryId: categoryIdToEdit }}
+												/>
+											) : null
+										) : (
+											<CategoryIconUpload stage={{ mode: 'create' }} />
+										)}
 									</div>
 								</div>
 

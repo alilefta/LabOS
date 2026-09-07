@@ -10,6 +10,7 @@ import { useUploadThing } from "@/utils/uploadThing";
 import { toast } from "sonner";
 import { AssetFileType } from "@/schema/base/enums.base"; // Adjust import path
 import { ClientUploadedFileData } from "uploadthing/types";
+import type { UploadCompletionDTO } from "@/modules/labos-files/upload-completion.dto";
 import { CreateCaseAssetFilesInput } from "@/schema/composed/case-asset-file.details";
 import { CaseFormModeType, UpdateCaseAssetFilesInput } from "@/schema/composed/case.details";
 
@@ -58,10 +59,7 @@ export function CaseFileUploadZone({ onUploadFiles, mode }: { onUploadFiles: (Up
 
 	const onNewAssetsUploaded = useCallback(
 		(
-			assets: ClientUploadedFileData<{
-				uploadedBy: string;
-				labId: string;
-			}>[],
+			assets: ClientUploadedFileData<UploadCompletionDTO>[],
 		) => {
 			const isEdit = mode === "edit";
 

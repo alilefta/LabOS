@@ -1,7 +1,8 @@
 'use server'
 
-import { tenantPrisma } from '@/lib/prisma'
 import { actionClientWithLab } from '@/lib/safe-action'
+import { tenantPrisma } from '@/lib/prisma'
+import { executeCatalogCategoryCreate } from '@/modules/labos-files/catalog-category-image-command'
 import {
 	CreateCaseCategoryInputSchema,
 	GetCaseCategoriesForCaseInputSchema,
@@ -12,27 +13,19 @@ import { APIError } from 'better-auth'
 export const createCaseCategoryAction = actionClientWithLab
 	.metadata({
 		actionName: 'Create-New-CaseCategory-Action',
-		requiredLabRole: 'ADMIN',
+		// Canonical tenant context remains required; Authorization V1 is final authority.
+		requiredLabRole: null,
 	})
 	.inputSchema(CreateCaseCategoryInputSchema)
 	.action(async ({ parsedInput, ctx }) => {
-		const { name, description, imageUrl, isArchived } = parsedInput
-		const { labId } = ctx
+		const { name, description, isArchived, imageUploadGrantId } = parsedInput
 
 		try {
-			const category = await (
-				await tenantPrisma(labId)
-			).caseCategory.create({
-				data: {
-					name,
-					description: description ?? null,
-					imageUrl: imageUrl ?? null,
-					isArchived: isArchived ?? true,
-					labId: labId,
-				},
-				include: {
-					lab: true,
-				},
+			const category = await executeCatalogCategoryCreate(ctx, {
+				name,
+				description,
+				isArchived,
+				imageUploadGrantId,
 			})
 
 			return {

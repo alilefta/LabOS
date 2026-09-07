@@ -46,6 +46,10 @@ export const CreateCaseCategoryInputSchema = z.object({
 		])
 		.transform(emptyToUndefinedTransformer)
 		.optional(),
+	imageUploadGrantId: z
+		.string()
+		.uuid('Invalid image upload grant ID')
+		.optional(),
 	isArchived: z.boolean().default(false).optional(),
 })
 

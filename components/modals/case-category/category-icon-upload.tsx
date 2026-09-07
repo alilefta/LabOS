@@ -11,24 +11,62 @@ import { Button } from "@/components/ui/button";
 
 import { useUploadThing } from "@/utils/uploadThing";
 
-export function CategoryIconUpload() {
-	// Using a generic form context here so it grabs the "imageUrl" field
-	// from whatever Zod schema (e.g., CreateCaseCategorySchema) is wrapping it.
-	const { setValue, watch, formState } = useFormContext();
-	const imageUrl = watch("imageUrl");
-	const [preview, setPreview] = useState<string | null>(imageUrl ?? null);
+export type CategoryIconUploadStage =
+	| { mode: "create" }
+	| { mode: "update"; categoryId: string };
 
-	// 1. UPLOADTHING LOGIC - Updated to your new file route
+type CategoryImageFormValues = {
+	imageUrl?: string | null;
+	imageUploadGrantId?: string;
+};
+
+interface Props {
+	stage: CategoryIconUploadStage;
+}
+
+export function CategoryIconUpload({ stage }: Props) {
+	const { setValue, watch, formState } = useFormContext<CategoryImageFormValues>();
+	const imageUrl = watch("imageUrl");
+	const imageUploadGrantId = watch("imageUploadGrantId");
+	const [localPreview, setLocalPreview] = useState<string | null>(null);
+	const [localStagedGrantId, setLocalStagedGrantId] = useState<
+		string | null | undefined
+	>(undefined);
+	const hasLocalStagedPreview =
+		localStagedGrantId === null ||
+		(localStagedGrantId !== undefined && localStagedGrantId === imageUploadGrantId);
+	const preview = hasLocalStagedPreview ? localPreview : imageUrl || null;
+
 	const { isUploading, startUpload } = useUploadThing("categoryIconAvatar", {
 		onClientUploadComplete: (res) => {
 			if (!res || res.length === 0) return;
-			// Using ufsUrl as per your updated UploadThing config
-			const url = res[0].ufsUrl || res[0].url;
-			setValue("imageUrl", url, { shouldValidate: true });
+
+			const uploadGrantId = res[0].serverData?.uploadGrantId;
+			if (!uploadGrantId) {
+				setLocalStagedGrantId(undefined);
+				setLocalPreview(null);
+				toast.error("Upload failed", {
+					description: "The upload authorization handoff was missing.",
+				});
+				return;
+			}
+
+			const visualPreviewUrl = res[0].ufsUrl || res[0].url;
+			setValue("imageUploadGrantId", uploadGrantId, {
+				shouldDirty: true,
+				shouldValidate: true,
+			});
+			setLocalPreview(visualPreviewUrl);
+			setLocalStagedGrantId(uploadGrantId);
 			toast.success("Category image uploaded successfully");
 		},
 		onUploadError: (error) => {
-			setPreview(null); // Reset on fail
+			setLocalStagedGrantId(undefined);
+			setLocalPreview(null);
+			setValue("imageUploadGrantId", undefined, {
+				shouldDirty: true,
+				shouldValidate: true,
+			});
 			toast.error("Upload failed", { description: error.message });
 		},
 	});
@@ -37,36 +75,41 @@ export function CategoryIconUpload() {
 		async (acceptedFiles: File[], fileRejections: FileRejection[]) => {
 			if (acceptedFiles?.length) {
 				const file = acceptedFiles[0];
-
-				// Optimistic Preview (instant UI feedback)
 				const objectUrl = URL.createObjectURL(file);
-				setPreview(objectUrl);
 
-				// Trigger Upload
-				await startUpload([file]);
+				setLocalPreview(objectUrl);
+				setLocalStagedGrantId(null);
+				await startUpload([file], stage);
 			}
 
 			if (fileRejections?.length) {
-				toast.error("Upload rejected", { description: fileRejections[0].errors[0].message });
+				toast.error("Upload rejected", {
+					description: fileRejections[0].errors[0].message,
+				});
 			}
 		},
-		[startUpload],
+		[stage, startUpload],
 	);
 
 	const { getRootProps, getInputProps, isDragActive } = useDropzone({
 		onDrop,
 		accept: { "image/png": [], "image/jpeg": [], "image/webp": [], "image/svg+xml": [] },
 		maxFiles: 1,
-		maxSize: 4 * 1024 * 1024, // 4MB
+		maxSize: 4 * 1024 * 1024,
 	});
 
 	const handleRemove = (e: React.MouseEvent) => {
 		e.stopPropagation();
-		setPreview(null);
-		setValue("imageUrl", "", { shouldValidate: true });
+		if (!hasLocalStagedPreview) return;
+
+		setLocalStagedGrantId(undefined);
+		setLocalPreview(null);
+		setValue("imageUploadGrantId", undefined, {
+			shouldDirty: true,
+			shouldValidate: true,
+		});
 	};
 
-	// Safely check for errors on the imageUrl field
 	const hasError = !!formState.errors?.imageUrl;
 
 	return (
@@ -75,11 +118,8 @@ export function CategoryIconUpload() {
 				{...getRootProps()}
 				className={cn(
 					"group relative flex flex-col items-center justify-center w-28 h-28 rounded-2xl border-2 border-dashed transition-all duration-300 cursor-pointer overflow-hidden shadow-sm",
-					// Drag state
 					isDragActive ? "border-primary bg-primary/5 scale-105" : "border-border bg-slate-50 dark:bg-white/2 hover:border-primary/50 hover:bg-slate-100 dark:hover:bg-white/5",
-					// Preview state
 					preview && "border-solid border-border shadow-md",
-					// Error state
 					hasError && "border-destructive bg-destructive/5 hover:border-destructive/80",
 				)}
 			>
@@ -89,9 +129,20 @@ export function CategoryIconUpload() {
 					<>
 						<Image src={preview} alt="Category Icon" fill className="object-cover p-1 rounded-2xl" />
 
-						{/* Hover Remove Overlay */}
 						<div className="absolute inset-0 bg-background/60 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all duration-200 flex items-center justify-center">
-							<Button type="button" size="icon" variant="destructive" onClick={handleRemove} className="rounded-xl w-9 h-9 shadow-lg scale-90 group-hover:scale-100 transition-transform">
+							<Button
+								type="button"
+								size="icon"
+								variant="destructive"
+								onClick={handleRemove}
+					disabled={!hasLocalStagedPreview}
+					title={
+						 hasLocalStagedPreview
+										? "Clear staged image"
+										: "Removing a persisted image is unavailable"
+								}
+								className="rounded-xl w-9 h-9 shadow-lg scale-90 group-hover:scale-100 transition-transform"
+							>
 								<Trash2 size={16} />
 							</Button>
 						</div>
@@ -105,7 +156,6 @@ export function CategoryIconUpload() {
 					</div>
 				)}
 
-				{/* Loading Overlay (Glassmorphism) */}
 				{isUploading && (
 					<div className="absolute inset-0 bg-background/80 rounded-2xl backdrop-blur-md flex flex-col items-center justify-center gap-2 z-10">
 						<Loader2 className="w-6 h-6 text-primary animate-spin" />

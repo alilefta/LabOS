@@ -1,7 +1,12 @@
 import { createUploadthing, type FileRouter } from "uploadthing/next";
-import { UploadedFileData } from "uploadthing/types";
 import { UploadThingError } from "uploadthing/server";
 import { getServerSession } from "@/lib/get-session";
+import {
+	authorizeCatalogCategoryImageStage,
+	CatalogCategoryImageStageInputSchema,
+} from "@/modules/labos-files/catalog-category-upload.contract";
+import { createUploadCompletionDTO } from "@/modules/labos-files/upload-completion.dto";
+import { labOSUploadGrantService } from "@/modules/labos-files/upload-grants";
 import {
 	requireTenantContext,
 	TenantContextError,
@@ -39,27 +44,7 @@ const handleAuth = async (requireLab: boolean = true) => {
 		labId,
 	};
 };
-type UploadCompleteResults = {
-	data: {
-		metadata: {
-			userId: string;
-			labId: string;
-		};
-		file: UploadedFileData;
-	};
-	fileRouteName: string;
-};
-
-const uploadComplete = ({ data }: UploadCompleteResults) => {
-	const { metadata } = data;
-	// This code RUNS ON YOUR SERVER after upload
-	// console.log(`Upload ${fileRouteName} complete for userId:`, metadata.userId);
-
-	// console.log("file url", file.ufsUrl);
-
-	// !!! Whatever is returned here is sent to the clientside `onClientUploadComplete` callback
-	return { uploadedBy: metadata.userId, labId: metadata.labId };
-};
+const uploadComplete = () => createUploadCompletionDTO();
 
 // FileRouter for your app, can contain multiple FileRoutes
 export const labOSUploadRouter = {
@@ -70,7 +55,7 @@ export const labOSUploadRouter = {
 		},
 	})
 		.middleware(async () => await handleAuth(false))
-		.onUploadComplete((data) => uploadComplete({ data, fileRouteName: "Lab Logo Image" })),
+		.onUploadComplete(uploadComplete),
 
 	userAvatarPicture: f({
 		image: {
@@ -80,7 +65,7 @@ export const labOSUploadRouter = {
 	})
 		// Set permissions and file types for this FileRoute
 		.middleware(async () => await handleAuth(false))
-		.onUploadComplete(async (data) => uploadComplete({ data, fileRouteName: "User Avatar Picture" })),
+		.onUploadComplete(uploadComplete),
 	staffUserAvatarPicture: f({
 		image: {
 			maxFileSize: "4MB",
@@ -89,7 +74,7 @@ export const labOSUploadRouter = {
 	})
 		// Set permissions and file types for this FileRoute
 		.middleware(async () => await handleAuth(true))
-		.onUploadComplete(async (data) => uploadComplete({ data, fileRouteName: "User Avatar Picture" })),
+		.onUploadComplete(uploadComplete),
 
 	categoryIconAvatar: f({
 		image: {
@@ -97,9 +82,25 @@ export const labOSUploadRouter = {
 			maxFileCount: 1,
 		},
 	})
-		// Set permissions and file types for this FileRoute
-		.middleware(async () => await handleAuth(true))
-		.onUploadComplete(async (data) => uploadComplete({ data, fileRouteName: "Case Category Icon Avatar" })),
+		.input(CatalogCategoryImageStageInputSchema)
+		.middleware(async ({ input }) => {
+			try {
+				const tenant = await requireTenantContext();
+				return await authorizeCatalogCategoryImageStage({ tenant, stage: input });
+			} catch (error) {
+				if (error instanceof TenantContextError) {
+					throw new UploadThingError("Action requires an active Lab Workspace");
+				}
+				throw error;
+			}
+		})
+		.onUploadComplete(async ({ metadata, file }) => {
+			const result = await labOSUploadGrantService.completeVerifiedProviderCallback({
+				metadata,
+				file: { key: file.key, url: file.url },
+			});
+			return { uploadGrantId: result.uploadGrantId };
+		}),
 
 	genericAvatar: f({
 		image: {
@@ -109,7 +110,7 @@ export const labOSUploadRouter = {
 	})
 		// Set permissions and file types for this FileRoute
 		.middleware(async () => await handleAuth(true))
-		.onUploadComplete(async (data) => uploadComplete({ data, fileRouteName: "Generic Avatar Icon" })),
+		.onUploadComplete(uploadComplete),
 
 	caseAssetsRoute: f({
 		image: {
@@ -129,7 +130,7 @@ export const labOSUploadRouter = {
 	})
 		// Set permissions and file types for this FileRoute
 		.middleware(async () => await handleAuth(true))
-		.onUploadComplete(async (data) => uploadComplete({ data, fileRouteName: "Case Assets Route" })),
+		.onUploadComplete(uploadComplete),
 
 	// messageFile: f({
 	// 	image: { maxFileSize: "8MB", maxFileCount: 5 },

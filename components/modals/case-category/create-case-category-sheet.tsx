@@ -52,6 +52,8 @@ export const CreateCategorySheet = memo(function CreateCategorySheet({
 		defaultValues: {
 			name: '',
 			description: '',
+			imageUrl: undefined,
+			imageUploadGrantId: undefined,
 			isArchived: true,
 		},
 		mode: 'onBlur',
@@ -191,7 +193,7 @@ export const CreateCategorySheet = memo(function CreateCategorySheet({
 							/>
 
 							{/* Icon / Image URL placeholder */}
-							<CategoryIconUpload />
+							<CategoryIconUpload stage={{ mode: 'create' }} />
 
 							<Controller
 								control={form.control}
