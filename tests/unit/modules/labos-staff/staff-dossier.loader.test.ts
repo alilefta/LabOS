@@ -124,7 +124,7 @@ describe('A-118 Staff dossier loader', () => {
 			'actions/team/get-staff-overview-analytics-action.ts',
 		]
 		const violations = files.filter((file) =>
-			/\binviteToken\b|invitation:\s*\{\s*select:\s*\{\s*id:/s.test(
+			/\binviteToken\b|invitation:\s*\{\s*select:\s*\{\s*id:/.test(
 				readFileSync(join(process.cwd(), file), 'utf8'),
 			),
 		)
