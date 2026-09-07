@@ -194,6 +194,7 @@ export function normalizeInvoice(raw: InvoiceModel): InvoiceBase {
 		...raw,
 		subtotal: dStrict(raw.subtotal),
 		discountAmount: dStrict(raw.discountAmount),
+		appliedDiscountPercentage: d(raw.appliedDiscountPercentage),
 		total: dStrict(raw.total),
 		amountPaid: dStrict(raw.amountPaid),
 		amountDue: dStrict(raw.amountDue),
