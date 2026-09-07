@@ -1,0 +1,2 @@
+-- RenameIndex
+ALTER INDEX "FileUploadGrant_organizationId_labId_createdByMemberId_status_i" RENAME TO "FileUploadGrant_organizationId_labId_createdByMemberId_stat_idx";
