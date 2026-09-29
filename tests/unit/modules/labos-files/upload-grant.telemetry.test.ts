@@ -61,6 +61,53 @@ describe('Upload grant telemetry', () => {
 		expect(() => monitor.record(safeEvent)).not.toThrow()
 	})
 
+	it('emits only allowlisted fields for callback and consumption lifecycle records', () => {
+		const write = vi.fn<UploadGrantTelemetrySink['write']>()
+		const monitor = createStructuredUploadGrantMonitor({
+			sink: { write },
+			environment: 'test',
+		})
+
+		for (const event of [
+			{
+				...safeEvent,
+				phase: 'provider_completion' as const,
+				reason: 'UPLOAD_GRANT_PROVIDER_COMPLETED' as const,
+			},
+			{
+				...safeEvent,
+				phase: 'consumption' as const,
+				reason: 'UPLOAD_GRANT_CONSUMED' as const,
+			},
+		]) {
+			const adversarialEvent = {
+				...event,
+				uploadGrantId: 'grant-secret',
+				providerFileUrl: 'https://provider.example/secret',
+				memberId: 'member-secret',
+			}
+			monitor.record(adversarialEvent)
+		}
+
+		for (const emitted of write.mock.calls.map(([value]) => value)) {
+			expect(Object.keys(emitted.payload)).toEqual([
+				'event',
+				'boundaryId',
+				'purpose',
+				'targetType',
+				'correlationId',
+				'phase',
+				'outcome',
+				'reason',
+				'durationMs',
+				'severity',
+			])
+			expect(JSON.stringify(emitted)).not.toMatch(
+				/grant-secret|provider\.example|member-secret/i,
+			)
+		}
+	})
+
 	it('starts Axiom ingestion and isolates rejected delivery', async () => {
 		const ingest = vi
 			.fn<UploadGrantAxiomClient['ingest']>()
