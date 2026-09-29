@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 const authorizeCatalogCategoryImageStage = vi.hoisted(() => vi.fn())
 const authorizeCatalogWorkTypeImageStage = vi.hoisted(() => vi.fn())
+const authorizeCatalogProductImageStage = vi.hoisted(() => vi.fn())
 const completeVerifiedProviderCallback = vi.hoisted(() => vi.fn())
 const requireTenantContext = vi.hoisted(() => vi.fn())
 
@@ -20,6 +21,13 @@ vi.mock('@/modules/labos-files/catalog-worktype-upload.contract', async (importO
 		typeof import('@/modules/labos-files/catalog-worktype-upload.contract')
 	>()
 	return { ...actual, authorizeCatalogWorkTypeImageStage }
+})
+
+vi.mock('@/modules/labos-files/catalog-product-upload.contract', async (importOriginal) => {
+	const actual = await importOriginal<
+		typeof import('@/modules/labos-files/catalog-product-upload.contract')
+	>()
+	return { ...actual, authorizeCatalogProductImageStage }
 })
 
 vi.mock('@/modules/labos-files/upload-grants', () => ({
@@ -46,6 +54,7 @@ const tenant: TenantContext = {
 
 const categoryRoute = labOSUploadRouter.categoryIconAvatar
 const workTypeRoute = labOSUploadRouter.workTypeIconAvatar
+const productRoute = labOSUploadRouter.productIconAvatar
 const parseStageInput = (input: unknown) =>
 	(
 		categoryRoute.inputParser as {
@@ -158,6 +167,31 @@ describe('workTypeIconAvatar UploadThing route', () => {
 		expect(metadata).toEqual({ uploadGrantId: 'grant_456' })
 		expect(authorizeCatalogWorkTypeImageStage).toHaveBeenCalledWith({ tenant, stage: { mode: 'create' } })
 		await expect(workTypeRoute.onUploadComplete({ metadata, file: { key: 'provider-key', ufsUrl: 'https://ufs.sh/f/provider-key' } })).resolves.toEqual({ uploadGrantId: 'grant_456' })
+		expect(completeVerifiedProviderCallback).toHaveBeenCalledWith({
+			metadata,
+			file: { key: 'provider-key', url: 'https://ufs.sh/f/provider-key' },
+		})
+	})
+})
+
+describe('productIconAvatar UploadThing route', () => {
+	it('requires closed Product input before tenant or provider work', async () => {
+		await expect(
+			(productRoute.inputParser as { parseAsync(value: unknown): Promise<unknown> }).parseAsync({
+				mode: 'update',
+				productId: 'not-a-uuid',
+			}),
+		).rejects.toThrow()
+	})
+
+	it('passes only opaque Product grant metadata through its verified callback', async () => {
+		requireTenantContext.mockResolvedValue(tenant)
+		authorizeCatalogProductImageStage.mockResolvedValue({ uploadGrantId: 'grant_789' })
+		completeVerifiedProviderCallback.mockResolvedValue({ uploadGrantId: 'grant_789' })
+		const metadata = await productRoute.middleware({ input: { mode: 'create' }, files: [] })
+		expect(metadata).toEqual({ uploadGrantId: 'grant_789' })
+		expect(authorizeCatalogProductImageStage).toHaveBeenCalledWith({ tenant, stage: { mode: 'create' } })
+		await expect(productRoute.onUploadComplete({ metadata, file: { key: 'provider-key', ufsUrl: 'https://ufs.sh/f/provider-key' } })).resolves.toEqual({ uploadGrantId: 'grant_789' })
 		expect(completeVerifiedProviderCallback).toHaveBeenCalledWith({
 			metadata,
 			file: { key: 'provider-key', url: 'https://ufs.sh/f/provider-key' },

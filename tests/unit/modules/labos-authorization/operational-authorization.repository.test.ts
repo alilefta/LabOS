@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 const prisma = vi.hoisted(() => ({
 	dentist: { findUnique: vi.fn(), findFirst: vi.fn() },
 	workType: { findUnique: vi.fn() },
+	product: { findUnique: vi.fn() },
 }))
 
 vi.mock('@/lib/prisma', () => ({ generalPrisma: prisma }))
@@ -11,9 +12,11 @@ import {
 	DENTIST_ORGANIZATION_BOUNDARY_SELECT,
 	DENTIST_READ_FACTS_SELECT,
 	WORK_TYPE_ORGANIZATION_BOUNDARY_SELECT,
+	PRODUCT_ORGANIZATION_BOUNDARY_SELECT,
 	prismaDentistOrganizationBoundaryLookup,
 	prismaDentistReadFactRepository,
 	prismaWorkTypeOrganizationBoundaryLookup,
+	prismaProductOrganizationBoundaryLookup,
 } from '@/modules/labos-authorization/adapters/prisma/operational-authorization.repository'
 
 describe('Prisma operational authorization repository', () => {
@@ -45,6 +48,19 @@ describe('Prisma operational authorization repository', () => {
 		expect(prisma.workType.findUnique).toHaveBeenCalledWith({
 			where: { id: 'worktype-a' },
 			select: WORK_TYPE_ORGANIZATION_BOUNDARY_SELECT,
+		})
+	})
+
+	it('resolves Product tenant ownership with an authoritative identifier lookup', async () => {
+		prisma.product.findUnique.mockResolvedValue({
+			lab: { id: 'lab-a', organizationId: 'organization-a' },
+		})
+		await expect(
+			prismaProductOrganizationBoundaryLookup.findOrganizationBoundary('product-a'),
+		).resolves.toEqual({ organizationId: 'organization-a' })
+		expect(prisma.product.findUnique).toHaveBeenCalledWith({
+			where: { id: 'product-a' },
+			select: PRODUCT_ORGANIZATION_BOUNDARY_SELECT,
 		})
 	})
 

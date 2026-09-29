@@ -45,6 +45,7 @@ export const CreateProductInputSchema = z.object({
 		.transform(emptyToUndefinedTransformer)
 		.optional(),
 	imageUrl: z.string().url().transform(emptyToUndefinedTransformer).optional(),
+	imageUploadGrantId: z.string().uuid('Invalid image upload grant ID').optional(),
 	workTypeId: z.string().uuid('Invalid Work Type assignment.'),
 })
 
@@ -57,6 +58,7 @@ export const UpdateProductInputSchema = z.object({
 	name: z.string().trim().min(2, 'Product name must be at least 2 characters.'),
 	description: z.string().trim().optional(),
 	imageUrl: z.string().url().optional(),
+	imageUploadGrantId: z.string().uuid('Invalid image upload grant ID').optional(),
 	workTypeId: z.string().uuid('Invalid Work Type assignment.'),
 })
 

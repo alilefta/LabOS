@@ -2,6 +2,7 @@
 
 import { tenantPrisma } from "@/lib/prisma";
 import { actionClientWithLab } from "@/lib/safe-action";
+import { executeCatalogProductCreate } from '@/modules/labos-files/catalog-product-image-command'
 import { CreateProductInputSchema } from "@/schema/composed/product.details";
 import { SearchInputSchema } from "@/schema/composed/shared-schema";
 import { GetProductsByWorkTypeInputSchema } from "@/schema/composed/worktype.details";
@@ -10,27 +11,19 @@ import { APIError } from "better-auth";
 export const createProductAction = actionClientWithLab
 	.metadata({
 		actionName: "Create-New-Product-Action",
-		requiredLabRole: "ADMIN",
+		// Canonical tenant context remains required; Authorization V1 is final authority.
+		requiredLabRole: null,
 	})
 	.inputSchema(CreateProductInputSchema)
 	.action(async ({ parsedInput, ctx }) => {
-		const { name, description, imageUrl, workTypeId } = parsedInput;
-		const { labId } = ctx;
+		const { name, description, imageUploadGrantId, workTypeId } = parsedInput;
 
 		try {
-			const product = await (
-				await tenantPrisma(labId)
-			).product.create({
-				data: {
-					name,
-					description: description ?? null,
-					imageUrl: imageUrl ?? null,
-					labId: labId,
-					workTypeId: workTypeId,
-				},
-				include: {
-					lab: true,
-				},
+			const product = await executeCatalogProductCreate(ctx, {
+				name,
+				description,
+				workTypeId,
+				imageUploadGrantId,
 			});
 
 			return {

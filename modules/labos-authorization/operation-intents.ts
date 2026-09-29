@@ -24,6 +24,12 @@ export type LabOSAuthorizationOperationMap = {
 		| Readonly<{
 				kind: 'catalog.worktype.image.create.commit'
 		  }>
+		| Readonly<{
+				kind: 'catalog.product.image.create.stage'
+		  }>
+		| Readonly<{
+				kind: 'catalog.product.image.create.commit'
+		  }>
 	'catalog.update':
 		| Readonly<{
 				kind: 'catalog.category.image.update.stage'
@@ -36,6 +42,12 @@ export type LabOSAuthorizationOperationMap = {
 		  }>
 		| Readonly<{
 				kind: 'catalog.worktype.image.update.commit'
+		  }>
+		| Readonly<{
+				kind: 'catalog.product.image.update.stage'
+		  }>
+		| Readonly<{
+				kind: 'catalog.product.image.update.commit'
 		  }>
 	'dentist.read': Readonly<{
 		kind: 'dentist.detail.read'

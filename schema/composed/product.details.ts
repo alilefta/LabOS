@@ -38,6 +38,10 @@ export const CreateProductInputSchema = z.object({
 			z.string().trim().url('Please enter a valid image URL'),
 		])
 		.optional(),
+	imageUploadGrantId: z
+		.string()
+		.uuid('Invalid image upload grant ID')
+		.optional(),
 	workTypeId: z.string(),
 	// casePricingPlan: CreateCaseItemPricingPlanInputSchema, // independent
 })

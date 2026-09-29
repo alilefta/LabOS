@@ -15,7 +15,7 @@ import { CustomFieldWithLabel } from "@/components/ui/custom/custom-field-with-l
 import { useClinicalCreationStore } from "@/store/use-clinical-creation-store";
 
 import { WorkTypeBlueprintHierarchy } from "../work-type/worktype-blueprint-hierarchy";
-import { CatalogImageUpload } from "@/components/shared/file-assets/catalog-image-upload";
+import { ProductIconUpload } from "./product-icon-upload";
 import { createProductAction } from "@/actions/product";
 import { handleSafeActionError } from "@/lib/safe-action-helpers";
 import { CreateProductInput, CreateProductInputSchema, ProductDetailsUI } from "@/schema/composed/product.details";
@@ -38,6 +38,7 @@ export const CreateProductSheet = memo(function CreateProductSheet() {
 			name: "",
 			description: "",
 			imageUrl: "",
+			imageUploadGrantId: undefined,
 			workTypeId: "",
 		},
 		mode: "onBlur",
@@ -122,7 +123,7 @@ export const CreateProductSheet = memo(function CreateProductSheet() {
 									</label>
 								</div>
 								<div className="p-4 rounded-2xl border border-border bg-slate-50/50 dark:bg-white/2">
-									<CatalogImageUpload nameInSchema="imageUrl" label="Product" />
+									<ProductIconUpload stage={{ mode: 'create' }} />
 								</div>
 							</div>
 

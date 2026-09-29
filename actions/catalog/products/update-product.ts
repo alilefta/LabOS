@@ -1,60 +1,38 @@
 'use server'
 
-import { tenantPrisma } from '@/lib/prisma'
 import { actionClientWithLab } from '@/lib/safe-action'
 import { ERRORS } from '@/lib/errors'
+import {
+	CatalogProductNotFoundError,
+	CatalogProductWorkTypeNotFoundError,
+	executeCatalogProductUpdate,
+} from '@/modules/labos-files/catalog-product-image-command'
 import { UpdateProductInputSchema } from '@/schema/composed/catalog/product.schema'
 
 export const updateProductAction = actionClientWithLab
 	.metadata({
 		actionName: 'Update-Product-Action',
-		requiredLabRole: 'ADMIN', // Catalog modifications usually require elevated privileges
+		// Canonical tenant context remains required; Authorization V1 is final authority.
+		requiredLabRole: null,
 	})
 	.inputSchema(UpdateProductInputSchema)
 	.action(async ({ parsedInput, ctx }) => {
-		const { labId } = ctx
-		const { productId, name, description, imageUrl, workTypeId } = parsedInput
+		const { productId, name, description, imageUploadGrantId, workTypeId } = parsedInput
 
 		try {
-			const prisma = await tenantPrisma(labId)
-
-			// 1. Verify the product exists AND belongs to the lab
-			const productExists = await prisma.product.findUnique({
-				where: { id: productId, labId },
-				select: { id: true },
+			const product = await executeCatalogProductUpdate(ctx, {
+				productId,
+				name,
+				description,
+				workTypeId,
+				imageUploadGrantId,
 			})
 
-			if (!productExists) {
-				throw ERRORS.NOT_FOUND
-			}
-
-			// 2. Cross-Relation Security Check [1]
-			// If they changed the workTypeId (moving it to another department),
-			// we must verify that new WorkType also belongs to this lab!
-			const workTypeExists = await prisma.workType.findUnique({
-				where: { id: workTypeId, labId },
-				select: { id: true },
-			})
-
-			if (!workTypeExists) {
-				throw ERRORS.INVALID_INPUT
-			}
-
-			// 3. Execute the Update
-			const updatedProduct = await prisma.product.update({
-				where: { id: productId },
-				data: {
-					name,
-					description: description ?? null,
-					imageUrl: imageUrl ?? null,
-					workTypeId,
-				},
-				select: { id: true, name: true }, // Return minimum required metadata
-			})
-
-			return { success: true, product: updatedProduct }
+			return { success: true, product }
 		} catch (error) {
+			if (error instanceof CatalogProductNotFoundError || error instanceof CatalogProductWorkTypeNotFoundError) throw ERRORS.NOT_FOUND
 			console.error('[Update-Product-Action] Error:', error)
+			if (error instanceof Error) throw error
 			throw ERRORS.OPERATION_NOT_ALLOWED
 		}
 	})

@@ -22,7 +22,7 @@ import { Button } from '@/components/ui/button'
 import { InputWithLabel } from '@/components/ui/custom/input-with-label'
 import { CustomFieldWithLabel } from '@/components/ui/custom/custom-field-with-label'
 import { Skeleton } from '@/components/ui/skeleton'
-import { CatalogImageUpload } from '@/components/shared/file-assets/catalog-image-upload'
+import { ProductIconUpload } from '../../product/product-icon-upload'
 
 // Schemas & Actions
 import {
@@ -60,6 +60,7 @@ export const ProductEditorSheet = memo(function ProductEditorSheet({
 			name: '',
 			description: '',
 			imageUrl: '',
+			imageUploadGrantId: undefined,
 			workTypeId: workTypeId,
 		},
 		mode: 'onBlur',
@@ -91,6 +92,7 @@ export const ProductEditorSheet = memo(function ProductEditorSheet({
 					name: initialData.name || '',
 					description: initialData.description || undefined,
 					imageUrl: initialData.imageUrl || undefined,
+					imageUploadGrantId: undefined,
 					workTypeId: initialData.workTypeId || workTypeId,
 				})
 			} else if (!isEdit) {
@@ -99,6 +101,7 @@ export const ProductEditorSheet = memo(function ProductEditorSheet({
 					name: '',
 					description: '',
 					imageUrl: '',
+					imageUploadGrantId: undefined,
 					workTypeId: workTypeId,
 				})
 			}
@@ -228,11 +231,9 @@ export const ProductEditorSheet = memo(function ProductEditorSheet({
 										</label>
 									</div>
 									<div className="p-6 rounded-2xl border border-border bg-slate-50/50 dark:bg-white/2 shadow-sm transition-colors hover:border-ai/30 group">
-										{/* Note: Ensure CatalogImageUpload uses 'nameInSchema' internally via useFormContext */}
-										<CatalogImageUpload
-											nameInSchema="imageUrl"
-											label="Product Thumbnail"
-										/>
+										{isEdit ? (
+											productIdToEdit ? <ProductIconUpload stage={{ mode: 'update', productId: productIdToEdit }} /> : null
+										) : <ProductIconUpload stage={{ mode: 'create' }} />}
 									</div>
 								</div>
 

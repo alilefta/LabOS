@@ -9,6 +9,10 @@ import {
 	authorizeCatalogWorkTypeImageStage,
 	CatalogWorkTypeImageStageInputSchema,
 } from '@/modules/labos-files/catalog-worktype-upload.contract'
+import {
+	authorizeCatalogProductImageStage,
+	CatalogProductImageStageInputSchema,
+} from '@/modules/labos-files/catalog-product-upload.contract'
 import { createUploadCompletionDTO } from "@/modules/labos-files/upload-completion.dto";
 import { labOSUploadGrantService } from "@/modules/labos-files/upload-grants";
 import {
@@ -117,6 +121,32 @@ export const labOSUploadRouter = {
 			try {
 				const tenant = await requireTenantContext()
 				return await authorizeCatalogWorkTypeImageStage({ tenant, stage: input })
+			} catch (error) {
+				if (error instanceof TenantContextError) {
+					throw new UploadThingError('Action requires an active Lab Workspace')
+				}
+				throw error
+			}
+		})
+		.onUploadComplete(async ({ metadata, file }) => {
+			const result = await labOSUploadGrantService.completeVerifiedProviderCallback({
+				metadata,
+				file: { key: file.key, url: file.ufsUrl },
+			})
+			return { uploadGrantId: result.uploadGrantId }
+		}),
+
+	productIconAvatar: f({
+		image: {
+			maxFileSize: '4MB',
+			maxFileCount: 1,
+		},
+	})
+		.input(CatalogProductImageStageInputSchema)
+		.middleware(async ({ input }) => {
+			try {
+				const tenant = await requireTenantContext()
+				return await authorizeCatalogProductImageStage({ tenant, stage: input })
 			} catch (error) {
 				if (error instanceof TenantContextError) {
 					throw new UploadThingError('Action requires an active Lab Workspace')
