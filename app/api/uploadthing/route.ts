@@ -6,5 +6,7 @@ export const { GET, POST } = createRouteHandler({
 	router: labOSUploadRouter,
 
 	// Apply an (optional) custom config:
-	// config: { ... },
+	config: {
+		token: process.env.UPLOADTHING_DEVELOPMENT_TOKEN,
+	},
 });

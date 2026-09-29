@@ -23,13 +23,22 @@ export type LabOSAuthorizationDecisionEvent = AuthorizationMonitorEvent<
 	LabOSResourceType
 >
 
+/**
+ * The monitor accepts the complete internal decision event, but its emitted
+ * telemetry is deliberately narrower. Tenant identity and the raw role set
+ * are authorization inputs, not observability labels.
+ */
+export type SanitizedLabOSAuthorizationDecisionEvent = Readonly<
+	Omit<LabOSAuthorizationDecisionEvent, 'organizationId' | 'roles'>
+>
+
 export type StructuredLabOSAuthorizationDecisionRecord = Readonly<{
 	schemaVersion: typeof LABOS_AUTHORIZATION_DECISION_SCHEMA_VERSION
 	service: 'labos'
 	source: 'authorization-v1-decisions'
 	environment: 'development' | 'test' | 'production'
 	emittedAt: string
-	payload: LabOSAuthorizationDecisionEvent
+	payload: SanitizedLabOSAuthorizationDecisionEvent
 }>
 
 export interface LabOSAuthorizationDecisionTelemetrySink {
@@ -56,14 +65,12 @@ function scheduleAfterResponse(delivery: Promise<void>): void {
 /** Rebuilds the event from the approved low-cardinality server labels only. */
 function sanitizeDecisionEvent(
 	event: LabOSAuthorizationDecisionEvent,
-): LabOSAuthorizationDecisionEvent {
+): SanitizedLabOSAuthorizationDecisionEvent {
 	return Object.freeze({
 		event: 'platform.authorization.decision',
 		...(event.boundaryId && { boundaryId: event.boundaryId }),
 		permission: event.permission,
 		...(event.sensitivity && { sensitivity: event.sensitivity }),
-		...(event.organizationId && { organizationId: event.organizationId }),
-		roles: Object.freeze([...event.roles]),
 		unknownRoleCount: event.unknownRoleCount,
 		...(event.targetType && { targetType: event.targetType }),
 		...(event.correlationId && { correlationId: event.correlationId }),

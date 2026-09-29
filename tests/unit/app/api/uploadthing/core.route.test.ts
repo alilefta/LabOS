@@ -116,7 +116,7 @@ describe('categoryIconAvatar UploadThing route', () => {
 		const metadata = { uploadGrantId: 'grant_123' }
 		const file = {
 			key: 'provider-key',
-			url: 'https://ufs.sh/f/provider-key',
+			ufsUrl: 'https://ufs.sh/f/provider-key',
 		}
 
 		const output = await runCompletion({ metadata, file })
@@ -125,7 +125,7 @@ describe('categoryIconAvatar UploadThing route', () => {
 		})
 		expect(completeVerifiedProviderCallback).toHaveBeenCalledWith({
 			metadata,
-			file,
+			file: { key: file.key, url: file.ufsUrl },
 		})
 		expect(Object.keys(output)).toEqual(['uploadGrantId'])
 	})

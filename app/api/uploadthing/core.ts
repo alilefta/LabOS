@@ -97,7 +97,7 @@ export const labOSUploadRouter = {
 		.onUploadComplete(async ({ metadata, file }) => {
 			const result = await labOSUploadGrantService.completeVerifiedProviderCallback({
 				metadata,
-				file: { key: file.key, url: file.url },
+				file: { key: file.key, url: file.ufsUrl },
 			});
 			return { uploadGrantId: result.uploadGrantId };
 		}),
