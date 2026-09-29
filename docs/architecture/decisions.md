@@ -3,7 +3,7 @@
 Status: Current
 Authority: Canonical
 Owner: LabOS maintainers
-Last reviewed: 2026-09-05
+Last reviewed: 2026-09-24
 
 This register records decisions still governing implementation. Historical approval evidence is retained separately.
 
@@ -35,9 +35,57 @@ The unused Staff self-avatar endpoint remains unavailable/deferred. It must not 
 
 ### D-FILE-04 — stored-file read/access policy
 
-Decision status: Pending
+Decision status: Approved
 
-Catalog imagery and Case clinical assets may require different policies. URL possession is not authorization, and upload authorization does not decide read authorization. Case asset activation remains blocked where this policy is needed. Do not infer public CDN, private signed access, or another read model.
+Case clinical assets are private by default. An authenticated actor may request
+access only after server-side authorization against the authoritative Case,
+tenant, and applicable resource relationships. After authorization, the
+application issues a short-lived signed provider URL. Signed-URL issuance is
+audited with actor, Case, asset, authorization outcome, and issuance event,
+without logging the URL or its credentials. A per-byte application proxy is
+not required for N-FILE-110/111. Unauthenticated clinical sharing and public
+clinical-file links are excluded from this milestone.
+
+Signed URLs are temporary bearer capabilities: issuance auditing does not
+identify the eventual downloader or guarantee immediate revocation of an
+already-issued URL. Provider keys, stored URLs, and URL possession do not
+authorize issuance or renewal. Upload, attachment, read, replacement, and
+deletion remain distinct operations.
+
+Read issuance requires an authenticated actor, canonical Organization/Lab
+membership, the applicable Case read permission, and authorization against
+the authoritative Case. Staff additionally require an active authoritative
+assignment to that Case. Owner, Admin, and Manager follow the approved
+Authorization V1 Case policy, not role-name inference or a new hierarchy.
+Missing resource facts or policy support deny by default.
+
+N-FILE-110 staging targets an authoritative saved DRAFT Case ID; neither a
+targetless clinical grant nor an unsaved browser Case is a valid target. The
+creation flow must persist the draft before upload without introducing an
+unapproved workflow transition. N-FILE-111 replacement preserves the stable
+Case clinical asset ID and records a durable, auditable prior/current file
+history. It must not overwrite prior provider identity absent an approved
+retention and cleanup rule.
+
+Existing URL-only rows do not establish file identity, ownership, provider
+provenance, or read authority. Preserve them without destructive migration or
+silent backfill. Unverifiable assets stay outside the new signed-read path
+until individually reconciled through an approved process. A minimal
+append-only audit foundation for Case signed-URL issuance is approved, limited
+to actor, tenant, Case, asset, authorization outcome, and issuance event; it
+does not authorize the full M6 audit program or sensitive payload logging.
+
+The [provider-independent design](../evidence/files/authorization-v1/d-file-04-read-access/persistence-migration-design.md)
+is the accepted planning basis, not schema or implementation authority. Each
+signed URL has a maximum lifetime of 300 seconds and requires fresh
+authorization on every issuance. Case upload follows the existing explicit
+Save Draft action; no automatic draft creation is approved. After a separately
+approved read cutover, unreconciled URL-only assets retain their records and
+clinical metadata but display as unavailable pending verification, with no
+raw-URL fallback. Superseded file bytes, immutable version records, and
+issuance-audit records are retained; no automatic purge is approved. Orphan
+handling, provider deletion, legacy reconciliation, and changes to audit
+retention are separate future decisions.
 
 ## Financial decisions awaiting work
 

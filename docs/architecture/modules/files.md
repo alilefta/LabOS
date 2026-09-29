@@ -3,13 +3,46 @@
 Status: Current
 Authority: Canonical
 Owner: LabOS maintainers
-Last reviewed: 2026-09-05
+Last reviewed: 2026-09-24
 
 ## Approved Authorization V1 behavior
 
 Provider keys never establish authorization. Protected uploads use opaque persisted one-time grants with canonical Organization, Lab, and Member linkage. A verified callback loads the trusted definition; expiry, orphan cleanup, and exact single-use consumption are required. Consumption and the final domain mutation must share a transaction.
 
-Upload, read, delete, and replace are distinct operations. D-FILE-01 and D-FILE-02 are approved; D-FILE-03 keeps the unused Staff self-avatar endpoint unavailable. D-FILE-04 stored-file read/access policy is pending: URL possession is not authorization, Catalog and Case policy may differ, and Case activation remains blocked until it is decided.
+Upload, attachment, read, delete, and replace are distinct operations.
+D-FILE-01 and D-FILE-02 are approved; D-FILE-03 keeps the unused Staff
+self-avatar endpoint unavailable. D-FILE-04 approves private-by-default Case
+clinical assets with authenticated, Case- and tenant-authorized issuance of
+short-lived signed provider URLs. Audit issuance and denial without logging
+URLs or credentials. No per-byte application proxy or unauthenticated/public
+clinical sharing is required or authorized for N-FILE-110/111. Signed URLs are
+bearer capabilities; issuance auditing does not identify the eventual
+downloader or immediately revoke an issued URL. URL possession, stored URLs,
+and provider keys never authorize issuance or renewal. This policy does not
+change accepted Catalog, WorkType, Product, or Dentist display contracts.
+N-FILE-110/111 remain unavailable until required schema, implementation,
+migration, and provider decisions receive separate approval.
+
+The [Case persistence/migration design](../../evidence/files/authorization-v1/d-file-04-read-access/persistence-migration-design.md)
+separates provider-independent file, version, audit, and draft design from
+provider-dependent activation. It is accepted as a planning basis, not
+implementation authority. Signed-URL lifetime is at most 300 seconds with
+fresh authorization per issuance. Upload follows explicit Save Draft. After
+a separately approved read cutover, unreconciled legacy assets show an
+unavailable-pending-verification state without raw-URL fallback. Superseded
+bytes, immutable versions, and issuance-audit records are retained; no
+automatic purge is approved. Orphan/provider deletion, legacy reconciliation,
+and audit-retention changes need separate decisions.
+
+For Case signed access, the server resolves canonical membership and the
+authoritative Case/asset relationships before applying the Case read policy.
+Staff must have an active assignment to that Case; missing facts or policy
+support deny. Clinical upload staging requires a saved DRAFT Case target.
+Replacement keeps the Case asset ID stable and records prior/current file
+history without silently deleting the prior provider object. URL-only legacy
+rows remain preserved but outside signed-read access until verified and
+reconciled. The approved minimal append-only issuance audit is Case-scoped;
+the full M6 audit program is not activated.
 
 ## Mission
 
