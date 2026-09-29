@@ -32,7 +32,7 @@ import { InputWithLabel } from '@/components/ui/custom/input-with-label'
 import { CustomFieldWithLabel } from '@/components/ui/custom/custom-field-with-label'
 import { Skeleton } from '@/components/ui/skeleton'
 
-import { CatalogImageUpload } from '@/components/shared/file-assets/catalog-image-upload'
+import { WorkTypeIconUpload } from '../../work-type/work-type-icon-upload'
 import { WorkTypeBlueprintHierarchy } from '../../work-type/worktype-blueprint-hierarchy'
 import { CatalogCategorySelector } from '@/components/catalog/category/catalog-category-selector'
 
@@ -62,6 +62,7 @@ const FORM_DEFAULT_VALUES = {
 	name: '',
 	description: '',
 	imageUrl: '',
+	imageUploadGrantId: undefined,
 	requireTeethSelection: true,
 	caseCategoryId: '',
 }
@@ -116,6 +117,7 @@ export const WorkTypeEditorSheet = memo(function WorkTypeEditorSheet({
 					name: initialData.name || '',
 					description: initialData.description || undefined,
 					imageUrl: initialData.imageUrl || undefined,
+					imageUploadGrantId: undefined,
 					requireTeethSelection: initialData.requireTeethSelection,
 					caseCategoryId: initialData.caseCategoryId || categoryId || '',
 				})
@@ -283,10 +285,9 @@ export const WorkTypeEditorSheet = memo(function WorkTypeEditorSheet({
 										</label>
 									</div>
 									<div className="p-4 rounded-2xl border border-border bg-slate-50/50 dark:bg-white/2 shadow-sm transition-colors hover:border-primary/30 group">
-										<CatalogImageUpload
-											nameInSchema="imageUrl"
-											label="Work Type"
-										/>
+										{isEdit ? (
+											workTypeIdToEdit ? <WorkTypeIconUpload stage={{ mode: 'update', workTypeId: workTypeIdToEdit }} /> : null
+										) : <WorkTypeIconUpload stage={{ mode: 'create' }} />}
 									</div>
 								</div>
 

@@ -38,6 +38,10 @@ export const CreateWorkTypeInputSchema = z.object({
 		])
 		.transform(emptyToUndefinedTransformer)
 		.optional(),
+	imageUploadGrantId: z
+		.string()
+		.uuid('Invalid image upload grant ID')
+		.optional(),
 	requireTeethSelection: z.boolean().default(true).optional(),
 	caseCategoryId: z.string(),
 })

@@ -2,6 +2,7 @@
 
 import { tenantPrisma } from "@/lib/prisma";
 import { actionClientWithLab } from "@/lib/safe-action";
+import { executeCatalogWorkTypeCreate } from '@/modules/labos-files/catalog-worktype-image-command'
 import { SearchInputSchema } from "@/schema/composed/shared-schema";
 import { CreateWorkTypeInputSchema, GetWorkTypesByCategoryInputSchema } from "@/schema/composed/worktype.details";
 import { APIError } from "better-auth";
@@ -9,28 +10,21 @@ import { APIError } from "better-auth";
 export const createWorkTypeAction = actionClientWithLab
 	.metadata({
 		actionName: "Create-New-WorkType-Action",
-		requiredLabRole: "STAFF",
+		// Canonical tenant context remains required; Authorization V1 is final authority.
+		requiredLabRole: null,
 	})
 	.inputSchema(CreateWorkTypeInputSchema)
 	.action(async ({ parsedInput, ctx }) => {
-		const { name, description, imageUrl, caseCategoryId, requireTeethSelection } = parsedInput;
+		const { name, description, caseCategoryId, requireTeethSelection, imageUploadGrantId } = parsedInput;
 		const { labId } = ctx;
 
 		try {
-			const worktype = await (
-				await tenantPrisma(labId)
-			).workType.create({
-				data: {
-					name,
-					description: description ?? null,
-					imageUrl: imageUrl ?? null,
-					requireTeethSelection: requireTeethSelection ?? true,
-					labId: labId,
-					caseCategoryId: caseCategoryId,
-				},
-				include: {
-					lab: true,
-				},
+			const worktype = await executeCatalogWorkTypeCreate(ctx, {
+				name,
+				description,
+				caseCategoryId,
+				requireTeethSelection,
+				imageUploadGrantId,
 			});
 
 			return {

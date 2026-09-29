@@ -13,6 +13,10 @@ export const CASE_CATEGORY_ORGANIZATION_BOUNDARY_SELECT = {
 	lab: { select: { organizationId: true } },
 } as const
 
+export const WORK_TYPE_ORGANIZATION_BOUNDARY_SELECT = {
+	lab: { select: { organizationId: true } },
+} as const
+
 export const DENTIST_READ_FACTS_SELECT = {
 	id: true,
 	labId: true,
@@ -42,6 +46,19 @@ export const prismaCaseCategoryOrganizationBoundaryLookup: OrganizationBoundaryL
 		})
 		return category?.lab.organizationId
 			? { organizationId: category.lab.organizationId }
+			: null
+	},
+}
+
+/** Resolves only the Organization fact required for a WorkType target. */
+export const prismaWorkTypeOrganizationBoundaryLookup: OrganizationBoundaryLookup = {
+	async findOrganizationBoundary(workTypeId) {
+		const workType = await generalPrisma.workType.findUnique({
+			where: { id: workTypeId },
+			select: WORK_TYPE_ORGANIZATION_BOUNDARY_SELECT,
+		})
+		return workType?.lab.organizationId
+			? { organizationId: workType.lab.organizationId }
 			: null
 	},
 }

@@ -4,6 +4,7 @@ import type { AuthorizationTargetResolver } from '@/platform/authorization'
 
 import {
 	prismaCaseCategoryOrganizationBoundaryLookup,
+	prismaWorkTypeOrganizationBoundaryLookup,
 	prismaDentistOrganizationBoundaryLookup,
 	prismaDentistReadFactRepository,
 } from './adapters/prisma/operational-authorization.repository'
@@ -16,6 +17,10 @@ export const LABOS_OPERATIONAL_TARGET_RESOLVERS = Object.freeze({
 	'catalog.category': createOrganizationBoundaryResolver(
 		'catalog.category',
 		prismaCaseCategoryOrganizationBoundaryLookup,
+	),
+	'catalog.worktype': createOrganizationBoundaryResolver(
+		'catalog.worktype',
+		prismaWorkTypeOrganizationBoundaryLookup,
 	),
 	dentist: createOrganizationBoundaryResolver(
 		'dentist',

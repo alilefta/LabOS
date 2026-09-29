@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 const authorizeCatalogCategoryImageStage = vi.hoisted(() => vi.fn())
+const authorizeCatalogWorkTypeImageStage = vi.hoisted(() => vi.fn())
 const completeVerifiedProviderCallback = vi.hoisted(() => vi.fn())
 const requireTenantContext = vi.hoisted(() => vi.fn())
 
@@ -12,6 +13,13 @@ vi.mock('@/modules/labos-files/catalog-category-upload.contract', async (importO
 		...actual,
 		authorizeCatalogCategoryImageStage,
 	}
+})
+
+vi.mock('@/modules/labos-files/catalog-worktype-upload.contract', async (importOriginal) => {
+	const actual = await importOriginal<
+		typeof import('@/modules/labos-files/catalog-worktype-upload.contract')
+	>()
+	return { ...actual, authorizeCatalogWorkTypeImageStage }
 })
 
 vi.mock('@/modules/labos-files/upload-grants', () => ({
@@ -37,6 +45,7 @@ const tenant: TenantContext = {
 }
 
 const categoryRoute = labOSUploadRouter.categoryIconAvatar
+const workTypeRoute = labOSUploadRouter.workTypeIconAvatar
 const parseStageInput = (input: unknown) =>
 	(
 		categoryRoute.inputParser as {
@@ -128,5 +137,30 @@ describe('categoryIconAvatar UploadThing route', () => {
 			file: { key: file.key, url: file.ufsUrl },
 		})
 		expect(Object.keys(output)).toEqual(['uploadGrantId'])
+	})
+})
+
+describe('workTypeIconAvatar UploadThing route', () => {
+	it('requires the closed WorkType stage input before tenant/provider work', async () => {
+		await expect(
+			(workTypeRoute.inputParser as { parseAsync(value: unknown): Promise<unknown> }).parseAsync({
+				mode: 'update',
+				workTypeId: 'not-a-uuid',
+			}),
+		).rejects.toThrow()
+	})
+
+	it('passes only opaque grant metadata through its verified callback', async () => {
+		requireTenantContext.mockResolvedValue(tenant)
+		authorizeCatalogWorkTypeImageStage.mockResolvedValue({ uploadGrantId: 'grant_456' })
+		completeVerifiedProviderCallback.mockResolvedValue({ uploadGrantId: 'grant_456' })
+		const metadata = await workTypeRoute.middleware({ input: { mode: 'create' }, files: [] })
+		expect(metadata).toEqual({ uploadGrantId: 'grant_456' })
+		expect(authorizeCatalogWorkTypeImageStage).toHaveBeenCalledWith({ tenant, stage: { mode: 'create' } })
+		await expect(workTypeRoute.onUploadComplete({ metadata, file: { key: 'provider-key', ufsUrl: 'https://ufs.sh/f/provider-key' } })).resolves.toEqual({ uploadGrantId: 'grant_456' })
+		expect(completeVerifiedProviderCallback).toHaveBeenCalledWith({
+			metadata,
+			file: { key: 'provider-key', url: 'https://ufs.sh/f/provider-key' },
+		})
 	})
 })

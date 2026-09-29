@@ -5,6 +5,10 @@ import {
 	authorizeCatalogCategoryImageStage,
 	CatalogCategoryImageStageInputSchema,
 } from "@/modules/labos-files/catalog-category-upload.contract";
+import {
+	authorizeCatalogWorkTypeImageStage,
+	CatalogWorkTypeImageStageInputSchema,
+} from '@/modules/labos-files/catalog-worktype-upload.contract'
 import { createUploadCompletionDTO } from "@/modules/labos-files/upload-completion.dto";
 import { labOSUploadGrantService } from "@/modules/labos-files/upload-grants";
 import {
@@ -100,6 +104,32 @@ export const labOSUploadRouter = {
 				file: { key: file.key, url: file.ufsUrl },
 			});
 			return { uploadGrantId: result.uploadGrantId };
+		}),
+
+	workTypeIconAvatar: f({
+		image: {
+			maxFileSize: '4MB',
+			maxFileCount: 1,
+		},
+	})
+		.input(CatalogWorkTypeImageStageInputSchema)
+		.middleware(async ({ input }) => {
+			try {
+				const tenant = await requireTenantContext()
+				return await authorizeCatalogWorkTypeImageStage({ tenant, stage: input })
+			} catch (error) {
+				if (error instanceof TenantContextError) {
+					throw new UploadThingError('Action requires an active Lab Workspace')
+				}
+				throw error
+			}
+		})
+		.onUploadComplete(async ({ metadata, file }) => {
+			const result = await labOSUploadGrantService.completeVerifiedProviderCallback({
+				metadata,
+				file: { key: file.key, url: file.ufsUrl },
+			})
+			return { uploadGrantId: result.uploadGrantId }
 		}),
 
 	genericAvatar: f({

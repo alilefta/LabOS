@@ -34,7 +34,7 @@ import {
 } from '@/schema/composed/worktype.details'
 import { useClinicalCreationStore } from '@/store/use-clinical-creation-store'
 import { WorkTypeBlueprintHierarchy } from './worktype-blueprint-hierarchy'
-import { CatalogImageUpload } from '@/components/shared/file-assets/catalog-image-upload'
+import { WorkTypeIconUpload } from './work-type-icon-upload'
 
 import { createWorkTypeAction } from '@/actions/work-type'
 import { useQueryClient } from '@tanstack/react-query'
@@ -45,6 +45,7 @@ const FORM_DEFAULT_VALUES = {
 	name: '',
 	description: '',
 	imageUrl: '',
+	imageUploadGrantId: undefined,
 	requireTeethSelection: true,
 	caseCategoryId: '',
 }
@@ -229,10 +230,7 @@ export const CreateWorkTypeSheet = memo(function CreateWorkTypeSheet() {
 									</span>
 								</label>
 								<div className="p-4 rounded-2xl border border-border bg-slate-50/50 dark:bg-white/2 shadow-sm">
-									<CatalogImageUpload
-										nameInSchema="imageUrl"
-										label="Work Type"
-									/>
+									<WorkTypeIconUpload stage={{ mode: 'create' }} />
 								</div>
 							</div>
 
