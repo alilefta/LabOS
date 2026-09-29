@@ -1,65 +1,36 @@
 # LabOS contributor router
 
-Read [docs/current.md](docs/current.md) first. Preserve dirty-worktree changes and make no application, schema, migration, generated-output, provider, or configuration changes unless the task explicitly authorizes them.
+Read [docs/current.md](docs/current.md) first.
+
+Preserve unrelated dirty-worktree changes.
+
+Do not make application, schema, migration, generated-output, provider, configuration, deployment, or other environment-sensitive changes unless the active task and repository authority permit them.
 
 ## Documentation authority
 
 1. This file.
 2. [Current state](docs/current.md) and [roadmap](docs/roadmap.md).
-3. [Architecture](docs/architecture/overview.md), relevant module/integration, and [decisions](docs/architecture/decisions.md).
+3. [Architecture](docs/architecture/overview.md), relevant module/integration architecture, and [decisions](docs/architecture/decisions.md).
 4. Exact active plan and boundary inventory.
 5. Reference and backlog material.
 
-Evidence and archive are opt-in historical context; neither is a default reading path or authority for current behavior.
+Evidence and archive are opt-in historical context, not a default reading path or authority for current behavior.
 
-## Active engineering workflow
+When authorities appear to conflict, do not silently choose one. Reconcile through `.agent/workflow.md`.
 
-For active multi-agent engineering work, follow:
+## Engineering process
 
-- `.agent/workflow.md` — agent roles, routing, task lifecycle, acceptance, and escalation rules.
-- `.agent/current-task.md` — the immediate executable task, when one exists.
-- `.agent/handoff.md` — the latest executor-to-reviewer handoff, when one exists.
-- `.agent/escalation.md` — an unresolved architecture/policy decision requiring higher authority, when one exists.
+Full role definitions, coordination model, task lifecycle, acceptance discipline, verification requirements, and session-start reading order live in **`.agent/workflow.md`** — that file is the single source of truth for process. Do not restate or reinterpret it here.
 
-`docs/current.md` remains the canonical project/workstream checkpoint. Do not use it as a subtask journal.
+Model-to-role assignment lives in `.codex/agents/`.
 
-Agent coordination files under `.agent/` are operational working state. They do not override canonical architecture, approved decisions, active plans, or boundary inventories. Durable architecture, decisions, plans, evidence, and project status belong under `docs/` according to the repository documentation rules.
+Operational state:
 
-### Agent responsibilities
+- `.agent/current-task.md` — the immediate authorized task, when one exists.
+- `.agent/handoff.md` — the latest implementation handoff, when one exists.
+- `.agent/escalation.md` — a temporary unresolved decision packet, when one exists.
 
-- **SOL — Architect / decision authority:** Resolve undefined architecture, policy, security semantics, or other high-risk design decisions. Do not invoke merely because implementation is difficult.
-  **TERRA — Lead engineer / integration authority:** Reconcile repository state,
-  decompose ambiguous/integration-sensitive work, own integration-sensitive
-  implementation, prepare bounded task packets when needed, independently review
-  executor results, and perform engineering acceptance.
-- **LUNA — Bounded executor:** Implement approved, deterministic task packets, run scoped verification, and report evidence. Stop when the assigned task is complete or its specification is insufficient.
-- **Product Owner:** Retains authority over product/policy choices, scope changes, and operations requiring explicit human approval.
-
-Authority flows downward; implementation and verification evidence flow upward. An executor's completion report is not engineering acceptance.
-The primary Codex session coordinates configured subagents according to `.agent/workflow.md`. Runtime orchestration does not change engineering
-authority: TERRA remains responsible for integration-sensitive engineering judgment and acceptance.
-
-### Task lifecycle and routing
-
-The active task lifecycle is:
-
-`READY → IN_PROGRESS → IMPLEMENTED → VERIFYING → ACCEPTED → CLOSED`
-
-Verification may return a task to `CORRECTION_REQUIRED`. Undefined decisions move work to `BLOCKED_DECISION` until resolved by the appropriate authority.
-
-TERRA owns task decomposition, review, acceptance, and closure. LUNA may report implementation complete but may not accept or close its parent task. Route deterministic bounded work to LUNA, cross-boundary integration and acceptance to TERRA, and genuinely undefined architecture/policy to SOL.
-
-At session start, reconcile the current repository state before acting. Use the active task and handoff files when present, and verify their task identity, owner, and state. Do not continue an obsolete task from chat history.
-
-The workflow commands `SESSION START`, `CONTINUE`, `REVIEW`, and `CLOSE` are defined in `.agent/workflow.md`. They do not grant permission to bypass task scope, approval gates, or repository invariants.
-
-### Acceptance and checkpoint discipline
-
-Implementation is not acceptance. Accept a task only after the required source review, tests, integration checks, and security invariants pass. Distinguish code-level acceptance from runtime acceptance when real database, provider, migration, browser, or deployment verification remains outstanding.
-
-Advance `docs/current.md` only at an accepted parent-task checkpoint or when a material blocker changes the project state. Keep internal agent subtasks in `.agent/` or the relevant active plan.
-
-Do not silently invoke SOL or resolve missing product/policy decisions. Produce a bounded escalation with the exact unresolved question, affected invariant, options, and whether other work can continue.
+`docs/current.md` is the canonical project/workstream checkpoint. Do not use it as a subtask journal. `.agent/` files are operational state and do not override canonical architecture, approved decisions, active plans, boundary inventories, or Product Owner decisions.
 
 ## Route by task
 
@@ -80,9 +51,3 @@ Do not silently invoke SOL or resolve missing product/policy decisions. Produce 
 - Client visibility is usability, never authorization. Use explicit safe DTOs and never leak internal auth, tokens, financial, or sensitive data through client boundaries.
 - Cross-tenant targets deny before domain work and must not disclose existence.
 - Revalidate mutable invariants transactionally; do not invent migrations, constraints, permissions, provider behavior, or pending decisions.
-
-## Verification and discipline
-
-Run focused tests and lint for changed boundaries, then proportionate broader checks; compare repository-wide failures with the quality baseline. Keep documentation, implementation, tests, and checkpoint records synchronized when implementation is authorized. Do not treat legacy code or archive material as new precedent.
-
-Preserve unrelated dirty changes. Do not stage or commit unless explicitly authorized. Writing a migration is not permission to apply it. Environment-sensitive or destructive operations require explicit authorization for the target environment.
