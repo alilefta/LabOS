@@ -1,73 +1,26 @@
 "use server";
 
-import { ERRORS } from "@/lib/errors";
 import { tenantPrisma } from "@/lib/prisma";
+import { ERRORS } from "@/lib/errors";
 import { actionClientWithLab } from "@/lib/safe-action";
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { APIError } from "better-auth";
 import { normalizeDentist } from "@/lib/mappers";
 import { UpdateDentistInputSchema } from "@/schema/composed/dentist.details";
+import { executeDentistAvatarUpdate } from "@/modules/labos-files/dentist-avatar-command";
 
 export const updateDentistAction = actionClientWithLab
 	.metadata({
 		actionName: "Update-Dentist-Action",
-		requiredLabRole: "ADMIN",
+		requiredLabRole: null,
 	})
 	.inputSchema(UpdateDentistInputSchema)
 	.action(async ({ ctx, parsedInput }) => {
-		const { labId } = ctx;
-		const { dentistId, clinicId, name, email, phoneNumber, speciality, licenseNumber, avatarUrl, isOwner, isDefault, notes } = parsedInput;
-
-		const prisma = await tenantPrisma(labId);
-
-		// ── Ownership verification ────────────────────────────────────────────────
-		const clinic = await prisma.clinic.findUnique({
-			where: { id: clinicId, labId },
-			select: { id: true },
-		});
-		if (!clinic) throw ERRORS.CLIENT_NOT_FOUND;
-
-		const dentist = await prisma.dentist.findUnique({
-			where: { id: dentistId, labId, clinicId },
-			select: { id: true, isActive: true },
-		});
-		if (!dentist) throw ERRORS.NOT_FOUND;
-
-		// ── Business rules ────────────────────────────────────────────────────────
-		// Block editing inactive dentists — reactivate first
-		if (!dentist.isActive) throw ERRORS.OPERATION_NOT_ALLOWED;
-
-		// ── Transaction ───────────────────────────────────────────────────────────
-		const updated = await prisma.$transaction(async (tx) => {
-			if (isDefault) {
-				await tx.dentist.updateMany({
-					where: { clinicId, labId, isDefault: true, NOT: { id: dentistId } },
-					data: { isDefault: false },
-				});
-			}
-
-			if (isOwner) {
-				await tx.dentist.updateMany({
-					where: { clinicId, labId, isOwner: true, NOT: { id: dentistId } },
-					data: { isOwner: false },
-				});
-			}
-
-			return tx.dentist.update({
-				where: { id: dentistId, labId, clinicId },
-				data: {
-					name,
-					email: email || null,
-					phoneNumber: phoneNumber || null,
-					specialty: speciality || null,
-					licenseNumber: licenseNumber || null,
-					avatarUrl: avatarUrl || null,
-					isOwner,
-					isDefault,
-					notes: notes || null,
-				},
-			});
+		const { dentistId, clinicId, name, email, phoneNumber, speciality, licenseNumber, imageUploadGrantId, isOwner, isDefault, notes } = parsedInput;
+		const updated = await executeDentistAvatarUpdate(ctx, {
+			dentistId, clinicId, name, email, phoneNumber, speciality, licenseNumber,
+			imageUploadGrantId, isOwner, isDefault, notes,
 		});
 
 		revalidatePath(`/clinics/${clinicId}`);

@@ -56,6 +56,8 @@ export const LABOS_AUTHORIZATION_V1_SUPPORTED_PERMISSIONS = Object.freeze([
 	'catalog.create',
 	'catalog.update',
 	'dentist.read',
+	'dentist.create',
+	'dentist.update',
 	'invoice.create',
 	'staff.create',
 	'staff.access.invite',

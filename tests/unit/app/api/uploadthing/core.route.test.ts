@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 const authorizeCatalogCategoryImageStage = vi.hoisted(() => vi.fn())
 const authorizeCatalogWorkTypeImageStage = vi.hoisted(() => vi.fn())
 const authorizeCatalogProductImageStage = vi.hoisted(() => vi.fn())
+const authorizeDentistAvatarStage = vi.hoisted(() => vi.fn())
 const completeVerifiedProviderCallback = vi.hoisted(() => vi.fn())
 const requireTenantContext = vi.hoisted(() => vi.fn())
 
@@ -30,6 +31,13 @@ vi.mock('@/modules/labos-files/catalog-product-upload.contract', async (importOr
 	return { ...actual, authorizeCatalogProductImageStage }
 })
 
+vi.mock('@/modules/labos-files/dentist-avatar-upload.contract', async (importOriginal) => {
+	const actual = await importOriginal<
+		typeof import('@/modules/labos-files/dentist-avatar-upload.contract')
+	>()
+	return { ...actual, authorizeDentistAvatarStage }
+})
+
 vi.mock('@/modules/labos-files/upload-grants', () => ({
 	labOSUploadGrantService: { completeVerifiedProviderCallback },
 }))
@@ -55,6 +63,7 @@ const tenant: TenantContext = {
 const categoryRoute = labOSUploadRouter.categoryIconAvatar
 const workTypeRoute = labOSUploadRouter.workTypeIconAvatar
 const productRoute = labOSUploadRouter.productIconAvatar
+const dentistRoute = labOSUploadRouter.dentistAvatar
 const parseStageInput = (input: unknown) =>
 	(
 		categoryRoute.inputParser as {
@@ -192,6 +201,57 @@ describe('productIconAvatar UploadThing route', () => {
 		expect(metadata).toEqual({ uploadGrantId: 'grant_789' })
 		expect(authorizeCatalogProductImageStage).toHaveBeenCalledWith({ tenant, stage: { mode: 'create' } })
 		await expect(productRoute.onUploadComplete({ metadata, file: { key: 'provider-key', ufsUrl: 'https://ufs.sh/f/provider-key' } })).resolves.toEqual({ uploadGrantId: 'grant_789' })
+		expect(completeVerifiedProviderCallback).toHaveBeenCalledWith({
+			metadata,
+			file: { key: 'provider-key', url: 'https://ufs.sh/f/provider-key' },
+		})
+	})
+})
+
+describe('dentistAvatar UploadThing route', () => {
+	beforeEach(() => {
+		vi.clearAllMocks()
+	})
+
+	it('accepts only raster avatar MIME types at the provider boundary', () => {
+		expect(Object.keys(dentistRoute.routerConfig).sort()).toEqual([
+			'image/jpeg',
+			'image/png',
+			'image/webp',
+		])
+		for (const config of Object.values(dentistRoute.routerConfig)) {
+			expect(config).toMatchObject({ maxFileSize: '4MB', maxFileCount: 1 })
+		}
+	})
+
+	it('requires closed Dentist input before tenant or provider work', async () => {
+		await expect(
+			(dentistRoute.inputParser as { parseAsync(value: unknown): Promise<unknown> }).parseAsync({
+				mode: 'update',
+				dentistId: 'not-a-uuid',
+			}),
+		).rejects.toThrow()
+	})
+
+	it('rejects zero or mixed-type multiple files before staging a grant', async () => {
+		const input = { mode: 'create' as const }
+		const png = { name: 'avatar.png', size: 1024, type: 'image/png' }
+		const webp = { name: 'avatar.webp', size: 1024, type: 'image/webp' }
+		await expect(dentistRoute.middleware({ input, files: [] })).rejects.toThrow('Exactly one Dentist avatar is required')
+		await expect(dentistRoute.middleware({ input, files: [png, webp] })).rejects.toThrow('Exactly one Dentist avatar is required')
+		expect(requireTenantContext).not.toHaveBeenCalled()
+		expect(authorizeDentistAvatarStage).not.toHaveBeenCalled()
+	})
+
+	it('passes only opaque Dentist grant metadata through its verified callback', async () => {
+		requireTenantContext.mockResolvedValue(tenant)
+		authorizeDentistAvatarStage.mockResolvedValue({ uploadGrantId: 'grant_dentist' })
+		completeVerifiedProviderCallback.mockResolvedValue({ uploadGrantId: 'grant_dentist' })
+		const stage = { mode: 'update' as const, dentistId: 'b57bfc7a-ae61-4405-a329-b5a98608aa02' }
+		const metadata = await dentistRoute.middleware({ input: stage, files: [{ name: 'avatar.webp', size: 1024, type: 'image/webp' }] })
+		expect(metadata).toEqual({ uploadGrantId: 'grant_dentist' })
+		expect(authorizeDentistAvatarStage).toHaveBeenCalledWith({ tenant, stage })
+		await expect(dentistRoute.onUploadComplete({ metadata, file: { key: 'provider-key', ufsUrl: 'https://ufs.sh/f/provider-key' } })).resolves.toEqual({ uploadGrantId: 'grant_dentist' })
 		expect(completeVerifiedProviderCallback).toHaveBeenCalledWith({
 			metadata,
 			file: { key: 'provider-key', url: 'https://ufs.sh/f/provider-key' },

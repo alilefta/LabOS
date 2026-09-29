@@ -53,6 +53,12 @@ export type LabOSAuthorizationOperationMap = {
 		kind: 'dentist.detail.read'
 		routeClinicId: string
 	}>
+	'dentist.create':
+		| Readonly<{ kind: 'dentist.avatar.create.stage' }>
+		| Readonly<{ kind: 'dentist.avatar.create.commit' }>
+	'dentist.update':
+		| Readonly<{ kind: 'dentist.avatar.update.stage' }>
+		| Readonly<{ kind: 'dentist.avatar.update.commit' }>
 	'case.financials.update': Readonly<{
 		kind: 'case.financials.recalculate'
 	}>

@@ -24,7 +24,8 @@ describe('Prisma operational authorization repository', () => {
 
 	it('resolves Dentist tenant ownership with a minimal target lookup', async () => {
 		prisma.dentist.findUnique.mockResolvedValue({
-			lab: { organizationId: 'organization-a' },
+			lab: { id: 'lab-a', organizationId: 'organization-a' },
+			clinic: { labId: 'lab-a' },
 		})
 
 		await expect(
@@ -36,6 +37,17 @@ describe('Prisma operational authorization repository', () => {
 			where: { id: 'dentist-a' },
 			select: DENTIST_ORGANIZATION_BOUNDARY_SELECT,
 		})
+	})
+
+	it('fails closed when the Dentist Clinic is not linked to the Dentist Lab', async () => {
+		prisma.dentist.findUnique.mockResolvedValue({
+			lab: { id: 'lab-a', organizationId: 'organization-a' },
+			clinic: { labId: 'lab-b' },
+		})
+
+		await expect(
+			prismaDentistOrganizationBoundaryLookup.findOrganizationBoundary('dentist-a'),
+		).resolves.toBeNull()
 	})
 
 	it('resolves WorkType tenant ownership with an authoritative identifier lookup', async () => {

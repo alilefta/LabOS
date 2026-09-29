@@ -13,6 +13,10 @@ import {
 	authorizeCatalogProductImageStage,
 	CatalogProductImageStageInputSchema,
 } from '@/modules/labos-files/catalog-product-upload.contract'
+import {
+	authorizeDentistAvatarStage,
+	DentistAvatarStageInputSchema,
+} from '@/modules/labos-files/dentist-avatar-upload.contract'
 import { createUploadCompletionDTO } from "@/modules/labos-files/upload-completion.dto";
 import { labOSUploadGrantService } from "@/modules/labos-files/upload-grants";
 import {
@@ -147,6 +151,43 @@ export const labOSUploadRouter = {
 			try {
 				const tenant = await requireTenantContext()
 				return await authorizeCatalogProductImageStage({ tenant, stage: input })
+			} catch (error) {
+				if (error instanceof TenantContextError) {
+					throw new UploadThingError('Action requires an active Lab Workspace')
+				}
+				throw error
+			}
+		})
+		.onUploadComplete(async ({ metadata, file }) => {
+			const result = await labOSUploadGrantService.completeVerifiedProviderCallback({
+				metadata,
+				file: { key: file.key, url: file.ufsUrl },
+			})
+			return { uploadGrantId: result.uploadGrantId }
+		}),
+
+	dentistAvatar: f({
+		'image/png': {
+			maxFileSize: '4MB',
+			maxFileCount: 1,
+		},
+		'image/jpeg': {
+			maxFileSize: '4MB',
+			maxFileCount: 1,
+		},
+		'image/webp': {
+			maxFileSize: '4MB',
+			maxFileCount: 1,
+		},
+	})
+		.input(DentistAvatarStageInputSchema)
+		.middleware(async ({ input, files }) => {
+			if (files.length !== 1) {
+				throw new UploadThingError('Exactly one Dentist avatar is required')
+			}
+			try {
+				const tenant = await requireTenantContext()
+				return await authorizeDentistAvatarStage({ tenant, stage: input })
 			} catch (error) {
 				if (error instanceof TenantContextError) {
 					throw new UploadThingError('Action requires an active Lab Workspace')

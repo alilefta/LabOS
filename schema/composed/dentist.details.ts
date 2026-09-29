@@ -71,6 +71,7 @@ export const CreateDentistInputSchema = z.object({
 		.union([z.literal(""), z.string().trim().url("Please enter a valid image URL")])
 		.transform(emptyToUndefinedTransformer)
 		.optional(),
+	imageUploadGrantId: z.string().uuid("Invalid avatar upload grant ID").optional(),
 
 	isOwner: z.boolean(),
 	isDefault: z.boolean(),

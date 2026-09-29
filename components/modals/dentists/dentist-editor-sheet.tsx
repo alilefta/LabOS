@@ -15,7 +15,7 @@ import { handleSafeActionError } from "@/lib/safe-action-helpers";
 
 // Types & Actions
 import { CreateDentistInput, CreateDentistInputSchema, UpdateDentistInput } from "@/schema/composed/dentist.details";
-import { CatalogImageUpload } from "@/components/shared/file-assets/catalog-image-upload";
+import { DentistAvatarUpload } from "@/components/modals/dentists/dentist-avatar-upload";
 import { createDentistAction } from "@/actions/dentists/create-dentist";
 import type { DentistEditDTO } from "@/modules/labos-dentists/dentist-detail.dto";
 import { memo, useEffect } from "react";
@@ -49,6 +49,7 @@ export const DentistEditorSheet = memo(function DentistEditorSheet({ isOpen, onC
 			isDefault: false,
 			notes: "",
 			avatarUrl: "",
+			imageUploadGrantId: undefined,
 		},
 		mode: "onBlur",
 	});
@@ -80,6 +81,7 @@ export const DentistEditorSheet = memo(function DentistEditorSheet({ isOpen, onC
 				phoneNumber: initialData.phoneNumber || "",
 				notes: initialData.notes || "",
 				avatarUrl: initialData.avatarUrl || "",
+				imageUploadGrantId: undefined,
 				licenseNumber: initialData.licenseNumber || "",
 				isOwner: initialData.isOwner || false,
 				isDefault: initialData.isDefault || false,
@@ -176,7 +178,7 @@ export const DentistEditorSheet = memo(function DentistEditorSheet({ isOpen, onC
 
 										{/* THE NEW UPLOAD COMPONENT */}
 										<div className="p-6 rounded-3xl bg-slate-50 dark:bg-white/2 border border-border/50">
-											<CatalogImageUpload<CreateDentistInput> nameInSchema="avatarUrl" label="Practitioner" />
+											<DentistAvatarUpload stage={isEdit && dentistIdToEdit ? { mode: "update", dentistId: dentistIdToEdit } : { mode: "create" }} />
 										</div>
 
 										<Controller

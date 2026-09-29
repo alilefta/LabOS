@@ -6,7 +6,8 @@ import type { DentistReadFactRepository } from '../../fact-loaders/operational-f
 import type { OrganizationBoundaryLookup } from '../../target-resolvers/organization-boundary-resolver'
 
 export const DENTIST_ORGANIZATION_BOUNDARY_SELECT = {
-	lab: { select: { organizationId: true } },
+	lab: { select: { id: true, organizationId: true } },
+	clinic: { select: { labId: true } },
 } as const
 
 export const CASE_CATEGORY_ORGANIZATION_BOUNDARY_SELECT = {
@@ -35,7 +36,7 @@ export const prismaDentistOrganizationBoundaryLookup: OrganizationBoundaryLookup
 			where: { id: dentistId },
 			select: DENTIST_ORGANIZATION_BOUNDARY_SELECT,
 		})
-		return dentist?.lab.organizationId
+		return dentist?.lab.organizationId && dentist.clinic.labId === dentist.lab.id
 			? { organizationId: dentist.lab.organizationId }
 			: null
 	},

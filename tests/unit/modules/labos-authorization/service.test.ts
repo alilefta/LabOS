@@ -69,6 +69,8 @@ describe('LabOS authorization service composition', () => {
 			'catalog.create',
 			'catalog.update',
 			'dentist.read',
+			'dentist.create',
+			'dentist.update',
 			'invoice.create',
 			'staff.create',
 			'staff.access.invite',
