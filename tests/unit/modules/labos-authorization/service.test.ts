@@ -11,6 +11,7 @@ import type { LabOSPermission } from '@/modules/labos-authorization/permissions'
 import type { LabOSPolicyId } from '@/modules/labos-authorization/policy-ids'
 import type { LabOSResourceType } from '@/modules/labos-authorization/resource-types'
 import type { LabOSOrganizationRole } from '@/modules/labos-authorization/roles'
+import { createOperationalPolicies } from '@/modules/labos-authorization/policies/operational.policies'
 import {
 	createLabOSAuthorizationService,
 	LABOS_AUTHORIZATION_V1_PERMISSION_REGISTRY,
@@ -57,6 +58,7 @@ function monitor() {
 describe('LabOS authorization service composition', () => {
 	it('enables only reviewed Authorization V1 slices', () => {
 		expect(LABOS_AUTHORIZATION_V1_SUPPORTED_PERMISSIONS).toEqual([
+			'case.read',
 			'case.create',
 			'case.financials.read',
 			'case.financials.list',
@@ -276,6 +278,41 @@ describe('LabOS authorization service composition', () => {
 	)
 
 	it.each([
+		[[' STAFF '], true],
+		[[' staff ', ' MANAGER '], false],
+	] as const)(
+		'normalizes Case read roles before evaluating Staff assignment policy: %j',
+		async (memberRoles, hasActiveMemberAssignment) => {
+			const caseReadFacts = {
+				load: vi.fn().mockResolvedValue({
+					caseId: 'case-1',
+					labId: 'lab-1',
+					organizationId: 'organization-1',
+					relationshipsConsistent: true,
+					hasActiveMemberAssignment,
+				}),
+			}
+			const policies = createOperationalPolicies({
+				caseReadFacts,
+				dentistReadFacts: { load: vi.fn() },
+			})
+			const service = createLabOSAuthorizationService({
+				targetResolvers: { case: resolver() },
+				policies,
+				monitor: monitor().monitor,
+			})
+
+			await expect(
+				service.can({
+					actor: { ...actor, memberRoles },
+					permission: 'case.read',
+					target: { type: 'case', id: 'case-1' },
+				}),
+			).resolves.toEqual({ allowed: true, reason: 'POLICY_ALLOWED' })
+		},
+	)
+
+	it.each([
 		['owner', 'payout.read', true],
 		['admin', 'payout.read', true],
 		['manager', 'payout.read', true],
@@ -446,6 +483,37 @@ describe('LabOS authorization service composition', () => {
 		})
 		expect(policy.evaluate).not.toHaveBeenCalled()
 	})
+
+	it.each([
+		['owner', true, 'POLICY_ALLOWED'],
+		['admin', true, 'POLICY_ALLOWED'],
+		['manager', true, 'POLICY_ALLOWED'],
+		['staff', true, 'POLICY_ALLOWED'],
+		['unconfigured-role', false, 'AUTHZ_ROLE_UNRECOGNIZED'],
+	] as const)(
+		'evaluates case.read through the registered Case resolver and policy for %s',
+		async (role, allowed, reason) => {
+			const caseResolver = resolver()
+			const casePolicy = allowPolicy()
+			const service = createLabOSAuthorizationService({
+				targetResolvers: { case: caseResolver },
+				policies: { 'case.read': casePolicy },
+				monitor: monitor().monitor,
+			})
+
+			await expect(
+				service.can({
+					actor: { ...actor, memberRoles: [role] },
+					permission: 'case.read',
+					target: { type: 'case', id: 'case-1' },
+				}),
+			).resolves.toEqual({ allowed, reason })
+			expect(caseResolver.resolveOrganizationId).toHaveBeenCalledTimes(
+				allowed ? 1 : 0,
+			)
+			expect(casePolicy.evaluate).toHaveBeenCalledTimes(allowed ? 1 : 0)
+		},
+	)
 
 	it('denies a cross-Organization Invoice dossier target before policy or dossier loading', async () => {
 		const invoiceResolver = resolver('organization-2')

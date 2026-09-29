@@ -9,6 +9,11 @@ import { ERRORS } from '@/lib/errors'
 import { getDataTenantContext } from '@/lib/data-tenant-context'
 import { composeCaseDTO, normalizeCase } from '@/lib/mappers'
 import { tenantPrisma } from '@/lib/prisma'
+import { createLabOSAuthorizationActor } from '@/modules/labos-authorization/actor'
+import {
+	authorizeCaseDetailRead,
+	CaseDetailReadAuthorizationError,
+} from '@/modules/labos-authorization/case-detail-read.authorization'
 import { CaseBase } from '@/schema/base/case.base'
 import { CaseDetailsUI } from '@/schema/composed/case.details'
 
@@ -49,6 +54,18 @@ export async function getDentalCaseById(caseId: string) {
 
 	if (!caseId) {
 		return daError(ERRORS.NOT_FOUND.toJSON())
+	}
+
+	try {
+		await authorizeCaseDetailRead({
+			actor: createLabOSAuthorizationActor(tenantResult.data),
+			caseId,
+		})
+	} catch (error) {
+		if (error instanceof CaseDetailReadAuthorizationError) {
+			return daError(ERRORS.NOT_FOUND.toJSON())
+		}
+		throw error
 	}
 
 	const prisma = await tenantPrisma(labId)
