@@ -59,6 +59,7 @@ describe('LabOS authorization service composition', () => {
 	it('enables only reviewed Authorization V1 slices', () => {
 		expect(LABOS_AUTHORIZATION_V1_SUPPORTED_PERMISSIONS).toEqual([
 			'case.read',
+			'case.asset.add',
 			'case.create',
 			'case.financials.read',
 			'case.financials.list',

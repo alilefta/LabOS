@@ -45,6 +45,7 @@ import { structuredLabOSAuthorizationDecisionMonitor } from './decision-telemetr
  */
 export const LABOS_AUTHORIZATION_V1_SUPPORTED_PERMISSIONS = Object.freeze([
 	'case.read',
+	'case.asset.add',
 	'case.create',
 	'case.financials.read',
 	'case.financials.list',

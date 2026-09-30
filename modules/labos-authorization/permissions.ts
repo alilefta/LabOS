@@ -4,6 +4,7 @@
  */
 export const LABOS_PERMISSIONS = [
 	'case.read',
+	'case.asset.add',
 	'case.list',
 	'case.analytics.read',
 	'case.create',

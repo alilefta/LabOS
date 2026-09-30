@@ -50,6 +50,7 @@ const resource = (
 export const LABOS_PERMISSION_DEFINITIONS = Object.freeze([
 	organization('case.list', 'sensitive', ['case.list.scope']),
 	resource('case.read', ['case'], 'sensitive', ['case.read']),
+	resource('case.asset.add', ['case'], 'sensitive', ['case.asset.add']),
 	organization('case.analytics.read', 'sensitive'),
 	organization('case.create', 'sensitive'),
 	resource('case.update', ['case'], 'sensitive'),

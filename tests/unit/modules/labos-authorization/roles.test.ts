@@ -65,6 +65,7 @@ describe('LabOS Authorization V1 fixed bundles', () => {
 	it('limits Staff to basic reads and policy-scoped Case work', () => {
 		expect(LABOS_ROLE_PERMISSION_BUNDLES.permissionsFor('staff')).toEqual([
 			'case.read',
+			'case.asset.add',
 			'case.list',
 			'case.transition',
 			'clinic.read',

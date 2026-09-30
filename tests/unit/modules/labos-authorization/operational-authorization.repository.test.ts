@@ -219,6 +219,28 @@ describe('Prisma operational authorization repository', () => {
 		).resolves.toMatchObject({ hasActiveMemberAssignment: false })
 	})
 
+	it.each([
+		['another Case', { caseId: 'case-b' }],
+		['another Lab', { labId: 'lab-b' }],
+		['inactive Staff', { staff: { isActive: false } }],
+		['unlinked Staff', { staff: { memberId: null, member: null } }],
+	])('rejects %s as a Case asset-add assignment', async (_label, change) => {
+		const staff = {
+			labId: 'lab-a', isActive: true, memberId: 'member-a',
+			member: { id: 'member-a', organizationId: 'organization-a' },
+			...('staff' in change ? change.staff : {}),
+		}
+		prisma.case.findFirst.mockResolvedValue({
+			id: 'case-a', labId: 'lab-a',
+			lab: { id: 'lab-a', organizationId: 'organization-a' },
+			staffAssignments: [{ caseId: 'case-a', labId: 'lab-a', staffId: 'staff-a',
+				...change, staff }],
+		})
+		await expect(prismaCaseReadFactRepository.findCaseReadFacts({
+			organizationId: 'organization-a', caseId: 'case-a', memberId: 'member-a',
+		})).resolves.toMatchObject({ hasActiveMemberAssignment: false })
+	})
+
 	it('marks an inconsistent Case-to-Lab relationship untrusted', async () => {
 		prisma.case.findFirst.mockResolvedValue({
 			id: 'case-a', labId: 'lab-a',

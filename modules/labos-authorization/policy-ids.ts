@@ -5,6 +5,7 @@
 export const LABOS_POLICY_IDS = [
 	'case.list.scope',
 	'case.read',
+	'case.asset.add',
 	'case.archive',
 	'case.assign',
 	'case.transition',

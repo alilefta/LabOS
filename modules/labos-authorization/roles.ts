@@ -20,6 +20,7 @@ export type LabOSOrganizationRole =
 const LABOS_ROLE_PERMISSION_DEFINITIONS = {
 	owner: [
 		'case.read',
+		'case.asset.add',
 		'case.list',
 		'case.analytics.read',
 		'case.create',
@@ -98,6 +99,7 @@ const LABOS_ROLE_PERMISSION_DEFINITIONS = {
 	],
 	admin: [
 		'case.read',
+		'case.asset.add',
 		'case.list',
 		'case.analytics.read',
 		'case.create',
@@ -171,6 +173,7 @@ const LABOS_ROLE_PERMISSION_DEFINITIONS = {
 	],
 	manager: [
 		'case.read',
+		'case.asset.add',
 		'case.list',
 		'case.analytics.read',
 		'case.create',
@@ -239,6 +242,7 @@ const LABOS_ROLE_PERMISSION_DEFINITIONS = {
 	],
 	staff: [
 		'case.read',
+		'case.asset.add',
 		'case.list',
 		'case.transition',
 		'clinic.read',

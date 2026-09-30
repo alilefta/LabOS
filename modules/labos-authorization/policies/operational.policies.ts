@@ -38,9 +38,10 @@ const CASE_ASSIGNMENT_EXEMPT_ROLES = new Set([
 async function evaluateCaseAccess(
 	context: Parameters<LabOSPolicy['evaluate']>[0],
 	factLoader: CaseReadFactLoader,
+	permission: 'case.read' | 'case.asset.add',
 ) {
 	if (
-		context.permission !== 'case.read' ||
+		context.permission !== permission ||
 		!context.target ||
 		context.target.type !== 'case'
 	) return FACT_MISSING
@@ -68,11 +69,16 @@ async function evaluateCaseAccess(
 export function createOperationalPolicies(input: {
 	dentistReadFacts: DentistReadFactLoader
 	caseReadFacts: CaseReadFactLoader
-}): Readonly<{ 'case.read': LabOSPolicy; 'dentist.read': LabOSPolicy }> {
+}): Readonly<{ 'case.read': LabOSPolicy; 'case.asset.add': LabOSPolicy; 'dentist.read': LabOSPolicy }> {
 	return Object.freeze({
 		'case.read': {
 			async evaluate(context) {
-				return evaluateCaseAccess(context, input.caseReadFacts)
+				return evaluateCaseAccess(context, input.caseReadFacts, 'case.read')
+			},
+		},
+		'case.asset.add': {
+			async evaluate(context) {
+				return evaluateCaseAccess(context, input.caseReadFacts, 'case.asset.add')
 			},
 		},
 		'dentist.read': {
