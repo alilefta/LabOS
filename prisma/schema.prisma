@@ -68,9 +68,15 @@ enum StoredFilePurpose {
   CASE_CLINICAL_ASSET
 }
 
+enum StoredFileProviderAccess {
+  PUBLIC_READ
+  PRIVATE
+}
+
 enum CaseAssetStorageMode {
   LEGACY_URL_UNVERIFIED
   MANAGED_PRIVATE
+  MANAGED_PUBLIC
 }
 
 enum CaseClinicalPurpose {
@@ -623,6 +629,7 @@ model StoredFile {
   sourceUploadGrantId      String             @unique
   provider                 StoredFileProvider
   providerObjectKey        String             @db.Text
+  providerAccess           StoredFileProviderAccess?
   purpose                  StoredFilePurpose
   detectedMimeType         String             @db.VarChar(255)
   sizeBytes                BigInt
