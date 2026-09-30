@@ -11,6 +11,7 @@ import { DentistOrderByWithRelationInputObjectSchema as DentistOrderByWithRelati
 import { CaseStaffAssignmentOrderByRelationAggregateInputObjectSchema as CaseStaffAssignmentOrderByRelationAggregateInputObjectSchema } from './CaseStaffAssignmentOrderByRelationAggregateInput.schema';
 import { CaseActivityLogOrderByRelationAggregateInputObjectSchema as CaseActivityLogOrderByRelationAggregateInputObjectSchema } from './CaseActivityLogOrderByRelationAggregateInput.schema';
 import { CaseAssetFileOrderByRelationAggregateInputObjectSchema as CaseAssetFileOrderByRelationAggregateInputObjectSchema } from './CaseAssetFileOrderByRelationAggregateInput.schema';
+import { CaseClinicalUploadEvidenceOrderByRelationAggregateInputObjectSchema as CaseClinicalUploadEvidenceOrderByRelationAggregateInputObjectSchema } from './CaseClinicalUploadEvidenceOrderByRelationAggregateInput.schema';
 import { InvoiceCaseOrderByWithRelationInputObjectSchema as InvoiceCaseOrderByWithRelationInputObjectSchema } from './InvoiceCaseOrderByWithRelationInput.schema';
 import { CaseOrderByRelationAggregateInputObjectSchema as CaseOrderByRelationAggregateInputObjectSchema } from './CaseOrderByRelationAggregateInput.schema'
 
@@ -46,6 +47,7 @@ const caseorderbywithrelationinputSchema = z.object({
   staffAssignments: z.lazy(() => CaseStaffAssignmentOrderByRelationAggregateInputObjectSchema).optional(),
   caseActivityLogs: z.lazy(() => CaseActivityLogOrderByRelationAggregateInputObjectSchema).optional(),
   caseAssetFiles: z.lazy(() => CaseAssetFileOrderByRelationAggregateInputObjectSchema).optional(),
+  clinicalUploadEvidence: z.lazy(() => CaseClinicalUploadEvidenceOrderByRelationAggregateInputObjectSchema).optional(),
   invoiceCase: z.lazy(() => InvoiceCaseOrderByWithRelationInputObjectSchema).optional(),
   originalCase: z.lazy(() => CaseOrderByWithRelationInputObjectSchema).optional(),
   remakes: z.lazy(() => CaseOrderByRelationAggregateInputObjectSchema).optional()

@@ -1,0 +1,13 @@
+import type { Prisma } from '../../../generated/prisma/client';
+import * as z from 'zod';
+import { CaseClinicalUploadEvidenceSelectObjectSchema as CaseClinicalUploadEvidenceSelectObjectSchema } from './objects/CaseClinicalUploadEvidenceSelect.schema';
+import { CaseClinicalUploadEvidenceIncludeObjectSchema as CaseClinicalUploadEvidenceIncludeObjectSchema } from './objects/CaseClinicalUploadEvidenceInclude.schema';
+import { CaseClinicalUploadEvidenceWhereUniqueInputObjectSchema as CaseClinicalUploadEvidenceWhereUniqueInputObjectSchema } from './objects/CaseClinicalUploadEvidenceWhereUniqueInput.schema';
+import { CaseClinicalUploadEvidenceCreateInputObjectSchema as CaseClinicalUploadEvidenceCreateInputObjectSchema } from './objects/CaseClinicalUploadEvidenceCreateInput.schema';
+import { CaseClinicalUploadEvidenceUncheckedCreateInputObjectSchema as CaseClinicalUploadEvidenceUncheckedCreateInputObjectSchema } from './objects/CaseClinicalUploadEvidenceUncheckedCreateInput.schema';
+import { CaseClinicalUploadEvidenceUpdateInputObjectSchema as CaseClinicalUploadEvidenceUpdateInputObjectSchema } from './objects/CaseClinicalUploadEvidenceUpdateInput.schema';
+import { CaseClinicalUploadEvidenceUncheckedUpdateInputObjectSchema as CaseClinicalUploadEvidenceUncheckedUpdateInputObjectSchema } from './objects/CaseClinicalUploadEvidenceUncheckedUpdateInput.schema';
+
+export const CaseClinicalUploadEvidenceUpsertOneSchema: z.ZodType<Prisma.CaseClinicalUploadEvidenceUpsertArgs> = z.object({ select: CaseClinicalUploadEvidenceSelectObjectSchema.optional(), include: CaseClinicalUploadEvidenceIncludeObjectSchema.optional(), where: CaseClinicalUploadEvidenceWhereUniqueInputObjectSchema, create: z.union([ CaseClinicalUploadEvidenceCreateInputObjectSchema, CaseClinicalUploadEvidenceUncheckedCreateInputObjectSchema ]), update: z.union([ CaseClinicalUploadEvidenceUpdateInputObjectSchema, CaseClinicalUploadEvidenceUncheckedUpdateInputObjectSchema ]) }).strict() as unknown as z.ZodType<Prisma.CaseClinicalUploadEvidenceUpsertArgs>;
+
+export const CaseClinicalUploadEvidenceUpsertOneZodSchema = z.object({ select: CaseClinicalUploadEvidenceSelectObjectSchema.optional(), include: CaseClinicalUploadEvidenceIncludeObjectSchema.optional(), where: CaseClinicalUploadEvidenceWhereUniqueInputObjectSchema, create: z.union([ CaseClinicalUploadEvidenceCreateInputObjectSchema, CaseClinicalUploadEvidenceUncheckedCreateInputObjectSchema ]), update: z.union([ CaseClinicalUploadEvidenceUpdateInputObjectSchema, CaseClinicalUploadEvidenceUncheckedUpdateInputObjectSchema ]) }).strict();

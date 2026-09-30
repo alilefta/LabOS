@@ -1,0 +1,12 @@
+import type { Prisma } from '../../../generated/prisma/client';
+import * as z from 'zod';
+import { CaseFileAccessAuditOrderByWithRelationInputObjectSchema as CaseFileAccessAuditOrderByWithRelationInputObjectSchema } from './objects/CaseFileAccessAuditOrderByWithRelationInput.schema';
+import { CaseFileAccessAuditWhereInputObjectSchema as CaseFileAccessAuditWhereInputObjectSchema } from './objects/CaseFileAccessAuditWhereInput.schema';
+import { CaseFileAccessAuditWhereUniqueInputObjectSchema as CaseFileAccessAuditWhereUniqueInputObjectSchema } from './objects/CaseFileAccessAuditWhereUniqueInput.schema';
+import { CaseFileAccessAuditCountAggregateInputObjectSchema as CaseFileAccessAuditCountAggregateInputObjectSchema } from './objects/CaseFileAccessAuditCountAggregateInput.schema';
+import { CaseFileAccessAuditMinAggregateInputObjectSchema as CaseFileAccessAuditMinAggregateInputObjectSchema } from './objects/CaseFileAccessAuditMinAggregateInput.schema';
+import { CaseFileAccessAuditMaxAggregateInputObjectSchema as CaseFileAccessAuditMaxAggregateInputObjectSchema } from './objects/CaseFileAccessAuditMaxAggregateInput.schema';
+
+export const CaseFileAccessAuditAggregateSchema: z.ZodType<Prisma.CaseFileAccessAuditAggregateArgs> = z.object({ orderBy: z.union([CaseFileAccessAuditOrderByWithRelationInputObjectSchema, CaseFileAccessAuditOrderByWithRelationInputObjectSchema.array()]).optional(), where: CaseFileAccessAuditWhereInputObjectSchema.optional(), cursor: CaseFileAccessAuditWhereUniqueInputObjectSchema.optional(), take: z.number().optional(), skip: z.number().optional(), _count: z.union([ z.literal(true), CaseFileAccessAuditCountAggregateInputObjectSchema ]).optional(), _min: CaseFileAccessAuditMinAggregateInputObjectSchema.optional(), _max: CaseFileAccessAuditMaxAggregateInputObjectSchema.optional() }).strict() as unknown as z.ZodType<Prisma.CaseFileAccessAuditAggregateArgs>;
+
+export const CaseFileAccessAuditAggregateZodSchema = z.object({ orderBy: z.union([CaseFileAccessAuditOrderByWithRelationInputObjectSchema, CaseFileAccessAuditOrderByWithRelationInputObjectSchema.array()]).optional(), where: CaseFileAccessAuditWhereInputObjectSchema.optional(), cursor: CaseFileAccessAuditWhereUniqueInputObjectSchema.optional(), take: z.number().optional(), skip: z.number().optional(), _count: z.union([ z.literal(true), CaseFileAccessAuditCountAggregateInputObjectSchema ]).optional(), _min: CaseFileAccessAuditMinAggregateInputObjectSchema.optional(), _max: CaseFileAccessAuditMaxAggregateInputObjectSchema.optional() }).strict();

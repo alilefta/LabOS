@@ -36,14 +36,7 @@ export function mapDraftToFormValues(draft: DraftCaseDTO): SaveDraftCaseInput {
 				commissionValue: s.commissionValue, // already number
 			})) ?? [],
 
-		caseAssetFiles:
-			draft?.caseAssetFiles?.map((f) => ({
-				title: f.title ?? undefined,
-				description: f.description ?? undefined,
-				documentUrl: f.documentUrl ?? undefined,
-				assetFileType: f.assetFileType ?? undefined,
-				fileExtension: f.fileExtension ?? undefined,
-			})) ?? [],
+		caseAssetFiles: [],
 	}
 }
 
@@ -96,16 +89,6 @@ export function mapCaseToUpdateFormValues(
 				}))
 			: [],
 
-		// 3. Map Assets using the Discriminated Union (Keep vs New)
-		caseAssetFiles:
-			dentalCase.caseAssetFiles?.map((file) => ({
-				isNew: false as const, // CRITICAL: Tells the server to "KEEP" this file
-				id: file.id,
-				// We include metadata for the UI preview even though the Update Schema only requires the ID
-				title: file.title ?? 'Untitled File',
-				assetFileType: file.assetFileType,
-				documentUrl: file.documentUrl,
-				fileExtension: file.fileExtension,
-			})) ?? [],
+		caseAssetFiles: [],
 	}
 }

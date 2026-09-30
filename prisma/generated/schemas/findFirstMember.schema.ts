@@ -19,6 +19,8 @@ export const MemberFindFirstSelectSchema: z.ZodType<Prisma.MemberSelect> = z.obj
     createdAt: z.boolean().optional(),
     labStaff: z.boolean().optional(),
     fileUploadGrants: z.boolean().optional(),
+    uploadedStoredFiles: z.boolean().optional(),
+    createdCaseFileVersions: z.boolean().optional(),
     _count: z.boolean().optional()
   }).strict() as unknown as z.ZodType<Prisma.MemberSelect>;
 
@@ -32,6 +34,8 @@ export const MemberFindFirstSelectZodSchema = z.object({
     createdAt: z.boolean().optional(),
     labStaff: z.boolean().optional(),
     fileUploadGrants: z.boolean().optional(),
+    uploadedStoredFiles: z.boolean().optional(),
+    createdCaseFileVersions: z.boolean().optional(),
     _count: z.boolean().optional()
   }).strict();
 

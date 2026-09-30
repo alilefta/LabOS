@@ -8,7 +8,9 @@ import { AuthUserScalarRelationFilterObjectSchema as AuthUserScalarRelationFilte
 import { AuthUserWhereInputObjectSchema as AuthUserWhereInputObjectSchema } from './AuthUserWhereInput.schema';
 import { LabStaffNullableScalarRelationFilterObjectSchema as LabStaffNullableScalarRelationFilterObjectSchema } from './LabStaffNullableScalarRelationFilter.schema';
 import { LabStaffWhereInputObjectSchema as LabStaffWhereInputObjectSchema } from './LabStaffWhereInput.schema';
-import { FileUploadGrantListRelationFilterObjectSchema as FileUploadGrantListRelationFilterObjectSchema } from './FileUploadGrantListRelationFilter.schema'
+import { FileUploadGrantListRelationFilterObjectSchema as FileUploadGrantListRelationFilterObjectSchema } from './FileUploadGrantListRelationFilter.schema';
+import { StoredFileListRelationFilterObjectSchema as StoredFileListRelationFilterObjectSchema } from './StoredFileListRelationFilter.schema';
+import { CaseAssetFileVersionListRelationFilterObjectSchema as CaseAssetFileVersionListRelationFilterObjectSchema } from './CaseAssetFileVersionListRelationFilter.schema'
 
 const memberwhereinputSchema = z.object({
   AND: z.union([z.lazy(() => MemberWhereInputObjectSchema), z.lazy(() => MemberWhereInputObjectSchema).array()]).optional(),
@@ -22,7 +24,9 @@ const memberwhereinputSchema = z.object({
   organization: z.union([z.lazy(() => OrganizationScalarRelationFilterObjectSchema), z.lazy(() => OrganizationWhereInputObjectSchema)]).optional(),
   authuser: z.union([z.lazy(() => AuthUserScalarRelationFilterObjectSchema), z.lazy(() => AuthUserWhereInputObjectSchema)]).optional(),
   labStaff: z.union([z.lazy(() => LabStaffNullableScalarRelationFilterObjectSchema), z.lazy(() => LabStaffWhereInputObjectSchema)]).optional(),
-  fileUploadGrants: z.lazy(() => FileUploadGrantListRelationFilterObjectSchema).optional()
+  fileUploadGrants: z.lazy(() => FileUploadGrantListRelationFilterObjectSchema).optional(),
+  uploadedStoredFiles: z.lazy(() => StoredFileListRelationFilterObjectSchema).optional(),
+  createdCaseFileVersions: z.lazy(() => CaseAssetFileVersionListRelationFilterObjectSchema).optional()
 }).strict();
 export const MemberWhereInputObjectSchema: z.ZodType<Prisma.MemberWhereInput> = memberwhereinputSchema as unknown as z.ZodType<Prisma.MemberWhereInput>;
 export const MemberWhereInputObjectZodSchema = memberwhereinputSchema;

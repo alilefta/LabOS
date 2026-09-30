@@ -8,5 +8,7 @@ export const MemberUpsertResultSchema = z.object({
   role: z.string(),
   createdAt: z.date(),
   labStaff: z.unknown().optional(),
-  fileUploadGrants: z.array(z.unknown())
+  fileUploadGrants: z.array(z.unknown()),
+  uploadedStoredFiles: z.array(z.unknown()),
+  createdCaseFileVersions: z.array(z.unknown())
 });

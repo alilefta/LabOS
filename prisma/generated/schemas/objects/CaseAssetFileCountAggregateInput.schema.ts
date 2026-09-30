@@ -11,6 +11,9 @@ const makeSchema = () => z.object({
   assetFileType: z.literal(true).optional(),
   fileExtension: z.literal(true).optional(),
   labId: z.literal(true).optional(),
+  storageMode: z.literal(true).optional(),
+  clinicalPurpose: z.literal(true).optional(),
+  currentVersionId: z.literal(true).optional(),
   createdAt: z.literal(true).optional(),
   updatedAt: z.literal(true).optional(),
   _all: z.literal(true).optional()

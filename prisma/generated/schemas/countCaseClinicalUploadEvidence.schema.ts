@@ -1,0 +1,10 @@
+import type { Prisma } from '../../../generated/prisma/client';
+import * as z from 'zod';
+import { CaseClinicalUploadEvidenceOrderByWithRelationInputObjectSchema as CaseClinicalUploadEvidenceOrderByWithRelationInputObjectSchema } from './objects/CaseClinicalUploadEvidenceOrderByWithRelationInput.schema';
+import { CaseClinicalUploadEvidenceWhereInputObjectSchema as CaseClinicalUploadEvidenceWhereInputObjectSchema } from './objects/CaseClinicalUploadEvidenceWhereInput.schema';
+import { CaseClinicalUploadEvidenceWhereUniqueInputObjectSchema as CaseClinicalUploadEvidenceWhereUniqueInputObjectSchema } from './objects/CaseClinicalUploadEvidenceWhereUniqueInput.schema';
+import { CaseClinicalUploadEvidenceCountAggregateInputObjectSchema as CaseClinicalUploadEvidenceCountAggregateInputObjectSchema } from './objects/CaseClinicalUploadEvidenceCountAggregateInput.schema';
+
+export const CaseClinicalUploadEvidenceCountSchema: z.ZodType<Prisma.CaseClinicalUploadEvidenceCountArgs> = z.object({ orderBy: z.union([CaseClinicalUploadEvidenceOrderByWithRelationInputObjectSchema, CaseClinicalUploadEvidenceOrderByWithRelationInputObjectSchema.array()]).optional(), where: CaseClinicalUploadEvidenceWhereInputObjectSchema.optional(), cursor: CaseClinicalUploadEvidenceWhereUniqueInputObjectSchema.optional(), take: z.number().optional(), skip: z.number().optional(), select: z.union([ z.literal(true), CaseClinicalUploadEvidenceCountAggregateInputObjectSchema ]).optional() }).strict() as unknown as z.ZodType<Prisma.CaseClinicalUploadEvidenceCountArgs>;
+
+export const CaseClinicalUploadEvidenceCountZodSchema = z.object({ orderBy: z.union([CaseClinicalUploadEvidenceOrderByWithRelationInputObjectSchema, CaseClinicalUploadEvidenceOrderByWithRelationInputObjectSchema.array()]).optional(), where: CaseClinicalUploadEvidenceWhereInputObjectSchema.optional(), cursor: CaseClinicalUploadEvidenceWhereUniqueInputObjectSchema.optional(), take: z.number().optional(), skip: z.number().optional(), select: z.union([ z.literal(true), CaseClinicalUploadEvidenceCountAggregateInputObjectSchema ]).optional() }).strict();

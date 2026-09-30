@@ -1,0 +1,10 @@
+import type { Prisma } from '../../../generated/prisma/client';
+import * as z from 'zod';
+import { CaseAssetFileVersionOrderByWithRelationInputObjectSchema as CaseAssetFileVersionOrderByWithRelationInputObjectSchema } from './objects/CaseAssetFileVersionOrderByWithRelationInput.schema';
+import { CaseAssetFileVersionWhereInputObjectSchema as CaseAssetFileVersionWhereInputObjectSchema } from './objects/CaseAssetFileVersionWhereInput.schema';
+import { CaseAssetFileVersionWhereUniqueInputObjectSchema as CaseAssetFileVersionWhereUniqueInputObjectSchema } from './objects/CaseAssetFileVersionWhereUniqueInput.schema';
+import { CaseAssetFileVersionCountAggregateInputObjectSchema as CaseAssetFileVersionCountAggregateInputObjectSchema } from './objects/CaseAssetFileVersionCountAggregateInput.schema';
+
+export const CaseAssetFileVersionCountSchema: z.ZodType<Prisma.CaseAssetFileVersionCountArgs> = z.object({ orderBy: z.union([CaseAssetFileVersionOrderByWithRelationInputObjectSchema, CaseAssetFileVersionOrderByWithRelationInputObjectSchema.array()]).optional(), where: CaseAssetFileVersionWhereInputObjectSchema.optional(), cursor: CaseAssetFileVersionWhereUniqueInputObjectSchema.optional(), take: z.number().optional(), skip: z.number().optional(), select: z.union([ z.literal(true), CaseAssetFileVersionCountAggregateInputObjectSchema ]).optional() }).strict() as unknown as z.ZodType<Prisma.CaseAssetFileVersionCountArgs>;
+
+export const CaseAssetFileVersionCountZodSchema = z.object({ orderBy: z.union([CaseAssetFileVersionOrderByWithRelationInputObjectSchema, CaseAssetFileVersionOrderByWithRelationInputObjectSchema.array()]).optional(), where: CaseAssetFileVersionWhereInputObjectSchema.optional(), cursor: CaseAssetFileVersionWhereUniqueInputObjectSchema.optional(), take: z.number().optional(), skip: z.number().optional(), select: z.union([ z.literal(true), CaseAssetFileVersionCountAggregateInputObjectSchema ]).optional() }).strict();

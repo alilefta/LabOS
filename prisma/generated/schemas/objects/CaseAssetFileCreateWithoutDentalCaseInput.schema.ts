@@ -1,18 +1,25 @@
 import * as z from 'zod';
 import type { Prisma } from '../../../../generated/prisma/client';
 import { AssetFileTypeSchema } from '../enums/AssetFileType.schema';
-import { LabCreateNestedOneWithoutCaseAssetFilesInputObjectSchema as LabCreateNestedOneWithoutCaseAssetFilesInputObjectSchema } from './LabCreateNestedOneWithoutCaseAssetFilesInput.schema'
+import { CaseAssetStorageModeSchema } from '../enums/CaseAssetStorageMode.schema';
+import { CaseClinicalPurposeSchema } from '../enums/CaseClinicalPurpose.schema';
+import { LabCreateNestedOneWithoutCaseAssetFilesInputObjectSchema as LabCreateNestedOneWithoutCaseAssetFilesInputObjectSchema } from './LabCreateNestedOneWithoutCaseAssetFilesInput.schema';
+import { CaseAssetFileVersionCreateNestedManyWithoutAssetInputObjectSchema as CaseAssetFileVersionCreateNestedManyWithoutAssetInputObjectSchema } from './CaseAssetFileVersionCreateNestedManyWithoutAssetInput.schema';
+import { CaseAssetFileVersionCreateNestedOneWithoutCurrentForAssetInputObjectSchema as CaseAssetFileVersionCreateNestedOneWithoutCurrentForAssetInputObjectSchema } from './CaseAssetFileVersionCreateNestedOneWithoutCurrentForAssetInput.schema'
 
 const makeSchema = () => z.object({
-  id: z.string().optional(),
   title: z.string().optional().nullable(),
   description: z.string().optional().nullable(),
-  documentUrl: z.string(),
+  documentUrl: z.string().optional().nullable(),
   assetFileType: AssetFileTypeSchema.optional(),
-  fileExtension: z.string(),
+  fileExtension: z.string().optional().nullable(),
+  storageMode: CaseAssetStorageModeSchema.optional(),
+  clinicalPurpose: CaseClinicalPurposeSchema.optional().nullable(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
-  lab: z.lazy(() => LabCreateNestedOneWithoutCaseAssetFilesInputObjectSchema)
+  lab: z.lazy(() => LabCreateNestedOneWithoutCaseAssetFilesInputObjectSchema),
+  versions: z.lazy(() => CaseAssetFileVersionCreateNestedManyWithoutAssetInputObjectSchema).optional(),
+  currentVersion: z.lazy(() => CaseAssetFileVersionCreateNestedOneWithoutCurrentForAssetInputObjectSchema).optional()
 }).strict();
 export const CaseAssetFileCreateWithoutDentalCaseInputObjectSchema: z.ZodType<Prisma.CaseAssetFileCreateWithoutDentalCaseInput> = makeSchema() as unknown as z.ZodType<Prisma.CaseAssetFileCreateWithoutDentalCaseInput>;
 export const CaseAssetFileCreateWithoutDentalCaseInputObjectZodSchema = makeSchema();

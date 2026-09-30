@@ -26,6 +26,7 @@ import { ToothPosition } from "@/schema/base/tooth-position.base";
 
 import type * as runtime from "@prisma/client/runtime/client";
 import { normalizeCase, normalizeWorkItem } from "@/lib/mappers";
+import { normalizeAssetFile } from "@/lib/mappers";
 
 // ============================================================================
 // 1. UTILITY HELPERS
@@ -193,7 +194,7 @@ export function draftCaseServerToDTO(raw: DraftCaseRaw): DraftCaseDTO {
 				roleCategory: s.roleCategory,
 			})),
 
-		caseAssetFiles: raw.caseAssetFiles.filter((caf) => caf !== undefined),
+		caseAssetFiles: raw.caseAssetFiles.map(normalizeAssetFile),
 	};
 }
 
@@ -248,7 +249,7 @@ export function optionalSelectiveDraftCaseServerToDTO(raw: DraftCaseRaw): DraftC
 				roleCategory: s.roleCategory,
 			})),
 
-		caseAssetFiles: raw.caseAssetFiles.filter((caf) => caf !== undefined),
+		caseAssetFiles: raw.caseAssetFiles.map(normalizeAssetFile),
 	};
 }
 

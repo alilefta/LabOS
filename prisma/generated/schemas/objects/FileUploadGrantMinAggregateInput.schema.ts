@@ -12,6 +12,7 @@ const makeSchema = () => z.object({
   targetType: z.literal(true).optional(),
   targetId: z.literal(true).optional(),
   status: z.literal(true).optional(),
+  provider: z.literal(true).optional(),
   providerFileKey: z.literal(true).optional(),
   providerFileUrl: z.literal(true).optional(),
   correlationId: z.literal(true).optional(),

@@ -4,11 +4,15 @@ import { StringFieldUpdateOperationsInputObjectSchema as StringFieldUpdateOperat
 import { NullableStringFieldUpdateOperationsInputObjectSchema as NullableStringFieldUpdateOperationsInputObjectSchema } from './NullableStringFieldUpdateOperationsInput.schema';
 import { FileUploadGrantStatusSchema } from '../enums/FileUploadGrantStatus.schema';
 import { EnumFileUploadGrantStatusFieldUpdateOperationsInputObjectSchema as EnumFileUploadGrantStatusFieldUpdateOperationsInputObjectSchema } from './EnumFileUploadGrantStatusFieldUpdateOperationsInput.schema';
+import { StoredFileProviderSchema } from '../enums/StoredFileProvider.schema';
+import { NullableEnumStoredFileProviderFieldUpdateOperationsInputObjectSchema as NullableEnumStoredFileProviderFieldUpdateOperationsInputObjectSchema } from './NullableEnumStoredFileProviderFieldUpdateOperationsInput.schema';
 import { DateTimeFieldUpdateOperationsInputObjectSchema as DateTimeFieldUpdateOperationsInputObjectSchema } from './DateTimeFieldUpdateOperationsInput.schema';
 import { NullableDateTimeFieldUpdateOperationsInputObjectSchema as NullableDateTimeFieldUpdateOperationsInputObjectSchema } from './NullableDateTimeFieldUpdateOperationsInput.schema';
 import { IntFieldUpdateOperationsInputObjectSchema as IntFieldUpdateOperationsInputObjectSchema } from './IntFieldUpdateOperationsInput.schema';
 import { OrganizationUpdateOneRequiredWithoutFileUploadGrantsNestedInputObjectSchema as OrganizationUpdateOneRequiredWithoutFileUploadGrantsNestedInputObjectSchema } from './OrganizationUpdateOneRequiredWithoutFileUploadGrantsNestedInput.schema';
-import { LabUpdateOneRequiredWithoutFileUploadGrantsNestedInputObjectSchema as LabUpdateOneRequiredWithoutFileUploadGrantsNestedInputObjectSchema } from './LabUpdateOneRequiredWithoutFileUploadGrantsNestedInput.schema'
+import { LabUpdateOneRequiredWithoutFileUploadGrantsNestedInputObjectSchema as LabUpdateOneRequiredWithoutFileUploadGrantsNestedInputObjectSchema } from './LabUpdateOneRequiredWithoutFileUploadGrantsNestedInput.schema';
+import { StoredFileUpdateOneWithoutSourceGrantNestedInputObjectSchema as StoredFileUpdateOneWithoutSourceGrantNestedInputObjectSchema } from './StoredFileUpdateOneWithoutSourceGrantNestedInput.schema';
+import { CaseClinicalUploadEvidenceUpdateOneWithoutUploadGrantNestedInputObjectSchema as CaseClinicalUploadEvidenceUpdateOneWithoutUploadGrantNestedInputObjectSchema } from './CaseClinicalUploadEvidenceUpdateOneWithoutUploadGrantNestedInput.schema'
 
 const makeSchema = () => z.object({
   id: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputObjectSchema)]).optional(),
@@ -17,6 +21,7 @@ const makeSchema = () => z.object({
   targetType: z.union([z.string(), z.lazy(() => NullableStringFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
   targetId: z.union([z.string(), z.lazy(() => NullableStringFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
   status: z.union([FileUploadGrantStatusSchema, z.lazy(() => EnumFileUploadGrantStatusFieldUpdateOperationsInputObjectSchema)]).optional(),
+  provider: z.union([StoredFileProviderSchema, z.lazy(() => NullableEnumStoredFileProviderFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
   providerFileKey: z.union([z.string(), z.lazy(() => NullableStringFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
   providerFileUrl: z.union([z.string(), z.lazy(() => NullableStringFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
   correlationId: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputObjectSchema)]).optional(),
@@ -33,7 +38,9 @@ const makeSchema = () => z.object({
   createdAt: z.union([z.coerce.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputObjectSchema)]).optional(),
   updatedAt: z.union([z.coerce.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputObjectSchema)]).optional(),
   organization: z.lazy(() => OrganizationUpdateOneRequiredWithoutFileUploadGrantsNestedInputObjectSchema).optional(),
-  lab: z.lazy(() => LabUpdateOneRequiredWithoutFileUploadGrantsNestedInputObjectSchema).optional()
+  lab: z.lazy(() => LabUpdateOneRequiredWithoutFileUploadGrantsNestedInputObjectSchema).optional(),
+  storedFile: z.lazy(() => StoredFileUpdateOneWithoutSourceGrantNestedInputObjectSchema).optional(),
+  clinicalUploadEvidence: z.lazy(() => CaseClinicalUploadEvidenceUpdateOneWithoutUploadGrantNestedInputObjectSchema).optional()
 }).strict();
 export const FileUploadGrantUpdateWithoutCreatedByMemberInputObjectSchema: z.ZodType<Prisma.FileUploadGrantUpdateWithoutCreatedByMemberInput> = makeSchema() as unknown as z.ZodType<Prisma.FileUploadGrantUpdateWithoutCreatedByMemberInput>;
 export const FileUploadGrantUpdateWithoutCreatedByMemberInputObjectZodSchema = makeSchema();

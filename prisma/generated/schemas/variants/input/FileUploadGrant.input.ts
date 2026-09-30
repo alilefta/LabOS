@@ -1,5 +1,6 @@
 import * as z from 'zod';
 import { FileUploadGrantStatusSchema } from '../../enums/FileUploadGrantStatus.schema';
+import { StoredFileProviderSchema } from '../../enums/StoredFileProvider.schema';
 // prettier-ignore
 export const FileUploadGrantInputSchema = z.object({
     id: z.string(),
@@ -14,6 +15,7 @@ export const FileUploadGrantInputSchema = z.object({
     targetType: z.string().optional().nullable(),
     targetId: z.string().optional().nullable(),
     status: FileUploadGrantStatusSchema,
+    provider: StoredFileProviderSchema.optional().nullable(),
     providerFileKey: z.string().optional().nullable(),
     providerFileUrl: z.string().optional().nullable(),
     correlationId: z.string(),
@@ -28,7 +30,9 @@ export const FileUploadGrantInputSchema = z.object({
     lastCleanupAttemptAt: z.date().optional().nullable(),
     cleanupFailureCode: z.string().optional().nullable(),
     createdAt: z.date(),
-    updatedAt: z.date()
+    updatedAt: z.date(),
+    storedFile: z.unknown().optional().nullable(),
+    clinicalUploadEvidence: z.unknown().optional().nullable()
 }).strict();
 
 export type FileUploadGrantInputType = z.infer<typeof FileUploadGrantInputSchema>;

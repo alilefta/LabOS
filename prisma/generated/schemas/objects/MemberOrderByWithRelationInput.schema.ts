@@ -4,7 +4,9 @@ import { SortOrderSchema } from '../enums/SortOrder.schema';
 import { OrganizationOrderByWithRelationInputObjectSchema as OrganizationOrderByWithRelationInputObjectSchema } from './OrganizationOrderByWithRelationInput.schema';
 import { AuthUserOrderByWithRelationInputObjectSchema as AuthUserOrderByWithRelationInputObjectSchema } from './AuthUserOrderByWithRelationInput.schema';
 import { LabStaffOrderByWithRelationInputObjectSchema as LabStaffOrderByWithRelationInputObjectSchema } from './LabStaffOrderByWithRelationInput.schema';
-import { FileUploadGrantOrderByRelationAggregateInputObjectSchema as FileUploadGrantOrderByRelationAggregateInputObjectSchema } from './FileUploadGrantOrderByRelationAggregateInput.schema'
+import { FileUploadGrantOrderByRelationAggregateInputObjectSchema as FileUploadGrantOrderByRelationAggregateInputObjectSchema } from './FileUploadGrantOrderByRelationAggregateInput.schema';
+import { StoredFileOrderByRelationAggregateInputObjectSchema as StoredFileOrderByRelationAggregateInputObjectSchema } from './StoredFileOrderByRelationAggregateInput.schema';
+import { CaseAssetFileVersionOrderByRelationAggregateInputObjectSchema as CaseAssetFileVersionOrderByRelationAggregateInputObjectSchema } from './CaseAssetFileVersionOrderByRelationAggregateInput.schema'
 
 const makeSchema = () => z.object({
   id: SortOrderSchema.optional(),
@@ -15,7 +17,9 @@ const makeSchema = () => z.object({
   organization: z.lazy(() => OrganizationOrderByWithRelationInputObjectSchema).optional(),
   authuser: z.lazy(() => AuthUserOrderByWithRelationInputObjectSchema).optional(),
   labStaff: z.lazy(() => LabStaffOrderByWithRelationInputObjectSchema).optional(),
-  fileUploadGrants: z.lazy(() => FileUploadGrantOrderByRelationAggregateInputObjectSchema).optional()
+  fileUploadGrants: z.lazy(() => FileUploadGrantOrderByRelationAggregateInputObjectSchema).optional(),
+  uploadedStoredFiles: z.lazy(() => StoredFileOrderByRelationAggregateInputObjectSchema).optional(),
+  createdCaseFileVersions: z.lazy(() => CaseAssetFileVersionOrderByRelationAggregateInputObjectSchema).optional()
 }).strict();
 export const MemberOrderByWithRelationInputObjectSchema: z.ZodType<Prisma.MemberOrderByWithRelationInput> = makeSchema() as unknown as z.ZodType<Prisma.MemberOrderByWithRelationInput>;
 export const MemberOrderByWithRelationInputObjectZodSchema = makeSchema();

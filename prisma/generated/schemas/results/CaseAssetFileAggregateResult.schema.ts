@@ -10,6 +10,11 @@ export const CaseAssetFileAggregateResultSchema = z.object({  _count: z.object({
     fileExtension: z.number(),
     labId: z.number(),
     lab: z.number(),
+    storageMode: z.number(),
+    clinicalPurpose: z.number(),
+    currentVersionId: z.number(),
+    versions: z.number(),
+    currentVersion: z.number(),
     createdAt: z.number(),
     updatedAt: z.number()
   }).optional(),
@@ -21,6 +26,7 @@ export const CaseAssetFileAggregateResultSchema = z.object({  _count: z.object({
     documentUrl: z.string().nullable(),
     fileExtension: z.string().nullable(),
     labId: z.string().nullable(),
+    currentVersionId: z.string().nullable(),
     createdAt: z.date().nullable(),
     updatedAt: z.date().nullable()
   }).nullable().optional(),
@@ -32,6 +38,7 @@ export const CaseAssetFileAggregateResultSchema = z.object({  _count: z.object({
     documentUrl: z.string().nullable(),
     fileExtension: z.string().nullable(),
     labId: z.string().nullable(),
+    currentVersionId: z.string().nullable(),
     createdAt: z.date().nullable(),
     updatedAt: z.date().nullable()
   }).nullable().optional()});

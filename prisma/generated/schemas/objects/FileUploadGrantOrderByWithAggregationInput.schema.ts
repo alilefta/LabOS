@@ -18,6 +18,7 @@ const makeSchema = () => z.object({
   targetType: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
   targetId: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
   status: SortOrderSchema.optional(),
+  provider: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
   providerFileKey: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
   providerFileUrl: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
   correlationId: SortOrderSchema.optional(),

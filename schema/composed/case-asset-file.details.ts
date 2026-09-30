@@ -18,6 +18,26 @@ export const CaseAssetFileDetailsUISchema = CaseAssetFileBaseSchema.extend({
 
 export type CaseAssetFileDetailsUI = z.infer<typeof CaseAssetFileDetailsUISchema>;
 
+const CaseAssetSummaryFieldsSchema = CaseAssetFileBaseSchema.pick({
+	id: true,
+	title: true,
+	description: true,
+	assetFileType: true,
+});
+
+export const CaseAssetSummarySchema = z.discriminatedUnion('storageMode', [
+	CaseAssetFileBaseSchema.extend({
+		storageMode: z.literal('LEGACY_URL_UNVERIFIED'),
+		documentUrl: z.string().min(1),
+		fileExtension: z.string().min(1),
+	}),
+	CaseAssetSummaryFieldsSchema.extend({
+		storageMode: z.literal('MANAGED_PRIVATE'),
+	}),
+]);
+
+export type CaseAssetSummary = z.infer<typeof CaseAssetSummarySchema>;
+
 export const CreateCaseAssetFilesInputSchema = z.object({
 	title: z.string().trim().min(1, "Case's asset name is required"),
 	description: z.string().trim().transform(emptyToUndefinedTransformer).optional(),

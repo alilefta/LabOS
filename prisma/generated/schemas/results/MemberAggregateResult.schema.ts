@@ -8,7 +8,9 @@ export const MemberAggregateResultSchema = z.object({  _count: z.object({
     role: z.number(),
     createdAt: z.number(),
     labStaff: z.number(),
-    fileUploadGrants: z.number()
+    fileUploadGrants: z.number(),
+    uploadedStoredFiles: z.number(),
+    createdCaseFileVersions: z.number()
   }).optional(),
   _min: z.object({
     id: z.string().nullable(),

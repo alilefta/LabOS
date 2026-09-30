@@ -9,7 +9,9 @@ export const MemberInputSchema = z.object({
     role: z.string(),
     createdAt: z.date(),
     labStaff: z.unknown().optional().nullable(),
-    fileUploadGrants: z.array(z.unknown())
+    fileUploadGrants: z.array(z.unknown()),
+    uploadedStoredFiles: z.array(z.unknown()),
+    createdCaseFileVersions: z.array(z.unknown())
 }).strict();
 
 export type MemberInputType = z.infer<typeof MemberInputSchema>;

@@ -36,6 +36,7 @@ export const FileUploadGrantGroupByResultSchema = z.array(z.object({
     targetType: z.number(),
     targetId: z.number(),
     status: z.number(),
+    provider: z.number(),
     providerFileKey: z.number(),
     providerFileUrl: z.number(),
     correlationId: z.number(),
@@ -50,7 +51,9 @@ export const FileUploadGrantGroupByResultSchema = z.array(z.object({
     lastCleanupAttemptAt: z.number(),
     cleanupFailureCode: z.number(),
     createdAt: z.number(),
-    updatedAt: z.number()
+    updatedAt: z.number(),
+    storedFile: z.number(),
+    clinicalUploadEvidence: z.number()
   }).optional(),
   _sum: z.object({
     cleanupAttemptCount: z.number().nullable()

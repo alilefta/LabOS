@@ -4,6 +4,7 @@ import { CaseCountOutputTypeCountCaseItemsArgsObjectSchema as CaseCountOutputTyp
 import { CaseCountOutputTypeCountStaffAssignmentsArgsObjectSchema as CaseCountOutputTypeCountStaffAssignmentsArgsObjectSchema } from './CaseCountOutputTypeCountStaffAssignmentsArgs.schema';
 import { CaseCountOutputTypeCountCaseActivityLogsArgsObjectSchema as CaseCountOutputTypeCountCaseActivityLogsArgsObjectSchema } from './CaseCountOutputTypeCountCaseActivityLogsArgs.schema';
 import { CaseCountOutputTypeCountCaseAssetFilesArgsObjectSchema as CaseCountOutputTypeCountCaseAssetFilesArgsObjectSchema } from './CaseCountOutputTypeCountCaseAssetFilesArgs.schema';
+import { CaseCountOutputTypeCountClinicalUploadEvidenceArgsObjectSchema as CaseCountOutputTypeCountClinicalUploadEvidenceArgsObjectSchema } from './CaseCountOutputTypeCountClinicalUploadEvidenceArgs.schema';
 import { CaseCountOutputTypeCountRemakesArgsObjectSchema as CaseCountOutputTypeCountRemakesArgsObjectSchema } from './CaseCountOutputTypeCountRemakesArgs.schema'
 
 const makeSchema = () => z.object({
@@ -11,6 +12,7 @@ const makeSchema = () => z.object({
   staffAssignments: z.union([z.boolean(), z.lazy(() => CaseCountOutputTypeCountStaffAssignmentsArgsObjectSchema)]).optional(),
   caseActivityLogs: z.union([z.boolean(), z.lazy(() => CaseCountOutputTypeCountCaseActivityLogsArgsObjectSchema)]).optional(),
   caseAssetFiles: z.union([z.boolean(), z.lazy(() => CaseCountOutputTypeCountCaseAssetFilesArgsObjectSchema)]).optional(),
+  clinicalUploadEvidence: z.union([z.boolean(), z.lazy(() => CaseCountOutputTypeCountClinicalUploadEvidenceArgsObjectSchema)]).optional(),
   remakes: z.union([z.boolean(), z.lazy(() => CaseCountOutputTypeCountRemakesArgsObjectSchema)]).optional()
 }).strict();
 export const CaseCountOutputTypeSelectObjectSchema: z.ZodType<Prisma.CaseCountOutputTypeSelect> = makeSchema() as unknown as z.ZodType<Prisma.CaseCountOutputTypeSelect>;

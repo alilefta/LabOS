@@ -5,6 +5,7 @@ import { FaultPartySchema } from '../enums/FaultParty.schema';
 import { CaseWorkItemUncheckedCreateNestedManyWithoutDentalCaseInputObjectSchema as CaseWorkItemUncheckedCreateNestedManyWithoutDentalCaseInputObjectSchema } from './CaseWorkItemUncheckedCreateNestedManyWithoutDentalCaseInput.schema';
 import { CaseStaffAssignmentUncheckedCreateNestedManyWithoutDentalCaseInputObjectSchema as CaseStaffAssignmentUncheckedCreateNestedManyWithoutDentalCaseInputObjectSchema } from './CaseStaffAssignmentUncheckedCreateNestedManyWithoutDentalCaseInput.schema';
 import { CaseActivityLogUncheckedCreateNestedManyWithoutDentalCaseInputObjectSchema as CaseActivityLogUncheckedCreateNestedManyWithoutDentalCaseInputObjectSchema } from './CaseActivityLogUncheckedCreateNestedManyWithoutDentalCaseInput.schema';
+import { CaseClinicalUploadEvidenceUncheckedCreateNestedManyWithoutDentalCaseInputObjectSchema as CaseClinicalUploadEvidenceUncheckedCreateNestedManyWithoutDentalCaseInputObjectSchema } from './CaseClinicalUploadEvidenceUncheckedCreateNestedManyWithoutDentalCaseInput.schema';
 import { InvoiceCaseUncheckedCreateNestedOneWithoutCaseInputObjectSchema as InvoiceCaseUncheckedCreateNestedOneWithoutCaseInputObjectSchema } from './InvoiceCaseUncheckedCreateNestedOneWithoutCaseInput.schema';
 import { CaseUncheckedCreateNestedManyWithoutOriginalCaseInputObjectSchema as CaseUncheckedCreateNestedManyWithoutOriginalCaseInputObjectSchema } from './CaseUncheckedCreateNestedManyWithoutOriginalCaseInput.schema'
 
@@ -49,6 +50,7 @@ const makeSchema = () => z.object({
   caseItems: z.lazy(() => CaseWorkItemUncheckedCreateNestedManyWithoutDentalCaseInputObjectSchema).optional(),
   staffAssignments: z.lazy(() => CaseStaffAssignmentUncheckedCreateNestedManyWithoutDentalCaseInputObjectSchema).optional(),
   caseActivityLogs: z.lazy(() => CaseActivityLogUncheckedCreateNestedManyWithoutDentalCaseInputObjectSchema).optional(),
+  clinicalUploadEvidence: z.lazy(() => CaseClinicalUploadEvidenceUncheckedCreateNestedManyWithoutDentalCaseInputObjectSchema).optional(),
   invoiceCase: z.lazy(() => InvoiceCaseUncheckedCreateNestedOneWithoutCaseInputObjectSchema).optional(),
   remakes: z.lazy(() => CaseUncheckedCreateNestedManyWithoutOriginalCaseInputObjectSchema).optional()
 }).strict();

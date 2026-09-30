@@ -9,7 +9,7 @@ import { toast } from "sonner";
 
 // Schemas & Types
 import { CreateCaseInput, UpdateCaseInput, UpdateCaseInputSchema } from "@/schema/composed/case.details";
-import { CreateCaseAssetFilesInput } from "@/schema/composed/case-asset-file.details";
+import { CaseAssetSummary } from "@/schema/composed/case-asset-file.details";
 import { ClinicDetailsUI } from "@/schema/composed/clinic.details";
 import { CaseCategoryDetailsUI } from "@/schema/composed/case-category.details";
 import { LabStaffDetailsUI } from "@/schema/composed/lab-staff.details";
@@ -41,9 +41,10 @@ interface Props {
 	caseStatus: CaseStatus;
 	patientId: string;
 	caseId: string;
+	existingAssets: CaseAssetSummary[];
 }
 
-export function EditCaseClient({ initialData, caseNumber, patientName, caseStatus, patientId, caseId }: Props) {
+export function EditCaseClient({ initialData, caseNumber, patientName, caseStatus, patientId, caseId, existingAssets }: Props) {
 	const router = useRouter();
 
 	// 1. STATE MANAGEMENT
@@ -93,6 +94,7 @@ export function EditCaseClient({ initialData, caseNumber, patientName, caseStatu
 
 		const cleanData: UpdateCaseInput = {
 			...data,
+			caseAssetFiles: [],
 			caseWorkItems: validItems,
 			grandTotal: calculatedGrandTotal,
 		};
@@ -107,22 +109,6 @@ export function EditCaseClient({ initialData, caseNumber, patientName, caseStatu
 		setIsSummaryOpen(false);
 	}, [editPayload, updateCase]);
 
-	// ASSET HANDLING (Injecting as "isNew: true")
-	const handleUploadedAssets = useCallback(
-		(files: CreateCaseAssetFilesInput[]) => {
-			const current = form.getValues("caseAssetFiles") ?? [];
-
-			// Map the newly uploaded files to the Update Asset Union shape
-			const mappedNewFiles = files.map((f) => ({
-				...f,
-				isNew: true as const,
-			}));
-
-			form.setValue("caseAssetFiles", [...current, ...mappedNewFiles], { shouldValidate: true, shouldDirty: true });
-		},
-		[form],
-	);
-
 	return (
 		<div className="flex flex-col h-full animate-in fade-in duration-700 bg-background relative">
 			{/* THE HEADER: Switches to EDIT branding */}
@@ -136,6 +122,7 @@ export function EditCaseClient({ initialData, caseNumber, patientName, caseStatu
 							<form className="space-y-12 pr-2" id="edit-case-submission-form" onSubmit={form.handleSubmit(handleFormValid)}>
 								<CaseFormContent
 									mode={"edit"} // CRITICAL: Tells the content to lock the Patient selector
+									existingAssets={existingAssets}
 									patientName={patientName} // Used for the read-only patient identity card
 									// Draft recovery is disabled in edit mode
 									isLoadingDrafts={false}
@@ -152,7 +139,6 @@ export function EditCaseClient({ initialData, caseNumber, patientName, caseStatu
 									newCategory={newCategory}
 									newStaffMember={newStaffMember}
 									onPatientSelect={() => {}} // Patient is immutable
-									onUploadAssets={handleUploadedAssets}
 								/>
 							</form>
 						</FormProvider>

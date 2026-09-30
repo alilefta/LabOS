@@ -18,6 +18,8 @@ export const LabDeleteResultSchema = z.nullable(z.object({
   casePricingPlans: z.array(z.unknown()),
   caseAssetFiles: z.array(z.unknown()),
   fileUploadGrants: z.array(z.unknown()),
+  storedFiles: z.array(z.unknown()),
+  clinicalUploadEvidence: z.array(z.unknown()),
   patients: z.array(z.unknown()),
   dentists: z.array(z.unknown()),
   staffAssignments: z.array(z.unknown()),

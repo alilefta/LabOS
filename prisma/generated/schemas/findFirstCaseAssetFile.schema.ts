@@ -20,8 +20,14 @@ export const CaseAssetFileFindFirstSelectSchema: z.ZodType<Prisma.CaseAssetFileS
     fileExtension: z.boolean().optional(),
     labId: z.boolean().optional(),
     lab: z.boolean().optional(),
+    storageMode: z.boolean().optional(),
+    clinicalPurpose: z.boolean().optional(),
+    currentVersionId: z.boolean().optional(),
+    versions: z.boolean().optional(),
+    currentVersion: z.boolean().optional(),
     createdAt: z.boolean().optional(),
-    updatedAt: z.boolean().optional()
+    updatedAt: z.boolean().optional(),
+    _count: z.boolean().optional()
   }).strict() as unknown as z.ZodType<Prisma.CaseAssetFileSelect>;
 
 export const CaseAssetFileFindFirstSelectZodSchema = z.object({
@@ -35,8 +41,14 @@ export const CaseAssetFileFindFirstSelectZodSchema = z.object({
     fileExtension: z.boolean().optional(),
     labId: z.boolean().optional(),
     lab: z.boolean().optional(),
+    storageMode: z.boolean().optional(),
+    clinicalPurpose: z.boolean().optional(),
+    currentVersionId: z.boolean().optional(),
+    versions: z.boolean().optional(),
+    currentVersion: z.boolean().optional(),
     createdAt: z.boolean().optional(),
-    updatedAt: z.boolean().optional()
+    updatedAt: z.boolean().optional(),
+    _count: z.boolean().optional()
   }).strict();
 
 export const CaseAssetFileFindFirstSchema: z.ZodType<Prisma.CaseAssetFileFindFirstArgs> = z.object({ select: CaseAssetFileFindFirstSelectSchema.optional(), include: z.lazy(() => CaseAssetFileIncludeObjectSchema.optional()), orderBy: z.union([CaseAssetFileOrderByWithRelationInputObjectSchema, CaseAssetFileOrderByWithRelationInputObjectSchema.array()]).optional(), where: CaseAssetFileWhereInputObjectSchema.optional(), cursor: CaseAssetFileWhereUniqueInputObjectSchema.optional(), take: z.number().optional(), skip: z.number().optional(), distinct: z.union([CaseAssetFileScalarFieldEnumSchema, CaseAssetFileScalarFieldEnumSchema.array()]).optional() }).strict() as unknown as z.ZodType<Prisma.CaseAssetFileFindFirstArgs>;

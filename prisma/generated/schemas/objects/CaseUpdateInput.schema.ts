@@ -20,6 +20,7 @@ import { DentistUpdateOneWithoutCasesNestedInputObjectSchema as DentistUpdateOne
 import { CaseStaffAssignmentUpdateManyWithoutDentalCaseNestedInputObjectSchema as CaseStaffAssignmentUpdateManyWithoutDentalCaseNestedInputObjectSchema } from './CaseStaffAssignmentUpdateManyWithoutDentalCaseNestedInput.schema';
 import { CaseActivityLogUpdateManyWithoutDentalCaseNestedInputObjectSchema as CaseActivityLogUpdateManyWithoutDentalCaseNestedInputObjectSchema } from './CaseActivityLogUpdateManyWithoutDentalCaseNestedInput.schema';
 import { CaseAssetFileUpdateManyWithoutDentalCaseNestedInputObjectSchema as CaseAssetFileUpdateManyWithoutDentalCaseNestedInputObjectSchema } from './CaseAssetFileUpdateManyWithoutDentalCaseNestedInput.schema';
+import { CaseClinicalUploadEvidenceUpdateManyWithoutDentalCaseNestedInputObjectSchema as CaseClinicalUploadEvidenceUpdateManyWithoutDentalCaseNestedInputObjectSchema } from './CaseClinicalUploadEvidenceUpdateManyWithoutDentalCaseNestedInput.schema';
 import { InvoiceCaseUpdateOneWithoutCaseNestedInputObjectSchema as InvoiceCaseUpdateOneWithoutCaseNestedInputObjectSchema } from './InvoiceCaseUpdateOneWithoutCaseNestedInput.schema';
 import { CaseUpdateOneWithoutRemakesNestedInputObjectSchema as CaseUpdateOneWithoutRemakesNestedInputObjectSchema } from './CaseUpdateOneWithoutRemakesNestedInput.schema';
 import { CaseUpdateManyWithoutOriginalCaseNestedInputObjectSchema as CaseUpdateManyWithoutOriginalCaseNestedInputObjectSchema } from './CaseUpdateManyWithoutOriginalCaseNestedInput.schema'
@@ -65,6 +66,7 @@ const makeSchema = () => z.object({
   staffAssignments: z.lazy(() => CaseStaffAssignmentUpdateManyWithoutDentalCaseNestedInputObjectSchema).optional(),
   caseActivityLogs: z.lazy(() => CaseActivityLogUpdateManyWithoutDentalCaseNestedInputObjectSchema).optional(),
   caseAssetFiles: z.lazy(() => CaseAssetFileUpdateManyWithoutDentalCaseNestedInputObjectSchema).optional(),
+  clinicalUploadEvidence: z.lazy(() => CaseClinicalUploadEvidenceUpdateManyWithoutDentalCaseNestedInputObjectSchema).optional(),
   invoiceCase: z.lazy(() => InvoiceCaseUpdateOneWithoutCaseNestedInputObjectSchema).optional(),
   originalCase: z.lazy(() => CaseUpdateOneWithoutRemakesNestedInputObjectSchema).optional(),
   remakes: z.lazy(() => CaseUpdateManyWithoutOriginalCaseNestedInputObjectSchema).optional()

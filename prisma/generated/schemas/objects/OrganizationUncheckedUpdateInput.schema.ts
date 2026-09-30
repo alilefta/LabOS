@@ -6,7 +6,9 @@ import { DateTimeFieldUpdateOperationsInputObjectSchema as DateTimeFieldUpdateOp
 import { MemberUncheckedUpdateManyWithoutOrganizationNestedInputObjectSchema as MemberUncheckedUpdateManyWithoutOrganizationNestedInputObjectSchema } from './MemberUncheckedUpdateManyWithoutOrganizationNestedInput.schema';
 import { InvitationUncheckedUpdateManyWithoutOrganizationNestedInputObjectSchema as InvitationUncheckedUpdateManyWithoutOrganizationNestedInputObjectSchema } from './InvitationUncheckedUpdateManyWithoutOrganizationNestedInput.schema';
 import { LabUncheckedUpdateOneWithoutOrganizationNestedInputObjectSchema as LabUncheckedUpdateOneWithoutOrganizationNestedInputObjectSchema } from './LabUncheckedUpdateOneWithoutOrganizationNestedInput.schema';
-import { FileUploadGrantUncheckedUpdateManyWithoutOrganizationNestedInputObjectSchema as FileUploadGrantUncheckedUpdateManyWithoutOrganizationNestedInputObjectSchema } from './FileUploadGrantUncheckedUpdateManyWithoutOrganizationNestedInput.schema'
+import { FileUploadGrantUncheckedUpdateManyWithoutOrganizationNestedInputObjectSchema as FileUploadGrantUncheckedUpdateManyWithoutOrganizationNestedInputObjectSchema } from './FileUploadGrantUncheckedUpdateManyWithoutOrganizationNestedInput.schema';
+import { StoredFileUncheckedUpdateManyWithoutOrganizationNestedInputObjectSchema as StoredFileUncheckedUpdateManyWithoutOrganizationNestedInputObjectSchema } from './StoredFileUncheckedUpdateManyWithoutOrganizationNestedInput.schema';
+import { CaseClinicalUploadEvidenceUncheckedUpdateManyWithoutOrganizationNestedInputObjectSchema as CaseClinicalUploadEvidenceUncheckedUpdateManyWithoutOrganizationNestedInputObjectSchema } from './CaseClinicalUploadEvidenceUncheckedUpdateManyWithoutOrganizationNestedInput.schema'
 
 const makeSchema = () => z.object({
   id: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputObjectSchema)]).optional(),
@@ -18,7 +20,9 @@ const makeSchema = () => z.object({
   members: z.lazy(() => MemberUncheckedUpdateManyWithoutOrganizationNestedInputObjectSchema).optional(),
   invitations: z.lazy(() => InvitationUncheckedUpdateManyWithoutOrganizationNestedInputObjectSchema).optional(),
   lab: z.lazy(() => LabUncheckedUpdateOneWithoutOrganizationNestedInputObjectSchema).optional(),
-  fileUploadGrants: z.lazy(() => FileUploadGrantUncheckedUpdateManyWithoutOrganizationNestedInputObjectSchema).optional()
+  fileUploadGrants: z.lazy(() => FileUploadGrantUncheckedUpdateManyWithoutOrganizationNestedInputObjectSchema).optional(),
+  storedFiles: z.lazy(() => StoredFileUncheckedUpdateManyWithoutOrganizationNestedInputObjectSchema).optional(),
+  clinicalUploadEvidence: z.lazy(() => CaseClinicalUploadEvidenceUncheckedUpdateManyWithoutOrganizationNestedInputObjectSchema).optional()
 }).strict();
 export const OrganizationUncheckedUpdateInputObjectSchema: z.ZodType<Prisma.OrganizationUncheckedUpdateInput> = makeSchema() as unknown as z.ZodType<Prisma.OrganizationUncheckedUpdateInput>;
 export const OrganizationUncheckedUpdateInputObjectZodSchema = makeSchema();

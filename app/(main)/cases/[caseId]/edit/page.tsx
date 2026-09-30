@@ -35,6 +35,7 @@ export default async function EditCasePage({ params }: Props) {
 		<div className="flex flex-col h-full bg-background relative overflow-hidden">
 			<EditCaseClient
 				initialData={initialData}
+				existingAssets={dentalCase.caseAssetFiles ?? []}
 				caseNumber={dentalCase.caseNumber}
 				patientName={dentalCase?.patient?.name ?? "Patient ..."}
 				patientId={dentalCase.patientId}

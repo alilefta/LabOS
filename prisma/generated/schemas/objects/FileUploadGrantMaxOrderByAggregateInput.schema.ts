@@ -12,6 +12,7 @@ const makeSchema = () => z.object({
   targetType: SortOrderSchema.optional(),
   targetId: SortOrderSchema.optional(),
   status: SortOrderSchema.optional(),
+  provider: SortOrderSchema.optional(),
   providerFileKey: SortOrderSchema.optional(),
   providerFileUrl: SortOrderSchema.optional(),
   correlationId: SortOrderSchema.optional(),

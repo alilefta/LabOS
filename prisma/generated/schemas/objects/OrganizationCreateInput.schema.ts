@@ -3,7 +3,9 @@ import type { Prisma } from '../../../../generated/prisma/client';
 import { MemberCreateNestedManyWithoutOrganizationInputObjectSchema as MemberCreateNestedManyWithoutOrganizationInputObjectSchema } from './MemberCreateNestedManyWithoutOrganizationInput.schema';
 import { InvitationCreateNestedManyWithoutOrganizationInputObjectSchema as InvitationCreateNestedManyWithoutOrganizationInputObjectSchema } from './InvitationCreateNestedManyWithoutOrganizationInput.schema';
 import { LabCreateNestedOneWithoutOrganizationInputObjectSchema as LabCreateNestedOneWithoutOrganizationInputObjectSchema } from './LabCreateNestedOneWithoutOrganizationInput.schema';
-import { FileUploadGrantCreateNestedManyWithoutOrganizationInputObjectSchema as FileUploadGrantCreateNestedManyWithoutOrganizationInputObjectSchema } from './FileUploadGrantCreateNestedManyWithoutOrganizationInput.schema'
+import { FileUploadGrantCreateNestedManyWithoutOrganizationInputObjectSchema as FileUploadGrantCreateNestedManyWithoutOrganizationInputObjectSchema } from './FileUploadGrantCreateNestedManyWithoutOrganizationInput.schema';
+import { StoredFileCreateNestedManyWithoutOrganizationInputObjectSchema as StoredFileCreateNestedManyWithoutOrganizationInputObjectSchema } from './StoredFileCreateNestedManyWithoutOrganizationInput.schema';
+import { CaseClinicalUploadEvidenceCreateNestedManyWithoutOrganizationInputObjectSchema as CaseClinicalUploadEvidenceCreateNestedManyWithoutOrganizationInputObjectSchema } from './CaseClinicalUploadEvidenceCreateNestedManyWithoutOrganizationInput.schema'
 
 const makeSchema = () => z.object({
   id: z.string(),
@@ -15,7 +17,9 @@ const makeSchema = () => z.object({
   members: z.lazy(() => MemberCreateNestedManyWithoutOrganizationInputObjectSchema).optional(),
   invitations: z.lazy(() => InvitationCreateNestedManyWithoutOrganizationInputObjectSchema).optional(),
   lab: z.lazy(() => LabCreateNestedOneWithoutOrganizationInputObjectSchema).optional(),
-  fileUploadGrants: z.lazy(() => FileUploadGrantCreateNestedManyWithoutOrganizationInputObjectSchema).optional()
+  fileUploadGrants: z.lazy(() => FileUploadGrantCreateNestedManyWithoutOrganizationInputObjectSchema).optional(),
+  storedFiles: z.lazy(() => StoredFileCreateNestedManyWithoutOrganizationInputObjectSchema).optional(),
+  clinicalUploadEvidence: z.lazy(() => CaseClinicalUploadEvidenceCreateNestedManyWithoutOrganizationInputObjectSchema).optional()
 }).strict();
 export const OrganizationCreateInputObjectSchema: z.ZodType<Prisma.OrganizationCreateInput> = makeSchema() as unknown as z.ZodType<Prisma.OrganizationCreateInput>;
 export const OrganizationCreateInputObjectZodSchema = makeSchema();

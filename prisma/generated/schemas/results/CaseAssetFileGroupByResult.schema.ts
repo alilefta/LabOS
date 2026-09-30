@@ -7,6 +7,7 @@ export const CaseAssetFileGroupByResultSchema = z.array(z.object({
   documentUrl: z.string(),
   fileExtension: z.string(),
   labId: z.string(),
+  currentVersionId: z.string(),
   createdAt: z.date(),
   updatedAt: z.date(),
   _count: z.object({
@@ -20,6 +21,11 @@ export const CaseAssetFileGroupByResultSchema = z.array(z.object({
     fileExtension: z.number(),
     labId: z.number(),
     lab: z.number(),
+    storageMode: z.number(),
+    clinicalPurpose: z.number(),
+    currentVersionId: z.number(),
+    versions: z.number(),
+    currentVersion: z.number(),
     createdAt: z.number(),
     updatedAt: z.number()
   }).optional(),
@@ -31,6 +37,7 @@ export const CaseAssetFileGroupByResultSchema = z.array(z.object({
     documentUrl: z.string().nullable(),
     fileExtension: z.string().nullable(),
     labId: z.string().nullable(),
+    currentVersionId: z.string().nullable(),
     createdAt: z.date().nullable(),
     updatedAt: z.date().nullable()
   }).nullable().optional(),
@@ -42,6 +49,7 @@ export const CaseAssetFileGroupByResultSchema = z.array(z.object({
     documentUrl: z.string().nullable(),
     fileExtension: z.string().nullable(),
     labId: z.string().nullable(),
+    currentVersionId: z.string().nullable(),
     createdAt: z.date().nullable(),
     updatedAt: z.date().nullable()
   }).nullable().optional()

@@ -1,0 +1,210 @@
+{
+  "status": "PASS",
+  "target": {
+    "hostHash": "eb0d823953fe",
+    "database": "postgres",
+    "schema": "public",
+    "version": "170006",
+    "recovery": false
+  },
+  "migrations": {
+    "finished": 49,
+    "canonicalHistoricalMatches": 47,
+    "c2Hash": "92c6a5d2fa3bf0f22987be5461370116dc87de9a3ec5ba3ea304cc299c8b5b80",
+    "candidateHash": "e1892370c147a05eabdd3a8a77e0b30030e0732375e7314eca8e88d657b6a17b",
+    "candidateCount": 1
+  },
+  "enums": [
+    {
+      "name": "CaseClinicalPurpose",
+      "values": [
+        "CLINICAL_REFERENCE_PHOTOGRAPH"
+      ]
+    },
+    {
+      "name": "CaseClinicalValidatedSuffix",
+      "values": [
+        "JPG",
+        "JPEG"
+      ]
+    },
+    {
+      "name": "CaseClinicalVerifiedFormat",
+      "values": [
+        "JPEG"
+      ]
+    }
+  ],
+  "columns": [
+    {
+      "table_name": "CaseAssetFile",
+      "column_name": "clinicalPurpose",
+      "is_nullable": "YES",
+      "udt_name": "CaseClinicalPurpose"
+    },
+    {
+      "table_name": "CaseClinicalUploadEvidence",
+      "column_name": "caseId",
+      "is_nullable": "NO",
+      "udt_name": "text"
+    },
+    {
+      "table_name": "CaseClinicalUploadEvidence",
+      "column_name": "clinicalPurpose",
+      "is_nullable": "NO",
+      "udt_name": "CaseClinicalPurpose"
+    },
+    {
+      "table_name": "CaseClinicalUploadEvidence",
+      "column_name": "contentSha256",
+      "is_nullable": "NO",
+      "udt_name": "varchar"
+    },
+    {
+      "table_name": "CaseClinicalUploadEvidence",
+      "column_name": "height",
+      "is_nullable": "NO",
+      "udt_name": "int4"
+    },
+    {
+      "table_name": "CaseClinicalUploadEvidence",
+      "column_name": "labId",
+      "is_nullable": "NO",
+      "udt_name": "text"
+    },
+    {
+      "table_name": "CaseClinicalUploadEvidence",
+      "column_name": "measuredSizeBytes",
+      "is_nullable": "NO",
+      "udt_name": "int8"
+    },
+    {
+      "table_name": "CaseClinicalUploadEvidence",
+      "column_name": "organizationId",
+      "is_nullable": "NO",
+      "udt_name": "text"
+    },
+    {
+      "table_name": "CaseClinicalUploadEvidence",
+      "column_name": "provider",
+      "is_nullable": "NO",
+      "udt_name": "StoredFileProvider"
+    },
+    {
+      "table_name": "CaseClinicalUploadEvidence",
+      "column_name": "providerObjectKey",
+      "is_nullable": "NO",
+      "udt_name": "text"
+    },
+    {
+      "table_name": "CaseClinicalUploadEvidence",
+      "column_name": "uploadGrantId",
+      "is_nullable": "NO",
+      "udt_name": "text"
+    },
+    {
+      "table_name": "CaseClinicalUploadEvidence",
+      "column_name": "validatedAt",
+      "is_nullable": "NO",
+      "udt_name": "timestamptz"
+    },
+    {
+      "table_name": "CaseClinicalUploadEvidence",
+      "column_name": "validatedSuffix",
+      "is_nullable": "NO",
+      "udt_name": "CaseClinicalValidatedSuffix"
+    },
+    {
+      "table_name": "CaseClinicalUploadEvidence",
+      "column_name": "validationProfile",
+      "is_nullable": "NO",
+      "udt_name": "varchar"
+    },
+    {
+      "table_name": "CaseClinicalUploadEvidence",
+      "column_name": "verifiedFormat",
+      "is_nullable": "NO",
+      "udt_name": "CaseClinicalVerifiedFormat"
+    },
+    {
+      "table_name": "CaseClinicalUploadEvidence",
+      "column_name": "width",
+      "is_nullable": "NO",
+      "udt_name": "int4"
+    },
+    {
+      "table_name": "FileUploadGrant",
+      "column_name": "provider",
+      "is_nullable": "YES",
+      "udt_name": "StoredFileProvider"
+    }
+  ],
+  "installed": {
+    "expectedIndexes": [
+      "CaseClinicalUploadEvidence_organizationId_labId_caseId_idx",
+      "CaseClinicalUploadEvidence_provider_providerObjectKey_key",
+      "CaseClinicalUploadEvidence_uploadGrantId_organizationId_lab_key",
+      "FileUploadGrant_id_organizationId_labId_provider_providerFi_key"
+    ],
+    "expectedConstraints": [
+      "CaseClinicalUploadEvidence_uploadGrantId_organizationId_la_fkey",
+      "CaseClinicalUploadEvidence_organizationId_fkey",
+      "CaseClinicalUploadEvidence_labId_organizationId_fkey",
+      "CaseClinicalUploadEvidence_caseId_labId_fkey",
+      "CaseClinicalUploadEvidence_positive_measurements",
+      "CaseClinicalUploadEvidence_sha256_shape",
+      "CaseClinicalUploadEvidence_profile_shape",
+      "CaseClinicalUploadEvidence_object_key_nonempty"
+    ],
+    "expectedTriggers": [
+      "CaseClinicalUploadEvidence_immutable",
+      "CaseClinicalUploadEvidence_grant_binding",
+      "FileUploadGrant_case_identity",
+      "FileUploadGrant_case_uploaded_evidence",
+      "CaseClinicalUploadEvidence_uploaded",
+      "CaseAssetFile_clinical_purpose"
+    ],
+    "expectedFunctions": [
+      "CaseClinicalUploadEvidence_reject_mutation",
+      "CaseClinicalUploadEvidence_validate_grant",
+      "FileUploadGrant_case_identity_guard",
+      "FileUploadGrant_case_uploaded_evidence_final_state",
+      "CaseClinicalUploadEvidence_uploaded_final_state",
+      "CaseAssetFile_clinical_purpose_final_state"
+    ],
+    "deferredTriggerNames": [
+      "CaseAssetFile_clinical_purpose",
+      "FileUploadGrant_case_uploaded_evidence",
+      "CaseClinicalUploadEvidence_uploaded"
+    ]
+  },
+  "counts": {
+    "organization": 6,
+    "Lab": 6,
+    "Case": 2,
+    "CaseAssetFile": 0,
+    "FileUploadGrant": 2,
+    "StoredFile": 0,
+    "CaseAssetFileVersion": 0,
+    "CaseFileAccessAudit": 0,
+    "CaseClinicalUploadEvidence": 0
+  },
+  "fingerprints": {
+    "organization": "0371421d6232811fa527f8d1b77f98eb",
+    "Lab": "08461a88c45a5e2d5c073f227ebc12c3",
+    "Case": "5c77d5099606166f1f05ce7308debabe",
+    "CaseAssetFile": "d41d8cd98f00b204e9800998ecf8427e",
+    "FileUploadGrant": "83b977a43b5b453bb44db1f72a5fa295",
+    "StoredFile": "d41d8cd98f00b204e9800998ecf8427e",
+    "CaseAssetFileVersion": "d41d8cd98f00b204e9800998ecf8427e",
+    "CaseFileAccessAudit": "d41d8cd98f00b204e9800998ecf8427e",
+    "CaseClinicalUploadEvidence": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "preservation": {
+    "unlinkedLabs": 0,
+    "caseScopedGrants": 0,
+    "existingGrantProviders": 0,
+    "legacyPurposeAssigned": 0,
+    "managedPurposeMissing": 0
+  }
+}

@@ -9,6 +9,7 @@ import { DentistArgsObjectSchema as DentistArgsObjectSchema } from './DentistArg
 import { CaseStaffAssignmentFindManySchema as CaseStaffAssignmentFindManySchema } from '../findManyCaseStaffAssignment.schema';
 import { CaseActivityLogFindManySchema as CaseActivityLogFindManySchema } from '../findManyCaseActivityLog.schema';
 import { CaseAssetFileFindManySchema as CaseAssetFileFindManySchema } from '../findManyCaseAssetFile.schema';
+import { CaseClinicalUploadEvidenceFindManySchema as CaseClinicalUploadEvidenceFindManySchema } from '../findManyCaseClinicalUploadEvidence.schema';
 import { InvoiceCaseArgsObjectSchema as InvoiceCaseArgsObjectSchema } from './InvoiceCaseArgs.schema';
 import { CaseArgsObjectSchema as CaseArgsObjectSchema } from './CaseArgs.schema';
 import { CaseFindManySchema as CaseFindManySchema } from '../findManyCase.schema';
@@ -37,6 +38,7 @@ const makeSchema = () => z.object({
   staffAssignments: z.union([z.boolean(), z.lazy(() => CaseStaffAssignmentFindManySchema)]).optional(),
   caseActivityLogs: z.union([z.boolean(), z.lazy(() => CaseActivityLogFindManySchema)]).optional(),
   caseAssetFiles: z.union([z.boolean(), z.lazy(() => CaseAssetFileFindManySchema)]).optional(),
+  clinicalUploadEvidence: z.union([z.boolean(), z.lazy(() => CaseClinicalUploadEvidenceFindManySchema)]).optional(),
   deadline: z.boolean().optional(),
   createdAt: z.boolean().optional(),
   updatedAt: z.boolean().optional(),

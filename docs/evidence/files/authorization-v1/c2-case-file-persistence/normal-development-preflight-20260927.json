@@ -1,0 +1,424 @@
+{
+  "status": "BLOCKED_BEFORE_MUTATION",
+  "source": "Untruncated Codex read_thread(includeOutputs=true) command outputs from current C2 application turn; repository hashes from approved 47-entry manifest",
+  "target": {
+    "direct": {
+      "hostHash": "eb0d823953fe",
+      "port": 5432,
+      "database": "postgres",
+      "schema": "public"
+    },
+    "runtime": {
+      "hostHash": "eb0d823953fe",
+      "port": 6543,
+      "database": "postgres",
+      "schema": "public"
+    }
+  },
+  "server": {
+    "database": "postgres",
+    "schema": "public",
+    "version": "17.6",
+    "recovery": false
+  },
+  "readOnlyProcedure": "BEGIN TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY; SELECT-only preflight; ROLLBACK on checksum stop",
+  "firstComparison": {
+    "order": "started_at,migration_name",
+    "count": 47,
+    "mismatchNames": [
+      "20260821181621_added_better_auth_orgnizations_support",
+      "20260821185304_link_lab_to_organization",
+      "20260821200152_link_labstaff_to_member",
+      "20260821213743_add_labstaff_invitation_intent"
+    ]
+  },
+  "secondComparison": {
+    "order": "migration_name",
+    "count": 47,
+    "latest": "20260907211306_add_file_upload_grants",
+    "mismatchNames": [
+      "20260821181621_added_better_auth_orgnizations_support",
+      "20260821185304_link_lab_to_organization",
+      "20260821200152_link_labstaff_to_member",
+      "20260821213743_add_labstaff_invitation_intent"
+    ]
+  },
+  "migrations": [
+    {
+      "migration": "20260318195023_init",
+      "repositorySha256": "b452dad776dc324d85c1d5d06d11872a0ccb97fd0beb960011ffb2da953d140e",
+      "appliedSha256": "b452dad776dc324d85c1d5d06d11872a0ccb97fd0beb960011ffb2da953d140e",
+      "match": true,
+      "finished": true,
+      "rolledBack": false
+    },
+    {
+      "migration": "20260319200208_added_auth_models",
+      "repositorySha256": "b8918a5b9692474f044cd9dcfc0150a9af53baf322cfbb08cdd5f19ad238ccf1",
+      "appliedSha256": "b8918a5b9692474f044cd9dcfc0150a9af53baf322cfbb08cdd5f19ad238ccf1",
+      "match": true,
+      "finished": true,
+      "rolledBack": false
+    },
+    {
+      "migration": "20260319201730_added_missing_fields_to_lab",
+      "repositorySha256": "f449698692506d1b62cec8fdddaf9bfe82dfa49e2fac62b02028ba0207adf129",
+      "appliedSha256": "f449698692506d1b62cec8fdddaf9bfe82dfa49e2fac62b02028ba0207adf129",
+      "match": true,
+      "finished": true,
+      "rolledBack": false
+    },
+    {
+      "migration": "20260321134628_made_email_as_optional_for_super_and_lab_user",
+      "repositorySha256": "a9365f6e8d12c4697da7762546eb4b426c2a61cedcf01c406877e99374681d4f",
+      "appliedSha256": "a9365f6e8d12c4697da7762546eb4b426c2a61cedcf01c406877e99374681d4f",
+      "match": true,
+      "finished": true,
+      "rolledBack": false
+    },
+    {
+      "migration": "20260322145850_updated_auth_user_to_have_lab_id_instead_of_session",
+      "repositorySha256": "54d1869857dcbb2c84f62f1035bcc5c314f2f119a0923a4faa48ccd613899657",
+      "appliedSha256": "54d1869857dcbb2c84f62f1035bcc5c314f2f119a0923a4faa48ccd613899657",
+      "match": true,
+      "finished": true,
+      "rolledBack": false
+    },
+    {
+      "migration": "20260323164729_changed_category_and_case_from_many_to_many_into_one_to_many",
+      "repositorySha256": "b057739743d3480f929d5d314c796af17beb9298e0ede47a5efec56c709465cf",
+      "appliedSha256": "b057739743d3480f929d5d314c796af17beb9298e0ede47a5efec56c709465cf",
+      "match": true,
+      "finished": true,
+      "rolledBack": false
+    },
+    {
+      "migration": "20260325185403_added_draft_status_for_case_to_allow_storing_it_like_a_draft",
+      "repositorySha256": "5e9aa3673454b5f91746134d3fca90ef0a54807ae293c65a40081e5ffd586d11",
+      "appliedSha256": "5e9aa3673454b5f91746134d3fca90ef0a54807ae293c65a40081e5ffd586d11",
+      "match": true,
+      "finished": true,
+      "rolledBack": false
+    },
+    {
+      "migration": "20260326141508_made_grand_total_and_patient_fields_nullable",
+      "repositorySha256": "b9eca43ff366d6b773853917638def61db70fde09e7be7f40fb63405227aca27",
+      "appliedSha256": "b9eca43ff366d6b773853917638def61db70fde09e7be7f40fb63405227aca27",
+      "match": true,
+      "finished": true,
+      "rolledBack": false
+    },
+    {
+      "migration": "20260326192935_changed_case_into_dental_case_for_some_columns",
+      "repositorySha256": "4650d7c65da670db1ca1cd7f0d639aedc9b6d8e2899dd713cc4d0ac1f569f472",
+      "appliedSha256": "4650d7c65da670db1ca1cd7f0d639aedc9b6d8e2899dd713cc4d0ac1f569f472",
+      "match": true,
+      "finished": true,
+      "rolledBack": false
+    },
+    {
+      "migration": "20260327162001_major_change_by_adding_dentist_and_made_optional_fields_and_added_enums",
+      "repositorySha256": "5f8a45ffb1733a64d82c0c9cbf4c856f0ec07844d378c34d44a10e53afda9748",
+      "appliedSha256": "5f8a45ffb1733a64d82c0c9cbf4c856f0ec07844d378c34d44a10e53afda9748",
+      "match": true,
+      "finished": true,
+      "rolledBack": false
+    },
+    {
+      "migration": "20260327162249_added_owner_for_labuser",
+      "repositorySha256": "d02a748c5cca504750f7e9e3143f3b270109b42699a8e13d18cdb99f16380546",
+      "appliedSha256": "d02a748c5cca504750f7e9e3143f3b270109b42699a8e13d18cdb99f16380546",
+      "match": true,
+      "finished": true,
+      "rolledBack": false
+    },
+    {
+      "migration": "20260328190521_added_require_teeth_and_link_between_case_work_item_and_worktype",
+      "repositorySha256": "cc02fcc9724ea27040b89dc9c4b2cc8e08dd6913b54ee0fa8c693130775555f7",
+      "appliedSha256": "cc02fcc9724ea27040b89dc9c4b2cc8e08dd6913b54ee0fa8c693130775555f7",
+      "match": true,
+      "finished": true,
+      "rolledBack": false
+    },
+    {
+      "migration": "20260330172233_added_toothprice_and_changed_the_name_of_bulk_price_threshold",
+      "repositorySha256": "27caaea100750899b9a9fe889249479068395ae3e115f7d64ca8bf9a5f125f40",
+      "appliedSha256": "27caaea100750899b9a9fe889249479068395ae3e115f7d64ca8bf9a5f125f40",
+      "match": true,
+      "finished": true,
+      "rolledBack": false
+    },
+    {
+      "migration": "20260330172801_modified_the_name_of_teeth_count_to_apply_bulk_price",
+      "repositorySha256": "56d58c4813d4cfb1bf650ed6a12255e8d7364306b6e6c77e8a90df60f1e7d1d7",
+      "appliedSha256": "56d58c4813d4cfb1bf650ed6a12255e8d7364306b6e6c77e8a90df60f1e7d1d7",
+      "match": true,
+      "finished": true,
+      "rolledBack": false
+    },
+    {
+      "migration": "20260331185254_changed_teeth_count_to_apply_bulk_price_to_be_lower_case",
+      "repositorySha256": "fd2ad98e4548dc0d757c9c1b9ef1e6dd3ab554077f4010ea7b8d3e89dc13722b",
+      "appliedSha256": "fd2ad98e4548dc0d757c9c1b9ef1e6dd3ab554077f4010ea7b8d3e89dc13722b",
+      "match": true,
+      "finished": true,
+      "rolledBack": false
+    },
+    {
+      "migration": "20260403152809_added_file_extension_for_case_assets",
+      "repositorySha256": "3ba088835fed905e607029a72a9a8667e0c9383e9765addd71ad94ad0c868e13",
+      "appliedSha256": "3ba088835fed905e607029a72a9a8667e0c9383e9765addd71ad94ad0c868e13",
+      "match": true,
+      "finished": true,
+      "rolledBack": false
+    },
+    {
+      "migration": "20260405143136_removed_technicans_and_sales_rep_and_replaced_with_lab_staff",
+      "repositorySha256": "04c624373fb141f48b94560c9a28e9de1fa95508469037e65b91d8b776d75e0e",
+      "appliedSha256": "04c624373fb141f48b94560c9a28e9de1fa95508469037e65b91d8b776d75e0e",
+      "match": true,
+      "finished": true,
+      "rolledBack": false
+    },
+    {
+      "migration": "20260405172144_created_role_categories_for_lab_staff_in_addition_to_job_title_for_easier_fetching_and_filtering",
+      "repositorySha256": "ceed314d9469fedacf08374179e1a73f25bd5f4e8e5efc220143d252fd6abbf3",
+      "appliedSha256": "ceed314d9469fedacf08374179e1a73f25bd5f4e8e5efc220143d252fd6abbf3",
+      "match": true,
+      "finished": true,
+      "rolledBack": false
+    },
+    {
+      "migration": "20260411130306_added_notes_for_case_and_case_items_and_added_shading_info_for_case_work_items",
+      "repositorySha256": "06307c391d83b54416e887c9d2f3844ea9f867ef3848b62239ecd13676296043",
+      "appliedSha256": "06307c391d83b54416e887c9d2f3844ea9f867ef3848b62239ecd13676296043",
+      "match": true,
+      "finished": true,
+      "rolledBack": false
+    },
+    {
+      "migration": "20260412144146_added_next_case_number_for_lab_and_made_deadline_and_grand_total_as_optional_for_case",
+      "repositorySha256": "6d75b3f549b6af2996fe055a692917ad2a08a497ec940452ef9bb9a8787a5689",
+      "appliedSha256": "6d75b3f549b6af2996fe055a692917ad2a08a497ec940452ef9bb9a8787a5689",
+      "match": true,
+      "finished": true,
+      "rolledBack": false
+    },
+    {
+      "migration": "20260419112010_add_operational_indexes",
+      "repositorySha256": "5a5c7014e2aa3b0eefa9e84e857aeb2ad633b8ad2499699788b967e810dcb217",
+      "appliedSha256": "5a5c7014e2aa3b0eefa9e84e857aeb2ad633b8ad2499699788b967e810dcb217",
+      "match": true,
+      "finished": true,
+      "rolledBack": false
+    },
+    {
+      "migration": "20260420125303_added_case_activity_log",
+      "repositorySha256": "dfc5cb77b2196aab733ecc370000b6b85f37356bfa8201e848a31a8194e6c89a",
+      "appliedSha256": "dfc5cb77b2196aab733ecc370000b6b85f37356bfa8201e848a31a8194e6c89a",
+      "match": true,
+      "finished": true,
+      "rolledBack": false
+    },
+    {
+      "migration": "20260420210355_added_case_updated_to_case_activity_type",
+      "repositorySha256": "65abf897b7482912df1eb6f9f49beef62bf5a0bba47d22375606245f214fd7eb",
+      "appliedSha256": "65abf897b7482912df1eb6f9f49beef62bf5a0bba47d22375606245f214fd7eb",
+      "match": true,
+      "finished": true,
+      "rolledBack": false
+    },
+    {
+      "migration": "20260423155240_connected_lab_staff_and_lab_user_to_distinct_physical_from_auth_users",
+      "repositorySha256": "8da9f67e9ff95c4a6b144c48e2d3ba7da6044dc3e5730384f3809fe5a27bfbbe",
+      "appliedSha256": "8da9f67e9ff95c4a6b144c48e2d3ba7da6044dc3e5730384f3809fe5a27bfbbe",
+      "match": true,
+      "finished": true,
+      "rolledBack": false
+    },
+    {
+      "migration": "20260424192453_added_case_pricing_recalculated_to_case_activity_type",
+      "repositorySha256": "027aeaad8d934ae6ac17e69d39b41cc6b4f59500951c1e265d5f30c9f873804c",
+      "appliedSha256": "027aeaad8d934ae6ac17e69d39b41cc6b4f59500951c1e265d5f30c9f873804c",
+      "match": true,
+      "finished": true,
+      "rolledBack": false
+    },
+    {
+      "migration": "20260429144526_added_is_paid_to_case",
+      "repositorySha256": "d0a837f677f3789c7c6f017cbdeebd7a41c0dbb3671b78bba2eeb0d9209ad50d",
+      "appliedSha256": "d0a837f677f3789c7c6f017cbdeebd7a41c0dbb3671b78bba2eeb0d9209ad50d",
+      "match": true,
+      "finished": true,
+      "rolledBack": false
+    },
+    {
+      "migration": "20260429183720_added_invoicing_models",
+      "repositorySha256": "1ed1cd47729b7ea8d0ec6bb4b1b3ef7593bb827c299f0eac7c742ca6720d7a18",
+      "appliedSha256": "1ed1cd47729b7ea8d0ec6bb4b1b3ef7593bb827c299f0eac7c742ca6720d7a18",
+      "match": true,
+      "finished": true,
+      "rolledBack": false
+    },
+    {
+      "migration": "20260506134904_added_tracking_fields_to_case_like_remake_and_fault_reason",
+      "repositorySha256": "17661b711366b3505df08a89fc7a872ad2681471355e1dbdf8abf0aa0981719b",
+      "appliedSha256": "17661b711366b3505df08a89fc7a872ad2681471355e1dbdf8abf0aa0981719b",
+      "match": true,
+      "finished": true,
+      "rolledBack": false
+    },
+    {
+      "migration": "20260509151346_added_is_active_field_to_the_dentist_model",
+      "repositorySha256": "70d28c5856edc666038f2bbb54ffeb23cf2e10fac44502086bf08f1017afc455",
+      "appliedSha256": "70d28c5856edc666038f2bbb54ffeb23cf2e10fac44502086bf08f1017afc455",
+      "match": true,
+      "finished": true,
+      "rolledBack": false
+    },
+    {
+      "migration": "20260509151959_added_speciality_and_license_number_fields_to_dentist",
+      "repositorySha256": "0f918f1f290e9ff1cefb01eee683a1089bb3ffe56a30d96600afe31b3b5a2179",
+      "appliedSha256": "0f918f1f290e9ff1cefb01eee683a1089bb3ffe56a30d96600afe31b3b5a2179",
+      "match": true,
+      "finished": true,
+      "rolledBack": false
+    },
+    {
+      "migration": "20260522152323_added_discount_reason_to_invoice",
+      "repositorySha256": "1a818f39025dc29eac429047819dd00b18ca6a1158330d713cf9b1e0c5d0ffdc",
+      "appliedSha256": "1a818f39025dc29eac429047819dd00b18ca6a1158330d713cf9b1e0c5d0ffdc",
+      "match": true,
+      "finished": true,
+      "rolledBack": false
+    },
+    {
+      "migration": "20260527150254_added_lab_id_to_invoice_case",
+      "repositorySha256": "4c70b4fee87cdb6e530f75194da9e34bf30389248c62771ec6726996a0ce0781",
+      "appliedSha256": "4c70b4fee87cdb6e530f75194da9e34bf30389248c62771ec6726996a0ce0781",
+      "match": true,
+      "finished": true,
+      "rolledBack": false
+    },
+    {
+      "migration": "20260528145742_created_lab_invitation_model",
+      "repositorySha256": "cb9f9c4476fd6161832b9c900c899d6232f6e405836315576d20849bdbe1945b",
+      "appliedSha256": "cb9f9c4476fd6161832b9c900c899d6232f6e405836315576d20849bdbe1945b",
+      "match": true,
+      "finished": true,
+      "rolledBack": false
+    },
+    {
+      "migration": "20260601125308_added_working_days_to_lab_staff",
+      "repositorySha256": "cfbc62abd54f18148c5aefe2954139fae58677d34941b83580e1160c5477a2ee",
+      "appliedSha256": "cfbc62abd54f18148c5aefe2954139fae58677d34941b83580e1160c5477a2ee",
+      "match": true,
+      "finished": true,
+      "rolledBack": false
+    },
+    {
+      "migration": "20260601161520_added_staff_payout",
+      "repositorySha256": "59345425a328098beac1f2598ebade96f5c35a0b3268dd7fc35c4555812d1cc3",
+      "appliedSha256": "59345425a328098beac1f2598ebade96f5c35a0b3268dd7fc35c4555812d1cc3",
+      "match": true,
+      "finished": true,
+      "rolledBack": false
+    },
+    {
+      "migration": "20260601161730_added_next_payout_number_to_lab",
+      "repositorySha256": "c68434322f78814147650a339e5919f9dab98916d64c46197da7d10fff3a0615",
+      "appliedSha256": "c68434322f78814147650a339e5919f9dab98916d64c46197da7d10fff3a0615",
+      "match": true,
+      "finished": true,
+      "rolledBack": false
+    },
+    {
+      "migration": "20260604124431_added_is_active_to_work_models",
+      "repositorySha256": "a75c854ac699239c088e5d15720ca1a9cb46842e27787dc27a70592a750f97b7",
+      "appliedSha256": "a75c854ac699239c088e5d15720ca1a9cb46842e27787dc27a70592a750f97b7",
+      "match": true,
+      "finished": true,
+      "rolledBack": false
+    },
+    {
+      "migration": "20260604131516_added_is_archived_to_work_models_and_new_addon_model",
+      "repositorySha256": "5a0486080fe6c4610b6d64b1e6488f19bad4f0c19581d1bacdf3fec40e0f379a",
+      "appliedSha256": "5a0486080fe6c4610b6d64b1e6488f19bad4f0c19581d1bacdf3fec40e0f379a",
+      "match": true,
+      "finished": true,
+      "rolledBack": false
+    },
+    {
+      "migration": "20260605150101_added_lab_settings_model_remake_related_columns_to_case",
+      "repositorySha256": "2571d1a9b983aea005d866911e3513570eba07539a4c50ef8e02b66c4a14d049",
+      "appliedSha256": "2571d1a9b983aea005d866911e3513570eba07539a4c50ef8e02b66c4a14d049",
+      "match": true,
+      "finished": true,
+      "rolledBack": false
+    },
+    {
+      "migration": "20260611150027_added_set_null_instead_of_cascade_on_case_pricing_plans",
+      "repositorySha256": "ae40e2f8dfcbe8f6697ac96d75c9d066e32546021563a31d08d8faebbfd79d8b",
+      "appliedSha256": "ae40e2f8dfcbe8f6697ac96d75c9d066e32546021563a31d08d8faebbfd79d8b",
+      "match": true,
+      "finished": true,
+      "rolledBack": false
+    },
+    {
+      "migration": "20260617164353_removed_is_active_col_from_case_category",
+      "repositorySha256": "156579372d1165cc9cff811b1fffd2d43ec895d547995bda6e56f46c4c6bb3ae",
+      "appliedSha256": "156579372d1165cc9cff811b1fffd2d43ec895d547995bda6e56f46c4c6bb3ae",
+      "match": true,
+      "finished": true,
+      "rolledBack": false
+    },
+    {
+      "migration": "20260821181621_added_better_auth_orgnizations_support",
+      "repositorySha256": "36ad8a7abc3d77044c50ca59e74c3eb419c48e910ee7396434b27c5b31d81a61",
+      "appliedSha256": "4c4fb9a199c19d90375322321ac15f6c6de82ca3795993234ee3a46661051cb4",
+      "match": false,
+      "finished": true,
+      "rolledBack": false
+    },
+    {
+      "migration": "20260821185304_link_lab_to_organization",
+      "repositorySha256": "2d488bab57d187813a4a2acd592ac3fc814b1f9610440d447333b0126f222e70",
+      "appliedSha256": "8a330bd7b835b448b9480616ab80099fb0e2ea1c1cd16d1eebe5900dac83a917",
+      "match": false,
+      "finished": true,
+      "rolledBack": false
+    },
+    {
+      "migration": "20260821200152_link_labstaff_to_member",
+      "repositorySha256": "30ef4ee39aaf7dce175970343781456cc0c0e59680d48b74ac224d615f71ff7b",
+      "appliedSha256": "d4e9b9547912533e4f5418f9a3e99c42447a4fb85587a58de2e2ccedb0f7508e",
+      "match": false,
+      "finished": true,
+      "rolledBack": false
+    },
+    {
+      "migration": "20260821213743_add_labstaff_invitation_intent",
+      "repositorySha256": "93517915303922e962f364bf0883d726bb4b6c0e0b3999f20b919e4525757b86",
+      "appliedSha256": "906736a1bbfd2f912c5ddd84d0123720602f56998f7986fda385f952b5810d2d",
+      "match": false,
+      "finished": true,
+      "rolledBack": false
+    },
+    {
+      "migration": "20260904003000_add_file_upload_grants",
+      "repositorySha256": "022723891fbbeca2d9792629f0949adabdb7012b8f11236cf4e04c57ecda037e",
+      "appliedSha256": "022723891fbbeca2d9792629f0949adabdb7012b8f11236cf4e04c57ecda037e",
+      "match": true,
+      "finished": true,
+      "rolledBack": false
+    },
+    {
+      "migration": "20260907211306_add_file_upload_grants",
+      "repositorySha256": "43757e9242cece72fbf112724342ddb856f7d66c60f23d5bde6d7f00ef8bc86b",
+      "appliedSha256": "43757e9242cece72fbf112724342ddb856f7d66c60f23d5bde6d7f00ef8bc86b",
+      "match": true,
+      "finished": true,
+      "rolledBack": false
+    }
+  ]
+}

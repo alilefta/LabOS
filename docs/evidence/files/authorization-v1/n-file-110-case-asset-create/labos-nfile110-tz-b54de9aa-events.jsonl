@@ -1,0 +1,3 @@
+{"run":"labos-nfile110-tz-b54de9aa","name":"source_hashes","status":"PASS","preC2":47,"c2":"92c6a5d2fa3bf0f22987be5461370116dc87de9a3ec5ba3ea304cc299c8b5b80","candidate":"e1892370c147a05eabdd3a8a77e0b30030e0732375e7314eca8e88d657b6a17b"}
+{"run":"labos-nfile110-tz-b54de9aa","name":"run_failure","status":"FAIL","error":"docker version failed: WARNING: Error loading config file: open C:\\Users\\alnaseem\\.docker\\config.json: Access is denied.\npermission denied while trying to connect to the docker API at npipe:////./pipe/docker_engine\n"}
+{"run":"labos-nfile110-tz-b54de9aa","name":"exact_cleanup","status":"PASS","containerAbsent":true,"volumeAbsent":true,"tempAbsent":true}

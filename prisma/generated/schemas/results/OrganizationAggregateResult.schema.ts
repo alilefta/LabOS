@@ -9,7 +9,9 @@ export const OrganizationAggregateResultSchema = z.object({  _count: z.object({
     members: z.number(),
     invitations: z.number(),
     lab: z.number(),
-    fileUploadGrants: z.number()
+    fileUploadGrants: z.number(),
+    storedFiles: z.number(),
+    clinicalUploadEvidence: z.number()
   }).optional(),
   _min: z.object({
     id: z.string().nullable(),

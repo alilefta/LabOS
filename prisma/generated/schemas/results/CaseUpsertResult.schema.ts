@@ -22,6 +22,7 @@ export const CaseUpsertResultSchema = z.object({
   staffAssignments: z.array(z.unknown()),
   caseActivityLogs: z.array(z.unknown()),
   caseAssetFiles: z.array(z.unknown()),
+  clinicalUploadEvidence: z.array(z.unknown()),
   deadline: z.date().optional(),
   createdAt: z.date(),
   updatedAt: z.date(),

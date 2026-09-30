@@ -4,6 +4,8 @@ import { MemberFindManySchema as MemberFindManySchema } from '../findManyMember.
 import { InvitationFindManySchema as InvitationFindManySchema } from '../findManyInvitation.schema';
 import { LabArgsObjectSchema as LabArgsObjectSchema } from './LabArgs.schema';
 import { FileUploadGrantFindManySchema as FileUploadGrantFindManySchema } from '../findManyFileUploadGrant.schema';
+import { StoredFileFindManySchema as StoredFileFindManySchema } from '../findManyStoredFile.schema';
+import { CaseClinicalUploadEvidenceFindManySchema as CaseClinicalUploadEvidenceFindManySchema } from '../findManyCaseClinicalUploadEvidence.schema';
 import { OrganizationCountOutputTypeArgsObjectSchema as OrganizationCountOutputTypeArgsObjectSchema } from './OrganizationCountOutputTypeArgs.schema'
 
 const makeSchema = () => z.object({
@@ -17,6 +19,8 @@ const makeSchema = () => z.object({
   invitations: z.union([z.boolean(), z.lazy(() => InvitationFindManySchema)]).optional(),
   lab: z.union([z.boolean(), z.lazy(() => LabArgsObjectSchema)]).optional(),
   fileUploadGrants: z.union([z.boolean(), z.lazy(() => FileUploadGrantFindManySchema)]).optional(),
+  storedFiles: z.union([z.boolean(), z.lazy(() => StoredFileFindManySchema)]).optional(),
+  clinicalUploadEvidence: z.union([z.boolean(), z.lazy(() => CaseClinicalUploadEvidenceFindManySchema)]).optional(),
   _count: z.union([z.boolean(), z.lazy(() => OrganizationCountOutputTypeArgsObjectSchema)]).optional()
 }).strict();
 export const OrganizationSelectObjectSchema: z.ZodType<Prisma.OrganizationSelect> = makeSchema() as unknown as z.ZodType<Prisma.OrganizationSelect>;

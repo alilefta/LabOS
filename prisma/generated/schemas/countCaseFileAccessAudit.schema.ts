@@ -1,0 +1,10 @@
+import type { Prisma } from '../../../generated/prisma/client';
+import * as z from 'zod';
+import { CaseFileAccessAuditOrderByWithRelationInputObjectSchema as CaseFileAccessAuditOrderByWithRelationInputObjectSchema } from './objects/CaseFileAccessAuditOrderByWithRelationInput.schema';
+import { CaseFileAccessAuditWhereInputObjectSchema as CaseFileAccessAuditWhereInputObjectSchema } from './objects/CaseFileAccessAuditWhereInput.schema';
+import { CaseFileAccessAuditWhereUniqueInputObjectSchema as CaseFileAccessAuditWhereUniqueInputObjectSchema } from './objects/CaseFileAccessAuditWhereUniqueInput.schema';
+import { CaseFileAccessAuditCountAggregateInputObjectSchema as CaseFileAccessAuditCountAggregateInputObjectSchema } from './objects/CaseFileAccessAuditCountAggregateInput.schema';
+
+export const CaseFileAccessAuditCountSchema: z.ZodType<Prisma.CaseFileAccessAuditCountArgs> = z.object({ orderBy: z.union([CaseFileAccessAuditOrderByWithRelationInputObjectSchema, CaseFileAccessAuditOrderByWithRelationInputObjectSchema.array()]).optional(), where: CaseFileAccessAuditWhereInputObjectSchema.optional(), cursor: CaseFileAccessAuditWhereUniqueInputObjectSchema.optional(), take: z.number().optional(), skip: z.number().optional(), select: z.union([ z.literal(true), CaseFileAccessAuditCountAggregateInputObjectSchema ]).optional() }).strict() as unknown as z.ZodType<Prisma.CaseFileAccessAuditCountArgs>;
+
+export const CaseFileAccessAuditCountZodSchema = z.object({ orderBy: z.union([CaseFileAccessAuditOrderByWithRelationInputObjectSchema, CaseFileAccessAuditOrderByWithRelationInputObjectSchema.array()]).optional(), where: CaseFileAccessAuditWhereInputObjectSchema.optional(), cursor: CaseFileAccessAuditWhereUniqueInputObjectSchema.optional(), take: z.number().optional(), skip: z.number().optional(), select: z.union([ z.literal(true), CaseFileAccessAuditCountAggregateInputObjectSchema ]).optional() }).strict();

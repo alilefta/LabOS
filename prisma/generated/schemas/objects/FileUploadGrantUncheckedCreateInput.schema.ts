@@ -1,6 +1,9 @@
 import * as z from 'zod';
 import type { Prisma } from '../../../../generated/prisma/client';
-import { FileUploadGrantStatusSchema } from '../enums/FileUploadGrantStatus.schema'
+import { FileUploadGrantStatusSchema } from '../enums/FileUploadGrantStatus.schema';
+import { StoredFileProviderSchema } from '../enums/StoredFileProvider.schema';
+import { StoredFileUncheckedCreateNestedOneWithoutSourceGrantInputObjectSchema as StoredFileUncheckedCreateNestedOneWithoutSourceGrantInputObjectSchema } from './StoredFileUncheckedCreateNestedOneWithoutSourceGrantInput.schema';
+import { CaseClinicalUploadEvidenceUncheckedCreateNestedOneWithoutUploadGrantInputObjectSchema as CaseClinicalUploadEvidenceUncheckedCreateNestedOneWithoutUploadGrantInputObjectSchema } from './CaseClinicalUploadEvidenceUncheckedCreateNestedOneWithoutUploadGrantInput.schema'
 
 const makeSchema = () => z.object({
   id: z.string().optional(),
@@ -12,6 +15,7 @@ const makeSchema = () => z.object({
   targetType: z.string().optional().nullable(),
   targetId: z.string().optional().nullable(),
   status: FileUploadGrantStatusSchema.optional(),
+  provider: StoredFileProviderSchema.optional().nullable(),
   providerFileKey: z.string().optional().nullable(),
   providerFileUrl: z.string().optional().nullable(),
   correlationId: z.string(),
@@ -25,7 +29,9 @@ const makeSchema = () => z.object({
   cleanupAttemptCount: z.number().int().optional(),
   lastCleanupAttemptAt: z.coerce.date().optional().nullable(),
   cleanupFailureCode: z.string().optional().nullable(),
-  createdAt: z.coerce.date().optional()
+  createdAt: z.coerce.date().optional(),
+  storedFile: z.lazy(() => StoredFileUncheckedCreateNestedOneWithoutSourceGrantInputObjectSchema).optional(),
+  clinicalUploadEvidence: z.lazy(() => CaseClinicalUploadEvidenceUncheckedCreateNestedOneWithoutUploadGrantInputObjectSchema).optional()
 }).strict();
 export const FileUploadGrantUncheckedCreateInputObjectSchema: z.ZodType<Prisma.FileUploadGrantUncheckedCreateInput> = makeSchema() as unknown as z.ZodType<Prisma.FileUploadGrantUncheckedCreateInput>;
 export const FileUploadGrantUncheckedCreateInputObjectZodSchema = makeSchema();

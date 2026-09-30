@@ -20,8 +20,14 @@ export const CaseAssetFileFindManySelectSchema: z.ZodType<Prisma.CaseAssetFileSe
     fileExtension: z.boolean().optional(),
     labId: z.boolean().optional(),
     lab: z.boolean().optional(),
+    storageMode: z.boolean().optional(),
+    clinicalPurpose: z.boolean().optional(),
+    currentVersionId: z.boolean().optional(),
+    versions: z.boolean().optional(),
+    currentVersion: z.boolean().optional(),
     createdAt: z.boolean().optional(),
-    updatedAt: z.boolean().optional()
+    updatedAt: z.boolean().optional(),
+    _count: z.boolean().optional()
   }).strict() as unknown as z.ZodType<Prisma.CaseAssetFileSelect>;
 
 export const CaseAssetFileFindManySelectZodSchema = z.object({
@@ -35,8 +41,14 @@ export const CaseAssetFileFindManySelectZodSchema = z.object({
     fileExtension: z.boolean().optional(),
     labId: z.boolean().optional(),
     lab: z.boolean().optional(),
+    storageMode: z.boolean().optional(),
+    clinicalPurpose: z.boolean().optional(),
+    currentVersionId: z.boolean().optional(),
+    versions: z.boolean().optional(),
+    currentVersion: z.boolean().optional(),
     createdAt: z.boolean().optional(),
-    updatedAt: z.boolean().optional()
+    updatedAt: z.boolean().optional(),
+    _count: z.boolean().optional()
   }).strict();
 
 export const CaseAssetFileFindManySchema: z.ZodType<Prisma.CaseAssetFileFindManyArgs> = z.object({ select: CaseAssetFileFindManySelectSchema.optional(), include: z.lazy(() => CaseAssetFileIncludeObjectSchema.optional()), orderBy: z.union([CaseAssetFileOrderByWithRelationInputObjectSchema, CaseAssetFileOrderByWithRelationInputObjectSchema.array()]).optional(), where: CaseAssetFileWhereInputObjectSchema.optional(), cursor: CaseAssetFileWhereUniqueInputObjectSchema.optional(), take: z.number().optional(), skip: z.number().optional(), distinct: z.union([CaseAssetFileScalarFieldEnumSchema, CaseAssetFileScalarFieldEnumSchema.array()]).optional() }).strict() as unknown as z.ZodType<Prisma.CaseAssetFileFindManyArgs>;

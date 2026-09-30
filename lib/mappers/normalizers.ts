@@ -40,7 +40,7 @@ import { CaseCategoryBase } from '@/schema/base/case-category.base'
 import { SelectedToothBase } from '@/schema/base/selected-tooth.base'
 import { LabBase } from '@/schema/base/lab.base'
 import { WorktypeBase } from '@/schema/base/worktype.base'
-import { CaseAssetFileBase } from '@/schema/base/case-asset-file.base'
+import { CaseAssetSummary } from '@/schema/composed/case-asset-file.details'
 import { CaseActivityLogBase } from '@/schema/base/case-activity-logs.base'
 import {
 	CaseActivityLogDetailsUI,
@@ -216,7 +216,30 @@ export const normalizeCaseCategory = (
 ): CaseCategoryBase => raw as CaseCategoryBase
 export const normalizeAssetFile = (
 	raw: CaseAssetFileModel,
-): CaseAssetFileBase => raw as CaseAssetFileBase
+): CaseAssetSummary => {
+	const clinicalMetadata = {
+		id: raw.id,
+		title: raw.title,
+		description: raw.description,
+		assetFileType: raw.assetFileType,
+	}
+	if (raw.storageMode === 'MANAGED_PRIVATE') {
+		return { ...clinicalMetadata, storageMode: 'MANAGED_PRIVATE' }
+	}
+	if (raw.storageMode === 'LEGACY_URL_UNVERIFIED' && raw.documentUrl?.trim() && raw.fileExtension?.trim()) {
+		return {
+			...clinicalMetadata,
+			dentalCaseId: raw.dentalCaseId,
+			labId: raw.labId,
+			createdAt: raw.createdAt,
+			updatedAt: raw.updatedAt,
+			storageMode: 'LEGACY_URL_UNVERIFIED',
+			documentUrl: raw.documentUrl,
+			fileExtension: raw.fileExtension,
+		}
+	}
+	throw new Error('Case asset cannot be projected')
+}
 export const normalizeSelectedTooth = (
 	raw: SelectedToothModel,
 ): SelectedToothBase => raw as SelectedToothBase

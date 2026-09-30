@@ -1,0 +1,197 @@
+{
+  "head": "9debd695f4065c65f7b5aa1cd7a118705850b5ad",
+  "historical": [
+    {
+      "name": "20260318195023_init",
+      "sha256": "b452dad776dc324d85c1d5d06d11872a0ccb97fd0beb960011ffb2da953d140e"
+    },
+    {
+      "name": "20260319200208_added_auth_models",
+      "sha256": "b8918a5b9692474f044cd9dcfc0150a9af53baf322cfbb08cdd5f19ad238ccf1"
+    },
+    {
+      "name": "20260319201730_added_missing_fields_to_lab",
+      "sha256": "f449698692506d1b62cec8fdddaf9bfe82dfa49e2fac62b02028ba0207adf129"
+    },
+    {
+      "name": "20260321134628_made_email_as_optional_for_super_and_lab_user",
+      "sha256": "a9365f6e8d12c4697da7762546eb4b426c2a61cedcf01c406877e99374681d4f"
+    },
+    {
+      "name": "20260322145850_updated_auth_user_to_have_lab_id_instead_of_session",
+      "sha256": "54d1869857dcbb2c84f62f1035bcc5c314f2f119a0923a4faa48ccd613899657"
+    },
+    {
+      "name": "20260323164729_changed_category_and_case_from_many_to_many_into_one_to_many",
+      "sha256": "b057739743d3480f929d5d314c796af17beb9298e0ede47a5efec56c709465cf"
+    },
+    {
+      "name": "20260325185403_added_draft_status_for_case_to_allow_storing_it_like_a_draft",
+      "sha256": "5e9aa3673454b5f91746134d3fca90ef0a54807ae293c65a40081e5ffd586d11"
+    },
+    {
+      "name": "20260326141508_made_grand_total_and_patient_fields_nullable",
+      "sha256": "b9eca43ff366d6b773853917638def61db70fde09e7be7f40fb63405227aca27"
+    },
+    {
+      "name": "20260326192935_changed_case_into_dental_case_for_some_columns",
+      "sha256": "4650d7c65da670db1ca1cd7f0d639aedc9b6d8e2899dd713cc4d0ac1f569f472"
+    },
+    {
+      "name": "20260327162001_major_change_by_adding_dentist_and_made_optional_fields_and_added_enums",
+      "sha256": "5f8a45ffb1733a64d82c0c9cbf4c856f0ec07844d378c34d44a10e53afda9748"
+    },
+    {
+      "name": "20260327162249_added_owner_for_labuser",
+      "sha256": "d02a748c5cca504750f7e9e3143f3b270109b42699a8e13d18cdb99f16380546"
+    },
+    {
+      "name": "20260328190521_added_require_teeth_and_link_between_case_work_item_and_worktype",
+      "sha256": "cc02fcc9724ea27040b89dc9c4b2cc8e08dd6913b54ee0fa8c693130775555f7"
+    },
+    {
+      "name": "20260330172233_added_toothprice_and_changed_the_name_of_bulk_price_threshold",
+      "sha256": "27caaea100750899b9a9fe889249479068395ae3e115f7d64ca8bf9a5f125f40"
+    },
+    {
+      "name": "20260330172801_modified_the_name_of_teeth_count_to_apply_bulk_price",
+      "sha256": "56d58c4813d4cfb1bf650ed6a12255e8d7364306b6e6c77e8a90df60f1e7d1d7"
+    },
+    {
+      "name": "20260331185254_changed_teeth_count_to_apply_bulk_price_to_be_lower_case",
+      "sha256": "fd2ad98e4548dc0d757c9c1b9ef1e6dd3ab554077f4010ea7b8d3e89dc13722b"
+    },
+    {
+      "name": "20260403152809_added_file_extension_for_case_assets",
+      "sha256": "3ba088835fed905e607029a72a9a8667e0c9383e9765addd71ad94ad0c868e13"
+    },
+    {
+      "name": "20260405143136_removed_technicans_and_sales_rep_and_replaced_with_lab_staff",
+      "sha256": "04c624373fb141f48b94560c9a28e9de1fa95508469037e65b91d8b776d75e0e"
+    },
+    {
+      "name": "20260405172144_created_role_categories_for_lab_staff_in_addition_to_job_title_for_easier_fetching_and_filtering",
+      "sha256": "ceed314d9469fedacf08374179e1a73f25bd5f4e8e5efc220143d252fd6abbf3"
+    },
+    {
+      "name": "20260411130306_added_notes_for_case_and_case_items_and_added_shading_info_for_case_work_items",
+      "sha256": "06307c391d83b54416e887c9d2f3844ea9f867ef3848b62239ecd13676296043"
+    },
+    {
+      "name": "20260412144146_added_next_case_number_for_lab_and_made_deadline_and_grand_total_as_optional_for_case",
+      "sha256": "6d75b3f549b6af2996fe055a692917ad2a08a497ec940452ef9bb9a8787a5689"
+    },
+    {
+      "name": "20260419112010_add_operational_indexes",
+      "sha256": "5a5c7014e2aa3b0eefa9e84e857aeb2ad633b8ad2499699788b967e810dcb217"
+    },
+    {
+      "name": "20260420125303_added_case_activity_log",
+      "sha256": "dfc5cb77b2196aab733ecc370000b6b85f37356bfa8201e848a31a8194e6c89a"
+    },
+    {
+      "name": "20260420210355_added_case_updated_to_case_activity_type",
+      "sha256": "65abf897b7482912df1eb6f9f49beef62bf5a0bba47d22375606245f214fd7eb"
+    },
+    {
+      "name": "20260423155240_connected_lab_staff_and_lab_user_to_distinct_physical_from_auth_users",
+      "sha256": "8da9f67e9ff95c4a6b144c48e2d3ba7da6044dc3e5730384f3809fe5a27bfbbe"
+    },
+    {
+      "name": "20260424192453_added_case_pricing_recalculated_to_case_activity_type",
+      "sha256": "027aeaad8d934ae6ac17e69d39b41cc6b4f59500951c1e265d5f30c9f873804c"
+    },
+    {
+      "name": "20260429144526_added_is_paid_to_case",
+      "sha256": "d0a837f677f3789c7c6f017cbdeebd7a41c0dbb3671b78bba2eeb0d9209ad50d"
+    },
+    {
+      "name": "20260429183720_added_invoicing_models",
+      "sha256": "1ed1cd47729b7ea8d0ec6bb4b1b3ef7593bb827c299f0eac7c742ca6720d7a18"
+    },
+    {
+      "name": "20260506134904_added_tracking_fields_to_case_like_remake_and_fault_reason",
+      "sha256": "17661b711366b3505df08a89fc7a872ad2681471355e1dbdf8abf0aa0981719b"
+    },
+    {
+      "name": "20260509151346_added_is_active_field_to_the_dentist_model",
+      "sha256": "70d28c5856edc666038f2bbb54ffeb23cf2e10fac44502086bf08f1017afc455"
+    },
+    {
+      "name": "20260509151959_added_speciality_and_license_number_fields_to_dentist",
+      "sha256": "0f918f1f290e9ff1cefb01eee683a1089bb3ffe56a30d96600afe31b3b5a2179"
+    },
+    {
+      "name": "20260522152323_added_discount_reason_to_invoice",
+      "sha256": "1a818f39025dc29eac429047819dd00b18ca6a1158330d713cf9b1e0c5d0ffdc"
+    },
+    {
+      "name": "20260527150254_added_lab_id_to_invoice_case",
+      "sha256": "4c70b4fee87cdb6e530f75194da9e34bf30389248c62771ec6726996a0ce0781"
+    },
+    {
+      "name": "20260528145742_created_lab_invitation_model",
+      "sha256": "cb9f9c4476fd6161832b9c900c899d6232f6e405836315576d20849bdbe1945b"
+    },
+    {
+      "name": "20260601125308_added_working_days_to_lab_staff",
+      "sha256": "cfbc62abd54f18148c5aefe2954139fae58677d34941b83580e1160c5477a2ee"
+    },
+    {
+      "name": "20260601161520_added_staff_payout",
+      "sha256": "59345425a328098beac1f2598ebade96f5c35a0b3268dd7fc35c4555812d1cc3"
+    },
+    {
+      "name": "20260601161730_added_next_payout_number_to_lab",
+      "sha256": "c68434322f78814147650a339e5919f9dab98916d64c46197da7d10fff3a0615"
+    },
+    {
+      "name": "20260604124431_added_is_active_to_work_models",
+      "sha256": "a75c854ac699239c088e5d15720ca1a9cb46842e27787dc27a70592a750f97b7"
+    },
+    {
+      "name": "20260604131516_added_is_archived_to_work_models_and_new_addon_model",
+      "sha256": "5a0486080fe6c4610b6d64b1e6488f19bad4f0c19581d1bacdf3fec40e0f379a"
+    },
+    {
+      "name": "20260605150101_added_lab_settings_model_remake_related_columns_to_case",
+      "sha256": "2571d1a9b983aea005d866911e3513570eba07539a4c50ef8e02b66c4a14d049"
+    },
+    {
+      "name": "20260611150027_added_set_null_instead_of_cascade_on_case_pricing_plans",
+      "sha256": "ae40e2f8dfcbe8f6697ac96d75c9d066e32546021563a31d08d8faebbfd79d8b"
+    },
+    {
+      "name": "20260617164353_removed_is_active_col_from_case_category",
+      "sha256": "156579372d1165cc9cff811b1fffd2d43ec895d547995bda6e56f46c4c6bb3ae"
+    },
+    {
+      "name": "20260821181621_added_better_auth_orgnizations_support",
+      "sha256": "4c4fb9a199c19d90375322321ac15f6c6de82ca3795993234ee3a46661051cb4"
+    },
+    {
+      "name": "20260821185304_link_lab_to_organization",
+      "sha256": "8a330bd7b835b448b9480616ab80099fb0e2ea1c1cd16d1eebe5900dac83a917"
+    },
+    {
+      "name": "20260821200152_link_labstaff_to_member",
+      "sha256": "d4e9b9547912533e4f5418f9a3e99c42447a4fb85587a58de2e2ccedb0f7508e"
+    },
+    {
+      "name": "20260821213743_add_labstaff_invitation_intent",
+      "sha256": "906736a1bbfd2f912c5ddd84d0123720602f56998f7986fda385f952b5810d2d"
+    },
+    {
+      "name": "20260904003000_add_file_upload_grants",
+      "sha256": "022723891fbbeca2d9792629f0949adabdb7012b8f11236cf4e04c57ecda037e"
+    },
+    {
+      "name": "20260907211306_add_file_upload_grants",
+      "sha256": "43757e9242cece72fbf112724342ddb856f7d66c60f23d5bde6d7f00ef8bc86b"
+    }
+  ],
+  "c2": "92c6a5d2fa3bf0f22987be5461370116dc87de9a3ec5ba3ea304cc299c8b5b80",
+  "candidate": "e1892370c147a05eabdd3a8a77e0b30030e0732375e7314eca8e88d657b6a17b",
+  "migrationLock": "99836963713b4f5b269ad49af0ed3d7b0b2e336115c2f92dc9ac683d139d0900",
+  "isolatedCheckout": "nfile110-lf-migration-run"
+}

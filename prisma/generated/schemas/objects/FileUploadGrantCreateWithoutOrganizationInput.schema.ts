@@ -1,8 +1,11 @@
 import * as z from 'zod';
 import type { Prisma } from '../../../../generated/prisma/client';
 import { FileUploadGrantStatusSchema } from '../enums/FileUploadGrantStatus.schema';
+import { StoredFileProviderSchema } from '../enums/StoredFileProvider.schema';
 import { LabCreateNestedOneWithoutFileUploadGrantsInputObjectSchema as LabCreateNestedOneWithoutFileUploadGrantsInputObjectSchema } from './LabCreateNestedOneWithoutFileUploadGrantsInput.schema';
-import { MemberCreateNestedOneWithoutFileUploadGrantsInputObjectSchema as MemberCreateNestedOneWithoutFileUploadGrantsInputObjectSchema } from './MemberCreateNestedOneWithoutFileUploadGrantsInput.schema'
+import { MemberCreateNestedOneWithoutFileUploadGrantsInputObjectSchema as MemberCreateNestedOneWithoutFileUploadGrantsInputObjectSchema } from './MemberCreateNestedOneWithoutFileUploadGrantsInput.schema';
+import { StoredFileCreateNestedOneWithoutSourceGrantInputObjectSchema as StoredFileCreateNestedOneWithoutSourceGrantInputObjectSchema } from './StoredFileCreateNestedOneWithoutSourceGrantInput.schema';
+import { CaseClinicalUploadEvidenceCreateNestedOneWithoutUploadGrantInputObjectSchema as CaseClinicalUploadEvidenceCreateNestedOneWithoutUploadGrantInputObjectSchema } from './CaseClinicalUploadEvidenceCreateNestedOneWithoutUploadGrantInput.schema'
 
 const makeSchema = () => z.object({
   id: z.string().optional(),
@@ -11,6 +14,7 @@ const makeSchema = () => z.object({
   targetType: z.string().optional().nullable(),
   targetId: z.string().optional().nullable(),
   status: FileUploadGrantStatusSchema.optional(),
+  provider: StoredFileProviderSchema.optional().nullable(),
   providerFileKey: z.string().optional().nullable(),
   providerFileUrl: z.string().optional().nullable(),
   correlationId: z.string(),
@@ -27,7 +31,9 @@ const makeSchema = () => z.object({
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
   lab: z.lazy(() => LabCreateNestedOneWithoutFileUploadGrantsInputObjectSchema),
-  createdByMember: z.lazy(() => MemberCreateNestedOneWithoutFileUploadGrantsInputObjectSchema).optional()
+  createdByMember: z.lazy(() => MemberCreateNestedOneWithoutFileUploadGrantsInputObjectSchema).optional(),
+  storedFile: z.lazy(() => StoredFileCreateNestedOneWithoutSourceGrantInputObjectSchema).optional(),
+  clinicalUploadEvidence: z.lazy(() => CaseClinicalUploadEvidenceCreateNestedOneWithoutUploadGrantInputObjectSchema).optional()
 }).strict();
 export const FileUploadGrantCreateWithoutOrganizationInputObjectSchema: z.ZodType<Prisma.FileUploadGrantCreateWithoutOrganizationInput> = makeSchema() as unknown as z.ZodType<Prisma.FileUploadGrantCreateWithoutOrganizationInput>;
 export const FileUploadGrantCreateWithoutOrganizationInputObjectZodSchema = makeSchema();

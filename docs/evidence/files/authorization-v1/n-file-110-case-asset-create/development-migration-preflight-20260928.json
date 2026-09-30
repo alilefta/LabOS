@@ -1,0 +1,69 @@
+{
+  "status": "PASS",
+  "target": {
+    "hostHash": "eb0d823953fe",
+    "port": 5432,
+    "database": "postgres",
+    "schema": "public",
+    "version": "170006",
+    "recovery": false
+  },
+  "migrations": {
+    "finished": 48,
+    "priorCanonicalLfMatches": 47,
+    "c2Hash": "92c6a5d2fa3bf0f22987be5461370116dc87de9a3ec5ba3ea304cc299c8b5b80",
+    "candidateHash": "e1892370c147a05eabdd3a8a77e0b30030e0732375e7314eca8e88d657b6a17b",
+    "next": "20260927130000_case_clinical_upload_evidence",
+    "sourceProvenance": {
+      "gitBlobMatches": 46,
+      "workingOnly": [
+        "20260405172144_created_role_categories_for_lab_staff_in_addition_to_job_title_for_easier_fetching_and_filtering"
+      ],
+      "crlfWorkingCopies": [
+        "20260821181621_added_better_auth_orgnizations_support",
+        "20260821185304_link_lab_to_organization",
+        "20260821200152_link_labstaff_to_member",
+        "20260821213743_add_labstaff_invitation_intent"
+      ]
+    }
+  },
+  "counts": {
+    "organization": 6,
+    "Lab": 6,
+    "Case": 2,
+    "CaseAssetFile": 0,
+    "FileUploadGrant": 2,
+    "StoredFile": 0,
+    "CaseAssetFileVersion": 0,
+    "CaseFileAccessAudit": 0
+  },
+  "integrity": {
+    "unlinkedLabs": 0,
+    "brokenLabOrg": 0,
+    "brokenCaseLab": 0,
+    "brokenAssetCaseLab": 0,
+    "managedAssets": 0,
+    "invalidLegacyAssets": 0,
+    "caseScopedGrants": 0,
+    "brokenGrantTenant": 0,
+    "missingEvidenceTable": 1,
+    "existingClinicalPurpose": 0,
+    "existingGrantProvider": 0
+  },
+  "grantStatuses": [
+    {
+      "status": "UPLOADED",
+      "count": 2
+    }
+  ],
+  "fingerprints": {
+    "organization": "0371421d6232811fa527f8d1b77f98eb",
+    "Lab": "08461a88c45a5e2d5c073f227ebc12c3",
+    "Case": "5c77d5099606166f1f05ce7308debabe",
+    "CaseAssetFile": "d41d8cd98f00b204e9800998ecf8427e",
+    "FileUploadGrant": "83b977a43b5b453bb44db1f72a5fa295",
+    "StoredFile": "d41d8cd98f00b204e9800998ecf8427e",
+    "CaseAssetFileVersion": "d41d8cd98f00b204e9800998ecf8427e",
+    "CaseFileAccessAudit": "d41d8cd98f00b204e9800998ecf8427e"
+  }
+}

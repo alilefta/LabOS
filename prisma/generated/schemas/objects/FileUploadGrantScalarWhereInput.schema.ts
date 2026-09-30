@@ -4,6 +4,8 @@ import { StringFilterObjectSchema as StringFilterObjectSchema } from './StringFi
 import { StringNullableFilterObjectSchema as StringNullableFilterObjectSchema } from './StringNullableFilter.schema';
 import { EnumFileUploadGrantStatusFilterObjectSchema as EnumFileUploadGrantStatusFilterObjectSchema } from './EnumFileUploadGrantStatusFilter.schema';
 import { FileUploadGrantStatusSchema } from '../enums/FileUploadGrantStatus.schema';
+import { EnumStoredFileProviderNullableFilterObjectSchema as EnumStoredFileProviderNullableFilterObjectSchema } from './EnumStoredFileProviderNullableFilter.schema';
+import { StoredFileProviderSchema } from '../enums/StoredFileProvider.schema';
 import { DateTimeFilterObjectSchema as DateTimeFilterObjectSchema } from './DateTimeFilter.schema';
 import { DateTimeNullableFilterObjectSchema as DateTimeNullableFilterObjectSchema } from './DateTimeNullableFilter.schema';
 import { IntFilterObjectSchema as IntFilterObjectSchema } from './IntFilter.schema'
@@ -21,6 +23,7 @@ const fileuploadgrantscalarwhereinputSchema = z.object({
   targetType: z.union([z.lazy(() => StringNullableFilterObjectSchema), z.string()]).optional().nullable(),
   targetId: z.union([z.lazy(() => StringNullableFilterObjectSchema), z.string()]).optional().nullable(),
   status: z.union([z.lazy(() => EnumFileUploadGrantStatusFilterObjectSchema), FileUploadGrantStatusSchema]).optional(),
+  provider: z.union([z.lazy(() => EnumStoredFileProviderNullableFilterObjectSchema), StoredFileProviderSchema]).optional().nullable(),
   providerFileKey: z.union([z.lazy(() => StringNullableFilterObjectSchema), z.string()]).optional().nullable(),
   providerFileUrl: z.union([z.lazy(() => StringNullableFilterObjectSchema), z.string()]).optional().nullable(),
   correlationId: z.union([z.lazy(() => StringFilterObjectSchema), z.string()]).optional(),

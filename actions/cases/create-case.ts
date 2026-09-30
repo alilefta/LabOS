@@ -3,6 +3,10 @@
 import { resolveActorName } from '@/data/activity-logs/build-activity-log'
 import { CaseActivityLogCreateManyDentalCaseInput } from '@/generated/prisma/models'
 import { ERRORS } from '@/lib/errors'
+import {
+	assertAssetBearingDraftPatientPreserved,
+	assertNoCaseAssetMutationRequested,
+} from '@/lib/case-asset-preservation'
 import { tenantPrisma } from '@/lib/prisma'
 import { actionClientWithLab } from '@/lib/safe-action'
 import {
@@ -20,6 +24,10 @@ import { revalidatePath } from 'next/cache'
 import z from 'zod/v3'
 import { createLabOSAuthorizationActor } from '@/modules/labos-authorization/actor'
 import { labosAuthorizationService } from '@/modules/labos-authorization/service'
+import {
+	authorizeCaseDetailRead,
+	CaseDetailReadAuthorizationError,
+} from '@/modules/labos-authorization/case-detail-read.authorization'
 
 export const createDentalCaseAction = actionClientWithLab
 	.metadata({
@@ -47,6 +55,7 @@ export const createDentalCaseAction = actionClientWithLab
 			permission: 'case.create',
 		})
 		if (!createDecision.allowed) throw ERRORS.MISSING_PERMISSIONS
+		assertNoCaseAssetMutationRequested(caseAssetFiles)
 
 		// !!!!!!!!!!!! creating a case from stored draft should be done through update not create!!!!!
 
@@ -345,23 +354,6 @@ export const createDentalCaseAction = actionClientWithLab
 			})
 		}
 
-		if (caseAssetFiles && caseAssetFiles.length > 0) {
-			caseAssetFiles.forEach((file) => {
-				genesisLogs.push({
-					labId,
-					actorId: labUser.id,
-					actorName,
-					type: 'FILE_UPLOADED',
-					summary: `Attached ${file.assetFileType}: ${file.title || 'Asset'}`,
-					payload: {
-						fileId: file.documentUrl, // Fallback if no specific file ID exists yet
-						fileName: file.title || 'Clinical Asset',
-						assetFileType: file.assetFileType,
-					},
-				})
-			})
-		}
-
 		// ─────────────────────────────────────────────────────────────────
 		// STEP 4: Transaction
 		// Only what must be atomic is inside the transaction.
@@ -373,11 +365,16 @@ export const createDentalCaseAction = actionClientWithLab
 			async (tx) => {
 				// ── UPDATE existing draft → promote to real case ──────────────
 				if (resolvedDraftId) {
-					// Delete stale nested records — will be replaced with fresh computed data
+					const draftAtWrite = await tx.case.findUnique({
+						where: { id: resolvedDraftId, labId },
+						select: { status: true, patientId: true },
+					})
+					if (!draftAtWrite) throw ERRORS.NOT_FOUND
+					if (draftAtWrite.status !== 'DRAFT' || draftAtWrite.patientId !== patientId) {
+						throw ERRORS.OPERATION_NOT_ALLOWED
+					}
+					// Replace non-asset children; existing clinical assets retain their IDs.
 					// await tx.caseWorkItem.deleteMany({
-					// 	where: { dentalCaseId: resolvedDraftId, labId },
-					// });
-					// await tx.caseAssetFile.deleteMany({
 					// 	where: { dentalCaseId: resolvedDraftId, labId },
 					// });
 					// await tx.caseStaffAssignment.deleteMany({
@@ -389,16 +386,13 @@ export const createDentalCaseAction = actionClientWithLab
 						tx.caseWorkItem.deleteMany({
 							where: { dentalCaseId: resolvedDraftId, labId },
 						}),
-						tx.caseAssetFile.deleteMany({
-							where: { dentalCaseId: resolvedDraftId, labId },
-						}),
 						tx.caseStaffAssignment.deleteMany({
 							where: { caseId: resolvedDraftId, labId },
 						}),
 					])
 
 					return tx.case.update({
-						where: { id: resolvedDraftId, labId },
+						where: { id: resolvedDraftId, labId, status: 'DRAFT', patientId },
 						data: {
 							// Promote — status changes from DRAFT to NEW or ASSIGNED
 							status: resolvedStatus,
@@ -478,21 +472,6 @@ export const createDentalCaseAction = actionClientWithLab
 										}
 									: undefined,
 
-							caseAssetFiles:
-								caseAssetFiles && caseAssetFiles.length > 0
-									? {
-											createMany: {
-												data: caseAssetFiles.map((f) => ({
-													title: f.title ?? null,
-													description: f.description ?? null,
-													documentUrl: f.documentUrl,
-													assetFileType: f.assetFileType,
-													fileExtension: f.fileExtension,
-													labId,
-												})),
-											},
-										}
-									: undefined,
 							caseActivityLogs: {
 								createMany: { data: genesisLogs },
 							},
@@ -587,21 +566,6 @@ export const createDentalCaseAction = actionClientWithLab
 										},
 									}
 								: undefined,
-						caseAssetFiles:
-							caseAssetFiles && caseAssetFiles.length > 0
-								? {
-										createMany: {
-											data: caseAssetFiles.map((f) => ({
-												title: f.title ?? null,
-												description: f.description ?? null,
-												documentUrl: f.documentUrl,
-												assetFileType: f.assetFileType,
-												fileExtension: f.fileExtension,
-												labId,
-											})),
-										},
-									}
-								: undefined,
 						caseActivityLogs: {
 							createMany: { data: genesisLogs },
 						},
@@ -619,7 +583,7 @@ export const createDentalCaseAction = actionClientWithLab
 
 		revalidatePath('/cases/new-case')
 
-		return { createdCase: createdCase }
+		return { createdCase: { id: createdCase.id, caseNumber: createdCase.caseNumber } }
 	})
 
 export const saveDraftCaseAction = actionClientWithLab
@@ -643,6 +607,7 @@ export const saveDraftCaseAction = actionClientWithLab
 		} = parsedInput
 
 		const { labId } = ctx
+		assertNoCaseAssetMutationRequested(caseAssetFiles)
 		const prisma = await tenantPrisma(labId)
 
 		// ─────────────────────────────────────────────────────────────────
@@ -786,12 +751,23 @@ export const saveDraftCaseAction = actionClientWithLab
 		const draftCase = await prisma.$transaction(async (tx) => {
 			// ── UPDATE existing draft ──────────────────────────────────
 			if (existingDraftId) {
-				// Delete existing nested records — simpler than diffing
-				// Work items, teeth, assets, assignments are cheap to recreate
+				const assetOwnership = await tx.case.findUnique({
+					where: { id: existingDraftId, labId },
+					select: {
+						status: true,
+						patientId: true,
+						caseAssetFiles: { select: { id: true }, take: 1 },
+					},
+				})
+				if (!assetOwnership) throw ERRORS.NOT_FOUND
+				if (assetOwnership.status !== 'DRAFT') throw ERRORS.OPERATION_NOT_ALLOWED
+				assertAssetBearingDraftPatientPreserved(
+					assetOwnership.patientId,
+					patientId,
+					assetOwnership.caseAssetFiles.length > 0,
+				)
+				// Replace non-asset children; clinical assets keep their identity.
 				// await tx.caseWorkItem.deleteMany({
-				// 	where: { dentalCaseId: existingDraftId, labId },
-				// });
-				// await tx.caseAssetFile.deleteMany({
 				// 	where: { dentalCaseId: existingDraftId, labId },
 				// });
 				// await tx.caseStaffAssignment.deleteMany({
@@ -801,16 +777,18 @@ export const saveDraftCaseAction = actionClientWithLab
 					tx.caseWorkItem.deleteMany({
 						where: { dentalCaseId: existingDraftId, labId },
 					}),
-					tx.caseAssetFile.deleteMany({
-						where: { dentalCaseId: existingDraftId, labId },
-					}),
 					tx.caseStaffAssignment.deleteMany({
 						where: { caseId: existingDraftId, labId },
 					}),
 				])
 
 				return tx.case.update({
-					where: { id: existingDraftId, labId },
+					where: {
+						id: existingDraftId,
+						labId,
+						status: 'DRAFT',
+						patientId: assetOwnership.patientId,
+					},
 					data: {
 						patientId,
 						clinicId: clinicId ?? null,
@@ -876,21 +854,6 @@ export const saveDraftCaseAction = actionClientWithLab
 									}
 								: undefined,
 
-						caseAssetFiles:
-							caseAssetFiles && caseAssetFiles.length > 0
-								? {
-										createMany: {
-											data: caseAssetFiles.map((f) => ({
-												title: f.title ?? null,
-												description: f.description ?? null,
-												documentUrl: f.documentUrl,
-												assetFileType: f.assetFileType,
-												fileExtension: f.fileExtension,
-												labId,
-											})),
-										},
-									}
-								: undefined,
 					},
 					include: {
 						patient: { select: { id: true, name: true } },
@@ -977,21 +940,6 @@ export const saveDraftCaseAction = actionClientWithLab
 								}
 							: undefined,
 
-					caseAssetFiles:
-						caseAssetFiles && caseAssetFiles.length > 0
-							? {
-									createMany: {
-										data: caseAssetFiles.map((f) => ({
-											title: f.title ?? null,
-											description: f.description ?? null,
-											documentUrl: f.documentUrl,
-											assetFileType: f.assetFileType,
-											fileExtension: f.fileExtension,
-											labId,
-										})),
-									},
-								}
-							: undefined,
 				},
 				include: {
 					patient: { select: { id: true, name: true } },
@@ -1120,35 +1068,6 @@ export const getDraftByPatientAction = actionClientWithLab
 				id: true,
 				caseNumber: true,
 				updatedAt: true,
-				caseCategoryId: true,
-				clinicId: true,
-				deadline: true,
-				notes: true,
-				patient: { select: { id: true, name: true } },
-				clinic: { select: { id: true, name: true } },
-				caseCategory: { select: { id: true, name: true } },
-				caseItems: {
-					include: {
-						selectedTeeth: { select: { toothPosition: true } },
-					},
-				},
-				staffAssignments: {
-					select: {
-						staffId: true,
-						roleCategory: true,
-						commissionType: true,
-						commissionValue: true,
-					},
-				},
-				caseAssetFiles: {
-					select: {
-						title: true,
-						description: true,
-						documentUrl: true,
-						assetFileType: true,
-						fileExtension: true,
-					},
-				},
 			},
 		})
 
@@ -1163,6 +1082,15 @@ export const loadDraftByIdAction = actionClientWithLab
 	.inputSchema(z.object({ draftId: z.string().min(1) }))
 	.action(async ({ parsedInput, ctx }) => {
 		const { labId } = ctx
+		try {
+			await authorizeCaseDetailRead({
+				actor: createLabOSAuthorizationActor(ctx),
+				caseId: parsedInput.draftId,
+			})
+		} catch (error) {
+			if (error instanceof CaseDetailReadAuthorizationError) throw ERRORS.NOT_FOUND
+			throw error
+		}
 		const prisma = await tenantPrisma(labId)
 
 		const draft = await prisma.case.findUnique({

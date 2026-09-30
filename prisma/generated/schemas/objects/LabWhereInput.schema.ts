@@ -18,6 +18,8 @@ import { SelectedToothListRelationFilterObjectSchema as SelectedToothListRelatio
 import { CasePricingPlanListRelationFilterObjectSchema as CasePricingPlanListRelationFilterObjectSchema } from './CasePricingPlanListRelationFilter.schema';
 import { CaseAssetFileListRelationFilterObjectSchema as CaseAssetFileListRelationFilterObjectSchema } from './CaseAssetFileListRelationFilter.schema';
 import { FileUploadGrantListRelationFilterObjectSchema as FileUploadGrantListRelationFilterObjectSchema } from './FileUploadGrantListRelationFilter.schema';
+import { StoredFileListRelationFilterObjectSchema as StoredFileListRelationFilterObjectSchema } from './StoredFileListRelationFilter.schema';
+import { CaseClinicalUploadEvidenceListRelationFilterObjectSchema as CaseClinicalUploadEvidenceListRelationFilterObjectSchema } from './CaseClinicalUploadEvidenceListRelationFilter.schema';
 import { PatientListRelationFilterObjectSchema as PatientListRelationFilterObjectSchema } from './PatientListRelationFilter.schema';
 import { DentistListRelationFilterObjectSchema as DentistListRelationFilterObjectSchema } from './DentistListRelationFilter.schema';
 import { CaseStaffAssignmentListRelationFilterObjectSchema as CaseStaffAssignmentListRelationFilterObjectSchema } from './CaseStaffAssignmentListRelationFilter.schema';
@@ -61,6 +63,8 @@ const labwhereinputSchema = z.object({
   casePricingPlans: z.lazy(() => CasePricingPlanListRelationFilterObjectSchema).optional(),
   caseAssetFiles: z.lazy(() => CaseAssetFileListRelationFilterObjectSchema).optional(),
   fileUploadGrants: z.lazy(() => FileUploadGrantListRelationFilterObjectSchema).optional(),
+  storedFiles: z.lazy(() => StoredFileListRelationFilterObjectSchema).optional(),
+  clinicalUploadEvidence: z.lazy(() => CaseClinicalUploadEvidenceListRelationFilterObjectSchema).optional(),
   patients: z.lazy(() => PatientListRelationFilterObjectSchema).optional(),
   dentists: z.lazy(() => DentistListRelationFilterObjectSchema).optional(),
   staffAssignments: z.lazy(() => CaseStaffAssignmentListRelationFilterObjectSchema).optional(),

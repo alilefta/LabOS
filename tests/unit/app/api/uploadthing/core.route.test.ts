@@ -64,6 +64,7 @@ const categoryRoute = labOSUploadRouter.categoryIconAvatar
 const workTypeRoute = labOSUploadRouter.workTypeIconAvatar
 const productRoute = labOSUploadRouter.productIconAvatar
 const dentistRoute = labOSUploadRouter.dentistAvatar
+const caseAssetsRoute = labOSUploadRouter.caseAssetsRoute
 const parseStageInput = (input: unknown) =>
 	(
 		categoryRoute.inputParser as {
@@ -256,5 +257,22 @@ describe('dentistAvatar UploadThing route', () => {
 			metadata,
 			file: { key: 'provider-key', url: 'https://ufs.sh/f/provider-key' },
 		})
+	})
+})
+
+describe('caseAssetsRoute UploadThing route', () => {
+	it('denies staging and callback without granting raw URL authority', async () => {
+		vi.clearAllMocks()
+		await expect(caseAssetsRoute.middleware({ input: undefined, files: [] })).rejects.toThrow(
+			'Case clinical uploads are unavailable',
+		)
+		await expect(
+			caseAssetsRoute.onUploadComplete({
+				metadata: {},
+				file: { key: 'provider-key', ufsUrl: 'https://ufs.sh/f/provider-key' },
+			}),
+		).rejects.toThrow('Case clinical uploads are unavailable')
+		expect(requireTenantContext).not.toHaveBeenCalled()
+		expect(completeVerifiedProviderCallback).not.toHaveBeenCalled()
 	})
 })

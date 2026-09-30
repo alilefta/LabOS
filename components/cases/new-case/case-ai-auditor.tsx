@@ -9,7 +9,6 @@ import { CaseFormModeType, CreateCaseInput } from "@/schema/composed/case.detail
 export function CaseAiAuditor({ control, mode }: { control: Control<CreateCaseInput>; mode: CaseFormModeType }) {
 	// --- 1. WATCHERS (Subscribing to specific form state) ---
 	const caseWorkItems = useWatch({ control, name: "caseWorkItems", defaultValue: [] });
-	const caseAssetFiles = useWatch({ control, name: "caseAssetFiles", defaultValue: [] }) || [];
 	const patientId = useWatch({ control, name: "patientId" });
 	const clinicId = useWatch({ control, name: "clinicId" });
 
@@ -49,14 +48,6 @@ export function CaseAiAuditor({ control, mode }: { control: Control<CreateCaseIn
 			});
 		}
 
-		// Intelligence 1: File Checking
-		if (hasValidItems && caseAssetFiles.length === 0) {
-			logs.push({
-				type: "info",
-				message: "No technical assets uploaded. Ensure physical impressions are mailed if digital scans are absent.",
-			});
-		}
-
 		// Success: Fully Valid
 		if (patientId && clinicId && hasValidItems) {
 			logs.push({
@@ -66,7 +57,7 @@ export function CaseAiAuditor({ control, mode }: { control: Control<CreateCaseIn
 		}
 
 		return logs;
-	}, [patientId, clinicId, caseWorkItems, caseAssetFiles.length]);
+	}, [patientId, clinicId, caseWorkItems]);
 
 	return (
 		<div className="lab-card flex flex-col overflow-hidden animate-in fade-in slide-in-from-right-4 duration-500 shadow-xl border-border/60">

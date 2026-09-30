@@ -11,6 +11,8 @@ import { SelectedToothUncheckedCreateNestedManyWithoutLabInputObjectSchema as Se
 import { CasePricingPlanUncheckedCreateNestedManyWithoutLabInputObjectSchema as CasePricingPlanUncheckedCreateNestedManyWithoutLabInputObjectSchema } from './CasePricingPlanUncheckedCreateNestedManyWithoutLabInput.schema';
 import { CaseAssetFileUncheckedCreateNestedManyWithoutLabInputObjectSchema as CaseAssetFileUncheckedCreateNestedManyWithoutLabInputObjectSchema } from './CaseAssetFileUncheckedCreateNestedManyWithoutLabInput.schema';
 import { FileUploadGrantUncheckedCreateNestedManyWithoutLabInputObjectSchema as FileUploadGrantUncheckedCreateNestedManyWithoutLabInputObjectSchema } from './FileUploadGrantUncheckedCreateNestedManyWithoutLabInput.schema';
+import { StoredFileUncheckedCreateNestedManyWithoutLabInputObjectSchema as StoredFileUncheckedCreateNestedManyWithoutLabInputObjectSchema } from './StoredFileUncheckedCreateNestedManyWithoutLabInput.schema';
+import { CaseClinicalUploadEvidenceUncheckedCreateNestedManyWithoutLabInputObjectSchema as CaseClinicalUploadEvidenceUncheckedCreateNestedManyWithoutLabInputObjectSchema } from './CaseClinicalUploadEvidenceUncheckedCreateNestedManyWithoutLabInput.schema';
 import { PatientUncheckedCreateNestedManyWithoutLabInputObjectSchema as PatientUncheckedCreateNestedManyWithoutLabInputObjectSchema } from './PatientUncheckedCreateNestedManyWithoutLabInput.schema';
 import { CaseStaffAssignmentUncheckedCreateNestedManyWithoutLabInputObjectSchema as CaseStaffAssignmentUncheckedCreateNestedManyWithoutLabInputObjectSchema } from './CaseStaffAssignmentUncheckedCreateNestedManyWithoutLabInput.schema';
 import { LabUserUncheckedCreateNestedManyWithoutLabInputObjectSchema as LabUserUncheckedCreateNestedManyWithoutLabInputObjectSchema } from './LabUserUncheckedCreateNestedManyWithoutLabInput.schema';
@@ -48,6 +50,8 @@ const makeSchema = () => z.object({
   casePricingPlans: z.lazy(() => CasePricingPlanUncheckedCreateNestedManyWithoutLabInputObjectSchema).optional(),
   caseAssetFiles: z.lazy(() => CaseAssetFileUncheckedCreateNestedManyWithoutLabInputObjectSchema).optional(),
   fileUploadGrants: z.lazy(() => FileUploadGrantUncheckedCreateNestedManyWithoutLabInputObjectSchema).optional(),
+  storedFiles: z.lazy(() => StoredFileUncheckedCreateNestedManyWithoutLabInputObjectSchema).optional(),
+  clinicalUploadEvidence: z.lazy(() => CaseClinicalUploadEvidenceUncheckedCreateNestedManyWithoutLabInputObjectSchema).optional(),
   patients: z.lazy(() => PatientUncheckedCreateNestedManyWithoutLabInputObjectSchema).optional(),
   staffAssignments: z.lazy(() => CaseStaffAssignmentUncheckedCreateNestedManyWithoutLabInputObjectSchema).optional(),
   users: z.lazy(() => LabUserUncheckedCreateNestedManyWithoutLabInputObjectSchema).optional(),

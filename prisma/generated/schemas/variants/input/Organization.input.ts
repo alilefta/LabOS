@@ -10,7 +10,9 @@ export const OrganizationInputSchema = z.object({
     members: z.array(z.unknown()),
     invitations: z.array(z.unknown()),
     lab: z.unknown().optional().nullable(),
-    fileUploadGrants: z.array(z.unknown())
+    fileUploadGrants: z.array(z.unknown()),
+    storedFiles: z.array(z.unknown()),
+    clinicalUploadEvidence: z.array(z.unknown())
 }).strict();
 
 export type OrganizationInputType = z.infer<typeof OrganizationInputSchema>;

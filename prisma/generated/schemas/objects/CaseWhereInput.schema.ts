@@ -25,6 +25,7 @@ import { DentistWhereInputObjectSchema as DentistWhereInputObjectSchema } from '
 import { CaseStaffAssignmentListRelationFilterObjectSchema as CaseStaffAssignmentListRelationFilterObjectSchema } from './CaseStaffAssignmentListRelationFilter.schema';
 import { CaseActivityLogListRelationFilterObjectSchema as CaseActivityLogListRelationFilterObjectSchema } from './CaseActivityLogListRelationFilter.schema';
 import { CaseAssetFileListRelationFilterObjectSchema as CaseAssetFileListRelationFilterObjectSchema } from './CaseAssetFileListRelationFilter.schema';
+import { CaseClinicalUploadEvidenceListRelationFilterObjectSchema as CaseClinicalUploadEvidenceListRelationFilterObjectSchema } from './CaseClinicalUploadEvidenceListRelationFilter.schema';
 import { InvoiceCaseNullableScalarRelationFilterObjectSchema as InvoiceCaseNullableScalarRelationFilterObjectSchema } from './InvoiceCaseNullableScalarRelationFilter.schema';
 import { InvoiceCaseWhereInputObjectSchema as InvoiceCaseWhereInputObjectSchema } from './InvoiceCaseWhereInput.schema';
 import { CaseNullableScalarRelationFilterObjectSchema as CaseNullableScalarRelationFilterObjectSchema } from './CaseNullableScalarRelationFilter.schema';
@@ -80,6 +81,7 @@ const casewhereinputSchema = z.object({
   staffAssignments: z.lazy(() => CaseStaffAssignmentListRelationFilterObjectSchema).optional(),
   caseActivityLogs: z.lazy(() => CaseActivityLogListRelationFilterObjectSchema).optional(),
   caseAssetFiles: z.lazy(() => CaseAssetFileListRelationFilterObjectSchema).optional(),
+  clinicalUploadEvidence: z.lazy(() => CaseClinicalUploadEvidenceListRelationFilterObjectSchema).optional(),
   invoiceCase: z.union([z.lazy(() => InvoiceCaseNullableScalarRelationFilterObjectSchema), z.lazy(() => InvoiceCaseWhereInputObjectSchema)]).optional(),
   originalCase: z.union([z.lazy(() => CaseNullableScalarRelationFilterObjectSchema), z.lazy(() => CaseWhereInputObjectSchema)]).optional(),
   remakes: z.lazy(() => CaseListRelationFilterObjectSchema).optional()

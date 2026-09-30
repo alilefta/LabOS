@@ -215,23 +215,26 @@ export const labOSUploadRouter = {
 
 	caseAssetsRoute: f({
 		image: {
-			maxFileSize: "16MB",
+			maxFileSize: '16MB',
 			maxFileCount: 1,
 		},
 
 		video: {
-			maxFileSize: "256MB",
+			maxFileSize: '256MB',
 			maxFileCount: 1,
 		},
 
 		blob: {
-			maxFileSize: "256MB",
+			maxFileSize: '256MB',
 			maxFileCount: 1,
 		},
 	})
-		// Set permissions and file types for this FileRoute
-		.middleware(async () => await handleAuth(true))
-		.onUploadComplete(uploadComplete),
+		.middleware(async () => {
+			throw new UploadThingError('Case clinical uploads are unavailable')
+		})
+		.onUploadComplete(async () => {
+			throw new UploadThingError('Case clinical uploads are unavailable')
+		}),
 
 	// messageFile: f({
 	// 	image: { maxFileSize: "8MB", maxFileCount: 5 },

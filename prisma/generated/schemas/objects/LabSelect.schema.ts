@@ -12,6 +12,8 @@ import { SelectedToothFindManySchema as SelectedToothFindManySchema } from '../f
 import { CasePricingPlanFindManySchema as CasePricingPlanFindManySchema } from '../findManyCasePricingPlan.schema';
 import { CaseAssetFileFindManySchema as CaseAssetFileFindManySchema } from '../findManyCaseAssetFile.schema';
 import { FileUploadGrantFindManySchema as FileUploadGrantFindManySchema } from '../findManyFileUploadGrant.schema';
+import { StoredFileFindManySchema as StoredFileFindManySchema } from '../findManyStoredFile.schema';
+import { CaseClinicalUploadEvidenceFindManySchema as CaseClinicalUploadEvidenceFindManySchema } from '../findManyCaseClinicalUploadEvidence.schema';
 import { PatientFindManySchema as PatientFindManySchema } from '../findManyPatient.schema';
 import { DentistFindManySchema as DentistFindManySchema } from '../findManyDentist.schema';
 import { CaseStaffAssignmentFindManySchema as CaseStaffAssignmentFindManySchema } from '../findManyCaseStaffAssignment.schema';
@@ -47,6 +49,8 @@ const makeSchema = () => z.object({
   casePricingPlans: z.union([z.boolean(), z.lazy(() => CasePricingPlanFindManySchema)]).optional(),
   caseAssetFiles: z.union([z.boolean(), z.lazy(() => CaseAssetFileFindManySchema)]).optional(),
   fileUploadGrants: z.union([z.boolean(), z.lazy(() => FileUploadGrantFindManySchema)]).optional(),
+  storedFiles: z.union([z.boolean(), z.lazy(() => StoredFileFindManySchema)]).optional(),
+  clinicalUploadEvidence: z.union([z.boolean(), z.lazy(() => CaseClinicalUploadEvidenceFindManySchema)]).optional(),
   patients: z.union([z.boolean(), z.lazy(() => PatientFindManySchema)]).optional(),
   dentists: z.union([z.boolean(), z.lazy(() => DentistFindManySchema)]).optional(),
   staffAssignments: z.union([z.boolean(), z.lazy(() => CaseStaffAssignmentFindManySchema)]).optional(),

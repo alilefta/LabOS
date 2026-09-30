@@ -1,117 +1,96 @@
-"use client";
+'use client'
 
-import { useState } from "react";
-import { Box, ImageIcon, Video, Download, Eye, Layers, FileCode2, Play } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { ClinicalAssetLightbox } from "@/components/shared/file-assets/clinical-asset-lightbox";
-import { CaseAssetFileDetailsUI } from "@/schema/composed/case-asset-file.details";
+import { useState } from 'react'
+import { Box, Eye, FileCode2, FileLock2, ImageIcon, Layers, Video } from 'lucide-react'
+import { ClinicalAssetLightbox } from '@/components/shared/file-assets/clinical-asset-lightbox'
+import { cn } from '@/lib/utils'
+import type { CaseAssetSummary } from '@/schema/composed/case-asset-file.details'
 
 interface Props {
-	assets: CaseAssetFileDetailsUI[];
+	assets: CaseAssetSummary[]
 }
 
 export function DigitalAssetVault({ assets }: Props) {
-	const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+	const [lightboxIndex, setLightboxIndex] = useState<number | null>(null)
+	const legacyAssets = assets.filter(
+		(asset): asset is Extract<CaseAssetSummary, { storageMode: 'LEGACY_URL_UNVERIFIED' }> =>
+			asset.storageMode === 'LEGACY_URL_UNVERIFIED',
+	)
 
-	if (!assets || assets.length === 0) {
+	if (assets.length === 0) {
 		return (
 			<div className="lab-card p-12 flex flex-col items-center justify-center text-center border-dashed">
-				<div className="w-16 h-16 rounded-2xl bg-slate-100 dark:bg-white/5 flex items-center justify-center mb-4">
-					<Layers className="w-8 h-8 text-slate-400" />
-				</div>
+				<Layers className="w-8 h-8 text-slate-400 mb-4" />
 				<h3 className="text-lg font-bold text-foreground">No digital assets found</h3>
-				<p className="text-sm text-muted-foreground max-w-xs mt-1">This case does not have any attached 3D scans or clinical photos.</p>
+				<p className="text-sm text-muted-foreground mt-1">This case does not have any attached 3D scans or clinical photos.</p>
 			</div>
-		);
+		)
 	}
 
 	return (
-		<section className="space-y-6 animate-in fade-in duration-700 delay-400">
-			{/* --- VAULT HEADER --- */}
-			<div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-				<div className="flex items-center gap-3">
-					<div className="w-1.5 h-6 bg-ai rounded-full" />
-					<h2 className="text-xl font-bold tracking-tight text-foreground">Digital Asset Vault</h2>
-					<span className="px-2 py-0.5 rounded-md bg-ai/10 border border-ai/20 text-[10px] font-mono font-bold text-ai">{assets.length} FILES</span>
-				</div>
-
-				<Button variant="outline" size="sm" className="rounded-xl border-border bg-white dark:bg-white/5 font-semibold text-xs h-9">
-					<Download className="w-3.5 h-3.5 mr-2" /> Download All (.zip)
-				</Button>
+		<section className="space-y-6">
+			<div className="flex items-center gap-3">
+				<div className="w-1.5 h-6 bg-ai rounded-full" />
+				<h2 className="text-xl font-bold text-foreground">Digital Asset Vault</h2>
+				<span className="text-xs font-mono font-bold text-muted-foreground">{assets.length} {assets.length === 1 ? 'FILE' : 'FILES'}</span>
 			</div>
 
-			{/* --- ASSET GRID --- */}
 			<div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6">
-				{assets.map((asset, index) => {
-					const is3D = asset.assetFileType === "SCANNERFILE";
-					const isVideo = asset.assetFileType === "VIDEO";
-					const isImage = asset.assetFileType === "IMAGE";
+				{assets.map((asset) => {
+					const is3D = asset.assetFileType === 'SCANNERFILE'
+					const isVideo = asset.assetFileType === 'VIDEO'
+					const icon = is3D ? <FileCode2 className="w-4 h-4" /> : isVideo ? <Video className="w-4 h-4" /> : <ImageIcon className="w-4 h-4" />
+					if (asset.storageMode === 'MANAGED_PRIVATE') {
+						return (
+							<div key={asset.id} data-asset-id={asset.id} className="min-w-0 rounded-md border border-border bg-card overflow-hidden">
+								<div className="aspect-square flex flex-col items-center justify-center gap-3 bg-muted/40 p-4 text-center">
+									<FileLock2 className="w-9 h-9 text-muted-foreground" aria-hidden="true" />
+									<span className="text-xs font-semibold text-muted-foreground">Content unavailable</span>
+								</div>
+								<div className="p-3 border-t border-border space-y-1">
+									<p className="text-sm font-semibold text-foreground break-words">{asset.title || 'Untitled Asset'}</p>
+									<p className="text-xs text-muted-foreground flex items-center gap-1">{icon}<span>{asset.assetFileType}</span></p>
+									{asset.description && <p className="text-xs text-muted-foreground break-words">{asset.description}</p>}
+								</div>
+							</div>
+						)
+					}
 
 					return (
-						<div
+						<button
 							key={asset.id}
-							onClick={() => setLightboxIndex(index)}
-							className={cn(
-								"group relative aspect-square rounded-3xl border transition-all duration-300 cursor-pointer overflow-hidden shadow-sm",
-								is3D ? "border-primary/20 bg-primary/2 hover:border-primary/50" : "border-border bg-card hover:border-ai/50",
-							)}
+							type="button"
+							data-asset-id={asset.id}
+							aria-label={`Preview ${asset.title || 'Untitled Asset'}`}
+							onClick={() => setLightboxIndex(legacyAssets.findIndex((item) => item.id === asset.id))}
+							className="group min-w-0 rounded-md border border-border bg-card overflow-hidden text-left hover:border-ai/50 focus-visible:outline-2 focus-visible:outline-ai"
 						>
-							{/* 1. Thumbnail Render */}
-							<div className="absolute inset-0 z-0">
-								{isImage ? (
-									<img src={asset.documentUrl} alt={asset.title ?? "Asset File"} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+							<div className="relative aspect-square overflow-hidden bg-muted/40">
+								{asset.assetFileType === 'IMAGE' ? (
+									<img src={asset.documentUrl} alt={asset.title ?? 'Asset File'} className="w-full h-full object-cover" />
 								) : isVideo ? (
-									<div className="w-full h-full bg-slate-900 flex items-center justify-center">
-										<video src={asset.documentUrl} className="w-full h-full object-cover opacity-60" />
-										<Play className="w-8 h-8 text-white opacity-80" />
-									</div>
+									<video src={asset.documentUrl} className="w-full h-full object-cover" />
 								) : (
-									/* 3D Model Placeholder */
-									<div className="w-full h-full bg-linear-to-br from-slate-100 to-slate-200 dark:from-[#121214] dark:to-[#09090B] flex items-center justify-center relative overflow-hidden">
-										{/* Subtle technical grid background for 3D files */}
-										<div className="absolute inset-0 opacity-[0.03] dark:opacity-[0.05] bg-size-[10px_10px] bg-[linear-gradient(to_right,#808080_1px,transparent_1px),linear-gradient(to_bottom,#808080_1px,transparent_1px)]" />
-										<Box className="w-10 h-10 text-primary opacity-40 group-hover:scale-110 group-hover:opacity-100 transition-all duration-500" />
-									</div>
+									<div className="w-full h-full flex items-center justify-center"><Box className="w-10 h-10 text-primary" /></div>
 								)}
+								<Eye className="absolute top-3 right-3 w-4 h-4 text-white drop-shadow-md opacity-0 group-hover:opacity-100" aria-hidden="true" />
 							</div>
-
-							{/* 2. Glassmorphic Footer Overlay */}
-							<div className="absolute inset-x-0 bottom-0 p-3 bg-white/60 dark:bg-black/40 backdrop-blur-md border-t border-white/20 dark:border-white/5 z-10">
-								<div className="flex items-center justify-between gap-2">
-									<div className="min-w-0">
-										<p className="text-[11px] font-bold text-foreground truncate">{asset.title}</p>
-										<p className="text-[9px] font-mono text-muted-foreground uppercase tracking-tighter">.{asset.fileExtension} • 14.2 MB</p>
-									</div>
-									<div
-										className={cn(
-											"w-6 h-6 rounded-lg flex items-center justify-center shrink-0 shadow-inner",
-											is3D ? "bg-primary text-white" : "bg-white/80 dark:bg-white/10 text-muted-foreground",
-										)}
-									>
-										{is3D ? <FileCode2 className="w-3.5 h-3.5" /> : isVideo ? <Video className="w-3.5 h-3.5" /> : <ImageIcon className="w-3.5 h-3.5" />}
-									</div>
-								</div>
+							<div className="p-3 border-t border-border space-y-1">
+								<p className="text-sm font-semibold text-foreground truncate">{asset.title || 'Untitled Asset'}</p>
+								<p className={cn('text-xs text-muted-foreground flex items-center gap-1', is3D && 'text-primary')}>{icon}<span>.{asset.fileExtension}</span></p>
 							</div>
-
-							{/* 3. Hover "Awwwards" Action Overlay */}
-							<div className="absolute inset-0 bg-primary/20 dark:bg-primary/40 backdrop-blur-[1px] opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center gap-3 z-20">
-								<div className="w-10 h-10 rounded-full bg-white text-primary flex items-center justify-center shadow-xl scale-90 group-hover:scale-100 transition-transform duration-300">
-									<Eye className="w-5 h-5" />
-								</div>
-							</div>
-
-							{/* 4. Type Badge (Static) */}
-							<div className="absolute top-3 right-3 z-10">
-								{is3D && <span className="px-2 py-0.5 rounded-full bg-primary text-white text-[8px] font-black uppercase tracking-widest shadow-lg animate-pulse">3D MESH</span>}
-							</div>
-						</div>
-					);
+						</button>
+					)
 				})}
 			</div>
 
-			{/* --- CINEMATIC LIGHTBOX --- */}
-			<ClinicalAssetLightbox isOpen={lightboxIndex !== null} onClose={() => setLightboxIndex(null)} assets={assets} initialIndex={lightboxIndex ?? 0} />
+			<ClinicalAssetLightbox
+				key={lightboxIndex ?? 'closed'}
+				isOpen={lightboxIndex !== null}
+				onClose={() => setLightboxIndex(null)}
+				assets={legacyAssets}
+				initialIndex={lightboxIndex ?? 0}
+			/>
 		</section>
-	);
+	)
 }

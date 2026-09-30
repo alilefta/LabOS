@@ -1,0 +1,40 @@
+# C2 normal development migration application
+
+Status: C2 normal development migration `PASS` after independent V3 `RUNTIME_EVIDENCE` review. Development-only persistence foundation; no managed-file activation.
+
+## Authority and isolated execution
+
+The Product Owner authorized one canonical-LF isolated checkout and normal-development migration after fresh gates. Primary HEAD before and after: `9debd695f4065c65f7b5aa1cd7a118705850b5ad`. Its substantial pre-existing dirty state was recorded before isolation and left untouched. The run-owned worktree `c2-lf-migration-run` was created at that HEAD. Run-scoped `core.autocrlf=false` plus exact-path Git rematerialization produced 47 LF `migration.sql` files and an LF `migration_lock.toml`. All 47 SQL files matched their Git blobs and all 47 finished development checksums; the lock hash was `99836963713b4f5b269ad49af0ed3d7b0b2e336115c2f92dc9ac683d139d0900`. No permanent Git configuration or historical migration was changed. Apart from the intended C2 schema copy and migration 48, the isolated checkout had no semantic source change; the pre-application independent V3 `CODE`/SQL Reviewer returned **PASS**.
+
+The isolated C2 Prisma schema was an exact copy of the accepted primary schema, SHA-256 `ffb44656be22a56fc574cba76c2c2fcc30b7dc01c5015735c0f72636dee9eaea`. The fresh Prisma 7.8 read-only development-to-schema diff was byte-identical to [the reviewed generated diff](c2-prisma-generated-diff-20260926.sql), SHA-256 `74beb924b36ed3e9ff7ef4ef6c763611a580e6ec05ea9327adb51039174005c1`. The Reviewer reconfirmed Section A's structural equivalence and the exact reviewed Section B. Migration 48 was materialized only in the isolated checkout before application as `20260927120000_c2_case_file_persistence/migration.sql`, exact candidate SHA-256 `92c6a5d2fa3bf0f22987be5461370116dc87de9a3ec5ba3ea304cc299c8b5b80`. No prior migration or lock was changed.
+
+## Development target and fresh preflight
+
+The effective direct datasource was re-attested by approved development host hash prefix `eb0d823953fe`, port 5432, database/schema `postgres`/`public`, PostgreSQL 17.6, not in recovery. No connection string or credential is retained. A read-only, repeatable-read transaction found 47 finished, non-rolled-back migrations, all 47 matching the isolated LF SQL bytes, latest `20260907211306_add_file_upload_grants`. No C2 table existed. Before the single deployment, target, all 47 checksums, lock hash, candidate hash, ordering, and key aggregate counts were rechecked.
+
+Fresh data preflight: six Labs, six Organizations, two Cases, zero Case assets, two `UPLOADED` FileUploadGrants. Unlinked Labs, broken Lab/Organization links, Cases without canonical Lab, Case-asset relationship defects, missing legacy URL/extension, grant tenant defects, and duplicate Case/Lab/grant composite keys were all zero. Duplicate URL groups were zero. The Case-asset aggregate clinical fingerprint was `d41d8cd98f00b204e9800998ecf8427e` (empty set), consistent with the accepted post-Denta-Fusion baseline. No raw clinical URL or payload was retained. These checks showed no material data drift; the previously `NOT_RUN` portions of the stopped attempt were completed afresh.
+
+## Application and installed state
+
+The supported Prisma 7.8 `migrate deploy` path ran once from the isolated checkout with process-local development `DIRECT_URL` and reported successful application of migration `20260927120000_c2_case_file_persistence`. No `db push`, `migrate resolve`, reset, baseline, manual SQL execution, or history edit was used. Post-application read-only inspection found 48 finished, non-rolled-back migrations, with all 47 historical applied checksums still matching the isolated canonical-LF files and migration 48 matching the candidate hash.
+
+Installed C2 catalog inspection found all expected names: six enums, three tables, 24 indexes, 14 named constraints, four functions, and four triggers; none was missing and no expected constraint was unvalidated. The composite `CaseAssetFile_currentVersionId_id_labId_fkey` references `(id, caseAssetFileId, labId)` on `CaseAssetFileVersion`; the StoredFile Lab/Organization composite FK is installed. `CaseFileAccessAudit_issuance_timestamps` requires an `ISSUED` outcome to be `ALLOWED`, with non-null timestamps and positive expiry of at most five minutes. `CaseAssetFile_final_storage_mode` is enabled, deferrable, and initially deferred. StoredFile, version, and audit immutability triggers are enabled. `CaseAssetFile.documentUrl`, `fileExtension`, and `currentVersionId` are nullable; `storageMode` is required.
+
+Post-application aggregate state remained six Labs, six Organizations, two Cases, zero Case assets, two `UPLOADED` grants, zero unlinked Labs, and clinical fingerprint `d41d8cd98f00b204e9800998ecf8427e`. `StoredFile`, `CaseAssetFileVersion`, and `CaseFileAccessAudit` each contain zero rows. No legacy asset was fabricated into managed history. The SQL itself contains no data backfill or existing-row rewrite; the zero-asset baseline means no legacy asset row existed to compare individually in this run. The inspection did not repeat the disposable PostgreSQL mutation scenario matrix against development.
+
+## Regressions and artifact retention
+
+- Prisma 7.8 schema validation: PASS.
+- Focused C2 schema/audit, mixed-read, N-FILE-110A preservation, C1 Case read tests: 7 files / 25 tests PASS.
+- Additional Case action/reader/mapper/schema regressions: 6 files / 19 tests PASS.
+- Global `pnpm exec tsc --noEmit`: PASS.
+
+The exact applied migration 48 was copied into the primary worktree at `prisma/migrations/20260927120000_c2_case_file_persistence/migration.sql`, without overwrite, stage, or commit. Post-transfer SHA-256 remains `92c6a5d2fa3bf0f22987be5461370116dc87de9a3ec5ba3ea304cc299c8b5b80`. The four primary historical CRLF working-file hashes remain as recorded in the [provenance packet](historical-checksum-provenance-20260927.md); the isolated LF execution did not normalize the primary checkout. Future Prisma migration commands from the primary Windows checkout require the separately reviewed LF discipline, not a checksum exception.
+
+## Exact cleanup and limits
+
+The run-owned generated diff and `node_modules` junction were removed by exact path; the primary dependencies remained intact. The managed `c2-lf-migration-run` worktree was archived after artifact retention. `list_artifacts` reports it as archived, its workspace path no longer exists, and `git worktree list --porcelain` lists only the primary checkout. No run-owned execution process remains. No provider object, managed Case file, synthetic development history row, signed URL, or application activation was created.
+
+This establishes only the C2 persistence installation in normal development. It does not establish production/staging migration readiness, UploadThing private ACL, C3 audit writing, N-FILE-110/111, signed reads, or managed-file application writes. Product PRV-08 remains separate.
+
+Independent V3 `RUNTIME_EVIDENCE` verdict: **PASS**. The Reviewer independently re-attested the approved development target read-only, found 48 finished migrations with the exact candidate checksum, inspected the installed 24 indexes, 14 validated constraints, four functions and four enabled triggers, and confirmed the preserved aggregate data state, retained LF migration artifact, and absent temporary worktree. The Reviewer independently reran focused tests (5 files, 21 tests PASS). Its prose said "44 current historical files" match verbatim; the precise split is **43** historical working files matching verbatim plus four August files matching their canonical LF blobs, with migration 48 separate. The Reviewer could not rerun Prisma validation in its own sandbox due a temp-path permission error; Primary's earlier Prisma 7.8 validation passed. The Reviewer inspected but did not repeat Primary's broader 44 tests and global TypeScript pass. This environment-only review limitation does not change the installed-schema or migration verdict.

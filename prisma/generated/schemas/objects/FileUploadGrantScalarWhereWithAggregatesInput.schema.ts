@@ -4,6 +4,8 @@ import { StringWithAggregatesFilterObjectSchema as StringWithAggregatesFilterObj
 import { StringNullableWithAggregatesFilterObjectSchema as StringNullableWithAggregatesFilterObjectSchema } from './StringNullableWithAggregatesFilter.schema';
 import { EnumFileUploadGrantStatusWithAggregatesFilterObjectSchema as EnumFileUploadGrantStatusWithAggregatesFilterObjectSchema } from './EnumFileUploadGrantStatusWithAggregatesFilter.schema';
 import { FileUploadGrantStatusSchema } from '../enums/FileUploadGrantStatus.schema';
+import { EnumStoredFileProviderNullableWithAggregatesFilterObjectSchema as EnumStoredFileProviderNullableWithAggregatesFilterObjectSchema } from './EnumStoredFileProviderNullableWithAggregatesFilter.schema';
+import { StoredFileProviderSchema } from '../enums/StoredFileProvider.schema';
 import { DateTimeWithAggregatesFilterObjectSchema as DateTimeWithAggregatesFilterObjectSchema } from './DateTimeWithAggregatesFilter.schema';
 import { DateTimeNullableWithAggregatesFilterObjectSchema as DateTimeNullableWithAggregatesFilterObjectSchema } from './DateTimeNullableWithAggregatesFilter.schema';
 import { IntWithAggregatesFilterObjectSchema as IntWithAggregatesFilterObjectSchema } from './IntWithAggregatesFilter.schema'
@@ -21,6 +23,7 @@ const fileuploadgrantscalarwherewithaggregatesinputSchema = z.object({
   targetType: z.union([z.lazy(() => StringNullableWithAggregatesFilterObjectSchema), z.string()]).optional().nullable(),
   targetId: z.union([z.lazy(() => StringNullableWithAggregatesFilterObjectSchema), z.string()]).optional().nullable(),
   status: z.union([z.lazy(() => EnumFileUploadGrantStatusWithAggregatesFilterObjectSchema), FileUploadGrantStatusSchema]).optional(),
+  provider: z.union([z.lazy(() => EnumStoredFileProviderNullableWithAggregatesFilterObjectSchema), StoredFileProviderSchema]).optional().nullable(),
   providerFileKey: z.union([z.lazy(() => StringNullableWithAggregatesFilterObjectSchema), z.string()]).optional().nullable(),
   providerFileUrl: z.union([z.lazy(() => StringNullableWithAggregatesFilterObjectSchema), z.string()]).optional().nullable(),
   correlationId: z.union([z.lazy(() => StringWithAggregatesFilterObjectSchema), z.string()]).optional(),

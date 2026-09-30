@@ -1,7 +1,9 @@
 import * as z from 'zod';
 import type { Prisma } from '../../../../generated/prisma/client';
 import { LabStaffUncheckedCreateNestedOneWithoutMemberInputObjectSchema as LabStaffUncheckedCreateNestedOneWithoutMemberInputObjectSchema } from './LabStaffUncheckedCreateNestedOneWithoutMemberInput.schema';
-import { FileUploadGrantUncheckedCreateNestedManyWithoutCreatedByMemberInputObjectSchema as FileUploadGrantUncheckedCreateNestedManyWithoutCreatedByMemberInputObjectSchema } from './FileUploadGrantUncheckedCreateNestedManyWithoutCreatedByMemberInput.schema'
+import { FileUploadGrantUncheckedCreateNestedManyWithoutCreatedByMemberInputObjectSchema as FileUploadGrantUncheckedCreateNestedManyWithoutCreatedByMemberInputObjectSchema } from './FileUploadGrantUncheckedCreateNestedManyWithoutCreatedByMemberInput.schema';
+import { StoredFileUncheckedCreateNestedManyWithoutUploaderMemberInputObjectSchema as StoredFileUncheckedCreateNestedManyWithoutUploaderMemberInputObjectSchema } from './StoredFileUncheckedCreateNestedManyWithoutUploaderMemberInput.schema';
+import { CaseAssetFileVersionUncheckedCreateNestedManyWithoutCreatedByMemberInputObjectSchema as CaseAssetFileVersionUncheckedCreateNestedManyWithoutCreatedByMemberInputObjectSchema } from './CaseAssetFileVersionUncheckedCreateNestedManyWithoutCreatedByMemberInput.schema'
 
 const makeSchema = () => z.object({
   id: z.string(),
@@ -9,7 +11,9 @@ const makeSchema = () => z.object({
   role: z.string().optional(),
   createdAt: z.coerce.date(),
   labStaff: z.lazy(() => LabStaffUncheckedCreateNestedOneWithoutMemberInputObjectSchema).optional(),
-  fileUploadGrants: z.lazy(() => FileUploadGrantUncheckedCreateNestedManyWithoutCreatedByMemberInputObjectSchema).optional()
+  fileUploadGrants: z.lazy(() => FileUploadGrantUncheckedCreateNestedManyWithoutCreatedByMemberInputObjectSchema).optional(),
+  uploadedStoredFiles: z.lazy(() => StoredFileUncheckedCreateNestedManyWithoutUploaderMemberInputObjectSchema).optional(),
+  createdCaseFileVersions: z.lazy(() => CaseAssetFileVersionUncheckedCreateNestedManyWithoutCreatedByMemberInputObjectSchema).optional()
 }).strict();
 export const MemberUncheckedCreateWithoutAuthuserInputObjectSchema: z.ZodType<Prisma.MemberUncheckedCreateWithoutAuthuserInput> = makeSchema() as unknown as z.ZodType<Prisma.MemberUncheckedCreateWithoutAuthuserInput>;
 export const MemberUncheckedCreateWithoutAuthuserInputObjectZodSchema = makeSchema();

@@ -14,9 +14,7 @@
 //   - caseWorkItems  → delete all → recompute → create fresh
 //   - staffAssignments → delete all → create fresh
 //
-// Additive/selective children:
-//   - caseAssetFiles → new files created, existing files title/description
-//     updated in-place, files absent from the payload are DELETED
+// Clinical assets are preserved; asset changes require separate commands.
 //
 // Status re-evaluation:
 //   - Only when current status is NEW or ASSIGNED
@@ -40,6 +38,7 @@ import {
 	resolveActorName,
 } from '@/data/activity-logs/build-activity-log'
 import { ActionError, ERRORS } from '@/lib/errors'
+import { assertNoCaseAssetMutationRequested } from '@/lib/case-asset-preservation'
 import { tenantPrisma } from '@/lib/prisma'
 import { actionClientWithLab } from '@/lib/safe-action'
 import { computeCaseItemPrice } from '@/lib/server-only-helpers'
@@ -128,12 +127,12 @@ export const updateDentalCaseAction = actionClientWithLab
 			caseAssetFiles,
 			staffAssignments,
 		} = parsedInput
+		assertNoCaseAssetMutationRequested(caseAssetFiles)
 
 		const prisma = await tenantPrisma(labId)
 
 		// ── STEP 1: Fetch existing case ──────────────────────────────────────────
-		// Include current work item count and asset file IDs for accurate diffing
-		// and for determining which asset files to delete.
+		// Include current work item count for accurate diffing.
 
 		const existingCase = await prisma.case.findUnique({
 			where: { id: caseId, labId },
@@ -152,11 +151,6 @@ export const updateDentalCaseAction = actionClientWithLab
 						caseItems: true,
 						staffAssignments: true,
 					},
-				},
-				// We need existing asset file IDs to determine deletions
-				caseAssetFiles: {
-					where: { labId },
-					select: { id: true },
 				},
 				invoiceCase: { select: { invoiceId: true } },
 			},
@@ -191,19 +185,6 @@ export const updateDentalCaseAction = actionClientWithLab
 			...new Set(validWorkItems.map((i) => i.casePricingPlanId)),
 		]
 		const staffIds = (staffAssignments ?? []).map((s) => s.staffId)
-
-		// Determine which existing asset files to keep vs delete.
-		// "keep" = the client sent back an existing file record (isNew: false).
-		// Anything NOT in this set gets deleted.
-		const incomingExistingFileIds = new Set(
-			(caseAssetFiles ?? [])
-				.filter((f) => !f.isNew)
-				.map((f) => (!f.isNew ? f.id : '')),
-		)
-		const existingFileIds = existingCase.caseAssetFiles.map((f) => f.id)
-		const fileIdsToDelete = existingFileIds.filter(
-			(id) => !incomingExistingFileIds.has(id),
-		)
 
 		const [clinic, dentist, category, pricingPlans, staffMembers, actorName] =
 			await Promise.all([
@@ -386,10 +367,8 @@ export const updateDentalCaseAction = actionClientWithLab
 		// Atomic unit:
 		//   1. Delete stale work items (cascades → SelectedTooth via schema)
 		//   2. Delete stale staff assignments
-		//   3. Delete asset files the user removed
-		//   4. Update existing asset file metadata (title/description)
-		//   5. Update case scalars + create fresh work items + staff + new asset files
-		//   6. Write CASE_UPDATED activity log entry
+		//   3. Update case scalars + create fresh work items + staff
+		//   4. Write CASE_UPDATED activity log entry
 
 		const updatedCase = await prisma.$transaction(
 			async (tx) => {
@@ -401,41 +380,9 @@ export const updateDentalCaseAction = actionClientWithLab
 					tx.caseStaffAssignment.deleteMany({ where: { caseId, labId } }),
 				]
 
-				if (fileIdsToDelete.length > 0) {
-					deleteOps.push(
-						tx.caseAssetFile.deleteMany({
-							where: {
-								id: { in: fileIdsToDelete },
-								dentalCaseId: caseId,
-								labId,
-							},
-						}),
-					)
-				}
-
 				await Promise.all(deleteOps)
 
-				// ── 6b. Update existing asset file metadata in parallel ────────
-				// Files the user kept but may have renamed/re-described.
-				const existingFileUpdates = (caseAssetFiles ?? [])
-					.filter((f) => !f.isNew)
-					.map((f) => {
-						if (f.isNew) return Promise.resolve() // narrow type, never reached
-						return tx.caseAssetFile.update({
-							where: { id: f.id, dentalCaseId: caseId, labId },
-							data: {
-								title: f.title ?? null,
-								description: f.description ?? null,
-							},
-						})
-					})
-
-				if (existingFileUpdates.length > 0) {
-					await Promise.all(existingFileUpdates)
-				}
-
-				// ── 6c. Update case + recreate work items, staff, new files ───
-				const newAssetFiles = (caseAssetFiles ?? []).filter((f) => f.isNew)
+				// ── 6b. Update case + recreate work items and staff ───
 
 				const updated = await tx.case.update({
 					where: { id: caseId, labId },
@@ -504,22 +451,6 @@ export const updateDentalCaseAction = actionClientWithLab
 									}
 								: undefined,
 
-						// Additive: only new files (existing ones updated in 6b)
-						caseAssetFiles:
-							newAssetFiles.length > 0
-								? {
-										createMany: {
-											data: newAssetFiles.map((f) => ({
-												title: f.isNew ? (f.title ?? null) : null,
-												description: f.isNew ? (f.description ?? null) : null,
-												documentUrl: f.documentUrl,
-												assetFileType: f.assetFileType,
-												fileExtension: f.fileExtension,
-												labId,
-											})),
-										},
-									}
-								: undefined,
 					},
 					select: {
 						id: true,
@@ -536,11 +467,6 @@ export const updateDentalCaseAction = actionClientWithLab
 				const newStaffCount = (staffAssignments ?? []).length
 				const staffChanged = prevStaffCount > 0 || newStaffCount > 0
 
-				const prevAssetCount = (caseAssetFiles ?? []).filter(
-					(f) => !f.isNew,
-				).length
-				const newAssetCount = (caseAssetFiles ?? []).length
-				const assetsChanged = prevAssetCount !== newAssetCount
 				// Main update entry with full structured diff
 				activityLogs.push(
 					buildLogEntry({
@@ -569,12 +495,7 @@ export const updateDentalCaseAction = actionClientWithLab
 									}
 								: null,
 
-							caseAssetFiles: assetsChanged
-								? {
-										previousCount: prevAssetCount,
-										newCount: newAssetCount,
-									}
-								: null,
+							caseAssetFiles: null,
 
 							statusChanged:
 								resolvedStatus !== currentStatus
@@ -608,42 +529,6 @@ export const updateDentalCaseAction = actionClientWithLab
 							}),
 						)
 					}
-				}
-
-				// New file upload logs
-				for (const file of newAssetFiles) {
-					if (file.isNew) {
-						activityLogs.push(
-							buildLogEntry({
-								caseId,
-								labId,
-								actorId: labUser.id,
-								actorName,
-								type: 'FILE_UPLOADED',
-								summary: `Attached ${file.assetFileType}: ${file.title || 'Asset'}`,
-								payload: {
-									fileId: file.documentUrl,
-									fileName: file.title || 'Clinical Asset',
-									assetFileType: file.assetFileType,
-								},
-							}),
-						)
-					}
-				}
-
-				// Deleted file logs
-				for (const fileId of fileIdsToDelete) {
-					activityLogs.push(
-						buildLogEntry({
-							caseId,
-							labId,
-							actorId: labUser.id,
-							actorName,
-							type: 'FILE_DELETED',
-							summary: 'Clinical asset removed',
-							payload: { fileId, fileName: 'Unknown' },
-						}),
-					)
 				}
 
 				if (activityLogs.length > 0) {

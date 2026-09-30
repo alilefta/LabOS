@@ -11,6 +11,8 @@ import { CaseWorkItemCreateNestedManyWithoutLabInputObjectSchema as CaseWorkItem
 import { SelectedToothCreateNestedManyWithoutLabInputObjectSchema as SelectedToothCreateNestedManyWithoutLabInputObjectSchema } from './SelectedToothCreateNestedManyWithoutLabInput.schema';
 import { CasePricingPlanCreateNestedManyWithoutLabInputObjectSchema as CasePricingPlanCreateNestedManyWithoutLabInputObjectSchema } from './CasePricingPlanCreateNestedManyWithoutLabInput.schema';
 import { FileUploadGrantCreateNestedManyWithoutLabInputObjectSchema as FileUploadGrantCreateNestedManyWithoutLabInputObjectSchema } from './FileUploadGrantCreateNestedManyWithoutLabInput.schema';
+import { StoredFileCreateNestedManyWithoutLabInputObjectSchema as StoredFileCreateNestedManyWithoutLabInputObjectSchema } from './StoredFileCreateNestedManyWithoutLabInput.schema';
+import { CaseClinicalUploadEvidenceCreateNestedManyWithoutLabInputObjectSchema as CaseClinicalUploadEvidenceCreateNestedManyWithoutLabInputObjectSchema } from './CaseClinicalUploadEvidenceCreateNestedManyWithoutLabInput.schema';
 import { PatientCreateNestedManyWithoutLabInputObjectSchema as PatientCreateNestedManyWithoutLabInputObjectSchema } from './PatientCreateNestedManyWithoutLabInput.schema';
 import { DentistCreateNestedManyWithoutLabInputObjectSchema as DentistCreateNestedManyWithoutLabInputObjectSchema } from './DentistCreateNestedManyWithoutLabInput.schema';
 import { CaseStaffAssignmentCreateNestedManyWithoutLabInputObjectSchema as CaseStaffAssignmentCreateNestedManyWithoutLabInputObjectSchema } from './CaseStaffAssignmentCreateNestedManyWithoutLabInput.schema';
@@ -48,6 +50,8 @@ const makeSchema = () => z.object({
   selectedTeeth: z.lazy(() => SelectedToothCreateNestedManyWithoutLabInputObjectSchema).optional(),
   casePricingPlans: z.lazy(() => CasePricingPlanCreateNestedManyWithoutLabInputObjectSchema).optional(),
   fileUploadGrants: z.lazy(() => FileUploadGrantCreateNestedManyWithoutLabInputObjectSchema).optional(),
+  storedFiles: z.lazy(() => StoredFileCreateNestedManyWithoutLabInputObjectSchema).optional(),
+  clinicalUploadEvidence: z.lazy(() => CaseClinicalUploadEvidenceCreateNestedManyWithoutLabInputObjectSchema).optional(),
   patients: z.lazy(() => PatientCreateNestedManyWithoutLabInputObjectSchema).optional(),
   dentists: z.lazy(() => DentistCreateNestedManyWithoutLabInputObjectSchema).optional(),
   staffAssignments: z.lazy(() => CaseStaffAssignmentCreateNestedManyWithoutLabInputObjectSchema).optional(),

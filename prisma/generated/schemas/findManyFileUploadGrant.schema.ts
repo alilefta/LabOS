@@ -22,6 +22,7 @@ export const FileUploadGrantFindManySelectSchema: z.ZodType<Prisma.FileUploadGra
     targetType: z.boolean().optional(),
     targetId: z.boolean().optional(),
     status: z.boolean().optional(),
+    provider: z.boolean().optional(),
     providerFileKey: z.boolean().optional(),
     providerFileUrl: z.boolean().optional(),
     correlationId: z.boolean().optional(),
@@ -36,7 +37,9 @@ export const FileUploadGrantFindManySelectSchema: z.ZodType<Prisma.FileUploadGra
     lastCleanupAttemptAt: z.boolean().optional(),
     cleanupFailureCode: z.boolean().optional(),
     createdAt: z.boolean().optional(),
-    updatedAt: z.boolean().optional()
+    updatedAt: z.boolean().optional(),
+    storedFile: z.boolean().optional(),
+    clinicalUploadEvidence: z.boolean().optional()
   }).strict() as unknown as z.ZodType<Prisma.FileUploadGrantSelect>;
 
 export const FileUploadGrantFindManySelectZodSchema = z.object({
@@ -52,6 +55,7 @@ export const FileUploadGrantFindManySelectZodSchema = z.object({
     targetType: z.boolean().optional(),
     targetId: z.boolean().optional(),
     status: z.boolean().optional(),
+    provider: z.boolean().optional(),
     providerFileKey: z.boolean().optional(),
     providerFileUrl: z.boolean().optional(),
     correlationId: z.boolean().optional(),
@@ -66,7 +70,9 @@ export const FileUploadGrantFindManySelectZodSchema = z.object({
     lastCleanupAttemptAt: z.boolean().optional(),
     cleanupFailureCode: z.boolean().optional(),
     createdAt: z.boolean().optional(),
-    updatedAt: z.boolean().optional()
+    updatedAt: z.boolean().optional(),
+    storedFile: z.boolean().optional(),
+    clinicalUploadEvidence: z.boolean().optional()
   }).strict();
 
 export const FileUploadGrantFindManySchema: z.ZodType<Prisma.FileUploadGrantFindManyArgs> = z.object({ select: FileUploadGrantFindManySelectSchema.optional(), include: z.lazy(() => FileUploadGrantIncludeObjectSchema.optional()), orderBy: z.union([FileUploadGrantOrderByWithRelationInputObjectSchema, FileUploadGrantOrderByWithRelationInputObjectSchema.array()]).optional(), where: FileUploadGrantWhereInputObjectSchema.optional(), cursor: FileUploadGrantWhereUniqueInputObjectSchema.optional(), take: z.number().optional(), skip: z.number().optional(), distinct: z.union([FileUploadGrantScalarFieldEnumSchema, FileUploadGrantScalarFieldEnumSchema.array()]).optional() }).strict() as unknown as z.ZodType<Prisma.FileUploadGrantFindManyArgs>;

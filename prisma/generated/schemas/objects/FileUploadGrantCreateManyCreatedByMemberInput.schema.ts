@@ -1,6 +1,7 @@
 import * as z from 'zod';
 import type { Prisma } from '../../../../generated/prisma/client';
-import { FileUploadGrantStatusSchema } from '../enums/FileUploadGrantStatus.schema'
+import { FileUploadGrantStatusSchema } from '../enums/FileUploadGrantStatus.schema';
+import { StoredFileProviderSchema } from '../enums/StoredFileProvider.schema'
 
 const makeSchema = () => z.object({
   id: z.string().optional(),
@@ -11,6 +12,7 @@ const makeSchema = () => z.object({
   targetType: z.string().optional().nullable(),
   targetId: z.string().optional().nullable(),
   status: FileUploadGrantStatusSchema.optional(),
+  provider: StoredFileProviderSchema.optional().nullable(),
   providerFileKey: z.string().optional().nullable(),
   providerFileUrl: z.string().optional().nullable(),
   correlationId: z.string(),

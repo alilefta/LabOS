@@ -5,7 +5,6 @@ import { CaseWorkItemBaseSchema } from '../base/case-work-item.base'
 import { PatientBaseSchema } from '../base/patient.base'
 import { CaseCategoryBaseSchema } from '../base/case-category.base'
 import { ClinicBaseSchema } from '../base/clinic.base'
-import { CaseAssetFileBaseSchema } from '../base/case-asset-file.base'
 import {
 	CaseWorkItemDetailsUISchema,
 	CreateCaseWorkItemInput,
@@ -21,7 +20,7 @@ import {
 	StaffRoleCategorySchema,
 } from '../base/enums.base'
 import { DentistBaseSchema } from '../base/dentist.base'
-import { CreateCaseAssetFilesInputSchema } from './case-asset-file.details'
+import { CaseAssetSummarySchema, CreateCaseAssetFilesInputSchema } from './case-asset-file.details'
 import { emptyToUndefinedTransformer } from '../base/utils.base'
 import {
 	CaseStaffAssignmentDetailsUISchema,
@@ -38,7 +37,7 @@ export const CaseDetailsSchema = CaseBaseSchema.extend({
 	caseCategory: CaseCategoryBaseSchema.nullable(),
 	caseItems: z.array(CaseWorkItemDetailsUISchema),
 	clinic: ClinicBaseSchema.nullable(),
-	caseAssetFiles: z.array(CaseAssetFileBaseSchema),
+	caseAssetFiles: z.array(CaseAssetSummarySchema),
 	lab: LabBaseSchema,
 	patient: PatientBaseSchema,
 	dentist: DentistBaseSchema.nullable(),
@@ -54,7 +53,7 @@ export const CaseDetailsUISchema = CaseBaseSchema.extend({
 	caseCategory: CaseCategoryBaseSchema.nullable(),
 	caseItems: z.array(CaseWorkItemDetailsUISchema),
 	clinic: ClinicBaseSchema.nullable(),
-	caseAssetFiles: z.array(CaseAssetFileBaseSchema).nullable(),
+	caseAssetFiles: z.array(CaseAssetSummarySchema).nullable(),
 	lab: LabBaseSchema.nullable(),
 	patient: PatientBaseSchema.nullable(),
 	dentist: DentistBaseSchema.nullable(),
@@ -447,7 +446,7 @@ export const DraftCaseDTOSchema = CaseBaseSchema.extend({
 			}),
 		)
 		.optional(),
-	caseAssetFiles: z.array(CaseAssetFileBaseSchema).optional(),
+	caseAssetFiles: z.array(CaseAssetSummarySchema).optional(),
 	caseCategory: CaseCategoryBaseSchema.partial().nullable(),
 })
 

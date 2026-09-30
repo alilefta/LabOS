@@ -11,6 +11,9 @@ const makeSchema = () => z.object({
   assetFileType: SortOrderSchema.optional(),
   fileExtension: SortOrderSchema.optional(),
   labId: SortOrderSchema.optional(),
+  storageMode: SortOrderSchema.optional(),
+  clinicalPurpose: SortOrderSchema.optional(),
+  currentVersionId: SortOrderSchema.optional(),
   createdAt: SortOrderSchema.optional(),
   updatedAt: SortOrderSchema.optional()
 }).strict();

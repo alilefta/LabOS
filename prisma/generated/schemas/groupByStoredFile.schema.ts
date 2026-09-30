@@ -1,0 +1,15 @@
+import type { Prisma } from '../../../generated/prisma/client';
+import * as z from 'zod';
+import { StoredFileWhereInputObjectSchema as StoredFileWhereInputObjectSchema } from './objects/StoredFileWhereInput.schema';
+import { StoredFileOrderByWithAggregationInputObjectSchema as StoredFileOrderByWithAggregationInputObjectSchema } from './objects/StoredFileOrderByWithAggregationInput.schema';
+import { StoredFileScalarWhereWithAggregatesInputObjectSchema as StoredFileScalarWhereWithAggregatesInputObjectSchema } from './objects/StoredFileScalarWhereWithAggregatesInput.schema';
+import { StoredFileScalarFieldEnumSchema } from './enums/StoredFileScalarFieldEnum.schema';
+import { StoredFileCountAggregateInputObjectSchema as StoredFileCountAggregateInputObjectSchema } from './objects/StoredFileCountAggregateInput.schema';
+import { StoredFileMinAggregateInputObjectSchema as StoredFileMinAggregateInputObjectSchema } from './objects/StoredFileMinAggregateInput.schema';
+import { StoredFileMaxAggregateInputObjectSchema as StoredFileMaxAggregateInputObjectSchema } from './objects/StoredFileMaxAggregateInput.schema';
+import { StoredFileAvgAggregateInputObjectSchema as StoredFileAvgAggregateInputObjectSchema } from './objects/StoredFileAvgAggregateInput.schema';
+import { StoredFileSumAggregateInputObjectSchema as StoredFileSumAggregateInputObjectSchema } from './objects/StoredFileSumAggregateInput.schema';
+
+export const StoredFileGroupBySchema: z.ZodType<Prisma.StoredFileGroupByArgs> = z.object({ where: StoredFileWhereInputObjectSchema.optional(), orderBy: z.union([StoredFileOrderByWithAggregationInputObjectSchema, StoredFileOrderByWithAggregationInputObjectSchema.array()]).optional(), having: StoredFileScalarWhereWithAggregatesInputObjectSchema.optional(), take: z.number().optional(), skip: z.number().optional(), by: z.array(StoredFileScalarFieldEnumSchema), _count: z.union([ z.literal(true), StoredFileCountAggregateInputObjectSchema ]).optional(), _min: StoredFileMinAggregateInputObjectSchema.optional(), _max: StoredFileMaxAggregateInputObjectSchema.optional(), _avg: StoredFileAvgAggregateInputObjectSchema.optional(), _sum: StoredFileSumAggregateInputObjectSchema.optional() }).strict() as unknown as z.ZodType<Prisma.StoredFileGroupByArgs>;
+
+export const StoredFileGroupByZodSchema = z.object({ where: StoredFileWhereInputObjectSchema.optional(), orderBy: z.union([StoredFileOrderByWithAggregationInputObjectSchema, StoredFileOrderByWithAggregationInputObjectSchema.array()]).optional(), having: StoredFileScalarWhereWithAggregatesInputObjectSchema.optional(), take: z.number().optional(), skip: z.number().optional(), by: z.array(StoredFileScalarFieldEnumSchema), _count: z.union([ z.literal(true), StoredFileCountAggregateInputObjectSchema ]).optional(), _min: StoredFileMinAggregateInputObjectSchema.optional(), _max: StoredFileMaxAggregateInputObjectSchema.optional(), _avg: StoredFileAvgAggregateInputObjectSchema.optional(), _sum: StoredFileSumAggregateInputObjectSchema.optional() }).strict();

@@ -4,7 +4,9 @@ import { StringFieldUpdateOperationsInputObjectSchema as StringFieldUpdateOperat
 import { DateTimeFieldUpdateOperationsInputObjectSchema as DateTimeFieldUpdateOperationsInputObjectSchema } from './DateTimeFieldUpdateOperationsInput.schema';
 import { OrganizationUpdateOneRequiredWithoutMembersNestedInputObjectSchema as OrganizationUpdateOneRequiredWithoutMembersNestedInputObjectSchema } from './OrganizationUpdateOneRequiredWithoutMembersNestedInput.schema';
 import { AuthUserUpdateOneRequiredWithoutMembersNestedInputObjectSchema as AuthUserUpdateOneRequiredWithoutMembersNestedInputObjectSchema } from './AuthUserUpdateOneRequiredWithoutMembersNestedInput.schema';
-import { FileUploadGrantUpdateManyWithoutCreatedByMemberNestedInputObjectSchema as FileUploadGrantUpdateManyWithoutCreatedByMemberNestedInputObjectSchema } from './FileUploadGrantUpdateManyWithoutCreatedByMemberNestedInput.schema'
+import { FileUploadGrantUpdateManyWithoutCreatedByMemberNestedInputObjectSchema as FileUploadGrantUpdateManyWithoutCreatedByMemberNestedInputObjectSchema } from './FileUploadGrantUpdateManyWithoutCreatedByMemberNestedInput.schema';
+import { StoredFileUpdateManyWithoutUploaderMemberNestedInputObjectSchema as StoredFileUpdateManyWithoutUploaderMemberNestedInputObjectSchema } from './StoredFileUpdateManyWithoutUploaderMemberNestedInput.schema';
+import { CaseAssetFileVersionUpdateManyWithoutCreatedByMemberNestedInputObjectSchema as CaseAssetFileVersionUpdateManyWithoutCreatedByMemberNestedInputObjectSchema } from './CaseAssetFileVersionUpdateManyWithoutCreatedByMemberNestedInput.schema'
 
 const makeSchema = () => z.object({
   id: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputObjectSchema)]).optional(),
@@ -12,7 +14,9 @@ const makeSchema = () => z.object({
   createdAt: z.union([z.coerce.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputObjectSchema)]).optional(),
   organization: z.lazy(() => OrganizationUpdateOneRequiredWithoutMembersNestedInputObjectSchema).optional(),
   authuser: z.lazy(() => AuthUserUpdateOneRequiredWithoutMembersNestedInputObjectSchema).optional(),
-  fileUploadGrants: z.lazy(() => FileUploadGrantUpdateManyWithoutCreatedByMemberNestedInputObjectSchema).optional()
+  fileUploadGrants: z.lazy(() => FileUploadGrantUpdateManyWithoutCreatedByMemberNestedInputObjectSchema).optional(),
+  uploadedStoredFiles: z.lazy(() => StoredFileUpdateManyWithoutUploaderMemberNestedInputObjectSchema).optional(),
+  createdCaseFileVersions: z.lazy(() => CaseAssetFileVersionUpdateManyWithoutCreatedByMemberNestedInputObjectSchema).optional()
 }).strict();
 export const MemberUpdateWithoutLabStaffInputObjectSchema: z.ZodType<Prisma.MemberUpdateWithoutLabStaffInput> = makeSchema() as unknown as z.ZodType<Prisma.MemberUpdateWithoutLabStaffInput>;
 export const MemberUpdateWithoutLabStaffInputObjectZodSchema = makeSchema();

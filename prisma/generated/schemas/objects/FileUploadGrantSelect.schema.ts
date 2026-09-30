@@ -2,7 +2,9 @@ import * as z from 'zod';
 import type { Prisma } from '../../../../generated/prisma/client';
 import { OrganizationArgsObjectSchema as OrganizationArgsObjectSchema } from './OrganizationArgs.schema';
 import { LabArgsObjectSchema as LabArgsObjectSchema } from './LabArgs.schema';
-import { MemberArgsObjectSchema as MemberArgsObjectSchema } from './MemberArgs.schema'
+import { MemberArgsObjectSchema as MemberArgsObjectSchema } from './MemberArgs.schema';
+import { StoredFileArgsObjectSchema as StoredFileArgsObjectSchema } from './StoredFileArgs.schema';
+import { CaseClinicalUploadEvidenceArgsObjectSchema as CaseClinicalUploadEvidenceArgsObjectSchema } from './CaseClinicalUploadEvidenceArgs.schema'
 
 const makeSchema = () => z.object({
   id: z.boolean().optional(),
@@ -17,6 +19,7 @@ const makeSchema = () => z.object({
   targetType: z.boolean().optional(),
   targetId: z.boolean().optional(),
   status: z.boolean().optional(),
+  provider: z.boolean().optional(),
   providerFileKey: z.boolean().optional(),
   providerFileUrl: z.boolean().optional(),
   correlationId: z.boolean().optional(),
@@ -31,7 +34,9 @@ const makeSchema = () => z.object({
   lastCleanupAttemptAt: z.boolean().optional(),
   cleanupFailureCode: z.boolean().optional(),
   createdAt: z.boolean().optional(),
-  updatedAt: z.boolean().optional()
+  updatedAt: z.boolean().optional(),
+  storedFile: z.union([z.boolean(), z.lazy(() => StoredFileArgsObjectSchema)]).optional(),
+  clinicalUploadEvidence: z.union([z.boolean(), z.lazy(() => CaseClinicalUploadEvidenceArgsObjectSchema)]).optional()
 }).strict();
 export const FileUploadGrantSelectObjectSchema: z.ZodType<Prisma.FileUploadGrantSelect> = makeSchema() as unknown as z.ZodType<Prisma.FileUploadGrantSelect>;
 export const FileUploadGrantSelectObjectZodSchema = makeSchema();

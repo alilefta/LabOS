@@ -10,6 +10,7 @@ import { ClinicCreateNestedOneWithoutCasesInputObjectSchema as ClinicCreateNeste
 import { DentistCreateNestedOneWithoutCasesInputObjectSchema as DentistCreateNestedOneWithoutCasesInputObjectSchema } from './DentistCreateNestedOneWithoutCasesInput.schema';
 import { CaseActivityLogCreateNestedManyWithoutDentalCaseInputObjectSchema as CaseActivityLogCreateNestedManyWithoutDentalCaseInputObjectSchema } from './CaseActivityLogCreateNestedManyWithoutDentalCaseInput.schema';
 import { CaseAssetFileCreateNestedManyWithoutDentalCaseInputObjectSchema as CaseAssetFileCreateNestedManyWithoutDentalCaseInputObjectSchema } from './CaseAssetFileCreateNestedManyWithoutDentalCaseInput.schema';
+import { CaseClinicalUploadEvidenceCreateNestedManyWithoutDentalCaseInputObjectSchema as CaseClinicalUploadEvidenceCreateNestedManyWithoutDentalCaseInputObjectSchema } from './CaseClinicalUploadEvidenceCreateNestedManyWithoutDentalCaseInput.schema';
 import { InvoiceCaseCreateNestedOneWithoutCaseInputObjectSchema as InvoiceCaseCreateNestedOneWithoutCaseInputObjectSchema } from './InvoiceCaseCreateNestedOneWithoutCaseInput.schema';
 import { CaseCreateNestedOneWithoutRemakesInputObjectSchema as CaseCreateNestedOneWithoutRemakesInputObjectSchema } from './CaseCreateNestedOneWithoutRemakesInput.schema';
 import { CaseCreateNestedManyWithoutOriginalCaseInputObjectSchema as CaseCreateNestedManyWithoutOriginalCaseInputObjectSchema } from './CaseCreateNestedManyWithoutOriginalCaseInput.schema'
@@ -54,6 +55,7 @@ const makeSchema = () => z.object({
   dentist: z.lazy(() => DentistCreateNestedOneWithoutCasesInputObjectSchema).optional(),
   caseActivityLogs: z.lazy(() => CaseActivityLogCreateNestedManyWithoutDentalCaseInputObjectSchema).optional(),
   caseAssetFiles: z.lazy(() => CaseAssetFileCreateNestedManyWithoutDentalCaseInputObjectSchema).optional(),
+  clinicalUploadEvidence: z.lazy(() => CaseClinicalUploadEvidenceCreateNestedManyWithoutDentalCaseInputObjectSchema).optional(),
   invoiceCase: z.lazy(() => InvoiceCaseCreateNestedOneWithoutCaseInputObjectSchema).optional(),
   originalCase: z.lazy(() => CaseCreateNestedOneWithoutRemakesInputObjectSchema).optional(),
   remakes: z.lazy(() => CaseCreateNestedManyWithoutOriginalCaseInputObjectSchema).optional()

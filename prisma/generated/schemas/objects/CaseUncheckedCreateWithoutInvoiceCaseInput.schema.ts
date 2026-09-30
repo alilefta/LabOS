@@ -6,6 +6,7 @@ import { CaseWorkItemUncheckedCreateNestedManyWithoutDentalCaseInputObjectSchema
 import { CaseStaffAssignmentUncheckedCreateNestedManyWithoutDentalCaseInputObjectSchema as CaseStaffAssignmentUncheckedCreateNestedManyWithoutDentalCaseInputObjectSchema } from './CaseStaffAssignmentUncheckedCreateNestedManyWithoutDentalCaseInput.schema';
 import { CaseActivityLogUncheckedCreateNestedManyWithoutDentalCaseInputObjectSchema as CaseActivityLogUncheckedCreateNestedManyWithoutDentalCaseInputObjectSchema } from './CaseActivityLogUncheckedCreateNestedManyWithoutDentalCaseInput.schema';
 import { CaseAssetFileUncheckedCreateNestedManyWithoutDentalCaseInputObjectSchema as CaseAssetFileUncheckedCreateNestedManyWithoutDentalCaseInputObjectSchema } from './CaseAssetFileUncheckedCreateNestedManyWithoutDentalCaseInput.schema';
+import { CaseClinicalUploadEvidenceUncheckedCreateNestedManyWithoutDentalCaseInputObjectSchema as CaseClinicalUploadEvidenceUncheckedCreateNestedManyWithoutDentalCaseInputObjectSchema } from './CaseClinicalUploadEvidenceUncheckedCreateNestedManyWithoutDentalCaseInput.schema';
 import { CaseUncheckedCreateNestedManyWithoutOriginalCaseInputObjectSchema as CaseUncheckedCreateNestedManyWithoutOriginalCaseInputObjectSchema } from './CaseUncheckedCreateNestedManyWithoutOriginalCaseInput.schema'
 
 import { DecimalJSLikeSchema, isValidDecimalInput } from '../../helpers/decimal-helpers';
@@ -50,6 +51,7 @@ const makeSchema = () => z.object({
   staffAssignments: z.lazy(() => CaseStaffAssignmentUncheckedCreateNestedManyWithoutDentalCaseInputObjectSchema).optional(),
   caseActivityLogs: z.lazy(() => CaseActivityLogUncheckedCreateNestedManyWithoutDentalCaseInputObjectSchema).optional(),
   caseAssetFiles: z.lazy(() => CaseAssetFileUncheckedCreateNestedManyWithoutDentalCaseInputObjectSchema).optional(),
+  clinicalUploadEvidence: z.lazy(() => CaseClinicalUploadEvidenceUncheckedCreateNestedManyWithoutDentalCaseInputObjectSchema).optional(),
   remakes: z.lazy(() => CaseUncheckedCreateNestedManyWithoutOriginalCaseInputObjectSchema).optional()
 }).strict();
 export const CaseUncheckedCreateWithoutInvoiceCaseInputObjectSchema: z.ZodType<Prisma.CaseUncheckedCreateWithoutInvoiceCaseInput> = makeSchema() as unknown as z.ZodType<Prisma.CaseUncheckedCreateWithoutInvoiceCaseInput>;

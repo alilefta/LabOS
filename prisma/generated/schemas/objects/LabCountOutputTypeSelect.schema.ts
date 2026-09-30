@@ -10,6 +10,8 @@ import { LabCountOutputTypeCountSelectedTeethArgsObjectSchema as LabCountOutputT
 import { LabCountOutputTypeCountCasePricingPlansArgsObjectSchema as LabCountOutputTypeCountCasePricingPlansArgsObjectSchema } from './LabCountOutputTypeCountCasePricingPlansArgs.schema';
 import { LabCountOutputTypeCountCaseAssetFilesArgsObjectSchema as LabCountOutputTypeCountCaseAssetFilesArgsObjectSchema } from './LabCountOutputTypeCountCaseAssetFilesArgs.schema';
 import { LabCountOutputTypeCountFileUploadGrantsArgsObjectSchema as LabCountOutputTypeCountFileUploadGrantsArgsObjectSchema } from './LabCountOutputTypeCountFileUploadGrantsArgs.schema';
+import { LabCountOutputTypeCountStoredFilesArgsObjectSchema as LabCountOutputTypeCountStoredFilesArgsObjectSchema } from './LabCountOutputTypeCountStoredFilesArgs.schema';
+import { LabCountOutputTypeCountClinicalUploadEvidenceArgsObjectSchema as LabCountOutputTypeCountClinicalUploadEvidenceArgsObjectSchema } from './LabCountOutputTypeCountClinicalUploadEvidenceArgs.schema';
 import { LabCountOutputTypeCountPatientsArgsObjectSchema as LabCountOutputTypeCountPatientsArgsObjectSchema } from './LabCountOutputTypeCountPatientsArgs.schema';
 import { LabCountOutputTypeCountDentistsArgsObjectSchema as LabCountOutputTypeCountDentistsArgsObjectSchema } from './LabCountOutputTypeCountDentistsArgs.schema';
 import { LabCountOutputTypeCountStaffAssignmentsArgsObjectSchema as LabCountOutputTypeCountStaffAssignmentsArgsObjectSchema } from './LabCountOutputTypeCountStaffAssignmentsArgs.schema';
@@ -35,6 +37,8 @@ const makeSchema = () => z.object({
   casePricingPlans: z.union([z.boolean(), z.lazy(() => LabCountOutputTypeCountCasePricingPlansArgsObjectSchema)]).optional(),
   caseAssetFiles: z.union([z.boolean(), z.lazy(() => LabCountOutputTypeCountCaseAssetFilesArgsObjectSchema)]).optional(),
   fileUploadGrants: z.union([z.boolean(), z.lazy(() => LabCountOutputTypeCountFileUploadGrantsArgsObjectSchema)]).optional(),
+  storedFiles: z.union([z.boolean(), z.lazy(() => LabCountOutputTypeCountStoredFilesArgsObjectSchema)]).optional(),
+  clinicalUploadEvidence: z.union([z.boolean(), z.lazy(() => LabCountOutputTypeCountClinicalUploadEvidenceArgsObjectSchema)]).optional(),
   patients: z.union([z.boolean(), z.lazy(() => LabCountOutputTypeCountPatientsArgsObjectSchema)]).optional(),
   dentists: z.union([z.boolean(), z.lazy(() => LabCountOutputTypeCountDentistsArgsObjectSchema)]).optional(),
   staffAssignments: z.union([z.boolean(), z.lazy(() => LabCountOutputTypeCountStaffAssignmentsArgsObjectSchema)]).optional(),

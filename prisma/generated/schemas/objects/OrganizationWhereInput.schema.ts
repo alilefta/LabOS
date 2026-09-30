@@ -7,7 +7,9 @@ import { MemberListRelationFilterObjectSchema as MemberListRelationFilterObjectS
 import { InvitationListRelationFilterObjectSchema as InvitationListRelationFilterObjectSchema } from './InvitationListRelationFilter.schema';
 import { LabNullableScalarRelationFilterObjectSchema as LabNullableScalarRelationFilterObjectSchema } from './LabNullableScalarRelationFilter.schema';
 import { LabWhereInputObjectSchema as LabWhereInputObjectSchema } from './LabWhereInput.schema';
-import { FileUploadGrantListRelationFilterObjectSchema as FileUploadGrantListRelationFilterObjectSchema } from './FileUploadGrantListRelationFilter.schema'
+import { FileUploadGrantListRelationFilterObjectSchema as FileUploadGrantListRelationFilterObjectSchema } from './FileUploadGrantListRelationFilter.schema';
+import { StoredFileListRelationFilterObjectSchema as StoredFileListRelationFilterObjectSchema } from './StoredFileListRelationFilter.schema';
+import { CaseClinicalUploadEvidenceListRelationFilterObjectSchema as CaseClinicalUploadEvidenceListRelationFilterObjectSchema } from './CaseClinicalUploadEvidenceListRelationFilter.schema'
 
 const organizationwhereinputSchema = z.object({
   AND: z.union([z.lazy(() => OrganizationWhereInputObjectSchema), z.lazy(() => OrganizationWhereInputObjectSchema).array()]).optional(),
@@ -22,7 +24,9 @@ const organizationwhereinputSchema = z.object({
   members: z.lazy(() => MemberListRelationFilterObjectSchema).optional(),
   invitations: z.lazy(() => InvitationListRelationFilterObjectSchema).optional(),
   lab: z.union([z.lazy(() => LabNullableScalarRelationFilterObjectSchema), z.lazy(() => LabWhereInputObjectSchema)]).optional(),
-  fileUploadGrants: z.lazy(() => FileUploadGrantListRelationFilterObjectSchema).optional()
+  fileUploadGrants: z.lazy(() => FileUploadGrantListRelationFilterObjectSchema).optional(),
+  storedFiles: z.lazy(() => StoredFileListRelationFilterObjectSchema).optional(),
+  clinicalUploadEvidence: z.lazy(() => CaseClinicalUploadEvidenceListRelationFilterObjectSchema).optional()
 }).strict();
 export const OrganizationWhereInputObjectSchema: z.ZodType<Prisma.OrganizationWhereInput> = organizationwhereinputSchema as unknown as z.ZodType<Prisma.OrganizationWhereInput>;
 export const OrganizationWhereInputObjectZodSchema = organizationwhereinputSchema;

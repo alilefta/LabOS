@@ -4,6 +4,8 @@ import { StringFilterObjectSchema as StringFilterObjectSchema } from './StringFi
 import { StringNullableFilterObjectSchema as StringNullableFilterObjectSchema } from './StringNullableFilter.schema';
 import { EnumFileUploadGrantStatusFilterObjectSchema as EnumFileUploadGrantStatusFilterObjectSchema } from './EnumFileUploadGrantStatusFilter.schema';
 import { FileUploadGrantStatusSchema } from '../enums/FileUploadGrantStatus.schema';
+import { EnumStoredFileProviderNullableFilterObjectSchema as EnumStoredFileProviderNullableFilterObjectSchema } from './EnumStoredFileProviderNullableFilter.schema';
+import { StoredFileProviderSchema } from '../enums/StoredFileProvider.schema';
 import { DateTimeFilterObjectSchema as DateTimeFilterObjectSchema } from './DateTimeFilter.schema';
 import { DateTimeNullableFilterObjectSchema as DateTimeNullableFilterObjectSchema } from './DateTimeNullableFilter.schema';
 import { IntFilterObjectSchema as IntFilterObjectSchema } from './IntFilter.schema';
@@ -12,7 +14,11 @@ import { OrganizationWhereInputObjectSchema as OrganizationWhereInputObjectSchem
 import { LabScalarRelationFilterObjectSchema as LabScalarRelationFilterObjectSchema } from './LabScalarRelationFilter.schema';
 import { LabWhereInputObjectSchema as LabWhereInputObjectSchema } from './LabWhereInput.schema';
 import { MemberNullableScalarRelationFilterObjectSchema as MemberNullableScalarRelationFilterObjectSchema } from './MemberNullableScalarRelationFilter.schema';
-import { MemberWhereInputObjectSchema as MemberWhereInputObjectSchema } from './MemberWhereInput.schema'
+import { MemberWhereInputObjectSchema as MemberWhereInputObjectSchema } from './MemberWhereInput.schema';
+import { StoredFileNullableScalarRelationFilterObjectSchema as StoredFileNullableScalarRelationFilterObjectSchema } from './StoredFileNullableScalarRelationFilter.schema';
+import { StoredFileWhereInputObjectSchema as StoredFileWhereInputObjectSchema } from './StoredFileWhereInput.schema';
+import { CaseClinicalUploadEvidenceNullableScalarRelationFilterObjectSchema as CaseClinicalUploadEvidenceNullableScalarRelationFilterObjectSchema } from './CaseClinicalUploadEvidenceNullableScalarRelationFilter.schema';
+import { CaseClinicalUploadEvidenceWhereInputObjectSchema as CaseClinicalUploadEvidenceWhereInputObjectSchema } from './CaseClinicalUploadEvidenceWhereInput.schema'
 
 const fileuploadgrantwhereinputSchema = z.object({
   AND: z.union([z.lazy(() => FileUploadGrantWhereInputObjectSchema), z.lazy(() => FileUploadGrantWhereInputObjectSchema).array()]).optional(),
@@ -27,6 +33,7 @@ const fileuploadgrantwhereinputSchema = z.object({
   targetType: z.union([z.lazy(() => StringNullableFilterObjectSchema), z.string()]).optional().nullable(),
   targetId: z.union([z.lazy(() => StringNullableFilterObjectSchema), z.string()]).optional().nullable(),
   status: z.union([z.lazy(() => EnumFileUploadGrantStatusFilterObjectSchema), FileUploadGrantStatusSchema]).optional(),
+  provider: z.union([z.lazy(() => EnumStoredFileProviderNullableFilterObjectSchema), StoredFileProviderSchema]).optional().nullable(),
   providerFileKey: z.union([z.lazy(() => StringNullableFilterObjectSchema), z.string()]).optional().nullable(),
   providerFileUrl: z.union([z.lazy(() => StringNullableFilterObjectSchema), z.string()]).optional().nullable(),
   correlationId: z.union([z.lazy(() => StringFilterObjectSchema), z.string()]).optional(),
@@ -44,7 +51,9 @@ const fileuploadgrantwhereinputSchema = z.object({
   updatedAt: z.union([z.lazy(() => DateTimeFilterObjectSchema), z.coerce.date()]).optional(),
   organization: z.union([z.lazy(() => OrganizationScalarRelationFilterObjectSchema), z.lazy(() => OrganizationWhereInputObjectSchema)]).optional(),
   lab: z.union([z.lazy(() => LabScalarRelationFilterObjectSchema), z.lazy(() => LabWhereInputObjectSchema)]).optional(),
-  createdByMember: z.union([z.lazy(() => MemberNullableScalarRelationFilterObjectSchema), z.lazy(() => MemberWhereInputObjectSchema)]).optional()
+  createdByMember: z.union([z.lazy(() => MemberNullableScalarRelationFilterObjectSchema), z.lazy(() => MemberWhereInputObjectSchema)]).optional(),
+  storedFile: z.union([z.lazy(() => StoredFileNullableScalarRelationFilterObjectSchema), z.lazy(() => StoredFileWhereInputObjectSchema)]).optional(),
+  clinicalUploadEvidence: z.union([z.lazy(() => CaseClinicalUploadEvidenceNullableScalarRelationFilterObjectSchema), z.lazy(() => CaseClinicalUploadEvidenceWhereInputObjectSchema)]).optional()
 }).strict();
 export const FileUploadGrantWhereInputObjectSchema: z.ZodType<Prisma.FileUploadGrantWhereInput> = fileuploadgrantwhereinputSchema as unknown as z.ZodType<Prisma.FileUploadGrantWhereInput>;
 export const FileUploadGrantWhereInputObjectZodSchema = fileuploadgrantwhereinputSchema;

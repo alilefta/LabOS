@@ -13,6 +13,7 @@ export const FileUploadGrantFindManyResultSchema = z.object({
   targetType: z.string().optional(),
   targetId: z.string().optional(),
   status: z.unknown(),
+  provider: z.unknown().optional(),
   providerFileKey: z.string().optional(),
   providerFileUrl: z.string().optional(),
   correlationId: z.string(),
@@ -27,7 +28,9 @@ export const FileUploadGrantFindManyResultSchema = z.object({
   lastCleanupAttemptAt: z.date().optional(),
   cleanupFailureCode: z.string().optional(),
   createdAt: z.date(),
-  updatedAt: z.date()
+  updatedAt: z.date(),
+  storedFile: z.unknown().optional(),
+  clinicalUploadEvidence: z.unknown().optional()
 })),
   pagination: z.object({
   page: z.number().int().min(1),

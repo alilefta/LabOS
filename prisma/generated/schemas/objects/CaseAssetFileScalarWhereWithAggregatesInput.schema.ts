@@ -4,6 +4,10 @@ import { StringWithAggregatesFilterObjectSchema as StringWithAggregatesFilterObj
 import { StringNullableWithAggregatesFilterObjectSchema as StringNullableWithAggregatesFilterObjectSchema } from './StringNullableWithAggregatesFilter.schema';
 import { EnumAssetFileTypeWithAggregatesFilterObjectSchema as EnumAssetFileTypeWithAggregatesFilterObjectSchema } from './EnumAssetFileTypeWithAggregatesFilter.schema';
 import { AssetFileTypeSchema } from '../enums/AssetFileType.schema';
+import { EnumCaseAssetStorageModeWithAggregatesFilterObjectSchema as EnumCaseAssetStorageModeWithAggregatesFilterObjectSchema } from './EnumCaseAssetStorageModeWithAggregatesFilter.schema';
+import { CaseAssetStorageModeSchema } from '../enums/CaseAssetStorageMode.schema';
+import { EnumCaseClinicalPurposeNullableWithAggregatesFilterObjectSchema as EnumCaseClinicalPurposeNullableWithAggregatesFilterObjectSchema } from './EnumCaseClinicalPurposeNullableWithAggregatesFilter.schema';
+import { CaseClinicalPurposeSchema } from '../enums/CaseClinicalPurpose.schema';
 import { DateTimeWithAggregatesFilterObjectSchema as DateTimeWithAggregatesFilterObjectSchema } from './DateTimeWithAggregatesFilter.schema'
 
 const caseassetfilescalarwherewithaggregatesinputSchema = z.object({
@@ -14,10 +18,13 @@ const caseassetfilescalarwherewithaggregatesinputSchema = z.object({
   dentalCaseId: z.union([z.lazy(() => StringWithAggregatesFilterObjectSchema), z.string()]).optional(),
   title: z.union([z.lazy(() => StringNullableWithAggregatesFilterObjectSchema), z.string()]).optional().nullable(),
   description: z.union([z.lazy(() => StringNullableWithAggregatesFilterObjectSchema), z.string()]).optional().nullable(),
-  documentUrl: z.union([z.lazy(() => StringWithAggregatesFilterObjectSchema), z.string()]).optional(),
+  documentUrl: z.union([z.lazy(() => StringNullableWithAggregatesFilterObjectSchema), z.string()]).optional().nullable(),
   assetFileType: z.union([z.lazy(() => EnumAssetFileTypeWithAggregatesFilterObjectSchema), AssetFileTypeSchema]).optional(),
-  fileExtension: z.union([z.lazy(() => StringWithAggregatesFilterObjectSchema), z.string()]).optional(),
+  fileExtension: z.union([z.lazy(() => StringNullableWithAggregatesFilterObjectSchema), z.string()]).optional().nullable(),
   labId: z.union([z.lazy(() => StringWithAggregatesFilterObjectSchema), z.string()]).optional(),
+  storageMode: z.union([z.lazy(() => EnumCaseAssetStorageModeWithAggregatesFilterObjectSchema), CaseAssetStorageModeSchema]).optional(),
+  clinicalPurpose: z.union([z.lazy(() => EnumCaseClinicalPurposeNullableWithAggregatesFilterObjectSchema), CaseClinicalPurposeSchema]).optional().nullable(),
+  currentVersionId: z.union([z.lazy(() => StringNullableWithAggregatesFilterObjectSchema), z.string()]).optional().nullable(),
   createdAt: z.union([z.lazy(() => DateTimeWithAggregatesFilterObjectSchema), z.coerce.date()]).optional(),
   updatedAt: z.union([z.lazy(() => DateTimeWithAggregatesFilterObjectSchema), z.coerce.date()]).optional()
 }).strict();

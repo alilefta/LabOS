@@ -38,8 +38,6 @@ import {
 import z from 'zod'
 import {
 	DeadlineChangedPayloadSchema,
-	FileDeletedPayloadSchema,
-	FileUploadedPayloadSchema,
 	NoteAddedPayloadSchema,
 	StaffAssignedPayloadSchema,
 	StaffRemovedPayloadSchema,
@@ -418,55 +416,8 @@ export const addCaseAssetFilesAction = actionClientWithLab
 		requiredLabRole: 'STAFF',
 	})
 	.inputSchema(AddCaseAssetFilesSchema)
-	.action(async ({ ctx, parsedInput }) => {
-		const { labId, labUser } = ctx
-		const { caseId, files } = parsedInput
-
-		const prisma = await tenantPrisma(labId)
-		await requireCase(prisma, caseId, labId)
-
-		const actorName = await resolveActorName(labUser.id, labId)
-
-		const [createdFiles] = await prisma.$transaction([
-			prisma.caseAssetFile.createManyAndReturn({
-				data: files.map((f) => ({
-					caseId, // tenantPrisma will inject labId automatically
-					labId,
-					dentalCaseId: caseId,
-					title: f.title,
-					description: f.description,
-					documentUrl: f.documentUrl,
-					assetFileType: f.assetFileType,
-					fileExtension: f.fileExtension,
-				})),
-				select: {
-					id: true,
-					documentUrl: true,
-					assetFileType: true,
-					title: true,
-				},
-			}),
-
-			prisma.caseActivityLog.create({
-				data: buildLogEntry({
-					caseId,
-					labId,
-					actorId: labUser.id,
-					actorName,
-					type: 'FILE_UPLOADED',
-					summary: `${files.length} file${files.length > 1 ? 's' : ''} uploaded`,
-					payload: {
-						count: files.length,
-						files: files.map((f) => ({
-							fileName: f.title ?? f.fileExtension,
-							assetFileType: f.assetFileType,
-						})),
-					} as z.infer<typeof FileUploadedPayloadSchema>,
-				}),
-			}),
-		])
-
-		return { createdFiles }
+	.action(async () => {
+		throw ERRORS.OPERATION_NOT_ALLOWED
 	})
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -479,64 +430,8 @@ export const deleteCaseAssetFileAction = actionClientWithLab
 		requiredLabRole: 'ADMIN',
 	})
 	.inputSchema(DeleteCaseAssetFileSchema)
-	.action(async ({ ctx, parsedInput }) => {
-		const { labId, labUser } = ctx
-		const { caseId, fileId } = parsedInput
-
-		const prisma = await tenantPrisma(labId)
-		await requireCase(prisma, caseId, labId)
-
-		// Verify the file belongs to this case AND this lab
-		// This is the critical ownership check — prevents deleting another lab's files
-		const file = await prisma.caseAssetFile.findUnique({
-			where: { id: fileId },
-			select: {
-				id: true,
-				labId: true,
-				dentalCaseId: true,
-				title: true,
-				assetFileType: true,
-			},
-		})
-
-		if (!file) throw ERRORS.FILE_NOT_FOUND
-		if (file.labId !== labId) throw ERRORS.FORBIDDEN
-		if (file.dentalCaseId !== caseId) {
-			// File exists but belongs to a different case — possible IDOR attempt
-			console.error('[Security] File-case mismatch on delete', {
-				fileId,
-				fileCaseId: file.dentalCaseId,
-				requestedCaseId: caseId,
-				labId,
-			})
-			throw ERRORS.FORBIDDEN
-		}
-
-		const actorName = await resolveActorName(labUser.id, labId)
-
-		await prisma.$transaction([
-			prisma.caseAssetFile.delete({
-				where: { id: fileId },
-			}),
-
-			prisma.caseActivityLog.create({
-				data: buildLogEntry({
-					caseId,
-					labId,
-					actorId: labUser.id,
-					actorName,
-					type: 'FILE_DELETED',
-					summary: `File "${file.title ?? file.assetFileType}" deleted`,
-					payload: {
-						fileId,
-						fileName: file.title ?? null,
-						assetFileType: file.assetFileType,
-					} as z.infer<typeof FileDeletedPayloadSchema>,
-				}),
-			}),
-		])
-
-		return { deleted: true }
+	.action(async () => {
+		throw ERRORS.OPERATION_NOT_ALLOWED
 	})
 
 // ─────────────────────────────────────────────────────────────────────────────

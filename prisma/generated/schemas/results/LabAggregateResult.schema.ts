@@ -18,6 +18,8 @@ export const LabAggregateResultSchema = z.object({  _count: z.object({
     casePricingPlans: z.number(),
     caseAssetFiles: z.number(),
     fileUploadGrants: z.number(),
+    storedFiles: z.number(),
+    clinicalUploadEvidence: z.number(),
     patients: z.number(),
     dentists: z.number(),
     staffAssignments: z.number(),

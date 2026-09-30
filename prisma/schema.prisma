@@ -60,6 +60,50 @@ enum FileUploadGrantStatus {
   CLEANED
 }
 
+enum StoredFileProvider {
+  UPLOADTHING
+}
+
+enum StoredFilePurpose {
+  CASE_CLINICAL_ASSET
+}
+
+enum CaseAssetStorageMode {
+  LEGACY_URL_UNVERIFIED
+  MANAGED_PRIVATE
+}
+
+enum CaseClinicalPurpose {
+  CLINICAL_REFERENCE_PHOTOGRAPH
+}
+
+enum CaseClinicalVerifiedFormat {
+  JPEG
+}
+
+enum CaseClinicalValidatedSuffix {
+  JPG
+  JPEG
+}
+
+enum CaseFileAuthorizationOutcome {
+  ALLOWED
+  DENIED
+}
+
+enum CaseFileIssuanceOutcome {
+  NOT_ATTEMPTED
+  ISSUED
+  FAILED
+}
+
+enum CaseFileAccessReason {
+  AUTHORIZED
+  ACCESS_DENIED
+  RESOURCE_UNAVAILABLE
+  PROVIDER_FAILURE
+}
+
 enum PricingStrategy {
   BULK
   PERTOOTH
@@ -258,6 +302,8 @@ model Lab {
   casePricingPlans CasePricingPlan[]
   caseAssetFiles   CaseAssetFile[]
   fileUploadGrants FileUploadGrant[]
+  storedFiles      StoredFile[]      @relation("StoredFileLab")
+  clinicalUploadEvidence CaseClinicalUploadEvidence[] @relation("ClinicalEvidenceLab")
 
   patients         Patient[]
   dentists         Dentist[]
@@ -289,6 +335,8 @@ model Lab {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@unique([id, organizationId])
 }
 
 model LabSettings {
@@ -429,6 +477,7 @@ model Case {
   caseActivityLogs CaseActivityLog[]
 
   caseAssetFiles CaseAssetFile[]
+  clinicalUploadEvidence CaseClinicalUploadEvidence[] @relation("ClinicalEvidenceCase")
 
   deadline  DateTime?
   createdAt DateTime  @default(now())
@@ -451,6 +500,7 @@ model Case {
   deliveredAt DateTime? // Timestamp when status hits DELIVERED (Courier dropped it off)
 
   // new
+  @@unique([id, labId])
   @@unique([labId, caseNumber])
   @@index([labId])
   @@index([clinicId])
@@ -541,21 +591,128 @@ model CaseWorkItem {
 model CaseAssetFile {
   id           String @id @default(uuid())
   dentalCaseId String
-  dentalCase   Case   @relation(fields: [dentalCaseId], references: [id], onDelete: Cascade)
+  dentalCase   Case   @relation(fields: [dentalCaseId, labId], references: [id, labId], onDelete: Restrict, onUpdate: NoAction)
 
-  title         String?
-  description   String?
-  documentUrl   String
-  assetFileType AssetFileType @default(IMAGE)
-  fileExtension String
-  labId         String
-  lab           Lab           @relation(fields: [labId], references: [id], onDelete: Cascade)
+  title            String?
+  description      String?
+  documentUrl      String?
+  assetFileType    AssetFileType        @default(IMAGE)
+  fileExtension    String?
+  labId            String
+  lab              Lab                  @relation(fields: [labId], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  storageMode      CaseAssetStorageMode @default(LEGACY_URL_UNVERIFIED)
+  clinicalPurpose  CaseClinicalPurpose?
+  currentVersionId String?              @unique
+
+  versions       CaseAssetFileVersion[] @relation("CaseAssetVersions")
+  currentVersion CaseAssetFileVersion?  @relation("CaseAssetCurrentVersion", fields: [currentVersionId, id, labId], references: [id, caseAssetFileId, labId], onDelete: NoAction, onUpdate: NoAction)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@index([labId])
-  @@index([dentalCaseId])
+  @@unique([id, labId])
+  @@unique([currentVersionId, id, labId])
+  @@index([labId, dentalCaseId])
+  @@index([labId, storageMode])
+}
+
+model StoredFile {
+  id                       String             @id @default(uuid())
+  organizationId           String
+  labId                    String
+  sourceUploadGrantId      String             @unique
+  provider                 StoredFileProvider
+  providerObjectKey        String             @db.Text
+  purpose                  StoredFilePurpose
+  detectedMimeType         String             @db.VarChar(255)
+  sizeBytes                BigInt
+  checksumAlgorithm        String?            @db.VarChar(32)
+  checksumValue            String?            @db.VarChar(256)
+  uploaderMemberId         String?
+  uploaderMemberIdSnapshot String
+  createdAt                DateTime           @default(now()) @db.Timestamptz(6)
+
+  organization   Organization          @relation("StoredFileOrganization", fields: [organizationId], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  lab            Lab                   @relation("StoredFileLab", fields: [labId, organizationId], references: [id, organizationId], onDelete: Restrict, onUpdate: NoAction)
+  sourceGrant    FileUploadGrant       @relation("StoredFileSourceGrant", fields: [sourceUploadGrantId, organizationId, labId], references: [id, organizationId, labId], onDelete: Restrict, onUpdate: NoAction)
+  uploaderMember Member?               @relation("StoredFileUploader", fields: [uploaderMemberId], references: [id], onDelete: SetNull, onUpdate: NoAction)
+  caseVersion    CaseAssetFileVersion? @relation("CaseVersionStoredFile")
+
+  @@unique([provider, providerObjectKey])
+  @@unique([sourceUploadGrantId, organizationId, labId])
+  @@unique([id, organizationId, labId])
+  @@index([organizationId, labId, createdAt])
+}
+
+model CaseAssetFileVersion {
+  id                        String   @id @default(uuid())
+  caseAssetFileId           String
+  organizationId            String
+  labId                     String
+  storedFileId              String   @unique
+  versionNumber             Int
+  createdByMemberId         String?
+  createdByMemberIdSnapshot String
+  createdAt                 DateTime @default(now()) @db.Timestamptz(6)
+
+  asset           CaseAssetFile  @relation("CaseAssetVersions", fields: [caseAssetFileId, labId], references: [id, labId], onDelete: Restrict, onUpdate: NoAction)
+  storedFile      StoredFile     @relation("CaseVersionStoredFile", fields: [storedFileId, organizationId, labId], references: [id, organizationId, labId], onDelete: Restrict, onUpdate: NoAction)
+  createdByMember Member?        @relation("CaseVersionCreator", fields: [createdByMemberId], references: [id], onDelete: SetNull, onUpdate: NoAction)
+  currentForAsset CaseAssetFile? @relation("CaseAssetCurrentVersion")
+
+  @@unique([caseAssetFileId, versionNumber])
+  @@unique([storedFileId, organizationId, labId])
+  @@unique([id, caseAssetFileId, labId])
+  @@index([organizationId, labId, createdAt])
+  @@index([caseAssetFileId, createdAt])
+}
+
+model CaseClinicalUploadEvidence {
+  uploadGrantId       String @id
+  organizationId      String
+  labId               String
+  caseId              String
+  provider            StoredFileProvider
+  providerObjectKey   String @db.Text
+  clinicalPurpose     CaseClinicalPurpose
+  verifiedFormat      CaseClinicalVerifiedFormat
+  validatedSuffix     CaseClinicalValidatedSuffix
+  measuredSizeBytes   BigInt
+  width               Int
+  height              Int
+  contentSha256       String @db.VarChar(64)
+  validationProfile   String @db.VarChar(64)
+  validatedAt         DateTime @db.Timestamptz(6)
+
+  uploadGrant FileUploadGrant @relation("ClinicalEvidenceGrant", fields: [uploadGrantId, organizationId, labId, provider, providerObjectKey], references: [id, organizationId, labId, provider, providerFileKey], onDelete: Restrict, onUpdate: NoAction)
+  organization Organization @relation("ClinicalEvidenceOrganization", fields: [organizationId], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  lab Lab @relation("ClinicalEvidenceLab", fields: [labId, organizationId], references: [id, organizationId], onDelete: Restrict, onUpdate: NoAction)
+  dentalCase Case @relation("ClinicalEvidenceCase", fields: [caseId, labId], references: [id, labId], onDelete: Restrict, onUpdate: NoAction)
+
+  @@unique([provider, providerObjectKey])
+  @@unique([uploadGrantId, organizationId, labId, provider, providerObjectKey])
+  @@index([organizationId, labId, caseId])
+}
+
+model CaseFileAccessAudit {
+  id                   String                       @id @default(uuid())
+  organizationId       String
+  labId                String
+  actorMemberId        String
+  caseId               String?
+  caseAssetFileId      String?
+  authorizationOutcome CaseFileAuthorizationOutcome
+  issuanceOutcome      CaseFileIssuanceOutcome
+  reason               CaseFileAccessReason
+  correlationId        String                       @unique
+  issuedAt             DateTime?                    @db.Timestamptz(6)
+  expiresAt            DateTime?                    @db.Timestamptz(6)
+  createdAt            DateTime                     @default(now()) @db.Timestamptz(6)
+
+  @@index([organizationId, labId, createdAt])
+  @@index([caseId, createdAt])
+  @@index([caseAssetFileId, createdAt])
+  @@index([actorMemberId, createdAt])
 }
 
 model CaseCategory {
@@ -1202,21 +1359,25 @@ model Organization {
   invitations      Invitation[]
   lab              Lab?
   fileUploadGrants FileUploadGrant[]
+  storedFiles      StoredFile[]      @relation("StoredFileOrganization")
+  clinicalUploadEvidence CaseClinicalUploadEvidence[] @relation("ClinicalEvidenceOrganization")
 
   @@unique([slug])
   @@map("organization")
 }
 
 model Member {
-  id               String            @id
-  organizationId   String
-  organization     Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  userId           String
-  authuser         AuthUser          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  role             String            @default("member")
-  createdAt        DateTime
-  labStaff         LabStaff?
-  fileUploadGrants FileUploadGrant[]
+  id                      String                 @id
+  organizationId          String
+  organization            Organization           @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  userId                  String
+  authuser                AuthUser               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role                    String                 @default("member")
+  createdAt               DateTime
+  labStaff                LabStaff?
+  fileUploadGrants        FileUploadGrant[]
+  uploadedStoredFiles     StoredFile[]           @relation("StoredFileUploader")
+  createdCaseFileVersions CaseAssetFileVersion[] @relation("CaseVersionCreator")
 
   @@index([organizationId])
   @@index([userId])
@@ -1246,6 +1407,7 @@ model FileUploadGrant {
 
   status FileUploadGrantStatus @default(PENDING)
 
+  provider StoredFileProvider?
   providerFileKey String? @unique
   providerFileUrl String?
 
@@ -1265,6 +1427,11 @@ model FileUploadGrant {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  storedFile StoredFile? @relation("StoredFileSourceGrant")
+  clinicalUploadEvidence CaseClinicalUploadEvidence? @relation("ClinicalEvidenceGrant")
+
+  @@unique([id, organizationId, labId])
+  @@unique([id, organizationId, labId, provider, providerFileKey])
   @@index([organizationId, labId, createdByMemberId, status])
   @@index([status, expiresAt])
   @@index([boundaryId, status])

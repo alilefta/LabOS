@@ -3,8 +3,8 @@
 import { memo } from "react";
 
 // Types
-import { DraftCaseSummaryDTO, UpdateCaseAssetFilesInput } from "@/schema/composed/case.details";
-import { CreateCaseAssetFilesInput } from "@/schema/composed/case-asset-file.details";
+import { DraftCaseSummaryDTO } from "@/schema/composed/case.details";
+import { CaseAssetSummary } from "@/schema/composed/case-asset-file.details";
 import { StaffRoleCategory } from "@/schema/base/enums.base";
 import { PatientDetails } from "@/schema/composed/patient.details";
 import { ClinicDetailsUI } from "@/schema/composed/clinic.details";
@@ -14,9 +14,9 @@ import { LabStaffDetailsUI } from "@/schema/composed/lab-staff.details";
 // Sections
 import { LogisticsAndRoutingSection } from "@/components/cases/new-case/sections/logisitc-and-routing-section";
 import { GlobalCaseNotesSection } from "@/components/cases/new-case/sections/global-case-notes-section";
-import { AssetsAndFilesSection } from "@/components/cases/new-case/sections/assets-and-files-section";
 import { PatientAndClinicSection } from "@/components/cases/new-case/sections/patient-clinic-section";
 import { HierarchicalClinicalPicker } from "@/components/cases/new-case/sections/hierarchical-clinical-picker";
+import { DigitalAssetVault } from "@/components/cases/case-details/sections/digital-asset-vault";
 
 // Draft Components
 import { PatientDraftPrompt } from "../new-case/drafts/patient-draft-prompt";
@@ -25,6 +25,7 @@ import { DraftRecoveryBanner } from "../new-case/drafts/draft-recovery-banner";
 interface CaseFormContentProps {
 	mode: "create" | "edit";
 	patientName?: string; // Required for display in edit mode
+	existingAssets?: CaseAssetSummary[];
 
 	// Drafts State (Only used in 'create' mode)
 	isLoadingDrafts?: boolean;
@@ -36,7 +37,6 @@ interface CaseFormContentProps {
 	onResumeDraft?: (draftId: string) => void;
 	onDismissPatientDraft?: () => void;
 	onPatientSelect: (patientId: string) => void;
-	onUploadAssets: (files: CreateCaseAssetFilesInput[] | UpdateCaseAssetFilesInput[]) => void;
 
 	// Modal Triggers
 	onOpenClinicSheet: () => void;
@@ -54,6 +54,7 @@ interface CaseFormContentProps {
 export const CaseFormContent = memo(function CaseFormContent({
 	mode,
 	patientName,
+	existingAssets = [],
 	isLoadingDrafts = false,
 	recentDrafts = [],
 	onResumeDraft,
@@ -67,7 +68,6 @@ export const CaseFormContent = memo(function CaseFormContent({
 	onOpenPatientSheet,
 	newCategory,
 	onOpenCategorySheet,
-	onUploadAssets,
 	newStaffMember,
 	onOpenStaffSheet,
 }: CaseFormContentProps) {
@@ -109,14 +109,12 @@ export const CaseFormContent = memo(function CaseFormContent({
 
 			{/* ── SECTION 2: THE PRODUCT ────────────────────────────────────────── */}
 			<HierarchicalClinicalPicker newCreatedCategory={newCategory} handleOpenCreateCategorySheet={onOpenCategorySheet} mode={mode} />
+			{existingAssets.length > 0 && <DigitalAssetVault assets={existingAssets} />}
 
-			{/* ── SECTION 3: ASSETS & FILES ─────────────────────────────────────── */}
-			<AssetsAndFilesSection onUploadFiles={onUploadAssets} mode={mode} />
-
-			{/* ── SECTION 4: CLINICAL NOTES ─────────────────────────────────────── */}
+			{/* ── CLINICAL NOTES ────────────────────────────────────────────────── */}
 			<GlobalCaseNotesSection mode={mode} />
 
-			{/* ── SECTION 5: LOGISTICS & ROUTING ────────────────────────────────── */}
+			{/* ── LOGISTICS & ROUTING ───────────────────────────────────────────── */}
 			<LogisticsAndRoutingSection mode={mode} newRegisteredStaffMember={newStaffMember} handleOpenRegisterLabStaffSheet={onOpenStaffSheet} />
 		</div>
 	);

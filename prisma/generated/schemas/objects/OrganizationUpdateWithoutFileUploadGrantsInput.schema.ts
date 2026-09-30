@@ -5,7 +5,9 @@ import { NullableStringFieldUpdateOperationsInputObjectSchema as NullableStringF
 import { DateTimeFieldUpdateOperationsInputObjectSchema as DateTimeFieldUpdateOperationsInputObjectSchema } from './DateTimeFieldUpdateOperationsInput.schema';
 import { MemberUpdateManyWithoutOrganizationNestedInputObjectSchema as MemberUpdateManyWithoutOrganizationNestedInputObjectSchema } from './MemberUpdateManyWithoutOrganizationNestedInput.schema';
 import { InvitationUpdateManyWithoutOrganizationNestedInputObjectSchema as InvitationUpdateManyWithoutOrganizationNestedInputObjectSchema } from './InvitationUpdateManyWithoutOrganizationNestedInput.schema';
-import { LabUpdateOneWithoutOrganizationNestedInputObjectSchema as LabUpdateOneWithoutOrganizationNestedInputObjectSchema } from './LabUpdateOneWithoutOrganizationNestedInput.schema'
+import { LabUpdateOneWithoutOrganizationNestedInputObjectSchema as LabUpdateOneWithoutOrganizationNestedInputObjectSchema } from './LabUpdateOneWithoutOrganizationNestedInput.schema';
+import { StoredFileUpdateManyWithoutOrganizationNestedInputObjectSchema as StoredFileUpdateManyWithoutOrganizationNestedInputObjectSchema } from './StoredFileUpdateManyWithoutOrganizationNestedInput.schema';
+import { CaseClinicalUploadEvidenceUpdateManyWithoutOrganizationNestedInputObjectSchema as CaseClinicalUploadEvidenceUpdateManyWithoutOrganizationNestedInputObjectSchema } from './CaseClinicalUploadEvidenceUpdateManyWithoutOrganizationNestedInput.schema'
 
 const makeSchema = () => z.object({
   id: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputObjectSchema)]).optional(),
@@ -16,7 +18,9 @@ const makeSchema = () => z.object({
   metadata: z.union([z.string(), z.lazy(() => NullableStringFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
   members: z.lazy(() => MemberUpdateManyWithoutOrganizationNestedInputObjectSchema).optional(),
   invitations: z.lazy(() => InvitationUpdateManyWithoutOrganizationNestedInputObjectSchema).optional(),
-  lab: z.lazy(() => LabUpdateOneWithoutOrganizationNestedInputObjectSchema).optional()
+  lab: z.lazy(() => LabUpdateOneWithoutOrganizationNestedInputObjectSchema).optional(),
+  storedFiles: z.lazy(() => StoredFileUpdateManyWithoutOrganizationNestedInputObjectSchema).optional(),
+  clinicalUploadEvidence: z.lazy(() => CaseClinicalUploadEvidenceUpdateManyWithoutOrganizationNestedInputObjectSchema).optional()
 }).strict();
 export const OrganizationUpdateWithoutFileUploadGrantsInputObjectSchema: z.ZodType<Prisma.OrganizationUpdateWithoutFileUploadGrantsInput> = makeSchema() as unknown as z.ZodType<Prisma.OrganizationUpdateWithoutFileUploadGrantsInput>;
 export const OrganizationUpdateWithoutFileUploadGrantsInputObjectZodSchema = makeSchema();

@@ -1,0 +1,59 @@
+{"name":"run_identity","status":"PASS","run":"labos-c2-v3-26e4ea0f","volume":"labos-c2-v3-26e4ea0f-data"}
+{"name":"docker_engine","status":"PASS","engine":"linux amd64 29.7.2"}
+{"name":"image","status":"PASS","image":"sha256:50903ccdcab597707a1f61c7ae016a06b0b548da53a6f7ad716d56b072bedba0 [\"postgres@sha256:00bc86618629af00d2937fdc5a5d63db3ff8450acf52f0636ec813c7f4902929\"]"}
+{"name":"candidate","status":"PASS","sha256":"92c6a5d2fa3bf0f22987be5461370116dc87de9a3ec5ba3ea304cc299c8b5b80"}
+{"name":"chain_baseline","status":"PASS","count":47,"aggregate":"50d508ee3039388c6546fe99aa351c1cd835966e10e42c4f5bfe896a9cec2249","lock":"99836963713b4f5b269ad49af0ed3d7b0b2e336115c2f92dc9ac683d139d0900"}
+{"name":"chain_copy","status":"PASS","count":47,"aggregate":"50d508ee3039388c6546fe99aa351c1cd835966e10e42c4f5bfe896a9cec2249"}
+{"name":"container","status":"PASS","containerIdPrefix":"37fb935f704e","volume":"labos-c2-v3-26e4ea0f-data","loopbackPort":52450,"binary":"postgres (PostgreSQL) 17.6 (Debian 17.6-2.pgdg13+1)"}
+{"name":"disposable_target","status":"PASS","database":"labos_c2_verify","version":"17.6 (Debian 17.6-2.pgdg13+1)","loopbackPort":52450,"hostFingerprint":"12ca17b49af2","developmentHostFingerprint":"eb0d823953fe","developmentPorts":[5432,6543],"matchesDevelopmentEndpoint":false,"systemIdHash":"61dcbdadcfcf54d0"}
+{"name":"migrations_1_47","status":"PASS","completed":47,"tail":["All migrations have been successfully applied.",""]}
+{"name":"pre_c2_seed","status":"PASS","orgs":2,"users":2,"members":2,"labs":2,"patients":2,"cases":2,"grants":1,"assets":1}
+{"name":"migration_48_copy","status":"PASS","sha256":"92c6a5d2fa3bf0f22987be5461370116dc87de9a3ec5ba3ea304cc299c8b5b80"}
+{"name":"migration_48","status":"PASS","completed":48,"tail":["All migrations have been successfully applied.",""]}
+{"name":"installed_schema","status":"PASS","triggers":4,"constraints":5,"deferred":true,"indexes":5,"nullable_legacy_fields":2}
+{"name":"legacy_preservation","status":"PASS","legacyCount":1,"fabricatedManagedRows":0}
+{"name":"managed_v1_final_state","status":"PASS","committed":true,"observedFromSeparateConnection":true,"currentVersion":1}
+{"name":"managed_v2_history","status":"PASS","committed":true,"observedFromSeparateConnection":true,"versions":[1,2],"currentVersion":2}
+{"name":"deferred_managed_pointerless","status":"PASS","rejectedSqlstate":"P0001","constraint":null,"noPartialCommittedState":true}
+{"name":"deferred_managed_url","status":"PASS","rejectedSqlstate":"P0001","constraint":null,"noPartialCommittedState":true}
+{"name":"deferred_managed_extension","status":"PASS","rejectedSqlstate":"P0001","constraint":null,"noPartialCommittedState":true}
+{"name":"invalid_legacy_final_state","status":"PASS","rejectedSqlstate":"P0001","constraint":null,"noPartialCommittedState":true}
+{"name":"case_lab_mismatch","status":"PASS","rejectedSqlstate":"23503","constraint":"CaseAssetFile_dentalCaseId_labId_fkey","noPartialCommittedState":true}
+{"name":"pointer_other_asset","status":"PASS","rejectedSqlstate":"23503","constraint":"CaseAssetFile_currentVersionId_id_labId_fkey","noPartialCommittedState":true}
+{"name":"foreign_grant_file","status":"PASS","rejectedSqlstate":"23503","constraint":"StoredFile_sourceUploadGrantId_organizationId_labId_fkey","noPartialCommittedState":true}
+{"name":"tenant_b_file","status":"PASS","committed":true,"observedFromSeparateConnection":true}
+{"name":"tenant_b_asset_version","status":"PASS","committed":true,"observedFromSeparateConnection":true}
+{"name":"tenant_b_unpointed_version","status":"PASS","committed":true,"observedFromSeparateConnection":true}
+{"name":"pointer_foreign_lab","status":"PASS","rejectedSqlstate":"23503","constraint":"CaseAssetFile_currentVersionId_id_labId_fkey","noPartialCommittedState":true}
+{"name":"tenant_b_foreign_file_prerequisite","status":"PASS","committed":true,"observedFromSeparateConnection":true}
+{"name":"foreign_stored_version","status":"PASS","rejectedSqlstate":"23503","constraint":"CaseAssetFileVersion_storedFileId_organizationId_labId_fkey","noPartialCommittedState":true}
+{"name":"stored_lab_organization_mismatch","status":"PASS","rejectedSqlstate":"23503","constraint":"StoredFile_labId_organizationId_fkey","noPartialCommittedState":true}
+{"name":"provider_object_key_unique","status":"PASS","rejectedSqlstate":"23505","constraint":"StoredFile_provider_providerObjectKey_key","noPartialCommittedState":true}
+{"name":"source_grant_unique","status":"PASS","rejectedSqlstate":"23505","constraint":"StoredFile_sourceUploadGrantId_key","noPartialCommittedState":true}
+{"name":"positive_file_size","status":"PASS","rejectedSqlstate":"23514","constraint":"StoredFile_sizeBytes_positive","noPartialCommittedState":true}
+{"name":"checksum_pair","status":"PASS","rejectedSqlstate":"23514","constraint":"StoredFile_checksum_pair","noPartialCommittedState":true}
+{"name":"one_file_per_version","status":"PASS","rejectedSqlstate":"23505","constraint":"CaseAssetFileVersion_storedFileId_key","noPartialCommittedState":true}
+{"name":"version_unique_prerequisite","status":"PASS","committed":true,"observedFromSeparateConnection":true}
+{"name":"version_number_unique","status":"PASS","rejectedSqlstate":"23505","constraint":"CaseAssetFileVersion_caseAssetFileId_versionNumber_key","noPartialCommittedState":true}
+{"name":"version_zero_prerequisite","status":"PASS","committed":true,"observedFromSeparateConnection":true}
+{"name":"positive_version_number","status":"PASS","rejectedSqlstate":"23514","constraint":"CaseAssetFileVersion_versionNumber_positive","noPartialCommittedState":true}
+{"name":"failed_transaction_no_partial_file","status":"PASS","rejectedSqlstate":"P0001","constraint":null,"noPartialCommittedState":true}
+{"name":"failed_transaction_cross_table_absence","status":"PASS","assetAbsent":true,"fileAbsent":true}
+{"name":"audit_allowed_issued_300_seconds","status":"PASS","committed":true,"observedFromSeparateConnection":true,"ttlSeconds":300}
+{"name":"audit_reject_denied-issued","status":"PASS","rejectedSqlstate":"23514","constraint":"CaseFileAccessAudit_issuance_timestamps","noPartialCommittedState":true}
+{"name":"audit_reject_missing-time","status":"PASS","rejectedSqlstate":"23514","constraint":"CaseFileAccessAudit_issuance_timestamps","noPartialCommittedState":true}
+{"name":"audit_reject_over-300","status":"PASS","rejectedSqlstate":"23514","constraint":"CaseFileAccessAudit_issuance_timestamps","noPartialCommittedState":true}
+{"name":"audit_reject_nonissued-time","status":"PASS","rejectedSqlstate":"23514","constraint":"CaseFileAccessAudit_issuance_timestamps","noPartialCommittedState":true}
+{"name":"immutable_stored_update","status":"PASS","rejectedSqlstate":"P0001","constraint":null,"noPartialCommittedState":true}
+{"name":"immutable_stored_delete","status":"PASS","rejectedSqlstate":"P0001","constraint":null,"noPartialCommittedState":true}
+{"name":"immutable_version_update","status":"PASS","rejectedSqlstate":"P0001","constraint":null,"noPartialCommittedState":true}
+{"name":"immutable_version_delete","status":"PASS","rejectedSqlstate":"P0001","constraint":null,"noPartialCommittedState":true}
+{"name":"immutable_audit_update","status":"PASS","rejectedSqlstate":"P0001","constraint":null,"noPartialCommittedState":true}
+{"name":"immutable_audit_delete","status":"PASS","rejectedSqlstate":"P0001","constraint":null,"noPartialCommittedState":true}
+{"name":"immutable_committed_rows_unchanged","status":"PASS","size":10,"version":1,"reason":"AUTHORIZED"}
+{"name":"member_reference_prerequisite","status":"PASS","committed":true,"observedFromSeparateConnection":true}
+{"name":"member_null_plus_identity_change","status":"PASS","rejectedSqlstate":"P0001","constraint":null,"noPartialCommittedState":true}
+{"name":"direct_member_null_transition","status":"PASS","committed":true,"observedFromSeparateConnection":true}
+{"name":"on_delete_set_null","status":"PASS","committed":true,"observedFromSeparateConnection":true,"liveMemberNull":true,"snapshotRetained":true}
+{"name":"scenario_matrix","status":"PASS"}
+{"name":"destruction","status":"PASS","noContainer":true,"noVolume":true,"noArtifacts":true,"hostPortGone":true}

@@ -15,6 +15,7 @@ import { CaseWorkItemUncheckedUpdateManyWithoutDentalCaseNestedInputObjectSchema
 import { CaseStaffAssignmentUncheckedUpdateManyWithoutDentalCaseNestedInputObjectSchema as CaseStaffAssignmentUncheckedUpdateManyWithoutDentalCaseNestedInputObjectSchema } from './CaseStaffAssignmentUncheckedUpdateManyWithoutDentalCaseNestedInput.schema';
 import { CaseActivityLogUncheckedUpdateManyWithoutDentalCaseNestedInputObjectSchema as CaseActivityLogUncheckedUpdateManyWithoutDentalCaseNestedInputObjectSchema } from './CaseActivityLogUncheckedUpdateManyWithoutDentalCaseNestedInput.schema';
 import { CaseAssetFileUncheckedUpdateManyWithoutDentalCaseNestedInputObjectSchema as CaseAssetFileUncheckedUpdateManyWithoutDentalCaseNestedInputObjectSchema } from './CaseAssetFileUncheckedUpdateManyWithoutDentalCaseNestedInput.schema';
+import { CaseClinicalUploadEvidenceUncheckedUpdateManyWithoutDentalCaseNestedInputObjectSchema as CaseClinicalUploadEvidenceUncheckedUpdateManyWithoutDentalCaseNestedInputObjectSchema } from './CaseClinicalUploadEvidenceUncheckedUpdateManyWithoutDentalCaseNestedInput.schema';
 import { InvoiceCaseUncheckedUpdateOneWithoutCaseNestedInputObjectSchema as InvoiceCaseUncheckedUpdateOneWithoutCaseNestedInputObjectSchema } from './InvoiceCaseUncheckedUpdateOneWithoutCaseNestedInput.schema';
 import { CaseUncheckedUpdateManyWithoutOriginalCaseNestedInputObjectSchema as CaseUncheckedUpdateManyWithoutOriginalCaseNestedInputObjectSchema } from './CaseUncheckedUpdateManyWithoutOriginalCaseNestedInput.schema'
 
@@ -59,6 +60,7 @@ const makeSchema = () => z.object({
   staffAssignments: z.lazy(() => CaseStaffAssignmentUncheckedUpdateManyWithoutDentalCaseNestedInputObjectSchema).optional(),
   caseActivityLogs: z.lazy(() => CaseActivityLogUncheckedUpdateManyWithoutDentalCaseNestedInputObjectSchema).optional(),
   caseAssetFiles: z.lazy(() => CaseAssetFileUncheckedUpdateManyWithoutDentalCaseNestedInputObjectSchema).optional(),
+  clinicalUploadEvidence: z.lazy(() => CaseClinicalUploadEvidenceUncheckedUpdateManyWithoutDentalCaseNestedInputObjectSchema).optional(),
   invoiceCase: z.lazy(() => InvoiceCaseUncheckedUpdateOneWithoutCaseNestedInputObjectSchema).optional(),
   remakes: z.lazy(() => CaseUncheckedUpdateManyWithoutOriginalCaseNestedInputObjectSchema).optional()
 }).strict();

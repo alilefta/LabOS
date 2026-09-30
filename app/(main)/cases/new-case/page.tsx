@@ -6,7 +6,8 @@ import { CaseSummaryModal } from "@/components/cases/case/case-summary-modal";
 import { useCallback, useState } from "react";
 import { CreateCaseFormHeader } from "@/components/cases/new-case/create-case-form-header";
 import { Control, FormProvider, useForm } from "react-hook-form";
-import { CreateCaseInput, CreateCaseInputSchema, SaveDraftCaseInputSchema, UpdateCaseAssetFilesInput } from "@/schema/composed/case.details";
+import { CreateCaseInput, CreateCaseInputSchema, SaveDraftCaseInputSchema } from "@/schema/composed/case.details";
+import { CaseAssetSummary } from "@/schema/composed/case-asset-file.details";
 import { RegisterPatientSheet } from "@/components/modals/cases/patient/create-patient-sheet";
 
 import { PatientDetails } from "@/schema/composed/patient.details";
@@ -19,7 +20,6 @@ import { CaseCategoryDetailsUI } from "@/schema/composed/case-category.details";
 import { CreateWorkTypeSheet } from "@/components/modals/work-type/create-work-type-sheet";
 import { CreateProductSheet } from "@/components/modals/product/create-product-sheet";
 import { CreatePricingPlanSheet } from "@/components/modals/pricing/create-pricing-plan-sheet";
-import { CreateCaseAssetFilesInput } from "@/schema/composed/case-asset-file.details";
 import { toast } from "sonner";
 import { RegisterStaffSheet } from "@/components/modals/cases/staff/register-staff-sheet";
 import { LabStaffDetailsUI } from "@/schema/composed/lab-staff.details";
@@ -37,6 +37,7 @@ export default function NewCasePage() {
 	// 1. Temporary State
 	const [draftData, setDraftData] = useState<CreateCaseInput | null>(null);
 	const [existingDraftId, setExistingDraftId] = useState<string | undefined>(undefined);
+	const [existingAssets, setExistingAssets] = useState<CaseAssetSummary[]>([]);
 
 	// Modal States
 	const [isSummaryOpen, setIsSummaryOpen] = useState(false);
@@ -99,6 +100,7 @@ export default function NewCasePage() {
 	const { executeAsync: saveDraft, isExecuting: isExecutingSavingDraft } = useAction(saveDraftCaseAction, {
 		onSuccess: ({ data }) => {
 			setExistingDraftId(data.draftCase.id);
+			setExistingAssets(data.draftCase.caseAssetFiles ?? []);
 			toast.success("Draft saved. You can safely exit.");
 		},
 		onError: ({ error }) => handleSafeActionError(error),
@@ -107,6 +109,7 @@ export default function NewCasePage() {
 	const { executeAsync: createCase, isExecuting: isCreatingCase } = useAction(createDentalCaseAction, {
 		onSuccess: ({ data }) => {
 			setExistingDraftId(undefined); // clear stale draft reference
+			setExistingAssets([]);
 
 			toast.success(`Case ${data.createdCase.caseNumber} submitted successfully.`);
 			router.push(`/cases/${data.createdCase.id}`);
@@ -126,6 +129,7 @@ export default function NewCasePage() {
 		const cleanData: CreateCaseInput = {
 			...data,
 			status: "NEW",
+			caseAssetFiles: [],
 			caseWorkItems: validItems,
 			grandTotal: calculatedGrandTotal, // Inject the math
 		};
@@ -147,6 +151,7 @@ export default function NewCasePage() {
 		// Validate with the permissive draft schema
 		const draftResult = SaveDraftCaseInputSchema.safeParse({
 			...rawValues,
+			caseAssetFiles: [],
 			// Filter ghost rows
 			caseWorkItems: (rawValues.caseWorkItems ?? []).filter((item) => item.productId || item.casePricingPlanId || (item.selectedTeeth?.length ?? 0) > 0),
 			existingDraftId,
@@ -168,14 +173,6 @@ export default function NewCasePage() {
 
 		await saveDraft(draftResult.data);
 	}, [form, saveDraft, existingDraftId]);
-
-	const handleUploadedAssets = useCallback(
-		(files: CreateCaseAssetFilesInput[] | UpdateCaseAssetFilesInput[]) => {
-			const current = form.getValues("caseAssetFiles") ?? [];
-			form.setValue("caseAssetFiles", [...current, ...files], { shouldValidate: true });
-		},
-		[form],
-	);
 
 	// ── Patient draft detection ────────────────────────────────────────
 	// Called from PatientAndClinicSection when a patient is selected
@@ -210,6 +207,7 @@ export default function NewCasePage() {
 			}
 
 			form.reset(mapDraftToFormValues(draft));
+			setExistingAssets(draft.caseAssetFiles ?? []);
 			setExistingDraftId(draftId);
 			setPatientDraftPrompt(null);
 			toast.success(`Draft ${draft.caseNumber} loaded.`);
@@ -234,6 +232,7 @@ export default function NewCasePage() {
 							<form className="space-y-12 pr-2" id="new-case-submission-form" onSubmit={form.handleSubmit(handleFormValid)}>
 								<CaseFormContent
 									mode={"create"}
+									existingAssets={existingAssets}
 									isLoadingDrafts={isLoadingDrafts}
 									recentDrafts={recentDrafts}
 									existingDraftId={existingDraftId}
@@ -249,7 +248,6 @@ export default function NewCasePage() {
 									newCategory={newCategory}
 									newStaffMember={newStaffMember}
 									onPatientSelect={handlePatientSelect}
-									onUploadAssets={handleUploadedAssets}
 								/>
 							</form>
 						</FormProvider>
