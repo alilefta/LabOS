@@ -96,6 +96,7 @@ export async function getDentalCaseById(caseId: string) {
 export const rawCaseToCaseBaseMapper = (data: Case[]): CaseBase[] => {
 	return data.map((c) => ({
 		...c,
-		grandTotal: Number(c.grandTotal),
+		grandTotal: c.grandTotal === null ? null : Number(c.grandTotal),
+		manualDiscountAmount: Number(c.manualDiscountAmount),
 	}))
 }

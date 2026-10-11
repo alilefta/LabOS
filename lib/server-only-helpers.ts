@@ -65,6 +65,7 @@ export function caseWorkItemServerToFrontDTO(caseWorkItems: CaseItemsWithDetails
 		toothPrice: cwi.toothPrice === null ? null : Number(cwi.toothPrice),
 		totalPrice: Number(cwi.totalPrice),
 		selectedTeeth: cwi.selectedTeeth,
+		addons: null,
 		dentalCase: null,
 	}));
 }
@@ -149,6 +150,7 @@ export function draftCaseServerToDTO(raw: DraftCaseRaw): DraftCaseDTO {
 		caseCategoryId: raw.caseCategoryId,
 		status: raw.status,
 		grandTotal: raw.grandTotal !== null ? Number(raw.grandTotal) : null,
+		manualDiscountAmount: Number(raw.manualDiscountAmount),
 		clinicId: raw.clinicId,
 		dentistId: raw.dentistId,
 		deadline: raw.deadline,
@@ -195,6 +197,7 @@ export function optionalSelectiveDraftCaseServerToDTO(raw: DraftCaseRaw): DraftC
 		caseCategoryId: raw.caseCategoryId,
 		status: raw.status,
 		grandTotal: raw.grandTotal !== null ? Number(raw.grandTotal) : null,
+		manualDiscountAmount: Number(raw.manualDiscountAmount),
 		clinicId: raw.clinicId,
 		dentistId: raw.dentistId,
 		deadline: raw.deadline,

@@ -107,6 +107,7 @@ export function composeWorkItem(raw: RawWorkItem): CaseWorkItemDetailsUI {
 		workType: raw.workType ? normalizeWorkType(raw.workType) : null,
 		casePricingPlan: raw.casePricingPlan ? normalizePricingPlan(raw.casePricingPlan) : null,
 		selectedTeeth: raw.selectedTeeth.map(normalizeSelectedTooth),
+		addons: null,
 		lab: null,
 		dentalCase: null,
 	};
