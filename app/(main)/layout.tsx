@@ -12,6 +12,7 @@ import {
 } from '@/platform/organizations'
 import { PermissionsProvider } from '@/providers/permissions-provider'
 import { QueryProvider } from '@/providers/query-provider'
+import { connection } from 'next/server'
 
 interface MainLayoutProps {
 	children: ReactNode
@@ -23,6 +24,7 @@ interface MainLayoutProps {
  * replaces it; server actions independently enforce tenant membership.
  */
 export default async function MainLayout({ children }: MainLayoutProps) {
+	await connection()
 	let tenant
 	try {
 		tenant = await requireTenantContext()
