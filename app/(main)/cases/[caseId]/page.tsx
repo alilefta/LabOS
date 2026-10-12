@@ -120,7 +120,7 @@ export default async function CaseDossierPage({ params }: { params: Promise<{ ca
 						<NeuralAuditorCard />
 						<ProductionPipelineStepper currentStatus={dentalCase.status} />
 						<ClinicalRxFeed workItems={dentalCase.caseItems} />
-						<DigitalAssetVault assets={dentalCase.caseAssetFiles ?? []} />
+							<DigitalAssetVault assets={dentalCase.caseAssetFiles ?? []} caseId={dentalCase.id} />
 						{dentalCase.caseActivityLogs && dentalCase.caseActivityLogs.length > 0 && (
 							<AuditTrailLog logs={dentalCase?.caseActivityLogs?.map((cal) => ({ ...cal, dentalCase: null, lab: null })) ?? []} />
 						)}

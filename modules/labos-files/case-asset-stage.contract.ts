@@ -12,6 +12,8 @@ import {
 	type CaseAssetStageRepository,
 } from './case-asset-stage.repository'
 import type { UploadGrantProviderMetadata } from './upload-grants'
+import { isCaseClinicalCheckedSuffix } from './case-clinical-suffix'
+import type { CaseClinicalValidatedSuffix } from '@/generated/prisma/client'
 
 export const CaseAssetStageInputSchema = z
 	.object({ caseId: z.string().uuid() })
@@ -44,7 +46,7 @@ export type StageCaseAssetDependencies = Readonly<{
  * the transaction-bound DRAFT and authorization checks before grant creation.
  */
 async function stageCaseAssetForCanonicalTenant(
-	input: Readonly<{ tenant: TenantContext; stage: unknown }>,
+	input: Readonly<{ tenant: TenantContext; stage: unknown; checkedSuffix: CaseClinicalValidatedSuffix; backend?: 'OBJECT_STORAGE' }>,
 	dependencies: StageCaseAssetDependencies = {},
 ): Promise<UploadGrantProviderMetadata> {
 	const projection = projectCaseAssetStage(input.stage)
@@ -52,18 +54,35 @@ async function stageCaseAssetForCanonicalTenant(
 	return repository.create({
 		tenant: input.tenant,
 		caseId: projection.target.id,
+		checkedSuffix: input.checkedSuffix,
 		correlationId: dependencies.generateCorrelationId?.() ?? crypto.randomUUID(),
+		...(input.backend ? { backend: input.backend } : {}),
 	})
 }
 
 /** Public server command. Tenant identity always comes from the request session. */
 export async function stageCaseAsset(
 	stage: unknown,
+	checkedSuffix: CaseClinicalValidatedSuffix,
 	dependencies: Omit<StageCaseAssetDependencies, 'repository'> &
 		Readonly<{ repository?: CaseAssetStageRepository }> = {},
 ): Promise<UploadGrantProviderMetadata> {
+	if (!isCaseClinicalCheckedSuffix(checkedSuffix)) throw new Error('Case clinical JPEG upload unavailable')
 	return stageCaseAssetForCanonicalTenant(
-		{ tenant: await requireTenantContext(), stage },
+		{ tenant: await requireTenantContext(), stage, checkedSuffix },
+		dependencies,
+	)
+}
+
+/** Inactive Case object-storage staging command; the tenant is session-owned. */
+export async function stageCaseObjectStorageAsset(
+	stage: unknown,
+	checkedSuffix: CaseClinicalValidatedSuffix,
+	dependencies: StageCaseAssetDependencies = {},
+): Promise<UploadGrantProviderMetadata> {
+	if (!isCaseClinicalCheckedSuffix(checkedSuffix)) throw new Error('Case clinical JPEG upload unavailable')
+	return stageCaseAssetForCanonicalTenant(
+		{ tenant: await requireTenantContext(), stage, checkedSuffix, backend: 'OBJECT_STORAGE' },
 		dependencies,
 	)
 }

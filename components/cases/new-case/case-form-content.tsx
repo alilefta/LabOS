@@ -26,6 +26,7 @@ interface CaseFormContentProps {
 	mode: "create" | "edit";
 	patientName?: string; // Required for display in edit mode
 	existingAssets?: CaseAssetSummary[];
+	caseId?: string;
 
 	// Drafts State (Only used in 'create' mode)
 	isLoadingDrafts?: boolean;
@@ -55,6 +56,7 @@ export const CaseFormContent = memo(function CaseFormContent({
 	mode,
 	patientName,
 	existingAssets = [],
+	caseId,
 	isLoadingDrafts = false,
 	recentDrafts = [],
 	onResumeDraft,
@@ -109,7 +111,7 @@ export const CaseFormContent = memo(function CaseFormContent({
 
 			{/* ── SECTION 2: THE PRODUCT ────────────────────────────────────────── */}
 			<HierarchicalClinicalPicker newCreatedCategory={newCategory} handleOpenCreateCategorySheet={onOpenCategorySheet} mode={mode} />
-			{existingAssets.length > 0 && <DigitalAssetVault assets={existingAssets} />}
+			{existingAssets.length > 0 && <DigitalAssetVault assets={existingAssets} caseId={caseId ?? existingDraftId} />}
 
 			{/* ── CLINICAL NOTES ────────────────────────────────────────────────── */}
 			<GlobalCaseNotesSection mode={mode} />

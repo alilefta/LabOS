@@ -1,6 +1,8 @@
 import 'server-only'
 
+import { randomUUID } from 'node:crypto'
 import { z } from 'zod'
+import { Prisma } from '@/generated/prisma/client'
 
 import { generalPrisma } from '@/lib/prisma'
 import { createLabOSAuthorizationActor } from '@/modules/labos-authorization/actor'
@@ -87,6 +89,27 @@ export const prismaCaseFileAccessAuditRepository: CaseFileAccessAuditRepository 
 		return asset?.id ?? null
 	},
 	async append(row) {
+		if (row.issuanceOutcome === 'ISSUED') {
+			if (!row.issuedAt || !row.expiresAt) throw new CaseFileAccessAuditWriteError()
+			// Both fields are timestamptz instants. Bind explicit UTC offsets so a
+			// non-UTC PostgreSQL session cannot shift PrismaPg Date parameters.
+			await generalPrisma.$executeRaw(Prisma.sql`
+				INSERT INTO "CaseFileAccessAudit" (
+					"id", "organizationId", "labId", "actorMemberId", "caseId",
+					"caseAssetFileId", "authorizationOutcome", "issuanceOutcome",
+					"reason", "correlationId", "issuedAt", "expiresAt"
+				) VALUES (
+					${randomUUID()}, ${row.organizationId}, ${row.labId}, ${row.actorMemberId},
+					${row.caseId}, ${row.caseAssetFileId},
+					${row.authorizationOutcome}::"CaseFileAuthorizationOutcome",
+					${row.issuanceOutcome}::"CaseFileIssuanceOutcome",
+					${row.reason}::"CaseFileAccessReason", ${row.correlationId},
+					${row.issuedAt.toISOString()}::timestamptz,
+					${row.expiresAt.toISOString()}::timestamptz
+				)
+			`)
+			return
+		}
 		await generalPrisma.caseFileAccessAudit.create({
 			data: {
 				organizationId: row.organizationId,

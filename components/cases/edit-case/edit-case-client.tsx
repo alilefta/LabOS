@@ -123,6 +123,7 @@ export function EditCaseClient({ initialData, caseNumber, patientName, caseStatu
 								<CaseFormContent
 									mode={"edit"} // CRITICAL: Tells the content to lock the Patient selector
 									existingAssets={existingAssets}
+									caseId={caseId}
 									patientName={patientName} // Used for the read-only patient identity card
 									// Draft recovery is disabled in edit mode
 									isLoadingDrafts={false}

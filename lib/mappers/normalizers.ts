@@ -226,6 +226,9 @@ export const normalizeAssetFile = (
 	if (raw.storageMode === 'MANAGED_PRIVATE') {
 		return { ...clinicalMetadata, storageMode: 'MANAGED_PRIVATE' }
 	}
+	if (raw.storageMode === 'MANAGED_PUBLIC') {
+		return { ...clinicalMetadata, storageMode: 'MANAGED_PUBLIC' }
+	}
 	if (raw.storageMode === 'LEGACY_URL_UNVERIFIED' && raw.documentUrl?.trim() && raw.fileExtension?.trim()) {
 		return {
 			...clinicalMetadata,

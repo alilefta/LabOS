@@ -1,0 +1,14 @@
+{
+  "protocol": "LJ01",
+  "platform": "win32",
+  "architecture": "x64",
+  "libjpegTurboVersion": "3.2.0",
+  "installerSha256": "662761d8ba8dae04aec74023ebaeceb856c2b56b9b59cfd180759d26300dda42",
+  "headerSha256": "ea0fbba47e9e5da192a487df4df3cf01a338b86a0a85d154ef329dd7b5439043",
+  "staticLibrarySha256": "b9640752d84cfbac3efcce70096c3a586ab6ad95b1163541ba9a11446a3337cc",
+  "sourceSha256": "00bbb812bf8ad9099e8021b3b224b8cfb9db6e25ff726def8fa14d48a27c17b3",
+  "executableSha256": "24cdebf1552770d1e6edf7307d47f6124184e918839a928bc4b1ebfbd77a05d5",
+  "compilerVersion": "19.44.35229.0",
+  "linkerVersion": "14.44.35229.0",
+  "flags": "/std:c11 /TC /W4 /WX /wd4324 /link /Brepro"
+}

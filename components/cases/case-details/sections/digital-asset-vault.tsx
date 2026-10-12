@@ -8,9 +8,10 @@ import type { CaseAssetSummary } from '@/schema/composed/case-asset-file.details
 
 interface Props {
 	assets: CaseAssetSummary[]
+	caseId?: string
 }
 
-export function DigitalAssetVault({ assets }: Props) {
+export function DigitalAssetVault({ assets, caseId }: Props) {
 	const [lightboxIndex, setLightboxIndex] = useState<number | null>(null)
 	const legacyAssets = assets.filter(
 		(asset): asset is Extract<CaseAssetSummary, { storageMode: 'LEGACY_URL_UNVERIFIED' }> =>
@@ -46,6 +47,21 @@ export function DigitalAssetVault({ assets }: Props) {
 								<div className="aspect-square flex flex-col items-center justify-center gap-3 bg-muted/40 p-4 text-center">
 									<FileLock2 className="w-9 h-9 text-muted-foreground" aria-hidden="true" />
 									<span className="text-xs font-semibold text-muted-foreground">Content unavailable</span>
+								</div>
+								<div className="p-3 border-t border-border space-y-1">
+									<p className="text-sm font-semibold text-foreground break-words">{asset.title || 'Untitled Asset'}</p>
+									<p className="text-xs text-muted-foreground flex items-center gap-1">{icon}<span>{asset.assetFileType}</span></p>
+									{asset.description && <p className="text-xs text-muted-foreground break-words">{asset.description}</p>}
+								</div>
+							</div>
+						)
+					}
+					if (asset.storageMode === 'MANAGED_PUBLIC') {
+						return (
+							<div key={asset.id} data-asset-id={asset.id} className="min-w-0 rounded-md border border-border bg-card overflow-hidden">
+								<div className="aspect-square flex flex-col items-center justify-center gap-3 bg-muted/40 p-4 text-center">
+									<FileCode2 className="w-9 h-9 text-muted-foreground" aria-hidden="true" />
+									{caseId ? <a href={`/api/cases/${encodeURIComponent(caseId)}/assets/${encodeURIComponent(asset.id)}/open`} target="_blank" rel="noopener noreferrer" referrerPolicy="no-referrer" className="text-xs font-semibold text-primary underline focus-visible:outline-2 focus-visible:outline-ai">Open asset</a> : <span className="text-xs font-semibold text-muted-foreground">Content unavailable</span>}
 								</div>
 								<div className="p-3 border-t border-border space-y-1">
 									<p className="text-sm font-semibold text-foreground break-words">{asset.title || 'Untitled Asset'}</p>

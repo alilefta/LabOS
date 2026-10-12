@@ -34,6 +34,9 @@ export const CaseAssetSummarySchema = z.discriminatedUnion('storageMode', [
 	CaseAssetSummaryFieldsSchema.extend({
 		storageMode: z.literal('MANAGED_PRIVATE'),
 	}),
+	CaseAssetSummaryFieldsSchema.extend({
+		storageMode: z.literal('MANAGED_PUBLIC'),
+	}),
 ]);
 
 export type CaseAssetSummary = z.infer<typeof CaseAssetSummarySchema>;

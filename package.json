@@ -5,6 +5,7 @@
 	"scripts": {
 		"dev": "next dev",
 		"build": "next build",
+		"postinstall": "prisma generate",
 		"start": "next start",
 		"lint": "eslint",
 		"test": "vitest",
@@ -13,6 +14,8 @@
 		"generate": "pnpm exec prisma generate"
 	},
 	"dependencies": {
+		"@aws-sdk/client-s3": "^3.1146.0",
+		"@aws-sdk/s3-request-presigner": "^3.1146.0",
 		"@axiomhq/js": "^2.0.0",
 		"@axiomhq/logging": "^0.4.0",
 		"@axiomhq/nextjs": "^0.4.0",
@@ -22,6 +25,7 @@
 		"@dnd-kit/sortable": "^10.0.0",
 		"@dnd-kit/utilities": "^3.2.2",
 		"@hookform/resolvers": "^5.2.2",
+		"@julusian/jpeg-turbo": "3.0.1",
 		"@prisma/adapter-pg": "^7.5.0",
 		"@prisma/client": "^7.5.0",
 		"@prisma/sqlcommenter-query-insights": "^7.9.1",

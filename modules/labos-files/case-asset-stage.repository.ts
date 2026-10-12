@@ -11,6 +11,8 @@ import { createOperationalPolicies } from '@/modules/labos-authorization/policie
 import { createLabOSAuthorizationService } from '@/modules/labos-authorization/service'
 import { createOrganizationBoundaryResolver } from '@/modules/labos-authorization/target-resolvers/organization-boundary-resolver'
 import type { TenantContext } from '@/platform/organizations'
+import type { CaseClinicalValidatedSuffix } from '@/generated/prisma/client'
+import { isCaseClinicalCheckedSuffix } from './case-clinical-suffix'
 
 import {
 	UPLOAD_GRANT_ERROR_CODES,
@@ -24,7 +26,9 @@ const CASE_ASSET_STAGE_PURPOSE = 'case.asset.add.stage'
 export type CaseAssetStageCreation = Readonly<{
 	tenant: TenantContext
 	caseId: string
+	checkedSuffix: CaseClinicalValidatedSuffix
 	correlationId: string
+	backend?: 'OBJECT_STORAGE'
 }>
 
 export interface CaseAssetStageRepository {
@@ -92,7 +96,7 @@ function createTransactionCaseFactRepository(
 	}
 }
 
-function createTransactionStageAuthorizer(transaction: Prisma.TransactionClient) {
+export function createTransactionStageAuthorizer(transaction: Prisma.TransactionClient) {
 	const caseReadFacts = createCaseReadFactLoader(
 		createTransactionCaseFactRepository(transaction),
 	)
@@ -132,6 +136,7 @@ export function createCaseAssetStageRepository(
 ): CaseAssetStageRepository {
 	return Object.freeze({
 		async create(input: CaseAssetStageCreation) {
+			if (!isCaseClinicalCheckedSuffix(input.checkedSuffix)) rejectCanonicalContext()
 			return prisma.$transaction(
 				async (transaction) => {
 					const lockedCases = await transaction.$queryRaw<
@@ -191,8 +196,12 @@ export function createCaseAssetStageRepository(
 							purpose: CASE_ASSET_STAGE_PURPOSE,
 							targetType: 'case',
 							targetId: input.caseId,
-							// Migration 49 requires a server-owned provider label for Case grants.
-							provider: 'UPLOADTHING',
+						// The installed allocation trigger permanently reserves this Files-owned key.
+						provider: input.backend ?? 'UPLOADTHING',
+						...(input.backend === 'OBJECT_STORAGE'
+							? { providerFileKey: `objects/${crypto.randomUUID()}` }
+							: {}),
+							caseClinicalValidatedSuffix: input.checkedSuffix,
 							correlationId: input.correlationId,
 							createdAt,
 							expiresAt: new Date(createdAt.getTime() + 15 * 60_000),

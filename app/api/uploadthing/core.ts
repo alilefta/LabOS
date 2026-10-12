@@ -1,10 +1,10 @@
-import { createUploadthing, type FileRouter } from "uploadthing/next";
-import { UploadThingError } from "uploadthing/server";
-import { getServerSession } from "@/lib/get-session";
+import { createUploadthing, type FileRouter } from 'uploadthing/next'
+import { UploadThingError } from 'uploadthing/server'
+import { getServerSession } from '@/lib/get-session'
 import {
 	authorizeCatalogCategoryImageStage,
 	CatalogCategoryImageStageInputSchema,
-} from "@/modules/labos-files/catalog-category-upload.contract";
+} from '@/modules/labos-files/catalog-category-upload.contract'
 import {
 	authorizeCatalogWorkTypeImageStage,
 	CatalogWorkTypeImageStageInputSchema,
@@ -17,52 +17,53 @@ import {
 	authorizeDentistAvatarStage,
 	DentistAvatarStageInputSchema,
 } from '@/modules/labos-files/dentist-avatar-upload.contract'
-import { createUploadCompletionDTO } from "@/modules/labos-files/upload-completion.dto";
-import { labOSUploadGrantService } from "@/modules/labos-files/upload-grants";
+import { createUploadCompletionDTO } from '@/modules/labos-files/upload-completion.dto'
+import { labOSUploadGrantService } from '@/modules/labos-files/upload-grants'
 import {
 	requireTenantContext,
 	TenantContextError,
-} from "@/platform/organizations/tenant-context";
+} from '@/platform/organizations/tenant-context'
 
-const f = createUploadthing();
+const f = createUploadthing()
 
 /**
  * Enhanced Auth Helper
  * @param requireLab - Set to true for operational assets, false for onboarding assets
  */
 const handleAuth = async (requireLab: boolean = true) => {
-	const session = await getServerSession();
+	const session = await getServerSession()
 
 	// 1. Basic Auth check - Must always be logged in
-	if (!session || !session.user) throw new UploadThingError("Unauthorized");
+	if (!session || !session.user) throw new UploadThingError('Unauthorized')
 
-	let labId = "onboarding_pending";
+	let labId = 'onboarding_pending'
 	if (requireLab) {
 		try {
-			const tenant = await requireTenantContext();
-			if (tenant.userId !== session.user.id) throw new UploadThingError("Unauthorized");
-			labId = tenant.labId;
+			const tenant = await requireTenantContext()
+			if (tenant.userId !== session.user.id)
+				throw new UploadThingError('Unauthorized')
+			labId = tenant.labId
 		} catch (error) {
-			if (error instanceof UploadThingError) throw error;
+			if (error instanceof UploadThingError) throw error
 			if (error instanceof TenantContextError) {
-				throw new UploadThingError("Action requires an active Lab Workspace");
+				throw new UploadThingError('Action requires an active Lab Workspace')
 			}
-			throw error;
+			throw error
 		}
 	}
 
 	return {
 		userId: session.user.id,
 		labId,
-	};
-};
-const uploadComplete = () => createUploadCompletionDTO();
+	}
+}
+const uploadComplete = () => createUploadCompletionDTO()
 
 // FileRouter for your app, can contain multiple FileRoutes
 export const labOSUploadRouter = {
 	labLogoImage: f({
 		image: {
-			maxFileSize: "4MB",
+			maxFileSize: '4MB',
 			maxFileCount: 1,
 		},
 	})
@@ -71,7 +72,7 @@ export const labOSUploadRouter = {
 
 	userAvatarPicture: f({
 		image: {
-			maxFileSize: "4MB",
+			maxFileSize: '4MB',
 			maxFileCount: 1,
 		},
 	})
@@ -80,7 +81,7 @@ export const labOSUploadRouter = {
 		.onUploadComplete(uploadComplete),
 	staffUserAvatarPicture: f({
 		image: {
-			maxFileSize: "4MB",
+			maxFileSize: '4MB',
 			maxFileCount: 1,
 		},
 	})
@@ -90,28 +91,32 @@ export const labOSUploadRouter = {
 
 	categoryIconAvatar: f({
 		image: {
-			maxFileSize: "4MB",
+			maxFileSize: '4MB',
 			maxFileCount: 1,
 		},
 	})
 		.input(CatalogCategoryImageStageInputSchema)
 		.middleware(async ({ input }) => {
 			try {
-				const tenant = await requireTenantContext();
-				return await authorizeCatalogCategoryImageStage({ tenant, stage: input });
+				const tenant = await requireTenantContext()
+				return await authorizeCatalogCategoryImageStage({
+					tenant,
+					stage: input,
+				})
 			} catch (error) {
 				if (error instanceof TenantContextError) {
-					throw new UploadThingError("Action requires an active Lab Workspace");
+					throw new UploadThingError('Action requires an active Lab Workspace')
 				}
-				throw error;
+				throw error
 			}
 		})
 		.onUploadComplete(async ({ metadata, file }) => {
-			const result = await labOSUploadGrantService.completeVerifiedProviderCallback({
-				metadata,
-				file: { key: file.key, url: file.ufsUrl },
-			});
-			return { uploadGrantId: result.uploadGrantId };
+			const result =
+				await labOSUploadGrantService.completeVerifiedProviderCallback({
+					metadata,
+					file: { key: file.key, url: file.ufsUrl },
+				})
+			return { uploadGrantId: result.uploadGrantId }
 		}),
 
 	workTypeIconAvatar: f({
@@ -205,7 +210,7 @@ export const labOSUploadRouter = {
 
 	genericAvatar: f({
 		image: {
-			maxFileSize: "4MB",
+			maxFileSize: '4MB',
 			maxFileCount: 1,
 		},
 	})
@@ -244,6 +249,6 @@ export const labOSUploadRouter = {
 	// })
 	// 	.middleware(({ req }) => auth(req))
 	// 	.onUploadComplete((data) => uploadComplete({ data, fileRouteName: "Message File Attachement" })),
-} satisfies FileRouter;
+} satisfies FileRouter
 
-export type LabOSUploadRouter = typeof labOSUploadRouter;
+export type LabOSUploadRouter = typeof labOSUploadRouter

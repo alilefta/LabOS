@@ -6,10 +6,10 @@ import {
 	prismaCaseOrganizationBoundaryLookup,
 	prismaCaseReadFactRepository,
 	prismaCaseCategoryOrganizationBoundaryLookup,
-	prismaWorkTypeOrganizationBoundaryLookup,
-	prismaProductOrganizationBoundaryLookup,
 	prismaDentistOrganizationBoundaryLookup,
 	prismaDentistReadFactRepository,
+	prismaProductOrganizationBoundaryLookup,
+	prismaWorkTypeOrganizationBoundaryLookup,
 } from './adapters/prisma/operational-authorization.repository'
 import {
 	createCaseReadFactLoader,

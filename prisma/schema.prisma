@@ -62,6 +62,7 @@ enum FileUploadGrantStatus {
 
 enum StoredFileProvider {
   UPLOADTHING
+  OBJECT_STORAGE
 }
 
 enum StoredFilePurpose {
@@ -90,6 +91,10 @@ enum CaseClinicalVerifiedFormat {
 enum CaseClinicalValidatedSuffix {
   JPG
   JPEG
+}
+
+enum CaseClinicalCodecBackend {
+  JULUSIAN_TURBOJPEG
 }
 
 enum CaseFileAuthorizationOutcome {
@@ -298,17 +303,17 @@ model Lab {
 
   labSubscriptionPlan LabSubscriptionPlan?
 
-  clinics          Clinic[]
-  cases            Case[]
-  caseCategories   CaseCategory[]
-  workTypes        WorkType[]
-  products         Product[]
-  caseWorkItems    CaseWorkItem[]
-  selectedTeeth    SelectedTooth[]
-  casePricingPlans CasePricingPlan[]
-  caseAssetFiles   CaseAssetFile[]
-  fileUploadGrants FileUploadGrant[]
-  storedFiles      StoredFile[]      @relation("StoredFileLab")
+  clinics                Clinic[]
+  cases                  Case[]
+  caseCategories         CaseCategory[]
+  workTypes              WorkType[]
+  products               Product[]
+  caseWorkItems          CaseWorkItem[]
+  selectedTeeth          SelectedTooth[]
+  casePricingPlans       CasePricingPlan[]
+  caseAssetFiles         CaseAssetFile[]
+  fileUploadGrants       FileUploadGrant[]
+  storedFiles            StoredFile[]                 @relation("StoredFileLab")
   clinicalUploadEvidence CaseClinicalUploadEvidence[] @relation("ClinicalEvidenceLab")
 
   patients         Patient[]
@@ -482,7 +487,7 @@ model Case {
   staffAssignments CaseStaffAssignment[]
   caseActivityLogs CaseActivityLog[]
 
-  caseAssetFiles CaseAssetFile[]
+  caseAssetFiles         CaseAssetFile[]
   clinicalUploadEvidence CaseClinicalUploadEvidence[] @relation("ClinicalEvidenceCase")
 
   deadline  DateTime?
@@ -623,21 +628,21 @@ model CaseAssetFile {
 }
 
 model StoredFile {
-  id                       String             @id @default(uuid())
+  id                       String                    @id @default(uuid())
   organizationId           String
   labId                    String
-  sourceUploadGrantId      String             @unique
+  sourceUploadGrantId      String                    @unique
   provider                 StoredFileProvider
-  providerObjectKey        String             @db.Text
+  providerObjectKey        String                    @db.Text
   providerAccess           StoredFileProviderAccess?
   purpose                  StoredFilePurpose
-  detectedMimeType         String             @db.VarChar(255)
+  detectedMimeType         String                    @db.VarChar(255)
   sizeBytes                BigInt
-  checksumAlgorithm        String?            @db.VarChar(32)
-  checksumValue            String?            @db.VarChar(256)
+  checksumAlgorithm        String?                   @db.VarChar(32)
+  checksumValue            String?                   @db.VarChar(256)
   uploaderMemberId         String?
   uploaderMemberIdSnapshot String
-  createdAt                DateTime           @default(now()) @db.Timestamptz(6)
+  createdAt                DateTime                  @default(now()) @db.Timestamptz(6)
 
   organization   Organization          @relation("StoredFileOrganization", fields: [organizationId], references: [id], onDelete: Restrict, onUpdate: NoAction)
   lab            Lab                   @relation("StoredFileLab", fields: [labId, organizationId], references: [id, organizationId], onDelete: Restrict, onUpdate: NoAction)
@@ -675,26 +680,33 @@ model CaseAssetFileVersion {
 }
 
 model CaseClinicalUploadEvidence {
-  uploadGrantId       String @id
+  uploadGrantId       String                      @id
   organizationId      String
   labId               String
   caseId              String
   provider            StoredFileProvider
-  providerObjectKey   String @db.Text
+  providerObjectKey   String                      @db.Text
   clinicalPurpose     CaseClinicalPurpose
   verifiedFormat      CaseClinicalVerifiedFormat
   validatedSuffix     CaseClinicalValidatedSuffix
   measuredSizeBytes   BigInt
   width               Int
   height              Int
-  contentSha256       String @db.VarChar(64)
-  validationProfile   String @db.VarChar(64)
-  validatedAt         DateTime @db.Timestamptz(6)
+  contentSha256       String                      @db.VarChar(64)
+  validationProfile   String                      @db.VarChar(64)
+  validatorVersion    String?                     @db.VarChar(48)
+  codecBackend        CaseClinicalCodecBackend?
+  codecPackageVersion String?                     @db.VarChar(24)
+  codecLibraryVersion String?                     @db.VarChar(24)
+  codecRuntimeSha256  String?                     @db.VarChar(64)
+  sourceComponents    Int?
+  isProgressive       Boolean?
+  validatedAt         DateTime                    @db.Timestamptz(6)
 
-  uploadGrant FileUploadGrant @relation("ClinicalEvidenceGrant", fields: [uploadGrantId, organizationId, labId, provider, providerObjectKey], references: [id, organizationId, labId, provider, providerFileKey], onDelete: Restrict, onUpdate: NoAction)
-  organization Organization @relation("ClinicalEvidenceOrganization", fields: [organizationId], references: [id], onDelete: Restrict, onUpdate: NoAction)
-  lab Lab @relation("ClinicalEvidenceLab", fields: [labId, organizationId], references: [id, organizationId], onDelete: Restrict, onUpdate: NoAction)
-  dentalCase Case @relation("ClinicalEvidenceCase", fields: [caseId, labId], references: [id, labId], onDelete: Restrict, onUpdate: NoAction)
+  uploadGrant  FileUploadGrant @relation("ClinicalEvidenceGrant", fields: [uploadGrantId, organizationId, labId, provider, providerObjectKey], references: [id, organizationId, labId, provider, providerFileKey], onDelete: Restrict, onUpdate: NoAction)
+  organization Organization    @relation("ClinicalEvidenceOrganization", fields: [organizationId], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  lab          Lab             @relation("ClinicalEvidenceLab", fields: [labId, organizationId], references: [id, organizationId], onDelete: Restrict, onUpdate: NoAction)
+  dentalCase   Case            @relation("ClinicalEvidenceCase", fields: [caseId, labId], references: [id, labId], onDelete: Restrict, onUpdate: NoAction)
 
   @@unique([provider, providerObjectKey])
   @@unique([uploadGrantId, organizationId, labId, provider, providerObjectKey])
@@ -1356,17 +1368,17 @@ model Verification {
 }
 
 model Organization {
-  id               String            @id
-  name             String
-  slug             String
-  logo             String?
-  createdAt        DateTime
-  metadata         String?
-  members          Member[]
-  invitations      Invitation[]
-  lab              Lab?
-  fileUploadGrants FileUploadGrant[]
-  storedFiles      StoredFile[]      @relation("StoredFileOrganization")
+  id                     String                       @id
+  name                   String
+  slug                   String
+  logo                   String?
+  createdAt              DateTime
+  metadata               String?
+  members                Member[]
+  invitations            Invitation[]
+  lab                    Lab?
+  fileUploadGrants       FileUploadGrant[]
+  storedFiles            StoredFile[]                 @relation("StoredFileOrganization")
   clinicalUploadEvidence CaseClinicalUploadEvidence[] @relation("ClinicalEvidenceOrganization")
 
   @@unique([slug])
@@ -1414,9 +1426,11 @@ model FileUploadGrant {
 
   status FileUploadGrantStatus @default(PENDING)
 
-  provider StoredFileProvider?
-  providerFileKey String? @unique
-  providerFileUrl String?
+  provider                    StoredFileProvider?
+  providerFileKey             String?                      @unique
+  providerFileUrl             String?
+  /// Checked upload-initiation filename suffix for N-FILE-110 only; historical and non-Case grants stay null.
+  caseClinicalValidatedSuffix CaseClinicalValidatedSuffix?
 
   correlationId String
   expiresAt     DateTime
@@ -1434,7 +1448,7 @@ model FileUploadGrant {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  storedFile StoredFile? @relation("StoredFileSourceGrant")
+  storedFile             StoredFile?                 @relation("StoredFileSourceGrant")
   clinicalUploadEvidence CaseClinicalUploadEvidence? @relation("ClinicalEvidenceGrant")
 
   @@unique([id, organizationId, labId])
@@ -1443,6 +1457,15 @@ model FileUploadGrant {
   @@index([status, expiresAt])
   @@index([boundaryId, status])
   @@index([targetType, targetId, status])
+}
+
+/// Permanent LabOS allocation for an object-storage key. This survives grant
+/// deletion and retains the conservative latest write-capability expiry fence.
+model ObjectStorageKeyAllocation {
+  objectKey                      String    @id @db.Text
+  sourceUploadGrantId            String    @unique
+  latestWriteCapabilityExpiresAt DateTime? @db.Timestamptz(6)
+  allocatedAt                    DateTime  @default(now()) @db.Timestamptz(6)
 }
 
 model Invitation {
