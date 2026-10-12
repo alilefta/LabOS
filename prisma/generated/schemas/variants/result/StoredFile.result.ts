@@ -1,5 +1,6 @@
 import * as z from 'zod';
 import { StoredFileProviderSchema } from '../../enums/StoredFileProvider.schema';
+import { StoredFileProviderAccessSchema } from '../../enums/StoredFileProviderAccess.schema';
 import { StoredFilePurposeSchema } from '../../enums/StoredFilePurpose.schema';
 // prettier-ignore
 export const StoredFileResultSchema = z.object({
@@ -9,6 +10,7 @@ export const StoredFileResultSchema = z.object({
     sourceUploadGrantId: z.string(),
     provider: StoredFileProviderSchema,
     providerObjectKey: z.string(),
+    providerAccess: StoredFileProviderAccessSchema.nullable(),
     purpose: StoredFilePurposeSchema,
     detectedMimeType: z.string(),
     sizeBytes: z.bigint(),

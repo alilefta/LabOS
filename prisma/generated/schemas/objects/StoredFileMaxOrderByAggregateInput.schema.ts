@@ -9,6 +9,7 @@ const makeSchema = () => z.object({
   sourceUploadGrantId: SortOrderSchema.optional(),
   provider: SortOrderSchema.optional(),
   providerObjectKey: SortOrderSchema.optional(),
+  providerAccess: SortOrderSchema.optional(),
   purpose: SortOrderSchema.optional(),
   detectedMimeType: SortOrderSchema.optional(),
   sizeBytes: SortOrderSchema.optional(),

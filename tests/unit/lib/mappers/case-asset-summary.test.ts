@@ -126,3 +126,22 @@ describe('Case asset summary projection', () => {
 		expect(managedOnly.caseAssetFiles?.[0]).toMatchObject({ id: 'asset-2', storageMode: 'MANAGED_PRIVATE' })
 	})
 })
+
+
+describe('public managed DTO compatibility', () => {
+  const publicManaged = { ...managed, id: 'asset-public', storageMode: 'MANAGED_PUBLIC' }
+  it('projects a safe public discriminant and no provider authority', () => {
+    const projected = project(publicManaged)
+    expect(projected).toEqual({ id: 'asset-public', title: 'Clinical scan', description: 'Upper arch', assetFileType: 'SCANNERFILE', storageMode: 'MANAGED_PUBLIC' })
+    expect(CaseAssetSummarySchema.parse({ ...projected, documentUrl: 'https://public.example', providerObjectKey: 'secret' })).toEqual(projected)
+    expect(JSON.stringify(projected)).not.toContain('must-not-leak')
+  })
+  it('preserves mixed legacy, public, and private assets in detail and drafts', () => {
+    const mixed = [legacy, publicManaged, managed]
+    const detail = composeCaseDTO(rawCase(mixed) as unknown as Parameters<typeof composeCaseDTO>[0])
+    expect(detail.caseAssetFiles?.map(asset => asset.storageMode)).toEqual(['LEGACY_URL_UNVERIFIED', 'MANAGED_PUBLIC', 'MANAGED_PRIVATE'])
+    expect(composeDraftCaseDTO(rawCase(mixed) as unknown as Parameters<typeof composeDraftCaseDTO>[0]).caseAssetFiles).toHaveLength(3)
+    expect(draftCaseServerToDTO(rawCase(mixed) as unknown as Parameters<typeof draftCaseServerToDTO>[0]).caseAssetFiles).toHaveLength(3)
+    expect(optionalSelectiveDraftCaseServerToDTO(rawCase(mixed) as unknown as Parameters<typeof optionalSelectiveDraftCaseServerToDTO>[0]).caseAssetFiles).toHaveLength(3)
+  })
+})

@@ -1,6 +1,7 @@
 import * as z from 'zod';
 import type { Prisma } from '../../../../generated/prisma/client';
 import { SortOrderSchema } from '../enums/SortOrder.schema';
+import { SortOrderInputObjectSchema as SortOrderInputObjectSchema } from './SortOrderInput.schema';
 import { FileUploadGrantOrderByWithRelationInputObjectSchema as FileUploadGrantOrderByWithRelationInputObjectSchema } from './FileUploadGrantOrderByWithRelationInput.schema';
 import { OrganizationOrderByWithRelationInputObjectSchema as OrganizationOrderByWithRelationInputObjectSchema } from './OrganizationOrderByWithRelationInput.schema';
 import { LabOrderByWithRelationInputObjectSchema as LabOrderByWithRelationInputObjectSchema } from './LabOrderByWithRelationInput.schema';
@@ -21,6 +22,13 @@ const makeSchema = () => z.object({
   height: SortOrderSchema.optional(),
   contentSha256: SortOrderSchema.optional(),
   validationProfile: SortOrderSchema.optional(),
+  validatorVersion: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
+  codecBackend: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
+  codecPackageVersion: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
+  codecLibraryVersion: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
+  codecRuntimeSha256: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
+  sourceComponents: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
+  isProgressive: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
   validatedAt: SortOrderSchema.optional(),
   uploadGrant: z.lazy(() => FileUploadGrantOrderByWithRelationInputObjectSchema).optional(),
   organization: z.lazy(() => OrganizationOrderByWithRelationInputObjectSchema).optional(),

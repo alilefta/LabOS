@@ -6,6 +6,7 @@ export const StoredFileUpsertResultSchema = z.object({
   sourceUploadGrantId: z.string(),
   provider: z.unknown(),
   providerObjectKey: z.string(),
+  providerAccess: z.unknown().optional(),
   purpose: z.unknown(),
   detectedMimeType: z.string(),
   sizeBytes: z.bigint(),

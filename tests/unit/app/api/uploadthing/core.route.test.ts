@@ -142,10 +142,10 @@ describe('categoryIconAvatar UploadThing route', () => {
 
 	it('completes a verified callback with only the opaque grant metadata and provider file', async () => {
 		const metadata = { uploadGrantId: 'grant_123' }
-		const file = {
-			key: 'provider-key',
-			ufsUrl: 'https://ufs.sh/f/provider-key',
-		}
+	const file = {
+		key: 'provider-key',
+		ufsUrl: 'https://ufs.sh/f/provider-key',
+	}
 
 		const output = await runCompletion({ metadata, file })
 		expect(output).toEqual({
@@ -153,7 +153,7 @@ describe('categoryIconAvatar UploadThing route', () => {
 		})
 		expect(completeVerifiedProviderCallback).toHaveBeenCalledWith({
 			metadata,
-			file: { key: file.key, url: file.ufsUrl },
+		file: { key: file.key, url: file.ufsUrl },
 		})
 		expect(Object.keys(output)).toEqual(['uploadGrantId'])
 	})

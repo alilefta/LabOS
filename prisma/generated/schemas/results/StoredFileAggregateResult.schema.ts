@@ -6,6 +6,7 @@ export const StoredFileAggregateResultSchema = z.object({  _count: z.object({
     sourceUploadGrantId: z.number(),
     provider: z.number(),
     providerObjectKey: z.number(),
+    providerAccess: z.number(),
     purpose: z.number(),
     detectedMimeType: z.number(),
     sizeBytes: z.number(),

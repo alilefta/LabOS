@@ -15,6 +15,7 @@ export const FileUploadGrantAggregateResultSchema = z.object({  _count: z.object
     provider: z.number(),
     providerFileKey: z.number(),
     providerFileUrl: z.number(),
+    caseClinicalValidatedSuffix: z.number(),
     correlationId: z.number(),
     expiresAt: z.number(),
     uploadedAt: z.number(),

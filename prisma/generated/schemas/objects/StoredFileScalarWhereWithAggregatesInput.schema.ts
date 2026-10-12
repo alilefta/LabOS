@@ -3,6 +3,8 @@ import type { Prisma } from '../../../../generated/prisma/client';
 import { StringWithAggregatesFilterObjectSchema as StringWithAggregatesFilterObjectSchema } from './StringWithAggregatesFilter.schema';
 import { EnumStoredFileProviderWithAggregatesFilterObjectSchema as EnumStoredFileProviderWithAggregatesFilterObjectSchema } from './EnumStoredFileProviderWithAggregatesFilter.schema';
 import { StoredFileProviderSchema } from '../enums/StoredFileProvider.schema';
+import { EnumStoredFileProviderAccessNullableWithAggregatesFilterObjectSchema as EnumStoredFileProviderAccessNullableWithAggregatesFilterObjectSchema } from './EnumStoredFileProviderAccessNullableWithAggregatesFilter.schema';
+import { StoredFileProviderAccessSchema } from '../enums/StoredFileProviderAccess.schema';
 import { EnumStoredFilePurposeWithAggregatesFilterObjectSchema as EnumStoredFilePurposeWithAggregatesFilterObjectSchema } from './EnumStoredFilePurposeWithAggregatesFilter.schema';
 import { StoredFilePurposeSchema } from '../enums/StoredFilePurpose.schema';
 import { BigIntWithAggregatesFilterObjectSchema as BigIntWithAggregatesFilterObjectSchema } from './BigIntWithAggregatesFilter.schema';
@@ -19,6 +21,7 @@ const storedfilescalarwherewithaggregatesinputSchema = z.object({
   sourceUploadGrantId: z.union([z.lazy(() => StringWithAggregatesFilterObjectSchema), z.string()]).optional(),
   provider: z.union([z.lazy(() => EnumStoredFileProviderWithAggregatesFilterObjectSchema), StoredFileProviderSchema]).optional(),
   providerObjectKey: z.union([z.lazy(() => StringWithAggregatesFilterObjectSchema), z.string()]).optional(),
+  providerAccess: z.union([z.lazy(() => EnumStoredFileProviderAccessNullableWithAggregatesFilterObjectSchema), StoredFileProviderAccessSchema]).optional().nullable(),
   purpose: z.union([z.lazy(() => EnumStoredFilePurposeWithAggregatesFilterObjectSchema), StoredFilePurposeSchema]).optional(),
   detectedMimeType: z.union([z.lazy(() => StringWithAggregatesFilterObjectSchema), z.string().max(255)]).optional(),
   sizeBytes: z.union([z.lazy(() => BigIntWithAggregatesFilterObjectSchema), z.bigint()]).optional(),

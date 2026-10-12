@@ -1,6 +1,7 @@
 import * as z from 'zod';
 import type { Prisma } from '../../../../generated/prisma/client';
 import { SortOrderSchema } from '../enums/SortOrder.schema';
+import { SortOrderInputObjectSchema as SortOrderInputObjectSchema } from './SortOrderInput.schema';
 import { CaseClinicalUploadEvidenceCountOrderByAggregateInputObjectSchema as CaseClinicalUploadEvidenceCountOrderByAggregateInputObjectSchema } from './CaseClinicalUploadEvidenceCountOrderByAggregateInput.schema';
 import { CaseClinicalUploadEvidenceAvgOrderByAggregateInputObjectSchema as CaseClinicalUploadEvidenceAvgOrderByAggregateInputObjectSchema } from './CaseClinicalUploadEvidenceAvgOrderByAggregateInput.schema';
 import { CaseClinicalUploadEvidenceMaxOrderByAggregateInputObjectSchema as CaseClinicalUploadEvidenceMaxOrderByAggregateInputObjectSchema } from './CaseClinicalUploadEvidenceMaxOrderByAggregateInput.schema';
@@ -22,6 +23,13 @@ const makeSchema = () => z.object({
   height: SortOrderSchema.optional(),
   contentSha256: SortOrderSchema.optional(),
   validationProfile: SortOrderSchema.optional(),
+  validatorVersion: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
+  codecBackend: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
+  codecPackageVersion: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
+  codecLibraryVersion: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
+  codecRuntimeSha256: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
+  sourceComponents: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
+  isProgressive: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
   validatedAt: SortOrderSchema.optional(),
   _count: z.lazy(() => CaseClinicalUploadEvidenceCountOrderByAggregateInputObjectSchema).optional(),
   _avg: z.lazy(() => CaseClinicalUploadEvidenceAvgOrderByAggregateInputObjectSchema).optional(),

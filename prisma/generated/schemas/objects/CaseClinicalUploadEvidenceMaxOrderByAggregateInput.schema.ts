@@ -17,6 +17,13 @@ const makeSchema = () => z.object({
   height: SortOrderSchema.optional(),
   contentSha256: SortOrderSchema.optional(),
   validationProfile: SortOrderSchema.optional(),
+  validatorVersion: SortOrderSchema.optional(),
+  codecBackend: SortOrderSchema.optional(),
+  codecPackageVersion: SortOrderSchema.optional(),
+  codecLibraryVersion: SortOrderSchema.optional(),
+  codecRuntimeSha256: SortOrderSchema.optional(),
+  sourceComponents: SortOrderSchema.optional(),
+  isProgressive: SortOrderSchema.optional(),
   validatedAt: SortOrderSchema.optional()
 }).strict();
 export const CaseClinicalUploadEvidenceMaxOrderByAggregateInputObjectSchema: z.ZodType<Prisma.CaseClinicalUploadEvidenceMaxOrderByAggregateInput> = makeSchema() as unknown as z.ZodType<Prisma.CaseClinicalUploadEvidenceMaxOrderByAggregateInput>;

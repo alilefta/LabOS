@@ -11,6 +11,11 @@ import { EnumCaseClinicalValidatedSuffixWithAggregatesFilterObjectSchema as Enum
 import { CaseClinicalValidatedSuffixSchema } from '../enums/CaseClinicalValidatedSuffix.schema';
 import { BigIntWithAggregatesFilterObjectSchema as BigIntWithAggregatesFilterObjectSchema } from './BigIntWithAggregatesFilter.schema';
 import { IntWithAggregatesFilterObjectSchema as IntWithAggregatesFilterObjectSchema } from './IntWithAggregatesFilter.schema';
+import { StringNullableWithAggregatesFilterObjectSchema as StringNullableWithAggregatesFilterObjectSchema } from './StringNullableWithAggregatesFilter.schema';
+import { EnumCaseClinicalCodecBackendNullableWithAggregatesFilterObjectSchema as EnumCaseClinicalCodecBackendNullableWithAggregatesFilterObjectSchema } from './EnumCaseClinicalCodecBackendNullableWithAggregatesFilter.schema';
+import { CaseClinicalCodecBackendSchema } from '../enums/CaseClinicalCodecBackend.schema';
+import { IntNullableWithAggregatesFilterObjectSchema as IntNullableWithAggregatesFilterObjectSchema } from './IntNullableWithAggregatesFilter.schema';
+import { BoolNullableWithAggregatesFilterObjectSchema as BoolNullableWithAggregatesFilterObjectSchema } from './BoolNullableWithAggregatesFilter.schema';
 import { DateTimeWithAggregatesFilterObjectSchema as DateTimeWithAggregatesFilterObjectSchema } from './DateTimeWithAggregatesFilter.schema'
 
 const caseclinicaluploadevidencescalarwherewithaggregatesinputSchema = z.object({
@@ -31,6 +36,13 @@ const caseclinicaluploadevidencescalarwherewithaggregatesinputSchema = z.object(
   height: z.union([z.lazy(() => IntWithAggregatesFilterObjectSchema), z.number().int()]).optional(),
   contentSha256: z.union([z.lazy(() => StringWithAggregatesFilterObjectSchema), z.string().max(64)]).optional(),
   validationProfile: z.union([z.lazy(() => StringWithAggregatesFilterObjectSchema), z.string().max(64)]).optional(),
+  validatorVersion: z.union([z.lazy(() => StringNullableWithAggregatesFilterObjectSchema), z.string().max(48)]).optional().nullable(),
+  codecBackend: z.union([z.lazy(() => EnumCaseClinicalCodecBackendNullableWithAggregatesFilterObjectSchema), CaseClinicalCodecBackendSchema]).optional().nullable(),
+  codecPackageVersion: z.union([z.lazy(() => StringNullableWithAggregatesFilterObjectSchema), z.string().max(24)]).optional().nullable(),
+  codecLibraryVersion: z.union([z.lazy(() => StringNullableWithAggregatesFilterObjectSchema), z.string().max(24)]).optional().nullable(),
+  codecRuntimeSha256: z.union([z.lazy(() => StringNullableWithAggregatesFilterObjectSchema), z.string().max(64)]).optional().nullable(),
+  sourceComponents: z.union([z.lazy(() => IntNullableWithAggregatesFilterObjectSchema), z.number().int()]).optional().nullable(),
+  isProgressive: z.union([z.lazy(() => BoolNullableWithAggregatesFilterObjectSchema), z.boolean()]).optional().nullable(),
   validatedAt: z.union([z.lazy(() => DateTimeWithAggregatesFilterObjectSchema), z.coerce.date()]).optional()
 }).strict();
 export const CaseClinicalUploadEvidenceScalarWhereWithAggregatesInputObjectSchema: z.ZodType<Prisma.CaseClinicalUploadEvidenceScalarWhereWithAggregatesInput> = caseclinicaluploadevidencescalarwherewithaggregatesinputSchema as unknown as z.ZodType<Prisma.CaseClinicalUploadEvidenceScalarWhereWithAggregatesInput>;

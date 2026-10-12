@@ -1,6 +1,7 @@
 import * as z from 'zod';
 import type { Prisma } from '../../../../generated/prisma/client';
 import { StoredFileProviderSchema } from '../enums/StoredFileProvider.schema';
+import { StoredFileProviderAccessSchema } from '../enums/StoredFileProviderAccess.schema';
 import { StoredFilePurposeSchema } from '../enums/StoredFilePurpose.schema'
 
 const makeSchema = () => z.object({
@@ -10,6 +11,7 @@ const makeSchema = () => z.object({
   sourceUploadGrantId: z.string(),
   provider: StoredFileProviderSchema,
   providerObjectKey: z.string(),
+  providerAccess: StoredFileProviderAccessSchema.optional().nullable(),
   purpose: StoredFilePurposeSchema,
   detectedMimeType: z.string(),
   sizeBytes: z.bigint(),

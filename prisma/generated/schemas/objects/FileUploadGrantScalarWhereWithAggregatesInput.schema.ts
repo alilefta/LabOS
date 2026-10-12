@@ -6,6 +6,8 @@ import { EnumFileUploadGrantStatusWithAggregatesFilterObjectSchema as EnumFileUp
 import { FileUploadGrantStatusSchema } from '../enums/FileUploadGrantStatus.schema';
 import { EnumStoredFileProviderNullableWithAggregatesFilterObjectSchema as EnumStoredFileProviderNullableWithAggregatesFilterObjectSchema } from './EnumStoredFileProviderNullableWithAggregatesFilter.schema';
 import { StoredFileProviderSchema } from '../enums/StoredFileProvider.schema';
+import { EnumCaseClinicalValidatedSuffixNullableWithAggregatesFilterObjectSchema as EnumCaseClinicalValidatedSuffixNullableWithAggregatesFilterObjectSchema } from './EnumCaseClinicalValidatedSuffixNullableWithAggregatesFilter.schema';
+import { CaseClinicalValidatedSuffixSchema } from '../enums/CaseClinicalValidatedSuffix.schema';
 import { DateTimeWithAggregatesFilterObjectSchema as DateTimeWithAggregatesFilterObjectSchema } from './DateTimeWithAggregatesFilter.schema';
 import { DateTimeNullableWithAggregatesFilterObjectSchema as DateTimeNullableWithAggregatesFilterObjectSchema } from './DateTimeNullableWithAggregatesFilter.schema';
 import { IntWithAggregatesFilterObjectSchema as IntWithAggregatesFilterObjectSchema } from './IntWithAggregatesFilter.schema'
@@ -26,6 +28,7 @@ const fileuploadgrantscalarwherewithaggregatesinputSchema = z.object({
   provider: z.union([z.lazy(() => EnumStoredFileProviderNullableWithAggregatesFilterObjectSchema), StoredFileProviderSchema]).optional().nullable(),
   providerFileKey: z.union([z.lazy(() => StringNullableWithAggregatesFilterObjectSchema), z.string()]).optional().nullable(),
   providerFileUrl: z.union([z.lazy(() => StringNullableWithAggregatesFilterObjectSchema), z.string()]).optional().nullable(),
+  caseClinicalValidatedSuffix: z.union([z.lazy(() => EnumCaseClinicalValidatedSuffixNullableWithAggregatesFilterObjectSchema), CaseClinicalValidatedSuffixSchema]).optional().nullable(),
   correlationId: z.union([z.lazy(() => StringWithAggregatesFilterObjectSchema), z.string()]).optional(),
   expiresAt: z.union([z.lazy(() => DateTimeWithAggregatesFilterObjectSchema), z.coerce.date()]).optional(),
   uploadedAt: z.union([z.lazy(() => DateTimeNullableWithAggregatesFilterObjectSchema), z.coerce.date()]).optional().nullable(),

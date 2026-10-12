@@ -1,7 +1,8 @@
 import * as z from 'zod';
 import type { Prisma } from '../../../../generated/prisma/client';
 import { FileUploadGrantStatusSchema } from '../enums/FileUploadGrantStatus.schema';
-import { StoredFileProviderSchema } from '../enums/StoredFileProvider.schema'
+import { StoredFileProviderSchema } from '../enums/StoredFileProvider.schema';
+import { CaseClinicalValidatedSuffixSchema } from '../enums/CaseClinicalValidatedSuffix.schema'
 
 const makeSchema = () => z.object({
   id: z.string().optional(),
@@ -15,6 +16,7 @@ const makeSchema = () => z.object({
   provider: StoredFileProviderSchema.optional().nullable(),
   providerFileKey: z.string().optional().nullable(),
   providerFileUrl: z.string().optional().nullable(),
+  caseClinicalValidatedSuffix: CaseClinicalValidatedSuffixSchema.optional().nullable(),
   correlationId: z.string(),
   expiresAt: z.coerce.date(),
   uploadedAt: z.coerce.date().optional().nullable(),

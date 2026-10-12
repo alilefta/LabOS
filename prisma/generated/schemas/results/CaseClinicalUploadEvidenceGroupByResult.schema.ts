@@ -10,6 +10,12 @@ export const CaseClinicalUploadEvidenceGroupByResultSchema = z.array(z.object({
   height: z.number().int(),
   contentSha256: z.string(),
   validationProfile: z.string(),
+  validatorVersion: z.string(),
+  codecPackageVersion: z.string(),
+  codecLibraryVersion: z.string(),
+  codecRuntimeSha256: z.string(),
+  sourceComponents: z.number().int(),
+  isProgressive: z.boolean(),
   validatedAt: z.date(),
   _count: z.object({
     uploadGrantId: z.number(),
@@ -26,6 +32,13 @@ export const CaseClinicalUploadEvidenceGroupByResultSchema = z.array(z.object({
     height: z.number(),
     contentSha256: z.number(),
     validationProfile: z.number(),
+    validatorVersion: z.number(),
+    codecBackend: z.number(),
+    codecPackageVersion: z.number(),
+    codecLibraryVersion: z.number(),
+    codecRuntimeSha256: z.number(),
+    sourceComponents: z.number(),
+    isProgressive: z.number(),
     validatedAt: z.number(),
     uploadGrant: z.number(),
     organization: z.number(),
@@ -35,12 +48,14 @@ export const CaseClinicalUploadEvidenceGroupByResultSchema = z.array(z.object({
   _sum: z.object({
     measuredSizeBytes: z.bigint().nullable(),
     width: z.number().nullable(),
-    height: z.number().nullable()
+    height: z.number().nullable(),
+    sourceComponents: z.number().nullable()
   }).nullable().optional(),
   _avg: z.object({
     measuredSizeBytes: z.number().nullable(),
     width: z.number().nullable(),
-    height: z.number().nullable()
+    height: z.number().nullable(),
+    sourceComponents: z.number().nullable()
   }).nullable().optional(),
   _min: z.object({
     uploadGrantId: z.string().nullable(),
@@ -53,6 +68,11 @@ export const CaseClinicalUploadEvidenceGroupByResultSchema = z.array(z.object({
     height: z.number().int().nullable(),
     contentSha256: z.string().nullable(),
     validationProfile: z.string().nullable(),
+    validatorVersion: z.string().nullable(),
+    codecPackageVersion: z.string().nullable(),
+    codecLibraryVersion: z.string().nullable(),
+    codecRuntimeSha256: z.string().nullable(),
+    sourceComponents: z.number().int().nullable(),
     validatedAt: z.date().nullable()
   }).nullable().optional(),
   _max: z.object({
@@ -66,6 +86,11 @@ export const CaseClinicalUploadEvidenceGroupByResultSchema = z.array(z.object({
     height: z.number().int().nullable(),
     contentSha256: z.string().nullable(),
     validationProfile: z.string().nullable(),
+    validatorVersion: z.string().nullable(),
+    codecPackageVersion: z.string().nullable(),
+    codecLibraryVersion: z.string().nullable(),
+    codecRuntimeSha256: z.string().nullable(),
+    sourceComponents: z.number().int().nullable(),
     validatedAt: z.date().nullable()
   }).nullable().optional()
 }));

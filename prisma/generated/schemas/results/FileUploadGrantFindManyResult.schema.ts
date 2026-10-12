@@ -16,6 +16,7 @@ export const FileUploadGrantFindManyResultSchema = z.object({
   provider: z.unknown().optional(),
   providerFileKey: z.string().optional(),
   providerFileUrl: z.string().optional(),
+  caseClinicalValidatedSuffix: z.unknown().optional(),
   correlationId: z.string(),
   expiresAt: z.date(),
   uploadedAt: z.date().optional(),

@@ -14,6 +14,13 @@ export const CaseClinicalUploadEvidenceAggregateResultSchema = z.object({  _coun
     height: z.number(),
     contentSha256: z.number(),
     validationProfile: z.number(),
+    validatorVersion: z.number(),
+    codecBackend: z.number(),
+    codecPackageVersion: z.number(),
+    codecLibraryVersion: z.number(),
+    codecRuntimeSha256: z.number(),
+    sourceComponents: z.number(),
+    isProgressive: z.number(),
     validatedAt: z.number(),
     uploadGrant: z.number(),
     organization: z.number(),
@@ -23,12 +30,14 @@ export const CaseClinicalUploadEvidenceAggregateResultSchema = z.object({  _coun
   _sum: z.object({
     measuredSizeBytes: z.bigint().nullable(),
     width: z.number().nullable(),
-    height: z.number().nullable()
+    height: z.number().nullable(),
+    sourceComponents: z.number().nullable()
   }).nullable().optional(),
   _avg: z.object({
     measuredSizeBytes: z.number().nullable(),
     width: z.number().nullable(),
-    height: z.number().nullable()
+    height: z.number().nullable(),
+    sourceComponents: z.number().nullable()
   }).nullable().optional(),
   _min: z.object({
     uploadGrantId: z.string().nullable(),
@@ -41,6 +50,11 @@ export const CaseClinicalUploadEvidenceAggregateResultSchema = z.object({  _coun
     height: z.number().int().nullable(),
     contentSha256: z.string().nullable(),
     validationProfile: z.string().nullable(),
+    validatorVersion: z.string().nullable(),
+    codecPackageVersion: z.string().nullable(),
+    codecLibraryVersion: z.string().nullable(),
+    codecRuntimeSha256: z.string().nullable(),
+    sourceComponents: z.number().int().nullable(),
     validatedAt: z.date().nullable()
   }).nullable().optional(),
   _max: z.object({
@@ -54,5 +68,10 @@ export const CaseClinicalUploadEvidenceAggregateResultSchema = z.object({  _coun
     height: z.number().int().nullable(),
     contentSha256: z.string().nullable(),
     validationProfile: z.string().nullable(),
+    validatorVersion: z.string().nullable(),
+    codecPackageVersion: z.string().nullable(),
+    codecLibraryVersion: z.string().nullable(),
+    codecRuntimeSha256: z.string().nullable(),
+    sourceComponents: z.number().int().nullable(),
     validatedAt: z.date().nullable()
   }).nullable().optional()});

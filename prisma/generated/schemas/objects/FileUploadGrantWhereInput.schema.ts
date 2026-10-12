@@ -6,6 +6,8 @@ import { EnumFileUploadGrantStatusFilterObjectSchema as EnumFileUploadGrantStatu
 import { FileUploadGrantStatusSchema } from '../enums/FileUploadGrantStatus.schema';
 import { EnumStoredFileProviderNullableFilterObjectSchema as EnumStoredFileProviderNullableFilterObjectSchema } from './EnumStoredFileProviderNullableFilter.schema';
 import { StoredFileProviderSchema } from '../enums/StoredFileProvider.schema';
+import { EnumCaseClinicalValidatedSuffixNullableFilterObjectSchema as EnumCaseClinicalValidatedSuffixNullableFilterObjectSchema } from './EnumCaseClinicalValidatedSuffixNullableFilter.schema';
+import { CaseClinicalValidatedSuffixSchema } from '../enums/CaseClinicalValidatedSuffix.schema';
 import { DateTimeFilterObjectSchema as DateTimeFilterObjectSchema } from './DateTimeFilter.schema';
 import { DateTimeNullableFilterObjectSchema as DateTimeNullableFilterObjectSchema } from './DateTimeNullableFilter.schema';
 import { IntFilterObjectSchema as IntFilterObjectSchema } from './IntFilter.schema';
@@ -36,6 +38,7 @@ const fileuploadgrantwhereinputSchema = z.object({
   provider: z.union([z.lazy(() => EnumStoredFileProviderNullableFilterObjectSchema), StoredFileProviderSchema]).optional().nullable(),
   providerFileKey: z.union([z.lazy(() => StringNullableFilterObjectSchema), z.string()]).optional().nullable(),
   providerFileUrl: z.union([z.lazy(() => StringNullableFilterObjectSchema), z.string()]).optional().nullable(),
+  caseClinicalValidatedSuffix: z.union([z.lazy(() => EnumCaseClinicalValidatedSuffixNullableFilterObjectSchema), CaseClinicalValidatedSuffixSchema]).optional().nullable(),
   correlationId: z.union([z.lazy(() => StringFilterObjectSchema), z.string()]).optional(),
   expiresAt: z.union([z.lazy(() => DateTimeFilterObjectSchema), z.coerce.date()]).optional(),
   uploadedAt: z.union([z.lazy(() => DateTimeNullableFilterObjectSchema), z.coerce.date()]).optional().nullable(),

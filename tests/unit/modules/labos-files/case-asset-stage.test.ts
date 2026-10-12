@@ -60,7 +60,7 @@ describe('N-FILE-110 saved-DRAFT staging', () => {
 
 	it('derives tenant from the session and returns only the opaque ID', async () => {
 		const { repository } = fixture()
-		await expect(stageCaseAsset({ caseId }, { repository, generateCorrelationId: () => 'corr-a' }))
+		await expect(stageCaseAsset({ caseId }, 'JPG', { repository, generateCorrelationId: () => 'corr-a' }))
 			.resolves.toEqual({ uploadGrantId: 'grant-a' })
 		expect(resolveTenant).toHaveBeenCalledOnce()
 	})
@@ -68,7 +68,7 @@ describe('N-FILE-110 saved-DRAFT staging', () => {
 	it.each(['owner', 'admin', 'manager'])('authorizes %s and writes only the fixed PENDING grant', async (role) => {
 		const { repository, tx, prisma } = fixture()
 		tx.member.findFirst.mockResolvedValue({ id: 'member-a', role })
-		await expect(repository.create({ tenant: { ...tenant, memberRole: role }, caseId, correlationId: 'corr-a' }))
+		await expect(repository.create({ tenant: { ...tenant, memberRole: role }, caseId, checkedSuffix: 'JPG', correlationId: 'corr-a' }))
 			.resolves.toEqual({ uploadGrantId: 'grant-a' })
 		expect(prisma.$transaction).toHaveBeenCalledWith(expect.any(Function), expect.objectContaining({ isolationLevel: 'Serializable' }))
 		expect(tx.$queryRaw).toHaveBeenCalledOnce()
@@ -82,11 +82,32 @@ describe('N-FILE-110 saved-DRAFT staging', () => {
 				organizationId: 'org-a', labId: 'lab-a', createdByMemberId: 'member-a',
 				boundaryId: 'N-FILE-110', purpose: 'case.asset.add.stage',
 				targetType: 'case', targetId: caseId, provider: 'UPLOADTHING',
+                caseClinicalValidatedSuffix: 'JPG',
 				correlationId: 'corr-a', createdAt,
 				expiresAt: new Date('2026-09-28T12:15:00.000Z'),
 			},
 			select: { id: true },
 		})
+	})
+
+	it('binds JPEG exactly and denies missing checked suffix', async () => {
+        const { repository, tx } = fixture()
+        await repository.create({ tenant, caseId, checkedSuffix: 'JPEG', correlationId: 'corr-a' })
+        expect(tx.fileUploadGrant.create.mock.calls[0][0].data.caseClinicalValidatedSuffix).toBe('JPEG')
+        tx.fileUploadGrant.create.mockClear()
+        await expect(repository.create({ tenant, caseId, checkedSuffix: null as unknown as 'JPG', correlationId: 'corr-b' }))
+            .rejects.toMatchObject({ code: UPLOAD_GRANT_ERROR_CODES.CANONICAL_CONTEXT_REJECTED })
+        expect(tx.fileUploadGrant.create).not.toHaveBeenCalled()
+    })
+
+	it('allocates a Files-owned opaque key on the OBJECT_STORAGE grant insert', async () => {
+		const { repository, tx } = fixture()
+		await repository.create({ tenant, caseId, checkedSuffix: 'JPEG', correlationId: 'corr-object',
+			backend: 'OBJECT_STORAGE' })
+		const data = tx.fileUploadGrant.create.mock.calls[0]![0].data
+		expect(data.provider).toBe('OBJECT_STORAGE')
+		expect(data.providerFileKey).toMatch(/^objects\/[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/)
+		expect(data.providerFileUrl).toBeUndefined()
 	})
 
 	it('authorizes assigned Staff against exact active same-Lab Member-linked Case', async () => {
@@ -96,7 +117,7 @@ describe('N-FILE-110 saved-DRAFT staging', () => {
 			caseId, labId: 'lab-a', staffId: 'staff-a',
 			staff: { labId: 'lab-a', isActive: true, memberId: 'member-a', member: { id: 'member-a', organizationId: 'org-a' } },
 		}]
-		await expect(repository.create({ tenant: { ...tenant, memberRole: 'staff' }, caseId, correlationId: 'corr-a' }))
+		await expect(repository.create({ tenant: { ...tenant, memberRole: 'staff' }, caseId, checkedSuffix: 'JPG', correlationId: 'corr-a' }))
 			.resolves.toEqual({ uploadGrantId: 'grant-a' })
 		expect(tx.fileUploadGrant.create).toHaveBeenCalledOnce()
 	})
@@ -114,7 +135,7 @@ describe('N-FILE-110 saved-DRAFT staging', () => {
 				member: variant === 'unlinked' ? null : { id: 'member-a', organizationId: 'org-a' },
 			},
 		}]
-		await expect(repository.create({ tenant: { ...tenant, memberRole: 'staff' }, caseId, correlationId: 'corr-a' }))
+		await expect(repository.create({ tenant: { ...tenant, memberRole: 'staff' }, caseId, checkedSuffix: 'JPG', correlationId: 'corr-a' }))
 			.rejects.toMatchObject({ code: UPLOAD_GRANT_ERROR_CODES.CANONICAL_CONTEXT_REJECTED })
 		expect(tx.fileUploadGrant.create).not.toHaveBeenCalled()
 	})
@@ -122,7 +143,7 @@ describe('N-FILE-110 saved-DRAFT staging', () => {
 	it.each(['missing Case', 'foreign Organization', 'foreign Lab', 'non-DRAFT Case'])('denies %s before grant creation', async () => {
 		const { repository, tx } = fixture()
 		tx.$queryRaw.mockResolvedValue([])
-		await expect(repository.create({ tenant, caseId, correlationId: 'corr-a' }))
+		await expect(repository.create({ tenant, caseId, checkedSuffix: 'JPG', correlationId: 'corr-a' }))
 			.rejects.toMatchObject({ code: UPLOAD_GRANT_ERROR_CODES.CANONICAL_CONTEXT_REJECTED })
 		expect(tx.case.findUnique).not.toHaveBeenCalled()
 		expect(tx.fileUploadGrant.create).not.toHaveBeenCalled()
@@ -131,7 +152,7 @@ describe('N-FILE-110 saved-DRAFT staging', () => {
 	it('denies a missing canonical Member without creating a grant', async () => {
 		const { repository, tx } = fixture()
 		tx.member.findFirst.mockResolvedValue(null)
-		await expect(repository.create({ tenant, caseId, correlationId: 'corr-a' }))
+		await expect(repository.create({ tenant, caseId, checkedSuffix: 'JPG', correlationId: 'corr-a' }))
 			.rejects.toMatchObject({ code: UPLOAD_GRANT_ERROR_CODES.CANONICAL_CONTEXT_REJECTED })
 		expect(tx.fileUploadGrant.create).not.toHaveBeenCalled()
 	})
@@ -139,7 +160,7 @@ describe('N-FILE-110 saved-DRAFT staging', () => {
 	it('uses the transaction-fresh Member role, not a stale elevated session role', async () => {
 		const { repository, tx } = fixture()
 		tx.member.findFirst.mockResolvedValue({ id: 'member-a', role: 'staff' })
-		await expect(repository.create({ tenant, caseId, correlationId: 'corr-a' }))
+		await expect(repository.create({ tenant, caseId, checkedSuffix: 'JPG', correlationId: 'corr-a' }))
 			.rejects.toMatchObject({ code: UPLOAD_GRANT_ERROR_CODES.CANONICAL_CONTEXT_REJECTED })
 		expect(tx.fileUploadGrant.create).not.toHaveBeenCalled()
 	})
@@ -147,7 +168,7 @@ describe('N-FILE-110 saved-DRAFT staging', () => {
 	it('an unsupported transaction-fresh role denies even when session claimed Staff', async () => {
 		const { repository, tx } = fixture()
 		tx.member.findFirst.mockResolvedValue({ id: 'member-a', role: 'unsupported' })
-		await expect(repository.create({ tenant: { ...tenant, memberRole: 'staff' }, caseId, correlationId: 'corr-a' }))
+		await expect(repository.create({ tenant: { ...tenant, memberRole: 'staff' }, caseId, checkedSuffix: 'JPG', correlationId: 'corr-a' }))
 			.rejects.toMatchObject({ code: UPLOAD_GRANT_ERROR_CODES.CANONICAL_CONTEXT_REJECTED })
 		expect(tx.fileUploadGrant.create).not.toHaveBeenCalled()
 	})

@@ -5,7 +5,8 @@ import { SortOrderSchema } from '../enums/SortOrder.schema'
 const makeSchema = () => z.object({
   measuredSizeBytes: SortOrderSchema.optional(),
   width: SortOrderSchema.optional(),
-  height: SortOrderSchema.optional()
+  height: SortOrderSchema.optional(),
+  sourceComponents: SortOrderSchema.optional()
 }).strict();
 export const CaseClinicalUploadEvidenceAvgOrderByAggregateInputObjectSchema: z.ZodType<Prisma.CaseClinicalUploadEvidenceAvgOrderByAggregateInput> = makeSchema() as unknown as z.ZodType<Prisma.CaseClinicalUploadEvidenceAvgOrderByAggregateInput>;
 export const CaseClinicalUploadEvidenceAvgOrderByAggregateInputObjectZodSchema = makeSchema();

@@ -1,6 +1,7 @@
 import * as z from 'zod';
 import type { Prisma } from '../../../../generated/prisma/client';
 import { StoredFileProviderSchema } from '../enums/StoredFileProvider.schema';
+import { StoredFileProviderAccessSchema } from '../enums/StoredFileProviderAccess.schema';
 import { StoredFilePurposeSchema } from '../enums/StoredFilePurpose.schema';
 import { OrganizationCreateNestedOneWithoutStoredFilesInputObjectSchema as OrganizationCreateNestedOneWithoutStoredFilesInputObjectSchema } from './OrganizationCreateNestedOneWithoutStoredFilesInput.schema';
 import { LabCreateNestedOneWithoutStoredFilesInputObjectSchema as LabCreateNestedOneWithoutStoredFilesInputObjectSchema } from './LabCreateNestedOneWithoutStoredFilesInput.schema';
@@ -11,6 +12,7 @@ const makeSchema = () => z.object({
   id: z.string().optional(),
   provider: StoredFileProviderSchema,
   providerObjectKey: z.string(),
+  providerAccess: StoredFileProviderAccessSchema.optional().nullable(),
   purpose: StoredFilePurposeSchema,
   detectedMimeType: z.string().max(255),
   sizeBytes: z.bigint(),

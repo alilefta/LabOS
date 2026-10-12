@@ -22,6 +22,7 @@ const makeSchema = () => z.object({
   provider: z.boolean().optional(),
   providerFileKey: z.boolean().optional(),
   providerFileUrl: z.boolean().optional(),
+  caseClinicalValidatedSuffix: z.boolean().optional(),
   correlationId: z.boolean().optional(),
   expiresAt: z.boolean().optional(),
   uploadedAt: z.boolean().optional(),

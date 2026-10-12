@@ -21,6 +21,7 @@ const makeSchema = () => z.object({
   provider: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
   providerFileKey: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
   providerFileUrl: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
+  caseClinicalValidatedSuffix: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),
   correlationId: SortOrderSchema.optional(),
   expiresAt: SortOrderSchema.optional(),
   uploadedAt: z.union([SortOrderSchema, z.lazy(() => SortOrderInputObjectSchema)]).optional(),

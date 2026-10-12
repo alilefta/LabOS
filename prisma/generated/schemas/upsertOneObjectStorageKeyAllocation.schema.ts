@@ -1,0 +1,12 @@
+import type { Prisma } from '../../../generated/prisma/client';
+import * as z from 'zod';
+import { ObjectStorageKeyAllocationSelectObjectSchema as ObjectStorageKeyAllocationSelectObjectSchema } from './objects/ObjectStorageKeyAllocationSelect.schema';
+import { ObjectStorageKeyAllocationWhereUniqueInputObjectSchema as ObjectStorageKeyAllocationWhereUniqueInputObjectSchema } from './objects/ObjectStorageKeyAllocationWhereUniqueInput.schema';
+import { ObjectStorageKeyAllocationCreateInputObjectSchema as ObjectStorageKeyAllocationCreateInputObjectSchema } from './objects/ObjectStorageKeyAllocationCreateInput.schema';
+import { ObjectStorageKeyAllocationUncheckedCreateInputObjectSchema as ObjectStorageKeyAllocationUncheckedCreateInputObjectSchema } from './objects/ObjectStorageKeyAllocationUncheckedCreateInput.schema';
+import { ObjectStorageKeyAllocationUpdateInputObjectSchema as ObjectStorageKeyAllocationUpdateInputObjectSchema } from './objects/ObjectStorageKeyAllocationUpdateInput.schema';
+import { ObjectStorageKeyAllocationUncheckedUpdateInputObjectSchema as ObjectStorageKeyAllocationUncheckedUpdateInputObjectSchema } from './objects/ObjectStorageKeyAllocationUncheckedUpdateInput.schema';
+
+export const ObjectStorageKeyAllocationUpsertOneSchema: z.ZodType<Prisma.ObjectStorageKeyAllocationUpsertArgs> = z.object({ select: ObjectStorageKeyAllocationSelectObjectSchema.optional(),  where: ObjectStorageKeyAllocationWhereUniqueInputObjectSchema, create: z.union([ ObjectStorageKeyAllocationCreateInputObjectSchema, ObjectStorageKeyAllocationUncheckedCreateInputObjectSchema ]), update: z.union([ ObjectStorageKeyAllocationUpdateInputObjectSchema, ObjectStorageKeyAllocationUncheckedUpdateInputObjectSchema ]) }).strict() as unknown as z.ZodType<Prisma.ObjectStorageKeyAllocationUpsertArgs>;
+
+export const ObjectStorageKeyAllocationUpsertOneZodSchema = z.object({ select: ObjectStorageKeyAllocationSelectObjectSchema.optional(),  where: ObjectStorageKeyAllocationWhereUniqueInputObjectSchema, create: z.union([ ObjectStorageKeyAllocationCreateInputObjectSchema, ObjectStorageKeyAllocationUncheckedCreateInputObjectSchema ]), update: z.union([ ObjectStorageKeyAllocationUpdateInputObjectSchema, ObjectStorageKeyAllocationUncheckedUpdateInputObjectSchema ]) }).strict();

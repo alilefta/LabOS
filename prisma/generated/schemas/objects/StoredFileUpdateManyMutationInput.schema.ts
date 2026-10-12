@@ -3,6 +3,8 @@ import type { Prisma } from '../../../../generated/prisma/client';
 import { StringFieldUpdateOperationsInputObjectSchema as StringFieldUpdateOperationsInputObjectSchema } from './StringFieldUpdateOperationsInput.schema';
 import { StoredFileProviderSchema } from '../enums/StoredFileProvider.schema';
 import { EnumStoredFileProviderFieldUpdateOperationsInputObjectSchema as EnumStoredFileProviderFieldUpdateOperationsInputObjectSchema } from './EnumStoredFileProviderFieldUpdateOperationsInput.schema';
+import { StoredFileProviderAccessSchema } from '../enums/StoredFileProviderAccess.schema';
+import { NullableEnumStoredFileProviderAccessFieldUpdateOperationsInputObjectSchema as NullableEnumStoredFileProviderAccessFieldUpdateOperationsInputObjectSchema } from './NullableEnumStoredFileProviderAccessFieldUpdateOperationsInput.schema';
 import { StoredFilePurposeSchema } from '../enums/StoredFilePurpose.schema';
 import { EnumStoredFilePurposeFieldUpdateOperationsInputObjectSchema as EnumStoredFilePurposeFieldUpdateOperationsInputObjectSchema } from './EnumStoredFilePurposeFieldUpdateOperationsInput.schema';
 import { BigIntFieldUpdateOperationsInputObjectSchema as BigIntFieldUpdateOperationsInputObjectSchema } from './BigIntFieldUpdateOperationsInput.schema';
@@ -13,6 +15,7 @@ const makeSchema = () => z.object({
   id: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputObjectSchema)]).optional(),
   provider: z.union([StoredFileProviderSchema, z.lazy(() => EnumStoredFileProviderFieldUpdateOperationsInputObjectSchema)]).optional(),
   providerObjectKey: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputObjectSchema)]).optional(),
+  providerAccess: z.union([StoredFileProviderAccessSchema, z.lazy(() => NullableEnumStoredFileProviderAccessFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
   purpose: z.union([StoredFilePurposeSchema, z.lazy(() => EnumStoredFilePurposeFieldUpdateOperationsInputObjectSchema)]).optional(),
   detectedMimeType: z.union([z.string().max(255), z.lazy(() => StringFieldUpdateOperationsInputObjectSchema)]).optional(),
   sizeBytes: z.union([z.bigint(), z.lazy(() => BigIntFieldUpdateOperationsInputObjectSchema)]).optional(),

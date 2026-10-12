@@ -137,4 +137,3 @@ describe('Upload grant telemetry', () => {
 		).toThrow('Axiom telemetry dataset is required')
 	})
 })
-

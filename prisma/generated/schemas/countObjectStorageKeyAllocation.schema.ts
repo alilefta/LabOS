@@ -1,0 +1,10 @@
+import type { Prisma } from '../../../generated/prisma/client';
+import * as z from 'zod';
+import { ObjectStorageKeyAllocationOrderByWithRelationInputObjectSchema as ObjectStorageKeyAllocationOrderByWithRelationInputObjectSchema } from './objects/ObjectStorageKeyAllocationOrderByWithRelationInput.schema';
+import { ObjectStorageKeyAllocationWhereInputObjectSchema as ObjectStorageKeyAllocationWhereInputObjectSchema } from './objects/ObjectStorageKeyAllocationWhereInput.schema';
+import { ObjectStorageKeyAllocationWhereUniqueInputObjectSchema as ObjectStorageKeyAllocationWhereUniqueInputObjectSchema } from './objects/ObjectStorageKeyAllocationWhereUniqueInput.schema';
+import { ObjectStorageKeyAllocationCountAggregateInputObjectSchema as ObjectStorageKeyAllocationCountAggregateInputObjectSchema } from './objects/ObjectStorageKeyAllocationCountAggregateInput.schema';
+
+export const ObjectStorageKeyAllocationCountSchema: z.ZodType<Prisma.ObjectStorageKeyAllocationCountArgs> = z.object({ orderBy: z.union([ObjectStorageKeyAllocationOrderByWithRelationInputObjectSchema, ObjectStorageKeyAllocationOrderByWithRelationInputObjectSchema.array()]).optional(), where: ObjectStorageKeyAllocationWhereInputObjectSchema.optional(), cursor: ObjectStorageKeyAllocationWhereUniqueInputObjectSchema.optional(), take: z.number().optional(), skip: z.number().optional(), select: z.union([ z.literal(true), ObjectStorageKeyAllocationCountAggregateInputObjectSchema ]).optional() }).strict() as unknown as z.ZodType<Prisma.ObjectStorageKeyAllocationCountArgs>;
+
+export const ObjectStorageKeyAllocationCountZodSchema = z.object({ orderBy: z.union([ObjectStorageKeyAllocationOrderByWithRelationInputObjectSchema, ObjectStorageKeyAllocationOrderByWithRelationInputObjectSchema.array()]).optional(), where: ObjectStorageKeyAllocationWhereInputObjectSchema.optional(), cursor: ObjectStorageKeyAllocationWhereUniqueInputObjectSchema.optional(), take: z.number().optional(), skip: z.number().optional(), select: z.union([ z.literal(true), ObjectStorageKeyAllocationCountAggregateInputObjectSchema ]).optional() }).strict();

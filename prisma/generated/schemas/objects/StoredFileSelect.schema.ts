@@ -13,6 +13,7 @@ const makeSchema = () => z.object({
   sourceUploadGrantId: z.boolean().optional(),
   provider: z.boolean().optional(),
   providerObjectKey: z.boolean().optional(),
+  providerAccess: z.boolean().optional(),
   purpose: z.boolean().optional(),
   detectedMimeType: z.boolean().optional(),
   sizeBytes: z.boolean().optional(),

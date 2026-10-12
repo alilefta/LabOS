@@ -40,5 +40,6 @@ export { VerificationInputSchema } from './Verification.input';
 export { OrganizationInputSchema } from './Organization.input';
 export { MemberInputSchema } from './Member.input';
 export { FileUploadGrantInputSchema } from './FileUploadGrant.input';
+export { ObjectStorageKeyAllocationInputSchema } from './ObjectStorageKeyAllocation.input';
 export { InvitationInputSchema } from './Invitation.input';
 export { LabStaffInvitationIntentInputSchema } from './LabStaffInvitationIntent.input';

@@ -9,6 +9,11 @@ import { EnumCaseClinicalValidatedSuffixFieldUpdateOperationsInputObjectSchema a
 import { BigIntFieldUpdateOperationsInputObjectSchema as BigIntFieldUpdateOperationsInputObjectSchema } from './BigIntFieldUpdateOperationsInput.schema';
 import { IntFieldUpdateOperationsInputObjectSchema as IntFieldUpdateOperationsInputObjectSchema } from './IntFieldUpdateOperationsInput.schema';
 import { StringFieldUpdateOperationsInputObjectSchema as StringFieldUpdateOperationsInputObjectSchema } from './StringFieldUpdateOperationsInput.schema';
+import { NullableStringFieldUpdateOperationsInputObjectSchema as NullableStringFieldUpdateOperationsInputObjectSchema } from './NullableStringFieldUpdateOperationsInput.schema';
+import { CaseClinicalCodecBackendSchema } from '../enums/CaseClinicalCodecBackend.schema';
+import { NullableEnumCaseClinicalCodecBackendFieldUpdateOperationsInputObjectSchema as NullableEnumCaseClinicalCodecBackendFieldUpdateOperationsInputObjectSchema } from './NullableEnumCaseClinicalCodecBackendFieldUpdateOperationsInput.schema';
+import { NullableIntFieldUpdateOperationsInputObjectSchema as NullableIntFieldUpdateOperationsInputObjectSchema } from './NullableIntFieldUpdateOperationsInput.schema';
+import { NullableBoolFieldUpdateOperationsInputObjectSchema as NullableBoolFieldUpdateOperationsInputObjectSchema } from './NullableBoolFieldUpdateOperationsInput.schema';
 import { DateTimeFieldUpdateOperationsInputObjectSchema as DateTimeFieldUpdateOperationsInputObjectSchema } from './DateTimeFieldUpdateOperationsInput.schema';
 import { FileUploadGrantUpdateOneRequiredWithoutClinicalUploadEvidenceNestedInputObjectSchema as FileUploadGrantUpdateOneRequiredWithoutClinicalUploadEvidenceNestedInputObjectSchema } from './FileUploadGrantUpdateOneRequiredWithoutClinicalUploadEvidenceNestedInput.schema';
 import { OrganizationUpdateOneRequiredWithoutClinicalUploadEvidenceNestedInputObjectSchema as OrganizationUpdateOneRequiredWithoutClinicalUploadEvidenceNestedInputObjectSchema } from './OrganizationUpdateOneRequiredWithoutClinicalUploadEvidenceNestedInput.schema';
@@ -23,6 +28,13 @@ const makeSchema = () => z.object({
   height: z.union([z.number().int(), z.lazy(() => IntFieldUpdateOperationsInputObjectSchema)]).optional(),
   contentSha256: z.union([z.string().max(64), z.lazy(() => StringFieldUpdateOperationsInputObjectSchema)]).optional(),
   validationProfile: z.union([z.string().max(64), z.lazy(() => StringFieldUpdateOperationsInputObjectSchema)]).optional(),
+  validatorVersion: z.union([z.string().max(48), z.lazy(() => NullableStringFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
+  codecBackend: z.union([CaseClinicalCodecBackendSchema, z.lazy(() => NullableEnumCaseClinicalCodecBackendFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
+  codecPackageVersion: z.union([z.string().max(24), z.lazy(() => NullableStringFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
+  codecLibraryVersion: z.union([z.string().max(24), z.lazy(() => NullableStringFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
+  codecRuntimeSha256: z.union([z.string().max(64), z.lazy(() => NullableStringFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
+  sourceComponents: z.union([z.number().int(), z.lazy(() => NullableIntFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
+  isProgressive: z.union([z.boolean(), z.lazy(() => NullableBoolFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
   validatedAt: z.union([z.coerce.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputObjectSchema)]).optional(),
   uploadGrant: z.lazy(() => FileUploadGrantUpdateOneRequiredWithoutClinicalUploadEvidenceNestedInputObjectSchema).optional(),
   organization: z.lazy(() => OrganizationUpdateOneRequiredWithoutClinicalUploadEvidenceNestedInputObjectSchema).optional(),

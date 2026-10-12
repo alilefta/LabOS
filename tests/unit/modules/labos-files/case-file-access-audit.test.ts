@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 const prisma = vi.hoisted(() => ({
+	$executeRaw: vi.fn(),
 	case: { findFirst: vi.fn() },
 	caseAssetFile: { findFirst: vi.fn() },
 	caseFileAccessAudit: { create: vi.fn() },
@@ -213,4 +214,28 @@ describe('Prisma Case file audit repository', () => {
 		})
 		expect(Object.keys(prisma.caseFileAccessAudit)).toEqual(['create'])
 	})
+})
+
+
+describe('R2-04 absolute signed-read audit timestamps', () => {
+  beforeEach(() => vi.clearAllMocks())
+  it('binds only allowlisted issuance facts with explicit UTC timestamptz casts', async () => {
+    prisma.$executeRaw.mockResolvedValueOnce(1)
+    const issuedAt = new Date('2026-10-07T12:00:00.000Z')
+    const expiresAt = new Date('2026-10-07T12:02:00.000Z')
+    await prismaCaseFileAccessAuditRepository.append({
+      organizationId: 'organization-a', labId: 'lab-a', actorMemberId: 'member-a',
+      caseId, caseAssetFileId: assetId, authorizationOutcome: 'ALLOWED',
+      issuanceOutcome: 'ISSUED', reason: 'AUTHORIZED',
+      correlationId: 'correlation-r204', issuedAt, expiresAt,
+    })
+    const sql = prisma.$executeRaw.mock.calls.at(-1)![0] as {
+      strings: readonly string[]; values: readonly unknown[]
+    }
+    expect(sql.strings.join(' ')).toContain('::timestamptz')
+    expect(sql.values).toContain(issuedAt.toISOString())
+    expect(sql.values).toContain(expiresAt.toISOString())
+    expect(sql.values).not.toContain('https://private.example/signed')
+    expect(prisma.caseFileAccessAudit.create).not.toHaveBeenCalled()
+  })
 })

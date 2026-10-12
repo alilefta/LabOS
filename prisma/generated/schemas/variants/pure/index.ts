@@ -40,5 +40,6 @@ export { VerificationModelSchema } from './Verification.pure';
 export { OrganizationModelSchema } from './Organization.pure';
 export { MemberModelSchema } from './Member.pure';
 export { FileUploadGrantModelSchema } from './FileUploadGrant.pure';
+export { ObjectStorageKeyAllocationModelSchema } from './ObjectStorageKeyAllocation.pure';
 export { InvitationModelSchema } from './Invitation.pure';
 export { LabStaffInvitationIntentModelSchema } from './LabStaffInvitationIntent.pure';

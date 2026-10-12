@@ -17,6 +17,13 @@ const makeSchema = () => z.object({
   height: z.literal(true).optional(),
   contentSha256: z.literal(true).optional(),
   validationProfile: z.literal(true).optional(),
+  validatorVersion: z.literal(true).optional(),
+  codecBackend: z.literal(true).optional(),
+  codecPackageVersion: z.literal(true).optional(),
+  codecLibraryVersion: z.literal(true).optional(),
+  codecRuntimeSha256: z.literal(true).optional(),
+  sourceComponents: z.literal(true).optional(),
+  isProgressive: z.literal(true).optional(),
   validatedAt: z.literal(true).optional(),
   _all: z.literal(true).optional()
 }).strict();

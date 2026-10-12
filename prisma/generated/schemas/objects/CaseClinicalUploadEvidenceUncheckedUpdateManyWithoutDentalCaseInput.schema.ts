@@ -11,6 +11,11 @@ import { CaseClinicalValidatedSuffixSchema } from '../enums/CaseClinicalValidate
 import { EnumCaseClinicalValidatedSuffixFieldUpdateOperationsInputObjectSchema as EnumCaseClinicalValidatedSuffixFieldUpdateOperationsInputObjectSchema } from './EnumCaseClinicalValidatedSuffixFieldUpdateOperationsInput.schema';
 import { BigIntFieldUpdateOperationsInputObjectSchema as BigIntFieldUpdateOperationsInputObjectSchema } from './BigIntFieldUpdateOperationsInput.schema';
 import { IntFieldUpdateOperationsInputObjectSchema as IntFieldUpdateOperationsInputObjectSchema } from './IntFieldUpdateOperationsInput.schema';
+import { NullableStringFieldUpdateOperationsInputObjectSchema as NullableStringFieldUpdateOperationsInputObjectSchema } from './NullableStringFieldUpdateOperationsInput.schema';
+import { CaseClinicalCodecBackendSchema } from '../enums/CaseClinicalCodecBackend.schema';
+import { NullableEnumCaseClinicalCodecBackendFieldUpdateOperationsInputObjectSchema as NullableEnumCaseClinicalCodecBackendFieldUpdateOperationsInputObjectSchema } from './NullableEnumCaseClinicalCodecBackendFieldUpdateOperationsInput.schema';
+import { NullableIntFieldUpdateOperationsInputObjectSchema as NullableIntFieldUpdateOperationsInputObjectSchema } from './NullableIntFieldUpdateOperationsInput.schema';
+import { NullableBoolFieldUpdateOperationsInputObjectSchema as NullableBoolFieldUpdateOperationsInputObjectSchema } from './NullableBoolFieldUpdateOperationsInput.schema';
 import { DateTimeFieldUpdateOperationsInputObjectSchema as DateTimeFieldUpdateOperationsInputObjectSchema } from './DateTimeFieldUpdateOperationsInput.schema'
 
 const makeSchema = () => z.object({
@@ -26,6 +31,13 @@ const makeSchema = () => z.object({
   height: z.union([z.number().int(), z.lazy(() => IntFieldUpdateOperationsInputObjectSchema)]).optional(),
   contentSha256: z.union([z.string().max(64), z.lazy(() => StringFieldUpdateOperationsInputObjectSchema)]).optional(),
   validationProfile: z.union([z.string().max(64), z.lazy(() => StringFieldUpdateOperationsInputObjectSchema)]).optional(),
+  validatorVersion: z.union([z.string().max(48), z.lazy(() => NullableStringFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
+  codecBackend: z.union([CaseClinicalCodecBackendSchema, z.lazy(() => NullableEnumCaseClinicalCodecBackendFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
+  codecPackageVersion: z.union([z.string().max(24), z.lazy(() => NullableStringFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
+  codecLibraryVersion: z.union([z.string().max(24), z.lazy(() => NullableStringFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
+  codecRuntimeSha256: z.union([z.string().max(64), z.lazy(() => NullableStringFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
+  sourceComponents: z.union([z.number().int(), z.lazy(() => NullableIntFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
+  isProgressive: z.union([z.boolean(), z.lazy(() => NullableBoolFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
   validatedAt: z.union([z.coerce.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputObjectSchema)]).optional()
 }).strict();
 export const CaseClinicalUploadEvidenceUncheckedUpdateManyWithoutDentalCaseInputObjectSchema: z.ZodType<Prisma.CaseClinicalUploadEvidenceUncheckedUpdateManyWithoutDentalCaseInput> = makeSchema() as unknown as z.ZodType<Prisma.CaseClinicalUploadEvidenceUncheckedUpdateManyWithoutDentalCaseInput>;

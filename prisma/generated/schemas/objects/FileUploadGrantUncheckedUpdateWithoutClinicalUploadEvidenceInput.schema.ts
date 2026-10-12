@@ -6,6 +6,8 @@ import { FileUploadGrantStatusSchema } from '../enums/FileUploadGrantStatus.sche
 import { EnumFileUploadGrantStatusFieldUpdateOperationsInputObjectSchema as EnumFileUploadGrantStatusFieldUpdateOperationsInputObjectSchema } from './EnumFileUploadGrantStatusFieldUpdateOperationsInput.schema';
 import { StoredFileProviderSchema } from '../enums/StoredFileProvider.schema';
 import { NullableEnumStoredFileProviderFieldUpdateOperationsInputObjectSchema as NullableEnumStoredFileProviderFieldUpdateOperationsInputObjectSchema } from './NullableEnumStoredFileProviderFieldUpdateOperationsInput.schema';
+import { CaseClinicalValidatedSuffixSchema } from '../enums/CaseClinicalValidatedSuffix.schema';
+import { NullableEnumCaseClinicalValidatedSuffixFieldUpdateOperationsInputObjectSchema as NullableEnumCaseClinicalValidatedSuffixFieldUpdateOperationsInputObjectSchema } from './NullableEnumCaseClinicalValidatedSuffixFieldUpdateOperationsInput.schema';
 import { DateTimeFieldUpdateOperationsInputObjectSchema as DateTimeFieldUpdateOperationsInputObjectSchema } from './DateTimeFieldUpdateOperationsInput.schema';
 import { NullableDateTimeFieldUpdateOperationsInputObjectSchema as NullableDateTimeFieldUpdateOperationsInputObjectSchema } from './NullableDateTimeFieldUpdateOperationsInput.schema';
 import { IntFieldUpdateOperationsInputObjectSchema as IntFieldUpdateOperationsInputObjectSchema } from './IntFieldUpdateOperationsInput.schema';
@@ -24,6 +26,7 @@ const makeSchema = () => z.object({
   provider: z.union([StoredFileProviderSchema, z.lazy(() => NullableEnumStoredFileProviderFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
   providerFileKey: z.union([z.string(), z.lazy(() => NullableStringFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
   providerFileUrl: z.union([z.string(), z.lazy(() => NullableStringFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
+  caseClinicalValidatedSuffix: z.union([CaseClinicalValidatedSuffixSchema, z.lazy(() => NullableEnumCaseClinicalValidatedSuffixFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
   correlationId: z.union([z.string(), z.lazy(() => StringFieldUpdateOperationsInputObjectSchema)]).optional(),
   expiresAt: z.union([z.coerce.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputObjectSchema)]).optional(),
   uploadedAt: z.union([z.coerce.date(), z.lazy(() => NullableDateTimeFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),

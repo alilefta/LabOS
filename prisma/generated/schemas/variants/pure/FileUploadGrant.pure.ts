@@ -1,6 +1,7 @@
 import * as z from 'zod';
 import { FileUploadGrantStatusSchema } from '../../enums/FileUploadGrantStatus.schema';
 import { StoredFileProviderSchema } from '../../enums/StoredFileProvider.schema';
+import { CaseClinicalValidatedSuffixSchema } from '../../enums/CaseClinicalValidatedSuffix.schema';
 // prettier-ignore
 export const FileUploadGrantModelSchema = z.object({
     id: z.string(),
@@ -18,6 +19,7 @@ export const FileUploadGrantModelSchema = z.object({
     provider: StoredFileProviderSchema.nullable(),
     providerFileKey: z.string().nullable(),
     providerFileUrl: z.string().nullable(),
+    caseClinicalValidatedSuffix: CaseClinicalValidatedSuffixSchema.nullable(),
     correlationId: z.string(),
     expiresAt: z.date(),
     uploadedAt: z.date().nullable(),

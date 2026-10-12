@@ -3,6 +3,8 @@ import type { Prisma } from '../../../../generated/prisma/client';
 import { StringFilterObjectSchema as StringFilterObjectSchema } from './StringFilter.schema';
 import { EnumStoredFileProviderFilterObjectSchema as EnumStoredFileProviderFilterObjectSchema } from './EnumStoredFileProviderFilter.schema';
 import { StoredFileProviderSchema } from '../enums/StoredFileProvider.schema';
+import { EnumStoredFileProviderAccessNullableFilterObjectSchema as EnumStoredFileProviderAccessNullableFilterObjectSchema } from './EnumStoredFileProviderAccessNullableFilter.schema';
+import { StoredFileProviderAccessSchema } from '../enums/StoredFileProviderAccess.schema';
 import { EnumStoredFilePurposeFilterObjectSchema as EnumStoredFilePurposeFilterObjectSchema } from './EnumStoredFilePurposeFilter.schema';
 import { StoredFilePurposeSchema } from '../enums/StoredFilePurpose.schema';
 import { BigIntFilterObjectSchema as BigIntFilterObjectSchema } from './BigIntFilter.schema';
@@ -19,6 +21,7 @@ const storedfilescalarwhereinputSchema = z.object({
   sourceUploadGrantId: z.union([z.lazy(() => StringFilterObjectSchema), z.string()]).optional(),
   provider: z.union([z.lazy(() => EnumStoredFileProviderFilterObjectSchema), StoredFileProviderSchema]).optional(),
   providerObjectKey: z.union([z.lazy(() => StringFilterObjectSchema), z.string()]).optional(),
+  providerAccess: z.union([z.lazy(() => EnumStoredFileProviderAccessNullableFilterObjectSchema), StoredFileProviderAccessSchema]).optional().nullable(),
   purpose: z.union([z.lazy(() => EnumStoredFilePurposeFilterObjectSchema), StoredFilePurposeSchema]).optional(),
   detectedMimeType: z.union([z.lazy(() => StringFilterObjectSchema), z.string()]).optional(),
   sizeBytes: z.union([z.lazy(() => BigIntFilterObjectSchema), z.bigint()]).optional(),

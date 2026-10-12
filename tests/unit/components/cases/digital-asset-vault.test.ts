@@ -55,3 +55,16 @@ describe('DigitalAssetVault mixed read contract', () => {
 		expect(html).toContain('data-legacy-lightbox-count="0"')
 	})
 })
+
+
+describe('public managed vault opening', () => {
+  it('uses only the narrow Case route and keeps private content unavailable', () => {
+    const publicManaged: CaseAssetSummary = { ...managed, id: 'public-1', title: 'Public scan', storageMode: 'MANAGED_PUBLIC' }
+    const html = renderToStaticMarkup(createElement(DigitalAssetVault, { assets: [legacy, publicManaged, managed], caseId: 'case-1' }))
+    expect(html).toContain('/api/cases/case-1/assets/public-1/open')
+    expect(html).toContain('Open asset')
+    expect(html).toContain('Content unavailable')
+    expect(html).toContain('data-legacy-lightbox-count="1"')
+    expect(html).not.toContain('providerObjectKey')
+  })
+})

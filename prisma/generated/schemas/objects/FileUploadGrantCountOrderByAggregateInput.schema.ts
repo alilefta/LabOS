@@ -15,6 +15,7 @@ const makeSchema = () => z.object({
   provider: SortOrderSchema.optional(),
   providerFileKey: SortOrderSchema.optional(),
   providerFileUrl: SortOrderSchema.optional(),
+  caseClinicalValidatedSuffix: SortOrderSchema.optional(),
   correlationId: SortOrderSchema.optional(),
   expiresAt: SortOrderSchema.optional(),
   uploadedAt: SortOrderSchema.optional(),

@@ -97,12 +97,12 @@ describe('N-FILE-110A Case asset preservation', () => {
 		expect(form).not.toContain('AssetsAndFilesSection')
 		expect(create).toContain('caseAssetFiles: []')
 		expect(edit).toContain('caseAssetFiles: []')
-		expect(form).toContain('<DigitalAssetVault assets={existingAssets} />')
+		expect(form).toContain('<DigitalAssetVault assets={existingAssets} caseId={caseId ?? existingDraftId} />')
 		expect(create).toContain('setExistingAssets(draft.caseAssetFiles ?? [])')
 		expect(editPage).toContain('existingAssets={dentalCase.caseAssetFiles ?? []}')
 		expect(caseRoute?.match(/Case clinical uploads are unavailable/g)).toHaveLength(2)
 		expect(source('app', '(main)', 'cases', '[caseId]', 'page.tsx')).toContain(
-			'<DigitalAssetVault assets={dentalCase.caseAssetFiles ?? []} />',
+			'<DigitalAssetVault assets={dentalCase.caseAssetFiles ?? []} caseId={dentalCase.id} />',
 		)
 	})
 })
