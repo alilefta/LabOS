@@ -1,0 +1,36 @@
+{
+  "run": "s001-core-preview-20261003-157cb99a8d",
+  "team": "ali-leftas-projects",
+  "projectId": "prj_B2W292QNHmC4Lk4xeZIO4oHHksKr",
+  "projectName": "labos-s001-core-20261003-157cb99a8d",
+  "projectFramework": "nextjs",
+  "nodeVersion": "24.x",
+  "protection": "all",
+  "envCount": 0,
+  "customAliasCount": 0,
+  "gitLink": null,
+  "placeholder": {
+    "id": "dpl_GNX2ABvCrZ4nWwtN3dmYjSBtocuj",
+    "projectId": "prj_B2W292QNHmC4Lk4xeZIO4oHHksKr",
+    "target": "production",
+    "state": "READY",
+    "aliases": [
+      "labos-s001-core-20261003-157cb99a8d-ali-leftas-projects.vercel.app"
+    ]
+  },
+  "preview": {
+    "id": "dpl_DEGWD32tgZdu4tTaAdjKRjZNMRZn",
+    "projectId": "prj_B2W292QNHmC4Lk4xeZIO4oHHksKr",
+    "name": "labos-s001-core-20261003-157cb99a8d",
+    "inspectedTarget": "preview",
+    "state": "READY",
+    "aliases": [],
+    "path": "api/probe",
+    "functionType": "lambda",
+    "runtime": "nodejs24.x",
+    "timeoutSeconds": 30,
+    "memoryMiB": 2048
+  },
+  "unauthenticatedPlaceholder": "302 to Vercel SSO",
+  "unauthenticatedPreview": "302 to Vercel SSO"
+}

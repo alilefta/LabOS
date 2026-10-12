@@ -1,0 +1,11 @@
+Loaded Prisma config from experiments\s001-suffix-pg-20261004-175241-f61cebf8\prisma.rollback.config.ts.
+
+Prisma schema loaded from prisma\schema.prisma.
+Datasource "db": PostgreSQL database "suffix_rollback_f61cebf8", schema "public" at "127.0.0.1:55472"
+
+52 migrations found in prisma/migrations
+
+Applying migration `20261004120000_case_checked_suffix_handoff`
+Error: ERROR: current transaction is aborted, commands ignored until end of transaction block
+
+

@@ -1,0 +1,189 @@
+{
+  "baseline": {
+    "stage": "structure-pass",
+    "width": 24,
+    "height": 16,
+    "components": 3,
+    "progressive": false,
+    "segments": 8,
+    "scans": 1,
+    "metadataBytes": 0
+  },
+  "progressive": {
+    "stage": "structure-pass",
+    "width": 24,
+    "height": 16,
+    "components": 3,
+    "progressive": true,
+    "segments": 23,
+    "scans": 10,
+    "metadataBytes": 0
+  },
+  "grayscale": {
+    "stage": "structure-pass",
+    "width": 24,
+    "height": 16,
+    "components": 1,
+    "progressive": false,
+    "segments": 6,
+    "scans": 1,
+    "metadataBytes": 14
+  },
+  "missing_eoi": {
+    "stage": "structure-reject"
+  },
+  "premature_eoi": {
+    "stage": "structure-pass",
+    "width": 24,
+    "height": 16,
+    "components": 3,
+    "progressive": false,
+    "segments": 8,
+    "scans": 1,
+    "metadataBytes": 0
+  },
+  "concatenated": {
+    "stage": "structure-reject"
+  },
+  "width_9000_header": {
+    "stage": "structure-pass",
+    "width": 9000,
+    "height": 5555,
+    "components": 3,
+    "progressive": false,
+    "segments": 8,
+    "scans": 1,
+    "metadataBytes": 0
+  },
+  "width_9001": {
+    "stage": "structure-reject"
+  },
+  "height_9000_header": {
+    "stage": "structure-pass",
+    "width": 5555,
+    "height": 9000,
+    "components": 3,
+    "progressive": false,
+    "segments": 8,
+    "scans": 1,
+    "metadataBytes": 0
+  },
+  "height_9001": {
+    "stage": "structure-reject"
+  },
+  "pixels_50m_header": {
+    "stage": "structure-pass",
+    "width": 8000,
+    "height": 6250,
+    "components": 3,
+    "progressive": false,
+    "segments": 8,
+    "scans": 1,
+    "metadataBytes": 0
+  },
+  "pixels_50m_plus1": {
+    "stage": "structure-reject"
+  },
+  "metadata_exact": {
+    "stage": "structure-pass",
+    "width": 24,
+    "height": 16,
+    "components": 3,
+    "progressive": false,
+    "segments": 13,
+    "scans": 1,
+    "metadataBytes": 262144
+  },
+  "metadata_plus1": {
+    "stage": "structure-reject"
+  },
+  "segments_exact": {
+    "stage": "structure-pass",
+    "width": 24,
+    "height": 16,
+    "components": 3,
+    "progressive": false,
+    "segments": 512,
+    "scans": 1,
+    "metadataBytes": 0
+  },
+  "segments_plus1": {
+    "stage": "structure-reject"
+  },
+  "scans_128_header": {
+    "stage": "structure-pass",
+    "width": 24,
+    "height": 16,
+    "components": 3,
+    "progressive": true,
+    "segments": 141,
+    "scans": 128,
+    "metadataBytes": 0
+  },
+  "scans_129": {
+    "stage": "structure-reject"
+  },
+  "encoded_exact_header": {
+    "stage": "structure-pass",
+    "width": 24,
+    "height": 16,
+    "components": 3,
+    "progressive": false,
+    "segments": 8,
+    "scans": 1,
+    "metadataBytes": 0
+  },
+  "encoded_plus1": {
+    "stage": "structure-reject"
+  },
+  "large_50m_uniform": {
+    "stage": "structure-pass",
+    "width": 8000,
+    "height": 6250,
+    "components": 3,
+    "progressive": false,
+    "segments": 8,
+    "scans": 1,
+    "metadataBytes": 0
+  },
+  "valid_width_9000": {
+    "stage": "structure-pass",
+    "width": 9000,
+    "height": 5555,
+    "components": 3,
+    "progressive": false,
+    "segments": 8,
+    "scans": 1,
+    "metadataBytes": 0
+  },
+  "valid_height_9000": {
+    "stage": "structure-pass",
+    "width": 5555,
+    "height": 9000,
+    "components": 3,
+    "progressive": false,
+    "segments": 8,
+    "scans": 1,
+    "metadataBytes": 0
+  },
+  "large_12m_progressive_entropy": {
+    "stage": "structure-pass",
+    "width": 4000,
+    "height": 3000,
+    "components": 3,
+    "progressive": true,
+    "segments": 23,
+    "scans": 10,
+    "metadataBytes": 0
+  },
+  "large_36m_entropy_near_limit": {
+    "stage": "structure-pass",
+    "width": 6000,
+    "height": 6000,
+    "components": 3,
+    "progressive": false,
+    "segments": 8,
+    "scans": 1,
+    "metadataBytes": 0
+  }
+}

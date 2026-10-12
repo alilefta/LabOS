@@ -1,0 +1,23 @@
+Timing is on.
+Null display is "NULL".
+Expanded display is used automatically.
+BEGIN
+Time: 0.822 ms
+INSERT 0 1
+Time: 3.838 ms
+INSERT 0 1
+Time: 2.224 ms
+INSERT 0 1
+Time: 5.560 ms
+INSERT 0 1
+Time: 4.106 ms
+INSERT 0 1
+Time: 3.325 ms
+INSERT 0 1
+Time: 7.904 ms
+INSERT 0 1
+Time: 12.333 ms
+INSERT 0 1
+Time: 0.552 ms
+COMMIT
+Time: 2.867 ms

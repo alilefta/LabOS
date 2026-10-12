@@ -3,11 +3,59 @@
 Status: Current
 Authority: Canonical
 Owner: LabOS maintainers
-Last reviewed: 2026-09-29
+Last reviewed: 2026-10-07
 
-## Approved Authorization V1 behavior
+## Current N-FILE-110 private object-storage direction
 
-### FILE STORAGE SECURITY — V1 LIMITATION
+The Product Owner approved the
+[UploadThing → R2 roadmap](../../plans/authorization-v1/uploadthing-r2-migration-repository-review.md)
+on 2026-10-06. R2-00 and R2-01 are accepted; the separately authorized
+[R2-02 checkpoint](../../evidence/files/authorization-v1/r2-02-durable-identity/packet.md)
+is `CLOSED | PASS CHECKPOINT` after Product Owner acceptance and independent
+CODE/SQL, disposable runtime and exact normal-development installation PASS.
+Cloudflare R2 is the selected V1 **adapter**, not a Files/domain dependency.
+New N-FILE-110 Case clinical objects target a private bucket, no public
+`r2.dev` or custom domain, `StoredFile.providerAccess = PRIVATE`, and
+`CaseAssetFile.storageMode = MANAGED_PRIVATE` only after provider privacy is
+attested. N-FILE-110 HTTP/UI activation remains inactive. R2-05 established a bounded synthetic real-R2 Case composition, including private open, but production Linux S001 identity in the complete composition remains `NOT_RUN`; R2-05 is accepted with activation `NOT_ELIGIBLE`.
+
+Files owns grant state, canonical Organization/Lab/Member/Case authorization,
+checked suffix, clinical validation and application SHA-256, immutable
+evidence, `StoredFile.id`, Case asset/version, first-attachment transaction,
+`CONSUMED`, cleanup terminalization and private-open authorization. It
+allocates opaque keys without tenant, Case, person, filename or clinical data,
+and never reuses an allocated key after deletion or a future provider move.
+Its small server-only ObjectStorage port expresses LabOS-required semantics:
+time-bounded exact-key create-only write capability, exact-object inspection,
+bounded retrieval, time-bounded exact-key read capability, exact deletion and
+authoritative exact-key absence. It does not expose generic S3 commands.
+R2 endpoint/account/bucket, AWS SDK, SigV4, ETag, transport and provider errors
+stay inside infrastructure; errors crossing into Files are closed and
+normalized. Presigned URLs are opaque bearer capabilities, never persisted as
+logical identity, evidence or telemetry. Completion is an untrusted hint;
+server HEAD/GET and S001 validation establish trusted bytes. An adapter must
+prove required create-only, privacy, consistency, expiry and absence behavior
+before activation. No transaction is held over provider network access.
+
+The installed `StoredFileProvider.OBJECT_STORAGE` value is a stable logical
+backend class shared by new Case grants, evidence and files, not vendor
+identity; its additive migration is installed in normal development.
+`UPLOADTHING` remains the legacy ingestion
+label. A single active private object-store bucket per environment is the V1
+assumption. A future whole-backend R2 → S3 move copies and verifies the same
+LabOS keys, drains outstanding write capabilities, reconciles objects, then
+changes the adapter/configuration after conformance acceptance; the existing
+grant/evidence/StoredFile IDs, keys and Case links stay fixed. Simultaneous
+per-object stores or changed keys require a separate approved location model.
+UploadThing continues on its existing higher-level ingestion path for active
+non-Case boundaries until each is separately migrated; it need not implement
+ObjectStorage. Rejected/orphan cleanup follows R2 provider runtime acceptance
+as the exact next N-FILE-110 task, and deletion waits until every signed write
+capability expires plus bounded clock skew.
+
+## Historical UploadThing V1 behavior and retained compatibility
+
+### FILE STORAGE SECURITY — 2026-09-29 V1 LIMITATION
 
 **Provider:** UploadThing Free. **Provider ACL:** `public-read`.
 **Application authorization:** enforced. **Direct provider URL
@@ -33,7 +81,7 @@ Schema/SQL authoring is separate from migration application and activation.
 Production R001 packaging/containment and provider-key-to-byte binding remain
 implementation gates.
 
-### Deferred private-storage target
+### Original private-storage target and retained rules
 
 Provider keys never establish authorization. Protected uploads use opaque persisted one-time grants with canonical Organization, Lab, and Member linkage. A verified callback loads the trusted definition; expiry, orphan cleanup, and exact single-use consumption are required. Consumption and the final domain mutation must share a transaction.
 

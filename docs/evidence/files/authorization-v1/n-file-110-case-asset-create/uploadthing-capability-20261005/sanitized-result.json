@@ -1,0 +1,106 @@
+{
+  "runId": "7947b03b84e14fb8ad4d18219760a535",
+  "createdCount": 2,
+  "events": [
+    {
+      "at": "2026-10-05T13:58:28.623Z",
+      "stage": "target",
+      "sdkVersion": "7.7.4",
+      "appId": "fyylnhrlmu",
+      "runId": "7947b03b84e14fb8ad4d18219760a535"
+    },
+    {
+      "at": "2026-10-05T13:58:31.552Z",
+      "stage": "uploaded",
+      "ordinal": 1,
+      "keyFingerprint": "92776e8c1969ebd0",
+      "size": 71
+    },
+    {
+      "at": "2026-10-05T13:58:32.483Z",
+      "stage": "present-1",
+      "count": 1,
+      "exact": true
+    },
+    {
+      "at": "2026-10-05T13:58:33.168Z",
+      "stage": "uploaded",
+      "ordinal": 2,
+      "keyFingerprint": "45672f44eb70400b",
+      "size": 71
+    },
+    {
+      "at": "2026-10-05T13:58:33.457Z",
+      "stage": "present-2",
+      "count": 1,
+      "exact": true
+    },
+    {
+      "at": "2026-10-05T13:58:33.457Z",
+      "stage": "independent-key-comparison",
+      "distinct": true
+    },
+    {
+      "at": "2026-10-05T13:58:33.945Z",
+      "stage": "first-delete",
+      "success": true,
+      "deletedCount": 1
+    },
+    {
+      "at": "2026-10-05T13:58:34.604Z",
+      "stage": "lookup-immediate",
+      "count": 0,
+      "exact": null
+    },
+    {
+      "at": "2026-10-05T13:58:35.681Z",
+      "stage": "lookup-after-250ms",
+      "count": 0,
+      "exact": null
+    },
+    {
+      "at": "2026-10-05T13:58:37.354Z",
+      "stage": "lookup-after-1000ms",
+      "count": 0,
+      "exact": null
+    },
+    {
+      "at": "2026-10-05T13:58:41.039Z",
+      "stage": "lookup-after-3000ms",
+      "count": 0,
+      "exact": null
+    },
+    {
+      "at": "2026-10-05T13:58:41.901Z",
+      "stage": "repeat-delete",
+      "success": true,
+      "deletedCount": 0
+    },
+    {
+      "at": "2026-10-05T13:58:42.641Z",
+      "stage": "lookup-after-repeat",
+      "count": 0,
+      "exact": null
+    },
+    {
+      "at": "2026-10-05T13:58:43.294Z",
+      "stage": "cleanup-confirmation",
+      "keyFingerprint": "92776e8c1969ebd0",
+      "count": 0
+    },
+    {
+      "at": "2026-10-05T13:58:44.324Z",
+      "stage": "cleanup-delete-45672f44eb70400b",
+      "success": true,
+      "deletedCount": 1
+    },
+    {
+      "at": "2026-10-05T13:58:45.035Z",
+      "stage": "cleanup-confirmation",
+      "keyFingerprint": "45672f44eb70400b",
+      "count": 0
+    }
+  ],
+  "failure": null,
+  "cleanupConfirmed": true
+}

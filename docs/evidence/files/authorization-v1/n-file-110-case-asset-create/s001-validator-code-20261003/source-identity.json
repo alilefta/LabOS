@@ -1,0 +1,11 @@
+{
+  "modules/labos-files/jpeg-s001/admission.ts": "342e9df33af5c9d36b16483f5186f3cb8330417fcb7c5e4582486cc2213b1d55",
+  "modules/labos-files/jpeg-s001/identity.ts": "8f44ad94a6362d30b17360f7cef90a75df9b915006acd9e7ec207f381c273145",
+  "modules/labos-files/jpeg-s001/manifest.ts": "59a2abc0307ed184b71cf15fe172693d1a17f561538a0a0e7878bf0e5c3c66aa",
+  "modules/labos-files/jpeg-s001/validate.ts": "2088957e61b7a69cc17f056c6a0970f7f4400b5c6e4178b417bd90baa06c3566",
+  "next.config.ts": "8fe8e9064af32c1e3e1e7a5778e2f2de49082f448ccb305bb11d5a1b75e714af",
+  "package.json": "92cedd74262576820244b2c0065019fe8acee90a7c4af1ddef2e3ede5cf32e26",
+  "pnpm-lock.yaml": "bbcd83ad045062cbe7433006e1cd0dac2c8ae7ddc32f50dbed10b286d688acb6",
+  "tests/unit/modules/labos-files/jpeg-s001/validate.test.ts": "91f8d8b27e6e38228e73e41ec97bbffaae2e0cc00118b335a0dd24649de5d4f7",
+  "tests/unit/modules/labos-files/jpeg-s001/identity.test.ts": "796ef2282ef0a3a82464dc4082feb890780941c07cae680f8a0c44a2e7804621"
+}

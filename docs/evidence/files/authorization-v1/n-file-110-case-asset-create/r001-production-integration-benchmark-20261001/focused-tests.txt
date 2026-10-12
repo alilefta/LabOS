@@ -1,0 +1,28 @@
+✔ approved product limits are exact and independent of probe controls (4.8797ms)
+✔ baseline and progressive synthetic JPEGs parse (28.192ms)
+✔ single EOI, trailing bytes and concatenation (7.5565ms)
+✔ malformed length, unsupported coding and finite parser budgets (11.5217ms)
+✔ metadata is aggregate across APP and COM payloads (6.6496ms)
+✔ cancelled signal and encoded-size overflow fail early (5.4418ms)
+✔ axis and pixel limits are enforced without decoder allocation (5.1806ms)
+✔ bounded mutation sweep terminates without crash or hang (38.3205ms)
+✔ complete baseline, progressive, and genuine grayscale (117.6683ms)
+✔ inspector rejection cannot be overridden by decoder acceptance (20.8969ms)
+missing EOI: LJ01 ERR DECODE 2 120
+shortened entropy: LJ01 ERR DECODE 2 117
+✔ missing EOI and shortened entropy fail in native decoder (39.0907ms)
+malformed progressive: LJ01 ERR DECODE 1 16
+✔ malformed progressive scan rejected after inspector admits structure (21.8739ms)
+✔ framed IPC rejects empty, oversized, incomplete, and extra data (87.2439ms)
+✔ composed boundary rejects failed, crashed and malformed child records (10.0584ms)
+✔ approved structural limits retain exact equality and plus-one edges (574.9882ms)
+✔ caller can terminate a child blocked on incomplete input (20.3352ms)
+✔ caller must reject abnormal exit without a success record (234.4609ms)
+ℹ tests 17
+ℹ suites 0
+ℹ pass 17
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1680.2998

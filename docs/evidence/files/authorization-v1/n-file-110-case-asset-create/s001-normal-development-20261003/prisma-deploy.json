@@ -1,0 +1,11 @@
+{
+  "operation": "deploy",
+  "at": "2026-10-03T08:00:59.494Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "Datasource \"db\": PostgreSQL database \"postgres\", schema \"public\" at \"[development-host]:5432\"\n\n51 migrations found in prisma/migrations\n\nApplying migration `20261002120000_case_s001_evidence_identity`\n\nThe following migration(s) have been applied:\n\nmigrations/\n  └─ 20261002120000_case_s001_evidence_identity/\n    └─ migration.sql\n\nAll migrations have been successfully applied.\n",
+  "stderr": "Loaded Prisma config from experiments\\s001-normal-dev-20261003-a268a52b\\prisma.config.ts.\n\nPrisma schema loaded from prisma\\schema.prisma.\n┌─────────────────────────────────────────────────────────┐\n│  Update available 7.8.0 -> 8.0.0-rc.19                  │\n│                                                         │\n│  This is a major update - please follow the guide at    │\n│  https://pris.ly/d/major-version-upgrade                │\n│                                                         │\n│  Run the following to update                            │\n│    npm i --save-dev prisma@latest                       │\n│    npm i @prisma/client@latest                          │\n└─────────────────────────────────────────────────────────┘\n",
+  "candidate": "20261002120000_case_s001_evidence_identity",
+  "candidateHash": "c322412de3c40f697407ce74a062afb797b2554a98fa5e8393e1c4bfe8c8bb88",
+  "canonicalLfFiles": 51
+}

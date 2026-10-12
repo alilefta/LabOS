@@ -1,0 +1,5 @@
+Timing is on.
+Null display is "NULL".
+Expanded display is used automatically.
+1|7|1|50|0|1
+Time: 11.886 ms

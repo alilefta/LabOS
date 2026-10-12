@@ -1,0 +1,80 @@
+{
+  "files": [
+    {
+      "path": "app/api/probe/route.ts",
+      "bytes": 4331,
+      "sha256": "4fb1dfe4c5e30ff5dbcd16caeb05c72cd5ba8f968661144f89a85b5c683123b8"
+    },
+    {
+      "path": "next.config.mjs",
+      "bytes": 378,
+      "sha256": "b763573ad196e064def2a70aa2315cf2bc705eba62c813bca253a81472ffa996"
+    },
+    {
+      "path": "package.json",
+      "bytes": 319,
+      "sha256": "60a0d470a2aa3ddd4febfa0b9c7de393452d9268ed4dfafbbed2d2caca29e461"
+    },
+    {
+      "path": "package-lock.json",
+      "bytes": 80106,
+      "sha256": "8bc451eae2473bea1553c9326f5cd1acf223a768c2e6ad1a0b71011d211223ab"
+    },
+    {
+      "path": ".vercelignore",
+      "bytes": 32,
+      "sha256": "5c79460e0f7437bc32596e08fb5b848f86196f9d3d07f6dba55af23b9ec2c88c"
+    },
+    {
+      "path": "tsconfig.json",
+      "bytes": 657,
+      "sha256": "1abf2cd3ca95b468e459348a6c6b09d36bfc35b92382d1f1e3ee6b64a15944c5"
+    },
+    {
+      "path": "next-env.d.ts",
+      "bytes": 295,
+      "sha256": "1b59d4c6b83807db275d43f3cf2cc8e9323f465fab764eea091cc5becd5bad37"
+    },
+    {
+      "path": "modules/labos-files/jpeg-s001/core.ts",
+      "bytes": 2976,
+      "sha256": "d08ed2971351e7fa0460a33a051a590552986d81a7ce9b1edc2f38c1b1925cf3"
+    },
+    {
+      "path": "modules/labos-files/jpeg-s001/identity.ts",
+      "bytes": 4220,
+      "sha256": "097540279c91860725ac0d75348fcb4ae0ca4675d1f6f47704a252ae5ebb587e"
+    },
+    {
+      "path": "modules/labos-files/jpeg-s001/manifest.ts",
+      "bytes": 567,
+      "sha256": "59a2abc0307ed184b71cf15fe172693d1a17f561538a0a0e7878bf0e5c3c66aa"
+    },
+    {
+      "path": "modules/labos-files/jpeg-r001/inspect.ts",
+      "bytes": 4111,
+      "sha256": "9d97cddf3c409c4556012b9c34786b85566729ca89aef596eeb43b0131044baf"
+    },
+    {
+      "path": "fixtures/baseline.jpg",
+      "bytes": 333,
+      "sha256": "92424c818a78b6d385591382f695b01af83ba588b88aa50dcef8faee922ab8bb"
+    },
+    {
+      "path": "fixtures/progressive.jpg",
+      "bytes": 562,
+      "sha256": "f747c09013b7fb2bd5c50b525f0b824513f47282ac0594ad732bf749a8d0bbd8"
+    },
+    {
+      "path": "fixtures/grayscale.jpg",
+      "bytes": 336,
+      "sha256": "f1ad8bf61fcde5071b217e85079fe23034fe0fa13c5f99dab2afa7dd3c7dfefd"
+    },
+    {
+      "path": "fixtures/trailing_bytes.jpg",
+      "bytes": 336,
+      "sha256": "1f7e531fb7bc07c7e5c8eb7f243dc38b285bf265fa4fd13a0d49f4ec91fff0ce"
+    }
+  ],
+  "totalBytes": 99559
+}

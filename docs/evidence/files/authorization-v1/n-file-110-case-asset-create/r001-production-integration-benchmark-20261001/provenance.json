@@ -1,0 +1,24 @@
+{
+  "date": "2026-10-01",
+  "runRoot": "C:\\Users\\alnaseem\\AppData\\Local\\Temp\\labos-r001-archbench-20261001-d3ffcab0ddd1",
+  "hostPlatform": "win32",
+  "hostArch": "x64",
+  "windowsRelease": "10.0.19045",
+  "cpu": "Intel(R) Core(TM) i7-10750H CPU @ 2.60GHz",
+  "logicalProcessors": 12,
+  "physicalRamBytes": 17002713088,
+  "node": "v24.21.0",
+  "compiler": "MSVC 19.44.35229 x64",
+  "installerSha256": "662761d8ba8dae04aec74023ebaeceb856c2b56b9b59cfd180759d26300dda42",
+  "headerSha256": "ea0fbba47e9e5da192a487df4df3cf01a338b86a0a85d154ef329dd7b5439043",
+  "staticLibSha256": "b9640752d84cfbac3efcce70096c3a586ab6ad95b1163541ba9a11446a3337cc",
+  "sourceSha256": "1af056c0556b1d9a105b95716e82ba32f9a302756e62877122036002f257163d",
+  "helperSha256": "18d9148ebd3c24579774edec361ef1884cb992c7b7722a181d142c285e3632b9",
+  "licenseSha256": "cff8701dc999e39b5044ece8f22ed65b3a10d6a8dbddca8ffb802d24580181db",
+  "ijgReadmeSha256": "db16a04128171879c60708d171b88d97345a2dd20f9bfc173680a4497c73f704",
+  "dependencies": [
+    "KERNEL32.dll"
+  ],
+  "sourceRole": "offline feasibility probe, not production validator",
+  "providerProbe": "NOT_RUN: external development-provider mutation outside standing authority"
+}

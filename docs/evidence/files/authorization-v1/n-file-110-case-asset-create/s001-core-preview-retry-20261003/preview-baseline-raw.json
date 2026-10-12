@@ -1,0 +1,1 @@
+{"environment":{"platform":"linux","arch":"x64","node":"v24.21.0","napi":"10","instance":"27d4bbb4cb0e","bootMs":1791036902795},"rssBefore":82542592,"maxRssBefore":84356,"fixture":"baseline","outcome":"rejected","encodedBytes":333,"totalMs":2.77,"rssAfter":82657280,"maxRssAfter":84356}

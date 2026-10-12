@@ -1,0 +1,22 @@
+[
+  {
+    "trace": "../../../../../node_modules/.pnpm/@julusian+jpeg-turbo@3.0.1/node_modules/@julusian/jpeg-turbo/prebuilds/jpeg-turbo-linux-x64/libturbojpeg.so.0",
+    "exists": true,
+    "sha256": "6facda09ef3e2308608f2b0214c040791e276305a48a27036362402f95fffcf5"
+  },
+  {
+    "trace": "../../../../../node_modules/.pnpm/@julusian+jpeg-turbo@3.0.1/node_modules/@julusian/jpeg-turbo/prebuilds/jpeg-turbo-linux-x64/node-napi-v10.node",
+    "exists": true,
+    "sha256": "627fa49f801c8386e90c6844d4c75aa85dd4eaabccaeae38994af069c9e36eea"
+  },
+  {
+    "trace": "../../../../../node_modules/@julusian/jpeg-turbo/prebuilds/jpeg-turbo-linux-x64/libturbojpeg.so.0",
+    "exists": true,
+    "sha256": "6facda09ef3e2308608f2b0214c040791e276305a48a27036362402f95fffcf5"
+  },
+  {
+    "trace": "../../../../../node_modules/@julusian/jpeg-turbo/prebuilds/jpeg-turbo-linux-x64/node-napi-v10.node",
+    "exists": true,
+    "sha256": "627fa49f801c8386e90c6844d4c75aa85dd4eaabccaeae38994af069c9e36eea"
+  }
+]

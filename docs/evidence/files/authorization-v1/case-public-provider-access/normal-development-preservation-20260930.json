@@ -1,0 +1,101 @@
+{
+  "status": "PASS",
+  "preTarget": {
+    "hostHash": "eb0d823953fe",
+    "port": 5432,
+    "database": "postgres",
+    "schema": "public",
+    "tls": true,
+    "serverVersionNum": "170006",
+    "recovery": false,
+    "readOnly": "on"
+  },
+  "postTarget": {
+    "hostHash": "eb0d823953fe",
+    "port": 5432,
+    "database": "postgres",
+    "schema": "public",
+    "tls": true,
+    "serverVersionNum": "170006",
+    "recovery": false,
+    "readOnly": "on"
+  },
+  "candidateChecksum": "a4d3cf3aa49a8ac910cb173d3c6a1050b128a2cd5aad3c51718fa04fed81b668",
+  "predecessorCount": 49,
+  "candidateRows": 1,
+  "tables": [
+    {
+      "table": "organization",
+      "beforeCount": 6,
+      "afterCount": 6,
+      "fingerprintEqual": true
+    },
+    {
+      "table": "Lab",
+      "beforeCount": 6,
+      "afterCount": 6,
+      "fingerprintEqual": true
+    },
+    {
+      "table": "Case",
+      "beforeCount": 2,
+      "afterCount": 2,
+      "fingerprintEqual": true
+    },
+    {
+      "table": "CaseAssetFile",
+      "beforeCount": 0,
+      "afterCount": 0,
+      "fingerprintEqual": true
+    },
+    {
+      "table": "FileUploadGrant",
+      "beforeCount": 2,
+      "afterCount": 2,
+      "fingerprintEqual": true
+    },
+    {
+      "table": "StoredFile",
+      "beforeCount": 0,
+      "afterCount": 0,
+      "fingerprintEqual": true
+    },
+    {
+      "table": "CaseAssetFileVersion",
+      "beforeCount": 0,
+      "afterCount": 0,
+      "fingerprintEqual": true
+    },
+    {
+      "table": "CaseClinicalUploadEvidence",
+      "beforeCount": 0,
+      "afterCount": 0,
+      "fingerprintEqual": true
+    },
+    {
+      "table": "CaseFileAccessAudit",
+      "beforeCount": 0,
+      "afterCount": 0,
+      "fingerprintEqual": true
+    },
+    {
+      "table": "WorkType",
+      "beforeCount": 1,
+      "afterCount": 1,
+      "fingerprintEqual": true
+    },
+    {
+      "table": "Product",
+      "beforeCount": 1,
+      "afterCount": 1,
+      "fingerprintEqual": true
+    },
+    {
+      "table": "Dentist",
+      "beforeCount": 1,
+      "afterCount": 1,
+      "fingerprintEqual": true
+    }
+  ],
+  "historicalNullLimitation": "No pre-existing StoredFile rows or MANAGED_PRIVATE Case assets in development; historical/null preservation proven in disposable runtime, not by a nonempty development row."
+}

@@ -1,0 +1,40 @@
+Vercel CLI 62.1.0 (Node.js 24.21.0)
+Fetching deployment "dpl_8u6UC4LgH4mBtRT6QBq6w9KTHr1v" in ali-leftas-projects
+> Fetched deployment "labos-s001-probe-20261002-1526-a84e-ww9kwag6f.vercel.app" in ali-leftas-projects [1s]
+
+  General
+
+    id		dpl_8u6UC4LgH4mBtRT6QBq6w9KTHr1v
+    name	labos-s001-probe-20261002-1526-a84e
+    target	production
+    status	● Ready
+    url		https://labos-s001-probe-20261002-1526-a84e-ww9kwag6f.vercel.app
+    created	Fri Oct 02 2026 15:31:31 GMT+0300 (Arabian Standard Time) [57s ago]
+
+
+  Build Machine
+
+    requested build machine basic
+    actual assigned cores   unavailable
+    selection type          fixed
+    selection source        plan-default
+
+
+  Duration
+
+    build duration	unavailable
+    post-build duration	unavailable
+    billable duration	unavailable
+    CPU Minutes Usage	unavailable
+
+
+  Aliases
+
+    ╶ https://labos-s001-probe-20261002-1526-a84e-ali-leftas-projects.vercel.app
+    
+
+  Builds
+
+    ╶ .        [0ms]
+    
+

@@ -1,0 +1,68 @@
+{
+  "predecessorChecksPreserved": true,
+  "predecessorTriggersPreserved": true,
+  "newCheckNames": [
+    "CaseClinicalUploadEvidence_s001_identity"
+  ],
+  "newColumns": [
+    {
+      "column_name": "validatorVersion",
+      "data_type": "character varying",
+      "udt_name": "varchar",
+      "character_maximum_length": 48,
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "column_name": "codecBackend",
+      "data_type": "USER-DEFINED",
+      "udt_name": "CaseClinicalCodecBackend",
+      "character_maximum_length": null,
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "column_name": "codecPackageVersion",
+      "data_type": "character varying",
+      "udt_name": "varchar",
+      "character_maximum_length": 24,
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "column_name": "codecLibraryVersion",
+      "data_type": "character varying",
+      "udt_name": "varchar",
+      "character_maximum_length": 24,
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "column_name": "codecRuntimeSha256",
+      "data_type": "character varying",
+      "udt_name": "varchar",
+      "character_maximum_length": 64,
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "column_name": "sourceComponents",
+      "data_type": "integer",
+      "udt_name": "int4",
+      "character_maximum_length": null,
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "column_name": "isProgressive",
+      "data_type": "boolean",
+      "udt_name": "bool",
+      "character_maximum_length": null,
+      "is_nullable": "YES",
+      "column_default": null
+    }
+  ],
+  "backend": [
+    "JULUSIAN_TURBOJPEG"
+  ]
+}

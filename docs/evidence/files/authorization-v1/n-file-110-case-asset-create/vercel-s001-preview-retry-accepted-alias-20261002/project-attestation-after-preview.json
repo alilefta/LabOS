@@ -1,0 +1,11 @@
+{
+  "id": "prj_dfN21ReGgGOucQ8uWFQEkNd5sMYM",
+  "name": "labos-s001-probe-20261002-1526-a84e",
+  "framework": "nextjs",
+  "nodeVersion": "24.x",
+  "ssoProtection": "all",
+  "envCount": 0,
+  "customAliasCount": 0,
+  "gitConnected": false,
+  "latestDeploymentCount": 2
+}

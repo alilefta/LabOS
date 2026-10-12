@@ -1,0 +1,101 @@
+{
+  "framework": "nextjs",
+  "fileCount": 15,
+  "totalSize": 99559,
+  "ignored": [
+    ".next",
+    ".vercel"
+  ],
+  "files": [
+    {
+      "path": ".vercelignore",
+      "size": 32,
+      "mode": 33206,
+      "sha": "bc5e48aaa083fe5240bc84a7064fd19f99512c64"
+    },
+    {
+      "path": "app/api/probe/route.ts",
+      "size": 4331,
+      "mode": 33206,
+      "sha": "31b7d47888fff110aba3b0e89173382ad4f28462"
+    },
+    {
+      "path": "fixtures/baseline.jpg",
+      "size": 333,
+      "mode": 33206,
+      "sha": "4a504357517a5f6ab0a61413ccea5b67f7494113"
+    },
+    {
+      "path": "fixtures/grayscale.jpg",
+      "size": 336,
+      "mode": 33206,
+      "sha": "3ebc66697aac560c25fda159e34bb90cc06afac2"
+    },
+    {
+      "path": "fixtures/progressive.jpg",
+      "size": 562,
+      "mode": 33206,
+      "sha": "91a7dc8521e6c2cec349766f09c4c67af8a0fee6"
+    },
+    {
+      "path": "fixtures/trailing_bytes.jpg",
+      "size": 336,
+      "mode": 33206,
+      "sha": "ca0e15797fdc7a25472a2f831802ace60a754c08"
+    },
+    {
+      "path": "modules/labos-files/jpeg-r001/inspect.ts",
+      "size": 4111,
+      "mode": 33206,
+      "sha": "194b1ea50c73b7babbad56aeb0c07e93254170a2"
+    },
+    {
+      "path": "modules/labos-files/jpeg-s001/core.ts",
+      "size": 2976,
+      "mode": 33206,
+      "sha": "18359ba499c51556c50dd7fb25585963dfa51d14"
+    },
+    {
+      "path": "modules/labos-files/jpeg-s001/identity.ts",
+      "size": 4220,
+      "mode": 33206,
+      "sha": "b5589927b86b6f571f6e7558c29441d9efce1a13"
+    },
+    {
+      "path": "modules/labos-files/jpeg-s001/manifest.ts",
+      "size": 567,
+      "mode": 33206,
+      "sha": "9e2f23236042e22d9530e09c698e4d7543230613"
+    },
+    {
+      "path": "next-env.d.ts",
+      "size": 295,
+      "mode": 33206,
+      "sha": "d3fc80b7fae627e01dce199d12132aa4fc32d773"
+    },
+    {
+      "path": "next.config.mjs",
+      "size": 378,
+      "mode": 33206,
+      "sha": "a03d7d13e773ab3d56417f86049bcd5f66e4d2dc"
+    },
+    {
+      "path": "package-lock.json",
+      "size": 80106,
+      "mode": 33206,
+      "sha": "9a7652767ec8a7d2ff91e824007416ab58784dfd"
+    },
+    {
+      "path": "package.json",
+      "size": 319,
+      "mode": 33206,
+      "sha": "4e0dbef2bd33f0385db9a08a34ceb5a67b021758"
+    },
+    {
+      "path": "tsconfig.json",
+      "size": 657,
+      "mode": 33206,
+      "sha": "8f4dbb2d15075b04fe357e62f04f4d4dbba470bf"
+    }
+  ]
+}

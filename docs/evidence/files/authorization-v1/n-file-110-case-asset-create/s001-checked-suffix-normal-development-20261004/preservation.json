@@ -1,0 +1,31 @@
+{
+  "at": "2026-10-04T15:21:02.764Z",
+  "status": "PASS",
+  "changedTables": [],
+  "countsPre": {
+    "organization": 6,
+    "Lab": 6,
+    "Case": 2,
+    "CaseAssetFile": 0,
+    "FileUploadGrant": 2,
+    "StoredFile": 0,
+    "CaseAssetFileVersion": 0,
+    "CaseClinicalUploadEvidence": 0
+  },
+  "countsPost": {
+    "organization": 6,
+    "Lab": 6,
+    "Case": 2,
+    "CaseAssetFile": 0,
+    "FileUploadGrant": 2,
+    "StoredFile": 0,
+    "CaseAssetFileVersion": 0,
+    "CaseClinicalUploadEvidence": 0
+  },
+  "caseGrantStatusesPre": [],
+  "caseGrantStatusesPost": [],
+  "evidenceTriggersPreserved": true,
+  "grantTriggersPreserved": true,
+  "compositeEvidenceForeignKeysPreserved": true,
+  "postNonNullSuffixCount": 0
+}

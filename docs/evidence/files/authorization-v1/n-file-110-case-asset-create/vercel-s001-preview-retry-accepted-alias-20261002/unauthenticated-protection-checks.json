@@ -1,0 +1,14 @@
+[
+  {
+    "label": "placeholder-generated-alias",
+    "status": "HTTP/1.1 302 Found",
+    "redirectHost": "vercel.com",
+    "redirectPath": "/sso-api"
+  },
+  {
+    "label": "preview-deployment-url",
+    "status": "HTTP/1.1 302 Found",
+    "redirectHost": "vercel.com",
+    "redirectPath": "/sso-api"
+  }
+]

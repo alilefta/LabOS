@@ -1,0 +1,6 @@
+Affected TypeScript: `node_modules/.bin/tsc.cmd --project experiments/s001-identity-code-20261003/tsconfig.affected.json --noEmit` exit 0 after final tests.
+Affected ESLint: `node_modules/.bin/eslint.cmd modules/labos-files/jpeg-s001/identity.ts tests/unit/modules/labos-files/jpeg-s001/identity.test.ts tests/unit/modules/labos-files/jpeg-s001/identity-cache.test.ts` exit 0.
+Prisma validation: exit 0; see prisma-validate.txt.
+Repository git diff --check: exit 0 (only existing Windows LF/CRLF warnings); see diff-check.txt.
+Root Next build: compilation PASS; broad TypeScript stopped on known retained docs/evidence experiment imports; see root-next-build-final.txt.
+Isolated Next 16.3.3 build: exit 0; see isolated-next-build-final.txt.

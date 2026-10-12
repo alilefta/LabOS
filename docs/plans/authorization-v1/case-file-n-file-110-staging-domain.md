@@ -1,6 +1,27 @@
 # N-FILE-110 — Case clinical asset staging and first-attach contract
 
-**2026-09-29 V1 amendment:** The Product Owner accepts UploadThing Free
+**Current R2-00 direction (2026-10-06):** The Product Owner approved the
+[UploadThing → R2 roadmap](uploadthing-r2-migration-repository-review.md) for
+new N-FILE-110 Case clinical objects. The saved-DRAFT Case target,
+`case.asset.add` authorization, canonical Organization/Lab/Member binding,
+checked `.jpg`/`.jpeg` suffix, exact 15-minute grant expiry, S001 validator,
+application SHA-256, immutable evidence, second exact-byte retrieval,
+transactional first attachment and single-use `CONSUMED` state remain the
+domain contract. A server-owned opaque key is allocated once and never
+reused. The new ingestion path issues a create-only time-bounded write
+capability through a semantic ObjectStorage boundary; browser completion is
+only a hint, with exact-object private inspection and bounded retrieval before
+validation. New accepted files target `PRIVATE`/`MANAGED_PRIVATE`, with a
+separately authorized private-open capability after fresh `case.read`.
+`OBJECT_STORAGE` is the planned stable backend class, not an R2 vendor label;
+R2 SDK/configuration/errors stay in its adapter. UploadThing keeps its
+separate non-Case ingestion path during gradual migration. This documentation
+does not authorize code, schema, provider runtime, cleanup or activation;
+N-FILE-110 remains inactive. The 2026-09-29 public-backed contract and
+UploadThing-specific callback/first-attach proposal below are retained as
+historical design, not current new-Case implementation instructions.
+
+**Historical 2026-09-29 V1 amendment:** The Product Owner accepted UploadThing Free
 `public-read` Case storage with no direct-URL confidentiality and has approved
 the additive `MANAGED_PUBLIC`/per-`StoredFile` access classification and
 separate authorized open design. The [candidate contract](case-file-public-access-contract.md)
@@ -10,7 +31,7 @@ one-time attachment, and tenant authorization. Rejected-object cleanup and
 public URL exposure controls still need bounded implementation authority.
 Private/signed storage is a later version.
 
-Status: Saved-DRAFT staging intent CLOSED | CODE PASS; provider upload, validation, and attachment remain blocked; evidence schema installed in development
+Status: Saved-DRAFT staging and unregistered Case provider handoff CLOSED | CODE PASS; validation, attachment, and runtime activation remain separate; evidence schema installed in development
 Tier proposed for later implementation: V3 CODE, then separate real DB/provider/browser RUNTIME_EVIDENCE
 Authority: D-FILE-01/02/04; closed C1, N-FILE-110A, C2, C3, and `case.asset.add`
 

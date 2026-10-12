@@ -1,0 +1,16 @@
+Loaded Prisma config from experiments\s001-finalize-evidence-0f55df2b923c\prisma.config.ts.
+
+Prisma schema loaded from prisma\schema.prisma.
+Datasource "db": PostgreSQL database "postgres", schema "public" at "127.0.0.1:55621"
+
+52 migrations found in prisma/migrations
+
+Applying migration `20261004120000_case_checked_suffix_handoff`
+
+The following migration(s) have been applied:
+
+migrations/
+  └─ 20261004120000_case_checked_suffix_handoff/
+    └─ migration.sql
+
+All migrations have been successfully applied.

@@ -3,7 +3,7 @@
 Status: Current
 Authority: Canonical
 Owner: LabOS maintainers
-Last reviewed: 2026-09-29
+Last reviewed: 2026-10-06
 
 This register records decisions still governing implementation. Historical approval evidence is retained separately.
 
@@ -44,9 +44,54 @@ The unused Staff self-avatar endpoint remains unavailable/deferred. It must not 
 
 ### D-FILE-04 — stored-file read/access policy
 
-Decision status: Amended for V1 by the Product Owner file-storage security
-decision below. The original private/signed-read policy in this section is a
-future storage-security target, not a V1 provider-confidentiality claim.
+Decision status: Superseded for **new N-FILE-110 Case clinical objects** by the
+Product Owner's 2026-10-06 approval of the
+[UploadThing → R2 migration roadmap](../plans/authorization-v1/uploadthing-r2-migration-repository-review.md).
+The 2026-09-29 UploadThing Free `public-read` V1 decision below remains the
+historical, truthful contract for its approved scope and for any actual
+UploadThing-backed public records. Installed `MANAGED_PUBLIC` and
+`StoredFile.providerAccess` persistence, historical evidence, and non-Case
+UploadThing behavior are preserved. That decision is no longer the activation
+target for new N-FILE-110 objects. N-FILE-110 remains inactive; this R2-00
+documentation decision does not establish private-provider runtime behavior.
+
+**Current Case storage direction:** new N-FILE-110 clinical objects require a
+private object-storage bucket with no public `r2.dev` or custom domain, a
+LabOS-generated opaque permanently nonreused key, create-only exact-object
+write capability, server-authoritative exact-object inspection and bounded
+retrieval, unchanged JPEG S001/application SHA-256 and immutable evidence,
+atomic first attachment, and a freshly `case.read`-authorized short-lived
+private read capability. `StoredFile.providerAccess = PRIVATE` and
+`CaseAssetFile.storageMode = MANAGED_PRIVATE` must describe attested reality;
+null never implies private. Signed URLs are bearer capabilities, never stored
+identity or durable evidence. Rejected/orphan deletion follows terminal LabOS
+state and waits until every write capability for the key has expired plus
+bounded clock skew. Cleanup, Case runtime acceptance, activation and final
+N-FILE-110 closure require their separate roadmap gates.
+
+**Provider-decoupling contract:** Files/domain owns tenant/Case authorization,
+grant lifecycle, checked suffix, format/S001 validation, SHA-256, immutable
+evidence, `StoredFile.id`, Case asset/version identity, attachment,
+`CONSUMED`, key allocation/nonreuse, cleanup state and private-open policy.
+It calls a small server-only ObjectStorage semantic boundary for exact-key
+create-only time-bounded write capability, exact inspection, bounded retrieval,
+short-lived read capability, exact deletion and authoritative absence. The
+selected V1 adapter is Cloudflare R2. R2 endpoint/account/bucket, AWS SDK,
+SigV4, ETag and provider error details remain inside adapter/configuration
+infrastructure; no provider-specific error or raw command enters domain code.
+`StoredFileProvider.OBJECT_STORAGE` is the planned stable logical backend
+identity for new object-storage grants, evidence and files; `UPLOADTHING`
+remains for legacy ingestion. The enum and related persistence were subsequently installed at R2-02;
+R2-05 is accepted with activation `NOT_ELIGIBLE` pending production Linux S001
+Case composition. This sentence updates current state without changing the
+R2-00 design decision. One active private object-store bucket per environment and
+same LabOS key across a future whole-backend move are V1 assumptions; a need
+for simultaneous stores or changed keys returns for a separate location
+decision. Each adapter must pass capability/conformance review before use.
+UploadThing remains on its existing higher-level ingestion path while later
+boundaries migrate one at a time; it is not forced through ObjectStorage.
+
+#### Historical UploadThing V1 amendment and original target
 
 **FILE STORAGE SECURITY — V1 LIMITATION (approved 2026-09-29).** LabOS V1 uses
 UploadThing Free with provider ACL `public-read`. Application authorization is

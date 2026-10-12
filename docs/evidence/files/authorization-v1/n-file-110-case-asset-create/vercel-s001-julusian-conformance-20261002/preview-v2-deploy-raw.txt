@@ -1,0 +1,94 @@
+Retrieving project…
+Deploying ali-leftas-projects/labos-s001-conformance-20261002-1612-7b82c717
+Uploading [--------------------] (0.0B/27.2MB)
+Uploading [=====---------------] (6.8MB/27.2MB)
+Uploading [==========----------] (13.6MB/27.2MB)
+Uploading [===============-----] (20.4MB/27.2MB)
+Uploading [====================] (27.2MB/27.2MB)
+  Inspect         https://vercel.com/ali-leftas-projects/labos-s001-conformance-20261002-1612-7b82c717/GrTK61nwA6i2KX6cQJA9yrA6uVAV
+  Preview         https://labos-s001-conformance-20261002-1612-7b82c717-jscyiy76u.vercel.app
+Building…
+Building…
+Running build in Washington, D.C., USA (East) – iad1
+Build machine configuration: 2 cores, 8 GB
+Retrieving list of deployment files...
+Downloading 38 deployment files...
+Restored build cache from previous deployment (93J58Z1QYMyKBUGzU8wmMWh5rrqe)
+Running "vercel build"
+Vercel CLI 62.1.0
+Warning: Detected "engines": { "node": ">=22.18" } in your `package.json` that will automatically upgrade when a new major Node.js Version is released. Learn More: https://vercel.link/node-version
+Installing dependencies...
+up to date in 845ms
+11 packages are looking for funding
+run `npm fund` for details
+npm warn install-scripts 1 package has install scripts not yet covered by allowScripts:
+npm warn install-scripts   @julusian/jpeg-turbo@3.0.1 (install: pkg-prebuilds-verify ./binding-options.js || cmake-js compile --target jpeg-turbo)
+npm warn install-scripts
+npm warn install-scripts Run `npm install-scripts ls` to review, or `npm install-scripts approve <pkg>` to allow.
+Detected Next.js version: 16.3.3
+Running "npm run build"
+> labos-s001-synthetic-vercel-probe-20261001@0.0.1 build
+> next build
+▲ Next.js 16.3.3 (Turbopack)
+Applying modifyConfig from Vercel
+✓ Running next.config.mjs took 407ms
+Creating an optimized production build ...
+✓ Compiled successfully in 1249ms
+Running TypeScript ...
+Finished TypeScript in 2.7s ...
+Collecting page data using 1 worker ...
+Generating static pages using 1 worker (0/2) ...
+✓ Generating static pages using 1 worker (2/2) in 144ms
+Finalizing page optimization ...
+Running onBuildComplete from Vercel
+Warning: Detected "engines": { "node": ">=22.18" } in your `package.json` that will automatically upgrade when a new major Node.js Version is released. Learn More: https://vercel.link/node-version
+Route (app)
+┌ ○ /_not-found
+└ ƒ /api/conformance
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+Build Completed in /vercel/output [12s]
+Deploying outputs...
+[2K[1A[2K[G  Preview         https://labos-s001-conformance-20261002-1612-7b82c717-jscyiy76u.vercel.app
+Completing…
+{
+  "status": "ok",
+  "deployment": {
+    "id": "dpl_GrTK61nwA6i2KX6cQJA9yrA6uVAV",
+    "url": "https://labos-s001-conformance-20261002-1612-7b82c717-jscyiy76u.vercel.app",
+    "productionUrl": null,
+    "inspectorUrl": "https://vercel.com/ali-leftas-projects/labos-s001-conformance-20261002-1612-7b82c717/GrTK61nwA6i2KX6cQJA9yrA6uVAV",
+    "readyState": "READY",
+    "target": null,
+    "deploymentApiUrl": "https://api.vercel.com/v13/deployments/dpl_GrTK61nwA6i2KX6cQJA9yrA6uVAV",
+    "buildMachine": {
+      "cores": 2,
+      "memory": 8192,
+      "machine": "basic",
+      "selectionType": "fixed",
+      "selectionSource": "plan-default"
+    },
+    "deploymentProtection": [
+      "vercel_authentication"
+    ]
+  },
+  "message": "Deployment labos-s001-conformance-20261002-1612-7b82c717-jscyiy76u.vercel.app ready.",
+  "next": [
+    {
+      "command": "vercel git connect --scope ali-leftas-projects --project prj_gA2rdICyXucVuw9r97ARo1zZqSb3",
+      "when": "Automatically deploy changes on every push"
+    },
+    {
+      "command": "vercel curl https://labos-s001-conformance-20261002-1612-7b82c717-jscyiy76u.vercel.app",
+      "when": "Verify deployment, including when Deployment Protection is enabled"
+    },
+    {
+      "command": "vercel inspect labos-s001-conformance-20261002-1612-7b82c717-jscyiy76u.vercel.app --scope ali-leftas-projects",
+      "when": "Inspect deployment"
+    },
+    {
+      "command": "vercel deploy --prod --scope ali-leftas-projects",
+      "when": "Promote to production"
+    }
+  ]
+}

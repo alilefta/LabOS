@@ -1,0 +1,12 @@
+Vercel CLI 62.1.0 (Node.js 24.21.0)
+Fetching deployments in ali-leftas-projects
+> Deployments for ali-leftas-projects/labos-s001-probe-20261002-1526-a84e [583ms]
+
+  Age     Project                                                     Deployment                                                           Status      Environment     Duration     Username     
+  9m      ali-leftas-projects/labos-s001-probe-20261002-1526-a84e     https://labos-s001-probe-20261002-1526-a84e-lwis5avjm.vercel.app     ● Ready     Preview         32s          alilefta     
+  13m     ali-leftas-projects/labos-s001-probe-20261002-1526-a84e     https://labos-s001-probe-20261002-1526-a84e-q7fupjohp.vercel.app     ● Error     Preview         24s          alilefta     
+  16m     ali-leftas-projects/labos-s001-probe-20261002-1526-a84e     https://labos-s001-probe-20261002-1526-a84e-ww9kwag6f.vercel.app     ● Ready     Production      ?            alilefta     
+
+https://labos-s001-probe-20261002-1526-a84e-lwis5avjm.vercel.app
+https://labos-s001-probe-20261002-1526-a84e-q7fupjohp.vercel.app
+https://labos-s001-probe-20261002-1526-a84e-ww9kwag6f.vercel.app

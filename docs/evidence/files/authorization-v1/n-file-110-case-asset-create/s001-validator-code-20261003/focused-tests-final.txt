@@ -1,0 +1,9 @@
+
+ RUN  v4.1.10 F:/Software_Engineering/Phase 1 Web Development/Project 7 Freelancer Command Center/next-projects/lab-os-project-4
+
+
+ Test Files  5 passed (5)
+      Tests  44 passed (44)
+   Start at  12:14:11
+   Duration  2.89s (transform 1.20s, setup 0ms, import 5.08s, tests 713ms, environment 1ms)
+

@@ -1,0 +1,9 @@
+{
+  "package.json": "92cedd74262576820244b2c0065019fe8acee90a7c4af1ddef2e3ede5cf32e26",
+  "pnpm-lock.yaml": "bbcd83ad045062cbe7433006e1cd0dac2c8ae7ddc32f50dbed10b286d688acb6",
+  "modules/labos-files/jpeg-s001/core.ts": "d08ed2971351e7fa0460a33a051a590552986d81a7ce9b1edc2f38c1b1925cf3",
+  "modules/labos-files/jpeg-s001/identity.ts": "097540279c91860725ac0d75348fcb4ae0ca4675d1f6f47704a252ae5ebb587e",
+  "modules/labos-files/jpeg-s001/manifest.ts": "59a2abc0307ed184b71cf15fe172693d1a17f561538a0a0e7878bf0e5c3c66aa",
+  "modules/labos-files/jpeg-r001/inspect.ts": "9d97cddf3c409c4556012b9c34786b85566729ca89aef596eeb43b0131044baf",
+  "next.config.ts": "8fe8e9064af32c1e3e1e7a5778e2f2de49082f448ccb305bb11d5a1b75e714af"
+}

@@ -1,0 +1,167 @@
+{
+  "run": "labos-r001-ut-probe-20261001-81178c4bda06",
+  "sourceBytes": 286,
+  "sourceSha256": "84c86c6a6a2902d03d9455c9c0442b5282843568ecc16902e607f860d13d974f",
+  "keyFingerprint": "24f1dbbc9b957482",
+  "observations": [
+    {
+      "index": 1,
+      "cardinality": 1,
+      "returnedKeyExact": true,
+      "url": {
+        "scheme": "https:",
+        "origin": "https://fyylnhrlmu.ufs.sh",
+        "hostname": "fyylnhrlmu.ufs.sh",
+        "port": null,
+        "usernamePresent": false,
+        "passwordPresent": false,
+        "pathShape": "/f/{key}",
+        "pathContainsExactKey": true,
+        "pathEndsExactKey": true,
+        "queryPresent": false,
+        "queryNames": [],
+        "fragmentPresent": false,
+        "urlSha256Prefix": "bcdb4e230256"
+      },
+      "dns": [
+        {
+          "address": "188.114.96.7",
+          "family": 4
+        },
+        {
+          "address": "188.114.97.7",
+          "family": 4
+        }
+      ],
+      "chosenIp": {
+        "address": "188.114.96.7",
+        "family": 4
+      },
+      "download": {
+        "status": 200,
+        "headers": {
+          "content-length": "286",
+          "content-type": "image/jpeg",
+          "content-encoding": null,
+          "cache-control": "public, max-age=86400",
+          "etag": {
+            "present": true,
+            "sha256Prefix": "dc7462656442"
+          },
+          "last-modified": null,
+          "location": null,
+          "accept-ranges": "bytes"
+        },
+        "bytes": 286,
+        "sha256": "84c86c6a6a2902d03d9455c9c0442b5282843568ecc16902e607f860d13d974f",
+        "matchesSource": true
+      }
+    },
+    {
+      "index": 2,
+      "cardinality": 1,
+      "returnedKeyExact": true,
+      "url": {
+        "scheme": "https:",
+        "origin": "https://fyylnhrlmu.ufs.sh",
+        "hostname": "fyylnhrlmu.ufs.sh",
+        "port": null,
+        "usernamePresent": false,
+        "passwordPresent": false,
+        "pathShape": "/f/{key}",
+        "pathContainsExactKey": true,
+        "pathEndsExactKey": true,
+        "queryPresent": false,
+        "queryNames": [],
+        "fragmentPresent": false,
+        "urlSha256Prefix": "bcdb4e230256"
+      },
+      "dns": [
+        {
+          "address": "188.114.96.7",
+          "family": 4
+        },
+        {
+          "address": "188.114.97.7",
+          "family": 4
+        }
+      ],
+      "chosenIp": {
+        "address": "188.114.96.7",
+        "family": 4
+      },
+      "download": {
+        "status": 200,
+        "headers": {
+          "content-length": "286",
+          "content-type": "image/jpeg",
+          "content-encoding": null,
+          "cache-control": "public, max-age=86400",
+          "etag": {
+            "present": true,
+            "sha256Prefix": "dc7462656442"
+          },
+          "last-modified": null,
+          "location": null,
+          "accept-ranges": "bytes"
+        },
+        "bytes": 286,
+        "sha256": "84c86c6a6a2902d03d9455c9c0442b5282843568ecc16902e607f860d13d974f",
+        "matchesSource": true
+      }
+    },
+    {
+      "index": 3,
+      "cardinality": 1,
+      "returnedKeyExact": true,
+      "url": {
+        "scheme": "https:",
+        "origin": "https://fyylnhrlmu.ufs.sh",
+        "hostname": "fyylnhrlmu.ufs.sh",
+        "port": null,
+        "usernamePresent": false,
+        "passwordPresent": false,
+        "pathShape": "/f/{key}",
+        "pathContainsExactKey": true,
+        "pathEndsExactKey": true,
+        "queryPresent": false,
+        "queryNames": [],
+        "fragmentPresent": false,
+        "urlSha256Prefix": "bcdb4e230256"
+      },
+      "dns": [
+        {
+          "address": "188.114.96.7",
+          "family": 4
+        },
+        {
+          "address": "188.114.97.7",
+          "family": 4
+        }
+      ],
+      "chosenIp": {
+        "address": "188.114.96.7",
+        "family": 4
+      },
+      "download": {
+        "status": 200,
+        "headers": {
+          "content-length": "286",
+          "content-type": "image/jpeg",
+          "content-encoding": null,
+          "cache-control": "public, max-age=86400",
+          "etag": {
+            "present": true,
+            "sha256Prefix": "dc7462656442"
+          },
+          "last-modified": null,
+          "location": null,
+          "accept-ranges": "bytes"
+        },
+        "bytes": 286,
+        "sha256": "84c86c6a6a2902d03d9455c9c0442b5282843568ecc16902e607f860d13d974f",
+        "matchesSource": true
+      }
+    }
+  ]
+}

@@ -1,0 +1,5 @@
+Timing is on.
+Null display is "NULL".
+Expanded display is used automatically.
+JULUSIAN_TURBOJPEG|7|1|3
+Time: 13.387 ms

@@ -1,0 +1,12 @@
+▲ Next.js 16.3.3 (Turbopack)
+- Environments: .env.local, .env
+✓ Running next.config.ts took 56ms
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 10.9s
+  Running TypeScript ...
+docs/evidence/files/authorization-v1/n-file-110-case-asset-create/s001-core-preview-retry-20261003/harness-route.ts(7,47): error TS2307: Cannot find module '../../../modules/labos-files/jpeg-s001/core' or its corresponding type declarations.
+docs/evidence/files/authorization-v1/n-file-110-case-asset-create/vercel-s001-julusian-conformance-20261002/route.ts(6,42): error TS2307: Cannot find module '../../../inspect' or its corresponding type declarations.
+docs/evidence/files/authorization-v1/n-file-110-case-asset-create/vercel-s001-preview-retry-accepted-alias-20261002/source/app/api/probe/route.ts(15,28): error TS2307: Cannot find module 'sharp' or its corresponding type declarations.
+Failed to type check.
+

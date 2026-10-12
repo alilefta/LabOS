@@ -1,0 +1,101 @@
+{
+  "groupWallMs": 5184.8395,
+  "responses": [
+    {
+      "request": 1,
+      "elapsedMs": 4178.9888,
+      "result": {
+        "environment": {
+          "platform": "linux",
+          "arch": "x64",
+          "node": "v24.21.0",
+          "napi": "10",
+          "glibc": "2.34",
+          "instance": "225c0982429a"
+        },
+        "profile": "JPEG_CLINICAL_V1_S001",
+        "backend": "JULUSIAN_TURBOJPEG",
+        "packageVersion": "3.0.1",
+        "fixture": "large_12m_progressive_entropy",
+        "encodedBytes": 8355159,
+        "sha256": "3e1c3d898b1d459dc2c342d16cd4301e366f3463aec9072cc8b96ff72b8ba06a",
+        "stage": "accepted",
+        "structure": {
+          "width": 4000,
+          "height": 3000,
+          "components": 3,
+          "progressive": true,
+          "segments": 23,
+          "scans": 10,
+          "metadataBytes": 0
+        },
+        "outputBytes": 36000000,
+        "loadMs": 0,
+        "inspectMs": 35.82652300002519,
+        "decodeMs": 465.5567099999753,
+        "totalMs": 522.5801199999987,
+        "before": {
+          "rssMiB": 127.49,
+          "externalMiB": 19.89,
+          "arrayBuffersMiB": 16.08,
+          "peakRssMiB": 304.33
+        },
+        "after": {
+          "rssMiB": 169.77,
+          "externalMiB": 54.22,
+          "arrayBuffersMiB": 50.41,
+          "peakRssMiB": 304.33
+        }
+      },
+      "failure": false
+    },
+    {
+      "request": 2,
+      "elapsedMs": 5156.944,
+      "result": {
+        "environment": {
+          "platform": "linux",
+          "arch": "x64",
+          "node": "v24.21.0",
+          "napi": "10",
+          "glibc": "2.34",
+          "instance": "42257081f36d"
+        },
+        "profile": "JPEG_CLINICAL_V1_S001",
+        "backend": "JULUSIAN_TURBOJPEG",
+        "packageVersion": "3.0.1",
+        "fixture": "large_12m_progressive_entropy",
+        "encodedBytes": 8355159,
+        "sha256": "3e1c3d898b1d459dc2c342d16cd4301e366f3463aec9072cc8b96ff72b8ba06a",
+        "stage": "accepted",
+        "structure": {
+          "width": 4000,
+          "height": 3000,
+          "components": 3,
+          "progressive": true,
+          "segments": 23,
+          "scans": 10,
+          "metadataBytes": 0
+        },
+        "outputBytes": 36000000,
+        "loadMs": 14.215628999999922,
+        "inspectMs": 47.34591599999999,
+        "decodeMs": 505.26654600000006,
+        "totalMs": 588.527381,
+        "before": {
+          "rssMiB": 87.8,
+          "externalMiB": 11.93,
+          "arrayBuffersMiB": 8.11,
+          "peakRssMiB": 87.8
+        },
+        "after": {
+          "rssMiB": 126.63,
+          "externalMiB": 46.26,
+          "arrayBuffersMiB": 42.44,
+          "peakRssMiB": 160.99
+        }
+      },
+      "failure": false
+    }
+  ]
+}

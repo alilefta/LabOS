@@ -1,0 +1,4 @@
+docs/evidence/files/authorization-v1/n-file-110-case-asset-create/vercel-s001-julusian-conformance-20261002/route.ts(6,42): error TS2307: Cannot find module '../../../inspect' or its corresponding type declarations.
+docs/evidence/files/authorization-v1/n-file-110-case-asset-create/vercel-s001-julusian-conformance-20261002/route.ts(22,28): error TS2307: Cannot find module '@julusian/jpeg-turbo' or its corresponding type declarations.
+docs/evidence/files/authorization-v1/n-file-110-case-asset-create/vercel-s001-preview-retry-accepted-alias-20261002/source/app/api/probe/route.ts(14,28): error TS2307: Cannot find module '@julusian/jpeg-turbo' or its corresponding type declarations.
+docs/evidence/files/authorization-v1/n-file-110-case-asset-create/vercel-s001-preview-retry-accepted-alias-20261002/source/app/api/probe/route.ts(15,28): error TS2307: Cannot find module 'sharp' or its corresponding type declarations.

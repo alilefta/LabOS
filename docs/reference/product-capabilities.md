@@ -5,7 +5,7 @@
 Status: Active
 Authority: Canonical
 Owner: Project owner
-Last reviewed: 2026-09-05
+Last reviewed: 2026-10-06
 
 **Status key**
 
@@ -21,7 +21,7 @@ Last reviewed: 2026-09-05
 | Workspace onboarding | Implemented | A new lab workspace can be created and configured through `/onboarding`. |
 | Lab-scoped data | Implemented | Server actions are scoped to the active lab, providing tenant isolation for operational data. |
 | Responsive navigation | Implemented | Desktop and mobile sidebars share a single navigation source in `lib/dashboard-navigation.ts`. |
-| File uploads | Implemented | UploadThing is configured and case assets can be added and deleted. |
+| File uploads | Partial | UploadThing remains configured for non-Case uploads; Catalog image and Dentist avatar boundaries have accepted local-development checkpoints. Managed Case clinical upload (N-FILE-110) is inactive. The approved private R2 object-storage roadmap is documentation only at R2-00; no R2 upload is active. |
 
 ## Operations and case management
 

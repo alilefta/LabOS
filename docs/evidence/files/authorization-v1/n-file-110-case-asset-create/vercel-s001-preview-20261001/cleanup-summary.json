@@ -1,0 +1,9 @@
+{
+  "commandClass": "vercel project ls --scope",
+  "team": "ali-leftas-projects",
+  "runOwnedProjectName": "labos-s001-synthetic-probe-20261001",
+  "checkedAtUtc": "2026-10-01T20:30:37.606Z",
+  "cliExitCode": 0,
+  "runOwnedProjectPresent": false,
+  "source": "sanitized from completed CLI listing; unrelated project entries discarded"
+}

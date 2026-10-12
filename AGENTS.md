@@ -46,8 +46,24 @@ Operational state:
 ## Security and tenancy invariants
 
 - Authorize before loaders, repositories, Prisma, prefetch, hydration, providers, logging, or domain work.
-- Resolve tenancy from authenticated session, active Organization, verified Member, and Organization-linked Lab. Never trust caller-supplied tenant, role, membership, ownership, or resource facts.
-- Permissions are explicit fixed bundles, not a hierarchy. Trusted server projectors produce identifier-only targets and closed operation intents. Missing or malformed authorization data fails closed.
-- Client visibility is usability, never authorization. Use explicit safe DTOs and never leak internal auth, tokens, financial, or sensitive data through client boundaries.
+- Resolve tenancy from authenticated session, active Organization, verified Member, and Organization-linked Lab.
+- Never trust caller-supplied tenant, role, membership, ownership, or resource facts.
+- Permissions are explicit fixed bundles, not a hierarchy.
+- Trusted server projectors produce identifier-only targets and closed operation intents.
+- Missing or malformed authorization data fails closed.
+- Client visibility is usability, never authorization.
+- Use explicit safe DTOs.
+- Never leak internal authentication, tokens, financial, or sensitive data through client boundaries.
 - Cross-tenant targets deny before domain work and must not disclose existence.
-- Revalidate mutable invariants transactionally; do not invent migrations, constraints, permissions, provider behavior, or pending decisions.
+- Revalidate mutable invariants transactionally.
+- Do not invent migrations, constraints, permissions, provider behavior, financial behavior, or unresolved decisions.
+
+<!-- BEGIN:nextjs-agent-rules -->
+
+# This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->

@@ -1,0 +1,32 @@
+[
+  {
+    "path": "inspect.ts",
+    "sha256": "9d97cddf3c409c4556012b9c34786b85566729ca89aef596eeb43b0131044baf",
+    "bytes": 4111
+  },
+  {
+    "path": "app/api/conformance/route.ts",
+    "sha256": "b41d7223af722c530695b2ad2cd364ab833ed8d333dbefb757ebf1c936f1fc5c",
+    "bytes": 4682
+  },
+  {
+    "path": "package.json",
+    "sha256": "6cdd6b258807617c2d3a63b407fb4b427dc85705467fe02908bff27c1cebe6e3",
+    "bytes": 541
+  },
+  {
+    "path": "package-lock.json",
+    "sha256": "1ecee06e4cf2db7d60be641868b5394b5864c5817bb3b1b66419287e835070ef",
+    "bytes": 80709
+  },
+  {
+    "path": "next.config.mjs",
+    "sha256": "49af08833214fa296852d28b13679378d6e19a7a8e985905485b42139e133faa",
+    "bytes": 552
+  },
+  {
+    "path": ".vercelignore",
+    "sha256": "7003a254d7993135d12b0703fdbcd2fe709484af1fc5cf88826c1e2f9e8ce36e",
+    "bytes": 47
+  }
+]

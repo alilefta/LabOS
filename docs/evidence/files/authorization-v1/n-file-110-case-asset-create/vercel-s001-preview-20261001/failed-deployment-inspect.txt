@@ -1,0 +1,41 @@
+Vercel CLI 62.1.0 (Node.js 24.21.0)
+Fetching deployment "labos-s001-synthetic-probe-20261001-b5ch5hh4a.vercel.app" in ali-leftas-projects
+> Fetched deployment "labos-s001-synthetic-probe-20261001-b5ch5hh4a.vercel.app" in ali-leftas-projects [1s]
+
+  General
+
+    id		dpl_3E1TFf8Unf8FVDup55JihWapYshE
+    name	labos-s001-synthetic-probe-20261001
+    target	production
+    status	● Error
+    url		https://labos-s001-synthetic-probe-20261001-b5ch5hh4a.vercel.app
+    created	Thu Oct 01 2026 23:25:53 GMT+0300 (Arabian Standard Time) [2m ago]
+
+
+  Build Machine
+
+    requested build machine basic
+    actual assigned cores   2 vCPU (actual assignment)
+    memory                  8192 MiB
+    selection type          fixed
+    selection source        plan-default
+
+
+  Duration
+
+    build duration	16s
+    post-build duration	9s
+    billable duration	1m
+    CPU Minutes Usage	2 minutes (1m x 2vCPU)
+
+
+  Aliases
+
+    ╶ https://labos-s001-synthetic-probe-20261001-ali-leftas-projects.vercel.app
+    
+
+  Builds
+
+    ╶ .        [0ms]
+    
+

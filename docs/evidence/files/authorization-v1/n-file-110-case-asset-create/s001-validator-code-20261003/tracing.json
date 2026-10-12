@@ -1,0 +1,38 @@
+{
+  "buildMode": "compile",
+  "buildExitCode": 0,
+  "trace": ".next/server/app/api/uploadthing/route.js.nft.json",
+  "totalEntries": 213,
+  "found": [
+    {
+      "name": "node-napi-v10.node",
+      "entries": [
+        {
+          "traceEntry": "../../../../../node_modules/.pnpm/@julusian+jpeg-turbo@3.0.1/node_modules/@julusian/jpeg-turbo/prebuilds/jpeg-turbo-linux-x64/node-napi-v10.node",
+          "exists": true,
+          "sha256": "627fa49f801c8386e90c6844d4c75aa85dd4eaabccaeae38994af069c9e36eea"
+        },
+        {
+          "traceEntry": "../../../../../node_modules/@julusian/jpeg-turbo/prebuilds/jpeg-turbo-linux-x64/node-napi-v10.node",
+          "exists": true,
+          "sha256": "627fa49f801c8386e90c6844d4c75aa85dd4eaabccaeae38994af069c9e36eea"
+        }
+      ]
+    },
+    {
+      "name": "libturbojpeg.so.0",
+      "entries": [
+        {
+          "traceEntry": "../../../../../node_modules/.pnpm/@julusian+jpeg-turbo@3.0.1/node_modules/@julusian/jpeg-turbo/prebuilds/jpeg-turbo-linux-x64/libturbojpeg.so.0",
+          "exists": true,
+          "sha256": "6facda09ef3e2308608f2b0214c040791e276305a48a27036362402f95fffcf5"
+        },
+        {
+          "traceEntry": "../../../../../node_modules/@julusian/jpeg-turbo/prebuilds/jpeg-turbo-linux-x64/libturbojpeg.so.0",
+          "exists": true,
+          "sha256": "6facda09ef3e2308608f2b0214c040791e276305a48a27036362402f95fffcf5"
+        }
+      ]
+    }
+  ]
+}

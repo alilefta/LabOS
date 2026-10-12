@@ -1,0 +1,30 @@
+{
+  "baseline": {
+    "bytes": 333,
+    "sha256": "92424c818a78b6d385591382f695b01af83ba588b88aa50dcef8faee922ab8bb"
+  },
+  "progressive": {
+    "bytes": 562,
+    "sha256": "f747c09013b7fb2bd5c50b525f0b824513f47282ac0594ad732bf749a8d0bbd8"
+  },
+  "grayscale": {
+    "bytes": 461,
+    "sha256": "34cea5ee5f2915b47b21b6b9fe7b8e3af618f5f276157405649024249c0ff2b6"
+  },
+  "truncated": {
+    "bytes": 331,
+    "sha256": "0f9ac16f760a063ccdb6afe32ed1a0b438d32287261933bdf4fa8103f261cfe8"
+  },
+  "short_entropy_eoi": {
+    "bytes": 303,
+    "sha256": "8e548cf189b93266959bb3e5f8dc69b557db2c35e683a0b70b37390f854bd438"
+  },
+  "corrupt_entropy": {
+    "bytes": 333,
+    "sha256": "a6080db898583d515f8fe0f6b86f0ccef6af5b038d2bf5e5c4737b45e6c63514"
+  },
+  "trailing_bytes": {
+    "bytes": 336,
+    "sha256": "1f7e531fb7bc07c7e5c8eb7f243dc38b285bf265fa4fd13a0d49f4ec91fff0ce"
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "helperSha256": "24cdebf1552770d1e6edf7307d47f6124184e918839a928bc4b1ebfbd77a05d5",
+  "rows": [
+    {
+      "name": "baseline",
+      "sha256": "92424c818a78b6d385591382f695b01af83ba588b88aa50dcef8faee922ab8bb",
+      "structure": "pass",
+      "codec": "pass",
+      "r001": "pass"
+    },
+    {
+      "name": "progressive",
+      "sha256": "f747c09013b7fb2bd5c50b525f0b824513f47282ac0594ad732bf749a8d0bbd8",
+      "structure": "pass",
+      "codec": "pass",
+      "r001": "pass"
+    },
+    {
+      "name": "grayscale",
+      "sha256": "34cea5ee5f2915b47b21b6b9fe7b8e3af618f5f276157405649024249c0ff2b6",
+      "structure": "pass",
+      "codec": "pass",
+      "r001": "pass"
+    },
+    {
+      "name": "truncated",
+      "sha256": "0f9ac16f760a063ccdb6afe32ed1a0b438d32287261933bdf4fa8103f261cfe8",
+      "structure": "reject",
+      "codec": "not_run",
+      "r001": "reject"
+    },
+    {
+      "name": "short_entropy_eoi",
+      "sha256": "8e548cf189b93266959bb3e5f8dc69b557db2c35e683a0b70b37390f854bd438",
+      "structure": "pass",
+      "codec": "reject",
+      "r001": "reject"
+    },
+    {
+      "name": "corrupt_entropy",
+      "sha256": "a6080db898583d515f8fe0f6b86f0ccef6af5b038d2bf5e5c4737b45e6c63514",
+      "structure": "pass",
+      "codec": "reject",
+      "r001": "reject"
+    },
+    {
+      "name": "trailing_bytes",
+      "sha256": "1f7e531fb7bc07c7e5c8eb7f243dc38b285bf265fa4fd13a0d49f4ec91fff0ce",
+      "structure": "reject",
+      "codec": "not_run",
+      "r001": "reject"
+    }
+  ]
+}

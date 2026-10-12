@@ -1,0 +1,13 @@
+✔ evidence binds grant, tenant, provider key and Case (1.7407ms)
+✔ release identity is structural and evidence is immutable (0.3894ms)
+✔ Case UPLOADED and managed-purpose final states are deferred (0.5691ms)
+✔ Case grant insertion and evidence require a canonical Member and unexpired clock (0.2564ms)
+✔ legacy rows remain unbackfilled and Case-only purpose is nullable (0.5358ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 141.8558

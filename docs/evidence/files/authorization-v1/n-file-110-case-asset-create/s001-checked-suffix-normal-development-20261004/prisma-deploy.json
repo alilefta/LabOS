@@ -1,0 +1,10 @@
+{
+  "operation": "deploy",
+  "at": "2026-10-04T15:20:14.832Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "Datasource \"db\": PostgreSQL database \"postgres\", schema \"public\" at \"[development-host]:5432\"\n\n52 migrations found in prisma/migrations\n\nApplying migration `20261004120000_case_checked_suffix_handoff`\n\nThe following migration(s) have been applied:\n\nmigrations/\n  └─ 20261004120000_case_checked_suffix_handoff/\n    └─ migration.sql\n\nAll migrations have been successfully applied.\n",
+  "stderr": "Loaded Prisma config from experiments\\suffix-normal-dev-20261004-181848-e307f1a2\\prisma.config.ts.\n\nPrisma schema loaded from prisma\\schema.prisma.\n┌─────────────────────────────────────────────────────────┐\n│  Update available 7.8.0 -> 8.0.0-rc.19                  │\n│                                                         │\n│  This is a major update - please follow the guide at    │\n│  https://pris.ly/d/major-version-upgrade                │\n│                                                         │\n│  Run the following to update                            │\n│    npm i --save-dev prisma@latest                       │\n│    npm i @prisma/client@latest                          │\n└─────────────────────────────────────────────────────────┘\n",
+  "candidate": "20261004120000_case_checked_suffix_handoff",
+  "candidateHash": "3e150d41429c58d44a902473ff4b9d4fbc4c0d9afb29955e8d124f899e6bd23d"
+}

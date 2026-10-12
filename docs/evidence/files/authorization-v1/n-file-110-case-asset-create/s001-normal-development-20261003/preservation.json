@@ -1,0 +1,94 @@
+{
+  "allPreserved": true,
+  "tables": [
+    {
+      "name": "organization",
+      "before": 6,
+      "after": 6,
+      "countEqual": true,
+      "fingerprintEqual": true
+    },
+    {
+      "name": "Lab",
+      "before": 6,
+      "after": 6,
+      "countEqual": true,
+      "fingerprintEqual": true
+    },
+    {
+      "name": "Case",
+      "before": 2,
+      "after": 2,
+      "countEqual": true,
+      "fingerprintEqual": true
+    },
+    {
+      "name": "CaseAssetFile",
+      "before": 0,
+      "after": 0,
+      "countEqual": true,
+      "fingerprintEqual": true
+    },
+    {
+      "name": "FileUploadGrant",
+      "before": 2,
+      "after": 2,
+      "countEqual": true,
+      "fingerprintEqual": true
+    },
+    {
+      "name": "StoredFile",
+      "before": 0,
+      "after": 0,
+      "countEqual": true,
+      "fingerprintEqual": true
+    },
+    {
+      "name": "CaseAssetFileVersion",
+      "before": 0,
+      "after": 0,
+      "countEqual": true,
+      "fingerprintEqual": true
+    },
+    {
+      "name": "CaseClinicalUploadEvidence",
+      "before": 0,
+      "after": 0,
+      "countEqual": true,
+      "fingerprintEqual": true
+    },
+    {
+      "name": "CaseFileAccessAudit",
+      "before": 0,
+      "after": 0,
+      "countEqual": true,
+      "fingerprintEqual": true
+    },
+    {
+      "name": "WorkType",
+      "before": 1,
+      "after": 1,
+      "countEqual": true,
+      "fingerprintEqual": true
+    },
+    {
+      "name": "Product",
+      "before": 1,
+      "after": 1,
+      "countEqual": true,
+      "fingerprintEqual": true
+    },
+    {
+      "name": "Dentist",
+      "before": 1,
+      "after": 1,
+      "countEqual": true,
+      "fingerprintEqual": true
+    }
+  ],
+  "preexistingS001": 0,
+  "postS001": 0,
+  "predecessorChecksumsPreserved": true,
+  "correctedCandidateOnce": true,
+  "candidateChecksum": "c322412de3c40f697407ce74a062afb797b2554a98fa5e8393e1c4bfe8c8bb88"
+}

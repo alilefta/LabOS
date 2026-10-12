@@ -1,0 +1,311 @@
+{
+  "fixture": "entropy-progressive-50mp-q70",
+  "encodedBytes": 25041550,
+  "records": [
+    {
+      "concurrency": 1,
+      "iteration": 0,
+      "groupWallMs": 2875.478,
+      "children": [
+        {
+          "group": 1,
+          "index": 0,
+          "wallMs": 2875.107,
+          "timedOut": false,
+          "code": 0,
+          "signal": null,
+          "stdout": "LJ01 OK 8000 6250 3 6250",
+          "stderr": ""
+        }
+      ]
+    },
+    {
+      "concurrency": 1,
+      "iteration": 1,
+      "groupWallMs": 2685.453,
+      "children": [
+        {
+          "group": 1,
+          "index": 0,
+          "wallMs": 2685.389,
+          "timedOut": false,
+          "code": 0,
+          "signal": null,
+          "stdout": "LJ01 OK 8000 6250 3 6250",
+          "stderr": ""
+        }
+      ]
+    },
+    {
+      "concurrency": 1,
+      "iteration": 2,
+      "groupWallMs": 2888.38,
+      "children": [
+        {
+          "group": 1,
+          "index": 0,
+          "wallMs": 2888.312,
+          "timedOut": false,
+          "code": 0,
+          "signal": null,
+          "stdout": "LJ01 OK 8000 6250 3 6250",
+          "stderr": ""
+        }
+      ]
+    },
+    {
+      "concurrency": 2,
+      "iteration": 0,
+      "groupWallMs": 3217.928,
+      "children": [
+        {
+          "group": 2,
+          "index": 0,
+          "wallMs": 3209.082,
+          "timedOut": false,
+          "code": 0,
+          "signal": null,
+          "stdout": "LJ01 OK 8000 6250 3 6250",
+          "stderr": ""
+        },
+        {
+          "group": 2,
+          "index": 1,
+          "wallMs": 3198.975,
+          "timedOut": false,
+          "code": 0,
+          "signal": null,
+          "stdout": "LJ01 OK 8000 6250 3 6250",
+          "stderr": ""
+        }
+      ]
+    },
+    {
+      "concurrency": 2,
+      "iteration": 1,
+      "groupWallMs": 2750.742,
+      "children": [
+        {
+          "group": 2,
+          "index": 0,
+          "wallMs": 2750.7,
+          "timedOut": false,
+          "code": 0,
+          "signal": null,
+          "stdout": "LJ01 OK 8000 6250 3 6250",
+          "stderr": ""
+        },
+        {
+          "group": 2,
+          "index": 1,
+          "wallMs": 2735.693,
+          "timedOut": false,
+          "code": 0,
+          "signal": null,
+          "stdout": "LJ01 OK 8000 6250 3 6250",
+          "stderr": ""
+        }
+      ]
+    },
+    {
+      "concurrency": 2,
+      "iteration": 2,
+      "groupWallMs": 2685.242,
+      "children": [
+        {
+          "group": 2,
+          "index": 0,
+          "wallMs": 2666.485,
+          "timedOut": false,
+          "code": 0,
+          "signal": null,
+          "stdout": "LJ01 OK 8000 6250 3 6250",
+          "stderr": ""
+        },
+        {
+          "group": 2,
+          "index": 1,
+          "wallMs": 2671.956,
+          "timedOut": false,
+          "code": 0,
+          "signal": null,
+          "stdout": "LJ01 OK 8000 6250 3 6250",
+          "stderr": ""
+        }
+      ]
+    },
+    {
+      "concurrency": 4,
+      "iteration": 0,
+      "groupWallMs": 3460.807,
+      "children": [
+        {
+          "group": 4,
+          "index": 0,
+          "wallMs": 3352.416,
+          "timedOut": false,
+          "code": 0,
+          "signal": null,
+          "stdout": "LJ01 OK 8000 6250 3 6250",
+          "stderr": ""
+        },
+        {
+          "group": 4,
+          "index": 1,
+          "wallMs": 3390.399,
+          "timedOut": false,
+          "code": 0,
+          "signal": null,
+          "stdout": "LJ01 OK 8000 6250 3 6250",
+          "stderr": ""
+        },
+        {
+          "group": 4,
+          "index": 2,
+          "wallMs": 3420.662,
+          "timedOut": false,
+          "code": 0,
+          "signal": null,
+          "stdout": "LJ01 OK 8000 6250 3 6250",
+          "stderr": ""
+        },
+        {
+          "group": 4,
+          "index": 3,
+          "wallMs": 3417.006,
+          "timedOut": false,
+          "code": 0,
+          "signal": null,
+          "stdout": "LJ01 OK 8000 6250 3 6250",
+          "stderr": ""
+        }
+      ]
+    },
+    {
+      "concurrency": 4,
+      "iteration": 1,
+      "groupWallMs": 3089.863,
+      "children": [
+        {
+          "group": 4,
+          "index": 0,
+          "wallMs": 3005.115,
+          "timedOut": false,
+          "code": 0,
+          "signal": null,
+          "stdout": "LJ01 OK 8000 6250 3 6250",
+          "stderr": ""
+        },
+        {
+          "group": 4,
+          "index": 1,
+          "wallMs": 3034.352,
+          "timedOut": false,
+          "code": 0,
+          "signal": null,
+          "stdout": "LJ01 OK 8000 6250 3 6250",
+          "stderr": ""
+        },
+        {
+          "group": 4,
+          "index": 2,
+          "wallMs": 3026.699,
+          "timedOut": false,
+          "code": 0,
+          "signal": null,
+          "stdout": "LJ01 OK 8000 6250 3 6250",
+          "stderr": ""
+        },
+        {
+          "group": 4,
+          "index": 3,
+          "wallMs": 3039.594,
+          "timedOut": false,
+          "code": 0,
+          "signal": null,
+          "stdout": "LJ01 OK 8000 6250 3 6250",
+          "stderr": ""
+        }
+      ]
+    },
+    {
+      "concurrency": 4,
+      "iteration": 2,
+      "groupWallMs": 3261.654,
+      "children": [
+        {
+          "group": 4,
+          "index": 0,
+          "wallMs": 3250.339,
+          "timedOut": false,
+          "code": 0,
+          "signal": null,
+          "stdout": "LJ01 OK 8000 6250 3 6250",
+          "stderr": ""
+        },
+        {
+          "group": 4,
+          "index": 1,
+          "wallMs": 3225.242,
+          "timedOut": false,
+          "code": 0,
+          "signal": null,
+          "stdout": "LJ01 OK 8000 6250 3 6250",
+          "stderr": ""
+        },
+        {
+          "group": 4,
+          "index": 2,
+          "wallMs": 3228.975,
+          "timedOut": false,
+          "code": 0,
+          "signal": null,
+          "stdout": "LJ01 OK 8000 6250 3 6250",
+          "stderr": ""
+        },
+        {
+          "group": 4,
+          "index": 3,
+          "wallMs": 3210.506,
+          "timedOut": false,
+          "code": 0,
+          "signal": null,
+          "stdout": "LJ01 OK 8000 6250 3 6250",
+          "stderr": ""
+        }
+      ]
+    }
+  ],
+  "admissions": [
+    {
+      "request": 0,
+      "disposition": "start",
+      "active": 1,
+      "queued": 0
+    },
+    {
+      "request": 1,
+      "disposition": "start",
+      "active": 2,
+      "queued": 0
+    },
+    {
+      "request": 2,
+      "disposition": "queue",
+      "active": 2,
+      "queued": 1
+    },
+    {
+      "request": 3,
+      "disposition": "queue",
+      "active": 2,
+      "queued": 2
+    },
+    {
+      "request": 4,
+      "disposition": "reject",
+      "active": 2,
+      "queued": 2
+    }
+  ]
+}

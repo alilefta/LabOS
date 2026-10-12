@@ -1,0 +1,363 @@
+Retrieving project…
+{
+  "framework": {
+    "name": "Next.js",
+    "slug": "nextjs"
+  },
+  "basePath": "F:\\Software_Engineering\\Phase 1 Web Development\\Project 7 Freelancer Command Center\\next-projects\\lab-os-project-4\\experiments\\vercel-s001-conformance-20261002-1612-7b82c717\\probe",
+  "fileCount": 38,
+  "totalSize": 104880490,
+  "ignoredCount": 7,
+  "ignored": [
+    ".next",
+    "fixtures\\conformance-manifest.json",
+    "fixtures\\manifest.json",
+    "node_modules",
+    "scripts\\generate-corpus.mjs",
+    "scripts\\local-classify.cjs",
+    "scripts\\run-local.cjs"
+  ],
+  "directories": [
+    {
+      "path": "fixtures",
+      "fileCount": 29,
+      "size": 104788896
+    },
+    {
+      "path": "package-lock.json",
+      "fileCount": 1,
+      "size": 80709
+    },
+    {
+      "path": "app",
+      "fileCount": 1,
+      "size": 4682
+    },
+    {
+      "path": "inspect.ts",
+      "fileCount": 1,
+      "size": 4111
+    },
+    {
+      "path": "tsconfig.json",
+      "fileCount": 1,
+      "size": 657
+    },
+    {
+      "path": "next.config.mjs",
+      "fileCount": 1,
+      "size": 552
+    },
+    {
+      "path": "package.json",
+      "fileCount": 1,
+      "size": 541
+    },
+    {
+      "path": "next-env.d.ts",
+      "fileCount": 1,
+      "size": 295
+    },
+    {
+      "path": ".vercelignore",
+      "fileCount": 1,
+      "size": 47
+    },
+    {
+      "path": "scripts",
+      "fileCount": 1,
+      "size": 0
+    }
+  ],
+  "largestFiles": [
+    {
+      "path": "fixtures/encoded_plus1.jpg",
+      "size": 33554433,
+      "mode": 33206,
+      "sha": "c63e0e96ab87f09a5ec383433a8c396f72befcf1"
+    },
+    {
+      "path": "fixtures/encoded_exact_header.jpg",
+      "size": 33554432,
+      "mode": 33206,
+      "sha": "b931f000a93fc2f53eb517286ab47cb13739a545"
+    },
+    {
+      "path": "fixtures/large_36m_entropy_near_limit.jpg",
+      "size": 27904006,
+      "mode": 33206,
+      "sha": "3766a784db270e901b2c4a2dde162789c7b548c2"
+    },
+    {
+      "path": "fixtures/large_12m_progressive_entropy.jpg",
+      "size": 8355159,
+      "mode": 33206,
+      "sha": "fa46fcfbbc2df673af266a39c5489a7f974c4656"
+    },
+    {
+      "path": "fixtures/valid_height_9000.jpg",
+      "size": 294155,
+      "mode": 33206,
+      "sha": "dd9c06b587f00f2402a9c49e9e293da174d845d0"
+    },
+    {
+      "path": "fixtures/valid_width_9000.jpg",
+      "size": 294155,
+      "mode": 33206,
+      "sha": "37d3058682f1c013a564f08e52423bdba5dd928d"
+    },
+    {
+      "path": "fixtures/large_50m_uniform.jpg",
+      "size": 293519,
+      "mode": 33206,
+      "sha": "3cc38742339bbecddb4f096e075a1982ca56ac71"
+    },
+    {
+      "path": "fixtures/metadata_plus1.jpg",
+      "size": 262502,
+      "mode": 33206,
+      "sha": "d132337d4c913e6ba9e39852b350e44e22df61e5"
+    },
+    {
+      "path": "fixtures/metadata_exact.jpg",
+      "size": 262497,
+      "mode": 33206,
+      "sha": "e5e95449550fc0df1dd27587982dab1010dcc784"
+    },
+    {
+      "path": "package-lock.json",
+      "size": 80709,
+      "mode": 33206,
+      "sha": "ac63df229c578a5753990bedd44cee96ce50c2cf"
+    }
+  ],
+  "files": [
+    {
+      "path": ".vercelignore",
+      "size": 47,
+      "mode": 33206,
+      "sha": "df6baa0084d23f50d465089ae5039a6b15fa8612"
+    },
+    {
+      "path": "app/api/conformance/route.ts",
+      "size": 4682,
+      "mode": 33206,
+      "sha": "6173fd2a50d600c74b7c8bf9ea2b595e45dcfbf7"
+    },
+    {
+      "path": "fixtures/baseline.jpg",
+      "size": 333,
+      "mode": 33206,
+      "sha": "4a504357517a5f6ab0a61413ccea5b67f7494113"
+    },
+    {
+      "path": "fixtures/concatenated.jpg",
+      "size": 666,
+      "mode": 33206,
+      "sha": "d0668c18ff28b3a3fbf656dca490c4cbca78796c"
+    },
+    {
+      "path": "fixtures/corrupt_entropy.jpg",
+      "size": 333,
+      "mode": 33206,
+      "sha": "10701b5d296e59b878cb6b0e214a2cbafe25e23c"
+    },
+    {
+      "path": "fixtures/encoded_exact_header.jpg",
+      "size": 33554432,
+      "mode": 33206,
+      "sha": "b931f000a93fc2f53eb517286ab47cb13739a545"
+    },
+    {
+      "path": "fixtures/encoded_plus1.jpg",
+      "size": 33554433,
+      "mode": 33206,
+      "sha": "c63e0e96ab87f09a5ec383433a8c396f72befcf1"
+    },
+    {
+      "path": "fixtures/grayscale.jpg",
+      "size": 336,
+      "mode": 33206,
+      "sha": "3ebc66697aac560c25fda159e34bb90cc06afac2"
+    },
+    {
+      "path": "fixtures/height_9000_header.jpg",
+      "size": 333,
+      "mode": 33206,
+      "sha": "4a82965e2aafdd575d1e6fb721d2cf6fcafb8684"
+    },
+    {
+      "path": "fixtures/height_9001.jpg",
+      "size": 333,
+      "mode": 33206,
+      "sha": "00a986507254f3bc8b958d637d32a449081b9bf4"
+    },
+    {
+      "path": "fixtures/large_12m_progressive_entropy.jpg",
+      "size": 8355159,
+      "mode": 33206,
+      "sha": "fa46fcfbbc2df673af266a39c5489a7f974c4656"
+    },
+    {
+      "path": "fixtures/large_36m_entropy_near_limit.jpg",
+      "size": 27904006,
+      "mode": 33206,
+      "sha": "3766a784db270e901b2c4a2dde162789c7b548c2"
+    },
+    {
+      "path": "fixtures/large_50m_uniform.jpg",
+      "size": 293519,
+      "mode": 33206,
+      "sha": "3cc38742339bbecddb4f096e075a1982ca56ac71"
+    },
+    {
+      "path": "fixtures/metadata_exact.jpg",
+      "size": 262497,
+      "mode": 33206,
+      "sha": "e5e95449550fc0df1dd27587982dab1010dcc784"
+    },
+    {
+      "path": "fixtures/metadata_plus1.jpg",
+      "size": 262502,
+      "mode": 33206,
+      "sha": "d132337d4c913e6ba9e39852b350e44e22df61e5"
+    },
+    {
+      "path": "fixtures/missing_eoi.jpg",
+      "size": 331,
+      "mode": 33206,
+      "sha": "1c38d80319adaf133bd8e976426b2cf6110bcee1"
+    },
+    {
+      "path": "fixtures/pixels_50m_header.jpg",
+      "size": 333,
+      "mode": 33206,
+      "sha": "e80c1d8481a798fbfc89743a19a8f5626bb3dbee"
+    },
+    {
+      "path": "fixtures/pixels_50m_plus1.jpg",
+      "size": 333,
+      "mode": 33206,
+      "sha": "f0773e3f573a988970dfc9bc606eeeb6e4e24970"
+    },
+    {
+      "path": "fixtures/premature_eoi.jpg",
+      "size": 313,
+      "mode": 33206,
+      "sha": "b1473b469d159b443c6e93a4b8fe835196e61c4d"
+    },
+    {
+      "path": "fixtures/progressive.jpg",
+      "size": 562,
+      "mode": 33206,
+      "sha": "91a7dc8521e6c2cec349766f09c4c67af8a0fee6"
+    },
+    {
+      "path": "fixtures/scans_128_header.jpg",
+      "size": 1742,
+      "mode": 33206,
+      "sha": "c1d3e2e59b0e9c88834a7c14c6fb811b87290717"
+    },
+    {
+      "path": "fixtures/scans_129.jpg",
+      "size": 1752,
+      "mode": 33206,
+      "sha": "22d668aa87ae915578701b10e6a39da606ad744e"
+    },
+    {
+      "path": "fixtures/segments_exact.jpg",
+      "size": 2349,
+      "mode": 33206,
+      "sha": "c65e48c6a1bd76eba0eea74790502365bc1da652"
+    },
+    {
+      "path": "fixtures/segments_plus1.jpg",
+      "size": 2353,
+      "mode": 33206,
+      "sha": "7a2ca3842224b7795a1dcc3f90191b1ba2275e96"
+    },
+    {
+      "path": "fixtures/short_entropy_eoi.jpg",
+      "size": 303,
+      "mode": 33206,
+      "sha": "def999859383a8694f21f4f80f5f611d50cbc59f"
+    },
+    {
+      "path": "fixtures/trailing_bytes.jpg",
+      "size": 336,
+      "mode": 33206,
+      "sha": "ca0e15797fdc7a25472a2f831802ace60a754c08"
+    },
+    {
+      "path": "fixtures/truncated.jpg",
+      "size": 331,
+      "mode": 33206,
+      "sha": "1c38d80319adaf133bd8e976426b2cf6110bcee1"
+    },
+    {
+      "path": "fixtures/valid_height_9000.jpg",
+      "size": 294155,
+      "mode": 33206,
+      "sha": "dd9c06b587f00f2402a9c49e9e293da174d845d0"
+    },
+    {
+      "path": "fixtures/valid_width_9000.jpg",
+      "size": 294155,
+      "mode": 33206,
+      "sha": "37d3058682f1c013a564f08e52423bdba5dd928d"
+    },
+    {
+      "path": "fixtures/width_9000_header.jpg",
+      "size": 333,
+      "mode": 33206,
+      "sha": "d743553e64f47778daa52fe40c801f8e6fb91251"
+    },
+    {
+      "path": "fixtures/width_9001.jpg",
+      "size": 333,
+      "mode": 33206,
+      "sha": "244125a5ebd31219f785384cbb69af041c759a33"
+    },
+    {
+      "path": "inspect.ts",
+      "size": 4111,
+      "mode": 33206,
+      "sha": "194b1ea50c73b7babbad56aeb0c07e93254170a2"
+    },
+    {
+      "path": "next-env.d.ts",
+      "size": 295,
+      "mode": 33206,
+      "sha": "d3fc80b7fae627e01dce199d12132aa4fc32d773"
+    },
+    {
+      "path": "next.config.mjs",
+      "size": 552,
+      "mode": 33206,
+      "sha": "b80740f6acff890f4b09da88e76399feeb0b1777"
+    },
+    {
+      "path": "package-lock.json",
+      "size": 80709,
+      "mode": 33206,
+      "sha": "ac63df229c578a5753990bedd44cee96ce50c2cf"
+    },
+    {
+      "path": "package.json",
+      "size": 541,
+      "mode": 33206,
+      "sha": "a75cfe809e997f68a721ec335dab4e9adcf64ed8"
+    },
+    {
+      "path": "scripts",
+      "size": 0,
+      "mode": 16822
+    },
+    {
+      "path": "tsconfig.json",
+      "size": 657,
+      "mode": 33206,
+      "sha": "8f4dbb2d15075b04fe357e62f04f4d4dbba470bf"
+    }
+  ]
+}

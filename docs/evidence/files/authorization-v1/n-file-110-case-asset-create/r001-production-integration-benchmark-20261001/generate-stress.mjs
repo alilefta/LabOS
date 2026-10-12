@@ -1,0 +1,5 @@
+import { createRequire } from 'node:module';import{randomBytes}from'node:crypto';import{writeFile}from'node:fs/promises';import{join}from'node:path';import{pathToFileURL}from'node:url';
+const [run,repo]=process.argv.slice(2);const req=createRequire(join(repo,'package.json'));const sharp=createRequire(req.resolve('next/package.json'))('sharp');const{inspectJpeg}=await import(pathToFileURL(join(repo,'scripts/authorization/files/jpeg-r001/inspect.mjs')));const limits={maxSegmentCount:512,maxProgressiveScans:128};
+for(const x of [{id:'entropy-progressive-50mp-q70',w:8000,h:6250,q:70,progressive:true},{id:'near-32mib-q92',w:6000,h:6000,q:92,progressive:false}]){
+ const raw=randomBytes(x.w*x.h*3);const bytes=await sharp(raw,{raw:{width:x.w,height:x.h,channels:3}}).jpeg({quality:x.q,progressive:x.progressive}).toBuffer();let fact;try{fact=inspectJpeg(bytes,limits)}catch(e){fact={error:e.message}};if(!fact.error)await writeFile(join(run,x.id+'.jpg'),bytes);console.log(JSON.stringify({id:x.id,encodedBytes:bytes.length,limit:33554432,inspection:fact}));
+}

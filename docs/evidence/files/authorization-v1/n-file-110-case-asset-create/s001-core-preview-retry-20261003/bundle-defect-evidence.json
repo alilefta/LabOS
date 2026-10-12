@@ -1,0 +1,10 @@
+{
+  "localNextVersion": "16.3.3",
+  "bundleSha256": "c736eaef3b934bfef9d525da26bc40334dbf2a8cb7662d0129c5c8f9659ca732",
+  "compiledPackageEntry": "packageEntry:()=>1930",
+  "compiledDirnameOfEntry": true,
+  "productionIdentitySha256": "8f44ad94a6362d30b17360f7cef90a75df9b915006acd9e7ec207f381c273145",
+  "harnessIdentitySha256": "8f44ad94a6362d30b17360f7cef90a75df9b915006acd9e7ec207f381c273145",
+  "localPreviewCoreOutcome": "rejected",
+  "deploymentCoreOutcome": "rejected"
+}

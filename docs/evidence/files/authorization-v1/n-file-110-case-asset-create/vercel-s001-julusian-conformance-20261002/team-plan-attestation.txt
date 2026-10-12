@@ -1,0 +1,1 @@
+Vercel CLI 62.1.0 teams ls, read-only: ali-leftas-projects / Ali Lefta's projects / hobby. No plan setting was changed.

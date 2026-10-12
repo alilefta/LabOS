@@ -1,0 +1,47 @@
+Retrieving project…
+Deploying ali-leftas-projects/labos-s001-probe-20261002-1504-7c2f
+  Inspect         https://vercel.com/ali-leftas-projects/labos-s001-probe-20261002-1504-7c2f/6Gt32K4eBNUCAsK2EVG9dpyDAhpa
+▲ Production      https://labos-s001-probe-20261002-1504-7c2f-o1bhf9kst.vercel.app
+Building…
+[2K[1A[2K[G▲ Production      https://labos-s001-probe-20261002-1504-7c2f-o1bhf9kst.vercel.app
+Completing…
+▲ Aliased         https://labos-s001-probe-20261002-1504-7c2f-ali-leftas-projects.vercel.app
+{
+  "status": "ok",
+  "deployment": {
+    "id": "dpl_6Gt32K4eBNUCAsK2EVG9dpyDAhpa",
+    "url": "https://labos-s001-probe-20261002-1504-7c2f-o1bhf9kst.vercel.app",
+    "productionUrl": "https://labos-s001-probe-20261002-1504-7c2f-ali-leftas-projects.vercel.app",
+    "inspectorUrl": "https://vercel.com/ali-leftas-projects/labos-s001-probe-20261002-1504-7c2f/6Gt32K4eBNUCAsK2EVG9dpyDAhpa",
+    "readyState": "READY",
+    "target": "production",
+    "deploymentApiUrl": "https://api.vercel.com/v13/deployments/dpl_6Gt32K4eBNUCAsK2EVG9dpyDAhpa",
+    "buildMachine": {
+      "machine": "basic",
+      "selectionType": "fixed",
+      "selectionSource": "plan-default"
+    },
+    "deploymentProtection": [
+      "vercel_authentication"
+    ]
+  },
+  "message": "Deployment labos-s001-probe-20261002-1504-7c2f-o1bhf9kst.vercel.app ready. Production URL: https://labos-s001-probe-20261002-1504-7c2f-ali-leftas-projects.vercel.app",
+  "next": [
+    {
+      "command": "vercel git connect --scope ali-leftas-projects --project prj_cTfFohQ26Lzv34zFPvDbwwBDwEzJ",
+      "when": "Automatically deploy changes on every push"
+    },
+    {
+      "command": "vercel curl https://labos-s001-probe-20261002-1504-7c2f-ali-leftas-projects.vercel.app",
+      "when": "Verify deployment, including when Deployment Protection is enabled"
+    },
+    {
+      "command": "vercel inspect labos-s001-probe-20261002-1504-7c2f-o1bhf9kst.vercel.app --scope ali-leftas-projects",
+      "when": "Inspect deployment"
+    },
+    {
+      "command": "vercel deploy --prod --scope ali-leftas-projects",
+      "when": "Promote to production"
+    }
+  ]
+}

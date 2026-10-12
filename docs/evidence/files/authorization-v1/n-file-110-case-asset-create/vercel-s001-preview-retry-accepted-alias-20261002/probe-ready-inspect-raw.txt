@@ -1,0 +1,42 @@
+Vercel CLI 62.1.0 (Node.js 24.21.0)
+Fetching deployment "dpl_FJp2ad7QQmFNqt5rAreTvNcb1qpL" in ali-leftas-projects
+> Fetched deployment "labos-s001-probe-20261002-1526-a84e-lwis5avjm.vercel.app" in ali-leftas-projects [1s]
+
+  General
+
+    id		dpl_FJp2ad7QQmFNqt5rAreTvNcb1qpL
+    name	labos-s001-probe-20261002-1526-a84e
+    target	preview
+    status	● Ready
+    url		https://labos-s001-probe-20261002-1526-a84e-lwis5avjm.vercel.app
+    created	Fri Oct 02 2026 15:37:49 GMT+0300 (Arabian Standard Time) [2m ago]
+
+
+  Build Machine
+
+    requested build machine basic
+    actual assigned cores   2 vCPU (actual assignment)
+    memory                  8192 MiB
+    selection type          fixed
+    selection source        plan-default
+
+
+  Duration
+
+    build duration	32s
+    post-build duration	unavailable
+    billable duration	unavailable
+    CPU Minutes Usage	unavailable
+
+
+  Builds
+
+    ┌ .        [0ms]
+    ├── λ _global-error (548.01KB) [iad1]
+    ├── λ _global-error.rsc (548.01KB) [iad1]
+    ├── λ _global-error.segments/__PAGE__.segment.rsc (548.01KB) [iad1]
+    ├── λ _global-error.segments/_full.segment.rsc (548.01KB) [iad1]
+    ├── λ _global-error.segments/_tree.segment.rsc (548.01KB) [iad1]
+    └── 4 output items hidden
+    
+

@@ -1,0 +1,16 @@
+Loaded Prisma config from prisma.config.ts.
+
+Prisma schema loaded from prisma\schema.prisma.
+Datasource "db": PostgreSQL database "s001_success_5c987b49", schema "public" at "127.0.0.1:55438"
+
+51 migrations found in prisma/migrations
+
+Applying migration `20261002120000_case_s001_evidence_identity`
+
+The following migration(s) have been applied:
+
+migrations/
+  └─ 20261002120000_case_s001_evidence_identity/
+    └─ migration.sql
+
+All migrations have been successfully applied.

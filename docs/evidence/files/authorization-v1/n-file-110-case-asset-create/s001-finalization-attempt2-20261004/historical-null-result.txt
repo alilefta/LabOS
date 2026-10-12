@@ -1,0 +1,6 @@
+Timing is on.
+Null display is "NULL".
+Expanded display is used automatically.
+psql:docs/evidence/files/authorization-v1/n-file-110-case-asset-create/s001-finalization-attempt2-20261004/historical-null-attempt.sql:1: ERROR:  Case clinical evidence does not match a live reserved grant
+CONTEXT:  PL/pgSQL function "CaseClinicalUploadEvidence_validate_grant"() line 26 at RAISE
+Time: 24.099 ms

@@ -1,0 +1,11 @@
+Loaded Prisma config from experiments\s001-pg-corrected-20261003-010312-5c987b49\failed-install.config.ts.
+
+Prisma schema loaded from experiments\s001-pg-corrected-20261003-010312-5c987b49\failed-install\schema.prisma.
+Datasource "db": PostgreSQL database "s001_rollback_5c987b49", schema "public" at "127.0.0.1:55438"
+
+51 migrations found in prisma/migrations
+
+Applying migration `20261002120000_case_s001_evidence_identity`
+Error: ERROR: current transaction is aborted, commands ignored until end of transaction block
+
+

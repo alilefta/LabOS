@@ -1,0 +1,11 @@
+{
+  "operation": "deploy",
+  "at": "2026-09-30T18:25:29.125Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "Datasource \"db\": PostgreSQL database \"postgres\", schema \"public\" at \"[development-host]:5432\"\n\n50 migrations found in prisma/migrations\n\nApplying migration `20260929120000_case_public_provider_access_contract`\n\nThe following migration(s) have been applied:\n\nmigrations/\n  └─ 20260929120000_case_public_provider_access_contract/\n    └─ migration.sql\n\nAll migrations have been successfully applied.\n",
+  "stderr": "Loaded Prisma config from prisma\\.case-public-dev-execution-20260930\\config.ts.\n\nPrisma schema loaded from prisma\\schema.prisma.\n",
+  "candidate": "20260929120000_case_public_provider_access_contract",
+  "candidateSha256": "a4d3cf3aa49a8ac910cb173d3c6a1050b128a2cd5aad3c51718fa04fed81b668",
+  "canonicalLfChainMatched": 50
+}

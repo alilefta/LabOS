@@ -1,0 +1,22 @@
+Loaded Prisma config from experiments\s001-pg-20261002-212127-1cc93c10\failed-install.config.ts.
+
+Prisma schema loaded from experiments\s001-pg-20261002-212127-1cc93c10\failed-install\schema.prisma.
+Datasource "db": PostgreSQL database "s001_rollback_1cc93c10", schema "public" at "127.0.0.1:55437"
+
+51 migrations found in prisma/migrations
+
+Applying migration `20261002120000_case_s001_evidence_identity`
+Error: P3018
+
+A migration failed to apply. New migrations cannot be applied before the error is recovered from. Read more about how to resolve migration issues in a production database: https://pris.ly/d/migrate-resolve
+
+Migration name: 20261002120000_case_s001_evidence_identity
+
+Database error code: 22012
+
+Database error:
+ERROR: division by zero
+
+DbError { severity: "ERROR", parsed_severity: Some(Error), code: SqlState(E22012), message: "division by zero", detail: None, hint: None, position: None, where_: None, schema: None, table: None, column: None, datatype: None, constraint: None, file: Some("int.c"), line: Some(872), routine: Some("int4div") }
+
+

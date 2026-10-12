@@ -1,0 +1,5 @@
+Timing is on.
+Null display is "NULL".
+Expanded display is used automatically.
+s001_rollback_5c987b49|0|0|0|15|3|50|0|1
+Time: 23.558 ms

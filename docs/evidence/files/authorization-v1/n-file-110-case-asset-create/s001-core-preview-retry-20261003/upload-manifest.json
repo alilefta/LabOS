@@ -1,0 +1,88 @@
+{
+  "framework": "Next.js",
+  "fileCount": 16,
+  "totalSize": 98789,
+  "ignoredCount": 2,
+  "files": [
+    {
+      "path": ".vercelignore",
+      "size": 42,
+      "sha": "6bd99a165c1983e3c3ec2adc3f52c3f3ec146d27"
+    },
+    {
+      "path": "app/api/probe/route.ts",
+      "size": 2978,
+      "sha": "39276840061475d3a9cd4459cbb7f1e335e62ef8"
+    },
+    {
+      "path": "fixtures/baseline.jpg",
+      "size": 333,
+      "sha": "4a504357517a5f6ab0a61413ccea5b67f7494113"
+    },
+    {
+      "path": "fixtures/grayscale.jpg",
+      "size": 336,
+      "sha": "3ebc66697aac560c25fda159e34bb90cc06afac2"
+    },
+    {
+      "path": "fixtures/progressive.jpg",
+      "size": 562,
+      "sha": "91a7dc8521e6c2cec349766f09c4c67af8a0fee6"
+    },
+    {
+      "path": "fixtures/short_entropy_eoi.jpg",
+      "size": 303,
+      "sha": "def999859383a8694f21f4f80f5f611d50cbc59f"
+    },
+    {
+      "path": "fixtures/trailing_bytes.jpg",
+      "size": 336,
+      "sha": "ca0e15797fdc7a25472a2f831802ace60a754c08"
+    },
+    {
+      "path": "modules/labos-files/jpeg-r001/inspect.ts",
+      "size": 4111,
+      "sha": "194b1ea50c73b7babbad56aeb0c07e93254170a2"
+    },
+    {
+      "path": "modules/labos-files/jpeg-s001/core.ts",
+      "size": 2976,
+      "sha": "18359ba499c51556c50dd7fb25585963dfa51d14"
+    },
+    {
+      "path": "modules/labos-files/jpeg-s001/identity.ts",
+      "size": 4213,
+      "sha": "80bc97e3a1ccaea04d44b90f69922e28de9e333c"
+    },
+    {
+      "path": "modules/labos-files/jpeg-s001/manifest.ts",
+      "size": 567,
+      "sha": "9e2f23236042e22d9530e09c698e4d7543230613"
+    },
+    {
+      "path": "next-env.d.ts",
+      "size": 295,
+      "sha": "d3fc80b7fae627e01dce199d12132aa4fc32d773"
+    },
+    {
+      "path": "next.config.mjs",
+      "size": 494,
+      "sha": "3f3497e04fdc3c1422d9c16e93b0812590c4c2c9"
+    },
+    {
+      "path": "package-lock.json",
+      "size": 80190,
+      "sha": "a6bcc711b1a3c92201cbe6b5a06b5fa1c3d4953a"
+    },
+    {
+      "path": "package.json",
+      "size": 451,
+      "sha": "e5dee5257b2a62bae9860508fb103caa52c2389a"
+    },
+    {
+      "path": "tsconfig.json",
+      "size": 602,
+      "sha": "dcc4922fa2640c3325250210300df49805da93d9"
+    }
+  ]
+}

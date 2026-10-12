@@ -1,0 +1,10 @@
+{
+  "operation": "status-pre",
+  "at": "2026-10-04T15:19:50.423Z",
+  "exitCode": 1,
+  "signal": null,
+  "stdout": "Datasource \"db\": PostgreSQL database \"postgres\", schema \"public\" at \"[development-host]:5432\"\n\n52 migrations found in prisma/migrations\nFollowing migration have not yet been applied:\n20261004120000_case_checked_suffix_handoff\n\nTo apply migrations in development run prisma migrate dev.\nTo apply migrations in production run prisma migrate deploy.\n",
+  "stderr": "Loaded Prisma config from experiments\\suffix-normal-dev-20261004-181848-e307f1a2\\prisma.config.ts.\n\nPrisma schema loaded from prisma\\schema.prisma.\n",
+  "candidate": "20261004120000_case_checked_suffix_handoff",
+  "candidateHash": "3e150d41429c58d44a902473ff4b9d4fbc4c0d9afb29955e8d124f899e6bd23d"
+}

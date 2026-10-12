@@ -1,0 +1,9 @@
+Timing is on.
+Null display is "NULL".
+Expanded display is used automatically.
+BEGIN
+CREATE TABLE
+INSERT 0 1
+COMMIT
+1
+Time: 23.585 ms

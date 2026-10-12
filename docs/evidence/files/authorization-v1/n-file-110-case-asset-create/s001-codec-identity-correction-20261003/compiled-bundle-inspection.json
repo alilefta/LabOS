@@ -1,0 +1,9 @@
+{
+  "nextVersion": "16.3.3",
+  "chunkSha256": "67cde2b83c236d5a71d94addc504da59f4e6025bef4ff3d6ffacedbeb90a7c2d",
+  "packageEntryAbsent": true,
+  "mappingDerivedRealpath": true,
+  "metadataDerivedFromMappedRoot": true,
+  "numericModuleIdPassedToDirname": false,
+  "compiledExcerpt": "let t=e.load();if(\"function\"!=typeof t.decompressSync||\"number\"!=typeof t.FORMAT_GRAY||\"number\"!=typeof t.FORMAT_RGB)throw Error();let r=await e.readMaps(),a=f(r,\"node-napi-v10.node\"),i=f(r,\"libturbojpeg.so.0\");if(1!==a.length||1!==i.length||!(0,n.isAbsolute)(a[0])||!(0,n.isAbsolute)(i[0])||a[0].endsWith(\" (deleted)\")||i[0].endsWith(\" (deleted)\"))throw Error();let o=(0,n.normalize)(await e.realpath(a[0])),s=(0,n.normalize)(await e.realpath(i[0])),l=(0,n.dirname)(o);if(\"node-napi-v10.node\"!==(0,n.basename)(o)||\"jpeg-turbo-linux-x64\"!==(0,n.basename)(l)||\"prebuilds\"!==(0,n.basename)((0,n.dirname)(l))||s!==(0,n.join)(l,\"libturbojpeg.so.0\"))throw Error();let c=(0,n.dirname)((0,n.dirname)(l)),u=JSON.parse(await e.readFile((0,n.join)(c,\"package.json\"),\"utf8\"));if(\"@julusian/jpeg-turbo\"!==u.name||\"3.0.1\"!==u.version||h(await e.readFile(o))!==d.addonSha256||h(await e.readFile(s))!==d.librarySha256)throw Error();return Object.freeze({codec:t,runtimeSha256:d.libraryS"
+}

@@ -1,8 +1,25 @@
 # Case public-backed persistence and read-contract candidate
 
-Status: additive schema and SQL candidate authored; migration application and runtime activation NOT AUTHORIZED
+Status: additive persistence accepted and installed in normal development; DTO/public-open implementation and runtime activation remain separate gates
 Date: 2026-09-29
-Authority: Product Owner V1 public-backed compatibility decision. This plan does not authorize provider work, application open implementation, migration application, or N-FILE-110 activation.
+Authority: Product Owner V1 public-backed compatibility decision. This plan does not authorize provider work, application open implementation, or N-FILE-110 activation. The normal-development migration was separately authorized and accepted on 2026-09-30.
+
+## Current relationship to R2-00 (2026-10-06)
+
+This document retains the accepted 2026-09-29 UploadThing public-backed
+compatibility contract and exact installed migration. The Product Owner's
+[approved R2 roadmap](uploadthing-r2-migration-repository-review.md) supersedes
+**new N-FILE-110 Case asset creation/opening** toward private object storage;
+it does not relabel existing `PUBLIC_READ` files, rewrite this migration, erase
+historical evidence, or claim that any public provider URL became private.
+`MANAGED_PUBLIC` and `StoredFile.providerAccess` remain truthful persistence for
+historical/public objects. New object-storage Case files, when separately
+implemented and attested, use `PRIVATE` and `MANAGED_PRIVATE`, with fresh
+`case.read` authorization before an opaque short-lived read capability and no
+public fallback. `StoredFileProvider.OBJECT_STORAGE` is planned logical
+backend identity, not an installed value or R2 vendor label. Normal Case DTOs
+continue to omit managed provider keys/URLs. This R2-00 reconciliation is
+documentation only; R2 private runtime, migration and activation are `NOT_RUN`.
 
 ## Settled representation
 
@@ -41,14 +58,14 @@ LabOS authorizes application discovery and opening. UploadThing `public-read` al
 4. DTO tests: complete mixed arrays in detail/draft, managed public/private variants contain no provider fields or URL, legacy display remains; ordinary Case form omission preserves all IDs/versions.
 5. Open-operation tests when separately authorized: authorization precedes provider/file lookup; same-tenant assigned Staff and fixed-bundle non-Staff rules; unauthenticated, foreign, unassigned, unclassified and mismatched denials; no URL in logs/telemetry/metadata, no automatic prefetch, no C3 `ISSUED`, and no public fallback from private mode.
 
-This authoring task establishes no PostgreSQL runtime result and no application/provider activation. Separate V3 SQL review, disposable database verification, normal-development migration approval, application open implementation, and provider/attachment gates follow in bounded tasks.
+The initial authoring task established no PostgreSQL runtime or application/provider activation. The exact candidate later passed independent V3 `CODE/SQL`, [disposable PostgreSQL verification](../../evidence/files/authorization-v1/case-public-provider-access/disposable-runtime-20260930.md), and [normal-development migration application](../../evidence/files/authorization-v1/case-public-provider-access/normal-development-migration-20260930.md) with independent `RUNTIME_EVIDENCE` review. The accepted SQL is installed at SHA-256 `a4d3cf3aa49a8ac910cb173d3c6a1050b128a2cd5aad3c51718fa04fed81b668`. DTO/public-open implementation and provider/attachment gates remain separate.
 
 ## Authoring verification
 
 - Installed Prisma CLI schema validation: PASS. `pnpm exec prisma validate` did not launch the Windows shim; direct invocation of the installed CLI validated the schema.
 - Offline `prisma migrate diff` from a temporary copy of the immediate pre-addition schema to the authored schema produced exactly the added provider-access enum, added `MANAGED_PUBLIC` enum value, and nullable StoredFile column. The temporary copy was removed. Custom trigger SQL is outside Prisma's modelled diff and has not been executed.
 - Installed C2 migration SHA-256 remains `92c6a5d2fa3bf0f22987be5461370116dc87de9a3ec5ba3ea304cc299c8b5b80`; installed Case clinical evidence migration SHA-256 remains `e1892370c147a05eabdd3a8a77e0b30030e0732375e7314eca8e88d657b6a17b`.
-- Current unaccepted candidate SQL SHA-256 is `a4d3cf3aa49a8ac910cb173d3c6a1050b128a2cd5aad3c51718fa04fed81b668`. Recompute after any correction before independent review.
+- At authoring, candidate SQL SHA-256 was `a4d3cf3aa49a8ac910cb173d3c6a1050b128a2cd5aad3c51718fa04fed81b668`; this exact hash later passed review and was installed in normal development.
 - Existing clinical-evidence artifact tests: 5/5 PASS. Tracked authored-file `git diff --check`: PASS (Git reported only line-ending conversion warnings). These checks do not execute the new PostgreSQL triggers.
-- PostgreSQL execution and DTO/open implementation: NOT RUN. SQL trigger behavior requires independent V3 review and a separately authorized disposable runtime gate.
-- Initial independent V3 `CODE` review returned `CORRECTION_REQUIRED` for enum commit ordering and missing current-object evidence enforcement. The first rereview confirmed both corrections and identified a managed-to-legacy URL fallback transition; the candidate now rejects that transition. The final independent rereview was interrupted by reviewer usage limits. `CODE` acceptance remains PENDING; no reviewer `PASS` is claimed.
+- At authoring, PostgreSQL execution and DTO/open implementation were NOT RUN. SQL trigger behavior was later accepted in the separately authorized disposable runtime gate; DTO/open implementation remains NOT RUN.
+- Initial independent V3 `CODE` review returned `CORRECTION_REQUIRED` for enum commit ordering and missing current-object evidence enforcement. The first rereview confirmed both corrections and identified a managed-to-legacy URL fallback transition; the candidate now rejects that transition. The first final rereview was interrupted by reviewer usage limits; the subsequent independent rereview returned `PASS | CODE/SQL` before runtime verification and development application.

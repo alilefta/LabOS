@@ -1,0 +1,35 @@
+[
+  {
+    "iteration": 0,
+    "pid": 4380,
+    "writeMs": 94.712,
+    "killRequested": true,
+    "killToCloseMs": 19.829,
+    "postCloseAlive": false,
+    "stdout": "",
+    "code": null,
+    "signal": "SIGTERM"
+  },
+  {
+    "iteration": 1,
+    "pid": 16804,
+    "writeMs": 67.708,
+    "killRequested": true,
+    "killToCloseMs": 16.238,
+    "postCloseAlive": false,
+    "stdout": "",
+    "code": null,
+    "signal": "SIGTERM"
+  },
+  {
+    "iteration": 2,
+    "pid": 12248,
+    "writeMs": 73.981,
+    "killRequested": true,
+    "killToCloseMs": 21.222,
+    "postCloseAlive": false,
+    "stdout": "",
+    "code": null,
+    "signal": "SIGTERM"
+  }
+]

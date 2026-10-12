@@ -1,0 +1,26 @@
+{
+  "environment": {
+    "platform": "linux",
+    "arch": "x64",
+    "node": "v24.21.0",
+    "napi": "10",
+    "glibc": "2.34",
+    "instance": "082981a31b33"
+  },
+  "memory": {
+    "rssMiB": 215.71,
+    "externalMiB": 133.56,
+    "arrayBuffersMiB": 129.75,
+    "peakRssMiB": 370.67
+  },
+  "artifacts": {
+    "addon": {
+      "present": true,
+      "bytes": 101200
+    },
+    "turbojpeg": {
+      "present": true,
+      "bytes": 1089384
+    }
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "run": "labos-r001-ut-probe-20261001-81178c4bda06",
+  "keyFingerprint": "24f1dbbc9b957482",
+  "before": {
+    "count": 25,
+    "exactKeyPresent": true,
+    "runNamePresent": true
+  },
+  "deleteAcknowledged": true,
+  "after": {
+    "count": 24,
+    "exactKeyPresent": false,
+    "runNamePresent": false
+  },
+  "cleanupVerified": true
+}

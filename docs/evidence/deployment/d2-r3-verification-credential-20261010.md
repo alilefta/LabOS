@@ -1,0 +1,60 @@
+---
+decision_id: D2-R3
+title: Verification-only R2 S3 credential
+status: CLOSED | PASS_WITH_LIMITATIONS | PRODUCT_OWNER_ACCEPTED
+evidence_date: 2026-10-10
+authority: PRODUCT_OWNER_AUTHORIZED | EXACT BUCKET-SCOPED CREDENTIAL ONLY
+---
+
+# D2-R3 — Verification-only R2 S3 credential
+
+## Authority and target
+
+The Product Owner accepted [D2-R2](d2-r2-verification-bucket-isolation-20261009.md) as `CLOSED | PASS CHECKPOINT | VERIFIED_PRIVATE` and authorized exactly one R2 S3 API credential restricted to `labos-r2-verification`. The intended account is the authenticated D2-R2 account (ID prefix `8149`, suffix `1496`); the bucket was verified as Standard, `EEUR` location hint, and `default` jurisdiction. Fresh exact-bucket and token-scope verification is required immediately before issuance. The credential must not reach `labos-r2-development` or have account-wide bucket administration.
+
+## Required permission and compatibility
+
+The accepted [ObjectStorage adapter](../../../modules/labos-files/object-storage/r2.ts) uses S3 `PutObject` with signed `If-None-Match: *`, `HeadObject`, `GetObject`, and `DeleteObject`. Presigning is performed by the server with the same keypair. It does not list objects or administer buckets. Its [configuration binding](../../../modules/labos-files/object-storage/config.ts) needs an account ID, bucket name, Access Key ID, and Secret Access Key; these are infrastructure configuration, not Files domain identity.
+
+Cloudflare's [R2 S3 credential instructions](https://developers.cloudflare.com/r2/get-started/s3/) prescribe **Object Read & Write** with **Apply to specific buckets only**. Its [permission reference](https://developers.cloudflare.com/r2/api/tokens/) describes that class as read, write, and list objects in selected buckets, without bucket administration. Object listing is an unavoidable additional permission in this documented class and is not used by the adapter. The corresponding bucket resource is exactly `com.cloudflare.edge.r2.bucket.<ACCOUNT_ID>_default_labos-r2-verification`; an account resource or bucket wildcard would violate this task. Do not choose Admin Read & Write, Admin Read only, or account-level Workers R2 Storage Write/Read. If the creation interface cannot enforce exactly one selected bucket, stop before issuance.
+
+This permission class is supported by Cloudflare's S3-compatible API, not its REST bucket-management API. Provider metadata can attest the policy and target bucket; no object write, delete, cross-bucket trial, or CORS test is authorized here. The absence of a cross-bucket runtime test must remain an explicit limitation.
+
+## Secret handling and change ledger
+
+Cloudflare displays the Secret Access Key only once. Both key values are bearer credentials. They must be copied directly into a user-controlled password manager or other approved secret store at creation, with no repository file, `.env` file, chat message, screenshot, command line, telemetry, or evidence value. No Vercel environment installation is authorized. Record only a sanitized token name/ID suffix if available, policy metadata, creation time, owner, and revocation path. The Product Owner controls secure retention and later revocation; loss of the one-time secret requires revocation and a separately authorized replacement, not an extra token in this checkpoint.
+
+| Order | Intended or actual action | Purpose and authority | Observed result | Rollback / responsibility |
+| --- | --- | --- | --- | --- |
+| 1 | Read-only permission and adapter inspection. | Confirm minimum provider class before token creation. | Official Cloudflare documentation identifies bucket-specific Object Read & Write; repository adapter requires PUT/HEAD/GET/DELETE and no bucket administration. This is documented capability, not target policy attestation. | No provider change. |
+| 2 | Connected Cloudflare account tools are unavailable in this session; plugin discovery returned no installable Cloudflare result. Browser inventory showed no authenticated tab. | Fresh account/bucket and creation-interface preflight. | `NOT_ATTESTED`; no token creation has been attempted in D2-R3. | Restore authenticated account access or perform the one-time UI credential creation under direct Product Owner control, then verify metadata. |
+| 3 | Product Owner reattached the Cloudflare app. Agent made fresh read-only exact-bucket and account-token metadata requests. | Recheck intended target and whether this connection can inspect the required token policy before issuance. | Exact bucket GET returned `labos-r2-verification`, `Standard`, `EEUR`, `default`. Account-token permission-group and token-list reads both returned Cloudflare `9109: Unauthorized to access requested resource`, including after reattachment. No token-create request was sent. | Account token scope and any newly issued token cannot be attested through this connector. The Product Owner can use the authenticated dashboard and retain the one-time keypair directly, followed by redacted policy evidence; do not broaden this connector solely to bypass the gate. |
+| 4 | Agent opened the Cloudflare dashboard in the in-app browser and observed the sign-in page only. A later browser inspection request was stopped by automatic approval review because its usage limit was reached. | Seek a direct pre-submit scope view without exposing secrets. | Browser account/token settings and any credential values were not viewed or changed. The approval review failure is not a safety verdict. | Do not bypass the failed review. The Product Owner must supply a redacted scope view or the approval pathway must recover. |
+| 5 | Product Owner supplied screenshots of the authenticated Cloudflare R2 Account API Token creation form, before submission. | Inspect the actual permission and bucket controls. | The form offers **Object Read & Write** and **Apply to specific buckets only**, so the required isolation is configurable in this interface. The captured current selections were **Object Read only** and **Apply to all buckets**, which do not satisfy D2-R3. No token submission or key material is visible or attested. | Select Object Read & Write and exactly `labos-r2-verification`; inspect the resulting pre-submit selection before creating the one authorized token. |
+| 6 | Product Owner supplied a corrected pre-submission screenshot of the same token form. | Verify the exact requested scope before issuance. | **Object Read & Write** is selected; **Apply to specific buckets only** is selected; the sole visible bucket chip is `labos-r2-verification`. Both Admin options and account-wide bucket selection are unselected. The token name remains the generic `R2 Account Token`. The screenshot does not show final submission, resulting policy metadata, or credential storage. | Scope is suitable for the authorized single credential. Prefer a descriptive verification-only name for later audit/revocation. Product Owner must retain the one-time keypair directly without sharing it. |
+| 7 | Product Owner reported submitting the form and confirmed that exactly one token was created and both key values were saved directly in a password manager. | Issue the authorized verification-only S3 credential without exposing bearer material. | `ISSUED_USER_ATTESTED`; the key values were not sent to chat or written to repository evidence. The Product Owner reports that the post-creation dashboard summary says the token may read, write, and list objects in specific buckets and names only `labos-r2-verification`. This is Product Owner-reported dashboard evidence, not an independent account-token API response. | Product Owner retains and later revokes the credential through the Cloudflare dashboard. No second token or replacement is authorized by this task. |
+| 8 | Agent retried a read-only account-token list after the Product Owner reported issuance. | Seek independent provider metadata for the effective token policy without using either key. | Cloudflare again returned `9109: Unauthorized to access requested resource`; no token metadata was returned and no provider operation was attempted with the new credential. | Record `POLICY_API_NOT_ATTESTED`; do not treat connector access denial as a token-policy failure or request key disclosure. |
+
+## Open verification claims
+
+- Fresh exact bucket identity: `PASS` for name/class/location/jurisdiction; effective token-creation account identity immediately before issuance: `NOT_RUN`.
+- Creation interface offers Object Read & Write and a specific-bucket selector: `PASS` from Product Owner screenshots. Exact `labos-r2-verification` sole-bucket selection before submission: `PASS` from corrected screenshot. Effective policy after issuance remains `NOT_RUN`.
+- One credential issued and both values securely retained without disclosure to evidence: `USER_ATTESTED` only; the agent did not view the credential-creation response or the password manager.
+- Post-creation Cloudflare dashboard summary names Object Read & Write semantics and only `labos-r2-verification`: `USER_REPORTED`. Provider account-token API metadata, token ID/status, and exact resource policy: `NOT_ATTESTED` because the connected account returns `9109`.
+- Cross-bucket and object-operation runtime tests: `NOT_RUN` by this checkpoint's authority; they cannot be inferred from metadata.
+
+No CORS, Vercel environment-variable, object, database, application or deployment change has occurred under D2-R3. No object writes, reads, or deletion were run with the new keypair. A1-I1 remains `BLOCKED_DECISION`; N-FILE-110 remains inactive.
+
+## Independent pre-issuance review
+
+Independent V3 `PASS | CHECKPOINT` (2026-10-10) after a bounded D2-R2 current-state wording correction. The reviewer confirmed the exact Object Read & Write, single-bucket policy design; the accepted adapter's PUT/HEAD/GET/DELETE and local presigning needs; safe secret-handling boundary; link resolution; and consistent Product Owner D2-R2 closure. The `9109` account-token metadata denial is classified as a `VERIFICATION_ENVIRONMENT_BLOCKER`, not proof of unsupported Cloudflare isolation. This review covered pre-issuance design only. At that point, credential creation, retained secrets, provider policy metadata, and object-operation evidence were `NOT_RUN`; the later Product Owner issuance report and independent rereview are recorded separately below.
+
+## Independent post-issuance review
+
+Independent V3 `PASS | RUNTIME_EVIDENCE + CHECKPOINT` (2026-10-10) for the bounded credential-issuance evidence. The reviewer confirmed that the pre-submit screenshot verifies the selected Object Read & Write and sole verification bucket; issuance, post-create summary, and password-manager retention are accurately attributed to Product Owner report; and the repeated `9109` denial is retained as a verification-environment blocker. No bearer material entered documentation. Effective post-issuance API policy metadata, token status/identifier, cross-bucket denial and object-operation behavior remain `NOT_ATTESTED` or `NOT_RUN` and were not upgraded to PASS. This review supports Product Owner disposition; it does not itself close D2-R3.
+
+## Product Owner acceptance and closure
+
+On 2026-10-10, the Product Owner explicitly accepted D2-R3 as `CLOSED | PASS_WITH_LIMITATIONS`. The accepted credential scope is supported by the corrected pre-submit screenshot and the Product Owner's post-create dashboard summary and secure-retention attestation. The `9109` connector denial leaves effective policy metadata and token status/identifier independently `NOT_ATTESTED`; cross-bucket and object-operation tests remain `NOT_RUN` under this checkpoint's authority. These are retained limitations, not passed checks. The next deployment action requires separate authority; this acceptance does not authorize CORS, secret installation, object operations, Vercel project creation or deployment.
+
+Independent focused V3 `PASS | CHECKPOINT` reviewed the Product Owner closure reconciliation and confirmed that these limitations remain explicit and no successor authority is implied.

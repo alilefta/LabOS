@@ -1,0 +1,24 @@
+PASS exact Case OBJECT_STORAGE grant allocates key
+PASS OBJECT_STORAGE URL insert rejected
+PASS OBJECT_STORAGE URL mutation rejected
+PASS key reassignment rejected
+PASS invalid object key rejected
+PASS non-Case OBJECT_STORAGE grant rejected
+PASS expiry fence initially advances
+PASS expiry fence cannot decrease
+PASS expiry fence cannot clear
+PASS expiry fence cannot become infinite
+PASS allocation cannot be deleted
+PASS allocation cannot be truncated
+PASS allocation identity cannot be reassigned
+PASS terminal grant freezes expiry
+PASS expiry after terminalization rejected
+PASS grant deletion retains key and expiry fence
+PASS permanent key nonreuse after grant deletion
+PASS historical UploadThing URL and nullable key remain accepted
+PASS concurrent exact-key allocation permits one winner
+PASS concurrent expiry extensions retain the maximum
+PASS OBJECT_STORAGE UPLOADED requires non-null durable fence
+PASS OBJECT_STORAGE grant, evidence and StoredFile bind one exact key
+PASS final catalog contains stable backend and no R2 vendor field
+RESULT 23/23 PASS

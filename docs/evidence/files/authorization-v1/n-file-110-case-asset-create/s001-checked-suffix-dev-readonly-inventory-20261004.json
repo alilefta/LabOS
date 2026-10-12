@@ -1,0 +1,24 @@
+{
+  "scope": "read-only normal-development inventory for architecture/backward compatibility; no fixture or data mutation",
+  "target": {
+    "hostnameSha256Prefix": "eb0d823953fe",
+    "port": 5432,
+    "database": "postgres",
+    "schema": "public",
+    "serverVersionNum": "170006",
+    "inRecovery": false
+  },
+  "method": "BEGIN READ ONLY; SELECT grouped boundaryId/purpose/status counts and live-expiry counts from FileUploadGrant; SELECT count from CaseClinicalUploadEvidence; ROLLBACK",
+  "grants": [
+    {
+      "boundaryId": "N-FILE-102",
+      "purpose": "catalog.category.image.create.stage",
+      "status": "UPLOADED",
+      "count": 2,
+      "unexpiredCount": 0
+    }
+  ],
+  "caseGrantCount": 0,
+  "clinicalEvidenceCount": 0,
+  "limitations": "Point-in-time observation only; repeat migration preflight before any future installation. No grant IDs, keys, credentials, or endpoint are retained."
+}

@@ -1,0 +1,10 @@
+{
+  "traceFileCount": 221,
+  "outsideProbeRootCount": 0,
+  "julusianLinuxArtifacts": [
+    "libturbojpeg.so.0",
+    "node-napi-v10.node"
+  ],
+  "sharpLinuxArtifacts": [],
+  "localPlatform": "Win32NT"
+}

@@ -1,0 +1,27 @@
+[
+  {
+    "name": "baseline.jpg",
+    "bytes": 333,
+    "sha256": "92424c818a78b6d385591382f695b01af83ba588b88aa50dcef8faee922ab8bb"
+  },
+  {
+    "name": "grayscale.jpg",
+    "bytes": 336,
+    "sha256": "f1ad8bf61fcde5071b217e85079fe23034fe0fa13c5f99dab2afa7dd3c7dfefd"
+  },
+  {
+    "name": "progressive.jpg",
+    "bytes": 562,
+    "sha256": "f747c09013b7fb2bd5c50b525f0b824513f47282ac0594ad732bf749a8d0bbd8"
+  },
+  {
+    "name": "short_entropy_eoi.jpg",
+    "bytes": 303,
+    "sha256": "8e548cf189b93266959bb3e5f8dc69b557db2c35e683a0b70b37390f854bd438"
+  },
+  {
+    "name": "trailing_bytes.jpg",
+    "bytes": 336,
+    "sha256": "1f7e531fb7bc07c7e5c8eb7f243dc38b285bf265fa4fd13a0d49f4ec91fff0ce"
+  }
+]

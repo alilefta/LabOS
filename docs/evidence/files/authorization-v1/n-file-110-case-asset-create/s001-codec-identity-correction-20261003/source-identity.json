@@ -1,0 +1,53 @@
+{
+  "reference": "s001-byte-core-extraction-20261003/source-identity.json, identity test prehash from s001-validator-code-20261003/source-identity.json",
+  "files": [
+    {
+      "path": "package.json",
+      "preAcceptedSha256": "92cedd74262576820244b2c0065019fe8acee90a7c4af1ddef2e3ede5cf32e26",
+      "postSha256": "92cedd74262576820244b2c0065019fe8acee90a7c4af1ddef2e3ede5cf32e26",
+      "changedInThisGate": false
+    },
+    {
+      "path": "pnpm-lock.yaml",
+      "preAcceptedSha256": "bbcd83ad045062cbe7433006e1cd0dac2c8ae7ddc32f50dbed10b286d688acb6",
+      "postSha256": "bbcd83ad045062cbe7433006e1cd0dac2c8ae7ddc32f50dbed10b286d688acb6",
+      "changedInThisGate": false
+    },
+    {
+      "path": "modules/labos-files/jpeg-s001/identity.ts",
+      "preAcceptedSha256": "8f44ad94a6362d30b17360f7cef90a75df9b915006acd9e7ec207f381c273145",
+      "postSha256": "097540279c91860725ac0d75348fcb4ae0ca4675d1f6f47704a252ae5ebb587e",
+      "changedInThisGate": true
+    },
+    {
+      "path": "modules/labos-files/jpeg-s001/manifest.ts",
+      "preAcceptedSha256": "59a2abc0307ed184b71cf15fe172693d1a17f561538a0a0e7878bf0e5c3c66aa",
+      "postSha256": "59a2abc0307ed184b71cf15fe172693d1a17f561538a0a0e7878bf0e5c3c66aa",
+      "changedInThisGate": false
+    },
+    {
+      "path": "modules/labos-files/jpeg-s001/core.ts",
+      "preAcceptedSha256": "d08ed2971351e7fa0460a33a051a590552986d81a7ce9b1edc2f38c1b1925cf3",
+      "postSha256": "d08ed2971351e7fa0460a33a051a590552986d81a7ce9b1edc2f38c1b1925cf3",
+      "changedInThisGate": false
+    },
+    {
+      "path": "next.config.ts",
+      "preAcceptedSha256": "8fe8e9064af32c1e3e1e7a5778e2f2de49082f448ccb305bb11d5a1b75e714af",
+      "postSha256": "8fe8e9064af32c1e3e1e7a5778e2f2de49082f448ccb305bb11d5a1b75e714af",
+      "changedInThisGate": false
+    },
+    {
+      "path": "tests/unit/modules/labos-files/jpeg-s001/identity.test.ts",
+      "preAcceptedSha256": "796ef2282ef0a3a82464dc4082feb890780941c07cae680f8a0c44a2e7804621",
+      "postSha256": "472c088152f314acfa4a7a384ac8d14f02c768ff7607bfc5c784716a4109f132",
+      "changedInThisGate": true
+    },
+    {
+      "path": "tests/unit/modules/labos-files/jpeg-s001/identity-cache.test.ts",
+      "preAcceptedSha256": null,
+      "postSha256": "2794616c7c64367488ec5f9825ea802957a4c62795742a5edebf8692470a7c13",
+      "changedInThisGate": true
+    }
+  ]
+}

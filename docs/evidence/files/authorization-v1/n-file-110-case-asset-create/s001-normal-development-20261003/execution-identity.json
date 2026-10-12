@@ -1,0 +1,10 @@
+{
+  "runRoot": "F:\\Software_Engineering\\Phase 1 Web Development\\Project 7 Freelancer Command Center\\next-projects\\lab-os-project-4\\experiments\\s001-normal-dev-20261003-a268a52b",
+  "migrationRoot": "F:\\Software_Engineering\\Phase 1 Web Development\\Project 7 Freelancer Command Center\\next-projects\\lab-os-project-4\\experiments\\s001-normal-dev-20261003-a268a52b\\migrations",
+  "config": "F:\\Software_Engineering\\Phase 1 Web Development\\Project 7 Freelancer Command Center\\next-projects\\lab-os-project-4\\experiments\\s001-normal-dev-20261003-a268a52b\\prisma.config.ts",
+  "runName": "s001-normal-dev-20261003-a268a52b",
+  "candidate": "20261002120000_case_s001_evidence_identity",
+  "candidateHash": "c322412de3c40f697407ce74a062afb797b2554a98fa5e8393e1c4bfe8c8bb88",
+  "canonicalLfFiles": 51,
+  "createdAt": "2026-10-03T07:59:37.707Z"
+}

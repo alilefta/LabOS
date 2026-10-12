@@ -1,0 +1,10 @@
+BEGIN;
+INSERT INTO "AuthUser" (id,name,email,"updatedAt") VALUES ('suffix-user','Synthetic','suffix@example.invalid',now());
+INSERT INTO organization (id,name,slug,"createdAt") VALUES ('suffix-org','Synthetic','suffix-org',now());
+INSERT INTO "Lab" (id,title,"organizationId","updatedAt") VALUES ('suffix-lab','Synthetic','suffix-org',now());
+INSERT INTO member (id,"organizationId","userId",role,"createdAt") VALUES ('suffix-member','suffix-org','suffix-user','owner',now());
+INSERT INTO "Patient" (id,name,"labId","updatedAt") VALUES ('suffix-patient','Synthetic','suffix-lab',now());
+INSERT INTO "Case" (id,"patientId","labId","caseNumber","updatedAt") VALUES ('suffix-case','suffix-patient','suffix-lab','SUFFIX-1',now());
+INSERT INTO "FileUploadGrant" (id,"organizationId","labId","createdByMemberId","boundaryId",purpose,"targetType","targetId",provider,"providerFileKey","correlationId","createdAt","updatedAt","expiresAt") VALUES ('suffix-old-case','suffix-org','suffix-lab','suffix-member','N-FILE-110','case.asset.add.stage','case','suffix-case','UPLOADTHING','suffix-old-object','old-case',(now() at time zone 'UTC')-interval '1 minute',(now() at time zone 'UTC'),(now() at time zone 'UTC')+interval '1 hour');
+INSERT INTO "FileUploadGrant" (id,"organizationId","labId","createdByMemberId","boundaryId",purpose,"targetType","targetId",provider,"correlationId","createdAt","updatedAt","expiresAt") VALUES ('suffix-noncase','suffix-org','suffix-lab','suffix-member','N-FILE-102','catalog.image.create.stage','catalog','catalog-synthetic','UPLOADTHING','noncase',(now() at time zone 'UTC')-interval '1 minute',(now() at time zone 'UTC'),(now() at time zone 'UTC')+interval '1 hour');
+COMMIT;

@@ -1,0 +1,231 @@
+{
+  "limits": {
+    "maxSegmentCount": 512,
+    "maxProgressiveScans": 128
+  },
+  "entries": [
+    {
+      "id": "baseline-small",
+      "path": "C:\\Users\\alnaseem\\AppData\\Local\\Temp\\labos-r001-archbench-20261001-d3ffcab0ddd1\\baseline-small.jpg",
+      "encodedBytes": 2069,
+      "provenance": "run-generated uniform RGB",
+      "inspection": {
+        "status": "ACCEPT",
+        "width": 640,
+        "height": 480,
+        "pixels": 307200,
+        "components": 3,
+        "progressive": false,
+        "segments": 8,
+        "scans": 1,
+        "metadataBytes": 0
+      }
+    },
+    {
+      "id": "progressive-small",
+      "path": "C:\\Users\\alnaseem\\AppData\\Local\\Temp\\labos-r001-archbench-20261001-d3ffcab0ddd1\\progressive-small.jpg",
+      "encodedBytes": 2311,
+      "provenance": "run-generated uniform RGB",
+      "inspection": {
+        "status": "ACCEPT",
+        "width": 640,
+        "height": 480,
+        "pixels": 307200,
+        "components": 3,
+        "progressive": true,
+        "segments": 23,
+        "scans": 10,
+        "metadataBytes": 0
+      }
+    },
+    {
+      "id": "grayscale",
+      "path": "C:\\Users\\alnaseem\\AppData\\Local\\Temp\\labos-r001-archbench-20261001-d3ffcab0ddd1\\grayscale.jpg",
+      "encodedBytes": 12049,
+      "provenance": "run-generated PGM through pinned cjpeg",
+      "inspection": {
+        "status": "ACCEPT",
+        "width": 1000,
+        "height": 1000,
+        "pixels": 1000000,
+        "components": 1,
+        "progressive": false,
+        "segments": 6,
+        "scans": 1,
+        "metadataBytes": 14
+      }
+    },
+    {
+      "id": "near-50mp-baseline",
+      "path": "C:\\Users\\alnaseem\\AppData\\Local\\Temp\\labos-r001-archbench-20261001-d3ffcab0ddd1\\near-50mp-baseline.jpg",
+      "encodedBytes": 294155,
+      "provenance": "run-generated uniform RGB",
+      "inspection": {
+        "status": "ACCEPT",
+        "width": 9000,
+        "height": 5555,
+        "pixels": 49995000,
+        "components": 3,
+        "progressive": false,
+        "segments": 8,
+        "scans": 1,
+        "metadataBytes": 0
+      }
+    },
+    {
+      "id": "near-50mp-progressive",
+      "path": "C:\\Users\\alnaseem\\AppData\\Local\\Temp\\labos-r001-archbench-20261001-d3ffcab0ddd1\\near-50mp-progressive.jpg",
+      "encodedBytes": 294705,
+      "provenance": "run-generated uniform RGB",
+      "inspection": {
+        "status": "ACCEPT",
+        "width": 5555,
+        "height": 9000,
+        "pixels": 49995000,
+        "components": 3,
+        "progressive": true,
+        "segments": 23,
+        "scans": 10,
+        "metadataBytes": 0
+      }
+    },
+    {
+      "id": "entropy-progressive-25mp",
+      "path": "C:\\Users\\alnaseem\\AppData\\Local\\Temp\\labos-r001-archbench-20261001-d3ffcab0ddd1\\entropy-progressive-25mp.jpg",
+      "encodedBytes": 17409516,
+      "provenance": "run-generated cryptographic random RGB; bounded 75MB raw",
+      "inspection": {
+        "status": "ACCEPT",
+        "width": 5000,
+        "height": 5000,
+        "pixels": 25000000,
+        "components": 3,
+        "progressive": true,
+        "segments": 23,
+        "scans": 10,
+        "metadataBytes": 0
+      }
+    },
+    {
+      "id": "near-32mib-q85",
+      "path": "C:\\Users\\alnaseem\\AppData\\Local\\Temp\\labos-r001-archbench-20261001-d3ffcab0ddd1\\near-32mib-q85.jpg",
+      "encodedBytes": 25649942,
+      "provenance": "run-generated cryptographic random RGB; bounded 108MB raw",
+      "inspection": {
+        "status": "ACCEPT",
+        "width": 6000,
+        "height": 6000,
+        "pixels": 36000000,
+        "components": 3,
+        "progressive": false,
+        "segments": 8,
+        "scans": 1,
+        "metadataBytes": 0
+      }
+    },
+    {
+      "id": "near-32mib-q90",
+      "path": "C:\\Users\\alnaseem\\AppData\\Local\\Temp\\labos-r001-archbench-20261001-d3ffcab0ddd1\\near-32mib-q90.jpg",
+      "encodedBytes": 29665953,
+      "provenance": "run-generated cryptographic random RGB; bounded 108MB raw",
+      "inspection": {
+        "status": "ACCEPT",
+        "width": 6000,
+        "height": 6000,
+        "pixels": 36000000,
+        "components": 3,
+        "progressive": false,
+        "segments": 8,
+        "scans": 1,
+        "metadataBytes": 0
+      }
+    },
+    {
+      "id": "near-32mib-q95",
+      "encodedBytes": 36524068,
+      "provenance": "generation exceeded R001 ceiling; not retained",
+      "inspection": {
+        "status": "REJECT",
+        "reason": "encoded bytes exceeded"
+      }
+    },
+    {
+      "id": "metadata-262144",
+      "path": "C:\\Users\\alnaseem\\AppData\\Local\\Temp\\labos-r001-archbench-20261001-d3ffcab0ddd1\\metadata-262144.jpg",
+      "encodedBytes": 264233,
+      "provenance": "run-generated COM payload equality",
+      "inspection": {
+        "status": "ACCEPT",
+        "width": 640,
+        "height": 480,
+        "pixels": 307200,
+        "components": 3,
+        "progressive": false,
+        "segments": 13,
+        "scans": 1,
+        "metadataBytes": 262144
+      }
+    },
+    {
+      "id": "segments-512",
+      "path": "C:\\Users\\alnaseem\\AppData\\Local\\Temp\\labos-r001-archbench-20261001-d3ffcab0ddd1\\segments-512.jpg",
+      "encodedBytes": 4085,
+      "provenance": "run-generated COM structural segment equality",
+      "inspection": {
+        "status": "ACCEPT",
+        "width": 640,
+        "height": 480,
+        "pixels": 307200,
+        "components": 3,
+        "progressive": false,
+        "segments": 512,
+        "scans": 1,
+        "metadataBytes": 0
+      }
+    },
+    {
+      "id": "missing-eoi",
+      "path": "C:\\Users\\alnaseem\\AppData\\Local\\Temp\\labos-r001-archbench-20261001-d3ffcab0ddd1\\missing-eoi.jpg",
+      "encodedBytes": 2067,
+      "provenance": "run-mutated synthetic",
+      "inspection": {
+        "status": "REJECT",
+        "reason": "truncated entropy"
+      }
+    },
+    {
+      "id": "shortened-entropy-eoi",
+      "path": "C:\\Users\\alnaseem\\AppData\\Local\\Temp\\labos-r001-archbench-20261001-d3ffcab0ddd1\\shortened-entropy-eoi.jpg",
+      "encodedBytes": 1167,
+      "provenance": "run-mutated synthetic",
+      "inspection": {
+        "status": "ACCEPT",
+        "width": 640,
+        "height": 480,
+        "pixels": 307200,
+        "components": 3,
+        "progressive": false,
+        "segments": 8,
+        "scans": 1,
+        "metadataBytes": 0
+      }
+    },
+    {
+      "id": "malformed-progressive",
+      "path": "C:\\Users\\alnaseem\\AppData\\Local\\Temp\\labos-r001-archbench-20261001-d3ffcab0ddd1\\malformed-progressive.jpg",
+      "encodedBytes": 2311,
+      "provenance": "run-mutated synthetic",
+      "inspection": {
+        "status": "ACCEPT",
+        "width": 640,
+        "height": 480,
+        "pixels": 307200,
+        "components": 3,
+        "progressive": true,
+        "segments": 23,
+        "scans": 10,
+        "metadataBytes": 0
+      }
+    }
+  ]
+}

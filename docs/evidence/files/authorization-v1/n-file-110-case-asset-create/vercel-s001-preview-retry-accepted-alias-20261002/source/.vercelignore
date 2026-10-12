@@ -1,0 +1,7 @@
+package-preflight/
+scripts/
+local-*.json
+*.log
+.next/
+node_modules/
+.env*

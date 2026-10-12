@@ -1,0 +1,11 @@
+{
+  "operation": "status-pre",
+  "at": "2026-10-03T08:00:17.658Z",
+  "exitCode": 1,
+  "signal": null,
+  "stdout": "Datasource \"db\": PostgreSQL database \"postgres\", schema \"public\" at \"[development-host]:5432\"\n\n51 migrations found in prisma/migrations\nFollowing migration have not yet been applied:\n20261002120000_case_s001_evidence_identity\n\nTo apply migrations in development run prisma migrate dev.\nTo apply migrations in production run prisma migrate deploy.\n",
+  "stderr": "Loaded Prisma config from experiments\\s001-normal-dev-20261003-a268a52b\\prisma.config.ts.\n\nPrisma schema loaded from prisma\\schema.prisma.\n",
+  "candidate": "20261002120000_case_s001_evidence_identity",
+  "candidateHash": "c322412de3c40f697407ce74a062afb797b2554a98fa5e8393e1c4bfe8c8bb88",
+  "canonicalLfFiles": 51
+}

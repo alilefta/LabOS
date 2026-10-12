@@ -1,0 +1,6 @@
+Loaded Prisma config from prisma.config.ts.
+
+Prisma schema loaded from experiments\s001-normal-dev-20261003-a268a52b\schema.prisma.
+
+✔ Generated Prisma Client (7.8.0) to .\experiments\s001-normal-dev-20261003-a268a52b\generated-prisma in 604ms
+

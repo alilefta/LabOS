@@ -1,0 +1,20 @@
+{
+  "run": "labos-r001-ut-probe-20261001-81178c4bda06",
+  "correction": "The retained cleanup.json deleteAcknowledged field was not supported by the executed script; UploadThing 7.7.4 returns success and deletedCount, which the script did not inspect.",
+  "deleteCallReturnedWithoutThrow": true,
+  "deleteResponseSuccess": "NOT_RUN: not captured",
+  "deleteResponseCount": "NOT_RUN: not captured",
+  "before": {
+    "count": 25,
+    "exactKeyPresent": true,
+    "runNamePresent": true
+  },
+  "after": {
+    "count": 24,
+    "exactKeyPresent": false,
+    "runNamePresent": false
+  },
+  "postDeleteLookupCardinality": 0,
+  "cleanupVerifiedByIndependentReadBack": true,
+  "postDeleteHttpGet": "NOT_RUN"
+}

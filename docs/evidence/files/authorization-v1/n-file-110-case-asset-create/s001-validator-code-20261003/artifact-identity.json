@@ -1,0 +1,19 @@
+{
+  "package": "@julusian/jpeg-turbo",
+  "version": "3.0.1",
+  "npmTarballSha256": "5dbd64fa34d0caaa651f738ff46fc1797e1b1f23a83d1fc3b6e4a066ea96c1c1",
+  "npmTarballSha512Integrity": "sha512-ITORmmt8XPCxGh/GhG1VGGAQH10zh0iN0lHpuODDVpNeyzAULtEIFHuQLOLDSbVSAkAvGylQPsp4uJb8NLI6fw==",
+  "addon": {
+    "name": "node-napi-v10.node",
+    "size": 101200,
+    "sha256": "627fa49f801c8386e90c6844d4c75aa85dd4eaabccaeae38994af069c9e36eea",
+    "elf": "7f454c46",
+    "originStringPresent": true,
+    "neededLibraryStringPresent": true
+  },
+  "library": {
+    "name": "libturbojpeg.so.0",
+    "size": 1089384,
+    "sha256": "6facda09ef3e2308608f2b0214c040791e276305a48a27036362402f95fffcf5"
+  }
+}

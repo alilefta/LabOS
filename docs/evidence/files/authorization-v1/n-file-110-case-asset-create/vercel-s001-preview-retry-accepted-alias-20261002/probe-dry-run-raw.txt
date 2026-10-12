@@ -1,0 +1,212 @@
+Retrieving project…
+{
+  "framework": {
+    "name": "Next.js",
+    "slug": "nextjs"
+  },
+  "basePath": "F:\\Software_Engineering\\Phase 1 Web Development\\Project 7 Freelancer Command Center\\next-projects\\lab-os-project-4\\experiments\\vercel-s001-preview-retry-20261002-1526-a84e\\probe",
+  "fileCount": 15,
+  "totalSize": 86904,
+  "ignoredCount": 3,
+  "ignored": [
+    ".gitignore",
+    ".next",
+    "node_modules"
+  ],
+  "directories": [
+    {
+      "path": "package-lock.json",
+      "fileCount": 1,
+      "size": 76215
+    },
+    {
+      "path": "app",
+      "fileCount": 1,
+      "size": 5126
+    },
+    {
+      "path": "fixtures",
+      "fileCount": 8,
+      "size": 3529
+    },
+    {
+      "path": "tsconfig.json",
+      "fileCount": 1,
+      "size": 657
+    },
+    {
+      "path": "next.config.mjs",
+      "fileCount": 1,
+      "size": 589
+    },
+    {
+      "path": "package.json",
+      "fileCount": 1,
+      "size": 419
+    },
+    {
+      "path": "next-env.d.ts",
+      "fileCount": 1,
+      "size": 295
+    },
+    {
+      "path": ".vercelignore",
+      "fileCount": 1,
+      "size": 74
+    }
+  ],
+  "largestFiles": [
+    {
+      "path": "package-lock.json",
+      "size": 76215,
+      "mode": 33206,
+      "sha": "7eec2e1cea5712da5d2e5bfb0358767572e31859"
+    },
+    {
+      "path": "app/api/probe/route.ts",
+      "size": 5126,
+      "mode": 33206,
+      "sha": "db9519073b8c0d6c9c5521c7e9f44a9668718d65"
+    },
+    {
+      "path": "fixtures/manifest.json",
+      "size": 870,
+      "mode": 33206,
+      "sha": "cccafcc7f6b94f8b8192073177a1e976977a6aae"
+    },
+    {
+      "path": "tsconfig.json",
+      "size": 657,
+      "mode": 33206,
+      "sha": "8f4dbb2d15075b04fe357e62f04f4d4dbba470bf"
+    },
+    {
+      "path": "next.config.mjs",
+      "size": 589,
+      "mode": 33206,
+      "sha": "3569658667ffe6bacfd43be6b8139471a2c663ab"
+    },
+    {
+      "path": "fixtures/progressive.jpg",
+      "size": 562,
+      "mode": 33206,
+      "sha": "91a7dc8521e6c2cec349766f09c4c67af8a0fee6"
+    },
+    {
+      "path": "fixtures/grayscale.jpg",
+      "size": 461,
+      "mode": 33206,
+      "sha": "c1bb54316b984386b481152101c8e3108b6f68c1"
+    },
+    {
+      "path": "package.json",
+      "size": 419,
+      "mode": 33206,
+      "sha": "2f2d83643048efb5927c7e75458ccdd500dd758c"
+    },
+    {
+      "path": "fixtures/trailing_bytes.jpg",
+      "size": 336,
+      "mode": 33206,
+      "sha": "ca0e15797fdc7a25472a2f831802ace60a754c08"
+    },
+    {
+      "path": "fixtures/baseline.jpg",
+      "size": 333,
+      "mode": 33206,
+      "sha": "4a504357517a5f6ab0a61413ccea5b67f7494113"
+    }
+  ],
+  "files": [
+    {
+      "path": ".vercelignore",
+      "size": 74,
+      "mode": 33206,
+      "sha": "92f67b1eedc1b8907315c8d6a33669c6ab02fa1e"
+    },
+    {
+      "path": "app/api/probe/route.ts",
+      "size": 5126,
+      "mode": 33206,
+      "sha": "db9519073b8c0d6c9c5521c7e9f44a9668718d65"
+    },
+    {
+      "path": "fixtures/baseline.jpg",
+      "size": 333,
+      "mode": 33206,
+      "sha": "4a504357517a5f6ab0a61413ccea5b67f7494113"
+    },
+    {
+      "path": "fixtures/corrupt_entropy.jpg",
+      "size": 333,
+      "mode": 33206,
+      "sha": "10701b5d296e59b878cb6b0e214a2cbafe25e23c"
+    },
+    {
+      "path": "fixtures/grayscale.jpg",
+      "size": 461,
+      "mode": 33206,
+      "sha": "c1bb54316b984386b481152101c8e3108b6f68c1"
+    },
+    {
+      "path": "fixtures/manifest.json",
+      "size": 870,
+      "mode": 33206,
+      "sha": "cccafcc7f6b94f8b8192073177a1e976977a6aae"
+    },
+    {
+      "path": "fixtures/progressive.jpg",
+      "size": 562,
+      "mode": 33206,
+      "sha": "91a7dc8521e6c2cec349766f09c4c67af8a0fee6"
+    },
+    {
+      "path": "fixtures/short_entropy_eoi.jpg",
+      "size": 303,
+      "mode": 33206,
+      "sha": "def999859383a8694f21f4f80f5f611d50cbc59f"
+    },
+    {
+      "path": "fixtures/trailing_bytes.jpg",
+      "size": 336,
+      "mode": 33206,
+      "sha": "ca0e15797fdc7a25472a2f831802ace60a754c08"
+    },
+    {
+      "path": "fixtures/truncated.jpg",
+      "size": 331,
+      "mode": 33206,
+      "sha": "1c38d80319adaf133bd8e976426b2cf6110bcee1"
+    },
+    {
+      "path": "next-env.d.ts",
+      "size": 295,
+      "mode": 33206,
+      "sha": "d3fc80b7fae627e01dce199d12132aa4fc32d773"
+    },
+    {
+      "path": "next.config.mjs",
+      "size": 589,
+      "mode": 33206,
+      "sha": "3569658667ffe6bacfd43be6b8139471a2c663ab"
+    },
+    {
+      "path": "package-lock.json",
+      "size": 76215,
+      "mode": 33206,
+      "sha": "7eec2e1cea5712da5d2e5bfb0358767572e31859"
+    },
+    {
+      "path": "package.json",
+      "size": 419,
+      "mode": 33206,
+      "sha": "2f2d83643048efb5927c7e75458ccdd500dd758c"
+    },
+    {
+      "path": "tsconfig.json",
+      "size": 657,
+      "mode": 33206,
+      "sha": "8f4dbb2d15075b04fe357e62f04f4d4dbba470bf"
+    }
+  ]
+}

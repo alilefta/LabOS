@@ -1,0 +1,58 @@
+▲ Next.js 16.3.3 (Turbopack)
+- Environments: .env.local, .env
+✓ Running next.config.ts took 177ms
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 19.1s
+  Collecting page data using 11 workers ...
+  Finalizing page optimization ...
+  Build ran with "compile" mode, to finalize the build run either "generate" or "generate-env" mode as well
+
+Route (app)
+┌ ƒ /
+├ ƒ /_not-found
+├ ƒ /api/auth/[...all]
+├ ƒ /api/cases/[caseId]/assets/[assetId]/open
+├ ƒ /api/dentists/[dentistId]
+├ ƒ /api/uploadthing
+├ ƒ /auth/continue
+├ ƒ /cases
+├ ƒ /cases/[caseId]
+├ ƒ /cases/[caseId]/edit
+├ ƒ /cases/new-case
+├ ƒ /catalog
+├ ƒ /clinics
+├ ƒ /clinics/[clinicId]
+├ ƒ /clinics/[clinicId]/edit
+├ ƒ /clinics/new-clinic
+├ ƒ /dashboard
+├ ƒ /invite/[invitationId]
+├ ƒ /invoices
+├ ƒ /invoices/[invoiceId]
+├ ƒ /invoices/[invoiceId]/edit
+├ ƒ /invoices/new-invoice
+├ ƒ /onboarding
+├ ƒ /organizations/new
+├ ƒ /paystub/[staffId]/[payoutId]
+├ ƒ /select-organization
+├ ƒ /settings
+├ ƒ /settings/billing
+├ ƒ /settings/lab
+├ ƒ /settings/notifications
+├ ƒ /settings/preferences
+├ ƒ /settings/profile
+├ ƒ /settings/security
+├ ƒ /settings/team
+├ ƒ /sign-in
+├ ƒ /sign-up
+├ ƒ /statement/[token]
+├ ƒ /team
+├ ƒ /team/[staffId]
+├ ƒ /technicians
+└ ƒ /technicians/[technicianId]
+
+
+ƒ Proxy (Middleware)
+
+ƒ  (Dynamic)  server-rendered on demand
+

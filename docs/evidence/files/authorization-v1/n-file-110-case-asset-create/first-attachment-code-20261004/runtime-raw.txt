@@ -1,0 +1,519 @@
+
+ RUN  v4.1.10 F:/Software_Engineering/Phase 1 Web Development/Project 7 Freelancer Command Center/next-projects/lab-os-project-4
+
+stdout | tests/integration/first-attach-disposable.runtime.test.ts > disposable PostgreSQL first attachment > JPG and JPEG each commit exact file, first version, pointer, and CONSUMED atomically
+{
+  schemaVersion: 1,
+  service: 'labos',
+  source: 'authorization-v1-decisions',
+  environment: 'test',
+  emittedAt: '2026-10-04T20:23:38.036Z',
+  payload: {
+    event: 'platform.authorization.decision',
+    boundaryId: 'N-FILE-110',
+    permission: 'case.asset.add',
+    sensitivity: 'sensitive',
+    unknownRoleCount: 0,
+    targetType: 'case',
+    correlationId: '73dfc3cf-a326-48bc-9960-eedaef29ad57',
+    outcome: 'allowed',
+    severity: 'info',
+    reason: 'POLICY_ALLOWED',
+    durationMs: 26.527799999999843
+  }
+}
+
+stdout | tests/integration/first-attach-disposable.runtime.test.ts > disposable PostgreSQL first attachment > JPG and JPEG each commit exact file, first version, pointer, and CONSUMED atomically
+{
+  schemaVersion: 1,
+  service: 'labos',
+  source: 'authorization-v1-decisions',
+  environment: 'test',
+  emittedAt: '2026-10-04T20:23:38.073Z',
+  payload: {
+    event: 'platform.authorization.decision',
+    boundaryId: 'N-FILE-110',
+    permission: 'case.asset.add',
+    sensitivity: 'sensitive',
+    unknownRoleCount: 0,
+    targetType: 'case',
+    correlationId: '0b6a9cca-843d-4c5d-b781-4e4e44322e79',
+    outcome: 'allowed',
+    severity: 'info',
+    reason: 'POLICY_ALLOWED',
+    durationMs: 11.544100000000071
+  }
+}
+
+stdout | tests/integration/first-attach-disposable.runtime.test.ts > disposable PostgreSQL first attachment > JPG and JPEG each commit exact file, first version, pointer, and CONSUMED atomically
+{
+  schemaVersion: 1,
+  service: 'labos',
+  source: 'authorization-v1-decisions',
+  environment: 'test',
+  emittedAt: '2026-10-04T20:23:38.217Z',
+  payload: {
+    event: 'platform.authorization.decision',
+    boundaryId: 'N-FILE-110',
+    permission: 'case.asset.add',
+    sensitivity: 'sensitive',
+    unknownRoleCount: 0,
+    targetType: 'case',
+    correlationId: '943adbc8-436b-4a6a-a6a2-8eb8588cd7ce',
+    outcome: 'allowed',
+    severity: 'info',
+    reason: 'POLICY_ALLOWED',
+    durationMs: 10.396499999999833
+  }
+}
+
+stdout | tests/integration/first-attach-disposable.runtime.test.ts > disposable PostgreSQL first attachment > JPG and JPEG each commit exact file, first version, pointer, and CONSUMED atomically
+{
+  schemaVersion: 1,
+  service: 'labos',
+  source: 'authorization-v1-decisions',
+  environment: 'test',
+  emittedAt: '2026-10-04T20:23:38.245Z',
+  payload: {
+    event: 'platform.authorization.decision',
+    boundaryId: 'N-FILE-110',
+    permission: 'case.asset.add',
+    sensitivity: 'sensitive',
+    unknownRoleCount: 0,
+    targetType: 'case',
+    correlationId: 'eb5663d3-e41d-4844-a787-d24ef6ceacc8',
+    outcome: 'allowed',
+    severity: 'info',
+    reason: 'POLICY_ALLOWED',
+    durationMs: 9.907799999999952
+  }
+}
+
+·stdout | tests/integration/first-attach-disposable.runtime.test.ts > disposable PostgreSQL first attachment > size and SHA mismatch leave finalized evidence unattached and retry refetches
+{
+  schemaVersion: 1,
+  service: 'labos',
+  source: 'authorization-v1-decisions',
+  environment: 'test',
+  emittedAt: '2026-10-04T20:23:38.352Z',
+  payload: {
+    event: 'platform.authorization.decision',
+    boundaryId: 'N-FILE-110',
+    permission: 'case.asset.add',
+    sensitivity: 'sensitive',
+    unknownRoleCount: 0,
+    targetType: 'case',
+    correlationId: '60ba50a8-96e3-48da-ab47-38454002b57c',
+    outcome: 'allowed',
+    severity: 'info',
+    reason: 'POLICY_ALLOWED',
+    durationMs: 12.177000000000135
+  }
+}
+
+stdout | tests/integration/first-attach-disposable.runtime.test.ts > disposable PostgreSQL first attachment > size and SHA mismatch leave finalized evidence unattached and retry refetches
+{
+  schemaVersion: 1,
+  service: 'labos',
+  source: 'authorization-v1-decisions',
+  environment: 'test',
+  emittedAt: '2026-10-04T20:23:38.397Z',
+  payload: {
+    event: 'platform.authorization.decision',
+    boundaryId: 'N-FILE-110',
+    permission: 'case.asset.add',
+    sensitivity: 'sensitive',
+    unknownRoleCount: 0,
+    targetType: 'case',
+    correlationId: '210c234e-1d31-4346-a177-ea2fc5e6cb0b',
+    outcome: 'allowed',
+    severity: 'info',
+    reason: 'POLICY_ALLOWED',
+    durationMs: 13.136700000000019
+  }
+}
+
+stdout | tests/integration/first-attach-disposable.runtime.test.ts > disposable PostgreSQL first attachment > size and SHA mismatch leave finalized evidence unattached and retry refetches
+{
+  schemaVersion: 1,
+  service: 'labos',
+  source: 'authorization-v1-decisions',
+  environment: 'test',
+  emittedAt: '2026-10-04T20:23:38.428Z',
+  payload: {
+    event: 'platform.authorization.decision',
+    boundaryId: 'N-FILE-110',
+    permission: 'case.asset.add',
+    sensitivity: 'sensitive',
+    unknownRoleCount: 0,
+    targetType: 'case',
+    correlationId: 'ec22cacf-8418-4429-9015-317ef07c9129',
+    outcome: 'allowed',
+    severity: 'info',
+    reason: 'POLICY_ALLOWED',
+    durationMs: 11.024800000000141
+  }
+}
+
+stdout | tests/integration/first-attach-disposable.runtime.test.ts > disposable PostgreSQL first attachment > size and SHA mismatch leave finalized evidence unattached and retry refetches
+{
+  schemaVersion: 1,
+  service: 'labos',
+  source: 'authorization-v1-decisions',
+  environment: 'test',
+  emittedAt: '2026-10-04T20:23:38.454Z',
+  payload: {
+    event: 'platform.authorization.decision',
+    boundaryId: 'N-FILE-110',
+    permission: 'case.asset.add',
+    sensitivity: 'sensitive',
+    unknownRoleCount: 0,
+    targetType: 'case',
+    correlationId: '60865904-9790-403c-a918-579e04998c5b',
+    outcome: 'allowed',
+    severity: 'info',
+    reason: 'POLICY_ALLOWED',
+    durationMs: 9.137099999999919
+  }
+}
+
+stdout | tests/integration/first-attach-disposable.runtime.test.ts > disposable PostgreSQL first attachment > post-retrieval Case or creator authority changes reject with no attachment
+{
+  schemaVersion: 1,
+  service: 'labos',
+  source: 'authorization-v1-decisions',
+  environment: 'test',
+  emittedAt: '2026-10-04T20:23:38.507Z',
+  payload: {
+    event: 'platform.authorization.decision',
+    boundaryId: 'N-FILE-110',
+    permission: 'case.asset.add',
+    sensitivity: 'sensitive',
+    unknownRoleCount: 0,
+    targetType: 'case',
+    correlationId: '8461afae-5a95-4309-89d9-db096d20da85',
+    outcome: 'allowed',
+    severity: 'info',
+    reason: 'POLICY_ALLOWED',
+    durationMs: 9.949800000000323
+  }
+}
+
+·stdout | tests/integration/first-attach-disposable.runtime.test.ts > disposable PostgreSQL first attachment > post-retrieval Case or creator authority changes reject with no attachment
+{
+  schemaVersion: 1,
+  service: 'labos',
+  source: 'authorization-v1-decisions',
+  environment: 'test',
+  emittedAt: '2026-10-04T20:23:38.578Z',
+  payload: {
+    event: 'platform.authorization.decision',
+    boundaryId: 'N-FILE-110',
+    permission: 'case.asset.add',
+    sensitivity: 'sensitive',
+    unknownRoleCount: 0,
+    targetType: 'case',
+    correlationId: 'ca41d213-1471-4391-ab45-4b5b35e02ae3',
+    outcome: 'allowed',
+    severity: 'info',
+    reason: 'POLICY_ALLOWED',
+    durationMs: 12.702699999999822
+  }
+}
+
+stderr | tests/integration/first-attach-disposable.runtime.test.ts > disposable PostgreSQL first attachment > post-retrieval Case or creator authority changes reject with no attachment
+{
+  schemaVersion: 1,
+  service: 'labos',
+  source: 'authorization-v1-decisions',
+  environment: 'test',
+  emittedAt: '2026-10-04T20:23:38.606Z',
+  payload: {
+    event: 'platform.authorization.decision',
+    boundaryId: 'N-FILE-110',
+    permission: 'case.asset.add',
+    sensitivity: 'sensitive',
+    unknownRoleCount: 1,
+    targetType: 'case',
+    correlationId: 'd312ec9f-06f7-438d-9efc-a2ab4f96e378',
+    outcome: 'denied',
+    severity: 'warning',
+    reason: 'AUTHZ_ROLE_UNRECOGNIZED',
+    durationMs: 0.1546000000003005
+  }
+}
+
+··stdout | tests/integration/first-attach-disposable.runtime.test.ts > disposable PostgreSQL first attachment > write failure after file/asset/version/pointer rolls back all writes
+{
+  schemaVersion: 1,
+  service: 'labos',
+  source: 'authorization-v1-decisions',
+  environment: 'test',
+  emittedAt: '2026-10-04T20:23:39.931Z',
+  payload: {
+    event: 'platform.authorization.decision',
+    boundaryId: 'N-FILE-110',
+    permission: 'case.asset.add',
+    sensitivity: 'sensitive',
+    unknownRoleCount: 0,
+    targetType: 'case',
+    correlationId: '79105ade-48b9-413b-9d1c-02eba9058f9e',
+    outcome: 'allowed',
+    severity: 'info',
+    reason: 'POLICY_ALLOWED',
+    durationMs: 9.14759999999933
+  }
+}
+
+stdout | tests/integration/first-attach-disposable.runtime.test.ts > disposable PostgreSQL first attachment > write failure after file/asset/version/pointer rolls back all writes
+{
+  schemaVersion: 1,
+  service: 'labos',
+  source: 'authorization-v1-decisions',
+  environment: 'test',
+  emittedAt: '2026-10-04T20:23:39.986Z',
+  payload: {
+    event: 'platform.authorization.decision',
+    boundaryId: 'N-FILE-110',
+    permission: 'case.asset.add',
+    sensitivity: 'sensitive',
+    unknownRoleCount: 0,
+    targetType: 'case',
+    correlationId: '40432039-fed4-4c10-be90-ca8900325f1c',
+    outcome: 'allowed',
+    severity: 'info',
+    reason: 'POLICY_ALLOWED',
+    durationMs: 8.877400000000307
+  }
+}
+
+stdout | tests/integration/first-attach-disposable.runtime.test.ts > disposable PostgreSQL first attachment > write failure after file/asset/version/pointer rolls back all writes
+{
+  schemaVersion: 1,
+  service: 'labos',
+  source: 'authorization-v1-decisions',
+  environment: 'test',
+  emittedAt: '2026-10-04T20:23:40.025Z',
+  payload: {
+    event: 'platform.authorization.decision',
+    boundaryId: 'N-FILE-110',
+    permission: 'case.asset.add',
+    sensitivity: 'sensitive',
+    unknownRoleCount: 0,
+    targetType: 'case',
+    correlationId: '6f8d15f3-49f4-4191-9919-9a97189e581d',
+    outcome: 'allowed',
+    severity: 'info',
+    reason: 'POLICY_ALLOWED',
+    durationMs: 9.011499999999614
+  }
+}
+
+stdout | tests/integration/first-attach-disposable.runtime.test.ts > disposable PostgreSQL first attachment > write failure after file/asset/version/pointer rolls back all writes
+{
+  schemaVersion: 1,
+  service: 'labos',
+  source: 'authorization-v1-decisions',
+  environment: 'test',
+  emittedAt: '2026-10-04T20:23:40.064Z',
+  payload: {
+    event: 'platform.authorization.decision',
+    boundaryId: 'N-FILE-110',
+    permission: 'case.asset.add',
+    sensitivity: 'sensitive',
+    unknownRoleCount: 0,
+    targetType: 'case',
+    correlationId: '03889a7e-3458-4257-aa65-6f264ebc4588',
+    outcome: 'allowed',
+    severity: 'info',
+    reason: 'POLICY_ALLOWED',
+    durationMs: 9.41490000000067
+  }
+}
+
+stdout | tests/integration/first-attach-disposable.runtime.test.ts > disposable PostgreSQL first attachment > write failure after file/asset/version/pointer rolls back all writes
+{
+  schemaVersion: 1,
+  service: 'labos',
+  source: 'authorization-v1-decisions',
+  environment: 'test',
+  emittedAt: '2026-10-04T20:23:40.111Z',
+  payload: {
+    event: 'platform.authorization.decision',
+    boundaryId: 'N-FILE-110',
+    permission: 'case.asset.add',
+    sensitivity: 'sensitive',
+    unknownRoleCount: 0,
+    targetType: 'case',
+    correlationId: '7f438549-0f71-4e59-a60f-fcd60b6b39d1',
+    outcome: 'allowed',
+    severity: 'info',
+    reason: 'POLICY_ALLOWED',
+    durationMs: 9.445799999999508
+  }
+}
+
+stdout | tests/integration/first-attach-disposable.runtime.test.ts > disposable PostgreSQL first attachment > write failure after file/asset/version/pointer rolls back all writes
+{
+  schemaVersion: 1,
+  service: 'labos',
+  source: 'authorization-v1-decisions',
+  environment: 'test',
+  emittedAt: '2026-10-04T20:23:40.151Z',
+  payload: {
+    event: 'platform.authorization.decision',
+    boundaryId: 'N-FILE-110',
+    permission: 'case.asset.add',
+    sensitivity: 'sensitive',
+    unknownRoleCount: 0,
+    targetType: 'case',
+    correlationId: '07cafb0e-5544-4282-9874-5b473cac3f04',
+    outcome: 'allowed',
+    severity: 'info',
+    reason: 'POLICY_ALLOWED',
+    durationMs: 8.939900000000307
+  }
+}
+
+·stdout | tests/integration/first-attach-disposable.runtime.test.ts > disposable PostgreSQL first attachment > installed deferred managed-state trigger rejects a missing final pointer and rolls back the chain
+{
+  schemaVersion: 1,
+  service: 'labos',
+  source: 'authorization-v1-decisions',
+  environment: 'test',
+  emittedAt: '2026-10-04T20:23:40.200Z',
+  payload: {
+    event: 'platform.authorization.decision',
+    boundaryId: 'N-FILE-110',
+    permission: 'case.asset.add',
+    sensitivity: 'sensitive',
+    unknownRoleCount: 0,
+    targetType: 'case',
+    correlationId: 'e406683f-7252-4f5b-8b14-fdd35240480f',
+    outcome: 'allowed',
+    severity: 'info',
+    reason: 'POLICY_ALLOWED',
+    durationMs: 8.759499999999207
+  }
+}
+
+stdout | tests/integration/first-attach-disposable.runtime.test.ts > disposable PostgreSQL first attachment > real concurrent same-grant transactions overlap; one commits and one rejects
+{
+  schemaVersion: 1,
+  service: 'labos',
+  source: 'authorization-v1-decisions',
+  environment: 'test',
+  emittedAt: '2026-10-04T20:23:40.250Z',
+  payload: {
+    event: 'platform.authorization.decision',
+    boundaryId: 'N-FILE-110',
+    permission: 'case.asset.add',
+    sensitivity: 'sensitive',
+    unknownRoleCount: 0,
+    targetType: 'case',
+    correlationId: 'b688f8f6-3596-47c7-a372-64021232f3de',
+    outcome: 'allowed',
+    severity: 'info',
+    reason: 'POLICY_ALLOWED',
+    durationMs: 9.811299999999392
+  }
+}
+
+stdout | tests/integration/first-attach-disposable.runtime.test.ts > disposable PostgreSQL first attachment > real concurrent same-grant transactions overlap; one commits and one rejects
+{
+  schemaVersion: 1,
+  service: 'labos',
+  source: 'authorization-v1-decisions',
+  environment: 'test',
+  emittedAt: '2026-10-04T20:23:40.252Z',
+  payload: {
+    event: 'platform.authorization.decision',
+    boundaryId: 'N-FILE-110',
+    permission: 'case.asset.add',
+    sensitivity: 'sensitive',
+    unknownRoleCount: 0,
+    targetType: 'case',
+    correlationId: '04641f00-5298-4e5b-b38f-0328b276fc7b',
+    outcome: 'allowed',
+    severity: 'info',
+    reason: 'POLICY_ALLOWED',
+    durationMs: 11.015300000000025
+  }
+}
+
+·stdout | tests/integration/first-attach-disposable.runtime.test.ts > disposable PostgreSQL first attachment > real concurrent same-grant transactions overlap; one commits and one rejects
+{
+  schemaVersion: 1,
+  service: 'labos',
+  source: 'authorization-v1-decisions',
+  environment: 'test',
+  emittedAt: '2026-10-04T20:23:40.315Z',
+  payload: {
+    event: 'platform.authorization.decision',
+    boundaryId: 'N-FILE-110',
+    permission: 'case.asset.add',
+    sensitivity: 'sensitive',
+    unknownRoleCount: 0,
+    targetType: 'case',
+    correlationId: 'def9f068-a3d7-4c17-a0d9-d1ee21d7d3b4',
+    outcome: 'allowed',
+    severity: 'info',
+    reason: 'POLICY_ALLOWED',
+    durationMs: 8.711299999999937
+  }
+}
+
+stdout | tests/integration/first-attach-disposable.runtime.test.ts > disposable PostgreSQL first attachment > real concurrent same-grant transactions overlap; one commits and one rejects
+ATTACH_RACE {"overlappingLockWaiters":2,"fulfilled":1,"rejected":1}
+
+stdout | tests/integration/first-attach-disposable.runtime.test.ts > disposable PostgreSQL first attachment > successful evidence remains immutable
+{
+  schemaVersion: 1,
+  service: 'labos',
+  source: 'authorization-v1-decisions',
+  environment: 'test',
+  emittedAt: '2026-10-04T20:23:40.384Z',
+  payload: {
+    event: 'platform.authorization.decision',
+    boundaryId: 'N-FILE-110',
+    permission: 'case.asset.add',
+    sensitivity: 'sensitive',
+    unknownRoleCount: 0,
+    targetType: 'case',
+    correlationId: '8e176161-d92c-4599-9cfc-8c66eb8d08fd',
+    outcome: 'allowed',
+    severity: 'info',
+    reason: 'POLICY_ALLOWED',
+    durationMs: 8.757799999999406
+  }
+}
+
+stdout | tests/integration/first-attach-disposable.runtime.test.ts > disposable PostgreSQL first attachment > successful evidence remains immutable
+{
+  schemaVersion: 1,
+  service: 'labos',
+  source: 'authorization-v1-decisions',
+  environment: 'test',
+  emittedAt: '2026-10-04T20:23:40.407Z',
+  payload: {
+    event: 'platform.authorization.decision',
+    boundaryId: 'N-FILE-110',
+    permission: 'case.asset.add',
+    sensitivity: 'sensitive',
+    unknownRoleCount: 0,
+    targetType: 'case',
+    correlationId: 'f1d83f99-6232-4175-bcce-ed7cbc5f89be',
+    outcome: 'allowed',
+    severity: 'info',
+    reason: 'POLICY_ALLOWED',
+    durationMs: 8.191199999999299
+  }
+}
+
+··
+
+ Test Files  1 passed (1)
+      Tests  8 passed (8)
+   Start at  23:23:34
+   Duration  5.47s (transform 537ms, setup 0ms, import 2.38s, tests 2.75s, environment 0ms)
+
