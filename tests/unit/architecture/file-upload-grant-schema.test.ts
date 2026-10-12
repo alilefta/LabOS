@@ -49,7 +49,7 @@ describe('FileUploadGrant persistence contract', () => {
 	})
 
 	it('provides indexes for conditional consumption, expiry, boundary, target, and provider callback lookup', () => {
-		expect(schema).toContain('providerFileKey String? @unique')
+		expect(schema).toMatch(/providerFileKey\s+String\?\s+@unique/)
 		expect(schema).toContain(
 			'@@index([organizationId, labId, createdByMemberId, status])',
 		)

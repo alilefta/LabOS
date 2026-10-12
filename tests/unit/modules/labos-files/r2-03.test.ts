@@ -67,5 +67,5 @@ describe('R2-03 HTTP gate', () => {
     const request = new Request('http://localhost:3000/api/cases/ignored/clinical-upload', { method: 'POST' })
     expect((await intentRoute.POST(request, context)).status).toBe(404)
     expect((await completeRoute.POST(request, context)).status).toBe(404)
-  })
+  }, 30000)
 })

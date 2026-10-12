@@ -4,7 +4,7 @@ const nextConfig: NextConfig = {
 	/* config options here */
 	serverExternalPackages: ['@julusian/jpeg-turbo'],
 	outputFileTracingIncludes: {
-		'/api/cases/[caseId]/clinical-upload/complete': [
+		'/api/cases/\\[caseId\\]/clinical-upload/complete': [
 			'./node_modules/@julusian/jpeg-turbo/prebuilds/jpeg-turbo-linux-x64/node-napi-v10.node',
 			'./node_modules/@julusian/jpeg-turbo/prebuilds/jpeg-turbo-linux-x64/libturbojpeg.so.0',
 		],
@@ -12,7 +12,6 @@ const nextConfig: NextConfig = {
 	reactStrictMode: false, // temporary test only
 	logging: {
 		fetches: {
-			fullUrl: true,
 			hmrRefreshes: true,
 		},
 	},
