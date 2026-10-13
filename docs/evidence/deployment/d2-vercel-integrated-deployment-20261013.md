@@ -1,0 +1,33 @@
+# D2 integrated Vercel deployment — runtime stop record
+
+Date: 2026-10-13
+Status: DEPLOYED | RUNTIME_VERIFICATION_STOPPED | PROTECTION_BLOCKER
+Authority: Product Owner authorization to advance integrated `main`, deploy only `lab-os-verification-deployment`, and verify a protected synthetic runtime.
+
+## Git and deployment sequence
+
+- The reviewed TLS and two deployment-evidence files were committed on `feat/authorization-financial-reads` as `27e3a6a9a145a704967e2375fda9c97d74a2d2db`. Existing `.gitignore`, generated Prisma and untracked local files were excluded.
+- Fetched `origin/main` was `ee3dd61d5715e0b06f1deaada8f4ea7aa26ba92e`, an ancestor of the reviewed feature commit. The separate `labos-main-fix` worktree was clean. Its first fast-forward checkout was blocked by Windows path length; Git left partial checkout files without moving the branch ref. The previously clean worktree was restored, and only the 15 newly created untracked paths in that exact resolved worktree were removed. A retry using `core.longpaths=true` fast-forwarded `main` to `27e3a6a9`; normal push succeeded.
+- Vercel deployment `dpl_3y43kF4R8TfC7MnDRMzmTrnXTQDw` built that exact SHA with Next.js 16.3.3, but failed after `Build Completed in /vercel/output` at `Deploying outputs...`: `patch_build_4xx`, invalid serverless deployment package attributed to symlinked directories. This is a failed attempt, not runtime evidence.
+- A bounded one-file `next.config.ts` correction changed the two exact Julusian Linux native tracing includes from pnpm's symlinked `node_modules/@julusian/jpeg-turbo` entry to its physical pinned `.pnpm/@julusian+jpeg-turbo@3.0.1` directory. Local Next build and TypeScript passed; its complete-route trace contained exactly one native addon and one adjacent library through the physical path. Independent V3 `PASS | CODE` found no S001 identity or activation-contract change. The fix was committed as `6a7bc89acbc529f40aa318dc8fa5895b861c0bbc`, fast-forwarded in the clean separate `main` worktree, and pushed normally.
+- Vercel deployment `dpl_82158JgM38p6Dc3JUm5F25A4rn34` for `6a7bc89acbc529f40aa318dc8fa5895b861c0bbc` reached `READY`. The Vercel build used Node.js `24.x`, Prisma client 7.8.0, and Next.js 16.3.3; it compiled, passed TypeScript, generated 29/29 static pages, and packaged serverless outputs. The Julusian install completed, but native addon loading/decoding inside a deployed function was not exercised.
+
+## Preflight retained
+
+- Exact project: `lab-os-verification-deployment` (`prj_wJiC2MYXpqpE9W4JIgxQnf8QfhqA`), deploying Git `main` only for this run. The intended Supabase `labos-verification` project (`rvtubjrczuxdxfuazjmr`) was `ACTIVE_HEALTHY`, PostgreSQL 17.11, with 53 finished Prisma migrations. The Product Owner attested that the sensitive Vercel `DATABASE_URL` targets this project through `labos_verification_app` and the Frankfurt transaction pooler; Vercel's API does not reveal that value.
+- Vercel environment metadata showed `DATABASE_URL`, `LABOS_DATABASE_CA_CERT`, `BETTER_AUTH_URL`, `BETTER_AUTH_SECRET` and other configured application variables targeted to Production and Preview. `DIRECT_URL` was absent. No migration-owner credential was installed in this task. The Product Owner previously attested the intended canonical `BETTER_AUTH_URL`; the actual deployed behavior below does not establish that value.
+- `CASE_OBJECT_STORAGE_UPLOAD_ACTIVE` remained `false` in source, with clinical upload intent and completion route guards returning 404 before handler work. Live route behavior was not tested after the protection stop.
+
+## Runtime findings and exact stop boundary
+
+- An anonymous GET to `https://lab-os-verification-deployment.vercel.app/` returned application HTTP 500. Vercel grouped the error under the exact READY deployment as `TypeError: fetch failed`, caused by a connection refusal to `127.0.0.1:3000` from the server session path. The runtime source uses `BETTER_AUTH_URL` when configured and otherwise falls back to the incoming host. The evidence proves the failing loopback request; the sensitive deployed value remains API-redacted, so its exact source is not independently resolved. A real restricted PostgreSQL query through the deployed function was not established.
+- Anonymous status-only checks against `/sign-in` returned HTTP 302 for the unique deployment URL and both branch/team aliases, but HTTP 200 with the LabOS application page for the canonical production alias `lab-os-verification-deployment.vercel.app`. Thus the canonical generated production alias is publicly reachable despite project metadata reporting `ssoProtection.enabled=true` and `deploymentType=all_except_custom_domains`. The metadata cannot substitute for the observed protection behavior. No response body, cookie, token or bearer URL was retained in this packet.
+- The Product Owner's explicit stop condition for absent deployment protection applies. No synthetic signup/login, session, onboarding, tenant read/write, unauthorized-denial matrix, private R2 operation or clinical upload was attempted after this result. Vercel's `READY` state is package readiness, not application-runtime acceptance.
+
+## Disposition and recovery gate
+
+The latest `main` and remote `main` are `6a7bc89acbc529f40aa318dc8fa5895b861c0bbc`. The new application is deployed but **not verified as a working protected runtime**. The canonical production alias must be protected for anonymous users before synthetic account testing resumes. Separately resolve why the deployed server-session request targets loopback, without logging or exposing the sensitive URL or weakening the accepted session-projection boundary. The user-authorized deployment objective remains open. No provider setting, database role, migration, R2 bucket, clinical route or secret was changed after the stop.
+
+Independent V3 verdict: `PASS | RUNTIME_EVIDENCE + CHECKPOINT` for the accuracy of this stop record. The reviewer independently confirmed both deployment outcomes, exact SHA, Vercel's grouped loopback error, protection metadata, and the inactive clinical route guards. Runtime acceptance itself is **FAIL at canonical-alias protection and root session execution**; the review PASS does not turn either result into a passing application-runtime claim.
+
+Actual Vercel restricted PostgreSQL connectivity, certificate validation, Better Auth signup/login/session/onboarding, representative authorized and denied operations, deployed native addon load/decode, and Preview-origin behavior remain `NOT_RUN` or unestablished. A1-I1 remains `BLOCKED_DECISION`; N-FILE-110 remains inactive.
