@@ -59,11 +59,17 @@ export default async function proxy(request: NextRequest) {
 	// Better Auth's low-level session API from middleware. The
 	// latter returns the provider-shaped session model and is too easy to
 	// accidentally carry into a request/rendering context.
+	// The session endpoint needs the browser cookies, not transport headers from
+	// the incoming request. Forwarding transfer-encoding to a new GET can make
+	// Node's fetch reject Server Action requests before the endpoint runs.
+	const sessionHeaders = new Headers({ accept: 'application/json' })
+	const cookie = request.headers.get('cookie')
+	if (cookie) sessionHeaders.set('cookie', cookie)
 	const sessionResponse = await fetch(
 		new URL('/api/auth/get-session', request.url),
 		{
 			method: 'GET',
-			headers: new Headers(request.headers),
+			headers: sessionHeaders,
 			cache: 'no-store',
 		},
 	)
