@@ -5,8 +5,8 @@ const nextConfig: NextConfig = {
 	serverExternalPackages: ['@julusian/jpeg-turbo'],
 	outputFileTracingIncludes: {
 		'/api/cases/\\[caseId\\]/clinical-upload/complete': [
-			'./node_modules/@julusian/jpeg-turbo/prebuilds/jpeg-turbo-linux-x64/node-napi-v10.node',
-			'./node_modules/@julusian/jpeg-turbo/prebuilds/jpeg-turbo-linux-x64/libturbojpeg.so.0',
+			'./node_modules/.pnpm/@julusian+jpeg-turbo@3.0.1/node_modules/@julusian/jpeg-turbo/prebuilds/jpeg-turbo-linux-x64/node-napi-v10.node',
+			'./node_modules/.pnpm/@julusian+jpeg-turbo@3.0.1/node_modules/@julusian/jpeg-turbo/prebuilds/jpeg-turbo-linux-x64/libturbojpeg.so.0',
 		],
 	},
 	reactStrictMode: false, // temporary test only
