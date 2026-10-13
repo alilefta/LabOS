@@ -1,15 +1,25 @@
 # Current LabOS work
 
-Status: Windows x64 R001 CODE accepted; S001 V1 Vercel profile and Julusian backend PO-approved; corrected S001 evidence migration installed in normal development with independent PASS; corrected S001 byte core Preview runtime PASS_WITH_LIMITATIONS; checked-suffix migration installed in normal development with independent PASS; S001 finalization and first attachment CODE/disposable PostgreSQL checkpoints independently PASS; Case upload runtime inactive
+Status: D2 protected Vercel runtime CLOSED | PASS_WITH_LIMITATIONS | PROTECTED_RUNTIME_VERIFIED; R2-06 ELIGIBLE_FOR_ACTIVATION for its reviewed technical scope; A1-I1 BLOCKED_DECISION; N-FILE-110 inactive
 Authority: Canonical
 Owner: LabOS maintainers
-Last reviewed: 2026-10-11
+Last reviewed: 2026-10-13
 
 - **Active branch:** `feat/authorization-financial-reads` (stale context; the name does not set priority).
-- **Last committed checkpoint:** `2b96327` — `feat(auth): protect unpaid invoice cancellation`.
-- **Working tree:** implementation, generated-output, migration, and test changes are in progress and remain outside this documentation migration.
+- **Last committed checkpoint:** local `main` includes evidence-only `1a15ae26`; deployed and remote `main` remain at application SHA `6b29b85d`.
+- **Working tree:** unrelated `.gitignore`, cache, editor and experiment paths remain untouched; this closeout changes documentation only.
 - **Program milestone:** M4 — Authorization V1.
-- **Current workstream:** UploadThing/file authorization.
+- **Current workstream:** Files lifecycle; the next unresolved gate is A1-I1 cleanup execution-role topology.
+
+## D2 protected verification deployment — accepted
+
+The Product Owner accepted the [protected runtime checkpoint](evidence/deployment/d2-vercel-protected-runtime-correction-20261013.md) as **`CLOSED | PASS_WITH_LIMITATIONS | PROTECTED_RUNTIME_VERIFIED`** after independent V3 `PASS | RUNTIME_EVIDENCE + CHECKPOINT`. The historical [initial stop record](evidence/deployment/d2-vercel-integrated-deployment-20261013.md) remains unchanged. The protected synthetic Vercel deployment runs exact Git SHA `6b29b85d22c9ae6afded25b2f1b01e3ea0d8a628`, with verified signup, onboarding, session, tenant-scoped empty reads, anonymous denial and 404 responses from both inactive clinical upload POST routes. This is verification deployment evidence, not clinical-file activation or production exposure.
+
+Local `main` fast-forwarded to the evidence-only `1a15ae26` without a push or another deployment; `origin/main` remains at deployed SHA `6b29b85d`. The successful synthetic verification workspace/account and logo remain available for later runtime testing. The failed-onboarding synthetic account and possibly orphaned UploadThing logo are explicit cleanup items; deleting either requires separate authority. Preview, deployed native JPEG decode, full cross-tenant object-ID denial and the two fixture-bound PostgreSQL suites remain `NOT_RUN`; direct client-to-pooler TLS peer details remain unexposed. No R2 object was changed in D2.
+
+The next Files blocker is the [A1-I1 role-feasibility stop](evidence/files/authorization-v1/n-file-110-a1-i1/role-feasibility-stop-20261008.md): settle and attest the actual migration/DDL owner, restricted application runtime, cleanup worker and NOLOGIN ACK-function owner boundary on the selected target before resuming cleanup persistence or trusted-writer implementation. The [A1-R0 feasibility packet](evidence/files/authorization-v1/n-file-110-a1-r0/packet.md) remains `INSUFFICIENT_EVIDENCE — TARGET ATTESTATION REQUIRED`; D1 is an accepted planning baseline, not target-specific ACK role proof. The in-flight R2 PUT expiry fence remains a separate prerequisite before destructive cleanup. A1-I1 stays `BLOCKED_DECISION`; N-FILE-110 stays inactive.
+
+The D2-S0 through D2-V2 narrative below retains historical point-in-time findings. This accepted checkpoint supersedes its earlier build-blocked, privileged-runtime and no-deployment pending statements; it does not rewrite those attempts as PASS.
 
 **Current Files direction (2026-10-07):** The Product Owner approved the
 [UploadThing → R2 migration roadmap](plans/authorization-v1/uploadthing-r2-migration-repository-review.md),

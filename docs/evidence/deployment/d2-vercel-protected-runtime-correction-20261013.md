@@ -1,7 +1,7 @@
 # D2 protected Vercel runtime correction
 
 Date: 2026-10-13
-Status: PASS | RUNTIME_EVIDENCE + CHECKPOINT | PRODUCT_OWNER_ACCEPTANCE_PENDING
+Status: CLOSED | PASS_WITH_LIMITATIONS | PROTECTED_RUNTIME_VERIFIED
 Authority: Product Owner authorization to correct the exact verification project's protection and loopback session failure, then perform bounded synthetic runtime verification.
 
 ## Accepted starting point
@@ -56,8 +56,14 @@ Independent V3: `PASS | CODE + RUNTIME_EVIDENCE` for bounded correction readines
 
 - Actual POST behavior of both inactive clinical upload routes was verified on the exact protected deployment. Two status-only synthetic requests to `/api/cases/00000000-0000-0000-0000-000000000000/clinical-upload/intent` and `/complete` each returned HTTP 404. The Vercel CLI used the existing account identity to generate a short-lived deployment-protection token; no token value or response body was retained. Source review confirms `CASE_OBJECT_STORAGE_UPLOAD_ACTIVE = false` and both guards return 404 before parsing, domain or provider work. No R2 object operation occurred. The run-owned temporary CLI link directory was removed. N-FILE-110 remains inactive.
 - Exact client-to-pooler TLS handshake/peer certificate details, decrypted Vercel database identity, distinct Preview-origin behavior, deployed Julusian native load/decode, full cross-tenant object-ID denial matrix, and auth-provider callback paths beyond email/password remain `NOT_RUN` or indirectly supported as specified above.
-- The corrected Production runtime passes the bounded synthetic browser chain, deployment protection, the demonstrated Server Action failure boundary and two disabled-route POST checks. Final Product Owner checkpoint acceptance remains pending. Independent V3 runtime rereview passed. A1-I1 remains `BLOCKED_DECISION`.
+- The corrected Production runtime passes the bounded synthetic browser chain, deployment protection, the demonstrated Server Action failure boundary and two disabled-route POST checks. The Product Owner accepted the bounded protected-runtime checkpoint as `CLOSED | PASS_WITH_LIMITATIONS | PROTECTED_RUNTIME_VERIFIED` after independent V3 runtime rereview passed. A1-I1 remains `BLOCKED_DECISION`.
 
 ## Independent final review
 
-Independent V3: `PASS | RUNTIME_EVIDENCE + CHECKPOINT`. The reviewer independently rechecked the deployed SHA/protection metadata, exact inactive-route guard order, bounded runtime logs and the chronology/limitations in this packet. The two protected status-only 404 POSTs closed the earlier `CORRECTION_REQUIRED` gap. The reviewer treated the remaining synthetic UploadThing fixtures as a disclosed operational cleanup/retention question, not as R2 evidence or an application-runtime failure. Product Owner acceptance has not yet been given.
+Independent V3: `PASS | RUNTIME_EVIDENCE + CHECKPOINT`. The reviewer independently rechecked the deployed SHA/protection metadata, exact inactive-route guard order, bounded runtime logs and the chronology/limitations in this packet. The two protected status-only 404 POSTs closed the earlier `CORRECTION_REQUIRED` gap. The reviewer treated the remaining synthetic UploadThing fixtures as a disclosed operational cleanup/retention question, not as R2 evidence or an application-runtime failure. At the time of this independent review, Product Owner acceptance had not yet been given; it was subsequently granted as recorded below.
+
+## Product Owner acceptance and closeout
+
+On 2026-10-13 the Product Owner accepted D2 protected runtime as `CLOSED | PASS_WITH_LIMITATIONS | PROTECTED_RUNTIME_VERIFIED`, with independent V3 `PASS | RUNTIME_EVIDENCE + CHECKPOINT`, for the bounded synthetic deployment at `6b29b85d22c9ae6afded25b2f1b01e3ea0d8a628`. The earlier loopback and Server Action failures remain historical evidence. Preview, deployed native JPEG decode, full cross-tenant object denial, the two disposable PostgreSQL suites, direct TLS peer details and non-email callbacks retain their documented `NOT_RUN` or indirect status.
+
+The successful synthetic verification Organization/Lab/Member and associated account/logo remain available for future runtime testing. The separate failed-onboarding synthetic account has no Organization/Lab and is an explicit cleanup item. Its UploadThing logo may be an orphan and is a separate exact-provider cleanup item; no provider object or database record was deleted under this closeout. The local evidence-only commit `1a15ae26d2e0e4f85af018c0333ba6c24293e0e3` was fast-forwarded into local `main` without pushing or triggering another deployment. Remote `main` and the deployed application remain at `6b29b85d`. N-FILE-110 remains inactive; A1-I1 remains `BLOCKED_DECISION` pending the actual cleanup execution-role topology decision.
