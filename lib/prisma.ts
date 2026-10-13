@@ -4,8 +4,55 @@ import { PrismaClient } from '../generated/prisma/client'
 
 const connectionString = process.env.DATABASE_URL!
 
+const createPrismaAdapter = () => {
+	const caCertificate = process.env.LABOS_DATABASE_CA_CERT
+	if (!caCertificate) {
+		if (process.env.VERCEL === '1') {
+			throw new Error('LABOS_DATABASE_CA_CERT is required on Vercel')
+		}
+		return new PrismaPg({ connectionString })
+	}
+
+	let url: URL
+	try {
+		url = new URL(connectionString)
+	} catch {
+		throw new Error('DATABASE_URL is not a valid database URL')
+	}
+	if (!['postgres:', 'postgresql:'].includes(url.protocol) || !url.hostname) {
+		throw new Error('DATABASE_URL must identify a PostgreSQL host')
+	}
+
+	const ca = caCertificate.replace(/\\n/g, '\n').trim()
+	if (
+		!ca.includes('-----BEGIN CERTIFICATE-----') ||
+		!ca.includes('-----END CERTIFICATE-----') ||
+		ca.includes('PRIVATE KEY')
+	) {
+		throw new Error('LABOS_DATABASE_CA_CERT must contain a CA certificate')
+	}
+
+	// pg connection-string options override PoolConfig.ssl, so remove any URI
+	// TLS options before installing the verified CA and exact-host policy.
+	for (const option of [
+		'ssl',
+		'sslmode',
+		'sslrootcert',
+		'sslcert',
+		'sslkey',
+		'uselibpqcompat',
+	]) {
+		url.searchParams.delete(option)
+	}
+
+	return new PrismaPg({
+		connectionString: url.toString(),
+		ssl: { ca, rejectUnauthorized: true, servername: url.hostname },
+	})
+}
+
 const prismaClientSingleton = () => {
-	const adapter = new PrismaPg({ connectionString })
+	const adapter = createPrismaAdapter()
 	return new PrismaClient({ adapter }) // , log: ['query'] for logging
 }
 
