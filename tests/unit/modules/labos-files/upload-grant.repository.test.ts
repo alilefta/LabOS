@@ -176,11 +176,32 @@ describe('PrismaUploadGrantRepository', () => {
 			where: {
 				status: { in: ['PENDING', 'UPLOADED'] },
 				expiresAt: { lte: now },
+				NOT: {
+					boundaryId: 'N-FILE-110',
+					purpose: 'case.asset.add.stage',
+					provider: 'OBJECT_STORAGE',
+				},
 			},
 			data: { status: 'EXPIRED', expiredAt: now },
 		})
 	})
 
+	it('leaves elapsed scoped Case grants for the private expiry/enrollment function', async () => {
+		const { repository, transaction } = createFixture()
+		transaction.fileUploadGrant.updateMany.mockResolvedValue({ count: 0 })
+		transaction.fileUploadGrant.findFirst.mockResolvedValue({
+			status: 'PENDING', provider: 'OBJECT_STORAGE',
+			expiresAt: new Date('2026-09-04T11:59:00.000Z'),
+			providerFileKey: 'objects/11111111-1111-4111-8111-111111111111',
+			providerFileUrl: null,
+		})
+		await expect(repository.complete({
+			uploadGrantId: 'grant_123', boundaryId: 'N-FILE-110',
+			purpose: 'case.asset.add.stage', providerFileKey: 'objects/11111111-1111-4111-8111-111111111111',
+			providerFileUrl: '', now,
+		})).resolves.toBe('expired')
+		expect(transaction.fileUploadGrant.updateMany).toHaveBeenCalledTimes(1)
+	})
 	it('consumes exactly once with all actor, tenant, purpose, and target constraints', async () => {
 		const { prisma, repository, transaction } = createFixture()
 		const mutation = vi.fn().mockResolvedValue({ id: 'category-1' })

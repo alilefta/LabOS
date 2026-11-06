@@ -41,6 +41,8 @@ type ConsumeGrantRecord = CanonicalGrantScope &
 		now: Date
 	}>
 
+/** `expired` rejects late completion; scoped Case persistence may remain
+ * PENDING/UPLOADED until the trusted expiry/enrollment sweeper runs. */
 export type UploadGrantCompletionResult =
 	| 'completed'
 	| 'already_completed'
@@ -142,6 +144,7 @@ export function createPrismaUploadGrantRepository(
 					},
 					select: {
 						status: true,
+						provider: true,
 						expiresAt: true,
 						providerFileKey: true,
 						providerFileUrl: true,
@@ -161,6 +164,13 @@ export function createPrismaUploadGrantRepository(
 					(existing.status === 'PENDING' || existing.status === 'UPLOADED') &&
 					existing.expiresAt <= input.now
 				) {
+					// Scoped Case grants are expired and enrolled only by the private
+					// database expiry boundary. The independent sweeper owns that write.
+					if (
+						input.boundaryId === 'N-FILE-110' &&
+						input.purpose === 'case.asset.add.stage' &&
+						existing.provider === 'OBJECT_STORAGE'
+					) return 'expired'
 					await transaction.fileUploadGrant.updateMany({
 						where: {
 							id: input.uploadGrantId,
@@ -181,6 +191,11 @@ export function createPrismaUploadGrantRepository(
 				where: {
 					status: { in: ['PENDING', 'UPLOADED'] },
 					expiresAt: { lte: now },
+					NOT: {
+						boundaryId: 'N-FILE-110',
+						purpose: 'case.asset.add.stage',
+						provider: 'OBJECT_STORAGE',
+					},
 				},
 				data: { status: 'EXPIRED', expiredAt: now },
 			})

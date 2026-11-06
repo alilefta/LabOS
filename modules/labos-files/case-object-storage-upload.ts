@@ -7,7 +7,7 @@ import type { TenantContext } from '@/platform/organizations'
 import { requireTenantContext } from '@/platform/organizations'
 import { createTransactionStageAuthorizer } from './case-asset-stage.repository'
 import { stageCaseObjectStorageAsset } from './case-asset-stage.contract'
-import { parseCaseClinicalCheckedSuffix } from './case-clinical-suffix'
+import { parseCaseObjectStorageCheckedSuffix } from './case-clinical-suffix'
 import type { ObjectCapability, ObjectStorage } from './object-storage/contract'
 
 export class CaseObjectStorageUploadUnavailable extends Error {
@@ -145,7 +145,7 @@ export async function createCaseObjectStorageIntent(
 	input: Readonly<{ caseId: string; filename: string }>,
 	storage: ObjectStorage,
 ): Promise<Readonly<{ uploadGrantId: string; upload: ObjectCapability }>> {
-	const checkedSuffix = parseCaseClinicalCheckedSuffix(input.filename)
+	const checkedSuffix = parseCaseObjectStorageCheckedSuffix(input.filename)
 	if (!checkedSuffix) reject()
 	const tenant = await requireTenantContext()
 	const staged = await stageCaseObjectStorageAsset({ caseId: input.caseId }, checkedSuffix)

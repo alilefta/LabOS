@@ -23,7 +23,7 @@ export interface ObjectStorage {
 	inspect(key: string, signal?: AbortSignal): Promise<StorageResult<ObjectInspection>>
 	/** Reads through a bounded provider stream; never returns partial bytes. */
 	retrieve(input: Readonly<{ key: string; maxBytes: number; signal?: AbortSignal }>): Promise<StorageResult<Uint8Array>>
-	issuePrivateRead(input: Readonly<{ key: string; lifetimeSeconds: number }>): Promise<StorageResult<ObjectCapability>>
+	issuePrivateRead(input: Readonly<{ key: string; lifetimeSeconds: number; mimeType?: 'image/jpeg' | 'image/png' | 'image/webp' }>): Promise<StorageResult<ObjectCapability>>
 	deleteExact(key: string, signal?: AbortSignal): Promise<StorageResult<void>>
 	/** ABSENT is authoritative only after a successful direct private inspection. */
 	classifyPresence(key: string, signal?: AbortSignal): Promise<StorageResult<'PRESENT' | 'ABSENT'>>

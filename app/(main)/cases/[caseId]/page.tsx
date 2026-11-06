@@ -16,6 +16,7 @@ import { EditCaseButton } from "@/components/cases/case-details/edit-case-button
 import { Metadata } from "next";
 import { AmbientBgGlow } from "@/components/ui/ui-utils/animated-ambient-bg-glow";
 import z from "zod";
+import { CASE_OBJECT_STORAGE_UPLOAD_ACTIVE } from '@/modules/labos-files/case-object-storage-activation'
 
 interface PageProps {
 	params: Promise<{ caseId: string }>;
@@ -120,7 +121,8 @@ export default async function CaseDossierPage({ params }: { params: Promise<{ ca
 						<NeuralAuditorCard />
 						<ProductionPipelineStepper currentStatus={dentalCase.status} />
 						<ClinicalRxFeed workItems={dentalCase.caseItems} />
-							<DigitalAssetVault assets={dentalCase.caseAssetFiles ?? []} caseId={dentalCase.id} />
+							<DigitalAssetVault assets={dentalCase.caseAssetFiles ?? []} caseId={dentalCase.id}
+								localUploadsEnabled={CASE_OBJECT_STORAGE_UPLOAD_ACTIVE} />
 						{dentalCase.caseActivityLogs && dentalCase.caseActivityLogs.length > 0 && (
 							<AuditTrailLog logs={dentalCase?.caseActivityLogs?.map((cal) => ({ ...cal, dentalCase: null, lab: null })) ?? []} />
 						)}

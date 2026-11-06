@@ -29,6 +29,13 @@ const createDefinition = {
 	ttlMs: 5 * 60_000,
 } as const
 
+const scopedDefinition = {
+	boundaryId: 'N-FILE-110',
+	purpose: 'case.asset.add.stage',
+	targetType: 'case',
+	ttlMs: 120_000,
+} as const
+
 const updateDefinition = {
 	boundaryId: 'N-FILE-TEST-UPDATE',
 	purpose: 'catalog.image.update.stage',
@@ -62,6 +69,7 @@ function createFixture(repository = createRepository()) {
 	const registry = createUploadGrantRegistry([
 		createDefinition,
 		updateDefinition,
+		scopedDefinition,
 	])
 	const service = createUploadGrantService({
 		registry,
@@ -178,6 +186,28 @@ describe('UploadGrantService', () => {
 			'UPLOAD_GRANT_PROVIDER_COMPLETED',
 			'UPLOAD_GRANT_PROVIDER_REPLAY_ACCEPTED',
 		])
+	})
+
+	it('denies a late scoped callback without treating it as persisted expiry', async () => {
+		const repository = createRepository()
+		vi.mocked(repository.findDefinition).mockResolvedValue({
+			boundaryId: 'N-FILE-110',
+			purpose: 'case.asset.add.stage',
+		})
+		vi.mocked(repository.complete).mockResolvedValue('expired')
+		const { events, service } = createFixture(repository)
+		await expect(
+			service.completeVerifiedProviderCallback({
+				metadata: { uploadGrantId: 'grant_123' },
+				file: { key: 'provider-key', url: 'https://ufs.sh/f/provider-key' },
+			}),
+		).rejects.toMatchObject({ code: UPLOAD_GRANT_ERROR_CODES.EXPIRED })
+		expect(repository.expireDue).not.toHaveBeenCalled()
+		expect(events.at(-1)).toMatchObject({
+			phase: 'provider_completion',
+			outcome: 'failed',
+			reason: UPLOAD_GRANT_ERROR_CODES.EXPIRED,
+		})
 	})
 
 	it('rejects malformed, expired, mismatched, and unregistered callbacks', async () => {

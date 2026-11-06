@@ -5,7 +5,7 @@ import { generalPrisma } from '@/lib/prisma'
 import { createLabOSAuthorizationActor } from '@/modules/labos-authorization/actor'
 import { createTransactionStageAuthorizer } from '../case-asset-stage.repository'
 import { R001Unavailable } from './inspect'
-import { isCaseClinicalCheckedSuffix } from '../case-clinical-suffix'
+import { isCaseClinicalCheckedSuffix, isCaseObjectStorageCheckedSuffix } from '../case-clinical-suffix'
 import type { CaseClinicalValidatedSuffix } from '@/generated/prisma/client'
 import type { TenantContext } from '@/platform/organizations'
 
@@ -25,7 +25,8 @@ function reject(): never { throw new R001Unavailable() }
 /** Read-only, transaction-fresh Case/tenant/Member/assignment gate before any provider call. */
 export async function resolveReservedClinicalGrant(uploadGrantId: string,
 	prisma: typeof generalPrisma = generalPrisma,
-	expected?: Readonly<{ provider: 'UPLOADTHING' | 'OBJECT_STORAGE'; tenant: TenantContext }>,
+	expected?: Readonly<{ provider: 'UPLOADTHING' | 'OBJECT_STORAGE'; tenant: TenantContext;
+		allowCaseImageV1?: true }>,
 ): Promise<ReservedClinicalGrant> {
 	if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(uploadGrantId)) reject()
 	try {
@@ -47,7 +48,9 @@ export async function resolveReservedClinicalGrant(uploadGrantId: string,
 				grant.purpose !== 'case.asset.add.stage' || grant.targetType !== 'case' ||
 					!grant.targetId || !grant.createdByMemberId ||
 					grant.provider !== (expected?.provider ?? 'UPLOADTHING') ||
-					!isCaseClinicalCheckedSuffix(grant.caseClinicalValidatedSuffix) ||
+					!(expected?.allowCaseImageV1 && expected.provider === 'OBJECT_STORAGE'
+						? isCaseObjectStorageCheckedSuffix(grant.caseClinicalValidatedSuffix)
+						: isCaseClinicalCheckedSuffix(grant.caseClinicalValidatedSuffix)) ||
 				grant.status !== 'PENDING' || grant.expiresAt <= now ||
 				!grant.providerFileKey || grant.providerFileUrl !== null ||
 				grant.uploadedAt !== null || grant.providerDeletedAt !== null ||
@@ -80,7 +83,7 @@ export async function resolveReservedClinicalGrant(uploadGrantId: string,
 			return Object.freeze({ uploadGrantId: grant.id, organizationId: grant.organizationId,
 				labId: grant.labId, caseId: grant.targetId, memberId: member.id,
 				provider: grant.provider, providerFileKey: grant.providerFileKey,
-				checkedSuffix: grant.caseClinicalValidatedSuffix })
+				checkedSuffix: grant.caseClinicalValidatedSuffix! })
 		}, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable, maxWait: 5_000, timeout: 10_000 })
 	} catch { reject() }
 }

@@ -13,10 +13,12 @@ function row() {
     currentVersion: { id: 'v', caseAssetFileId: assetId, organizationId: 'org', labId: 'lab', storedFileId: 'f',
       storedFile: { id: 'f', organizationId: 'org', labId: 'lab', provider: 'UPLOADTHING', providerObjectKey: 'key',
         providerAccess: 'PUBLIC_READ', purpose: 'CASE_CLINICAL_ASSET', sourceUploadGrantId: 'g',
+        detectedMimeType: 'image/jpeg',
         sourceGrant: { id: 'g', organizationId: 'org', labId: 'lab', provider: 'UPLOADTHING', providerFileKey: 'key',
           targetType: 'case', targetId: caseId, status: 'CONSUMED',
           clinicalUploadEvidence: { uploadGrantId: 'g', organizationId: 'org', labId: 'lab', caseId,
-            provider: 'UPLOADTHING', providerObjectKey: 'key', clinicalPurpose: 'CLINICAL_REFERENCE_PHOTOGRAPH' },
+            provider: 'UPLOADTHING', providerObjectKey: 'key', clinicalPurpose: 'CLINICAL_REFERENCE_PHOTOGRAPH',
+            verifiedFormat: 'JPEG' },
         },
       },
     },
@@ -198,6 +200,7 @@ describe('R2-04 private Case opening', () => {
     await expect(h.open(selector)).resolves.toBe('https://private.example/signed')
     expect(h.read).toHaveBeenCalledExactlyOnceWith({
       key: 'objects/33333333-3333-4333-8333-333333333333', lifetimeSeconds: 120,
+      mimeType: 'image/jpeg',
     })
     expect(h.audit).toHaveBeenCalledWith(expect.objectContaining({
       caseId, caseAssetFileId: assetId,

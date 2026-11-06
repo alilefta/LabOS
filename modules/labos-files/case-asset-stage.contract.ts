@@ -12,7 +12,7 @@ import {
 	type CaseAssetStageRepository,
 } from './case-asset-stage.repository'
 import type { UploadGrantProviderMetadata } from './upload-grants'
-import { isCaseClinicalCheckedSuffix } from './case-clinical-suffix'
+import { isCaseClinicalCheckedSuffix, isCaseObjectStorageCheckedSuffix } from './case-clinical-suffix'
 import type { CaseClinicalValidatedSuffix } from '@/generated/prisma/client'
 
 export const CaseAssetStageInputSchema = z
@@ -80,7 +80,7 @@ export async function stageCaseObjectStorageAsset(
 	checkedSuffix: CaseClinicalValidatedSuffix,
 	dependencies: StageCaseAssetDependencies = {},
 ): Promise<UploadGrantProviderMetadata> {
-	if (!isCaseClinicalCheckedSuffix(checkedSuffix)) throw new Error('Case clinical JPEG upload unavailable')
+	if (!isCaseObjectStorageCheckedSuffix(checkedSuffix)) throw new Error('Case clinical image upload unavailable')
 	return stageCaseAssetForCanonicalTenant(
 		{ tenant: await requireTenantContext(), stage, checkedSuffix, backend: 'OBJECT_STORAGE' },
 		dependencies,

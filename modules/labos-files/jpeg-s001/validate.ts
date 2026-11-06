@@ -3,7 +3,7 @@ import 'server-only'
 import { createHash } from 'node:crypto'
 
 import { resolveReservedClinicalGrant, type ReservedClinicalGrant } from '../jpeg-r001/grant'
-import { R001_LIMITS } from '../jpeg-r001/inspect'
+import { inspectR001, R001_LIMITS } from '../jpeg-r001/inspect'
 import { retrieveReservedUploadThingBytes } from '../jpeg-r001/retrieve'
 import type { ObjectStorage } from '../object-storage/contract'
 import type { TenantContext } from '@/platform/organizations'
@@ -20,6 +20,13 @@ const retained = new WeakMap<ValidatedClinicalJpegS001, Readonly<{
   validatedAtEpochMs: number
 }>>()
 const sha256 = (bytes: Buffer): string => createHash('sha256').update(bytes).digest('hex')
+
+/** Only exact, fully retrieved bytes that fail the deterministic JPEG structure gate. */
+export class DefinitiveCaseS001Rejection extends Error {
+  constructor(readonly grant: ReservedClinicalGrant) {
+    super('Clinical JPEG unavailable')
+  }
+}
 
 /** For a later separately authorized finalizer; never serialize this state. */
 export function getRetainedS001Context(result: ValidatedClinicalJpegS001): Readonly<{
@@ -87,12 +94,23 @@ export async function validateReservedObjectStorageClinicalJpegS001(
 		if (!retrieved.ok || retrieved.value.length !== inspection.value.bytes ||
 			signal?.aborted) throw new S001Unavailable()
 		const original = Buffer.from(retrieved.value)
+		// Provider errors, partial retrieval, cancellation and native codec failures
+		// are ambiguous. Only an exact object rejected by the pure byte parser is
+		// terminalized here; all other failures retain the retryable PENDING grant.
+		try { inspectR001(original, signal) }
+		catch {
+			if (signal?.aborted) throw new S001Unavailable()
+			throw new DefinitiveCaseS001Rejection(grant)
+		}
 		const result = await validateClinicalJpegS001Bytes(original, signal)
 		if (signal?.aborted) throw new S001Unavailable()
 		const validatedAtEpochMs = Date.now()
 		if (!Number.isSafeInteger(validatedAtEpochMs)) throw new S001Unavailable()
 		retained.set(result, Object.freeze({ grant, original, validatedAtEpochMs }))
 		return result
-	} catch { throw new S001Unavailable() }
+	} catch (error) {
+		if (error instanceof DefinitiveCaseS001Rejection) throw error
+		throw new S001Unavailable()
+	}
 	finally { release?.() }
 }

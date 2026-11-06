@@ -12,7 +12,7 @@ import { createLabOSAuthorizationService } from '@/modules/labos-authorization/s
 import { createOrganizationBoundaryResolver } from '@/modules/labos-authorization/target-resolvers/organization-boundary-resolver'
 import type { TenantContext } from '@/platform/organizations'
 import type { CaseClinicalValidatedSuffix } from '@/generated/prisma/client'
-import { isCaseClinicalCheckedSuffix } from './case-clinical-suffix'
+import { isCaseClinicalCheckedSuffix, isCaseObjectStorageCheckedSuffix } from './case-clinical-suffix'
 
 import {
 	UPLOAD_GRANT_ERROR_CODES,
@@ -136,7 +136,9 @@ export function createCaseAssetStageRepository(
 ): CaseAssetStageRepository {
 	return Object.freeze({
 		async create(input: CaseAssetStageCreation) {
-			if (!isCaseClinicalCheckedSuffix(input.checkedSuffix)) rejectCanonicalContext()
+			if (!(input.backend === 'OBJECT_STORAGE'
+				? isCaseObjectStorageCheckedSuffix(input.checkedSuffix)
+				: isCaseClinicalCheckedSuffix(input.checkedSuffix))) rejectCanonicalContext()
 			return prisma.$transaction(
 				async (transaction) => {
 					const lockedCases = await transaction.$queryRaw<
