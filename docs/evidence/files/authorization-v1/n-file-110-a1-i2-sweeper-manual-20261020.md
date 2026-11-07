@@ -1,0 +1,9 @@
+# A1-I2 expiry sweeper manual checkpoint — 2026-10-20
+
+**Product Owner disposition:** `A1-I2 EXPIRY SWEEPER | CODE + DISPOSABLE + HOSTED_ZERO_WORK ACCEPTED | AUTOMATION NOT AUTHORIZED`.
+
+The default-off [Node sweeper](../../../../scripts/authorization/files/case-object-storage-expiry-sweeper.mjs) and its focused tests passed code verification. Accepted disposable PostgreSQL 17 verification exercised expiry enrollment and missing-fence quarantine. The dedicated `labos_verification_case_expiry_runner` login passed restricted-identity and TLS session checks on only `labos-verification` (`rvtubjrczuxdxfuazjmr`). The installed baseline was PostgreSQL 17.11 with 58 finished migrations. The [T5 packet](n-file-110-a1-i2-i1-t5-f8/packet.md) remains separate evidence for the installed SQL contracts.
+
+The operator ran the local [credential-safe launcher](../../../../scripts/authorization/files/case-object-storage-expiry-launch.ps1) once with `--run-once` and batch limit 1. Its sanitized result was `SUCCESS`, exit code 0, invocation `662729bc-bb07-4a70-a8b0-e9c5586ced22`, duration 3380 ms, `processedCount=0`, and bounded overdue samples of 0 before/after. Read-only postflight confirmed 58 finished migrations, zero due scoped grants, one unchanged runner membership and the expected expiry-function owner/ACL. The pre-existing failure-coded aggregate remained 1 before/after. The launcher is operator-controlled and is **not** an independently enforceable authorization mechanism; no secret value or connection URL is recorded here.
+
+This was **`PASS | MANUAL_HOSTED_SWEEPER | HOSTED_ZERO_WORK`**. Hosted expiry/quarantine transition through the Node sweeper remains `NOT_RUN`; the Product Owner requires no additional hosted transition test for this checkpoint. Automated scheduling, unattended activation, monitoring/alert configuration, R2 cleanup-worker execution, provider operations and N-FILE-110 activation remain unauthorized.
