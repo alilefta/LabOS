@@ -27,16 +27,23 @@ export const FileUploadGrantAggregateResultSchema = z.object({  _count: z.object
     cleanupAttemptCount: z.number(),
     lastCleanupAttemptAt: z.number(),
     cleanupFailureCode: z.number(),
+    cleanupLeaseExpiresAt: z.number(),
+    providerCleanupConfirmedAt: z.number(),
+    cleanupNextCheckAt: z.number(),
+    cleanupReconcileStage: z.number(),
+    cleanupLastCheckOutcome: z.number(),
     createdAt: z.number(),
     updatedAt: z.number(),
     storedFile: z.number(),
     clinicalUploadEvidence: z.number()
   }).optional(),
   _sum: z.object({
-    cleanupAttemptCount: z.number().nullable()
+    cleanupAttemptCount: z.number().nullable(),
+    cleanupReconcileStage: z.number().nullable()
   }).nullable().optional(),
   _avg: z.object({
-    cleanupAttemptCount: z.number().nullable()
+    cleanupAttemptCount: z.number().nullable(),
+    cleanupReconcileStage: z.number().nullable()
   }).nullable().optional(),
   _min: z.object({
     id: z.string().nullable(),
@@ -60,6 +67,11 @@ export const FileUploadGrantAggregateResultSchema = z.object({  _count: z.object
     cleanupAttemptCount: z.number().int().nullable(),
     lastCleanupAttemptAt: z.date().nullable(),
     cleanupFailureCode: z.string().nullable(),
+    cleanupLeaseExpiresAt: z.date().nullable(),
+    providerCleanupConfirmedAt: z.date().nullable(),
+    cleanupNextCheckAt: z.date().nullable(),
+    cleanupReconcileStage: z.number().int().nullable(),
+    cleanupLastCheckOutcome: z.string().nullable(),
     createdAt: z.date().nullable(),
     updatedAt: z.date().nullable()
   }).nullable().optional(),
@@ -85,6 +97,11 @@ export const FileUploadGrantAggregateResultSchema = z.object({  _count: z.object
     cleanupAttemptCount: z.number().int().nullable(),
     lastCleanupAttemptAt: z.date().nullable(),
     cleanupFailureCode: z.string().nullable(),
+    cleanupLeaseExpiresAt: z.date().nullable(),
+    providerCleanupConfirmedAt: z.date().nullable(),
+    cleanupNextCheckAt: z.date().nullable(),
+    cleanupReconcileStage: z.number().int().nullable(),
+    cleanupLastCheckOutcome: z.string().nullable(),
     createdAt: z.date().nullable(),
     updatedAt: z.date().nullable()
   }).nullable().optional()});

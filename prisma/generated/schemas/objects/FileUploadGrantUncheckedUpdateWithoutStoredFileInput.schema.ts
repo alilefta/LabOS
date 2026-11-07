@@ -11,6 +11,7 @@ import { NullableEnumCaseClinicalValidatedSuffixFieldUpdateOperationsInputObject
 import { DateTimeFieldUpdateOperationsInputObjectSchema as DateTimeFieldUpdateOperationsInputObjectSchema } from './DateTimeFieldUpdateOperationsInput.schema';
 import { NullableDateTimeFieldUpdateOperationsInputObjectSchema as NullableDateTimeFieldUpdateOperationsInputObjectSchema } from './NullableDateTimeFieldUpdateOperationsInput.schema';
 import { IntFieldUpdateOperationsInputObjectSchema as IntFieldUpdateOperationsInputObjectSchema } from './IntFieldUpdateOperationsInput.schema';
+import { NullableIntFieldUpdateOperationsInputObjectSchema as NullableIntFieldUpdateOperationsInputObjectSchema } from './NullableIntFieldUpdateOperationsInput.schema';
 import { CaseClinicalUploadEvidenceUncheckedUpdateOneWithoutUploadGrantNestedInputObjectSchema as CaseClinicalUploadEvidenceUncheckedUpdateOneWithoutUploadGrantNestedInputObjectSchema } from './CaseClinicalUploadEvidenceUncheckedUpdateOneWithoutUploadGrantNestedInput.schema'
 
 const makeSchema = () => z.object({
@@ -38,6 +39,11 @@ const makeSchema = () => z.object({
   cleanupAttemptCount: z.union([z.number().int(), z.lazy(() => IntFieldUpdateOperationsInputObjectSchema)]).optional(),
   lastCleanupAttemptAt: z.union([z.coerce.date(), z.lazy(() => NullableDateTimeFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
   cleanupFailureCode: z.union([z.string(), z.lazy(() => NullableStringFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
+  cleanupLeaseExpiresAt: z.union([z.coerce.date(), z.lazy(() => NullableDateTimeFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
+  providerCleanupConfirmedAt: z.union([z.coerce.date(), z.lazy(() => NullableDateTimeFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
+  cleanupNextCheckAt: z.union([z.coerce.date(), z.lazy(() => NullableDateTimeFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
+  cleanupReconcileStage: z.union([z.number().int(), z.lazy(() => NullableIntFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
+  cleanupLastCheckOutcome: z.union([z.string(), z.lazy(() => NullableStringFieldUpdateOperationsInputObjectSchema)]).optional().nullable(),
   createdAt: z.union([z.coerce.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputObjectSchema)]).optional(),
   updatedAt: z.union([z.coerce.date(), z.lazy(() => DateTimeFieldUpdateOperationsInputObjectSchema)]).optional(),
   clinicalUploadEvidence: z.lazy(() => CaseClinicalUploadEvidenceUncheckedUpdateOneWithoutUploadGrantNestedInputObjectSchema).optional()

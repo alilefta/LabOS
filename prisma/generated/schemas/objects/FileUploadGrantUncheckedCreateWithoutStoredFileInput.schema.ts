@@ -30,6 +30,11 @@ const makeSchema = () => z.object({
   cleanupAttemptCount: z.number().int().optional(),
   lastCleanupAttemptAt: z.coerce.date().optional().nullable(),
   cleanupFailureCode: z.string().optional().nullable(),
+  cleanupLeaseExpiresAt: z.coerce.date().optional().nullable(),
+  providerCleanupConfirmedAt: z.coerce.date().optional().nullable(),
+  cleanupNextCheckAt: z.coerce.date().optional().nullable(),
+  cleanupReconcileStage: z.number().int().optional().nullable(),
+  cleanupLastCheckOutcome: z.string().optional().nullable(),
   createdAt: z.coerce.date().optional(),
   updatedAt: z.coerce.date().optional(),
   clinicalUploadEvidence: z.lazy(() => CaseClinicalUploadEvidenceUncheckedCreateNestedOneWithoutUploadGrantInputObjectSchema).optional()

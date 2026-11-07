@@ -27,6 +27,11 @@ const makeSchema = () => z.object({
   cleanupAttemptCount: z.literal(true).optional(),
   lastCleanupAttemptAt: z.literal(true).optional(),
   cleanupFailureCode: z.literal(true).optional(),
+  cleanupLeaseExpiresAt: z.literal(true).optional(),
+  providerCleanupConfirmedAt: z.literal(true).optional(),
+  cleanupNextCheckAt: z.literal(true).optional(),
+  cleanupReconcileStage: z.literal(true).optional(),
+  cleanupLastCheckOutcome: z.literal(true).optional(),
   createdAt: z.literal(true).optional(),
   updatedAt: z.literal(true).optional()
 }).strict();
