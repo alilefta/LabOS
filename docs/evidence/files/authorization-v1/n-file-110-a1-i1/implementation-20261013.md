@@ -1,0 +1,50 @@
+# A1-I1 verification-target implementation
+
+Date: 2026-10-13; updated 2026-10-14  
+Status: BLOCKED_DECISION — target role-owner transfer rejected after additive migration  
+Authority: Product Owner A1-I1 bounded implementation; isolated `labos-verification` only. N-FILE-110 remains inactive and A1-I2/provider deletion remains unauthorized.
+
+## Read-only target and recovery baseline
+
+Authenticated Supabase project metadata identifies `labos-verification` (`rvtubjrczuxdxfuazjmr`), `eu-central-1`, `ACTIVE_HEALTHY`, PostgreSQL 17.11. Catalog SQL ran as `postgres` in database `postgres`. Exactly 53 Prisma migration rows are finished with no incomplete rows. All 53 installed names and SHA-256 checksums match the existing repository migration files; the new candidate is the only local migration not installed. There are 41 public tables (40 application tables and `_prisma_migrations`).
+
+Before A1-I1 mutation, `labos_verification_cleanup` and `labos_verification_ack_owner` do not exist, `labos_cleanup_private` does not exist, and neither new grant column exists. `FileUploadGrant` and `StoredFile` are owned by `postgres`. `labos_verification_app` is LOGIN without `CREATEROLE`, `CREATEDB`, schema `CREATE`, or parent membership; it has current table-wide SELECT/UPDATE/DELETE on `FileUploadGrant` and no cleanup ACK function access. Its current application DML grants remain the D2 accepted baseline.
+
+Relevant existing ACLs (catalog `relacl`, not secrets):
+
+| Object | Owner | Direct grants before A1-I1 |
+| --- | --- | --- |
+| `FileUploadGrant`, `CaseAssetFile` | `postgres` | `postgres=arwdDxtm`; `labos_verification_app=arwd` |
+| `StoredFile`, `CaseAssetFileVersion`, `CaseClinicalUploadEvidence`, `ObjectStorageKeyAllocation` | `postgres` | `postgres=arwdDxtm`; `labos_verification_app=ar` |
+| `_prisma_migrations` | `postgres` | `postgres=arwdDxtm`; Supabase API roles retain structural privileges on this provider/migration table, which this task does not change |
+
+`public` is owned by `pg_database_owner`; its ACL gives PUBLIC usage and no PUBLIC create. `postgres` public-table default ACL contains only `postgres=arwdDxtm`, preserving the D2 application-table API-role hardening. Supabase-managed `storage` defaults and roles are out of scope.
+
+Recovery boundary: each role-bootstrap/install script is transactional and fails closed on target prerequisites. Before a worker is enabled, a failed bootstrap can be corrected by a separately reviewed removal of only unused new roles. If the additive migration is installed, preserve its Prisma history and correct forward or restore from an authorized verification-project backup; do not edit applied SQL or drop clinical evidence. A failed post-install leaves the ACK function private with PUBLIC EXECUTE revoked and no worker login or schedule. No R2 provider operation is authorized.
+
+## Candidate artifacts and execution outcome
+
+- `prisma/migrations/20261013120000_case_object_storage_cleanup/migration.sql`: nullable lease/confirmation columns, OBJECT_STORAGE Case lifecycle and StoredFile guards, private no-PUBLIC-EXECUTE ACK function.
+- The Case completion path now classifies only exact, fully retrieved bytes that fail the deterministic JPEG structure gate as `CASE_S001_REJECTED`. It re-locks the grant and Case, rechecks tenant, allocation, authorization, evidence and canonical-file absence, then calls a private transition function. Transport, partial retrieval, cancellation and native codec uncertainty leave PENDING. This is a bounded trusted server writer, not a browser failure signal or a provider DELETE.
+- `verification-role-bootstrap.sql`: verification-only NOLOGIN role creation.
+- `verification-role-install.sql`: column grants and same-transaction transfer of five private functions to NOLOGIN ACK owner, with temporary privileges revoked before commit. Only the application role may execute the narrow S001 rejection function; it may execute none of the four cleanup-only functions. Only the cleanup role may execute claim, renew, failure recording and ACK.
+- Worker password would be set through a TLS-verified `psql \password` session and retained outside repository/Vercel. Worker LOGIN and pooler validation remain pending because installation stopped first.
+- Target role installation, synthetic positive/negative matrix and final V3 runtime acceptance remain pending.
+
+Prisma schema validation passed locally. The first `pnpm exec prisma validate` invocation failed because that command path could not find `prisma`; invoking the installed local `node_modules/.bin/prisma.cmd validate` succeeded. No target mutation has occurred at this record point.
+
+The user supplied a Git-ignored migration-owner session-pooler URL. A read-only `psql` query with `sslmode=verify-full` and the local Supabase CA certificate authenticated as `postgres` in database `postgres` on PostgreSQL 17.11. The first sandboxed attempt was denied at the network boundary before authentication; the approved network retry succeeded. The URL, password and CA contents were not printed. This is connection identity evidence only, not role-installation or privilege proof.
+
+Independent pre-mutation review history: the first V3 review returned `CORRECTION_REQUIRED` for non-scoped worker updates, worker-originated FAILED terminalization, stale direct lease mutation and overbroad StoredFile scope. Those were corrected. Rereview returned `CORRECTION_REQUIRED` because the trusted S001 rejection producer was still absent and the install script checked application denial on ACK only. Those gaps were corrected; a further independent V3 review returned `PASS | CODE` for the revised candidate and reviewed the non-logged credential method. These failed reviews remain part of the history. Full TypeScript, Prisma validation and 37 focused S001 tests pass.
+
+The final read-only TLS-verified preflight established `postgres`/`postgres`, PostgreSQL 17.11, exactly 53 finished migrations, no new roles and `password_encryption = scram-sha-256`. The transactional bootstrap created exactly `labos_verification_cleanup NOLOGIN` and `labos_verification_ack_owner NOLOGIN`. Prisma `migrate status` identified only `20261013120000_case_object_storage_cleanup` as pending; `migrate deploy` installed it successfully as migration 54. Candidate and installed Prisma checksum match: `d3a66ee3ce9f903dbebb734074cff3a0dc8108fca1efcc512861b5c8d3510f16`; the installed row is finished and not rolled back. The migration added exactly the two nullable fields, scoped triggers and five private functions. No fixture, provider operation or worker password was created.
+
+The separate transactional role-install script failed at its temporary membership statement, `GRANT labos_verification_ack_owner TO postgres WITH ADMIN TRUE, INHERIT FALSE, SET TRUE`, with PostgreSQL error `ADMIN option cannot be granted back to your own grantor`. `ON_ERROR_STOP` aborted the transaction. A read-only rollback check found the ACK function still owned by `postgres`, no cleanup-role private-schema USAGE or ACK EXECUTE, no application-role private-schema USAGE or S001 rejection EXECUTE, and both new roles still NOLOGIN. Catalog inspection explains the conflict: Supabase had automatically made `postgres` a member of each new role with grantor `supabase_admin`, `admin_option=true`, `inherit_option=false`, `set_option=false`. No alternative role grant, owner transfer, credential provisioning or role activation was attempted. The two new columns and five definer functions are installed but unusable by the restricted runtime roles; N-FILE-110 remains inactive.
+
+This is the exact Product Owner stop boundary. A1-I1 cannot close or claim runtime guard/role proof. A separately reviewed target-specific procedure must resolve PostgreSQL/Supabase's existing membership and function ownership transfer without modifying Supabase-managed role definitions or memberships. Do not silently amend the applied migration checksum. The worker password, restricted pooler login, effective grant tests and synthetic matrix remain `NOT_RUN`. Independent V3 returned `BLOCKED_DECISION | RUNTIME_EVIDENCE + CHECKPOINT`: the rejected managed-role membership operation blocks the approved ownership sequence, while the rolled-back install leaves no worker cleanup or ACK authority. The next Product Owner decision is a narrow target-specific ownership-transfer feasibility/recovery authorization, accounting for installed migration 54; no ad hoc transfer is authorized.
+
+## Subsequent bounded ownership recovery — 2026-10-15
+
+The preceding failure and V3 stop verdict remain historical evidence of the first attempt. The Product Owner subsequently accepted the [ownership-transfer recovery design and disposable PostgreSQL 17.11 proof](ownership-transfer-recovery-20261014.md), then separately authorized target execution of the [reviewed recovery SQL](verification-role-install-recovery.sql). Fresh certificate-verified `labos-verification` preflight matched the target, migration 54, original `supabase_admin` creator membership, two NOLOGIN roles and five postgres-owned private functions. The reviewed script was executed exactly once and committed, transferring all five functions to the NOLOGIN ACK owner, preserving the managed creator grant and removing the temporary SET/CREATE path. The [target execution and privilege record](target-ownership-recovery-20261015.md) contains prechange/postchange ACLs, restricted application read smoke, exact SQL hash, limitations and independent V3 **`PASS | RUNTIME_EVIDENCE + CHECKPOINT`**.
+
+Current subcheckpoint: **`ROLE_INSTALL_PASS | TARGET_PRIVILEGE_VERIFIED`**. A1-I1 overall remains **`BLOCKED_DECISION`** until worker credential/LOGIN, actual restricted pooler authentication and the synthetic lifecycle/denial/concurrency/recovery matrix are separately authorized and pass. No R2 operation, cleanup worker execution, schedule or N-FILE-110 activation occurred. The original failed script and migration 54 were not rewritten.
