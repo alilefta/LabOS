@@ -5,7 +5,7 @@ import { createR2ObjectStorage } from '@/modules/labos-files/object-storage/r2'
 const enabled = process.env.LABOS_R2_CONFORMANCE_RUN === '1' && process.env.LABOS_R2_NON_PRODUCTION === '1' && !!process.env.LABOS_R2_CORS_ORIGIN
 
 describe.skipIf(!enabled)('R2 CORS read-only preflight', () => {
-  it('reports the allowed origin, method and conditional header without uploading', async () => {
+  it('reports the allowed origin, PUT method and browser File headers without uploading', async () => {
     const storage = createR2ObjectStorage({
       accountId: process.env.LABOS_R2_ACCOUNT_ID!, bucket: process.env.LABOS_R2_BUCKET!,
       accessKeyId: process.env.LABOS_R2_ACCESS_KEY_ID!, secretAccessKey: process.env.LABOS_R2_SECRET_ACCESS_KEY!,
@@ -16,10 +16,12 @@ describe.skipIf(!enabled)('R2 CORS read-only preflight', () => {
     const response = await fetch(issued.value.url, { method: 'OPTIONS', headers: {
       Origin: process.env.LABOS_R2_CORS_ORIGIN!,
       'Access-Control-Request-Method': 'PUT',
-      'Access-Control-Request-Headers': 'if-none-match',
+      'Access-Control-Request-Headers': 'if-none-match,content-type',
     } })
     expect([200, 204]).toContain(response.status)
     expect(response.headers.get('access-control-allow-origin')).toBe(process.env.LABOS_R2_CORS_ORIGIN)
+    expect(response.headers.get('access-control-allow-methods')?.toUpperCase()).toContain('PUT')
     expect(response.headers.get('access-control-allow-headers')?.toLowerCase()).toContain('if-none-match')
+    expect(response.headers.get('access-control-allow-headers')?.toLowerCase()).toContain('content-type')
   }, 20_000)
 })

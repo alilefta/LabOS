@@ -5,10 +5,11 @@ import { Prisma } from '@/generated/prisma/client'
 import { generalPrisma } from '@/lib/prisma'
 import { createLabOSAuthorizationActor } from '@/modules/labos-authorization/actor'
 import { createTransactionStageAuthorizer } from './case-asset-stage.repository'
-import { isCaseClinicalCheckedSuffix } from './case-clinical-suffix'
+import { isCaseClinicalCheckedSuffix, isCaseObjectStorageCheckedSuffix } from './case-clinical-suffix'
 import { retrieveReservedUploadThingBytes } from './jpeg-r001/retrieve'
 import { S001_CODEC_MANIFEST } from './jpeg-s001/manifest'
 import type { ObjectStorage } from './object-storage/contract'
+import type { TenantContext } from '@/platform/organizations'
 
 export class CaseClinicalAttachmentUnavailable extends Error {
   constructor() { super('Case asset unavailable'); this.name = 'CaseClinicalAttachmentUnavailable' }
@@ -38,7 +39,41 @@ const evidenceSelect = {
   sourceComponents: true, isProgressive: true, validatedAt: true,
 } as const
 
-async function qualify(tx: Tx, id: string, lock: boolean) {
+function verifiedMime(format: string): 'image/jpeg' | 'image/png' | 'image/webp' {
+  if (format === 'JPEG') return 'image/jpeg'
+  if (format === 'PNG') return 'image/png'
+  if (format === 'WEBP') return 'image/webp'
+  return reject()
+}
+
+function acceptedEvidenceIdentity(e: {
+  verifiedFormat: string; validatedSuffix: string; validationProfile: string;
+  validatorVersion: string | null; codecBackend: string | null;
+  codecPackageVersion: string | null; codecLibraryVersion: string | null;
+  codecRuntimeSha256: string | null; sourceComponents: number | null;
+  isProgressive: boolean | null;
+}, provider: string): boolean {
+  if (e.verifiedFormat === 'JPEG') return (e.validatedSuffix === 'JPG' || e.validatedSuffix === 'JPEG') &&
+    e.validationProfile === S001_CODEC_MANIFEST.profile &&
+    e.validatorVersion === S001_CODEC_MANIFEST.validatorVersion &&
+    e.codecBackend === S001_CODEC_MANIFEST.backend &&
+    e.codecPackageVersion === S001_CODEC_MANIFEST.packageVersion &&
+    e.codecLibraryVersion === S001_CODEC_MANIFEST.libraryVersion &&
+    e.codecRuntimeSha256 === S001_CODEC_MANIFEST.librarySha256 &&
+    (e.sourceComponents === 1 || e.sourceComponents === 3) &&
+    typeof e.isProgressive === 'boolean'
+  if (provider !== 'OBJECT_STORAGE' ||
+    !((e.verifiedFormat === 'PNG' && e.validatedSuffix === 'PNG') ||
+      (e.verifiedFormat === 'WEBP' && e.validatedSuffix === 'WEBP'))) return false
+  const release = e.verifiedFormat === 'PNG' ? 'CASE_PNG_V1_SHARP_1' : 'CASE_WEBP_V1_SHARP_1'
+  return e.validationProfile === release && e.validatorVersion === release &&
+    e.codecBackend === 'SHARP_LIBVIPS' && e.codecPackageVersion === '0.35.4' &&
+    e.codecLibraryVersion === '8.18.6' && e.codecRuntimeSha256 === null &&
+    e.sourceComponents === null && e.isProgressive === null
+}
+
+async function qualify(tx: Tx, id: string, lock: boolean,
+  caller?: Readonly<{ tenant: TenantContext; caseId: string }>) {
   if (lock) {
     const rows = await tx.$queryRaw<ReadonlyArray<{ id: string }>>(Prisma.sql`
       SELECT "id" FROM "FileUploadGrant" WHERE "id" = ${id} FOR UPDATE
@@ -55,10 +90,18 @@ async function qualify(tx: Tx, id: string, lock: boolean) {
     !grant.targetId || !grant.createdByMemberId ||
     (grant.provider !== 'UPLOADTHING' && grant.provider !== 'OBJECT_STORAGE') ||
     !grant.providerFileKey || grant.providerFileUrl !== null ||
-    !isCaseClinicalCheckedSuffix(grant.caseClinicalValidatedSuffix) ||
+    !(grant.provider === 'OBJECT_STORAGE'
+      ? isCaseObjectStorageCheckedSuffix(grant.caseClinicalValidatedSuffix)
+      : isCaseClinicalCheckedSuffix(grant.caseClinicalValidatedSuffix)) ||
     grant.providerDeletedAt !== null || grant.status !== 'UPLOADED' ||
     grant.uploadedAt === null || grant.consumedAt !== null ||
     grant.expiredAt !== null || grant.failedAt !== null || grant.expiresAt <= now) reject()
+
+  if (caller && (grant.provider !== 'OBJECT_STORAGE' ||
+    grant.organizationId !== caller.tenant.organizationId ||
+    grant.labId !== caller.tenant.labId ||
+    grant.createdByMemberId !== caller.tenant.memberId ||
+    grant.targetId !== caller.caseId)) reject()
 
   if (lock) {
     const cases = await tx.$queryRaw<ReadonlyArray<{ id: string }>>(Prisma.sql`
@@ -73,7 +116,7 @@ async function qualify(tx: Tx, id: string, lock: boolean) {
     if (cases.length !== 1) reject()
   }
 
-  const [evidence, member, lab, dentalCase, existingFile] = await Promise.all([
+  const [evidence, member, lab, dentalCase, existingFile, allocation] = await Promise.all([
     tx.caseClinicalUploadEvidence.findUnique({ where: { uploadGrantId: id }, select: evidenceSelect }),
     tx.member.findFirst({ where: { id: grant.createdByMemberId, organizationId: grant.organizationId },
       select: { id: true, userId: true, role: true } }),
@@ -84,23 +127,23 @@ async function qualify(tx: Tx, id: string, lock: boolean) {
       { sourceUploadGrantId: id },
       { provider: grant.provider, providerObjectKey: grant.providerFileKey },
     ] }, select: { id: true } }),
+    grant.provider === 'OBJECT_STORAGE'
+      ? tx.objectStorageKeyAllocation.findUnique({ where: { objectKey: grant.providerFileKey },
+        select: { sourceUploadGrantId: true, latestWriteCapabilityExpiresAt: true } })
+      : Promise.resolve(null),
   ])
   if (!evidence || !member || !lab || !dentalCase || existingFile ||
+    (caller && member.userId !== caller.tenant.userId) ||
     evidence.uploadGrantId !== grant.id || evidence.organizationId !== grant.organizationId ||
     evidence.labId !== grant.labId || evidence.caseId !== grant.targetId ||
     evidence.provider !== grant.provider || evidence.providerObjectKey !== grant.providerFileKey ||
     evidence.validatedSuffix !== grant.caseClinicalValidatedSuffix ||
     evidence.clinicalPurpose !== 'CLINICAL_REFERENCE_PHOTOGRAPH' ||
-    evidence.verifiedFormat !== 'JPEG' ||
-    evidence.validationProfile !== S001_CODEC_MANIFEST.profile ||
-    evidence.validatorVersion !== S001_CODEC_MANIFEST.validatorVersion ||
-    evidence.codecBackend !== S001_CODEC_MANIFEST.backend ||
-    evidence.codecPackageVersion !== S001_CODEC_MANIFEST.packageVersion ||
-    evidence.codecLibraryVersion !== S001_CODEC_MANIFEST.libraryVersion ||
-    evidence.codecRuntimeSha256 !== S001_CODEC_MANIFEST.librarySha256 ||
-    (evidence.sourceComponents !== 1 && evidence.sourceComponents !== 3) ||
-    typeof evidence.isProgressive !== 'boolean' ||
+    !acceptedEvidenceIdentity(evidence, grant.provider) ||
+    (grant.provider === 'OBJECT_STORAGE' &&
+      (allocation?.sourceUploadGrantId !== grant.id || !allocation.latestWriteCapabilityExpiresAt)) ||
     evidence.measuredSizeBytes <= BigInt(0) || evidence.measuredSizeBytes > BigInt(33_554_432) ||
+    evidence.width <= 0 || evidence.height <= 0 ||
     !/^[0-9a-f]{64}$/.test(evidence.contentSha256)) reject()
   try {
     await createTransactionStageAuthorizer(tx).require({
@@ -140,10 +183,11 @@ export function createCaseClinicalFirstAttachment(
   retrieve: typeof retrieveReservedUploadThingBytes = retrieveReservedUploadThingBytes,
   objectStorage?: () => ObjectStorage,
 ) {
-  return async (uploadGrantId: string): Promise<void> => {
+  return async (uploadGrantId: string,
+    caller?: Readonly<{ tenant: TenantContext; caseId: string }>): Promise<void> => {
     if (typeof uploadGrantId !== 'string' || !grantIdPattern.test(uploadGrantId)) reject()
     try {
-      const before = await prisma.$transaction((tx) => qualify(tx, uploadGrantId, false), {
+      const before = await prisma.$transaction((tx) => qualify(tx, uploadGrantId, false, caller), {
         isolationLevel: Prisma.TransactionIsolationLevel.Serializable, maxWait: 5_000, timeout: 10_000,
       })
       const original = before.grant.provider === 'OBJECT_STORAGE'
@@ -164,7 +208,7 @@ export function createCaseClinicalFirstAttachment(
         createHash('sha256').update(original).digest('hex') !== digest) reject()
 
       await prisma.$transaction(async (tx) => {
-        const fresh = await qualify(tx, uploadGrantId, true)
+        const fresh = await qualify(tx, uploadGrantId, true, caller)
         if (!sameSnapshot(before, fresh) ||
           BigInt(original.length) !== fresh.evidence.measuredSizeBytes ||
           createHash('sha256').update(original).digest('hex') !== fresh.evidence.contentSha256) reject()
@@ -174,7 +218,7 @@ export function createCaseClinicalFirstAttachment(
           sourceUploadGrantId: grant.id, provider: grant.provider!,
           providerObjectKey: grant.providerFileKey!,
           providerAccess: grant.provider === 'OBJECT_STORAGE' ? 'PRIVATE' : 'PUBLIC_READ',
-          purpose: 'CASE_CLINICAL_ASSET', detectedMimeType: 'image/jpeg',
+          purpose: 'CASE_CLINICAL_ASSET', detectedMimeType: verifiedMime(evidence.verifiedFormat),
           sizeBytes: evidence.measuredSizeBytes, checksumAlgorithm: 'SHA-256',
           checksumValue: evidence.contentSha256, uploaderMemberId: member.id,
           uploaderMemberIdSnapshot: member.id,

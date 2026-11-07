@@ -73,4 +73,21 @@ describe('R2 adapter local contract', () => {
     expect(await storage.classifyPresence('objects/synthetic')).toEqual({ ok: true, value: 'ABSENT' })
     expect(await storage.classifyPresence('objects/synthetic')).toEqual({ ok: false, error: { code: 'FORBIDDEN' } })
   })
+	  it('forwards optional S3 session credentials without changing permanent credentials', async () => {
+	    const permanent = createR2ObjectStorage(config)
+	    const temporary = createR2ObjectStorage({ ...config, sessionToken: 'synthetic-session-token' })
+	    const key = 'objects/00000000-0000-4000-8000-000000000002'
+	    const oldRead = await permanent.issuePrivateRead({ key, lifetimeSeconds: 60 })
+	    const newRead = await temporary.issuePrivateRead({ key, lifetimeSeconds: 60 })
+	    expect(oldRead.ok).toBe(true)
+	    expect(newRead.ok).toBe(true)
+	    if (!oldRead.ok || !newRead.ok) return
+	    expect(new URL(oldRead.value.url).searchParams.has('X-Amz-Security-Token')).toBe(false)
+	    expect(new URL(newRead.value.url).searchParams.get('X-Amz-Security-Token'))
+	      .toBe('synthetic-session-token')
+	    expect(() => createR2ObjectStorage({ ...config, sessionToken: '' })).toThrow()
+	    expect(() => createR2ObjectStorage({ ...config, sessionToken: '  ' })).toThrow()
+	    expect(() => createR2ObjectStorage({ ...config, accessKeyId: '' })).toThrow()
+	    expect(() => createR2ObjectStorage({ ...config, secretAccessKey: '' })).toThrow()
+	  })
 })

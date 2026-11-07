@@ -5,13 +5,15 @@ import { Box, Eye, FileCode2, FileLock2, ImageIcon, Layers, Video } from 'lucide
 import { ClinicalAssetLightbox } from '@/components/shared/file-assets/clinical-asset-lightbox'
 import { cn } from '@/lib/utils'
 import type { CaseAssetSummary } from '@/schema/composed/case-asset-file.details'
+import { CaseImageUpload } from './case-image-upload'
 
 interface Props {
 	assets: CaseAssetSummary[]
 	caseId?: string
+	localUploadsEnabled?: boolean
 }
 
-export function DigitalAssetVault({ assets, caseId }: Props) {
+export function DigitalAssetVault({ assets, caseId, localUploadsEnabled = false }: Props) {
 	const [lightboxIndex, setLightboxIndex] = useState<number | null>(null)
 	const legacyAssets = assets.filter(
 		(asset): asset is Extract<CaseAssetSummary, { storageMode: 'LEGACY_URL_UNVERIFIED' }> =>
@@ -20,16 +22,20 @@ export function DigitalAssetVault({ assets, caseId }: Props) {
 
 	if (assets.length === 0) {
 		return (
+			<div className="space-y-4">
+				{localUploadsEnabled && caseId && <CaseImageUpload caseId={caseId} />}
 			<div className="lab-card p-12 flex flex-col items-center justify-center text-center border-dashed">
 				<Layers className="w-8 h-8 text-slate-400 mb-4" />
 				<h3 className="text-lg font-bold text-foreground">No digital assets found</h3>
 				<p className="text-sm text-muted-foreground mt-1">This case does not have any attached 3D scans or clinical photos.</p>
+			</div>
 			</div>
 		)
 	}
 
 	return (
 		<section className="space-y-6">
+			{localUploadsEnabled && caseId && <CaseImageUpload caseId={caseId} />}
 			<div className="flex items-center gap-3">
 				<div className="w-1.5 h-6 bg-ai rounded-full" />
 				<h2 className="text-xl font-bold text-foreground">Digital Asset Vault</h2>
@@ -46,7 +52,10 @@ export function DigitalAssetVault({ assets, caseId }: Props) {
 							<div key={asset.id} data-asset-id={asset.id} className="min-w-0 rounded-md border border-border bg-card overflow-hidden">
 								<div className="aspect-square flex flex-col items-center justify-center gap-3 bg-muted/40 p-4 text-center">
 									<FileLock2 className="w-9 h-9 text-muted-foreground" aria-hidden="true" />
-									<span className="text-xs font-semibold text-muted-foreground">Content unavailable</span>
+									{caseId ? <a href={`/api/cases/${encodeURIComponent(caseId)}/assets/${encodeURIComponent(asset.id)}/open`}
+										target="_blank" rel="noopener noreferrer" referrerPolicy="no-referrer"
+										className="text-xs font-semibold text-primary underline">View photograph</a> :
+										<span className="text-xs font-semibold text-muted-foreground">Content unavailable</span>}
 								</div>
 								<div className="p-3 border-t border-border space-y-1">
 									<p className="text-sm font-semibold text-foreground break-words">{asset.title || 'Untitled Asset'}</p>

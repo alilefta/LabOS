@@ -50,6 +50,9 @@ function harness() {
     member: { findFirst: vi.fn(async () => ({ id: 'member', userId: 'user', role: 'owner' })) },
     lab: { findFirst: vi.fn(async () => ({ id: 'lab' })) },
     case: { findFirst: vi.fn(async () => ({ id: caseId })) },
+    objectStorageKeyAllocation: { findUnique: vi.fn(async () => ({
+      sourceUploadGrantId: id, latestWriteCapabilityExpiresAt: new Date('2026-10-04T12:05:00Z'),
+    })) },
     storedFile: {
       findFirst: vi.fn(async () => null),
       create: vi.fn(async () => { order.push('file'); return { id: 'file' } }),
@@ -196,6 +199,46 @@ describe('R2-04 object-storage first attachment', () => {
       () => storage as never)
     return { ...h, key, storage, attach }
   }
+
+  it.each([
+    ['PNG', 'CASE_PNG_V1_SHARP_1', 'image/png'],
+    ['WEBP', 'CASE_WEBP_V1_SHARP_1', 'image/webp'],
+  ])('attaches verified %s with closed MIME mapping', async (format, release, mime) => {
+    const h = objectHarness()
+    h.grant.caseClinicalValidatedSuffix = format
+    h.evidence.validatedSuffix = format
+    h.evidence.verifiedFormat = format
+    h.evidence.validationProfile = release as never
+    h.evidence.validatorVersion = release as never
+    h.evidence.codecBackend = 'SHARP_LIBVIPS' as never
+    h.evidence.codecPackageVersion = '0.35.4' as never
+    h.evidence.codecLibraryVersion = '8.18.6' as never
+    h.evidence.codecRuntimeSha256 = null as never
+    h.evidence.sourceComponents = null as never
+    h.evidence.isProgressive = null as never
+    await expect(h.attach(id)).resolves.toBeUndefined()
+    expect(h.tx.storedFile.create).toHaveBeenCalledWith(expect.objectContaining({
+      data: expect.objectContaining({ detectedMimeType: mime }),
+    }))
+  })
+
+  it('rejects absent allocation and inconsistent PNG identity before attachment', async () => {
+    const h = objectHarness()
+    h.grant.caseClinicalValidatedSuffix = 'PNG'
+    h.evidence.validatedSuffix = 'PNG'
+    h.evidence.verifiedFormat = 'PNG'
+    h.evidence.validationProfile = 'CASE_PNG_V1_SHARP_1' as never
+    h.evidence.validatorVersion = 'CASE_PNG_V1_SHARP_1' as never
+    h.evidence.codecBackend = 'SHARP_LIBVIPS' as never
+    h.evidence.codecPackageVersion = '0.35.4' as never
+    h.evidence.codecLibraryVersion = '8.18.6' as never
+    h.evidence.codecRuntimeSha256 = null as never
+    h.evidence.sourceComponents = null as never
+    h.evidence.isProgressive = null as never
+    h.tx.objectStorageKeyAllocation.findUnique.mockResolvedValue(null as never)
+    await expect(h.attach(id)).rejects.toThrow('Case asset unavailable')
+    expect(h.tx.storedFile.create).not.toHaveBeenCalled()
+  })
 
   it('uses the semantic bounded second retrieval and writes PRIVATE/MANAGED_PRIVATE atomically', async () => {
     const h = objectHarness()

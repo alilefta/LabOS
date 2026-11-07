@@ -9,6 +9,7 @@ import { requireTenantContext } from '@/platform/organizations/tenant-context'
 import { recordCaseFileAccessAudit } from './case-file-access-audit'
 import type { ObjectStorage } from './object-storage/contract'
 import { resolveUploadThingPublicUrl } from './uploadthing-public-url'
+import { CASE_OBJECT_STORAGE_LOCAL_ACTIVE } from './case-object-storage-activation'
 
 const selectorSchema = z.object({ caseId: z.string().uuid(), assetId: z.string().uuid() }).strict()
 const targetSchema = selectorSchema.passthrough()
@@ -37,7 +38,8 @@ const findCurrentAsset = (caseId: string, assetId: string, organizationId: strin
 							storedFile: {
 								select: {
 									id: true, organizationId: true, labId: true, provider: true,
-									providerObjectKey: true, providerAccess: true, purpose: true, sourceUploadGrantId: true,
+					providerObjectKey: true, providerAccess: true, purpose: true, sourceUploadGrantId: true,
+					detectedMimeType: true,
 									sourceGrant: {
 										select: {
 											id: true, organizationId: true, labId: true, provider: true,
@@ -45,7 +47,8 @@ const findCurrentAsset = (caseId: string, assetId: string, organizationId: strin
 											clinicalUploadEvidence: {
 												select: {
 													uploadGrantId: true, organizationId: true, labId: true, caseId: true,
-													provider: true, providerObjectKey: true, clinicalPurpose: true,
+											provider: true, providerObjectKey: true, clinicalPurpose: true,
+											verifiedFormat: true,
 												},
 											},
 										},
@@ -129,8 +132,12 @@ export function createCasePublicOpen(overrides: Partial<Dependencies> = {}) {
 			file.providerAccess === 'PRIVATE' && file.provider === 'OBJECT_STORAGE') {
 			try {
 				if (!deps.objectStorage) throw new CasePublicOpenUnavailableError()
+				const mime = evidence.verifiedFormat === 'JPEG' ? 'image/jpeg' :
+					evidence.verifiedFormat === 'PNG' ? 'image/png' :
+					evidence.verifiedFormat === 'WEBP' ? 'image/webp' : null
+				if (!mime || file.detectedMimeType !== mime) throw new CasePublicOpenUnavailableError()
 				const issued = await deps.objectStorage()
-					.issuePrivateRead({ key: file.providerObjectKey, lifetimeSeconds: 120 })
+					.issuePrivateRead({ key: file.providerObjectKey, lifetimeSeconds: 120, mimeType: mime })
 				const issuedAt = new Date()
 				if (!issued.ok || issued.value.method !== 'GET' ||
 					Object.keys(issued.value.headers).length !== 0 ||
@@ -140,7 +147,11 @@ export function createCasePublicOpen(overrides: Partial<Dependencies> = {}) {
 					throw new CasePublicOpenUnavailableError()
 				}
 				const url = new URL(issued.value.url)
-				if (url.protocol !== 'https:' || url.username || url.password) {
+				const localOrigin = process.env.LABOS_LOCAL_OBJECT_ORIGIN
+				const localRead = CASE_OBJECT_STORAGE_LOCAL_ACTIVE && localOrigin &&
+					url.origin === new URL(localOrigin).origin && url.protocol === 'http:' &&
+					url.pathname.startsWith('/api/local-case-objects/')
+				if ((url.protocol !== 'https:' && !localRead) || url.username || url.password) {
 					throw new CasePublicOpenUnavailableError()
 				}
 				const audit = await (deps.audit ?? recordCaseFileAccessAudit)({

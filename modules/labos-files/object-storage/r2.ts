@@ -47,14 +47,20 @@ export type R2PrivateConfig = Readonly<{
 	bucket: string
 	accessKeyId: string
 	secretAccessKey: string
+	/** Optional S3 session token for short-lived, scoped R2 credentials. */
+	sessionToken?: string
 }>
 
 export function createR2ObjectStorage(config: R2PrivateConfig): ObjectStorage {
 	if (!/^[a-f0-9]{32}$/i.test(config.accountId) || !/^[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]$/.test(config.bucket) ||
-		!config.accessKeyId || !config.secretAccessKey) throw new Error('Invalid private object-storage configuration')
+		!config.accessKeyId?.trim() || !config.secretAccessKey?.trim() ||
+		(config.sessionToken !== undefined && !config.sessionToken.trim())) {
+		throw new Error('Invalid private object-storage configuration')
+	}
 	const client = new S3Client({
 		region: 'auto', endpoint: `https://${config.accountId}.r2.cloudflarestorage.com`,
-		credentials: { accessKeyId: config.accessKeyId, secretAccessKey: config.secretAccessKey },
+		credentials: { accessKeyId: config.accessKeyId, secretAccessKey: config.secretAccessKey,
+			...(config.sessionToken === undefined ? {} : { sessionToken: config.sessionToken }) },
 		forcePathStyle: true, maxAttempts: 1,
 	})
 	return new R2ObjectStorage(client, config.bucket)

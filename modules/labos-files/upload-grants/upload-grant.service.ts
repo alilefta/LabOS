@@ -190,6 +190,8 @@ export function createUploadGrantService(options: {
 				})
 
 				if (result === 'expired') {
+					// Deadline denial is not evidence that the scoped database grant
+					// has already been terminalized or enrolled by its sweeper.
 					throw new UploadGrantError(UPLOAD_GRANT_ERROR_CODES.EXPIRED)
 				}
 				if (result === 'rejected') {
