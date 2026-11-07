@@ -101,8 +101,11 @@ describe('N-FILE-110A Case asset preservation', () => {
 		expect(create).toContain('setExistingAssets(draft.caseAssetFiles ?? [])')
 		expect(editPage).toContain('existingAssets={dentalCase.caseAssetFiles ?? []}')
 		expect(caseRoute?.match(/Case clinical uploads are unavailable/g)).toHaveLength(2)
-		expect(source('app', '(main)', 'cases', '[caseId]', 'page.tsx')).toContain(
-			'<DigitalAssetVault assets={dentalCase.caseAssetFiles ?? []} caseId={dentalCase.id} />',
-		)
+		const casePage = source('app', '(main)', 'cases', '[caseId]', 'page.tsx')
+		const vaultProps = casePage.match(/<DigitalAssetVault\b([\s\S]*?)\/>/)?.[1]
+		expect(vaultProps).toBeDefined()
+		expect(vaultProps).toMatch(/\bassets\s*=\s*\{\s*dentalCase\.caseAssetFiles\s*\?\?\s*\[\s*\]\s*\}/)
+		expect(vaultProps).toMatch(/\bcaseId\s*=\s*\{\s*dentalCase\.id\s*\}/)
+		expect(vaultProps).toMatch(/\blocalUploadsEnabled\s*=\s*\{\s*CASE_OBJECT_STORAGE_UPLOAD_ACTIVE\s*\}/)
 	})
 })
