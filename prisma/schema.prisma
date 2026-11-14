@@ -257,6 +257,11 @@ enum InvoiceStatus {
   CANCELLED
 }
 
+enum InvoicePublicLinkAuditEvent {
+  ISSUED
+  DISCLOSED
+}
+
 enum PaymentMethod {
   CASH
   SUPER_QI
@@ -329,6 +334,7 @@ model Lab {
   staff LabStaff[] // The humans (Mustafa, Ahmed)
 
   invoices        Invoice[]
+  invoicePublicLinkAudits InvoicePublicLinkAudit[]
   invoicePayments InvoicePayment[]
 
   //tracker to get instant case number instead of making count() db query each time
@@ -1063,21 +1069,44 @@ model Invoice {
   dueDate  DateTime?
 
   // Public link for WhatsApp sharing — generated on SENT
-  publicToken         String?   @unique @default(cuid())
+  publicToken         String?   @unique
   publicLinkExpiresAt DateTime?
 
   isActive Boolean @default(true)
 
   cases    InvoiceCase[]
   payments InvoicePayment[]
+  publicLinkAudits InvoicePublicLinkAudit[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@unique([labId, invoiceNumber])
+  @@unique([id, labId])
   @@index([labId])
   @@index([clinicId])
   @@index([labId, status])
+}
+
+model InvoicePublicLinkAudit {
+  id             String                      @id @default(uuid())
+  organizationId String
+  labId          String
+  invoiceId      String
+  actorMemberId  String
+  correlationId  String
+  event          InvoicePublicLinkAuditEvent
+  expiresAt      DateTime                    @db.Timestamptz(6)
+  createdAt      DateTime                    @default(now()) @db.Timestamptz(6)
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  lab          Lab          @relation(fields: [labId, organizationId], references: [id, organizationId], onDelete: Restrict, onUpdate: NoAction)
+  invoice      Invoice      @relation(fields: [invoiceId, labId], references: [id, labId], onDelete: Restrict, onUpdate: NoAction)
+
+  @@unique([correlationId, event])
+  @@index([organizationId, labId, createdAt])
+  @@index([invoiceId, createdAt])
+  @@index([actorMemberId, createdAt])
 }
 
 // Junction — @unique on caseId prevents double-billing
@@ -1382,6 +1411,7 @@ model Organization {
   members                Member[]
   invitations            Invitation[]
   lab                    Lab?
+  invoicePublicLinkAudits InvoicePublicLinkAudit[]
   fileUploadGrants       FileUploadGrant[]
   storedFiles            StoredFile[]                 @relation("StoredFileOrganization")
   clinicalUploadEvidence CaseClinicalUploadEvidence[] @relation("ClinicalEvidenceOrganization")
