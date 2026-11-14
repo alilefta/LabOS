@@ -341,7 +341,10 @@ type AuthorizationShadowMetadata = {
 	authorizationBoundaryId: LabOSActionBoundaryId
 }
 
-type LabOSShadowActionBoundaryId = Exclude<LabOSActionBoundaryId, 'A-086'>
+type LabOSShadowActionBoundaryId = Exclude<
+	LabOSActionBoundaryId,
+	LabOSRegisteredActionBoundaryId
+>
 
 const authorizationShadowLoggingMiddleware = createMiddleware<{
 	metadata: AuthorizationShadowMetadata
@@ -690,6 +693,9 @@ const registeredAuthorizationBaseClient = registeredAuthorizationScopedClient
 	.use(buildRegisteredAuthorizationContext)
 
 const overdueSyncBoundary = getLabOSActionBoundaryMetadata('A-086')
+const createInvoiceBoundary = getLabOSActionBoundaryMetadata('A-089')
+const draftInvoiceUpdateBoundary = getLabOSActionBoundaryMetadata('A-097')
+const publicLinkShareBoundary = getLabOSActionBoundaryMetadata('N-FIN-PL-001')
 
 const REGISTERED_AUTHORIZATION_ACTION_CLIENTS = Object.freeze({
 	'A-086': registeredAuthorizationBaseClient
@@ -698,6 +704,27 @@ const REGISTERED_AUTHORIZATION_ACTION_CLIENTS = Object.freeze({
 			authorizationBoundaryId: 'A-086',
 		})
 		.inputSchema(getLabOSActionBoundaryInputSchema('A-086'))
+		.useValidated(registeredAuthorizationValidatedMiddleware),
+	'A-089': registeredAuthorizationBaseClient
+		.metadata({
+			actionName: createInvoiceBoundary.actionName,
+			authorizationBoundaryId: 'A-089',
+		})
+		.inputSchema(getLabOSActionBoundaryInputSchema('A-089'))
+		.useValidated(registeredAuthorizationValidatedMiddleware),
+	'A-097': registeredAuthorizationBaseClient
+		.metadata({
+			actionName: draftInvoiceUpdateBoundary.actionName,
+			authorizationBoundaryId: 'A-097',
+		})
+		.inputSchema(getLabOSActionBoundaryInputSchema('A-097'))
+		.useValidated(registeredAuthorizationValidatedMiddleware),
+	'N-FIN-PL-001': registeredAuthorizationBaseClient
+		.metadata({
+			actionName: publicLinkShareBoundary.actionName,
+			authorizationBoundaryId: 'N-FIN-PL-001',
+		})
+		.inputSchema(getLabOSActionBoundaryInputSchema('N-FIN-PL-001'))
 		.useValidated(registeredAuthorizationValidatedMiddleware),
 })
 
@@ -709,6 +736,15 @@ const REGISTERED_AUTHORIZATION_ACTION_CLIENTS = Object.freeze({
 export function actionClientWithAuthorization(
 	boundaryId: 'A-086',
 ): (typeof REGISTERED_AUTHORIZATION_ACTION_CLIENTS)['A-086']
+export function actionClientWithAuthorization(
+	boundaryId: 'A-089',
+): (typeof REGISTERED_AUTHORIZATION_ACTION_CLIENTS)['A-089']
+export function actionClientWithAuthorization(
+	boundaryId: 'A-097',
+): (typeof REGISTERED_AUTHORIZATION_ACTION_CLIENTS)['A-097']
+export function actionClientWithAuthorization(
+	boundaryId: 'N-FIN-PL-001',
+): (typeof REGISTERED_AUTHORIZATION_ACTION_CLIENTS)['N-FIN-PL-001']
 export function actionClientWithAuthorization(
 	boundaryId: LabOSRegisteredActionBoundaryId,
 ) {

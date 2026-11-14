@@ -85,10 +85,12 @@ export interface UninvoicedClinicsSummary {
 // ── 1. THE PUBLIC-SAFE DTO (NO SENSITIVE DATA LEAKS) ──────────────────────
 export type PublicInvoiceDTO = {
 	invoiceNumber: string;
+	currency: string;
 	status: InvoiceStatus;
 	notes: string | null;
 	subtotal: number;
 	discountAmount: number;
+	discountPercentage: number | null;
 	total: number;
 	amountPaid: number;
 	amountDue: number;

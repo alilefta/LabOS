@@ -7,6 +7,8 @@ import {
 	RevokeStaffSystemAccessInputSchema,
 } from '@/schema/composed/team/staff-settings.schema'
 import { CreateLabStaffInputSchema } from '@/schema/composed/team/staff.schema'
+import { CreateInvoiceInputSchema } from '@/schema/composed/invoices/new-invoice.schema'
+import { UpdateInvoiceInputSchema } from '@/schema/composed/invoices/update-invoice.schema'
 
 import type { LabOSAuthorizationRequest } from './operation-intents'
 import type { LabOSOrganizationRole } from './roles'
@@ -14,6 +16,9 @@ import { LABOS_AUTHORIZATION_V1_SUPPORTED_PERMISSIONS } from './service'
 
 export const LABOS_ACTION_BOUNDARY_IDS = Object.freeze([
 	'A-086',
+	'A-089',
+	'A-097',
+	'N-FIN-PL-001',
 	'A-123',
 	'A-124',
 	'A-125',
@@ -24,6 +29,9 @@ export type LabOSActionBoundaryId =
 
 export const LABOS_REGISTERED_ACTION_BOUNDARY_IDS = Object.freeze([
 	'A-086',
+	'A-089',
+	'A-097',
+	'N-FIN-PL-001',
 ] as const)
 
 export type LabOSRegisteredActionBoundaryId =
@@ -59,6 +67,39 @@ type InvoiceOverdueSyncProjection = Readonly<{
 	permission: InvoiceOverdueSyncAuthorizationRequest['permission']
 }>
 
+type CreateInvoiceProjection = Readonly<{
+	boundaryId: 'A-089'
+	actionName: 'Create-Invoice-Action'
+	legacyComparisonRole: 'MANAGER'
+	permission: 'invoice.create'
+	operation: Readonly<{
+		kind: 'invoice.create'
+		clinicId: string
+		caseIds: readonly string[]
+	}>
+}>
+
+type DraftInvoiceUpdateRequest = LabOSAuthorizationRequest<'invoice.update'>
+type DraftInvoiceUpdateProjection = Readonly<{
+	boundaryId: 'A-097'
+	actionName: 'Update-Draft-Invoice-Action'
+	legacyComparisonRole: 'MANAGER'
+	permission: DraftInvoiceUpdateRequest['permission']
+	target: NonNullable<DraftInvoiceUpdateRequest['target']>
+	operation: DraftInvoiceUpdateRequest['operation']
+}>
+
+export const ShareInvoicePublicLinkInputSchema = z.strictObject({ invoiceId: z.uuid() })
+type PublicLinkShareRequest = LabOSAuthorizationRequest<'invoice.public_link.share'>
+type PublicLinkShareProjection = Readonly<{
+	boundaryId: 'N-FIN-PL-001'
+	actionName: 'Share-Invoice-Public-Link-Action'
+	legacyComparisonRole: 'MANAGER'
+	permission: PublicLinkShareRequest['permission']
+	target: NonNullable<PublicLinkShareRequest['target']>
+	operation: PublicLinkShareRequest['operation']
+}>
+
 type StaffCreateAuthorizationRequest = LabOSAuthorizationRequest<'staff.create'>
 
 type StaffCreateProjection = Readonly<{
@@ -90,6 +131,9 @@ type StaffRevokeProjection = Readonly<{
 
 export type LabOSActionBoundaryProjection =
 	| InvoiceOverdueSyncProjection
+	| CreateInvoiceProjection
+	| DraftInvoiceUpdateProjection
+	| PublicLinkShareProjection
 	| StaffCreateProjection
 	| StaffInviteProjection
 	| StaffRevokeProjection
@@ -101,6 +145,9 @@ export type LabOSActionBoundaryMetadata = Pick<
 
 type LabOSActionBoundaryProjectionById = {
 	'A-086': InvoiceOverdueSyncProjection
+	'A-089': CreateInvoiceProjection
+	'A-097': DraftInvoiceUpdateProjection
+	'N-FIN-PL-001': PublicLinkShareProjection
 	'A-123': StaffCreateProjection
 	'A-124': StaffInviteProjection
 	'A-125': StaffRevokeProjection
@@ -144,6 +191,48 @@ function projectInvoiceOverdueSync(input: unknown): Record<never, never> {
 		)
 	}
 	return Object.freeze({})
+}
+
+function projectInvoiceCreate(input: unknown): Pick<CreateInvoiceProjection, 'operation'> {
+	const parsed = CreateInvoiceInputSchema.safeParse(input)
+	if (!parsed.success || new Set(parsed.data.caseIds).size !== parsed.data.caseIds.length) {
+		throw new LabOSActionBoundaryError(LABOS_ACTION_BOUNDARY_ERROR_CODES.VALIDATED_INPUT_INVALID)
+	}
+	return Object.freeze({
+		operation: Object.freeze({
+			kind: 'invoice.create',
+			clinicId: parsed.data.clinicId,
+			caseIds: Object.freeze([...parsed.data.caseIds]),
+		}),
+	})
+}
+
+function projectDraftInvoiceUpdate(
+	input: unknown,
+): Pick<DraftInvoiceUpdateProjection, 'target' | 'operation'> {
+	const parsed = UpdateInvoiceInputSchema.safeParse(input)
+	if (!parsed.success) {
+		throw new LabOSActionBoundaryError(
+			LABOS_ACTION_BOUNDARY_ERROR_CODES.VALIDATED_INPUT_INVALID,
+		)
+	}
+	return Object.freeze({
+		target: Object.freeze({ type: 'invoice', id: parsed.data.invoiceId }),
+		operation: Object.freeze({
+			kind: 'invoice.draft.update',
+			clinicId: parsed.data.clinicId,
+			caseIds: Object.freeze([...parsed.data.caseIds]),
+		}),
+	})
+}
+
+function projectPublicLinkShare(input: unknown): Pick<PublicLinkShareProjection, 'target' | 'operation'> {
+	const parsed = ShareInvoicePublicLinkInputSchema.safeParse(input)
+	if (!parsed.success) throw new LabOSActionBoundaryError(LABOS_ACTION_BOUNDARY_ERROR_CODES.VALIDATED_INPUT_INVALID)
+	return Object.freeze({
+		target: Object.freeze({ type: 'invoice', id: parsed.data.invoiceId }),
+		operation: Object.freeze({ kind: 'invoice.public_link.share' }),
+	})
 }
 
 /**
@@ -211,6 +300,27 @@ const LABOS_ACTION_BOUNDARY_REGISTRY = Object.freeze({
 		legacyComparisonRole: 'MANAGER',
 		permission: 'invoice.overdue.sync',
 		projectValidatedInput: projectInvoiceOverdueSync,
+	}),
+	'A-089': Object.freeze({
+		inputSchema: CreateInvoiceInputSchema,
+		actionName: 'Create-Invoice-Action',
+		legacyComparisonRole: 'MANAGER',
+		permission: 'invoice.create',
+		projectValidatedInput: projectInvoiceCreate,
+	}),
+	'A-097': Object.freeze({
+		inputSchema: UpdateInvoiceInputSchema,
+		actionName: 'Update-Draft-Invoice-Action',
+		legacyComparisonRole: 'MANAGER',
+		permission: 'invoice.update',
+		projectValidatedInput: projectDraftInvoiceUpdate,
+	}),
+	'N-FIN-PL-001': Object.freeze({
+		inputSchema: ShareInvoicePublicLinkInputSchema,
+		actionName: 'Share-Invoice-Public-Link-Action',
+		legacyComparisonRole: 'MANAGER',
+		permission: 'invoice.public_link.share',
+		projectValidatedInput: projectPublicLinkShare,
 	}),
 	'A-123': Object.freeze({
 		inputSchema: CreateLabStaffInputSchema,
@@ -286,6 +396,18 @@ export function projectLabOSActionBoundary(
 	parsedInput: unknown,
 ): InvoiceOverdueSyncProjection
 export function projectLabOSActionBoundary(
+	boundaryId: 'A-089',
+	parsedInput: unknown,
+): CreateInvoiceProjection
+export function projectLabOSActionBoundary(
+	boundaryId: 'A-097',
+	parsedInput: unknown,
+): DraftInvoiceUpdateProjection
+export function projectLabOSActionBoundary(
+	boundaryId: 'N-FIN-PL-001',
+	parsedInput: unknown,
+): PublicLinkShareProjection
+export function projectLabOSActionBoundary(
 	boundaryId: 'A-123',
 	parsedInput: unknown,
 ): StaffCreateProjection
@@ -329,6 +451,15 @@ export function projectLabOSActionBoundary(
 export function getLabOSActionBoundaryInputSchema(
 	boundaryId: 'A-086',
 ): typeof SyncOverdueInvoicesBoundaryInputSchema
+export function getLabOSActionBoundaryInputSchema(
+	boundaryId: 'A-089',
+): typeof CreateInvoiceInputSchema
+export function getLabOSActionBoundaryInputSchema(
+	boundaryId: 'A-097',
+): typeof UpdateInvoiceInputSchema
+export function getLabOSActionBoundaryInputSchema(
+	boundaryId: 'N-FIN-PL-001',
+): typeof ShareInvoicePublicLinkInputSchema
 export function getLabOSActionBoundaryInputSchema(
 	boundaryId: LabOSActionBoundaryId,
 ): z.ZodType

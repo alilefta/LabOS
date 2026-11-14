@@ -45,6 +45,7 @@ export const NewInvoiceOnboardingDataSchema = z.object({
 	prefetchedCases: z.array(UnbilledCaseDTOSchema),
 	eligibleClinics: z.array(EligibleClinicDTOSchema),
 	selectedClinicName: z.string().nullable(),
+	currency: z.enum(['IQD', 'USD', 'AED', 'SAR', 'EUR']),
 });
 
 export type NewInvoiceOnboardingData = z.infer<typeof NewInvoiceOnboardingDataSchema>;

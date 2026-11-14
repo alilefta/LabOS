@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useRef } from "react";
 import { FormProvider, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery } from "@tanstack/react-query";
@@ -23,14 +23,17 @@ import { getDraftEligibleCasesAction } from "@/actions/invoices/get-draft-eligib
 import { handleSafeActionError } from "@/lib/safe-action-helpers";
 import { EditInvoiceHeader } from "./edit-invoice-header";
 import { updateDraftInvoiceAction } from "@/actions/invoices/update-draft-invoice";
+import { shareInvoicePublicLinkAction } from "@/actions/invoices/share-invoice-public-link";
 import { UpdateInvoiceInput } from "@/schema/composed/invoices/update-invoice.schema";
 import dynamic from "next/dynamic";
+import { calculateInvoicePreview } from "@/lib/invoice-presentation";
 
 interface Props {
 	labId: string;
 	initialData: DraftInvoiceHydrationDTO; // Pre-mapped server DTO [1]
 	clinicName: string;
 	invoiceNumber: string;
+	currency: string;
 }
 
 const EMPTY_CASES: UnbilledCaseDTO[] = [];
@@ -43,7 +46,7 @@ const InvoiceSuccessShareModal = dynamic(() => import("../../modals/invoices/inv
 	ssr: false,
 });
 
-export function EditInvoiceClient({ labId, initialData, clinicName, invoiceNumber }: Props) {
+export function EditInvoiceClient({ labId, initialData, clinicName, invoiceNumber, currency }: Props) {
 	const router = useRouter();
 
 	// ── 1. STATE COORDINATION ───────────────────────────────────────────
@@ -54,9 +57,30 @@ export function EditInvoiceClient({ labId, initialData, clinicName, invoiceNumbe
 		id: string;
 		invoiceNumber: string;
 		publicToken: string | null;
+		status: "DRAFT" | "SENT";
+		shareFailed: boolean;
 		clinicName: string;
 		amountDue: number;
+		currency: string;
 	} | null>(null);
+	const [isSharing, setIsSharing] = useState(false);
+	const submittedStatus = useRef<"DRAFT" | "SENT">("DRAFT");
+	const { executeAsync: executeShare } = useAction(shareInvoicePublicLinkAction);
+
+	const requestShare = async (invoiceId: string) => {
+		setIsSharing(true);
+		try {
+			const result = await executeShare({ invoiceId });
+			if (!result?.data?.token || result.serverError || result.validationErrors) throw new Error("Sharing unavailable");
+			setSuccessPayload(previous => previous?.id === invoiceId
+				? { ...previous, publicToken: result.data!.token, shareFailed: false } : previous);
+		} catch {
+			setSuccessPayload(previous => previous?.id === invoiceId
+				? { ...previous, publicToken: null, shareFailed: true } : previous);
+		} finally {
+			setIsSharing(false);
+		}
+	};
 
 	// SECURE CHECKBOX TRACKING [3]
 	// Initialize with the cases currently saved on the draft [3]
@@ -99,21 +123,11 @@ export function EditInvoiceClient({ labId, initialData, clinicName, invoiceNumbe
 
 	// ── 4. MATHEMATICAL RECONCILIATION ENGINE ───────────────────────────
 	const calculatedTotals = useMemo(() => {
-		let subtotal = 0;
-		activeCases.forEach((c) => {
-			if (selectedCaseIds.has(c.id)) {
-				subtotal += Number(c.grandTotal);
-			}
-		});
-
-		const safeDiscount = Math.min(Math.max(discountPercentage, 0), 100);
-		const discountAmount = (subtotal * safeDiscount) / 100;
-		const grandTotal = Math.max(0, subtotal - discountAmount);
+		const amounts = activeCases.filter((c) => selectedCaseIds.has(c.id)).map((c) => c.grandTotal);
+		const totals = calculateInvoicePreview(amounts, discountPercentage);
 
 		return {
-			subtotal,
-			discountAmount,
-			grandTotal,
+			...totals,
 			selectedCount: selectedCaseIds.size,
 		};
 	}, [selectedCaseIds, activeCases, discountPercentage]);
@@ -135,14 +149,19 @@ export function EditInvoiceClient({ labId, initialData, clinicName, invoiceNumbe
 	// ── 6. SERVER ACTION: EXECUTE UPDATE ────────────────────────────────
 	const { executeAsync: executeUpdateInvoice, isExecuting: isUpdating } = useAction(updateDraftInvoiceAction, {
 		onSuccess: ({ data }) => {
+			setIsModalOpen(false);
 			setSuccessPayload({
 				id: initialData.id,
 				invoiceNumber: invoiceNumber,
-				publicToken: data.invoice.publicToken, // Returned on success if issued (SENT)
+				publicToken: null,
+				status: submittedStatus.current,
+				shareFailed: false,
 				clinicName,
-				amountDue: calculatedTotals.grandTotal,
+				amountDue: Number(data.invoice.amountDue),
+				currency: data.invoice.currency,
 			});
 			form.reset();
+			if (submittedStatus.current === "SENT") void requestShare(data.invoice.id);
 		},
 		onError: ({ error }) => handleSafeActionError(error),
 	});
@@ -180,6 +199,7 @@ export function EditInvoiceClient({ labId, initialData, clinicName, invoiceNumbe
 	const handleHeaderSaveDraft = async () => {
 		const payload = await preparePayload();
 		if (!payload) return;
+		submittedStatus.current = "DRAFT";
 		await executeUpdateInvoice({ ...payload, status: "DRAFT" });
 	};
 
@@ -193,6 +213,7 @@ export function EditInvoiceClient({ labId, initialData, clinicName, invoiceNumbe
 	const handleModalConfirm = async (finalStatus: "DRAFT" | "SENT") => {
 		if (!pendingPayload) return;
 		const finalPayload = { ...pendingPayload, status: finalStatus };
+		submittedStatus.current = finalStatus;
 		await executeUpdateInvoice(finalPayload);
 	};
 
@@ -237,6 +258,7 @@ export function EditInvoiceClient({ labId, initialData, clinicName, invoiceNumbe
 							selectedClinicName={clinicName}
 							onGenerate={handleOpenReviewModal}
 							isLoading={isFetchingCases}
+							currency={currency}
 						/>
 					</div>
 				</div>
@@ -250,6 +272,7 @@ export function EditInvoiceClient({ labId, initialData, clinicName, invoiceNumbe
 				isExecuting={isUpdating}
 				clinicName={clinicName}
 				totals={calculatedTotals}
+				currency={currency}
 			/>
 
 			{/* RENDER THE SUCCESS HANDSHAKE MODAL */}
@@ -259,9 +282,14 @@ export function EditInvoiceClient({ labId, initialData, clinicName, invoiceNumbe
 					onClose={handleCloseSuccessModal}
 					invoiceNumber={successPayload.invoiceNumber}
 					publicToken={successPayload.publicToken}
+					status={successPayload.status}
+					isSharing={isSharing}
+					shareFailed={successPayload.shareFailed}
+					onRetryShare={() => void requestShare(successPayload.id)}
 					clinicName={successPayload.clinicName}
 					clinicPhone={initialData.clinicPhoneNumber}
 					amountDue={successPayload.amountDue}
+					currency={successPayload.currency}
 				/>
 			)}
 		</div>

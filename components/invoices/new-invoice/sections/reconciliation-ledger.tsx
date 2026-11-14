@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { UnbilledCaseDTO } from "@/schema/composed/invoices/new.invoice.dtos";
+import { formatInvoiceMoney } from "@/lib/invoice-presentation";
 
 interface Props {
 	cases: UnbilledCaseDTO[];
@@ -23,13 +24,14 @@ interface Props {
 	onToggleAll: (allIds: string[], checkAll: boolean) => void;
 	onGenerate: () => void;
 	isLoading: boolean;
+	currency: string;
 }
 
-export function ReconciliationLedger({ cases, selectedIds, totals, onToggle, onToggleAll, isClinicSelected, selectedClinicName, onGenerate, isLoading }: Props) {
+export function ReconciliationLedger({ cases, selectedIds, totals, onToggle, onToggleAll, isClinicSelected, selectedClinicName, onGenerate, isLoading, currency }: Props) {
 	const allCaseIds = useMemo(() => cases.map((c) => c.id), [cases]);
 	const isAllSelected = cases.length > 0 && selectedIds.size === cases.length;
 
-	const formatMoney = (val: number) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(val);
+	const formatMoney = (val: number) => formatInvoiceMoney(val, currency);
 
 	if (isLoading) {
 		return (

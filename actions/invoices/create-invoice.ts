@@ -1,28 +1,15 @@
 "use server";
 
 import { addDays, startOfDay } from "date-fns";
+import { Prisma } from "@/generated/prisma/client";
 import { ERRORS } from "@/lib/errors";
-import { actionClientWithLab } from "@/lib/safe-action";
+import { actionClientWithAuthorization } from "@/lib/safe-action";
 import { tenantPrisma } from "@/lib/prisma";
-import { CreateInvoiceInputSchema } from "@/schema/composed/invoices/new-invoice.schema";
-import { createLabOSAuthorizationActor } from "@/modules/labos-authorization/actor";
-import { labosAuthorizationService } from "@/modules/labos-authorization/service";
 
-export const createInvoiceAction = actionClientWithLab
-	.metadata({
-		actionName: "Create-Invoice-Action",
-		requiredLabRole: "MANAGER",
-	})
-	.inputSchema(CreateInvoiceInputSchema)
+export const createInvoiceAction = actionClientWithAuthorization('A-089')
 	.action(async ({ parsedInput, ctx }) => {
 		const { labId } = ctx;
 		const { clinicId, caseIds, status, billingTerms, customDueDate, discountPercentage, discountReason, notes } = parsedInput;
-
-		const decision = await labosAuthorizationService.can({
-			actor: createLabOSAuthorizationActor(ctx),
-			permission: "invoice.create",
-		});
-		if (!decision.allowed) throw ERRORS.MISSING_PERMISSIONS;
 
 		const prisma = await tenantPrisma(labId);
 
@@ -36,8 +23,19 @@ export const createInvoiceAction = actionClientWithLab
 			else if (billingTerms === "CUSTOM" && customDueDate) resolvedDueDate = startOfDay(customDueDate);
 		}
 
-		const invoice = await prisma.$transaction(
+		const createInvoice = () => prisma.$transaction(
 			async (tx) => {
+				if (new Set(caseIds).size !== caseIds.length) throw ERRORS.OPERATION_NOT_ALLOWED;
+				const settings = await tx.labSettings.findUnique({
+					where: { labId },
+					select: { currency: true },
+				});
+				if (!settings) throw ERRORS.OPERATION_NOT_ALLOWED;
+				const clinic = await tx.clinic.findUnique({
+					where: { id: clinicId, labId },
+					select: { id: true },
+				});
+				if (!clinic) throw ERRORS.OPERATION_NOT_ALLOWED;
 				// A. Increment the sequential invoice number (locks row)
 				const updatedLab = await tx.lab.update({
 					where: { id: labId },
@@ -50,12 +48,12 @@ export const createInvoiceAction = actionClientWithLab
 				const sequence = updatedLab.nextInvoiceNumber.toString().padStart(4, "0");
 				const invoiceNumber = `INV-${year}${month}-${sequence}`;
 
-				// B. Fetch and lock cases to ensure they are unbilled
+				// Recheck every Case after authorization and before claiming its unique link.
 				const casesToBill = await tx.case.findMany({
 					where: {
 						id: { in: caseIds },
 						labId,
-						clinicId,
+						clinicId: clinic.id,
 						status: { in: ["COMPLETED", "DELIVERED"] },
 						invoiceCase: null,
 					},
@@ -63,66 +61,81 @@ export const createInvoiceAction = actionClientWithLab
 				});
 
 				if (casesToBill.length !== caseIds.length) {
-					throw new Error("One or more selected cases have already been billed.");
+					throw ERRORS.OPERATION_NOT_ALLOWED;
 				}
 
-				const subtotal = casesToBill.reduce((sum, c) => sum + Number(c.grandTotal || 0), 0);
-				const discountAmount = (subtotal * discountPercentage) / 100;
-				const grandTotal = Math.max(0, subtotal - discountAmount);
-
-				// ─────────────────────────────────────────────────────────────────
-				// 🔥 STEP 1: CRYPTOGRAPHIC TOKEN GENERATION & EXPIRATION [1]
-				// - Only generate a token if the status is actually SENT.
-				// - Drafts remain null so they cannot be accessed via public links.
-				// ─────────────────────────────────────────────────────────────────
-				const publicToken = status === "SENT" ? crypto.randomUUID() : null; // Secure 36-char string [1]
-				const publicLinkExpiresAt = status === "SENT" ? addDays(today, 90) : null; // 90-day expiry window
+				const subtotal = casesToBill.reduce(
+					(sum, c) => sum.plus(c.grandTotal ?? 0),
+					new Prisma.Decimal(0),
+				).toDecimalPlaces(2, Prisma.Decimal.ROUND_HALF_UP);
+				const discountAmount = subtotal.mul(discountPercentage).div(100)
+					.toDecimalPlaces(2, Prisma.Decimal.ROUND_HALF_UP);
+				const discountedTotal = subtotal.minus(discountAmount);
+				const grandTotal = discountedTotal.isNegative() ? new Prisma.Decimal(0) : discountedTotal;
 
 				const createdInvoice = await tx.invoice.create({
 					data: {
 						labId,
-						clinicId,
+						clinicId: clinic.id,
 						invoiceNumber,
 						status,
 						subtotal,
 						discountAmount,
 						total: grandTotal,
 						amountDue: grandTotal,
-						amountPaid: 0,
+						amountPaid: new Prisma.Decimal(0),
 						notes: notes || null,
 						appliedDiscountPercentage: discountPercentage > 0 ? discountPercentage : null,
 						discountReason: discountReason || null,
 						issuedAt: status === "SENT" ? today : null,
 						dueDate: resolvedDueDate,
 
-						// Inject the secure token and expiration [1]
-						publicToken,
-						publicLinkExpiresAt,
-
 						cases: {
 							create: casesToBill.map((c) => ({
 								caseId: c.id,
-								caseTotal: Number(c.grandTotal || 0),
+								caseTotal: c.grandTotal ?? new Prisma.Decimal(0),
 								labId,
 							})),
 						},
 					},
 				});
+				if (status === "SENT") {
+					await tx.clinic.update({
+						where: { id: clinic.id, labId },
+						data: { currentBalance: { increment: createdInvoice.total } },
+					});
+				}
 
-				return createdInvoice;
+				return {
+					id: createdInvoice.id,
+					invoiceNumber: createdInvoice.invoiceNumber,
+					amountDue: createdInvoice.amountDue,
+					currency: settings.currency,
+				};
 			},
 			{
 				maxWait: 5000,
 				timeout: 10000,
+				isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
 			},
 		);
+		let invoice: Awaited<ReturnType<typeof createInvoice>>;
+		for (let attempt = 0; ; attempt++) {
+			try {
+				invoice = await createInvoice();
+				break;
+			} catch (error) {
+				if (!(error instanceof Prisma.PrismaClientKnownRequestError) || error.code !== 'P2034' || attempt >= 2) throw error;
+			}
+		}
 
 		return {
 			success: true,
 			invoice: {
 				id: invoice.id,
 				invoiceNumber: invoice.invoiceNumber,
-				publicToken: invoice.publicToken, // Return the token to the client for sharing [1]
+						amountDue: invoice.amountDue.toString(),
+						currency: invoice.currency,
 			},
 		};
 	});

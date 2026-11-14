@@ -89,6 +89,9 @@ export type LabOSAuthorizationOperationMap = {
 				kind: 'invoice.live.update'
 				changeSet: readonly ('due_date' | 'discount' | 'notes')[]
 		  }>
+	'invoice.public_link.share': Readonly<{
+		kind: 'invoice.public_link.share'
+	}>
 	'invoice.cancel': Readonly<{
 		kind: 'invoice.unpaid.cancel'
 	}>

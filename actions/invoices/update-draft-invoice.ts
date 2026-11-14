@@ -1,47 +1,36 @@
-// actions/invoices/update-invoice.ts
 "use server";
 
 import { addDays, startOfDay } from "date-fns";
-import { actionClientWithLab } from "@/lib/safe-action";
+import { Prisma } from "@/generated/prisma/client";
+import { actionClientWithAuthorization } from "@/lib/safe-action";
 import { tenantPrisma } from "@/lib/prisma";
-import { ERRORS } from "@/lib/errors"; // Predefined errors
-import crypto from "crypto";
-import { UpdateInvoiceInputSchema } from "@/schema/composed/invoices/update-invoice.schema";
-import { createLabOSAuthorizationActor } from "@/modules/labos-authorization/actor";
-import { labosAuthorizationService } from "@/modules/labos-authorization/service";
+import { ERRORS } from "@/lib/errors";
 
-export const updateDraftInvoiceAction = actionClientWithLab
-	.metadata({
-		actionName: "Update-Draft-Invoice-Action",
-		requiredLabRole: "MANAGER", // Accountants & managers can modify ledgers
-	})
-	.inputSchema(UpdateInvoiceInputSchema)
+export const updateDraftInvoiceAction = actionClientWithAuthorization('A-097')
 	.action(async ({ parsedInput, ctx }) => {
 		const { labId } = ctx;
 		const { invoiceId, clinicId, caseIds, status, billingTerms, customDueDate, discountPercentage, discountReason, notes } = parsedInput;
 
-		const decision = await labosAuthorizationService.can({
-			actor: createLabOSAuthorizationActor(ctx),
-			permission: "invoice.update",
-			target: { type: "invoice", id: invoiceId },
-			operation: {
-				kind: "invoice.draft.update",
-				clinicId,
-				caseIds,
-			},
-		});
-		if (!decision.allowed) throw ERRORS.MISSING_PERMISSIONS;
-
 		const prisma = await tenantPrisma(labId);
+		const invoice = await prisma.$transaction(
+			async (tx) => {
+		const settings = await tx.labSettings.findUnique({
+			where: { labId },
+			select: { currency: true },
+		});
+		if (!settings) throw ERRORS.OPERATION_NOT_ALLOWED;
 
 		// ─────────────────────────────────────────────────────────────────
 		// STEP 1: Ownership & State Verification
 		// Verify invoice exists and is still a DRAFT.
 		// ─────────────────────────────────────────────────────────────────
-		const existingInvoice = await prisma.invoice.findUnique({
+		const existingInvoice = await tx.invoice.findUnique({
 			where: { id: invoiceId, labId },
-			include: {
-				cases: { select: { caseId: true } },
+			select: {
+				id: true,
+				clinicId: true,
+				status: true,
+				cases: { select: { caseId: true, labId: true, case: { select: { labId: true, clinicId: true } } } },
 			},
 		});
 
@@ -54,6 +43,16 @@ export const updateDraftInvoiceAction = actionClientWithLab
 		if (existingInvoice.status !== "DRAFT") {
 			throw ERRORS.OPERATION_NOT_ALLOWED;
 		}
+		if (clinicId !== existingInvoice.clinicId || existingInvoice.cases.some(
+			link => link.labId !== labId || link.case.labId !== labId || link.case.clinicId !== existingInvoice.clinicId,
+		)) {
+			throw ERRORS.OPERATION_NOT_ALLOWED;
+		}
+		const clinic = await tx.clinic.findUnique({
+			where: { id: existingInvoice.clinicId, labId },
+			select: { id: true },
+		});
+		if (!clinic) throw ERRORS.OPERATION_NOT_ALLOWED;
 
 		// ── 2. STATE DIFFING LOGIC ───────────────────────────────────────
 		const existingCaseIds = existingInvoice.cases.map((c) => c.caseId);
@@ -64,13 +63,12 @@ export const updateDraftInvoiceAction = actionClientWithLab
 		// Cases to add (newly checked)
 		const addedCaseIds = caseIds.filter((id) => !existingCaseIds.includes(id));
 
-		// ── 3. DATA FETCH & VERIFICATION (N+1 Proof) ─────────────────────
-		// Fetch all final cases in a single parallel query to verify math
-		const finalCasesToBill = await prisma.case.findMany({
+		// Load final eligible cases and current prices inside this transaction.
+		const finalCasesToBill = await tx.case.findMany({
 			where: {
 				id: { in: caseIds },
 				labId,
-				clinicId,
+				clinicId: clinic.id,
 				status: { in: ["COMPLETED", "DELIVERED"] },
 				OR: [
 					{ invoiceCase: null }, // Unbilled cases
@@ -80,7 +78,7 @@ export const updateDraftInvoiceAction = actionClientWithLab
 			select: { id: true, grandTotal: true },
 		});
 
-		// Concurrency Guard: Did another accountant bill these cases mid-session?
+		// Reject missing, ineligible, foreign, duplicate, or already-billed cases.
 		if (finalCasesToBill.length !== caseIds.length) {
 			throw ERRORS.OPERATION_NOT_ALLOWED;
 		}
@@ -96,21 +94,23 @@ export const updateDraftInvoiceAction = actionClientWithLab
 			else if (billingTerms === "CUSTOM" && customDueDate) resolvedDueDate = startOfDay(customDueDate);
 		}
 
-		// Calculate Totals
-		const subtotal = finalCasesToBill.reduce((sum, c) => sum + Number(c.grandTotal || 0), 0);
-		const discountAmount = (subtotal * discountPercentage) / 100;
-		const grandTotal = Math.max(0, subtotal - discountAmount);
+		// Round to the Invoice's two-decimal storage scale before deriving
+		// dependent values so persisted total = subtotal - discountAmount.
+		const subtotal = finalCasesToBill.reduce(
+			(sum, c) => sum.plus(c.grandTotal ?? 0),
+			new Prisma.Decimal(0),
+		).toDecimalPlaces(2, Prisma.Decimal.ROUND_HALF_UP);
+		const discountAmount = subtotal.mul(discountPercentage).div(100)
+			.toDecimalPlaces(2, Prisma.Decimal.ROUND_HALF_UP);
+		const discountedTotal = subtotal.minus(discountAmount);
+		const grandTotal = discountedTotal.isNegative() ? new Prisma.Decimal(0) : discountedTotal;
 
-		// ─────────────────────────────────────────────────────────────────
-		// STEP 5: THE ATOMIC TRANSACTION (WRITE ONLY) [3]
-		// ─────────────────────────────────────────────────────────────────
-		const invoice = await prisma.$transaction(
-			async (tx) => {
 				// A. Delete removed cases from the junction table (releases them back to unbilled) [3]
 				if (removedCaseIds.length > 0) {
 					await tx.invoiceCase.deleteMany({
 						where: {
 							invoiceId,
+							labId,
 							caseId: { in: removedCaseIds },
 						},
 					});
@@ -124,7 +124,7 @@ export const updateDraftInvoiceAction = actionClientWithLab
 						data: addedCasesDetails.map((c) => ({
 							invoiceId,
 							caseId: c.id,
-							caseTotal: Number(c.grandTotal || 0), // SNAPSHOT
+							caseTotal: c.grandTotal ?? new Prisma.Decimal(0), // Existing added-Case snapshot rule
 							labId,
 						})),
 					});
@@ -133,7 +133,7 @@ export const updateDraftInvoiceAction = actionClientWithLab
 				// C. If the status is transitioning to SENT, increment the clinic's balance [1]
 				if (status === "SENT") {
 					await tx.clinic.update({
-						where: { id: clinicId },
+						where: { id: clinic.id, labId },
 						data: {
 							currentBalance: { increment: grandTotal },
 						},
@@ -141,11 +141,8 @@ export const updateDraftInvoiceAction = actionClientWithLab
 				}
 
 				// D. Update the Invoice Metadata
-				const publicToken = status === "SENT" ? crypto.randomUUID() : null;
-				const publicLinkExpiresAt = status === "SENT" ? addDays(today, 90) : null;
-
 				const updatedInvoice = await tx.invoice.update({
-					where: { id: invoiceId },
+					where: { id: invoiceId, labId, status: "DRAFT" },
 					data: {
 						status,
 						subtotal,
@@ -157,17 +154,16 @@ export const updateDraftInvoiceAction = actionClientWithLab
 						discountReason: discountReason || null,
 						issuedAt: status === "SENT" ? today : null,
 						dueDate: resolvedDueDate,
-						publicToken,
-						publicLinkExpiresAt,
 					},
-					select: { id: true, invoiceNumber: true, publicToken: true },
+					select: { id: true, invoiceNumber: true, amountDue: true },
 				});
 
-				return updatedInvoice;
+			return { ...updatedInvoice, currency: settings.currency };
 			},
 			{
 				maxWait: 5000,
 				timeout: 10000,
+				isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
 			},
 		);
 
@@ -176,7 +172,8 @@ export const updateDraftInvoiceAction = actionClientWithLab
 			invoice: {
 				id: invoice.id,
 				invoiceNumber: invoice.invoiceNumber,
-				publicToken: invoice.publicToken,
+				amountDue: invoice.amountDue.toString(),
+				currency: invoice.currency,
 			},
 		};
 	});

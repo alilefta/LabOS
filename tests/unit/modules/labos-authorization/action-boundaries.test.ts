@@ -19,11 +19,74 @@ describe('LabOS action-boundary registry', () => {
 	it('exposes only the stable reviewed boundary IDs', () => {
 		expect(LABOS_ACTION_BOUNDARY_IDS).toEqual([
 			'A-086',
+			'A-089',
+			'A-097',
+			'N-FIN-PL-001',
 			'A-123',
 			'A-124',
 			'A-125',
 		])
 		expect(Object.isFrozen(LABOS_ACTION_BOUNDARY_IDS)).toBe(true)
+	})
+
+	it('projects A-089 to Organization permission and a closed validated Case intent', () => {
+		const clinicId = '9a58f4c9-f112-4479-af03-6d3991ad7849'
+		const caseId = '9a58f4c9-f112-4479-af03-6d3991ad7850'
+		const input = { clinicId, caseIds: [caseId], status: 'SENT', billingTerms: 'RECEIPT', discountPercentage: 0, permission: 'billing.manage' }
+		const parsed = getLabOSActionBoundaryInputSchema('A-089').parse(input)
+		const projection = projectLabOSActionBoundary('A-089', parsed)
+		expect(projection).toEqual({
+			boundaryId: 'A-089', actionName: 'Create-Invoice-Action',
+			legacyComparisonRole: 'MANAGER', permission: 'invoice.create',
+			operation: { kind: 'invoice.create', clinicId, caseIds: [caseId] },
+		})
+		expect(projection).not.toHaveProperty('target')
+		expect(Object.isFrozen(projection.operation)).toBe(true)
+		expect(Object.isFrozen(projection.operation.caseIds)).toBe(true)
+		expect(() => projectLabOSActionBoundary('A-089', { ...parsed, caseIds: [caseId, caseId] })).toThrow()
+		expect(() => projectLabOSActionBoundary('A-089', { ...parsed, clinicId: 'bad' })).toThrow()
+	})
+
+	it('projects A-097 to a fixed Invoice permission and closed update intent', () => {
+		const invoiceId = '9a58f4c9-f112-4479-af03-6d3991ad7848'
+		const clinicId = '9a58f4c9-f112-4479-af03-6d3991ad7849'
+		const caseId = '9a58f4c9-f112-4479-af03-6d3991ad7850'
+		const input = {
+			invoiceId, clinicId, caseIds: [caseId], status: 'SENT',
+			billingTerms: 'RECEIPT', discountPercentage: 0,
+			permission: 'billing.manage', organizationId: 'forged',
+		}
+		const parsed = getLabOSActionBoundaryInputSchema('A-097').parse(input)
+		const projection = projectLabOSActionBoundary('A-097', parsed)
+
+		expect(projection).toEqual({
+			boundaryId: 'A-097', actionName: 'Update-Draft-Invoice-Action',
+			legacyComparisonRole: 'MANAGER', permission: 'invoice.update',
+			target: { type: 'invoice', id: invoiceId },
+			operation: { kind: 'invoice.draft.update', clinicId, caseIds: [caseId] },
+		})
+		expect(Object.isFrozen(projection.target)).toBe(true)
+		expect(Object.isFrozen(projection.operation)).toBe(true)
+		expect(projection.operation?.kind).toBe('invoice.draft.update')
+		if (projection.operation?.kind === 'invoice.draft.update') {
+			expect(Object.isFrozen(projection.operation.caseIds)).toBe(true)
+		}
+		expect(() => projectLabOSActionBoundary('A-097', { ...parsed, caseIds: ['bad'] })).toThrowError(
+			expect.objectContaining({ code: LABOS_ACTION_BOUNDARY_ERROR_CODES.VALIDATED_INPUT_INVALID }),
+		)
+	})
+
+	it('accepts only an Invoice UUID for public-link sharing and projects a closed intent', () => {
+		const invoiceId = STAFF_ID
+		const parsed = getLabOSActionBoundaryInputSchema('N-FIN-PL-001').parse({ invoiceId })
+		expect(projectLabOSActionBoundary('N-FIN-PL-001', parsed)).toEqual({
+			boundaryId: 'N-FIN-PL-001', actionName: 'Share-Invoice-Public-Link-Action',
+			legacyComparisonRole: 'MANAGER', permission: 'invoice.public_link.share',
+			target: { type: 'invoice', id: invoiceId },
+			operation: { kind: 'invoice.public_link.share' },
+		})
+		expect(() => getLabOSActionBoundaryInputSchema('N-FIN-PL-001').parse({ invoiceId, token: 'forged' })).toThrow()
+		expect(() => projectLabOSActionBoundary('N-FIN-PL-001', { invoiceId: 'bad' })).toThrow()
 	})
 
 	it('owns the A-086 schema and projects no caller data', () => {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useRef } from "react";
 import { FormProvider, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery } from "@tanstack/react-query";
@@ -16,9 +16,11 @@ import { AmbientBgGlow } from "@/components/ui/ui-utils/animated-ambient-bg-glow
 import { getUnbilledCasesAction } from "@/actions/invoices/get-unbilled-cases";
 import { handleSafeActionError } from "@/lib/safe-action-helpers";
 import { createInvoiceAction } from "@/actions/invoices/create-invoice";
+import { shareInvoicePublicLinkAction } from "@/actions/invoices/share-invoice-public-link";
 import { useRouter } from "next/navigation";
 import { useAction } from "next-safe-action/hooks";
 import dynamic from "next/dynamic";
+import { calculateInvoicePreview } from "@/lib/invoice-presentation";
 
 interface Props {
 	labId: string;
@@ -48,9 +50,30 @@ export function NewInvoiceClient({ labId, initialClinicId, onboardingData }: Pro
 		id: string;
 		invoiceNumber: string;
 		publicToken: string | null;
+		status: "DRAFT" | "SENT";
+		shareFailed: boolean;
 		clinicName: string;
 		amountDue: number;
+		currency: string;
 	} | null>(null);
+	const [isSharing, setIsSharing] = useState(false);
+	const submittedStatus = useRef<"DRAFT" | "SENT">("DRAFT");
+	const { executeAsync: executeShare } = useAction(shareInvoicePublicLinkAction);
+
+	const requestShare = async (invoiceId: string) => {
+		setIsSharing(true);
+		try {
+			const result = await executeShare({ invoiceId });
+			if (!result?.data?.token || result.serverError || result.validationErrors) throw new Error("Sharing unavailable");
+			setSuccessPayload(previous => previous?.id === invoiceId
+				? { ...previous, publicToken: result.data!.token, shareFailed: false } : previous);
+		} catch {
+			setSuccessPayload(previous => previous?.id === invoiceId
+				? { ...previous, publicToken: null, shareFailed: true } : previous);
+		} finally {
+			setIsSharing(false);
+		}
+	};
 
 	const [deselectedCaseIds, setDeselectedCaseIds] = useState<Set<string>>(new Set());
 
@@ -98,22 +121,11 @@ export function NewInvoiceClient({ labId, initialClinicId, onboardingData }: Pro
 
 	// ── 4. MATHEMATICAL RECONCILIATION ENGINE ───────────────────────────
 	const calculatedTotals = useMemo(() => {
-		let subtotal = 0;
-		activeCases.forEach((c) => {
-			if (selectedCaseIds.has(c.id)) {
-				subtotal += Number(c.grandTotal);
-			}
-		});
-
-		// Ensure discount doesn't exceed 100% visually
-		const safeDiscount = Math.min(Math.max(discountPercentage, 0), 100);
-		const discountAmount = (subtotal * safeDiscount) / 100;
-		const grandTotal = Math.max(0, subtotal - discountAmount);
+		const amounts = activeCases.filter((c) => selectedCaseIds.has(c.id)).map((c) => c.grandTotal);
+		const totals = calculateInvoicePreview(amounts, discountPercentage);
 
 		return {
-			subtotal,
-			discountAmount,
-			grandTotal,
+			...totals,
 			selectedCount: selectedCaseIds.size,
 		};
 	}, [selectedCaseIds, activeCases, discountPercentage]);
@@ -165,16 +177,21 @@ export function NewInvoiceClient({ labId, initialClinicId, onboardingData }: Pro
 	// 2. UPDATE THE SERVER ACTION HOOK
 	const { executeAsync: executeCreateInvoice, isExecuting: isCreatingInvoice } = useAction(createInvoiceAction, {
 		onSuccess: ({ data }) => {
+			setIsModalOpen(false);
 			// INSTEAD of immediate redirect: Trigger the Success Handshake Modal!
 			setSuccessPayload({
 				id: data.invoice.id,
 				invoiceNumber: data.invoice.invoiceNumber,
-				publicToken: data.invoice.publicToken, // Securely returned from Server Action
+				publicToken: null,
+				status: submittedStatus.current,
+				shareFailed: false,
 				clinicName: onboardingData.selectedClinicName || "Selected Clinic",
-				amountDue: calculatedTotals.grandTotal,
+				amountDue: Number(data.invoice.amountDue),
+				currency: data.invoice.currency,
 			});
 
 			form.reset(); // Safely clear the left pane metadata
+			if (submittedStatus.current === "SENT") void requestShare(data.invoice.id);
 		},
 		onError: ({ error }) => handleSafeActionError(error),
 	});
@@ -223,6 +240,7 @@ export function NewInvoiceClient({ labId, initialClinicId, onboardingData }: Pro
 		if (!payload) return;
 
 		// Execute immediately as DRAFT
+		submittedStatus.current = "DRAFT";
 		await executeCreateInvoice({ ...payload, status: "DRAFT" });
 	};
 
@@ -240,6 +258,7 @@ export function NewInvoiceClient({ labId, initialClinicId, onboardingData }: Pro
 		if (!pendingPayload) return;
 
 		const finalPayload = { ...pendingPayload, status: finalStatus };
+		submittedStatus.current = finalStatus;
 		await executeCreateInvoice(finalPayload);
 	};
 
@@ -288,6 +307,7 @@ export function NewInvoiceClient({ labId, initialClinicId, onboardingData }: Pro
 							selectedClinicName={onboardingData.selectedClinicName}
 							onGenerate={handleOpenReviewModal}
 							isLoading={isFetchingCases}
+							currency={onboardingData.currency}
 						/>
 					</div>
 				</div>
@@ -301,6 +321,7 @@ export function NewInvoiceClient({ labId, initialClinicId, onboardingData }: Pro
 				isExecuting={isCreatingInvoice}
 				clinicName={onboardingData.selectedClinicName || "Selected Clinic"}
 				totals={calculatedTotals}
+				currency={onboardingData.currency}
 			/>
 
 			{/* RENDER THE SUCCESS HANDSHAKE MODAL */}
@@ -310,10 +331,15 @@ export function NewInvoiceClient({ labId, initialClinicId, onboardingData }: Pro
 					onClose={handleCloseSuccessModal}
 					invoiceNumber={successPayload.invoiceNumber}
 					publicToken={successPayload.publicToken}
+					status={successPayload.status}
+					isSharing={isSharing}
+					shareFailed={successPayload.shareFailed}
+					onRetryShare={() => void requestShare(successPayload.id)}
 					clinicName={successPayload.clinicName}
 					// Grab the phone number directly from the pre-fetched clinics list
 					clinicPhone={onboardingData.eligibleClinics.find((c) => c.id === selectedClinicId)?.phoneNumber}
 					amountDue={successPayload.amountDue}
+					currency={successPayload.currency}
 				/>
 			)}
 		</div>

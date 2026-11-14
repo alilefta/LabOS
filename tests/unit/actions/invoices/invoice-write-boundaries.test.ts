@@ -6,16 +6,15 @@ const readSource = (...segments: string[]) =>
 	readFileSync(join(process.cwd(), ...segments), 'utf8')
 
 describe('invoice write boundaries', () => {
-	it('authorizes Invoice creation before opening Prisma', () => {
+	it('registers A-089 before Prisma without a legacy role gate or manual check', () => {
 		const source = readSource('actions', 'invoices', 'create-invoice.ts')
-		const permissionIndex = source.indexOf('permission: "invoice.create"')
-		const denialIndex = source.indexOf('decision.allowed', permissionIndex)
-		const prismaIndex = source.indexOf('tenantPrisma(', permissionIndex)
-
-		expect(permissionIndex).toBeGreaterThan(0)
-		expect(denialIndex).toBeGreaterThan(permissionIndex)
-		expect(prismaIndex).toBeGreaterThan(denialIndex)
-		expect(source).toContain('createLabOSAuthorizationActor(ctx)')
+		expect(source).toContain("actionClientWithAuthorization('A-089')")
+		expect(source.indexOf('tenantPrisma(')).toBeGreaterThan(source.indexOf("actionClientWithAuthorization('A-089')"))
+		expect(source).not.toContain('requiredLabRole')
+		expect(source).not.toContain('labosAuthorizationService.can')
+		expect(source).toContain('tx.clinic.findUnique')
+		expect(source).toContain('Prisma.TransactionIsolationLevel.Serializable')
+		expect(source).toContain('currentBalance: { increment: createdInvoice.total }')
 	})
 
 	it('returns only the creation handoff fields, never the Prisma Invoice row', () => {
@@ -26,20 +25,24 @@ describe('invoice write boundaries', () => {
 		expect(source).not.toContain('return { success: true, invoice }')
 	})
 
+	it('keeps ordinary Invoice create and draft-update results free of public bearer material', () => {
+		for (const name of ['create-invoice.ts', 'update-draft-invoice.ts']) {
+			const source = readSource('actions', 'invoices', name)
+			expect(source).not.toMatch(/publicToken|publicLinkExpiresAt|randomUUID/)
+			expect(source).toContain('amountDue: invoice.amountDue.toString()')
+		}
+	})
+
 	it('authorizes draft Invoice updates before opening Prisma with the Invoice target and operation intent', () => {
 		const source = readSource('actions', 'invoices', 'update-draft-invoice.ts')
-		const permissionIndex = source.indexOf('permission: "invoice.update"')
-		const denialIndex = source.indexOf('decision.allowed', permissionIndex)
-		const prismaIndex = source.indexOf('tenantPrisma(', permissionIndex)
-
-		expect(permissionIndex).toBeGreaterThan(0)
-		expect(denialIndex).toBeGreaterThan(permissionIndex)
-		expect(prismaIndex).toBeGreaterThan(denialIndex)
-		expect(source).toContain('target: { type: "invoice", id: invoiceId }')
-		expect(source).toContain('kind: "invoice.draft.update"')
-		expect(source).toContain('clinicId,')
-		expect(source).toContain('caseIds,')
-		expect(source).toContain('createLabOSAuthorizationActor(ctx)')
+		expect(source).toContain("actionClientWithAuthorization('A-097')")
+		expect(source.indexOf('tenantPrisma(')).toBeGreaterThan(source.indexOf("actionClientWithAuthorization('A-097')"))
+		expect(source).not.toContain('requiredLabRole')
+		expect(source).not.toContain('labosAuthorizationService.can')
+		expect(source).toContain('tx.invoice.findUnique')
+		expect(source).toContain('tx.clinic.findUnique')
+		expect(source).toContain('tx.case.findMany')
+		expect(source).toContain('Prisma.TransactionIsolationLevel.Serializable')
 	})
 
 	it('authorizes live Invoice adjustments before opening Prisma with a derived change set', () => {

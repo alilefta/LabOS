@@ -63,6 +63,7 @@ export const LABOS_PERMISSIONS = [
 	'invoice.analytics.read',
 	'invoice.create',
 	'invoice.update',
+	'invoice.public_link.share',
 	'invoice.cancel',
 	'invoice.delete_draft',
 	'invoice.payment.record',

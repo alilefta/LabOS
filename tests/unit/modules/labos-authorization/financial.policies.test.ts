@@ -26,6 +26,7 @@ const invoiceFacts = {
 	organizationId: 'organization-1',
 	clinicId: 'clinic-1',
 	status: 'DRAFT',
+	isActive: true,
 	hasOutstandingBalance: true,
 	hasRecordedPayments: false,
 } as const
@@ -52,6 +53,10 @@ function dependencies() {
 	return {
 		caseFinancials: { load: vi.fn().mockResolvedValue(caseFacts) },
 		invoiceFinancials: { load: vi.fn().mockResolvedValue(invoiceFacts) },
+		invoicePublicLinks: { load: vi.fn().mockResolvedValue({
+			invoiceId: 'invoice-1', labId: 'lab-1', organizationId: 'organization-1',
+			status: 'SENT', isActive: true,
+		}) },
 		invoiceCaseLinks: {
 			load: vi.fn().mockResolvedValue({
 				invoiceId: 'invoice-1',
@@ -224,6 +229,23 @@ describe('financial authorization policies', () => {
 			allowed: false,
 			reason: 'AUTHZ_POLICY_DENIED',
 		})
+	})
+
+	it.each([
+		['SENT', true, true], ['PARTIAL', true, true], ['PAID', true, true],
+		['OVERDUE', true, true], ['DRAFT', true, false], ['CANCELLED', true, false],
+		['SENT', false, false],
+	] as const)('allows public-link sharing only for active %s Invoices', async (status, isActive, allowed) => {
+		const deps = dependencies()
+		deps.invoicePublicLinks.load.mockResolvedValue({
+			invoiceId: 'invoice-1', labId: 'lab-1', organizationId: 'organization-1', status, isActive,
+		})
+		const policy = createFinancialPolicies(deps)['invoice.public_link.share']
+		await expect(policy.evaluate({
+			...baseContext(), permission: 'invoice.public_link.share',
+			target: { type: 'invoice', id: 'invoice-1' },
+			operation: { kind: 'invoice.public_link.share' },
+		})).resolves.toEqual(allowed ? { allowed: true } : { allowed: false, reason: 'AUTHZ_POLICY_DENIED' })
 	})
 
 	it.each([

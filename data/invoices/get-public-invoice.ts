@@ -31,7 +31,7 @@ export async function getPublicInvoiceByToken(token: string): Promise<DAResult<P
 			},
 			include: {
 				lab: {
-					select: { title: true, subtitle: true, brandAvatarUrl: true },
+					select: { title: true, subtitle: true, brandAvatarUrl: true, settings: { select: { currency: true } } },
 				},
 				clinic: {
 					select: { name: true, city: true, address1: true, phoneNumber: true, email: true },
@@ -59,17 +59,19 @@ export async function getPublicInvoiceByToken(token: string): Promise<DAResult<P
 		// --- GUARD 3: OBFUSCATE NOT FOUND ---
 		// We return a generic NOT_FOUND even if the token exists but is expired.
 		// Never let an attacker know the token is valid but expired [1].
-		if (!invoice) {
+		if (!invoice || !invoice.lab.settings) {
 			return daError(ERRORS.NOT_FOUND.toJSON());
 		}
 
 		// --- GUARD 4: THE DTO SANITIZER (Map to secure DTO) ---
 		const sanitizedInvoice: PublicInvoiceDTO = {
 			invoiceNumber: invoice.invoiceNumber,
+			currency: invoice.lab.settings.currency,
 			status: invoice.status,
 			notes: invoice.notes,
 			subtotal: Number(invoice.subtotal),
 			discountAmount: Number(invoice.discountAmount),
+			discountPercentage: invoice.appliedDiscountPercentage === null ? null : Number(invoice.appliedDiscountPercentage),
 			total: Number(invoice.total),
 			amountPaid: Number(invoice.amountPaid),
 			amountDue: Number(invoice.amountDue),

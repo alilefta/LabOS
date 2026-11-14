@@ -18,6 +18,7 @@ export type DraftInvoiceHydrationDTO = {
 // 2. The Internal Type for the Data Access Function
 export type DraftInvoiceDBResult = {
 	id: string;
+	currency: string;
 	invoiceNumber: string;
 	status: InvoiceStatus;
 	notes: string | null;

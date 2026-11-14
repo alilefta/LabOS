@@ -201,6 +201,33 @@ function evaluateV1(
 			correlationId,
 		})
 	}
+	if (projection.boundaryId === 'A-089') {
+		return service.can({
+			actor,
+			permission: projection.permission,
+			boundaryId: projection.boundaryId,
+			correlationId,
+		})
+	}
+
+	if (projection.boundaryId === 'A-097') {
+		return service.can({
+			actor,
+			permission: projection.permission,
+			target: projection.target,
+			operation: projection.operation,
+			correlationId,
+		})
+	}
+	if (projection.boundaryId === 'N-FIN-PL-001') {
+		return service.can({
+			actor,
+			permission: projection.permission,
+			target: projection.target,
+			operation: projection.operation,
+			correlationId,
+		})
+	}
 
 	if (projection.boundaryId === 'A-124') {
 		return service.can({

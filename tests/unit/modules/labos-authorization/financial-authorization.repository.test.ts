@@ -17,6 +17,7 @@ import {
 	CLINIC_FINANCIAL_FACTS_SELECT,
 	CLINIC_ORGANIZATION_BOUNDARY_SELECT,
 	INVOICE_FINANCIAL_FACTS_SELECT,
+	INVOICE_PUBLIC_LINK_FACTS_SELECT,
 	INVOICE_CASE_LINK_FACTS_SELECT,
 	INVOICE_ORGANIZATION_BOUNDARY_SELECT,
 	INVOICE_UPDATE_CANDIDATE_FACTS_SELECT,
@@ -191,6 +192,24 @@ describe('Prisma financial authorization repository', () => {
 			where: { id: 'invoice-1', lab: { organizationId: 'organization-1' } },
 			select: INVOICE_CASE_LINK_FACTS_SELECT,
 		})
+	})
+
+	it('loads only tenant ownership and lifecycle facts for public-link policy', async () => {
+		prisma.invoice.findFirst.mockResolvedValue({
+			id: 'invoice-1', labId: 'lab-1', status: 'SENT', isActive: true,
+			lab: { organizationId: 'organization-1' },
+		})
+		await expect(prismaFinancialFactRepository.findInvoicePublicLinkFacts({
+			organizationId: 'organization-1', invoiceId: 'invoice-1',
+		})).resolves.toEqual({
+			invoiceId: 'invoice-1', labId: 'lab-1', organizationId: 'organization-1',
+			status: 'SENT', isActive: true,
+		})
+		expect(prisma.invoice.findFirst).toHaveBeenCalledWith({
+			where: { id: 'invoice-1', lab: { organizationId: 'organization-1' } },
+			select: INVOICE_PUBLIC_LINK_FACTS_SELECT,
+		})
+		expect(JSON.stringify(INVOICE_PUBLIC_LINK_FACTS_SELECT)).not.toMatch(/amount|publicToken|publicLinkExpiresAt|patient|notes/i)
 	})
 
 	it('loads tenant-scoped Invoice update candidates without monetary values', async () => {

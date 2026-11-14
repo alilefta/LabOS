@@ -28,6 +28,7 @@ export const LABOS_POLICY_IDS = [
 	'staff.access.linkage',
 	'staff.compensation.update',
 	'invoice.update',
+	'invoice.public_link.share',
 	'invoice.cancel',
 	'invoice.delete_draft',
 	'invoice.payment.record',

@@ -41,6 +41,14 @@ export const INVOICE_FINANCIAL_FACTS_SELECT = {
 	_count: { select: { payments: true } },
 } as const
 
+export const INVOICE_PUBLIC_LINK_FACTS_SELECT = {
+	id: true,
+	labId: true,
+	status: true,
+	isActive: true,
+	lab: { select: { organizationId: true } },
+} as const
+
 export const INVOICE_CASE_LINK_FACTS_SELECT = {
 	id: true,
 	clinicId: true,
@@ -185,6 +193,21 @@ export const prismaFinancialFactRepository: FinancialFactRepository = {
 			status: invoice.status,
 			hasOutstandingBalance: Number(invoice.amountDue) > 0,
 			hasRecordedPayments: invoice._count.payments > 0,
+		}
+	},
+
+	async findInvoicePublicLinkFacts({ organizationId, invoiceId }) {
+		const invoice = await generalPrisma.invoice.findFirst({
+			where: { id: invoiceId, lab: { organizationId } },
+			select: INVOICE_PUBLIC_LINK_FACTS_SELECT,
+		})
+		if (!invoice?.lab.organizationId) return null
+		return {
+			invoiceId: invoice.id,
+			labId: invoice.labId,
+			organizationId: invoice.lab.organizationId,
+			status: invoice.status,
+			isActive: invoice.isActive,
 		}
 	},
 

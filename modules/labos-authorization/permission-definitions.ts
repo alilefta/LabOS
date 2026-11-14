@@ -146,6 +146,7 @@ export const LABOS_PERMISSION_DEFINITIONS = Object.freeze([
 	organization('invoice.analytics.read', 'sensitive'),
 	organization('invoice.create', 'critical'),
 	resource('invoice.update', ['invoice'], 'critical', ['invoice.update']),
+	resource('invoice.public_link.share', ['invoice'], 'critical', ['invoice.public_link.share']),
 	resource('invoice.cancel', ['invoice'], 'critical', ['invoice.cancel']),
 	resource('invoice.delete_draft', ['invoice'], 'critical', [
 		'invoice.delete_draft',

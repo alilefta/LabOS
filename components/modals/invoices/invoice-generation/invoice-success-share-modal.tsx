@@ -6,48 +6,53 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { buildInvoiceWhatsAppUrl, formatInvoiceMoney } from "@/lib/invoice-presentation";
 
 interface Props {
 	isOpen: boolean;
 	onClose: () => void; // Navigates to the admin invoice page
 	invoiceNumber: string;
-	publicToken: string | null; // Null if saved as DRAFT
+	publicToken: string | null; // Present only after the sharing action succeeds
+	status: "DRAFT" | "SENT";
+	isSharing?: boolean;
+	shareFailed?: boolean;
+	onRetryShare?: () => void;
 	clinicName: string;
 	clinicPhone?: string; // Optional direct WhatsApp target
 	amountDue: number;
+	currency: string;
 }
 
-export function InvoiceSuccessShareModal({ isOpen, onClose, invoiceNumber, publicToken, clinicName, clinicPhone, amountDue }: Props) {
+export function InvoiceSuccessShareModal({ isOpen, onClose, invoiceNumber, publicToken, status, isSharing, shareFailed, onRetryShare, clinicName, clinicPhone, amountDue, currency }: Props) {
 	const [copied, setCopied] = useState(false);
 
-	const formatMoney = (val: number) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(val);
+	const formatMoney = (val: number) => formatInvoiceMoney(val, currency);
 
 	// 1. Generate the secure public URL
-	const publicUrl = typeof window !== "undefined" ? `${window.location.origin}/statement/${publicToken}` : "";
+	const publicUrl = typeof window !== "undefined" && publicToken ? `${window.location.origin}/statement/${publicToken}` : "";
 
 	// 2. Clipboard copy handler
-	const handleCopy = () => {
+	const handleCopy = async () => {
 		if (!publicUrl) return;
-		navigator.clipboard.writeText(publicUrl);
-		setCopied(true);
-		toast.success("Secure statement link copied.");
-		setTimeout(() => setCopied(false), 2000);
+		try {
+			await navigator.clipboard.writeText(publicUrl);
+			setCopied(true);
+			toast.success("Secure statement link copied.");
+			setTimeout(() => setCopied(false), 2000);
+		} catch {
+			setCopied(false);
+			toast.error("Could not copy the statement link.");
+		}
 	};
 
 	// 3. Pre-formatted WhatsApp Message (MENA Contextual workflow)
 	const handleWhatsAppShare = () => {
 		if (!publicToken) return;
 
-		const message = encodeURIComponent(
-			`Hello Dr. from ${clinicName},\n\nThis is an automated statement from our accounts team.\n\nYour statement #${invoiceNumber} for ${formatMoney(amountDue)} is ready. You can securely review the cases and download the PDF here:\n\n${publicUrl}\n\nThank you for your business!`,
-		);
-
-		// Clean the phone number of non-numeric characters for the API
-		const cleanPhone = clinicPhone ? clinicPhone.replace(/\D/g, "") : "";
-		window.open(`https://wa.me/${cleanPhone}?text=${message}`, "_blank");
+		window.open(buildInvoiceWhatsAppUrl({ clinicName, invoiceNumber, amountDue, currency, publicUrl, clinicPhone }), "_blank");
 	};
 
-	const isDraft = !publicToken;
+	const isDraft = status === "DRAFT";
 
 	return (
 		<Dialog open={isOpen} onOpenChange={onClose}>
@@ -90,6 +95,13 @@ export function InvoiceSuccessShareModal({ isOpen, onClose, invoiceNumber, publi
 							This invoice has been securely recorded in your local ledger as a <strong className="text-foreground">Draft</strong>. It remains hidden from the clinic until you decide to
 							issue it.
 						</p>
+					) : !publicToken ? (
+						<div className="text-center space-y-4">
+							<p className="text-sm text-muted-foreground">
+								{shareFailed ? "Invoice sent; sharing unavailable. Your invoice was submitted successfully." : "Invoice sent. Preparing the statement link…"}
+							</p>
+							{shareFailed && onRetryShare && <Button type="button" onClick={onRetryShare} disabled={isSharing}>Retry sharing</Button>}
+						</div>
 					) : (
 						// SENT/ISSUED VIEW: Rich sharing utilities
 						<div className="space-y-4">

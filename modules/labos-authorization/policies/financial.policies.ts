@@ -8,6 +8,7 @@ import type {
 	CaseFinancialFactLoader,
 	InvoiceCaseLinkFactLoader,
 	InvoiceFinancialFactLoader,
+	InvoicePublicLinkFactLoader,
 	InvoiceUpdateCandidatesFactLoader,
 	PayoutFinancialFactLoader,
 	PayoutIssueSourceFactLoader,
@@ -23,6 +24,7 @@ type FinancialPolicyId = Extract<
 	| 'case.financials.update'
 	| 'staff.compensation.update'
 	| 'invoice.update'
+	| 'invoice.public_link.share'
 	| 'invoice.cancel'
 	| 'invoice.delete_draft'
 	| 'invoice.payment.record'
@@ -47,6 +49,7 @@ type LabOSPolicyContext = AuthorizationPolicyContext<
 type FinancialPolicyDependencies = Readonly<{
 	caseFinancials: CaseFinancialFactLoader
 	invoiceFinancials: InvoiceFinancialFactLoader
+	invoicePublicLinks: InvoicePublicLinkFactLoader
 	invoiceCaseLinks: InvoiceCaseLinkFactLoader
 	invoiceUpdateCandidates: InvoiceUpdateCandidatesFactLoader
 	staffCompensation: StaffCompensationFactLoader
@@ -134,6 +137,18 @@ async function loadInvoiceFacts(
 	})
 }
 
+async function loadInvoicePublicLinkFacts(
+	context: LabOSPolicyContext,
+	loader: InvoicePublicLinkFactLoader,
+) {
+	if (!context.target || context.target.type !== 'invoice') return null
+	return loader.load({
+		actor: context.actor,
+		target: { type: 'invoice', id: context.target.id },
+		facts: context.facts,
+	})
+}
+
 async function loadPayoutFacts(
 	context: LabOSPolicyContext,
 	loader: PayoutFinancialFactLoader,
@@ -161,6 +176,7 @@ function sameOrganization(
 export function createFinancialPolicies({
 	caseFinancials,
 	invoiceFinancials,
+	invoicePublicLinks,
 	invoiceCaseLinks,
 	invoiceUpdateCandidates,
 	staffCompensation,
@@ -320,6 +336,16 @@ export function createFinancialPolicies({
 				}
 
 				return FACT_MISSING
+			},
+		},
+		'invoice.public_link.share': {
+			async evaluate(context) {
+				if (context.permission !== 'invoice.public_link.share' ||
+					context.operation?.kind !== 'invoice.public_link.share') return FACT_MISSING
+				const facts = await loadInvoicePublicLinkFacts(context, invoicePublicLinks)
+				if (!facts) return FACT_MISSING
+				return sameOrganization(context, facts) && facts.isActive &&
+					INVOICE_LIVE_STATUSES.has(facts.status) ? ALLOW : DENY
 			},
 		},
 

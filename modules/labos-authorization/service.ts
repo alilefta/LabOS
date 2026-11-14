@@ -83,6 +83,7 @@ export const LABOS_AUTHORIZATION_V1_SUPPORTED_PERMISSIONS = Object.freeze([
 	'invoice.list',
 	'invoice.analytics.read',
 	'invoice.update',
+	'invoice.public_link.share',
 	'invoice.cancel',
 	'invoice.delete_draft',
 	'invoice.payment.record',

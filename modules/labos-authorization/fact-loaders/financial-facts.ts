@@ -32,6 +32,14 @@ export type InvoiceFinancialFacts = Readonly<{
 
 }>
 
+export type InvoicePublicLinkFacts = Readonly<{
+	invoiceId: string
+	labId: string
+	organizationId: string
+	status: string
+	isActive: boolean
+}>
+
 export type InvoiceCaseLinkFacts = Readonly<{
 	invoiceId: string
 	organizationId: string
@@ -95,6 +103,10 @@ export interface FinancialFactRepository {
 		organizationId: string
 		invoiceId: string
 	}): Promise<InvoiceFinancialFacts | null>
+	findInvoicePublicLinkFacts(input: {
+		organizationId: string
+		invoiceId: string
+	}): Promise<InvoicePublicLinkFacts | null>
 	findInvoiceCaseLinkFacts(input: {
 		organizationId: string
 		invoiceId: string
@@ -141,6 +153,10 @@ export interface InvoiceCaseLinkFactLoader {
 	load(input: FactLoaderInput<'invoice'>): Promise<InvoiceCaseLinkFacts | null>
 }
 
+export interface InvoicePublicLinkFactLoader {
+	load(input: FactLoaderInput<'invoice'>): Promise<InvoicePublicLinkFacts | null>
+}
+
 export interface InvoiceUpdateCandidatesFactLoader {
 	load(input: {
 		actor: AuthorizationActor
@@ -172,6 +188,7 @@ const CLINIC_FINANCIAL_FACTS = Symbol(
 const INVOICE_FINANCIAL_FACTS = Symbol(
 	'labos.authorization.invoice-financial-facts',
 )
+const INVOICE_PUBLIC_LINK_FACTS = Symbol('labos.authorization.invoice-public-link-facts')
 const INVOICE_CASE_LINK_FACTS = Symbol(
 	'labos.authorization.invoice-case-link-facts',
 )
@@ -200,6 +217,7 @@ export function createFinancialFactLoaders(
 	caseFinancials: CaseFinancialFactLoader
 	clinicFinancials: ClinicFinancialFactLoader
 	invoiceFinancials: InvoiceFinancialFactLoader
+	invoicePublicLinks: InvoicePublicLinkFactLoader
 	invoiceCaseLinks: InvoiceCaseLinkFactLoader
 	invoiceUpdateCandidates: InvoiceUpdateCandidatesFactLoader
 	staffCompensation: StaffCompensationFactLoader
@@ -243,6 +261,18 @@ export function createFinancialFactLoaders(
 							organizationId: actor.organizationId,
 							invoiceId: target.id,
 						}),
+				)
+			},
+		},
+		invoicePublicLinks: {
+			load({ actor, target, facts }) {
+				return facts.getOrLoad(
+					INVOICE_PUBLIC_LINK_FACTS,
+					`${actor.organizationId}:${target.id}`,
+					() => repository.findInvoicePublicLinkFacts({
+						organizationId: actor.organizationId,
+						invoiceId: target.id,
+					}),
 				)
 			},
 		},

@@ -12,6 +12,11 @@ export async function getNewInvoiceOnboardingData(clinicId?: string): Promise<DA
 		const { labId } = tenantResult.data;
 
 		const prisma = await tenantPrisma(labId);
+		const settings = await prisma.labSettings.findUnique({
+			where: { labId },
+			select: { currency: true },
+		});
+		if (!settings) return daError(ERRORS.NOT_FOUND.toJSON());
 
 		let prefetchedCases: UnbilledCaseDTO[] = [];
 		let eligibleClinics: EligibleClinicDTO[] = [];
@@ -99,6 +104,7 @@ export async function getNewInvoiceOnboardingData(clinicId?: string): Promise<DA
 			prefetchedCases,
 			eligibleClinics,
 			selectedClinicName,
+			currency: settings.currency,
 		});
 	} catch (e) {
 		return toDAError(e);

@@ -79,7 +79,7 @@ export default async function EditInvoicePage({ params }: Props) {
 
 	return (
 		<div className="flex flex-col h-full bg-background relative overflow-hidden">
-			<EditInvoiceClient labId={labId} initialData={initialData} clinicName={invoice.clinic.name} invoiceNumber={invoice.invoiceNumber} />
+			<EditInvoiceClient labId={labId} initialData={initialData} clinicName={invoice.clinic.name} invoiceNumber={invoice.invoiceNumber} currency={invoice.currency} />
 		</div>
 	);
 }

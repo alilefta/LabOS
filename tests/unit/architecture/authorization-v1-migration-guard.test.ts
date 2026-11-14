@@ -49,6 +49,9 @@ describe('Authorization V1 migration guard', () => {
 
 		expect(consumers).toEqual([
 			'actions/invoices/admin-actions/sync-overdue-invoices-action.ts',
+			'actions/invoices/create-invoice.ts',
+			'actions/invoices/share-invoice-public-link.ts',
+			'actions/invoices/update-draft-invoice.ts',
 		])
 		for (const consumer of consumers) {
 			const source = readFileSync(join(process.cwd(), consumer), 'utf8')

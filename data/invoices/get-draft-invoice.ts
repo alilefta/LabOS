@@ -13,6 +13,7 @@ export async function getDraftInvoiceForEdit(invoiceId: string, labId: string): 
 			where: { id: invoiceId, labId },
 			select: {
 				id: true,
+				lab: { select: { settings: { select: { currency: true } } } },
 				invoiceNumber: true,
 				status: true,
 				notes: true,
@@ -30,10 +31,12 @@ export async function getDraftInvoiceForEdit(invoiceId: string, labId: string): 
 		});
 
 		if (!invoice) return daError(ERRORS.INVOICE_NOT_FOUND.toJSON());
+		if (!invoice.lab.settings) return daError(ERRORS.INVOICE_NOT_FOUND.toJSON());
 
 		// Safely map Prisma Decimals to native TypeScript numbers
 		const mappedInvoice: DraftInvoiceDBResult = {
 			id: invoice.id,
+			currency: invoice.lab.settings.currency,
 			invoiceNumber: invoice.invoiceNumber,
 			status: invoice.status,
 			notes: invoice.notes,

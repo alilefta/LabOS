@@ -5,6 +5,7 @@ import { Receipt, Send, FileText, CheckCircle2, AlertCircle, Loader2 } from "luc
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { formatInvoiceMoney } from "@/lib/invoice-presentation";
 
 interface Props {
 	isOpen: boolean;
@@ -12,6 +13,7 @@ interface Props {
 	onConfirm: (status: "DRAFT" | "SENT") => void;
 	isExecuting: boolean;
 	clinicName: string;
+	currency: string;
 	totals: {
 		subtotal: number;
 		discountAmount: number;
@@ -20,7 +22,7 @@ interface Props {
 	} | null;
 }
 
-export const InvoiceGenerationModal = memo(function InvoiceGenerationModal({ isOpen, onClose, onConfirm, isExecuting, clinicName, totals }: Props) {
+export const InvoiceGenerationModal = memo(function InvoiceGenerationModal({ isOpen, onClose, onConfirm, isExecuting, clinicName, totals, currency }: Props) {
 	// --- LOCAL UX STATE ---
 	// Default to 'SENT' as it's the most common action when completing an invoice
 	const [selectedRoute, setSelectedRoute] = useState<"DRAFT" | "SENT">("SENT");
@@ -41,7 +43,7 @@ export const InvoiceGenerationModal = memo(function InvoiceGenerationModal({ isO
 
 	if (!totals) return null;
 
-	const formatMoney = (val: number) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(val);
+	const formatMoney = (val: number) => formatInvoiceMoney(val, currency);
 
 	return (
 		<Dialog open={isOpen} onOpenChange={(open) => !isExecuting && !open && onClose()}>

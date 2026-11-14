@@ -4,6 +4,7 @@ import { format, isAfter } from "date-fns";
 import { CheckCircle2, AlertTriangle, Phone, Mail, Stethoscope, FileText } from "lucide-react";
 import { getPublicInvoiceByToken } from "@/data/invoices/get-public-invoice";
 import { PrintInvoiceButton } from "@/components/statement/public-invoice/print-invoice-button";
+import { formatInvoiceMoney } from "@/lib/invoice-presentation";
 
 interface Props {
 	params: Promise<{ token: string }>;
@@ -24,7 +25,7 @@ export default async function PublicStatementPage({ params }: Props) {
 		return <PublicLinkExpiredView />;
 	}
 
-	const formatMoney = (val: number) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(val);
+	const formatMoney = (val: number) => formatInvoiceMoney(val, invoice.currency);
 
 	const isPaid = invoice.status === "PAID";
 	const isOverdue = invoice.status === "OVERDUE" || (invoice.dueDate && isAfter(new Date(), invoice.dueDate) && !isPaid);
@@ -127,7 +128,7 @@ export default async function PublicStatementPage({ params }: Props) {
 						</h3>
 
 						<div className="divide-y divide-border/50 border-t border-border">
-							{invoice.cases.map((c, idx) => {
+							{invoice.cases.map((c) => {
 								const firstItem = c.workItems[0];
 								const totalTeeth = firstItem?.teethCount ?? 0;
 
@@ -167,7 +168,7 @@ export default async function PublicStatementPage({ params }: Props) {
 							</div>
 							{Number(invoice.discountAmount) > 0 && (
 								<div className="flex justify-between text-emerald-600">
-									<span className="text-emerald-500 font-sans font-bold uppercase tracking-widest text-[9px]">Global Discount ({Number(invoice.discountAmount)}%)</span>
+									<span className="text-emerald-500 font-sans font-bold uppercase tracking-widest text-[9px]">Global Discount{invoice.discountPercentage !== null ? ` (${invoice.discountPercentage}%)` : ""}</span>
 									<span className="font-bold">-{formatMoney(Number(invoice.discountAmount))}</span>
 								</div>
 							)}

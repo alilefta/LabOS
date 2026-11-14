@@ -18,6 +18,7 @@ function repository() {
 		findCaseFinancialFacts: vi.fn(),
 		findClinicFinancialFacts: vi.fn(),
 		findInvoiceFinancialFacts: vi.fn(),
+		findInvoicePublicLinkFacts: vi.fn(),
 		findInvoiceCaseLinkFacts: vi.fn(),
 		findInvoiceUpdateCandidatesFacts: vi.fn(),
 		findStaffCompensationFacts: vi.fn(),
@@ -47,6 +48,12 @@ describe('financial policy fact loaders', () => {
 			loader: loaders.invoiceFinancials,
 			target: { type: 'invoice', id: 'invoice-1' },
 			repositoryMethod: factRepository.findInvoiceFinancialFacts,
+			idName: 'invoiceId',
+		})
+		await assertCachedLoad({
+			loader: loaders.invoicePublicLinks,
+			target: { type: 'invoice', id: 'invoice-public-link-1' },
+			repositoryMethod: factRepository.findInvoicePublicLinkFacts,
 			idName: 'invoiceId',
 		})
 		const candidateFacts = Object.freeze({

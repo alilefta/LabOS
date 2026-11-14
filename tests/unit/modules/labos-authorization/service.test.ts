@@ -97,6 +97,7 @@ describe('LabOS authorization service composition', () => {
 			'invoice.list',
 			'invoice.analytics.read',
 			'invoice.update',
+		'invoice.public_link.share',
 			'invoice.cancel',
 			'invoice.delete_draft',
 			'invoice.payment.record',
