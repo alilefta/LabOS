@@ -1,9 +1,25 @@
 # Current LabOS work
 
-Status: D2 protected Vercel runtime CLOSED | PASS_WITH_LIMITATIONS | PROTECTED_RUNTIME_VERIFIED; R2-06 ELIGIBLE_FOR_ACTIVATION for its reviewed technical scope; A1-I1 BLOCKED_DECISION; N-FILE-110 inactive
+Status: M4/F3 Invoice integration CLOSED | PASS_WITH_LIMITATIONS | AUTHENTICATED_BROWSER + DISPOSABLE_POSTGRESQL; A-089 CLOSED and A-097/N-FIN-PL-001 accepted with limitations; D2 protected runtime CLOSED; R2-06 ELIGIBLE_FOR_ACTIVATION; A1-I1 BLOCKED_DECISION; N-FILE-110 inactive
 Authority: Canonical
 Owner: LabOS maintainers
-Last reviewed: 2026-10-13
+Last reviewed: 2026-11-14
+
+## 2026-11-14 M4/F3 Invoice lifecycle integration checkpoint
+
+The Product Owner accepted the combined A-089 Create Invoice, A-097 Update Draft Invoice, and N-FIN-PL-001 public-statement sharing checkpoint as **`CLOSED | PASS_WITH_LIMITATIONS | AUTHENTICATED_BROWSER + DISPOSABLE_POSTGRESQL`**. The [targeted presentation rerun](evidence/financials/authorization-v1/f3-invoice-lifecycle-integration/presentation-correction-rerun.md) records corrected Decimal HALF_UP preview and stored two-decimal IQD display, direct SENT and DRAFT → SENT flows, Owner/Admin/Manager workflows, existing-link reuse, public-link eligibility, durable audits, and Clinic balance reconciliation. The [earlier combined run](evidence/financials/authorization-v1/f3-invoice-lifecycle-integration/packet.md) remains a historical **BLOCKED** checkpoint for the then-observed display defects; its separately executed sharing-failure/share-only-retry browser result is retained with its original attribution, not counted as a rerun result.
+
+Browser `NOT_RUN` or inconclusive claims remain direct Staff sharing denial, cross-tenant action denial, raw ordinary-action response capture, clipboard contents, WhatsApp navigation, and generated PDF inspection. Focused unit and disposable PostgreSQL tests support code/runtime behavior but are not browser executions. Existing A-089, A-097, and N-FIN-PL-001 implementation acceptances are preserved. Shared audit migration installation, target-specific Prisma ledger/drift/privilege checks, and deployment remain pending; no installation, commit, merge, push, or deployment is authorized.
+
+## 2026-11-13 A-089 implementation checkpoint (historical)
+
+The Product Owner accepted the bounded A-089 Create Invoice correction as **`CLOSED | PASS_WITH_LIMITATIONS | CODE + DISPOSABLE_RUNTIME`**. Registered V1-authoritative `invoice.create`, transaction-fresh Clinic/Case validation, Decimal HALF_UP accounting, atomic SENT Clinic credit, and Serializable concurrency protection satisfy its implementation contract. The [evidence packet](evidence/financials/authorization-v1/a089/implementation-verification.md) attributes 7/7 disposable PostgreSQL tests, 18/18 A-097 regressions, 383/383 focused tests, and independent V3 `PASS | CODE + RUNTIME_EVIDENCE`. At this earlier checkpoint authenticated browser verification remained outstanding; it was addressed within the scoped combined checkpoint above. Audit migration installation on the selected shared database and target-specific Prisma ledger, drift, privilege, and deployment checks remain outstanding. No general request-idempotency guarantee is claimed. A-097/N-FIN-PL-001 acceptance and public-link behavior remain unchanged. No migration installation, commit, merge, push, or deployment is authorized.
+
+## 2026-11-09 financial Authorization V1 checkpoint (historical)
+
+The Product Owner accepted bounded A-097 draft Invoice transaction integrity and N-FIN-PL-001 public-statement sharing as `PASS_WITH_LIMITATIONS`. Focused code/runtime evidence, full-history disposable SQL rehearsal, final currency/clipboard UI correction, and independent V3 findings are recorded in [A-097 implementation verification](evidence/financials/authorization-v1/a097/public-link-implementation-verification.md) and [final acceptance gaps](evidence/financials/authorization-v1/a097/final-acceptance-gaps.md). Browser verification was outstanding at that checkpoint and later addressed within the scoped combined checkpoint above; target-specific audit migration installation and deployment remain outstanding. Installation, commit, merge, push, and deployment are not authorized. A-089 Invoice creation was then the [next bounded assessment](plans/authorization-v1/a089-create-invoice-assessment.md); its separate balance, Decimal, concurrency, and legacy-role defects did not reopen A-097.
+
+The branch, commit, and Files narrative below describes the 2026-10-13 checkpoint and is retained as historical context pending broader roadmap reconciliation.
 
 - **Active branch:** `feat/authorization-financial-reads` (stale context; the name does not set priority).
 - **Last committed checkpoint:** local `main` includes evidence-only `1a15ae26`; deployed and remote `main` remain at application SHA `6b29b85d`.

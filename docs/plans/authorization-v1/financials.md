@@ -230,10 +230,19 @@ Exit criteria:
 and `syncOverdueInvoicesAction` are the first protected write slices; payment
 idempotency and DTO hardening remain.
 
-A-086 is the first F3 action reconciled to the reusable registered-boundary
-adapter. Its handler no longer declares `requiredLabRole` or calls the
-authorization service manually. Remaining F3 actions still using those
-transitional patterns must migrate one verified slice at a time.
+A-086 was the first F3 action reconciled to the reusable registered-boundary
+adapter. A-089 is Product Owner `CLOSED | PASS_WITH_LIMITATIONS | CODE +
+DISPOSABLE_RUNTIME`; A-097 and N-FIN-PL-001 retain their accepted
+`PASS_WITH_LIMITATIONS` implementation results. Their combined Invoice
+lifecycle checkpoint is Product Owner `CLOSED | PASS_WITH_LIMITATIONS |
+AUTHENTICATED_BROWSER + DISPOSABLE_POSTGRESQL`, with scoped browser gaps and
+target migration/deployment gates recorded in the
+[financial boundary inventory](financial-boundaries.md) and
+[integration rerun](../../evidence/financials/authorization-v1/f3-invoice-lifecycle-integration/presentation-correction-rerun.md).
+The [A-089 assessment](a089-create-invoice-assessment.md) retains its bounded
+implementation contract.
+Remaining F3 actions still using transitional patterns must migrate one
+verified slice at a time.
 
 Migrate A-084–A-089 and A-096–A-097 vertically:
 
