@@ -3,7 +3,15 @@
 Status: M4/F3 Invoice integration CLOSED | PASS_WITH_LIMITATIONS | AUTHENTICATED_BROWSER + DISPOSABLE_POSTGRESQL; A-089 CLOSED and A-097/N-FIN-PL-001 accepted with limitations; D2 protected runtime CLOSED; R2-06 ELIGIBLE_FOR_ACTIVATION; A1-I1 BLOCKED_DECISION; N-FILE-110 inactive
 Authority: Canonical
 Owner: LabOS maintainers
-Last reviewed: 2026-11-14
+Last reviewed: 2026-11-21
+
+## 2026-11-21 A-097 verification audit migration installation
+
+The Product Owner-authorized audit migration was installed once on isolated Supabase `labos-verification` (`rvtubjrczuxdxfuazjmr`) using the reviewed byte-faithful Prisma execution copy. The two reviewed column-specific application grants were applied. The [installation evidence](evidence/financials/authorization-v1/a097/verification-installation-20261121.md) records 62/62 finished migrations, exact candidate checksum, expected schema and privileges, preserved aggregate application data, and independent V3 `PASS | RUNTIME_EVIDENCE`. The earlier application-schema recovery `ACCEPTED_WITH_LIMITATIONS` and historical full-restore `BLOCKED` / V3 `CORRECTION_REQUIRED` remain unchanged. Effective Vercel database binding is still `NOT_ATTESTED`; application deployment requires separate authorization.
+
+## 2026-11-20 A-097 verification installation gate
+
+The Product Owner accepted the narrower LabOS application-schema/data restore as `ACCEPTED_WITH_LIMITATIONS` for assessing the Invoice public-link audit migration on isolated `labos-verification`. The full PostgreSQL restore remains historical `BLOCKED` with independent V3 `CORRECTION_REQUIRED`; Supabase-managed state and external provider objects are outside the verified recovery scope. The retained DPAPI backup checksum was rechecked, and recovery still depends on the original Windows user context with no off-machine proof. The target remains at 61 finished migrations with no audit candidate installed. The [target-specific installation runbook](evidence/financials/authorization-v1/a097/verification-installation-readiness-20261120.md) is ready for separate Product Owner review; it authorizes no migration or grant. Effective Vercel database host/project/role remain `NOT_ATTESTED`, so deployment is a separate gate. Existing verification records remain preserved.
 
 ## 2026-11-14 M4/F3 Invoice lifecycle integration checkpoint
 
